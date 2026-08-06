@@ -261,7 +261,7 @@
   <header>
     <div>
       <h1>Jarvis</h1>
-      <div class="status">Workshop Intelligence Interface · HUD 0.8.3</div>
+      <div class="status">Workshop Intelligence Interface · HUD 0.8.4</div>
     </div>
     <div id="health" class="status">Checking…</div>
   </header>
@@ -500,6 +500,8 @@ let recordingTimer = null;
 let activeAudio = null;
 let activeAudioUrl = null;
 let speechAbortController = null;
+let speechQueue = [];
+let speechQueueRunning = false;
 let hasSavedSpeechProvider = false;
 
 try {
@@ -550,18 +552,24 @@ function setVoiceState(state, detail = "") {
   voiceRailState.textContent = state;
 }
 
-function stopAudioPlayback(nextState = "VOICE READY") {
-  if (speechAbortController) speechAbortController.abort();
-  speechAbortController = null;
-  if (activeAudio) {
-    activeAudio.pause();
-    activeAudio.currentTime = 0;
-  }
+function cleanupActiveAudio(nextState = "VOICE READY") {
   activeAudio = null;
   if (activeAudioUrl) URL.revokeObjectURL(activeAudioUrl);
   activeAudioUrl = null;
   if (!activeRequest && !mediaRecorder) stopButton.disabled = true;
   setVoiceState(nextState);
+}
+
+function stopAudioPlayback(nextState = "VOICE READY") {
+  if (speechAbortController) speechAbortController.abort();
+  speechAbortController = null;
+  speechQueue = [];
+  speechQueueRunning = false;
+  if (activeAudio) {
+    activeAudio.pause();
+    activeAudio.currentTime = 0;
+  }
+  cleanupActiveAudio(nextState);
 }
 
 function isQuietHours() {
@@ -575,19 +583,34 @@ function isQuietHours() {
   return start <= end ? current >= start && current < end : current >= start || current < end;
 }
 
-async function speakText(text, force = false) {
+function canSpeakNow(force = false) {
+  return force || (autoSpeak.checked && !isQuietHours());
+}
+
+function waitForAudioEnd(audio) {
+  return new Promise(resolve => {
+    const finish = () => resolve();
+    audio.addEventListener("ended", finish, {once: true});
+    audio.addEventListener("error", finish, {once: true});
+    audio.addEventListener("pause", () => {
+      if (audio.currentTime === 0) finish();
+    }, {once: true});
+  });
+}
+
+async function playSpeechText(text, force = false) {
   if ((!force && (!autoSpeak.checked || isQuietHours())) || !text.trim()) {
     if (!force && isQuietHours()) setVoiceState("QUIET HOURS");
     return;
   }
-  stopAudioPlayback("SPEECH BUFFERING");
-  speechAbortController = new AbortController();
+  const speechController = new AbortController();
+  speechAbortController = speechController;
   stopButton.disabled = false;
   try {
     const response = await fetch("api/voice/speech", {
       method: "POST",
       headers: {"Content-Type": "application/json"},
-      signal: speechAbortController.signal,
+      signal: speechController.signal,
       body: JSON.stringify({
         text: text.slice(0, 4000),
         provider: speechProvider.value,
@@ -605,10 +628,11 @@ async function speakText(text, force = false) {
       activeAudioUrl = URL.createObjectURL(blob);
       activeAudio = new Audio(activeAudioUrl);
       activeAudio.volume = Number(jarvisPreferences.voice_volume ?? 0.9);
-      activeAudio.addEventListener("ended", () => stopAudioPlayback());
+      activeAudio.addEventListener("ended", () => cleanupActiveAudio(speechQueue.length ? "SPEECH BUFFERING" : "VOICE READY"));
       activeAudio.addEventListener("error", () => stopAudioPlayback("VOICE PLAYBACK FAILED"));
       setVoiceState("SPEAKING");
       await activeAudio.play();
+      await waitForAudioEnd(activeAudio);
       return;
     }
 
@@ -616,7 +640,7 @@ async function speakText(text, force = false) {
     activeAudioUrl = URL.createObjectURL(mediaSource);
     activeAudio = new Audio(activeAudioUrl);
     activeAudio.volume = Number(jarvisPreferences.voice_volume ?? 0.9);
-    activeAudio.addEventListener("ended", () => stopAudioPlayback());
+    activeAudio.addEventListener("ended", () => cleanupActiveAudio(speechQueue.length ? "SPEECH BUFFERING" : "VOICE READY"));
     activeAudio.addEventListener("error", () => stopAudioPlayback("VOICE PLAYBACK FAILED"));
     await new Promise((resolve, reject) => {
       mediaSource.addEventListener("sourceopen", resolve, {once: true});
@@ -627,6 +651,7 @@ async function speakText(text, force = false) {
     sourceBuffer.mode = "sequence";
     const reader = response.body.getReader();
     let playbackStarted = false;
+    let playbackEnded = null;
     while (true) {
       const {done, value} = await reader.read();
       if (done) break;
@@ -638,6 +663,7 @@ async function speakText(text, force = false) {
       });
       if (!playbackStarted) {
         playbackStarted = true;
+        playbackEnded = waitForAudioEnd(activeAudio);
         setVoiceState("SPEAKING");
         activeAudio.play().catch(error => {
           if (error.name !== "AbortError") setVoiceState("VOICE ERROR", error.message || String(error));
@@ -645,12 +671,65 @@ async function speakText(text, force = false) {
       }
     }
     if (mediaSource.readyState === "open" && !sourceBuffer.updating) mediaSource.endOfStream();
+    if (playbackEnded) await playbackEnded;
   } catch (error) {
     if (error.name !== "AbortError") setVoiceState("VOICE ERROR", error.message || String(error));
     if (!activeRequest) stopButton.disabled = true;
   } finally {
-    speechAbortController = null;
+    if (speechAbortController === speechController) speechAbortController = null;
   }
+}
+
+async function speakText(text, force = false) {
+  stopAudioPlayback("SPEECH BUFFERING");
+  await playSpeechText(text, force);
+}
+
+async function runSpeechQueue(force = false) {
+  if (speechQueueRunning) return;
+  speechQueueRunning = true;
+  try {
+    while (speechQueue.length) {
+      const nextText = speechQueue.shift();
+      await playSpeechText(nextText, force);
+    }
+  } finally {
+    speechQueueRunning = false;
+  }
+}
+
+function queueSpeech(text, force = false) {
+  const spoken = text.trim();
+  if (!spoken || !canSpeakNow(force)) return;
+  speechQueue.push(spoken);
+  runSpeechQueue(force);
+}
+
+function extractSpeakableChunks(buffer, final = false) {
+  const chunks = [];
+  let remaining = buffer;
+  const sentencePattern = /^([\s\S]{24,240}?[.!?](?:\s+|$))/;
+  while (true) {
+    const match = remaining.match(sentencePattern);
+    if (!match) break;
+    chunks.push(match[1].trim());
+    remaining = remaining.slice(match[1].length);
+  }
+  if (final && remaining.trim()) {
+    chunks.push(remaining.trim());
+    remaining = "";
+  } else if (remaining.length > 240) {
+    const splitAt = Math.max(
+      remaining.lastIndexOf(", ", 180),
+      remaining.lastIndexOf("; ", 180),
+      remaining.lastIndexOf(" ", 180)
+    );
+    if (splitAt > 80) {
+      chunks.push(remaining.slice(0, splitAt + 1).trim());
+      remaining = remaining.slice(splitAt + 1);
+    }
+  }
+  return {chunks, remaining};
 }
 
 function cleanupMicrophone() {
@@ -1599,8 +1678,8 @@ stopButton.addEventListener("click", () => {
   jarvisMessage.textContent = existing && existing !== "Connecting…"
     ? `${existing}\n\n[Response stopped]`
     : "Response stopped.";
+  stopAudioPlayback("STOPPED");
   stopButton.disabled = true;
-  setVoiceState("STOPPED");
 });
 
 form.addEventListener("submit", async (event) => {
@@ -1619,6 +1698,7 @@ form.addEventListener("submit", async (event) => {
 
   const jarvisMessage = addMessage("Connecting…", "jarvis");
   let answer = "";
+  let speechBuffer = "";
   let statusText = "Connecting…";
 
   const endpoint = new URL("api/chat/ws", document.baseURI);
@@ -1659,9 +1739,14 @@ form.addEventListener("submit", async (event) => {
       if (!answer) jarvisMessage.textContent = statusText;
     } else if (eventData.type === "delta") {
       if (!answer) jarvisMessage.textContent = "";
-      answer += eventData.text || "";
+      const delta = eventData.text || "";
+      answer += delta;
+      speechBuffer += delta;
       jarvisMessage.textContent = answer;
       messages.scrollTop = messages.scrollHeight;
+      const speech = extractSpeakableChunks(speechBuffer);
+      speechBuffer = speech.remaining;
+      speech.chunks.forEach(chunk => queueSpeech(chunk));
     } else if (eventData.type === "error") {
       jarvisMessage.textContent =
         `Request failed: ${eventData.message || "Unknown error"}`;
@@ -1693,8 +1778,10 @@ form.addEventListener("submit", async (event) => {
     stopButton.disabled = true;
     refreshChatList();
     input.focus();
-    if (!requestState.stopped && answer) speakText(answer);
-    else if (!requestState.stopped) setVoiceState("VOICE READY");
+    if (!requestState.stopped && answer) {
+      const speech = extractSpeakableChunks(speechBuffer, true);
+      speech.chunks.forEach(chunk => queueSpeech(chunk));
+    } else if (!requestState.stopped) setVoiceState("VOICE READY");
   });
 });
 
