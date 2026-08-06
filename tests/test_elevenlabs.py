@@ -104,6 +104,12 @@ def load_generate_speech():
         "OPENAI_SPEECH_URL": "https://api.openai.com/v1/audio/speech",
         "TTS_VOICES": {"cedar"},
         "openai_error_message": lambda response: "test error",
+        "load_elevenlabs_voice_settings": lambda: {
+            "stability": 0.42,
+            "similarity": 0.88,
+            "style": 0.23,
+            "speed": 1.05,
+        },
     }
     module = ast.Module(body=selected, type_ignores=[])
     exec(compile(module, str(MAIN_PATH), "exec"), namespace)
@@ -127,6 +133,16 @@ class ElevenLabsSpeechTests(unittest.TestCase):
         self.assertEqual(kwargs["headers"]["xi-api-key"], "secret-test-key")
         self.assertEqual(kwargs["params"]["output_format"], "mp3_44100_128")
         self.assertEqual(kwargs["json"]["text"], "Workshop bench is on.")
+        self.assertEqual(
+            kwargs["json"]["voice_settings"],
+            {
+                "stability": 0.42,
+                "similarity_boost": 0.88,
+                "style": 0.23,
+                "use_speaker_boost": True,
+                "speed": 1.05,
+            },
+        )
         async def collect_audio():
             return b"".join([chunk async for chunk in response.body_iterator])
         self.assertEqual(asyncio.run(collect_audio()), b"ID3-elevenlabs-audio")

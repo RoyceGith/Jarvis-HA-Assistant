@@ -166,6 +166,13 @@
     .theme-swatch { width: 38px; height: 30px; border: 1px solid rgba(104,130,103,.5); border-radius: 4px; box-shadow: inset 0 0 12px rgba(123,160,44,.18); }
     .theme-swatch.dark { background: radial-gradient(circle at 60% 40%, #273318, #030706 68%); }
     .theme-swatch.light { background: radial-gradient(circle at 60% 40%, #fff, #dfe6dc 68%); }
+    .voice-control-grid { display: grid; grid-template-columns: repeat(2, minmax(220px, 1fr)); gap: .9rem 1.2rem; margin-top: .9rem; }
+    .voice-control { display: grid; grid-template-columns: 1fr 3.5rem; gap: .35rem .75rem; align-items: center; }
+    .voice-control label { color: inherit; font-weight: 650; }
+    .voice-control output { color: var(--cyan); text-align: right; font-variant-numeric: tabular-nums; }
+    .voice-control input[type="range"] { grid-column: 1 / -1; width: 100%; accent-color: var(--phosphor); }
+    .voice-control small { grid-column: 1 / -1; color: var(--text-muted); line-height: 1.4; }
+    .voice-reset { margin-top: .9rem; }
     #general-instructions { width: 100%; min-height: 280px; resize: vertical; padding: .9rem; border: 1px solid var(--line); border-radius: 4px; background: var(--surface-strong); color: inherit; font: inherit; line-height: 1.5; }
     #general-instructions:focus { outline: none; border-color: var(--phosphor); }
     .settings-actions { display: flex; align-items: center; gap: .75rem; margin-top: .75rem; }
@@ -209,6 +216,7 @@
       #message { flex-basis: 100%; }
       .voice-bar { align-items: flex-start; flex-direction: column; }
       .voice-settings { justify-content: flex-start; }
+      .voice-control-grid { grid-template-columns: 1fr; }
       .theme-options { grid-template-columns: 1fr; }
     }
   </style>
@@ -218,7 +226,7 @@
   <header>
     <div>
       <h1>Jarvis</h1>
-      <div class="status">Workshop Intelligence Interface · HUD 0.7.4</div>
+      <div class="status">Workshop Intelligence Interface · HUD 0.7.5</div>
     </div>
     <div id="health" class="status">Checking…</div>
   </header>
@@ -341,6 +349,37 @@
       </div>
     </div>
     <div class="settings-card">
+      <h2>ELEVENLABS VOICE</h2>
+      <p>Fine-tune how the configured ElevenLabs voice is delivered. Changes apply to the next spoken reply.</p>
+      <div class="voice-control-grid">
+        <div class="voice-control">
+          <label for="elevenlabs-stability">Stability</label>
+          <output id="elevenlabs-stability-value" for="elevenlabs-stability">0.55</output>
+          <input id="elevenlabs-stability" type="range" min="0" max="1" step="0.01" value="0.55">
+          <small>Lower is more expressive; higher is more consistent and restrained.</small>
+        </div>
+        <div class="voice-control">
+          <label for="elevenlabs-similarity">Similarity</label>
+          <output id="elevenlabs-similarity-value" for="elevenlabs-similarity">0.75</output>
+          <input id="elevenlabs-similarity" type="range" min="0" max="1" step="0.01" value="0.75">
+          <small>Controls how closely delivery follows the selected voice identity.</small>
+        </div>
+        <div class="voice-control">
+          <label for="elevenlabs-style">Style</label>
+          <output id="elevenlabs-style-value" for="elevenlabs-style">0.15</output>
+          <input id="elevenlabs-style" type="range" min="0" max="1" step="0.01" value="0.15">
+          <small>Emphasizes the voice's original style; higher values can add latency.</small>
+        </div>
+        <div class="voice-control">
+          <label for="elevenlabs-speed">Speed</label>
+          <output id="elevenlabs-speed-value" for="elevenlabs-speed">0.96</output>
+          <input id="elevenlabs-speed" type="range" min="0.7" max="1.2" step="0.01" value="0.96">
+          <small>0.70 is slow, 1.00 is normal, and 1.20 is fastest.</small>
+        </div>
+      </div>
+      <button id="reset-voice-settings" class="voice-reset" type="button">Reset Voice Defaults</button>
+    </div>
+    <div class="settings-card">
       <h2>GENERAL INSTRUCTIONS</h2>
       <p>
         These instructions are applied to every new Jarvis response. They can shape tone,
@@ -348,7 +387,7 @@
       </p>
       <textarea id="general-instructions" maxlength="12000" placeholder="Examples:&#10;- Keep answers brief unless I ask for detail.&#10;- When giving workshop steps, put safety checks first."></textarea>
       <div class="settings-actions">
-        <button id="save-settings" type="button">Save Instructions</button>
+        <button id="save-settings" type="button">Save Settings</button>
         <span id="settings-save-state" role="status" aria-live="polite"></span>
       </div>
       <p class="muted">
@@ -660,7 +699,34 @@ const generalInstructions = document.getElementById("general-instructions");
 const saveSettings = document.getElementById("save-settings");
 const settingsSaveState = document.getElementById("settings-save-state");
 const themeInputs = [...document.querySelectorAll('input[name="theme"]')];
+const elevenLabsVoiceInputs = {
+  stability: document.getElementById("elevenlabs-stability"),
+  similarity: document.getElementById("elevenlabs-similarity"),
+  style: document.getElementById("elevenlabs-style"),
+  speed: document.getElementById("elevenlabs-speed"),
+};
+const resetVoiceSettings = document.getElementById("reset-voice-settings");
+let elevenLabsVoiceDefaults = {stability: 0.55, similarity: 0.75, style: 0.15, speed: 0.96};
 const THEME_KEY = "jarvis_theme_v1";
+
+function setElevenLabsVoiceControls(settings) {
+  for (const [name, input] of Object.entries(elevenLabsVoiceInputs)) {
+    const value = Number(settings?.[name]);
+    if (Number.isFinite(value)) input.value = String(value);
+    document.getElementById(`${input.id}-value`).textContent = Number(input.value).toFixed(2);
+  }
+}
+
+for (const input of Object.values(elevenLabsVoiceInputs)) {
+  input.addEventListener("input", () => {
+    document.getElementById(`${input.id}-value`).textContent = Number(input.value).toFixed(2);
+  });
+}
+
+resetVoiceSettings.addEventListener("click", () => {
+  setElevenLabsVoiceControls(elevenLabsVoiceDefaults);
+  settingsSaveState.textContent = "Defaults restored locally. Select Save Settings to apply them.";
+});
 
 function applyTheme(theme, persist = true) {
   const nextTheme = theme === "light" ? "light" : "dark";
@@ -866,6 +932,8 @@ async function loadSettings() {
     if (!response.ok) throw new Error(data.detail || `HTTP ${response.status}`);
     generalInstructions.value = data.general_instructions || "";
     if (data.max_characters) generalInstructions.maxLength = data.max_characters;
+    elevenLabsVoiceDefaults = data.elevenlabs_voice_defaults || elevenLabsVoiceDefaults;
+    setElevenLabsVoiceControls(data.elevenlabs_voice_settings || elevenLabsVoiceDefaults);
     settingsSaveState.textContent = "";
   } catch (error) {
     settingsSaveState.textContent = `Could not load: ${error.message || error}`;
@@ -884,12 +952,19 @@ saveSettings.addEventListener("click", async () => {
     const response = await fetch("api/settings", {
       method: "PUT",
       headers: {"Content-Type": "application/json"},
-      body: JSON.stringify({general_instructions: generalInstructions.value}),
+      body: JSON.stringify({
+        general_instructions: generalInstructions.value,
+        elevenlabs_stability: Number(elevenLabsVoiceInputs.stability.value),
+        elevenlabs_similarity: Number(elevenLabsVoiceInputs.similarity.value),
+        elevenlabs_style: Number(elevenLabsVoiceInputs.style.value),
+        elevenlabs_speed: Number(elevenLabsVoiceInputs.speed.value),
+      }),
     });
     const data = await response.json();
     if (!response.ok) throw new Error(data.detail || `HTTP ${response.status}`);
     generalInstructions.value = data.general_instructions || "";
-    settingsSaveState.textContent = "Saved. New replies will use these instructions.";
+    setElevenLabsVoiceControls(data.elevenlabs_voice_settings || {});
+    settingsSaveState.textContent = "Saved. New replies and speech will use these settings.";
   } catch (error) {
     settingsSaveState.textContent = `Save failed: ${error.message || error}`;
   } finally {

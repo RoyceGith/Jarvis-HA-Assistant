@@ -66,17 +66,38 @@ CHAT_SESSION_META: dict[str, dict[str, Any]] = {}
 CHAT_STORAGE_PATH = Path("/data/chat_sessions.json")
 SETTINGS_STORAGE_PATH = Path("/data/jarvis_settings.json")
 GENERAL_INSTRUCTIONS_MAX_CHARS = 12000
+ELEVENLABS_VOICE_DEFAULTS = {
+    "stability": 0.55,
+    "similarity": 0.75,
+    "style": 0.15,
+    "speed": 0.96,
+}
+
+
+def load_settings_payload() -> dict[str, Any]:
+    if not SETTINGS_STORAGE_PATH.exists():
+        return {}
+    try:
+        payload = json.loads(SETTINGS_STORAGE_PATH.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return {}
+    return payload if isinstance(payload, dict) else {}
+
+
+def save_settings_payload(payload: dict[str, Any]) -> None:
+    SETTINGS_STORAGE_PATH.parent.mkdir(parents=True, exist_ok=True)
+    temporary = SETTINGS_STORAGE_PATH.with_suffix(".tmp")
+    temporary.write_text(
+        json.dumps(payload, ensure_ascii=False, indent=2),
+        encoding="utf-8",
+    )
+    temporary.replace(SETTINGS_STORAGE_PATH)
 
 LAST_ENTITY_BY_SESSION: dict[str, dict[str, Any]] = {}
 
 
 def load_general_instructions() -> str:
-    if not SETTINGS_STORAGE_PATH.exists():
-        return ""
-    try:
-        payload = json.loads(SETTINGS_STORAGE_PATH.read_text(encoding="utf-8"))
-    except (OSError, json.JSONDecodeError):
-        return ""
+    payload = load_settings_payload()
     instructions = payload.get("general_instructions", "")
     return str(instructions)[:GENERAL_INSTRUCTIONS_MAX_CHARS]
 
@@ -87,18 +108,46 @@ def save_general_instructions(instructions: str) -> str:
         raise ValueError(
             f"General instructions cannot exceed {GENERAL_INSTRUCTIONS_MAX_CHARS} characters"
         )
-    SETTINGS_STORAGE_PATH.parent.mkdir(parents=True, exist_ok=True)
-    temporary = SETTINGS_STORAGE_PATH.with_suffix(".tmp")
-    temporary.write_text(
-        json.dumps(
-            {"version": 1, "general_instructions": cleaned, "updated_at": time.time()},
-            ensure_ascii=False,
-            indent=2,
-        ),
-        encoding="utf-8",
+    payload = load_settings_payload()
+    payload.update(
+        {"version": 2, "general_instructions": cleaned, "updated_at": time.time()}
     )
-    temporary.replace(SETTINGS_STORAGE_PATH)
+    save_settings_payload(payload)
     return cleaned
+
+
+def load_elevenlabs_voice_settings() -> dict[str, float]:
+    stored = load_settings_payload().get("elevenlabs_voice_settings", {})
+    if not isinstance(stored, dict):
+        stored = {}
+    settings = dict(ELEVENLABS_VOICE_DEFAULTS)
+    ranges = {
+        "stability": (0.0, 1.0),
+        "similarity": (0.0, 1.0),
+        "style": (0.0, 1.0),
+        "speed": (0.7, 1.2),
+    }
+    for key, (minimum, maximum) in ranges.items():
+        try:
+            value = float(stored.get(key, settings[key]))
+        except (TypeError, ValueError):
+            continue
+        if minimum <= value <= maximum:
+            settings[key] = value
+    return settings
+
+
+def save_elevenlabs_voice_settings(settings: dict[str, float]) -> dict[str, float]:
+    payload = load_settings_payload()
+    payload.update(
+        {
+            "version": 2,
+            "elevenlabs_voice_settings": settings,
+            "updated_at": time.time(),
+        }
+    )
+    save_settings_payload(payload)
+    return settings
 
 
 def append_general_instruction(instruction: str) -> dict[str, Any]:
@@ -553,7 +602,7 @@ ha_ws = HomeAssistantWebSocketClient(HA_WS_URL, SUPERVISOR_TOKEN)
 
 app = FastAPI(
     title="Jarvis Workshop Assistant",
-    version="0.7.4",
+    version="0.7.5",
     docs_url="/api/docs",
     openapi_url="/api/openapi.json",
 )
@@ -568,8 +617,12 @@ class ChatSessionCreate(BaseModel):
     session_id: str = Field(min_length=1, max_length=128)
 
 
-class GeneralInstructionsUpdate(BaseModel):
+class JarvisSettingsUpdate(BaseModel):
     general_instructions: str = Field(default="", max_length=GENERAL_INSTRUCTIONS_MAX_CHARS)
+    elevenlabs_stability: float = Field(default=0.55, ge=0.0, le=1.0)
+    elevenlabs_similarity: float = Field(default=0.75, ge=0.0, le=1.0)
+    elevenlabs_style: float = Field(default=0.15, ge=0.0, le=1.0)
+    elevenlabs_speed: float = Field(default=0.96, ge=0.7, le=1.2)
 
 
 class SpeechRequest(BaseModel):
@@ -1876,7 +1929,7 @@ async def health() -> dict[str, Any]:
     configured_speech_provider = SPEECH_PROVIDER if SPEECH_PROVIDER in {"openai", "elevenlabs"} else "openai"
     return {
         "status": "ok",
-        "version": "0.7.4",
+        "version": "0.7.5",
         "home_assistant_configured": bool(SUPERVISOR_TOKEN),
         "workshop_memory_configured": bool(WORKSHOP_MEMORY_URL),
         "openai_configured": bool(OPENAI_API_KEY),
@@ -2043,19 +2096,34 @@ async def list_chats() -> dict[str, Any]:
 @app.get("/api/settings")
 async def read_settings() -> dict[str, Any]:
     instructions = load_general_instructions()
+    voice = load_elevenlabs_voice_settings()
     return {
         "general_instructions": instructions,
         "max_characters": GENERAL_INSTRUCTIONS_MAX_CHARS,
+        "elevenlabs_voice_settings": voice,
+        "elevenlabs_voice_defaults": ELEVENLABS_VOICE_DEFAULTS,
     }
 
 
 @app.put("/api/settings")
-async def update_settings(request: GeneralInstructionsUpdate) -> dict[str, Any]:
+async def update_settings(request: JarvisSettingsUpdate) -> dict[str, Any]:
     try:
         instructions = save_general_instructions(request.general_instructions)
+        voice = save_elevenlabs_voice_settings(
+            {
+                "stability": request.elevenlabs_stability,
+                "similarity": request.elevenlabs_similarity,
+                "style": request.elevenlabs_style,
+                "speed": request.elevenlabs_speed,
+            }
+        )
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
-    return {"saved": True, "general_instructions": instructions}
+    return {
+        "saved": True,
+        "general_instructions": instructions,
+        "elevenlabs_voice_settings": voice,
+    }
 
 
 @app.post("/api/chats")
@@ -2466,15 +2534,16 @@ async def generate_speech(request: SpeechRequest) -> Response:
             "Content-Type": "application/json",
             "Accept": "audio/mpeg",
         }
+        voice_settings = load_elevenlabs_voice_settings()
         payload = {
             "text": request.text,
             "model_id": ELEVENLABS_MODEL_ID,
             "voice_settings": {
-                "stability": 0.55,
-                "similarity_boost": 0.75,
-                "style": 0.15,
+                "stability": voice_settings["stability"],
+                "similarity_boost": voice_settings["similarity"],
+                "style": voice_settings["style"],
                 "use_speaker_boost": True,
-                "speed": 0.96,
+                "speed": voice_settings["speed"],
             },
         }
         response = None

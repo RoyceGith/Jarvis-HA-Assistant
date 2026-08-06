@@ -1,4 +1,8 @@
-# Jarvis Workshop Assistant v0.7.4
+# Jarvis Workshop Assistant v0.7.5
+
+Version 0.7.5 adds persistent ElevenLabs Stability, Similarity, Style, and Speed
+controls under Jarvis Settings. The existing delivery values remain the defaults,
+and saved values are applied server-side to every subsequent ElevenLabs request.
 
 Version 0.7.4 adds device-persistent Light and Dark themes under Settings and
 replaces the sparse background graph with a centered, depth-rendered collective

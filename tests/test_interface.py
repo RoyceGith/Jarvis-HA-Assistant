@@ -24,8 +24,8 @@ class InterfaceTests(unittest.TestCase):
     def test_hud_graph_and_versions(self):
         self.assertIn('id="brain-network"', INDEX)
         self.assertIn("prefers-reduced-motion: reduce", INDEX)
-        self.assertIn('version: "0.7.4"', CONFIG)
-        self.assertIn('"version": "0.7.4"', MAIN)
+        self.assertIn('version: "0.7.5"', CONFIG)
+        self.assertIn('"version": "0.7.5"', MAIN)
 
     def test_public_defaults_and_saved_app_options(self):
         self.assertNotIn("192.168.178.49", CONFIG)
@@ -53,6 +53,13 @@ class InterfaceTests(unittest.TestCase):
         self.assertIn('id="general-instructions"', INDEX)
         self.assertIn('fetch("api/settings"', INDEX)
         self.assertIn('@app.get("/api/settings")', MAIN)
+
+    def test_persistent_elevenlabs_voice_controls(self):
+        for control in ("stability", "similarity", "style", "speed"):
+            self.assertIn(f'id="elevenlabs-{control}"', INDEX)
+        self.assertIn('id="reset-voice-settings"', INDEX)
+        self.assertIn("load_elevenlabs_voice_settings()", MAIN)
+        self.assertIn('"similarity_boost": voice_settings["similarity"]', MAIN)
         self.assertIn('@app.put("/api/settings")', MAIN)
         self.assertIn('SETTINGS_STORAGE_PATH = Path("/data/jarvis_settings.json")', MAIN)
         self.assertIn('"name": "save_general_instruction"', MAIN)
