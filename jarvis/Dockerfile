@@ -18,8 +18,8 @@ COPY requirements.txt .
 RUN pip3 install --no-cache-dir --break-system-packages -r requirements.txt
 
 COPY app ./app
-COPY apply_v086_hotfix.py ./apply_v086_hotfix.py
-RUN python3 ./apply_v086_hotfix.py && rm ./apply_v086_hotfix.py
+COPY apply_interface_hotfix.py ./apply_interface_hotfix.py
+RUN python3 ./apply_interface_hotfix.py && rm ./apply_interface_hotfix.py
 COPY run.sh /run.sh
 RUN chmod a+x /run.sh
 
