@@ -36,13 +36,13 @@ def patch_index() -> None:
     text = replace_required(
         text,
         '.message h3 { margin: .2rem 0 .45rem; color: var(--phosphor); font-size: .92rem; letter-spacing: 0; }',
-        '.message h3 { margin: .3rem 0 .55rem; color: var(--phosphor); font-size: 1.08rem; font-weight: 800; line-height: 1.3; letter-spacing: .01em; }',
-        "larger bold response headings",
+        '.message h2, .message h3, .message h4 { color: var(--phosphor); font-weight: 800; line-height: 1.28; letter-spacing: .01em; }\n    .message h2 { margin: .65rem 0 .6rem; font-size: 1.28rem; }\n    .message h3 { margin: .55rem 0 .5rem; font-size: 1.12rem; }\n    .message h4 { margin: .45rem 0 .42rem; font-size: 1.02rem; }\n    .message > h2:first-child, .message > h3:first-child, .message > h4:first-child { margin-top: .15rem; }',
+        "response heading hierarchy",
     )
     text = replace_required(
         text,
         'Workshop Intelligence Interface · HUD 0.8.5',
-        'Workshop Intelligence Interface · HUD 0.8.7',
+        'Workshop Intelligence Interface · HUD 0.8.8',
         "HUD version",
     )
     text = replace_required(
@@ -50,6 +50,12 @@ def patch_index() -> None:
         'const numbered = trimmed.match(/^\\d+[.)]\\s+(.+)$/);\n    if (numbered) {\n      openList("ol");\n      html.push(`<li>${renderInlineMarkdown(numbered[1])}</li>`);',
         'const numbered = trimmed.match(/^(\\d+)[.)]\\s+(.+)$/);\n    if (numbered) {\n      openList("ol");\n      html.push(`<li value="${Number(numbered[1])}">${renderInlineMarkdown(numbered[2])}</li>`);',
         "ordered-list numbering",
+    )
+    text = replace_required(
+        text,
+        '    const heading = trimmed.match(/^#{1,3}\\s+(.+)$/);\n    if (heading) {\n      closeParagraph();\n      closeList();\n      html.push(`<h3>${renderInlineMarkdown(heading[1])}</h3>`);\n      continue;\n    }',
+        '    const heading = trimmed.match(/^(#{1,3})\\s+(.+)$/);\n    if (heading) {\n      closeParagraph();\n      closeList();\n      const headingTag = heading[1].length === 1 ? "h2" : heading[1].length === 2 ? "h3" : "h4";\n      html.push(`<${headingTag}>${renderInlineMarkdown(heading[2])}</${headingTag}>`);\n      continue;\n    }\n\n    const standaloneBold = trimmed.match(/^\\*\\*([^*]+)\\*\\*$/);\n    if (standaloneBold) {\n      closeParagraph();\n      closeList();\n      html.push(`<h4>${renderInlineMarkdown(standaloneBold[1])}</h4>`);\n      continue;\n    }',
+        "markdown title and subtitle rendering",
     )
     text = replace_required(
         text,
@@ -98,8 +104,8 @@ def patch_index() -> None:
 
 def patch_main() -> None:
     text = MAIN.read_text(encoding="utf-8")
-    text = text.replace('version="0.8.5"', 'version="0.8.7"')
-    text = text.replace('"version": "0.8.5"', '"version": "0.8.7"')
+    text = text.replace('version="0.8.5"', 'version="0.8.8"')
+    text = text.replace('"version": "0.8.5"', '"version": "0.8.8"')
     text = text.replace(
         '"output_format": "mp3_44100_128", "optimize_streaming_latency": "4"',
         '"output_format": "mp3_22050_32", "optimize_streaming_latency": "4"',
