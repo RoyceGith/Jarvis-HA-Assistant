@@ -1,1 +1,1 @@
-Jarvis Workshop Assistant v0.10.1 — fixes the v0.10.0 Home Assistant image build by making the Plugins navigation patch compatible with the actual title-cased Settings button, adding post-patch verification, and compiling the generated backend during the Docker build for clearer failures.
+Jarvis Workshop Assistant v0.10.2 — repairs Entities and Plugins tab activation, reloads and surfaces Home Assistant entity inventory errors instead of silently showing an empty table, and renders response headings/subtitles in black in the light theme.
