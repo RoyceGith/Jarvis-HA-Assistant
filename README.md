@@ -1,1 +1,1 @@
-Jarvis Workshop Assistant v0.9.0 — adds persistent Agent Model and Intelligence dropdowns beside the voice controls, discovers GPT models available to the configured OpenAI account, and applies the selected model and reasoning effort to new chat requests.
+Jarvis Workshop Assistant v0.9.1 — adds persistent inline renaming for saved chats in the left sidebar, with Enter-to-save, Escape-to-cancel, blur-to-save, title validation, and backup-compatible metadata storage.
