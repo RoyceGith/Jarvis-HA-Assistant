@@ -1,1 +1,1 @@
-Jarvis Workshop Assistant v0.9.1 — adds persistent inline renaming for saved chats in the left sidebar, with Enter-to-save, Escape-to-cancel, blur-to-save, title validation, and backup-compatible metadata storage.
+Jarvis Workshop Assistant v0.10.0 — adds a security-first MCP Plugin Manager with public-HTTPS validation, private-network and redirect blocking, disabled-by-default installation, per-tool allow-listing, masked secret storage, plugin health controls, and read-only tool enforcement.
