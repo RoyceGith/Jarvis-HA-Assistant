@@ -1,1 +1,1 @@
-Jarvis Workshop Assistant v0.8.0 — complete preferences, modern dark/light/gray glass HUD themes, an unframed obsidian neural collective, adjustable ElevenLabs delivery, persistent instructions and chats, backup/restore, and protected Home Assistant controls.
+Jarvis Workshop Assistant v0.8.1 — restores the visible obsidian neural collective while keeping its perimeter unframed, with complete preferences, modern dark/light/gray glass HUD themes, adjustable ElevenLabs delivery, persistent instructions and chats, backup/restore, and protected Home Assistant controls.
