@@ -1,0 +1,1 @@
+Jarvis Workshop Assistant v0.7.3 — persistent general instructions, explicit chat-based instruction saving, low-latency ElevenLabs speech, device-local push-to-talk, persistent chats, and protected Home Assistant controls.
