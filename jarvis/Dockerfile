@@ -21,10 +21,13 @@ COPY app ./app
 COPY apply_interface_hotfix.py ./apply_interface_hotfix.py
 COPY apply_agent_controls_v090.py ./apply_agent_controls_v090.py
 COPY apply_plugin_manager_v0100.py ./apply_plugin_manager_v0100.py
+COPY apply_build_fix_v0101.py ./apply_build_fix_v0101.py
 RUN python3 ./apply_interface_hotfix.py \
     && python3 ./apply_agent_controls_v090.py \
+    && python3 ./apply_build_fix_v0101.py \
     && python3 ./apply_plugin_manager_v0100.py \
-    && rm ./apply_interface_hotfix.py ./apply_agent_controls_v090.py ./apply_plugin_manager_v0100.py
+    && python3 -m py_compile ./app/main.py \
+    && rm ./apply_interface_hotfix.py ./apply_agent_controls_v090.py ./apply_plugin_manager_v0100.py ./apply_build_fix_v0101.py
 
 COPY run.sh /run.sh
 RUN chmod a+x /run.sh
