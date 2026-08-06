@@ -1,4 +1,8 @@
-# Jarvis Workshop Assistant v0.7.3
+# Jarvis Workshop Assistant v0.7.4
+
+Version 0.7.4 adds device-persistent Light and Dark themes under Settings and
+replaces the sparse background graph with a centered, depth-rendered collective
+of hundreds of linked obsidian nodes inspired by the Jarvis neural-core reference.
 
 Version 0.7.3 adds a Settings tab with persistent General Instructions. The
 instructions apply to every model response and survive app restarts/upgrades in
@@ -74,6 +78,21 @@ route. These commands avoid an OpenAI tool-selection round:
 Ambiguous device names and unsupported requests continue through the model tool
 loop. Existing entity policy and safe-domain checks still protect every action.
 
-Workshop Memory default remains:
+Set `workshop_memory_url` to the hostname or private IP of your Workshop Memory
+service. The public example uses a neutral local hostname:
 
-`http://192.168.178.49:3001/mcp`
+`http://workshop-memory.local:3001/mcp`
+
+## Updating without losing configuration
+
+Home Assistant keeps the app's existing configuration when Jarvis is updated.
+That includes the Workshop Memory URL, OpenAI and ElevenLabs API keys, voice ID,
+model choices, and entity lists. Jarvis reads those saved options at every
+start; the defaults in `config.yaml` are used only for a new installation or a
+newly introduced option.
+
+Chats, General Instructions, and entity policies are stored in the app's
+persistent `/data` directory and also survive normal updates and restarts.
+Removing Jarvis and selecting the option to delete its data, or restoring a
+fresh Home Assistant installation without the app's backup data, can erase
+them. Keep a Home Assistant backup before major upgrades.

@@ -1,1 +1,1 @@
-Jarvis Workshop Assistant v0.7.3 — persistent general instructions, explicit chat-based instruction saving, low-latency ElevenLabs speech, device-local push-to-talk, persistent chats, and protected Home Assistant controls.
+Jarvis Workshop Assistant v0.7.4 — light/dark appearance themes, an obsidian collective neural core, persistent general instructions, low-latency ElevenLabs speech, device-local push-to-talk, persistent chats, and protected Home Assistant controls.

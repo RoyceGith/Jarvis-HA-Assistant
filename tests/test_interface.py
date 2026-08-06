@@ -6,6 +6,7 @@ ROOT = Path(__file__).resolve().parents[1]
 INDEX = (ROOT / "jarvis/app/static/index.html").read_text(encoding="utf-8")
 MAIN = (ROOT / "jarvis/app/main.py").read_text(encoding="utf-8")
 CONFIG = (ROOT / "jarvis/config.yaml").read_text(encoding="utf-8")
+RUN_SCRIPT = (ROOT / "jarvis/run.sh").read_text(encoding="utf-8")
 
 
 class InterfaceTests(unittest.TestCase):
@@ -23,8 +24,29 @@ class InterfaceTests(unittest.TestCase):
     def test_hud_graph_and_versions(self):
         self.assertIn('id="brain-network"', INDEX)
         self.assertIn("prefers-reduced-motion: reduce", INDEX)
-        self.assertIn('version: "0.7.3"', CONFIG)
-        self.assertIn('"version": "0.7.3"', MAIN)
+        self.assertIn('version: "0.7.4"', CONFIG)
+        self.assertIn('"version": "0.7.4"', MAIN)
+
+    def test_public_defaults_and_saved_app_options(self):
+        self.assertNotIn("192.168.178.49", CONFIG)
+        self.assertNotIn("192.168.178.49", MAIN)
+        self.assertIn("http://workshop-memory.local:3001/mcp", CONFIG)
+        self.assertIn("bashio::config 'workshop_memory_url'", RUN_SCRIPT)
+        self.assertIn("bashio::config 'openai_api_key'", RUN_SCRIPT)
+        self.assertIn("bashio::config 'elevenlabs_api_key'", RUN_SCRIPT)
+        self.assertIn('CHAT_STORAGE_PATH = Path("/data/chat_sessions.json")', MAIN)
+        self.assertIn('SETTINGS_STORAGE_PATH = Path("/data/jarvis_settings.json")', MAIN)
+
+    def test_light_dark_themes_and_obsidian_collective(self):
+        self.assertIn('name="theme" value="dark"', INDEX)
+        self.assertIn('name="theme" value="light"', INDEX)
+        self.assertIn('const THEME_KEY = "jarvis_theme_v1";', INDEX)
+        self.assertIn('document.documentElement.dataset.theme = nextTheme;', INDEX)
+        self.assertIn('class="theme-swatch dark"', INDEX)
+        self.assertIn('class="theme-swatch light"', INDEX)
+        self.assertIn('const count = Math.min(320, Math.max(170', INDEX)
+        self.assertIn('buildCollective()', INDEX)
+        self.assertIn('cssRgb("--node-core")', INDEX)
 
     def test_settings_tab_and_persistent_general_instructions(self):
         self.assertIn('id="settings-tab"', INDEX)

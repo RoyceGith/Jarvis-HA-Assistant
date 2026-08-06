@@ -4,6 +4,16 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Jarvis Workshop Assistant</title>
+  <script>
+    (() => {
+      try {
+        const theme = localStorage.getItem("jarvis_theme_v1");
+        document.documentElement.dataset.theme = theme === "light" ? "light" : "dark";
+      } catch {
+        document.documentElement.dataset.theme = "dark";
+      }
+    })();
+  </script>
   <style>
     :root {
       color-scheme: dark;
@@ -16,15 +26,41 @@
       --cyan-dim: #16798a;
       --panel: rgba(3, 12, 14, .9);
       --line: rgba(92, 236, 255, .24);
+      --surface: rgba(1,8,10,.82);
+      --surface-strong: rgba(2,9,6,.94);
+      --text-muted: #8faeb3;
+      --shadow: rgba(0,0,0,.52);
+      --node-core: 4, 7, 6;
+      --node-edge: 202, 255, 82;
+      --node-link: 160, 206, 72;
+    }
+    :root[data-theme="light"] {
+      color-scheme: light;
+      background: #edf1e8;
+      color: #17231d;
+      --phosphor: #42690f;
+      --phosphor-dim: #6e873f;
+      --cyan: #006779;
+      --cyan-dim: #4f8993;
+      --panel: rgba(248, 250, 244, .88);
+      --line: rgba(22, 82, 91, .27);
+      --surface: rgba(239,244,235,.9);
+      --surface-strong: rgba(250,252,247,.96);
+      --text-muted: #536b67;
+      --shadow: rgba(35,50,42,.18);
+      --node-core: 8, 12, 10;
+      --node-edge: 96, 131, 21;
+      --node-link: 63, 91, 20;
     }
     * { box-sizing: border-box; }
     html, body { width: 100%; height: 100%; overflow: hidden; }
-    body { margin: 0; min-height: 100vh; min-height: 100dvh; background: radial-gradient(circle at 50% 38%, #09252a 0, #03090a 55%, #010405 100%); }
+    body { margin: 0; min-height: 100vh; min-height: 100dvh; background: radial-gradient(circle at 50% 38%, #09252a 0, #03090a 55%, #010405 100%); transition: background-color .2s ease, color .2s ease; }
+    :root[data-theme="light"] body { background: radial-gradient(circle at 50% 38%, #fbfff2 0, #e9eee4 54%, #dce3da 100%); }
     body::after {
       content: ""; position: fixed; inset: 0; z-index: 2; pointer-events: none;
       background: repeating-linear-gradient(0deg, transparent 0 3px, rgba(92,236,255,.025) 3px 4px);
     }
-    #brain-network { position: fixed; inset: 0; width: 100%; height: 100%; z-index: 0; opacity: .58; pointer-events: none; }
+    #brain-network { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 0; opacity: .94; pointer-events: none; }
     main {
       position: relative; z-index: 1; width: 100%; height: 100vh; height: 100dvh;
       margin: 0; padding: .75rem; display: grid; grid-template-rows: auto auto minmax(0, 1fr);
@@ -32,7 +68,7 @@
     header { display: flex; justify-content: space-between; align-items: center; gap: 1rem; }
     h1 { margin: 0 0 .35rem; color: var(--phosphor); letter-spacing: .22em; text-transform: uppercase; text-shadow: 0 0 18px rgba(101,255,155,.38); }
     h1::before { content: "> "; color: var(--cyan); }
-    .status, .muted { font-size: .9rem; color: #9eb0c2; }
+    .status, .muted { font-size: .9rem; color: var(--text-muted); }
     #health { border: 1px solid var(--line); padding: .5rem .75rem; background: rgba(4,12,8,.72); }
     #health::before { content: "●"; color: var(--phosphor); margin-right: .55rem; text-shadow: 0 0 9px var(--phosphor); }
     nav { display: flex; gap: .5rem; margin: .6rem 0; }
@@ -48,14 +84,14 @@
     .panel {
       position: relative; border: 1px solid var(--line); border-radius: 6px;
       background: var(--panel); min-height: 0; height: 100%; padding: 1rem;
-      box-shadow: 0 0 42px rgba(0,0,0,.52), inset 0 0 32px rgba(40,255,110,.025);
+      box-shadow: 0 0 42px var(--shadow), inset 0 0 32px rgba(40,255,110,.025);
       backdrop-filter: blur(8px);
     }
     .panel::before { content: "SYS/JARVIS_WORKSHOP"; position: absolute; top: -1.55rem; right: 0; color: var(--phosphor-dim); font-size: .72rem; letter-spacing: .1em; }
     .hidden { display: none !important; }
     #chat-panel { display: flex; flex-direction: column; overflow: hidden; }
     .chat-shell { display: grid; grid-template-columns: 230px minmax(0, 1fr); gap: 1rem; min-height: 0; height: 100%; }
-    .chat-sidebar { min-width: 0; min-height: 0; padding: .75rem; border: 1px solid rgba(92,236,255,.18); background: rgba(1,8,10,.82); display: flex; flex-direction: column; }
+    .chat-sidebar { min-width: 0; min-height: 0; padding: .75rem; border: 1px solid var(--line); background: var(--surface); display: flex; flex-direction: column; }
     .chat-sidebar-header { display: flex; align-items: center; justify-content: space-between; gap: .5rem; margin-bottom: .75rem; }
     .chat-sidebar h2 { margin: 0; color: var(--cyan); font-size: .72rem; letter-spacing: .14em; font-weight: 500; }
     #new-chat-button { padding: .45rem .65rem; color: var(--cyan); }
@@ -76,8 +112,8 @@
     .command-list { margin: 0; padding: 0; list-style: none; line-height: 1.9; }
     .command-list li::before { content: "> "; color: var(--cyan); }
     .rail-log { margin-top: 1rem; padding-top: .8rem; border-top: 1px solid rgba(92,236,255,.16); line-height: 1.55; color: #577b80; }
-    .core-stage { position: relative; min-width: 0; min-height: 0; display: flex; flex-direction: column; }
-    .core-stage::before { content: ""; position: absolute; width: min(40vw, 470px); aspect-ratio: 1; left: 50%; top: 44%; transform: translate(-50%,-50%); border-radius: 50%; background: radial-gradient(circle, rgba(92,236,255,.16), rgba(92,236,255,.035) 45%, transparent 69%); border: 1px solid rgba(92,236,255,.09); box-shadow: 0 0 90px rgba(92,236,255,.1); pointer-events: none; }
+    .core-stage { position: relative; min-width: 0; min-height: 0; display: flex; flex-direction: column; overflow: hidden; isolation: isolate; }
+    .core-stage::before { content: ""; position: absolute; width: min(52vw, 590px); aspect-ratio: 1; left: 50%; top: 43%; transform: translate(-50%,-50%); border-radius: 50%; background: radial-gradient(circle, rgba(165,210,55,.15), rgba(89,115,31,.045) 46%, transparent 70%); box-shadow: 0 0 110px rgba(127,171,32,.1); pointer-events: none; z-index: 0; }
     #messages { position: relative; z-index: 1; flex: 1; min-height: 0; overflow-y: auto; scrollbar-color: var(--cyan-dim) transparent; }
     .message { position: relative; padding: .8rem 1rem .8rem 4.8rem; margin: .5rem 0; border-radius: 3px; white-space: pre-wrap; border-left: 2px solid; }
     .message::before { position: absolute; left: .8rem; top: .9rem; font-size: .7rem; letter-spacing: .08em; }
@@ -88,7 +124,7 @@
     form { position: relative; z-index: 1; display: flex; gap: .6rem; margin-top: 1rem; }
     #message {
       flex: 1; min-width: 0; padding: .9rem 1rem; border-radius: 4px;
-      border: 1px solid var(--line); background: rgba(2, 9, 6, .94); color: inherit;
+      border: 1px solid var(--line); background: var(--surface-strong); color: inherit;
       caret-color: var(--phosphor);
     }
     #message:focus { outline: none; border-color: var(--phosphor); box-shadow: 0 0 14px rgba(101,255,155,.12); }
@@ -97,11 +133,11 @@
     #mic-button { display: inline-flex; align-items: center; gap: .5rem; color: var(--cyan); border-color: rgba(92,236,255,.35); }
     #mic-button.listening { color: #ff6f78; border-color: #ff6f78; animation: voice-pulse 1s ease-in-out infinite; }
     .mic-icon { width: .72rem; height: 1rem; display: inline-block; border: 2px solid currentColor; border-radius: 999px 999px 7px 7px; box-shadow: 0 0 8px currentColor; }
-    .voice-bar { display: flex; align-items: center; justify-content: space-between; gap: .75rem; margin-top: .45rem; font-size: .7rem; color: #648071; }
+    .voice-bar { position: relative; z-index: 1; display: flex; align-items: center; justify-content: space-between; gap: .75rem; margin-top: .45rem; font-size: .7rem; color: #648071; }
     #voice-state { color: var(--cyan); letter-spacing: .08em; }
     .voice-settings { display: flex; align-items: center; gap: .65rem; flex-wrap: wrap; justify-content: flex-end; }
     .voice-settings label { display: inline-flex; align-items: center; gap: .35rem; }
-    #speech-provider, #voice-select { color: #9edce5; background: rgba(2,9,6,.94); border: 1px solid var(--line); padding: .2rem .35rem; }
+    #speech-provider, #voice-select { color: var(--cyan); background: var(--surface-strong); border: 1px solid var(--line); padding: .2rem .35rem; }
     @keyframes voice-pulse { 50% { box-shadow: 0 0 18px rgba(255,111,120,.4); } }
     .toolbar {
       display: grid;
@@ -117,13 +153,23 @@
     .summary { margin-bottom: .8rem; }
     #entities-panel { overflow: hidden; }
     #settings-panel { overflow-y: auto; }
-    .settings-card { max-width: 900px; padding: 1.1rem; border: 1px solid var(--line); background: rgba(1,8,10,.72); }
+    .settings-stack { max-width: 900px; display: grid; gap: 1rem; }
+    .settings-card { padding: 1.1rem; border: 1px solid var(--line); background: var(--surface); }
     .settings-card h2 { margin: 0 0 .6rem; color: var(--cyan); font-size: 1rem; letter-spacing: .08em; }
-    .settings-card p { color: #8faeb3; line-height: 1.55; }
-    #general-instructions { width: 100%; min-height: 280px; resize: vertical; padding: .9rem; border: 1px solid var(--line); border-radius: 4px; background: rgba(2,9,6,.94); color: inherit; font: inherit; line-height: 1.5; }
+    .settings-card p { color: var(--text-muted); line-height: 1.55; }
+    .theme-options { display: grid; grid-template-columns: repeat(2, minmax(0, 220px)); gap: .75rem; margin-top: .8rem; }
+    .theme-option { position: relative; display: grid; grid-template-columns: 38px 1fr; align-items: center; gap: .75rem; padding: .8rem; border: 1px solid var(--line); border-radius: 5px; background: var(--surface-strong); cursor: pointer; }
+    .theme-option:has(input:checked) { border-color: var(--phosphor); box-shadow: 0 0 14px rgba(112,154,30,.14); }
+    .theme-option input { position: absolute; opacity: 0; pointer-events: none; }
+    .theme-option strong { display: block; color: inherit; }
+    .theme-option small { display: block; margin-top: .2rem; color: var(--text-muted); }
+    .theme-swatch { width: 38px; height: 30px; border: 1px solid rgba(104,130,103,.5); border-radius: 4px; box-shadow: inset 0 0 12px rgba(123,160,44,.18); }
+    .theme-swatch.dark { background: radial-gradient(circle at 60% 40%, #273318, #030706 68%); }
+    .theme-swatch.light { background: radial-gradient(circle at 60% 40%, #fff, #dfe6dc 68%); }
+    #general-instructions { width: 100%; min-height: 280px; resize: vertical; padding: .9rem; border: 1px solid var(--line); border-radius: 4px; background: var(--surface-strong); color: inherit; font: inherit; line-height: 1.5; }
     #general-instructions:focus { outline: none; border-color: var(--phosphor); }
     .settings-actions { display: flex; align-items: center; gap: .75rem; margin-top: .75rem; }
-    #settings-save-state { color: #8faeb3; }
+    #settings-save-state { color: var(--text-muted); }
     .table-wrap { overflow: auto; height: calc(100% - 5rem); border: 1px solid #263445; border-radius: 12px; }
     table { width: 100%; border-collapse: collapse; min-width: 900px; }
     th, td { text-align: left; padding: .72rem; border-bottom: 1px solid #263445; vertical-align: top; }
@@ -135,6 +181,19 @@
     }
     .available { color: #b8e6c9; }
     .unavailable { color: #ffb6b6; }
+    :root[data-theme="light"] body::after { background: repeating-linear-gradient(0deg, transparent 0 3px, rgba(23,72,67,.035) 3px 4px); }
+    :root[data-theme="light"] #health { background: rgba(250,252,247,.8); }
+    :root[data-theme="light"] button { background: rgba(229,238,220,.94); }
+    :root[data-theme="light"] .hud-rail { background: rgba(239,244,235,.74); color: #49645f; }
+    :root[data-theme="light"] .telemetry-label { color: #48615c; }
+    :root[data-theme="light"] .rail-log, :root[data-theme="light"] .chat-empty { color: #667d78; }
+    :root[data-theme="light"] .chat-open { color: #46615d; }
+    :root[data-theme="light"] .chat-list-item.active { background: rgba(190,217,215,.55); }
+    :root[data-theme="light"] .user { background: rgba(212,235,238,.9); }
+    :root[data-theme="light"] .jarvis { background: rgba(226,237,211,.9); }
+    :root[data-theme="light"] .toolbar input, :root[data-theme="light"] .toolbar select { border-color: #9aaca6; background: #f8faf5; }
+    :root[data-theme="light"] .table-wrap, :root[data-theme="light"] th, :root[data-theme="light"] td { border-color: #b5c1bb; }
+    :root[data-theme="light"] th { background: #dde6df; }
     @media (max-width: 760px) {
       main { padding: .45rem; }
       header .status { display: none; }
@@ -150,16 +209,16 @@
       #message { flex-basis: 100%; }
       .voice-bar { align-items: flex-start; flex-direction: column; }
       .voice-settings { justify-content: flex-start; }
+      .theme-options { grid-template-columns: 1fr; }
     }
   </style>
 </head>
 <body>
-<canvas id="brain-network" aria-hidden="true"></canvas>
 <main>
   <header>
     <div>
       <h1>Jarvis</h1>
-      <div class="status">Workshop Intelligence Interface · HUD 0.7.3</div>
+      <div class="status">Workshop Intelligence Interface · HUD 0.7.4</div>
     </div>
     <div id="health" class="status">Checking…</div>
   </header>
@@ -188,6 +247,7 @@
         <div class="rail-log">NEURAL MAP ACTIVE<br>HA SOCKET CONNECTED<br>POLICY GUARD ONLINE<br>MEMORY LINK READY</div>
       </aside>
       <div class="core-stage">
+        <canvas id="brain-network" aria-hidden="true"></canvas>
         <div id="messages">
           <div class="message jarvis">Jarvis intelligence core online.</div>
         </div>
@@ -263,6 +323,23 @@
   </section>
 
   <section id="settings-panel" class="panel hidden">
+    <div class="settings-stack">
+    <div class="settings-card">
+      <h2>APPEARANCE</h2>
+      <p>Choose how Jarvis looks on this device. The neural core remains an obsidian collective in both themes.</p>
+      <div class="theme-options" role="radiogroup" aria-label="Color theme">
+        <label class="theme-option">
+          <input type="radio" name="theme" value="dark">
+          <span class="theme-swatch dark" aria-hidden="true"></span>
+          <span><strong>Dark</strong><small>Deep workshop HUD</small></span>
+        </label>
+        <label class="theme-option">
+          <input type="radio" name="theme" value="light">
+          <span class="theme-swatch light" aria-hidden="true"></span>
+          <span><strong>Light</strong><small>Bright technical canvas</small></span>
+        </label>
+      </div>
+    </div>
     <div class="settings-card">
       <h2>GENERAL INSTRUCTIONS</h2>
       <p>
@@ -278,6 +355,7 @@
         You can also say in chat: “Remember this as a general instruction: when I ask for options,
         recommend one and explain why.” Jarvis saves only explicit requests.
       </p>
+    </div>
     </div>
   </section>
 </main>
@@ -581,6 +659,23 @@ const settingsPanel = document.getElementById("settings-panel");
 const generalInstructions = document.getElementById("general-instructions");
 const saveSettings = document.getElementById("save-settings");
 const settingsSaveState = document.getElementById("settings-save-state");
+const themeInputs = [...document.querySelectorAll('input[name="theme"]')];
+const THEME_KEY = "jarvis_theme_v1";
+
+function applyTheme(theme, persist = true) {
+  const nextTheme = theme === "light" ? "light" : "dark";
+  document.documentElement.dataset.theme = nextTheme;
+  for (const option of themeInputs) option.checked = option.value === nextTheme;
+  if (persist) localStorage.setItem(THEME_KEY, nextTheme);
+  window.dispatchEvent(new CustomEvent("jarvis-theme-change", {detail: {theme: nextTheme}}));
+}
+
+applyTheme(document.documentElement.dataset.theme, false);
+for (const option of themeInputs) {
+  option.addEventListener("change", () => {
+    if (option.checked) applyTheme(option.value);
+  });
+}
 
 const entitySearch = document.getElementById("entity-search");
 const domainFilter = document.getElementById("domain-filter");
@@ -1323,58 +1418,144 @@ function startBrainNetwork() {
   const context = canvas.getContext("2d");
   const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   let nodes = [];
+  let links = [];
   let width = 0;
   let height = 0;
   let frame = 0;
+  let lastFrame = 0;
+
+  function cssRgb(name) {
+    return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+  }
+
+  function buildCollective() {
+    const count = Math.min(320, Math.max(170, Math.floor((width * height) / 1800)));
+    nodes = Array.from({length: count}, (_, index) => {
+      const azimuth = Math.random() * Math.PI * 2;
+      const cosPolar = Math.random() * 2 - 1;
+      const sinPolar = Math.sqrt(1 - cosPolar * cosPolar);
+      const radius = Math.pow(Math.random(), index % 5 === 0 ? .9 : .48);
+      return {
+        x: Math.cos(azimuth) * sinPolar * radius,
+        y: Math.sin(azimuth) * sinPolar * radius,
+        z: cosPolar * radius,
+        phase: Math.random() * Math.PI * 2,
+        weight: .65 + Math.random() * .9,
+      };
+    });
+
+    const pairs = new Set();
+    links = [];
+    nodes.forEach((node, index) => {
+      const nearest = [];
+      for (let otherIndex = 0; otherIndex < nodes.length; otherIndex += 1) {
+        if (otherIndex === index) continue;
+        const other = nodes[otherIndex];
+        const distance = Math.hypot(node.x - other.x, node.y - other.y, node.z - other.z);
+        if (distance < .34) nearest.push({otherIndex, distance});
+      }
+      nearest.sort((left, right) => left.distance - right.distance);
+      nearest.slice(0, index % 7 === 0 ? 3 : 2).forEach(({otherIndex, distance}) => {
+        const from = Math.min(index, otherIndex);
+        const to = Math.max(index, otherIndex);
+        const key = `${from}:${to}`;
+        if (!pairs.has(key)) {
+          pairs.add(key);
+          links.push({from, to, distance});
+        }
+      });
+    });
+  }
 
   function resize() {
     const ratio = Math.min(window.devicePixelRatio || 1, 1.5);
-    width = window.innerWidth;
-    height = window.innerHeight;
+    const bounds = canvas.parentElement.getBoundingClientRect();
+    width = Math.max(1, bounds.width);
+    height = Math.max(1, bounds.height);
     canvas.width = Math.floor(width * ratio);
     canvas.height = Math.floor(height * ratio);
     context.setTransform(ratio, 0, 0, ratio, 0, 0);
-    const count = Math.min(42, Math.max(20, Math.floor((width * height) / 30000)));
-    nodes = Array.from({length: count}, (_, index) => ({
-      x: Math.random() * width,
-      y: Math.random() * height,
-      vx: reducedMotion ? 0 : (Math.random() - .5) * .12,
-      vy: reducedMotion ? 0 : (Math.random() - .5) * .12,
-      core: index < 4,
-    }));
-    draw();
+    buildCollective();
+    draw(performance.now(), true);
   }
 
-  function draw() {
+  function draw(now = performance.now(), force = false) {
+    if (!force && now - lastFrame < 32) {
+      frame = window.requestAnimationFrame(draw);
+      return;
+    }
+    lastFrame = now;
     context.clearRect(0, 0, width, height);
-    for (let i = 0; i < nodes.length; i += 1) {
-      const node = nodes[i];
-      node.x += node.vx;
-      node.y += node.vy;
-      if (node.x < 0 || node.x > width) node.vx *= -1;
-      if (node.y < 0 || node.y > height) node.vy *= -1;
-      for (let j = i + 1; j < nodes.length; j += 1) {
-        const other = nodes[j];
-        const distance = Math.hypot(node.x - other.x, node.y - other.y);
-        if (distance < 155) {
-          context.strokeStyle = `rgba(82, 238, 136, ${.14 * (1 - distance / 155)})`;
-          context.beginPath();
-          context.moveTo(node.x, node.y);
-          context.lineTo(other.x, other.y);
-          context.stroke();
-        }
-      }
-      context.fillStyle = node.core ? "rgba(100,231,255,.78)" : "rgba(101,255,155,.48)";
+    const angle = reducedMotion ? .32 : now * .000035;
+    const tilt = -.15 + Math.sin(reducedMotion ? 0 : now * .00009) * .035;
+    const cosAngle = Math.cos(angle);
+    const sinAngle = Math.sin(angle);
+    const cosTilt = Math.cos(tilt);
+    const sinTilt = Math.sin(tilt);
+    const sphereRadius = Math.min(width * .41, height * .39, 300);
+    const centerX = width * .5;
+    const centerY = height * .43;
+    const projected = nodes.map(node => {
+      const rotatedX = node.x * cosAngle + node.z * sinAngle;
+      const rotatedZ = -node.x * sinAngle + node.z * cosAngle;
+      const rotatedY = node.y * cosTilt - rotatedZ * sinTilt;
+      const depth = node.y * sinTilt + rotatedZ * cosTilt;
+      const perspective = 1 / (1.18 - depth * .22);
+      return {
+        x: centerX + rotatedX * sphereRadius * perspective,
+        y: centerY + rotatedY * sphereRadius * perspective,
+        z: depth,
+        perspective,
+        node,
+      };
+    });
+    const linkRgb = cssRgb("--node-link");
+    const edgeRgb = cssRgb("--node-edge");
+    const coreRgb = cssRgb("--node-core");
+
+    context.lineWidth = .65;
+    for (const link of links) {
+      const from = projected[link.from];
+      const to = projected[link.to];
+      const depthAlpha = Math.max(.08, Math.min(.44, .2 + (from.z + to.z) * .11));
+      context.strokeStyle = `rgba(${linkRgb}, ${depthAlpha * (1 - link.distance / .46)})`;
       context.beginPath();
-      context.arc(node.x, node.y, node.core ? 2.6 : 1.6, 0, Math.PI * 2);
+      context.moveTo(from.x, from.y);
+      context.lineTo(to.x, to.y);
+      context.stroke();
+    }
+
+    projected.sort((left, right) => left.z - right.z);
+    for (const point of projected) {
+      const pulse = reducedMotion ? 1 : .82 + Math.sin(now * .0012 + point.node.phase) * .18;
+      const nodeRadius = Math.max(.65, (1.15 + point.node.weight * .9) * point.perspective * pulse);
+      const depthAlpha = Math.max(.28, Math.min(.96, .58 + point.z * .3));
+      context.shadowColor = `rgba(${edgeRgb}, ${depthAlpha * .32})`;
+      context.shadowBlur = nodeRadius * 3.4;
+      context.fillStyle = `rgba(${coreRgb}, ${Math.min(.98, depthAlpha + .15)})`;
+      context.strokeStyle = `rgba(${edgeRgb}, ${depthAlpha})`;
+      context.lineWidth = Math.max(.55, nodeRadius * .33);
+      context.beginPath();
+      context.arc(point.x, point.y, nodeRadius, 0, Math.PI * 2);
+      context.fill();
+      context.stroke();
+      context.shadowBlur = 0;
+      context.fillStyle = `rgba(255, 255, 235, ${depthAlpha * .62})`;
+      context.beginPath();
+      context.arc(point.x - nodeRadius * .28, point.y - nodeRadius * .3, Math.max(.28, nodeRadius * .22), 0, Math.PI * 2);
       context.fill();
     }
     if (!reducedMotion) frame = window.requestAnimationFrame(draw);
   }
 
-  window.addEventListener("resize", () => {
+  const resizeObserver = new ResizeObserver(() => {
     if (frame) window.cancelAnimationFrame(frame);
     resize();
+  });
+  resizeObserver.observe(canvas.parentElement);
+  window.addEventListener("jarvis-theme-change", () => {
+    if (frame) window.cancelAnimationFrame(frame);
+    draw(performance.now(), true);
   });
   resize();
 }

@@ -1,6 +1,6 @@
 name: "Jarvis Workshop Assistant"
 description: "Local Jarvis agent and interface for Workshop Memory and Home Assistant"
-version: "0.7.3"
+version: "0.7.4"
 slug: "jarvis_workshop_assistant"
 init: false
 startup: application
@@ -23,7 +23,7 @@ ports_description:
 
 options:
   log_level: "info"
-  workshop_memory_url: "http://192.168.178.49:3001/mcp"
+  workshop_memory_url: "http://workshop-memory.local:3001/mcp"
   workshop_memory_internal_url: "http://workshop_memory:3001/mcp"
   openai_api_key: ""
   openai_model: "gpt-5-mini"

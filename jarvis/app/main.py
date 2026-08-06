@@ -27,7 +27,7 @@ HA_WS_URL = "ws://supervisor/core/websocket"
 SUPERVISOR_TOKEN = os.getenv("SUPERVISOR_TOKEN", "")
 WORKSHOP_MEMORY_URL = os.getenv(
     "WORKSHOP_MEMORY_URL",
-    "http://192.168.178.49:3001/mcp",
+    "http://workshop-memory.local:3001/mcp",
 ).rstrip("/")
 WORKSHOP_MEMORY_INTERNAL_URL = os.getenv(
     "WORKSHOP_MEMORY_INTERNAL_URL",
@@ -553,7 +553,7 @@ ha_ws = HomeAssistantWebSocketClient(HA_WS_URL, SUPERVISOR_TOKEN)
 
 app = FastAPI(
     title="Jarvis Workshop Assistant",
-    version="0.7.3",
+    version="0.7.4",
     docs_url="/api/docs",
     openapi_url="/api/openapi.json",
 )
@@ -1876,7 +1876,7 @@ async def health() -> dict[str, Any]:
     configured_speech_provider = SPEECH_PROVIDER if SPEECH_PROVIDER in {"openai", "elevenlabs"} else "openai"
     return {
         "status": "ok",
-        "version": "0.7.3",
+        "version": "0.7.4",
         "home_assistant_configured": bool(SUPERVISOR_TOKEN),
         "workshop_memory_configured": bool(WORKSHOP_MEMORY_URL),
         "openai_configured": bool(OPENAI_API_KEY),
