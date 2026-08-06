@@ -72,6 +72,30 @@ ELEVENLABS_VOICE_DEFAULTS = {
     "style": 0.15,
     "speed": 0.96,
 }
+JARVIS_PREFERENCE_DEFAULTS: dict[str, Any] = {
+    "elevenlabs_model": "eleven_flash_v2_5",
+    "elevenlabs_speaker_boost": True,
+    "auto_speak": True,
+    "response_length": "balanced",
+    "confirmation_strictness": "standard",
+    "context_messages": 20,
+    "retention_days": 90,
+    "preferred_language": "auto",
+    "pronunciation_dictionary": "",
+    "theme": "dark",
+    "reduced_motion": False,
+    "text_size": "medium",
+    "interface_density": "comfortable",
+    "quiet_hours_enabled": False,
+    "quiet_hours_start": "22:00",
+    "quiet_hours_end": "07:00",
+    "voice_volume": 0.9,
+}
+ELEVENLABS_MODELS = {
+    "eleven_flash_v2_5",
+    "eleven_turbo_v2_5",
+    "eleven_multilingual_v2",
+}
 
 
 def load_settings_payload() -> dict[str, Any]:
@@ -94,6 +118,7 @@ def save_settings_payload(payload: dict[str, Any]) -> None:
     temporary.replace(SETTINGS_STORAGE_PATH)
 
 LAST_ENTITY_BY_SESSION: dict[str, dict[str, Any]] = {}
+PENDING_LOW_RISK_ACTIONS: dict[str, dict[str, Any]] = {}
 
 
 def load_general_instructions() -> str:
@@ -148,6 +173,40 @@ def save_elevenlabs_voice_settings(settings: dict[str, float]) -> dict[str, floa
     )
     save_settings_payload(payload)
     return settings
+
+
+def load_preferences() -> dict[str, Any]:
+    stored = load_settings_payload().get("preferences", {})
+    if not isinstance(stored, dict):
+        stored = {}
+    preferences = dict(JARVIS_PREFERENCE_DEFAULTS)
+    preferences.update({key: stored[key] for key in preferences if key in stored})
+    return preferences
+
+
+def save_preferences(preferences: dict[str, Any]) -> dict[str, Any]:
+    payload = load_settings_payload()
+    payload.update(
+        {"version": 3, "preferences": preferences, "updated_at": time.time()}
+    )
+    save_settings_payload(payload)
+    return preferences
+
+
+def apply_pronunciation_dictionary(text: str) -> str:
+    rules = load_preferences().get("pronunciation_dictionary", "")
+    if not isinstance(rules, str):
+        return text
+    replacements: list[tuple[str, str]] = []
+    for line in rules.splitlines()[:100]:
+        if "=" not in line:
+            continue
+        term, spoken = (part.strip() for part in line.split("=", 1))
+        if term and spoken and len(term) <= 80 and len(spoken) <= 160:
+            replacements.append((term, spoken))
+    for term, spoken in sorted(replacements, key=lambda item: len(item[0]), reverse=True):
+        text = re.sub(rf"(?<!\w){re.escape(term)}(?!\w)", spoken, text, flags=re.IGNORECASE)
+    return text
 
 
 def append_general_instruction(instruction: str) -> dict[str, Any]:
@@ -261,6 +320,25 @@ def load_chat_sessions() -> None:
             "title": str(record.get("title") or chat_title(CHAT_SESSIONS[session_id])),
             "updated_at": float(record.get("updated_at", 0)),
         }
+
+
+def prune_expired_chats() -> int:
+    retention_days = int(load_preferences().get("retention_days", 90) or 0)
+    if retention_days <= 0:
+        return 0
+    cutoff = time.time() - retention_days * 86400
+    expired = [
+        session_id for session_id, meta in CHAT_SESSION_META.items()
+        if float(meta.get("updated_at", 0)) and float(meta.get("updated_at", 0)) < cutoff
+    ]
+    for session_id in expired:
+        CHAT_SESSIONS.pop(session_id, None)
+        CHAT_SESSION_META.pop(session_id, None)
+        with contextlib.suppress(ValueError):
+            CHAT_SESSION_ORDER.remove(session_id)
+    if expired:
+        persist_chat_sessions()
+    return len(expired)
 
 
 def get_chat_history(session_id: str) -> deque[dict[str, Any]]:
@@ -602,7 +680,7 @@ ha_ws = HomeAssistantWebSocketClient(HA_WS_URL, SUPERVISOR_TOKEN)
 
 app = FastAPI(
     title="Jarvis Workshop Assistant",
-    version="0.7.5",
+    version="0.8.0",
     docs_url="/api/docs",
     openapi_url="/api/openapi.json",
 )
@@ -623,6 +701,27 @@ class JarvisSettingsUpdate(BaseModel):
     elevenlabs_similarity: float = Field(default=0.75, ge=0.0, le=1.0)
     elevenlabs_style: float = Field(default=0.15, ge=0.0, le=1.0)
     elevenlabs_speed: float = Field(default=0.96, ge=0.7, le=1.2)
+    elevenlabs_model: str = Field(default="eleven_flash_v2_5")
+    elevenlabs_speaker_boost: bool = True
+    auto_speak: bool = True
+    response_length: str = Field(default="balanced", pattern="^(brief|balanced|detailed)$")
+    confirmation_strictness: str = Field(default="standard", pattern="^(standard|cautious)$")
+    context_messages: int = Field(default=20, ge=4, le=50)
+    retention_days: int = Field(default=90, ge=0, le=365)
+    preferred_language: str = Field(default="auto", min_length=2, max_length=40)
+    pronunciation_dictionary: str = Field(default="", max_length=8000)
+    theme: str = Field(default="dark", pattern="^(dark|light|gray)$")
+    reduced_motion: bool = False
+    text_size: str = Field(default="medium", pattern="^(small|medium|large)$")
+    interface_density: str = Field(default="comfortable", pattern="^(compact|comfortable)$")
+    quiet_hours_enabled: bool = False
+    quiet_hours_start: str = Field(default="22:00", pattern="^([01]\\d|2[0-3]):[0-5]\\d$")
+    quiet_hours_end: str = Field(default="07:00", pattern="^([01]\\d|2[0-3]):[0-5]\\d$")
+    voice_volume: float = Field(default=0.9, ge=0.0, le=1.0)
+
+
+class SettingsRestoreRequest(BaseModel):
+    backup: dict[str, Any]
 
 
 class SpeechRequest(BaseModel):
@@ -935,7 +1034,8 @@ project notes unless an explicit approved workflow has completed.
 You may read Home Assistant entities only when they are enabled in Jarvis policy.
 An enabled entity with access value `low_risk_control_proposed` is ALREADY
 APPROVED for immediate control in this version; the word "proposed" is only a
-legacy label. Do not ask for another approval. For a unique enabled match in the
+legacy label. Follow the user's confirmation preference for these low-risk actions.
+For a unique enabled match in the
 light, switch, fan, input_boolean, or climate domain, call the requested turn-on or
 turn-off tool immediately.
 
@@ -968,13 +1068,41 @@ never weaken Home Assistant permissions or other safety rules.
 
 def effective_system_instructions() -> str:
     custom = load_general_instructions()
-    if not custom:
-        return BASE_SYSTEM_INSTRUCTIONS
-    return (
-        f"{BASE_SYSTEM_INSTRUCTIONS}\n\n"
-        "USER GENERAL INSTRUCTIONS (follow when compatible with the policies above):\n"
-        f"{custom}"
+    preferences = load_preferences()
+    response_guidance = {
+        "brief": "Keep replies brief and action-oriented unless the user asks for detail.",
+        "balanced": "Use balanced detail: concise first, with enough context to act safely.",
+        "detailed": "Give detailed, structured explanations while leading with the outcome.",
+    }[preferences["response_length"]]
+    confirmation_guidance = (
+        "For otherwise approved low-risk device changes, ask for confirmation before acting."
+        if preferences["confirmation_strictness"] == "cautious"
+        else "Use the standard approved low-risk action policy above."
     )
+    language = preferences["preferred_language"]
+    language_guidance = (
+        "Reply in the language used by the user."
+        if language == "auto"
+        else f"Prefer {language} unless the user explicitly requests another language."
+    )
+    sections = [
+        BASE_SYSTEM_INSTRUCTIONS,
+        "USER RESPONSE PREFERENCES (never override safety policy):\n"
+        f"- {response_guidance}\n- {confirmation_guidance}\n- {language_guidance}",
+    ]
+    if custom:
+        sections.append(
+            "USER GENERAL INSTRUCTIONS (follow when compatible with the policies above):\n"
+            + custom
+        )
+    return "\n\n".join(sections)
+
+
+def chat_context_limit() -> int:
+    try:
+        return max(4, min(50, int(load_preferences()["context_messages"])))
+    except (TypeError, ValueError):
+        return CHAT_CONTEXT_MAX_MESSAGES
 
 
 def _decode_sse(text: str) -> list[dict[str, Any]]:
@@ -1486,9 +1614,15 @@ async def execute_tool_calls(
                 elif name == "get_home_assistant_state":
                     result = await ha_get_state(arguments["entity_id"])
                 elif name == "turn_on_home_assistant_entity":
-                    result = await ha_set_power(arguments["entity_id"], True)
+                    if load_preferences()["confirmation_strictness"] == "cautious":
+                        result = {"error": "Cautious mode requires explicit confirmation through the local confirmation flow."}
+                    else:
+                        result = await ha_set_power(arguments["entity_id"], True)
                 elif name == "turn_off_home_assistant_entity":
-                    result = await ha_set_power(arguments["entity_id"], False)
+                    if load_preferences()["confirmation_strictness"] == "cautious":
+                        result = {"error": "Cautious mode requires explicit confirmation through the local confirmation flow."}
+                    else:
+                        result = await ha_set_power(arguments["entity_id"], False)
                 elif name == "save_general_instruction":
                     result = append_general_instruction(arguments["instruction"])
                 else:
@@ -1533,8 +1667,15 @@ async def try_local_ha_route(
     """Execute a deterministic HA request, or return None for the model path."""
     previous_entity = get_session_entity(session_id)
     normalized = " ".join(message.lower().strip().split())
+    pending = PENDING_LOW_RISK_ACTIONS.get(session_id)
+    if pending and normalized in {"confirm", "yes confirm", "confirm it", "proceed"}:
+        intent = pending
+        PENDING_LOW_RISK_ACTIONS.pop(session_id, None)
+    elif pending and normalized in {"cancel", "no", "do not", "don't"}:
+        PENDING_LOW_RISK_ACTIONS.pop(session_id, None)
+        return {"reply": "Cancelled. No device action was taken.", "tool_calls": []}
 
-    if previous_entity and is_entity_followup(message):
+    elif previous_entity and is_entity_followup(message):
         intent: dict[str, Any] = {
             "kind": "control" if "turn" in normalized or "switch" in normalized else "state",
             "entity": previous_entity,
@@ -1553,6 +1694,18 @@ async def try_local_ha_route(
         intent = {**parsed, "entity": entity, "source": "approved_entity_lookup"}
 
     entity_id = intent["entity"]["entity_id"]
+    if (
+        intent["kind"] == "control"
+        and load_preferences()["confirmation_strictness"] == "cautious"
+        and pending is not intent
+    ):
+        PENDING_LOW_RISK_ACTIONS[session_id] = intent
+        friendly_name = intent["entity"].get("friendly_name") or entity_id
+        action = "turn on" if intent["turn_on"] else "turn off"
+        return {
+            "reply": f"Confirm: {action} {friendly_name}? Reply “confirm” to proceed or “cancel” to stop.",
+            "tool_calls": [],
+        }
     if intent["kind"] == "control":
         result = await ha_set_power(entity_id, bool(intent["turn_on"]))
         state = result.get("verified_state")
@@ -1596,7 +1749,7 @@ async def run_jarvis(message: str, session_id: str = "default") -> dict[str, Any
             "model": OPENAI_MODEL,
             "instructions": effective_system_instructions(),
             "input": (
-                list(get_chat_history(session_id))[-CHAT_CONTEXT_MAX_MESSAGES:]
+                list(get_chat_history(session_id))[-chat_context_limit():]
                 + (
                     [{
                         "role": "developer",
@@ -1724,7 +1877,7 @@ async def _run_jarvis_stream_events(message: str, session_id: str = "default") -
             "model": OPENAI_MODEL,
             "instructions": effective_system_instructions(),
             "input": (
-                list(get_chat_history(session_id))[-CHAT_CONTEXT_MAX_MESSAGES:]
+                list(get_chat_history(session_id))[-chat_context_limit():]
                 + (
                     [{
                         "role": "developer",
@@ -1929,7 +2082,7 @@ async def health() -> dict[str, Any]:
     configured_speech_provider = SPEECH_PROVIDER if SPEECH_PROVIDER in {"openai", "elevenlabs"} else "openai"
     return {
         "status": "ok",
-        "version": "0.7.5",
+        "version": "0.8.0",
         "home_assistant_configured": bool(SUPERVISOR_TOKEN),
         "workshop_memory_configured": bool(WORKSHOP_MEMORY_URL),
         "openai_configured": bool(OPENAI_API_KEY),
@@ -2054,6 +2207,7 @@ def classify_entity_risk(
 @app.on_event("startup")
 async def start_ha_websocket() -> None:
     load_chat_sessions()
+    prune_expired_chats()
     await get_mcp_client()
     with contextlib.suppress(MCPError, httpx.HTTPError, OSError, RuntimeError):
         await select_workshop_memory_endpoint(force=True)
@@ -2102,11 +2256,15 @@ async def read_settings() -> dict[str, Any]:
         "max_characters": GENERAL_INSTRUCTIONS_MAX_CHARS,
         "elevenlabs_voice_settings": voice,
         "elevenlabs_voice_defaults": ELEVENLABS_VOICE_DEFAULTS,
+        "preferences": load_preferences(),
+        "elevenlabs_models": sorted(ELEVENLABS_MODELS),
     }
 
 
 @app.put("/api/settings")
 async def update_settings(request: JarvisSettingsUpdate) -> dict[str, Any]:
+    if request.elevenlabs_model not in ELEVENLABS_MODELS:
+        raise HTTPException(status_code=400, detail="Unsupported ElevenLabs model")
     try:
         instructions = save_general_instructions(request.general_instructions)
         voice = save_elevenlabs_voice_settings(
@@ -2117,13 +2275,84 @@ async def update_settings(request: JarvisSettingsUpdate) -> dict[str, Any]:
                 "speed": request.elevenlabs_speed,
             }
         )
+        preferences = save_preferences(
+            {
+                "elevenlabs_model": request.elevenlabs_model,
+                "elevenlabs_speaker_boost": request.elevenlabs_speaker_boost,
+                "auto_speak": request.auto_speak,
+                "response_length": request.response_length,
+                "confirmation_strictness": request.confirmation_strictness,
+                "context_messages": request.context_messages,
+                "retention_days": request.retention_days,
+                "preferred_language": request.preferred_language.strip() or "auto",
+                "pronunciation_dictionary": request.pronunciation_dictionary.strip(),
+                "theme": request.theme,
+                "reduced_motion": request.reduced_motion,
+                "text_size": request.text_size,
+                "interface_density": request.interface_density,
+                "quiet_hours_enabled": request.quiet_hours_enabled,
+                "quiet_hours_start": request.quiet_hours_start,
+                "quiet_hours_end": request.quiet_hours_end,
+                "voice_volume": request.voice_volume,
+            }
+        )
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
     return {
         "saved": True,
         "general_instructions": instructions,
         "elevenlabs_voice_settings": voice,
+        "preferences": preferences,
     }
+
+
+@app.get("/api/settings/backup")
+async def export_settings_backup() -> Response:
+    backup = {
+        "format": "jarvis-backup-v1",
+        "created_at": time.time(),
+        "settings": load_settings_payload(),
+        "chats": json.loads(CHAT_STORAGE_PATH.read_text(encoding="utf-8"))
+        if CHAT_STORAGE_PATH.exists() else {"version": 1, "sessions": {}},
+        "entity_policy": json.loads(ENTITY_POLICY_PATH.read_text(encoding="utf-8"))
+        if ENTITY_POLICY_PATH.exists() else {"version": 1, "entities": {}},
+    }
+    # Secrets are environment-backed and are intentionally absent from this file.
+    return Response(
+        json.dumps(backup, ensure_ascii=False, indent=2),
+        media_type="application/json",
+        headers={"Content-Disposition": "attachment; filename=jarvis-backup.json"},
+    )
+
+
+@app.post("/api/settings/restore")
+async def restore_settings_backup(request: SettingsRestoreRequest) -> dict[str, Any]:
+    backup = request.backup
+    if backup.get("format") != "jarvis-backup-v1":
+        raise HTTPException(status_code=400, detail="Unsupported Jarvis backup format")
+    settings = backup.get("settings")
+    chats = backup.get("chats")
+    policy = backup.get("entity_policy")
+    if not isinstance(settings, dict) or not isinstance(chats, dict) or not isinstance(policy, dict):
+        raise HTTPException(status_code=400, detail="Backup is missing required sections")
+    if not isinstance(chats.get("sessions", {}), dict) or not isinstance(policy.get("entities", {}), dict):
+        raise HTTPException(status_code=400, detail="Backup data is malformed")
+    save_settings_payload(settings)
+    CHAT_STORAGE_PATH.parent.mkdir(parents=True, exist_ok=True)
+    CHAT_STORAGE_PATH.write_text(json.dumps(chats, ensure_ascii=False, indent=2), encoding="utf-8")
+    save_entity_policy(policy.get("entities", {}))
+    load_chat_sessions()
+    return {"restored": True, "chat_count": len(CHAT_SESSIONS)}
+
+
+@app.delete("/api/chats")
+async def clear_all_chats() -> dict[str, Any]:
+    count = len(CHAT_SESSIONS)
+    CHAT_SESSIONS.clear()
+    CHAT_SESSION_ORDER.clear()
+    CHAT_SESSION_META.clear()
+    persist_chat_sessions()
+    return {"deleted": count}
 
 
 @app.post("/api/chats")
@@ -2520,6 +2749,8 @@ async def transcribe_voice(audio: UploadFile = File(...)) -> dict[str, str]:
 async def generate_speech(request: SpeechRequest) -> Response:
     """Generate AI speech for playback on the browser device that requested it."""
     provider = SPEECH_PROVIDER if request.provider == "default" else request.provider
+    preferences = load_preferences()
+    speech_text = apply_pronunciation_dictionary(request.text)
     if provider not in {"openai", "elevenlabs"}:
         provider = "openai"
 
@@ -2536,13 +2767,13 @@ async def generate_speech(request: SpeechRequest) -> Response:
         }
         voice_settings = load_elevenlabs_voice_settings()
         payload = {
-            "text": request.text,
-            "model_id": ELEVENLABS_MODEL_ID,
+            "text": speech_text,
+            "model_id": preferences["elevenlabs_model"],
             "voice_settings": {
                 "stability": voice_settings["stability"],
                 "similarity_boost": voice_settings["similarity"],
                 "style": voice_settings["style"],
-                "use_speaker_boost": True,
+                "use_speaker_boost": preferences["elevenlabs_speaker_boost"],
                 "speed": voice_settings["speed"],
             },
         }
@@ -2608,7 +2839,7 @@ async def generate_speech(request: SpeechRequest) -> Response:
     payload = {
         "model": OPENAI_TTS_MODEL,
         "voice": voice,
-        "input": request.text,
+        "input": speech_text,
         "instructions": (
             "Speak as a calm, concise workshop AI assistant. Use a measured pace "
             "and clear pronunciation. Do not add words that are not in the input."

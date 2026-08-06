@@ -24,8 +24,8 @@ class InterfaceTests(unittest.TestCase):
     def test_hud_graph_and_versions(self):
         self.assertIn('id="brain-network"', INDEX)
         self.assertIn("prefers-reduced-motion: reduce", INDEX)
-        self.assertIn('version: "0.7.5"', CONFIG)
-        self.assertIn('"version": "0.7.5"', MAIN)
+        self.assertIn('version: "0.8.0"', CONFIG)
+        self.assertIn('"version": "0.8.0"', MAIN)
 
     def test_public_defaults_and_saved_app_options(self):
         self.assertNotIn("192.168.178.49", CONFIG)
@@ -40,6 +40,7 @@ class InterfaceTests(unittest.TestCase):
     def test_light_dark_themes_and_obsidian_collective(self):
         self.assertIn('name="theme" value="dark"', INDEX)
         self.assertIn('name="theme" value="light"', INDEX)
+        self.assertIn('name="theme" value="gray"', INDEX)
         self.assertIn('const THEME_KEY = "jarvis_theme_v1";', INDEX)
         self.assertIn('document.documentElement.dataset.theme = nextTheme;', INDEX)
         self.assertIn('class="theme-swatch dark"', INDEX)
@@ -47,6 +48,22 @@ class InterfaceTests(unittest.TestCase):
         self.assertIn('const count = Math.min(320, Math.max(170', INDEX)
         self.assertIn('buildCollective()', INDEX)
         self.assertIn('cssRgb("--node-core")', INDEX)
+        self.assertNotIn('border-radius: 50%; background: radial-gradient(circle', INDEX)
+
+    def test_complete_settings_and_glass_chat(self):
+        for control in (
+            "elevenlabs-model", "test-voice", "elevenlabs-speaker-boost",
+            "settings-auto-speak", "response-length", "confirmation-strictness",
+            "context-messages", "retention-days", "preferred-language",
+            "pronunciation-dictionary", "reduced-motion", "text-size",
+            "interface-density", "quiet-hours-enabled", "voice-volume",
+            "export-backup", "restore-backup", "clear-all-chats",
+        ):
+            self.assertIn(f'id="{control}"', INDEX)
+        self.assertIn('backdrop-filter: blur(16px)', INDEX)
+        self.assertIn('@app.get("/api/settings/backup")', MAIN)
+        self.assertIn('@app.post("/api/settings/restore")', MAIN)
+        self.assertIn('PENDING_LOW_RISK_ACTIONS', MAIN)
 
     def test_settings_tab_and_persistent_general_instructions(self):
         self.assertIn('id="settings-tab"', INDEX)

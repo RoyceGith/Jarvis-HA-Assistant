@@ -1,4 +1,11 @@
-# Jarvis Workshop Assistant v0.7.5
+# Jarvis Workshop Assistant v0.8.0
+
+Version 0.8.0 expands Settings with ElevenLabs model/test/speaker boost,
+auto-speak, response detail, cautious low-risk confirmation, conversation
+context and retention, language/pronunciation, accessibility and density,
+quiet hours, volume, and secret-free backup/restore. It also adds a modern gray
+Jarvis HUD, removes the circular neural frame, and places chat on a glass panel
+over the obsidian node collective.
 
 Version 0.7.5 adds persistent ElevenLabs Stability, Similarity, Style, and Speed
 controls under Jarvis Settings. The existing delivery values remain the defaults,

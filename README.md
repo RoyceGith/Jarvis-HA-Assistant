@@ -1,1 +1,1 @@
-Jarvis Workshop Assistant v0.7.5 — adjustable ElevenLabs delivery controls, light/dark appearance themes, an obsidian collective neural core, persistent general instructions, low-latency speech, device-local push-to-talk, persistent chats, and protected Home Assistant controls.
+Jarvis Workshop Assistant v0.8.0 — complete preferences, modern dark/light/gray glass HUD themes, an unframed obsidian neural collective, adjustable ElevenLabs delivery, persistent instructions and chats, backup/restore, and protected Home Assistant controls.

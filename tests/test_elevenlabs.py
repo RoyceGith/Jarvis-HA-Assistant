@@ -110,6 +110,11 @@ def load_generate_speech():
             "style": 0.23,
             "speed": 1.05,
         },
+        "load_preferences": lambda: {
+            "elevenlabs_model": "eleven_flash_v2_5",
+            "elevenlabs_speaker_boost": True,
+        },
+        "apply_pronunciation_dictionary": lambda text: text,
     }
     module = ast.Module(body=selected, type_ignores=[])
     exec(compile(module, str(MAIN_PATH), "exec"), namespace)

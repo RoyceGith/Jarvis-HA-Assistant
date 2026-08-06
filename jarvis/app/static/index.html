@@ -8,7 +8,7 @@
     (() => {
       try {
         const theme = localStorage.getItem("jarvis_theme_v1");
-        document.documentElement.dataset.theme = theme === "light" ? "light" : "dark";
+        document.documentElement.dataset.theme = ["dark", "light", "gray"].includes(theme) ? theme : "dark";
       } catch {
         document.documentElement.dataset.theme = "dark";
       }
@@ -17,7 +17,7 @@
   <style>
     :root {
       color-scheme: dark;
-      font-family: "IBM Plex Mono", "Cascadia Code", ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
       background: #050806;
       color: #dfffe9;
       --phosphor: #74f8bd;
@@ -52,10 +52,29 @@
       --node-edge: 96, 131, 21;
       --node-link: 63, 91, 20;
     }
+    :root[data-theme="gray"] {
+      color-scheme: dark;
+      background: #111418;
+      color: #edf1f5;
+      --phosphor: #b8d7c8;
+      --phosphor-dim: #6f8f82;
+      --cyan: #9fc9d5;
+      --cyan-dim: #527985;
+      --panel: rgba(30, 35, 41, .54);
+      --line: rgba(205, 222, 230, .18);
+      --surface: rgba(33, 39, 46, .45);
+      --surface-strong: rgba(21, 26, 32, .7);
+      --text-muted: #a4adb7;
+      --shadow: rgba(0, 0, 0, .36);
+      --node-core: 5, 7, 8;
+      --node-edge: 198, 220, 207;
+      --node-link: 132, 166, 154;
+    }
     * { box-sizing: border-box; }
     html, body { width: 100%; height: 100%; overflow: hidden; }
     body { margin: 0; min-height: 100vh; min-height: 100dvh; background: radial-gradient(circle at 50% 38%, #09252a 0, #03090a 55%, #010405 100%); transition: background-color .2s ease, color .2s ease; }
     :root[data-theme="light"] body { background: radial-gradient(circle at 50% 38%, #fbfff2 0, #e9eee4 54%, #dce3da 100%); }
+    :root[data-theme="gray"] body { background: radial-gradient(ellipse at 52% 38%, #303741 0, #171b20 48%, #0e1115 100%); }
     body::after {
       content: ""; position: fixed; inset: 0; z-index: 2; pointer-events: none;
       background: repeating-linear-gradient(0deg, transparent 0 3px, rgba(92,236,255,.025) 3px 4px);
@@ -85,13 +104,14 @@
       position: relative; border: 1px solid var(--line); border-radius: 6px;
       background: var(--panel); min-height: 0; height: 100%; padding: 1rem;
       box-shadow: 0 0 42px var(--shadow), inset 0 0 32px rgba(40,255,110,.025);
-      backdrop-filter: blur(8px);
+      backdrop-filter: blur(16px) saturate(118%);
+      -webkit-backdrop-filter: blur(16px) saturate(118%);
     }
     .panel::before { content: "SYS/JARVIS_WORKSHOP"; position: absolute; top: -1.55rem; right: 0; color: var(--phosphor-dim); font-size: .72rem; letter-spacing: .1em; }
     .hidden { display: none !important; }
-    #chat-panel { display: flex; flex-direction: column; overflow: hidden; }
+    #chat-panel { display: flex; flex-direction: column; overflow: hidden; background: linear-gradient(145deg, color-mix(in srgb, var(--panel) 78%, transparent), color-mix(in srgb, var(--surface) 66%, transparent)); border-color: color-mix(in srgb, var(--line) 135%, transparent); box-shadow: 0 22px 70px var(--shadow), inset 0 1px rgba(255,255,255,.07); }
     .chat-shell { display: grid; grid-template-columns: 230px minmax(0, 1fr); gap: 1rem; min-height: 0; height: 100%; }
-    .chat-sidebar { min-width: 0; min-height: 0; padding: .75rem; border: 1px solid var(--line); background: var(--surface); display: flex; flex-direction: column; }
+    .chat-sidebar { min-width: 0; min-height: 0; padding: .75rem; border: 1px solid var(--line); border-radius: 12px; background: color-mix(in srgb, var(--surface) 72%, transparent); display: flex; flex-direction: column; backdrop-filter: blur(12px); }
     .chat-sidebar-header { display: flex; align-items: center; justify-content: space-between; gap: .5rem; margin-bottom: .75rem; }
     .chat-sidebar h2 { margin: 0; color: var(--cyan); font-size: .72rem; letter-spacing: .14em; font-weight: 500; }
     #new-chat-button { padding: .45rem .65rem; color: var(--cyan); }
@@ -104,7 +124,7 @@
     .chat-delete:hover { color: #ffaaa5 !important; }
     .chat-empty { padding: .75rem .35rem; color: #577b80; font-size: .72rem; }
     .hud-layout { display: grid; grid-template-columns: 190px minmax(0, 1fr) 190px; gap: 1rem; min-height: 0; height: 100%; }
-    .hud-rail { padding: .7rem; border: 1px solid rgba(92,236,255,.14); background: rgba(1,8,10,.68); font-size: .7rem; color: #7ba4aa; }
+    .hud-rail { padding: .7rem; border: 1px solid var(--line); border-radius: 12px; background: color-mix(in srgb, var(--surface) 62%, transparent); font-size: .7rem; color: var(--text-muted); backdrop-filter: blur(10px); }
     .hud-rail h2 { margin: 0 0 1rem; color: var(--cyan); font-size: .72rem; letter-spacing: .18em; font-weight: 500; }
     .telemetry { margin: 0 0 1.1rem; }
     .telemetry-label { display: flex; justify-content: space-between; color: #9bb7bb; margin-bottom: .35rem; }
@@ -113,13 +133,13 @@
     .command-list li::before { content: "> "; color: var(--cyan); }
     .rail-log { margin-top: 1rem; padding-top: .8rem; border-top: 1px solid rgba(92,236,255,.16); line-height: 1.55; color: #577b80; }
     .core-stage { position: relative; min-width: 0; min-height: 0; display: flex; flex-direction: column; overflow: hidden; isolation: isolate; }
-    .core-stage::before { content: ""; position: absolute; width: min(52vw, 590px); aspect-ratio: 1; left: 50%; top: 43%; transform: translate(-50%,-50%); border-radius: 50%; background: radial-gradient(circle, rgba(165,210,55,.15), rgba(89,115,31,.045) 46%, transparent 70%); box-shadow: 0 0 110px rgba(127,171,32,.1); pointer-events: none; z-index: 0; }
-    #messages { position: relative; z-index: 1; flex: 1; min-height: 0; overflow-y: auto; scrollbar-color: var(--cyan-dim) transparent; }
-    .message { position: relative; padding: .8rem 1rem .8rem 4.8rem; margin: .5rem 0; border-radius: 3px; white-space: pre-wrap; border-left: 2px solid; }
+    .core-stage::before { content: ""; position: absolute; inset: 4% 3% 12%; background: radial-gradient(ellipse at 50% 44%, rgba(151,184,165,.10), transparent 62%); filter: blur(28px); pointer-events: none; z-index: 0; }
+    #messages { position: relative; z-index: 1; flex: 1; min-height: 0; overflow-y: auto; scrollbar-color: var(--cyan-dim) transparent; padding: .55rem; border: 1px solid color-mix(in srgb, var(--line) 85%, transparent); border-radius: 16px; background: color-mix(in srgb, var(--surface) 38%, transparent); backdrop-filter: blur(5px); box-shadow: inset 0 1px rgba(255,255,255,.045); }
+    .message { position: relative; padding: .8rem 1rem .8rem 4.8rem; margin: .5rem 0; border-radius: 12px; white-space: pre-wrap; border: 1px solid; backdrop-filter: blur(14px); box-shadow: 0 8px 24px rgba(0,0,0,.12); }
     .message::before { position: absolute; left: .8rem; top: .9rem; font-size: .7rem; letter-spacing: .08em; }
-    .user { background: rgba(7, 35, 42, .88); border-color: var(--cyan); color: var(--cyan); margin-left: 12%; text-shadow: 0 0 10px rgba(92,236,255,.18); }
+    .user { background: color-mix(in srgb, var(--cyan-dim) 34%, transparent); border-color: color-mix(in srgb, var(--cyan) 45%, transparent); color: var(--cyan); margin-left: 12%; text-shadow: 0 0 10px rgba(92,236,255,.18); }
     .user::before { content: "YOU"; color: var(--cyan); }
-    .jarvis { background: rgba(12, 39, 24, .82); border-color: var(--phosphor); margin-right: 12%; }
+    .jarvis { background: color-mix(in srgb, var(--phosphor-dim) 28%, transparent); border-color: color-mix(in srgb, var(--phosphor) 42%, transparent); margin-right: 12%; }
     .jarvis::before { content: "JARVIS"; color: var(--phosphor); }
     form { position: relative; z-index: 1; display: flex; gap: .6rem; margin-top: 1rem; }
     #message {
@@ -157,7 +177,7 @@
     .settings-card { padding: 1.1rem; border: 1px solid var(--line); background: var(--surface); }
     .settings-card h2 { margin: 0 0 .6rem; color: var(--cyan); font-size: 1rem; letter-spacing: .08em; }
     .settings-card p { color: var(--text-muted); line-height: 1.55; }
-    .theme-options { display: grid; grid-template-columns: repeat(2, minmax(0, 220px)); gap: .75rem; margin-top: .8rem; }
+    .theme-options { display: grid; grid-template-columns: repeat(3, minmax(0, 220px)); gap: .75rem; margin-top: .8rem; }
     .theme-option { position: relative; display: grid; grid-template-columns: 38px 1fr; align-items: center; gap: .75rem; padding: .8rem; border: 1px solid var(--line); border-radius: 5px; background: var(--surface-strong); cursor: pointer; }
     .theme-option:has(input:checked) { border-color: var(--phosphor); box-shadow: 0 0 14px rgba(112,154,30,.14); }
     .theme-option input { position: absolute; opacity: 0; pointer-events: none; }
@@ -166,6 +186,22 @@
     .theme-swatch { width: 38px; height: 30px; border: 1px solid rgba(104,130,103,.5); border-radius: 4px; box-shadow: inset 0 0 12px rgba(123,160,44,.18); }
     .theme-swatch.dark { background: radial-gradient(circle at 60% 40%, #273318, #030706 68%); }
     .theme-swatch.light { background: radial-gradient(circle at 60% 40%, #fff, #dfe6dc 68%); }
+    .theme-swatch.gray { background: radial-gradient(circle at 60% 40%, #59616b, #171b20 68%); }
+    .settings-grid { display: grid; grid-template-columns: repeat(2, minmax(220px, 1fr)); gap: .85rem 1.1rem; margin-top: .85rem; }
+    .setting-field { display: grid; gap: .35rem; }
+    .setting-field > label, .setting-field > span { font-weight: 650; }
+    .setting-field select, .setting-field input[type="text"], .setting-field input[type="time"], .setting-field input[type="number"], .setting-field textarea { width: 100%; padding: .68rem .75rem; border: 1px solid var(--line); border-radius: 8px; background: var(--surface-strong); color: inherit; }
+    .setting-field small, .setting-note { color: var(--text-muted); line-height: 1.45; }
+    .toggle-row { display: flex; align-items: center; gap: .65rem; min-height: 2.5rem; }
+    .danger-action { color: #ffb4ad; border-color: rgba(255,120,110,.35); }
+    .file-input { max-width: 100%; }
+    :root[data-text-size="small"] { font-size: 14px; }
+    :root[data-text-size="medium"] { font-size: 16px; }
+    :root[data-text-size="large"] { font-size: 18px; }
+    :root[data-density="compact"] main { padding: .4rem; }
+    :root[data-density="compact"] .panel { padding: .65rem; }
+    :root[data-density="compact"] .settings-stack { gap: .65rem; }
+    :root[data-reduced-motion="true"] *, :root[data-reduced-motion="true"] *::before, :root[data-reduced-motion="true"] *::after { animation-duration: .001ms !important; animation-iteration-count: 1 !important; transition-duration: .001ms !important; }
     .voice-control-grid { display: grid; grid-template-columns: repeat(2, minmax(220px, 1fr)); gap: .9rem 1.2rem; margin-top: .9rem; }
     .voice-control { display: grid; grid-template-columns: 1fr 3.5rem; gap: .35rem .75rem; align-items: center; }
     .voice-control label { color: inherit; font-weight: 650; }
@@ -218,6 +254,7 @@
       .voice-settings { justify-content: flex-start; }
       .voice-control-grid { grid-template-columns: 1fr; }
       .theme-options { grid-template-columns: 1fr; }
+      .settings-grid { grid-template-columns: 1fr; }
     }
   </style>
 </head>
@@ -226,7 +263,7 @@
   <header>
     <div>
       <h1>Jarvis</h1>
-      <div class="status">Workshop Intelligence Interface · HUD 0.7.5</div>
+      <div class="status">Workshop Intelligence Interface · HUD 0.8.0</div>
     </div>
     <div id="health" class="status">Checking…</div>
   </header>
@@ -334,7 +371,7 @@
     <div class="settings-stack">
     <div class="settings-card">
       <h2>APPEARANCE</h2>
-      <p>Choose how Jarvis looks on this device. The neural core remains an obsidian collective in both themes.</p>
+      <p>Choose a modern interface while keeping the obsidian neural collective visible behind the glass chat layer.</p>
       <div class="theme-options" role="radiogroup" aria-label="Color theme">
         <label class="theme-option">
           <input type="radio" name="theme" value="dark">
@@ -346,11 +383,25 @@
           <span class="theme-swatch light" aria-hidden="true"></span>
           <span><strong>Light</strong><small>Bright technical canvas</small></span>
         </label>
+        <label class="theme-option">
+          <input type="radio" name="theme" value="gray">
+          <span class="theme-swatch gray" aria-hidden="true"></span>
+          <span><strong>Gray HUD</strong><small>Elegant Jarvis glass</small></span>
+        </label>
+      </div>
+      <div class="settings-grid">
+        <div class="setting-field"><label for="text-size">Text size</label><select id="text-size"><option value="small">Small</option><option value="medium">Medium</option><option value="large">Large</option></select></div>
+        <div class="setting-field"><label for="interface-density">Interface density</label><select id="interface-density"><option value="comfortable">Comfortable</option><option value="compact">Compact</option></select></div>
+        <label class="toggle-row"><input id="reduced-motion" type="checkbox"> Reduce neural motion and animations</label>
       </div>
     </div>
     <div class="settings-card">
       <h2>ELEVENLABS VOICE</h2>
       <p>Fine-tune how the configured ElevenLabs voice is delivered. Changes apply to the next spoken reply.</p>
+      <div class="settings-grid">
+        <div class="setting-field"><label for="elevenlabs-model">Model</label><select id="elevenlabs-model"><option value="eleven_flash_v2_5">Flash v2.5 · fastest</option><option value="eleven_turbo_v2_5">Turbo v2.5 · balanced</option><option value="eleven_multilingual_v2">Multilingual v2 · richest</option></select></div>
+        <label class="toggle-row"><input id="elevenlabs-speaker-boost" type="checkbox"> Speaker boost <small>(may add latency)</small></label>
+      </div>
       <div class="voice-control-grid">
         <div class="voice-control">
           <label for="elevenlabs-stability">Stability</label>
@@ -377,7 +428,16 @@
           <small>0.70 is slow, 1.00 is normal, and 1.20 is fastest.</small>
         </div>
       </div>
-      <button id="reset-voice-settings" class="voice-reset" type="button">Reset Voice Defaults</button>
+      <div class="settings-actions"><button id="test-voice" type="button">Test Voice</button><button id="reset-voice-settings" type="button">Reset Voice Defaults</button></div>
+    </div>
+    <div class="settings-card">
+      <h2>RESPONSES &amp; BEHAVIOR</h2>
+      <div class="settings-grid">
+        <div class="setting-field"><label for="response-length">Response detail</label><select id="response-length"><option value="brief">Brief</option><option value="balanced">Balanced</option><option value="detailed">Detailed</option></select></div>
+        <div class="setting-field"><label for="confirmation-strictness">Confirmation style</label><select id="confirmation-strictness"><option value="standard">Standard</option><option value="cautious">Cautious · confirm low-risk actions</option></select><small>Protected-device safeguards always remain enforced.</small></div>
+        <div class="setting-field"><label for="preferred-language">Preferred language</label><input id="preferred-language" type="text" maxlength="40" placeholder="auto, English, Greek…"></div>
+      </div>
+      <div class="setting-field"><label for="pronunciation-dictionary">Pronunciation dictionary</label><textarea id="pronunciation-dictionary" rows="4" maxlength="8000" placeholder="HA = H A&#10;Nicosia = Nee-koh-see-ah"></textarea><small>One “term = spoken form” rule per line. Applied only to speech output.</small></div>
     </div>
     <div class="settings-card">
       <h2>GENERAL INSTRUCTIONS</h2>
@@ -386,14 +446,34 @@
         format, preferences, and behavior, but cannot override device permissions or safety rules.
       </p>
       <textarea id="general-instructions" maxlength="12000" placeholder="Examples:&#10;- Keep answers brief unless I ask for detail.&#10;- When giving workshop steps, put safety checks first."></textarea>
-      <div class="settings-actions">
-        <button id="save-settings" type="button">Save Settings</button>
-        <span id="settings-save-state" role="status" aria-live="polite"></span>
-      </div>
       <p class="muted">
         You can also say in chat: “Remember this as a general instruction: when I ask for options,
         recommend one and explain why.” Jarvis saves only explicit requests.
       </p>
+    </div>
+    <div class="settings-card">
+      <h2>VOICE PLAYBACK &amp; QUIET HOURS</h2>
+      <div class="settings-grid">
+        <label class="toggle-row"><input id="settings-auto-speak" type="checkbox"> Automatically speak replies</label>
+        <div class="voice-control"><label for="voice-volume">Voice volume</label><output id="voice-volume-value" for="voice-volume">90%</output><input id="voice-volume" type="range" min="0" max="1" step="0.05" value="0.9"></div>
+        <label class="toggle-row"><input id="quiet-hours-enabled" type="checkbox"> Enable quiet hours</label>
+        <div class="setting-field"><label for="quiet-hours-start">Quiet hours start</label><input id="quiet-hours-start" type="time" value="22:00"></div>
+        <div class="setting-field"><label for="quiet-hours-end">Quiet hours end</label><input id="quiet-hours-end" type="time" value="07:00"></div>
+      </div>
+      <p class="setting-note">During quiet hours Jarvis still replies in chat, but automatic speech stays muted.</p>
+    </div>
+    <div class="settings-card">
+      <h2>CONVERSATION MEMORY</h2>
+      <div class="settings-grid">
+        <div class="setting-field"><label for="context-messages">Messages used as context</label><input id="context-messages" type="number" min="4" max="50" value="20"><small>Larger context improves continuity but uses more model input.</small></div>
+        <div class="setting-field"><label for="retention-days">Chat retention days</label><input id="retention-days" type="number" min="0" max="365" value="90"><small>0 keeps chats indefinitely. Cleanup is applied during app startup.</small></div>
+      </div>
+      <div class="settings-actions"><button id="export-backup" type="button">Export Backup</button><label class="setting-field"><span>Restore Backup</span><input id="restore-backup" class="file-input" type="file" accept="application/json"></label><button id="clear-all-chats" class="danger-action" type="button">Clear All Chats</button></div>
+      <p class="setting-note">Backups include preferences, instructions, chats, and entity policy. API keys and service URLs are never exported.</p>
+    </div>
+    <div class="settings-actions">
+      <button id="save-settings" type="button">Save All Settings</button>
+      <span id="settings-save-state" role="status" aria-live="polite"></span>
     </div>
     </div>
   </section>
@@ -493,8 +573,22 @@ function stopAudioPlayback(nextState = "VOICE READY") {
   setVoiceState(nextState);
 }
 
-async function speakText(text) {
-  if (!autoSpeak.checked || !text.trim()) return;
+function isQuietHours() {
+  if (!jarvisPreferences.quiet_hours_enabled) return false;
+  const now = new Date();
+  const current = now.getHours() * 60 + now.getMinutes();
+  const [startHour, startMinute] = String(jarvisPreferences.quiet_hours_start || "22:00").split(":").map(Number);
+  const [endHour, endMinute] = String(jarvisPreferences.quiet_hours_end || "07:00").split(":").map(Number);
+  const start = startHour * 60 + startMinute;
+  const end = endHour * 60 + endMinute;
+  return start <= end ? current >= start && current < end : current >= start || current < end;
+}
+
+async function speakText(text, force = false) {
+  if ((!force && (!autoSpeak.checked || isQuietHours())) || !text.trim()) {
+    if (!force && isQuietHours()) setVoiceState("QUIET HOURS");
+    return;
+  }
   stopAudioPlayback("SPEECH BUFFERING");
   speechAbortController = new AbortController();
   stopButton.disabled = false;
@@ -519,6 +613,7 @@ async function speakText(text) {
       const blob = await response.blob();
       activeAudioUrl = URL.createObjectURL(blob);
       activeAudio = new Audio(activeAudioUrl);
+      activeAudio.volume = Number(jarvisPreferences.voice_volume ?? 0.9);
       activeAudio.addEventListener("ended", () => stopAudioPlayback());
       activeAudio.addEventListener("error", () => stopAudioPlayback("VOICE PLAYBACK FAILED"));
       setVoiceState("SPEAKING");
@@ -529,6 +624,7 @@ async function speakText(text) {
     const mediaSource = new MediaSource();
     activeAudioUrl = URL.createObjectURL(mediaSource);
     activeAudio = new Audio(activeAudioUrl);
+    activeAudio.volume = Number(jarvisPreferences.voice_volume ?? 0.9);
     activeAudio.addEventListener("ended", () => stopAudioPlayback());
     activeAudio.addEventListener("error", () => stopAudioPlayback("VOICE PLAYBACK FAILED"));
     await new Promise((resolve, reject) => {
@@ -706,7 +802,29 @@ const elevenLabsVoiceInputs = {
   speed: document.getElementById("elevenlabs-speed"),
 };
 const resetVoiceSettings = document.getElementById("reset-voice-settings");
+const testVoice = document.getElementById("test-voice");
+const elevenLabsModel = document.getElementById("elevenlabs-model");
+const elevenLabsSpeakerBoost = document.getElementById("elevenlabs-speaker-boost");
+const settingsAutoSpeak = document.getElementById("settings-auto-speak");
+const responseLength = document.getElementById("response-length");
+const confirmationStrictness = document.getElementById("confirmation-strictness");
+const contextMessages = document.getElementById("context-messages");
+const retentionDays = document.getElementById("retention-days");
+const preferredLanguage = document.getElementById("preferred-language");
+const pronunciationDictionary = document.getElementById("pronunciation-dictionary");
+const reducedMotionSetting = document.getElementById("reduced-motion");
+const textSize = document.getElementById("text-size");
+const interfaceDensity = document.getElementById("interface-density");
+const quietHoursEnabled = document.getElementById("quiet-hours-enabled");
+const quietHoursStart = document.getElementById("quiet-hours-start");
+const quietHoursEnd = document.getElementById("quiet-hours-end");
+const voiceVolume = document.getElementById("voice-volume");
+const voiceVolumeValue = document.getElementById("voice-volume-value");
+const exportBackup = document.getElementById("export-backup");
+const restoreBackup = document.getElementById("restore-backup");
+const clearAllChats = document.getElementById("clear-all-chats");
 let elevenLabsVoiceDefaults = {stability: 0.55, similarity: 0.75, style: 0.15, speed: 0.96};
+let jarvisPreferences = {};
 const THEME_KEY = "jarvis_theme_v1";
 
 function setElevenLabsVoiceControls(settings) {
@@ -729,12 +847,71 @@ resetVoiceSettings.addEventListener("click", () => {
 });
 
 function applyTheme(theme, persist = true) {
-  const nextTheme = theme === "light" ? "light" : "dark";
+  const nextTheme = ["dark", "light", "gray"].includes(theme) ? theme : "dark";
   document.documentElement.dataset.theme = nextTheme;
   for (const option of themeInputs) option.checked = option.value === nextTheme;
   if (persist) localStorage.setItem(THEME_KEY, nextTheme);
   window.dispatchEvent(new CustomEvent("jarvis-theme-change", {detail: {theme: nextTheme}}));
 }
+
+function applyInterfacePreferences(preferences = {}) {
+  const theme = preferences.theme || document.documentElement.dataset.theme || "dark";
+  applyTheme(theme);
+  document.documentElement.dataset.textSize = preferences.text_size || "medium";
+  document.documentElement.dataset.density = preferences.interface_density || "comfortable";
+  document.documentElement.dataset.reducedMotion = String(Boolean(preferences.reduced_motion));
+}
+
+voiceVolume.addEventListener("input", () => {
+  voiceVolumeValue.textContent = `${Math.round(Number(voiceVolume.value) * 100)}%`;
+  if (activeAudio) activeAudio.volume = Number(voiceVolume.value);
+});
+
+testVoice.addEventListener("click", () => speakText("Jarvis voice systems online. How may I assist?", true));
+settingsAutoSpeak.addEventListener("change", () => { autoSpeak.checked = settingsAutoSpeak.checked; });
+autoSpeak.addEventListener("change", () => { settingsAutoSpeak.checked = autoSpeak.checked; });
+
+exportBackup.addEventListener("click", () => {
+  const link = document.createElement("a");
+  link.href = "api/settings/backup";
+  link.download = "jarvis-backup.json";
+  link.click();
+});
+
+restoreBackup.addEventListener("change", async () => {
+  const file = restoreBackup.files?.[0];
+  if (!file) return;
+  settingsSaveState.textContent = "Restoring backup…";
+  try {
+    const backup = JSON.parse(await file.text());
+    const response = await fetch("api/settings/restore", {
+      method: "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({backup}),
+    });
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.detail || `HTTP ${response.status}`);
+    await loadSettings();
+    await refreshChatList();
+    settingsSaveState.textContent = `Backup restored · ${data.chat_count} chats available.`;
+  } catch (error) {
+    settingsSaveState.textContent = `Restore failed: ${error.message || error}`;
+  } finally {
+    restoreBackup.value = "";
+  }
+});
+
+clearAllChats.addEventListener("click", async () => {
+  if (!window.confirm("Clear every saved Jarvis conversation? This cannot be undone without a backup.")) return;
+  const response = await fetch("api/chats", {method: "DELETE"});
+  const data = await response.json().catch(() => ({}));
+  if (!response.ok) {
+    settingsSaveState.textContent = `Clear failed: ${data.detail || `HTTP ${response.status}`}`;
+    return;
+  }
+  await createNewChat();
+  settingsSaveState.textContent = `Cleared ${data.deleted || 0} saved chats.`;
+});
 
 applyTheme(document.documentElement.dataset.theme, false);
 for (const option of themeInputs) {
@@ -934,6 +1111,27 @@ async function loadSettings() {
     if (data.max_characters) generalInstructions.maxLength = data.max_characters;
     elevenLabsVoiceDefaults = data.elevenlabs_voice_defaults || elevenLabsVoiceDefaults;
     setElevenLabsVoiceControls(data.elevenlabs_voice_settings || elevenLabsVoiceDefaults);
+    jarvisPreferences = data.preferences || {};
+    elevenLabsModel.value = jarvisPreferences.elevenlabs_model || "eleven_flash_v2_5";
+    elevenLabsSpeakerBoost.checked = jarvisPreferences.elevenlabs_speaker_boost !== false;
+    autoSpeak.checked = jarvisPreferences.auto_speak !== false;
+    settingsAutoSpeak.checked = autoSpeak.checked;
+    responseLength.value = jarvisPreferences.response_length || "balanced";
+    confirmationStrictness.value = jarvisPreferences.confirmation_strictness || "standard";
+    contextMessages.value = String(jarvisPreferences.context_messages ?? 20);
+    retentionDays.value = String(jarvisPreferences.retention_days ?? 90);
+    preferredLanguage.value = jarvisPreferences.preferred_language || "auto";
+    pronunciationDictionary.value = jarvisPreferences.pronunciation_dictionary || "";
+    reducedMotionSetting.checked = Boolean(jarvisPreferences.reduced_motion);
+    textSize.value = jarvisPreferences.text_size || "medium";
+    interfaceDensity.value = jarvisPreferences.interface_density || "comfortable";
+    quietHoursEnabled.checked = Boolean(jarvisPreferences.quiet_hours_enabled);
+    quietHoursStart.value = jarvisPreferences.quiet_hours_start || "22:00";
+    quietHoursEnd.value = jarvisPreferences.quiet_hours_end || "07:00";
+    voiceVolume.value = String(jarvisPreferences.voice_volume ?? 0.9);
+    voiceVolumeValue.textContent = `${Math.round(Number(voiceVolume.value) * 100)}%`;
+    applyInterfacePreferences(jarvisPreferences);
+    saveVoiceSettings();
     settingsSaveState.textContent = "";
   } catch (error) {
     settingsSaveState.textContent = `Could not load: ${error.message || error}`;
@@ -958,12 +1156,33 @@ saveSettings.addEventListener("click", async () => {
         elevenlabs_similarity: Number(elevenLabsVoiceInputs.similarity.value),
         elevenlabs_style: Number(elevenLabsVoiceInputs.style.value),
         elevenlabs_speed: Number(elevenLabsVoiceInputs.speed.value),
+        elevenlabs_model: elevenLabsModel.value,
+        elevenlabs_speaker_boost: elevenLabsSpeakerBoost.checked,
+        auto_speak: settingsAutoSpeak.checked,
+        response_length: responseLength.value,
+        confirmation_strictness: confirmationStrictness.value,
+        context_messages: Number(contextMessages.value),
+        retention_days: Number(retentionDays.value),
+        preferred_language: preferredLanguage.value.trim() || "auto",
+        pronunciation_dictionary: pronunciationDictionary.value,
+        theme: document.querySelector('input[name="theme"]:checked')?.value || "dark",
+        reduced_motion: reducedMotionSetting.checked,
+        text_size: textSize.value,
+        interface_density: interfaceDensity.value,
+        quiet_hours_enabled: quietHoursEnabled.checked,
+        quiet_hours_start: quietHoursStart.value,
+        quiet_hours_end: quietHoursEnd.value,
+        voice_volume: Number(voiceVolume.value),
       }),
     });
     const data = await response.json();
     if (!response.ok) throw new Error(data.detail || `HTTP ${response.status}`);
     generalInstructions.value = data.general_instructions || "";
     setElevenLabsVoiceControls(data.elevenlabs_voice_settings || {});
+    jarvisPreferences = data.preferences || jarvisPreferences;
+    autoSpeak.checked = jarvisPreferences.auto_speak !== false;
+    applyInterfacePreferences(jarvisPreferences);
+    saveVoiceSettings();
     settingsSaveState.textContent = "Saved. New replies and speech will use these settings.";
   } catch (error) {
     settingsSaveState.textContent = `Save failed: ${error.message || error}`;
@@ -1491,7 +1710,9 @@ form.addEventListener("submit", async (event) => {
 function startBrainNetwork() {
   const canvas = document.getElementById("brain-network");
   const context = canvas.getContext("2d");
-  const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const prefersReducedMotion = () =>
+    window.matchMedia("(prefers-reduced-motion: reduce)").matches ||
+    document.documentElement.dataset.reducedMotion === "true";
   let nodes = [];
   let links = [];
   let width = 0;
@@ -1561,8 +1782,8 @@ function startBrainNetwork() {
     }
     lastFrame = now;
     context.clearRect(0, 0, width, height);
+    const reducedMotion = prefersReducedMotion();
     const angle = reducedMotion ? .32 : now * .000035;
-    const tilt = -.15 + Math.sin(reducedMotion ? 0 : now * .00009) * .035;
     const cosAngle = Math.cos(angle);
     const sinAngle = Math.sin(angle);
     const cosTilt = Math.cos(tilt);
@@ -1636,6 +1857,7 @@ function startBrainNetwork() {
 }
 
 checkHealth();
+loadSettings();
 openChat(jarvisChatSessionId);
 window.setInterval(() => {
   document.getElementById("hud-clock").textContent = new Date().toLocaleTimeString([], {hour12: false});

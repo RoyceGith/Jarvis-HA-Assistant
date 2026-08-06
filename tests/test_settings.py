@@ -22,6 +22,9 @@ def load_settings_functions(storage_path: Path):
         "load_elevenlabs_voice_settings",
         "save_elevenlabs_voice_settings",
         "append_general_instruction",
+        "load_preferences",
+        "save_preferences",
+        "apply_pronunciation_dictionary",
     }
     selected = [
         node for node in tree.body
@@ -40,6 +43,26 @@ def load_settings_functions(storage_path: Path):
             "style": 0.15,
             "speed": 0.96,
         },
+        "JARVIS_PREFERENCE_DEFAULTS": {
+            "elevenlabs_model": "eleven_flash_v2_5",
+            "elevenlabs_speaker_boost": True,
+            "auto_speak": True,
+            "response_length": "balanced",
+            "confirmation_strictness": "standard",
+            "context_messages": 20,
+            "retention_days": 90,
+            "preferred_language": "auto",
+            "pronunciation_dictionary": "",
+            "theme": "dark",
+            "reduced_motion": False,
+            "text_size": "medium",
+            "interface_density": "comfortable",
+            "quiet_hours_enabled": False,
+            "quiet_hours_start": "22:00",
+            "quiet_hours_end": "07:00",
+            "voice_volume": 0.9,
+        },
+        "re": __import__("re"),
     }
     exec(compile(ast.Module(body=selected, type_ignores=[]), str(MAIN_PATH), "exec"), namespace)
     return namespace
@@ -108,6 +131,16 @@ class SettingsTests(unittest.TestCase):
                 functions["load_elevenlabs_voice_settings"](),
                 {"stability": 0.55, "similarity": 0.75, "style": 0.2, "speed": 0.96},
             )
+
+    def test_preferences_and_pronunciation_round_trip(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            storage = Path(temporary) / "jarvis_settings.json"
+            functions = load_settings_functions(storage)
+            preferences = dict(functions["JARVIS_PREFERENCE_DEFAULTS"])
+            preferences.update({"theme": "gray", "pronunciation_dictionary": "HA = H A"})
+            functions["save_preferences"](preferences)
+            self.assertEqual(functions["load_preferences"]()["theme"], "gray")
+            self.assertEqual(functions["apply_pronunciation_dictionary"]("Ask HA now"), "Ask H A now")
 
 
 if __name__ == "__main__":
