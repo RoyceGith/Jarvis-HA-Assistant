@@ -24,8 +24,8 @@ class InterfaceTests(unittest.TestCase):
     def test_hud_graph_and_versions(self):
         self.assertIn('id="brain-network"', INDEX)
         self.assertIn("prefers-reduced-motion: reduce", INDEX)
-        self.assertIn('version: "0.8.0"', CONFIG)
-        self.assertIn('"version": "0.8.0"', MAIN)
+        self.assertIn('version: "0.8.1"', CONFIG)
+        self.assertIn('"version": "0.8.1"', MAIN)
 
     def test_public_defaults_and_saved_app_options(self):
         self.assertNotIn("192.168.178.49", CONFIG)
@@ -49,6 +49,12 @@ class InterfaceTests(unittest.TestCase):
         self.assertIn('const count = Math.min(320, Math.max(170', INDEX)
         self.assertIn('buildCollective()', INDEX)
         self.assertIn('cssRgb("--node-core")', INDEX)
+        self.assertIn('const tilt = -.15 + Math.sin(', INDEX)
+        self.assertIn('const cosTilt = Math.cos(tilt);', INDEX)
+        self.assertIn('const sinTilt = Math.sin(tilt);', INDEX)
+        self.assertIn('#brain-network { position: absolute; inset: 0;', INDEX)
+        self.assertNotIn('#brain-network { border:', INDEX)
+        self.assertNotIn('#brain-network { border-radius:', INDEX)
         self.assertNotIn('border-radius: 50%; background: radial-gradient(circle', INDEX)
 
     def test_complete_settings_and_glass_chat(self):
