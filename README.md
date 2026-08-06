@@ -1,1 +1,1 @@
-Jarvis Workshop Assistant v0.11.1 — fixes Plugin Catalog loading by making the Plugins tab recovery handler load both installed plugins and catalog results, guarantees the catalog's module-level hashlib import, and surfaces MCP Registry errors while retaining GitHub as the featured fallback.
+Jarvis Workshop Assistant v0.11.2 — restores the Installed Plugins container after the catalog layout transformation, adds defensive DOM fallbacks for plugin and catalog result nodes, and verifies the required Plugins interface structure during the Docker build.
