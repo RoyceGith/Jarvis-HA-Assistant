@@ -26,6 +26,7 @@ COPY apply_ui_recovery_v0102.py ./apply_ui_recovery_v0102.py
 COPY apply_plugin_catalog_v0110.py ./apply_plugin_catalog_v0110.py
 COPY apply_plugin_catalog_fix_v0111.py ./apply_plugin_catalog_fix_v0111.py
 COPY apply_plugin_dom_fix_v0112.py ./apply_plugin_dom_fix_v0112.py
+COPY apply_plugin_init_fix_v0113.py ./apply_plugin_init_fix_v0113.py
 RUN python3 ./apply_interface_hotfix.py \
     && python3 ./apply_agent_controls_v090.py \
     && python3 ./apply_build_fix_v0101.py \
@@ -34,8 +35,9 @@ RUN python3 ./apply_interface_hotfix.py \
     && python3 ./apply_plugin_catalog_v0110.py \
     && python3 ./apply_plugin_catalog_fix_v0111.py \
     && python3 ./apply_plugin_dom_fix_v0112.py \
+    && python3 ./apply_plugin_init_fix_v0113.py \
     && python3 -m py_compile ./app/main.py \
-    && rm ./apply_interface_hotfix.py ./apply_agent_controls_v090.py ./apply_plugin_manager_v0100.py ./apply_build_fix_v0101.py ./apply_ui_recovery_v0102.py ./apply_plugin_catalog_v0110.py ./apply_plugin_catalog_fix_v0111.py ./apply_plugin_dom_fix_v0112.py
+    && rm ./apply_interface_hotfix.py ./apply_agent_controls_v090.py ./apply_plugin_manager_v0100.py ./apply_build_fix_v0101.py ./apply_ui_recovery_v0102.py ./apply_plugin_catalog_v0110.py ./apply_plugin_catalog_fix_v0111.py ./apply_plugin_dom_fix_v0112.py ./apply_plugin_init_fix_v0113.py
 
 COPY run.sh /run.sh
 RUN chmod a+x /run.sh
