@@ -1,1 +1,1 @@
-Jarvis Workshop Assistant v0.8.9 — renders short numbered section labels followed by bullet details as larger bold headings while preserving genuine ordered lists.
+Jarvis Workshop Assistant v0.9.0 — adds persistent Agent Model and Intelligence dropdowns beside the voice controls, discovers GPT models available to the configured OpenAI account, and applies the selected model and reasoning effort to new chat requests.
