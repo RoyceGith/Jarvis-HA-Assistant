@@ -34,6 +34,7 @@ class InterfaceTests(unittest.TestCase):
         self.assertIn("bashio::config 'workshop_memory_url'", RUN_SCRIPT)
         self.assertIn("bashio::config 'openai_api_key'", RUN_SCRIPT)
         self.assertIn("bashio::config 'elevenlabs_api_key'", RUN_SCRIPT)
+        self.assertIn('ELEVENLABS_MODEL_ID\n        if ELEVENLABS_MODEL_ID in', MAIN)
         self.assertIn('CHAT_STORAGE_PATH = Path("/data/chat_sessions.json")', MAIN)
         self.assertIn('SETTINGS_STORAGE_PATH = Path("/data/jarvis_settings.json")', MAIN)
 

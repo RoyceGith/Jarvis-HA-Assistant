@@ -73,7 +73,13 @@ ELEVENLABS_VOICE_DEFAULTS = {
     "speed": 0.96,
 }
 JARVIS_PREFERENCE_DEFAULTS: dict[str, Any] = {
-    "elevenlabs_model": "eleven_flash_v2_5",
+    "elevenlabs_model": (
+        ELEVENLABS_MODEL_ID
+        if ELEVENLABS_MODEL_ID in {
+            "eleven_flash_v2_5", "eleven_turbo_v2_5", "eleven_multilingual_v2"
+        }
+        else "eleven_flash_v2_5"
+    ),
     "elevenlabs_speaker_boost": True,
     "auto_speak": True,
     "response_length": "balanced",
