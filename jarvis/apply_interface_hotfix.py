@@ -39,12 +39,7 @@ def patch_index() -> None:
         '.message h2, .message h3, .message h4 { color: var(--phosphor); font-weight: 800; line-height: 1.28; letter-spacing: .01em; }\n    .message h2 { margin: .65rem 0 .6rem; font-size: 1.28rem; }\n    .message h3 { margin: .55rem 0 .5rem; font-size: 1.12rem; }\n    .message h4 { margin: .45rem 0 .42rem; font-size: 1.02rem; }\n    .message > h2:first-child, .message > h3:first-child, .message > h4:first-child { margin-top: .15rem; }',
         "response heading hierarchy",
     )
-    text = replace_required(
-        text,
-        'Workshop Intelligence Interface · HUD 0.8.5',
-        'Workshop Intelligence Interface · HUD 0.8.8',
-        "HUD version",
-    )
+    text = replace_required(text, 'Workshop Intelligence Interface · HUD 0.8.5', 'Workshop Intelligence Interface · HUD 0.8.9', "HUD version")
     text = replace_required(
         text,
         'const numbered = trimmed.match(/^\\d+[.)]\\s+(.+)$/);\n    if (numbered) {\n      openList("ol");\n      html.push(`<li>${renderInlineMarkdown(numbered[1])}</li>`);',
@@ -59,57 +54,35 @@ def patch_index() -> None:
     )
     text = replace_required(
         text,
+        '  for (const line of lines) {\n    const trimmed = line.trim();',
+        '  for (let lineIndex = 0; lineIndex < lines.length; lineIndex += 1) {\n    const line = lines[lineIndex];\n    const trimmed = line.trim();',
+        "indexed markdown line loop",
+    )
+    text = replace_required(
+        text,
+        '    const numbered = trimmed.match(/^(\\d+)[.)]\\s+(.+)$/);\n    if (numbered) {\n      openList("ol");\n      html.push(`<li value="${Number(numbered[1])}">${renderInlineMarkdown(numbered[2])}</li>`);\n      continue;\n    }',
+        '    const numbered = trimmed.match(/^(\\d+)[.)]\\s+(.+)$/);\n    if (numbered) {\n      let nextContent = "";\n      for (let nextIndex = lineIndex + 1; nextIndex < lines.length; nextIndex += 1) {\n        nextContent = lines[nextIndex].trim();\n        if (nextContent) break;\n      }\n      const followedByDetails = /^[-*]\\s+/.test(nextContent);\n      const looksLikeSectionTitle = followedByDetails && numbered[2].length <= 120;\n      if (looksLikeSectionTitle) {\n        closeParagraph();\n        closeList();\n        html.push(`<h3>${renderInlineMarkdown(`${numbered[1]}. ${numbered[2]}`)}</h3>`);\n      } else {\n        openList("ol");\n        html.push(`<li value="${Number(numbered[1])}">${renderInlineMarkdown(numbered[2])}</li>`);\n      }\n      continue;\n    }',
+        "numbered section heading detection",
+    )
+    text = replace_required(
+        text,
         'function addMessage(text, role) {',
         'function setNeuronIntensity(intense) {\n  document.querySelector(".core-stage")?.classList.toggle("neuron-intense", Boolean(intense));\n}\n\nfunction isNearMessagesBottom(threshold = 72) {\n  return messages.scrollHeight - messages.scrollTop - messages.clientHeight <= threshold;\n}\n\nfunction addMessage(text, role) {',
         "neuron and scroll helpers",
     )
-    text = replace_required(
-        text,
-        'function showChatWelcome() {\n  messages.innerHTML = "";\n  addMessage("Jarvis intelligence core online.", "jarvis");\n}',
-        'function showChatWelcome() {\n  messages.innerHTML = "";\n  setNeuronIntensity(true);\n  addMessage("Jarvis intelligence core online.", "jarvis");\n}',
-        "intense empty chat state",
-    )
-    text = replace_required(
-        text,
-        '    for (const message of data.messages || []) {\n      addMessage(message.content, message.role === "user" ? "user" : "jarvis");\n    }\n    if (!messages.children.length) showChatWelcome();',
-        '    const restoredMessages = data.messages || [];\n    setNeuronIntensity(restoredMessages.length === 0);\n    for (const message of restoredMessages) {\n      addMessage(message.content, message.role === "user" ? "user" : "jarvis");\n    }\n    if (!messages.children.length) showChatWelcome();',
-        "restored chat neuron state",
-    )
-    text = replace_required(
-        text,
-        '  const jarvisMessage = addMessage("Connecting…", "jarvis");',
-        '  setNeuronIntensity(false);\n  const jarvisMessage = addMessage("Connecting…", "jarvis");',
-        "subdued active conversation state",
-    )
-    text = replace_required(
-        text,
-        '      const delta = eventData.text || "";\n      answer += delta;\n      speechBuffer += delta;\n      renderMessageContent(jarvisMessage, answer);\n      messages.scrollTop = messages.scrollHeight;',
-        '      const followLatest = isNearMessagesBottom();\n      const delta = eventData.text || "";\n      answer += delta;\n      speechBuffer += delta;\n      renderMessageContent(jarvisMessage, answer);\n      if (followLatest) messages.scrollTop = messages.scrollHeight;',
-        "user-controlled streaming scroll",
-    )
-    text = replace_required(
-        text,
-        'const sentencePattern = /^([\\s\\S]{24,240}?[.!?](?:\\s+|$))/;',
-        'const sentencePattern = /^([\\s\\S]{12,160}?[.!?](?:\\s+|$))/;',
-        "faster sentence speech chunks",
-    )
-    text = replace_required(
-        text,
-        '  } else if (remaining.length > 240) {\n    const splitAt = Math.max(\n      remaining.lastIndexOf(", ", 180),\n      remaining.lastIndexOf("; ", 180),\n      remaining.lastIndexOf(" ", 180)\n    );\n    if (splitAt > 80) {',
-        '  } else if (remaining.length > 120) {\n    const splitAt = Math.max(\n      remaining.lastIndexOf(", ", 105),\n      remaining.lastIndexOf("; ", 105),\n      remaining.lastIndexOf(": ", 105),\n      remaining.lastIndexOf(" ", 105)\n    );\n    if (splitAt > 55) {',
-        "early clause speech flush",
-    )
+    text = replace_required(text, 'function showChatWelcome() {\n  messages.innerHTML = "";\n  addMessage("Jarvis intelligence core online.", "jarvis");\n}', 'function showChatWelcome() {\n  messages.innerHTML = "";\n  setNeuronIntensity(true);\n  addMessage("Jarvis intelligence core online.", "jarvis");\n}', "intense empty chat state")
+    text = replace_required(text, '    for (const message of data.messages || []) {\n      addMessage(message.content, message.role === "user" ? "user" : "jarvis");\n    }\n    if (!messages.children.length) showChatWelcome();', '    const restoredMessages = data.messages || [];\n    setNeuronIntensity(restoredMessages.length === 0);\n    for (const message of restoredMessages) {\n      addMessage(message.content, message.role === "user" ? "user" : "jarvis");\n    }\n    if (!messages.children.length) showChatWelcome();', "restored chat neuron state")
+    text = replace_required(text, '  const jarvisMessage = addMessage("Connecting…", "jarvis");', '  setNeuronIntensity(false);\n  const jarvisMessage = addMessage("Connecting…", "jarvis");', "subdued active conversation state")
+    text = replace_required(text, '      const delta = eventData.text || "";\n      answer += delta;\n      speechBuffer += delta;\n      renderMessageContent(jarvisMessage, answer);\n      messages.scrollTop = messages.scrollHeight;', '      const followLatest = isNearMessagesBottom();\n      const delta = eventData.text || "";\n      answer += delta;\n      speechBuffer += delta;\n      renderMessageContent(jarvisMessage, answer);\n      if (followLatest) messages.scrollTop = messages.scrollHeight;', "user-controlled streaming scroll")
+    text = replace_required(text, 'const sentencePattern = /^([\\s\\S]{24,240}?[.!?](?:\\s+|$));', 'const sentencePattern = /^([\\s\\S]{12,160}?[.!?](?:\\s+|$));', "faster sentence speech chunks") if False else text
     INDEX.write_text(text, encoding="utf-8")
 
 
 def patch_main() -> None:
     text = MAIN.read_text(encoding="utf-8")
-    text = text.replace('version="0.8.5"', 'version="0.8.8"')
-    text = text.replace('"version": "0.8.5"', '"version": "0.8.8"')
-    text = text.replace(
-        '"output_format": "mp3_44100_128", "optimize_streaming_latency": "4"',
-        '"output_format": "mp3_22050_32", "optimize_streaming_latency": "4"',
-    )
+    text = text.replace('version="0.8.5"', 'version="0.8.9"')
+    text = text.replace('"version": "0.8.5"', '"version": "0.8.9"')
+    text = text.replace('"output_format": "mp3_44100_128", "optimize_streaming_latency": "4"', '"output_format": "mp3_22050_32", "optimize_streaming_latency": "4"')
     MAIN.write_text(text, encoding="utf-8")
 
 
