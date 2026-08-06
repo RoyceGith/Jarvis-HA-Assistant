@@ -1,1 +1,1 @@
-Jarvis Workshop Assistant v0.11.4 — fixes the Plugin Catalog initialization order by replacing vulnerable lexical DOM bindings, resolving catalog elements at load time, delaying recovery-triggered catalog loading by one event-loop turn, and removing the premature active-tab auto-load.
+Jarvis Workshop Assistant v0.11.5 — fixes Plugin Catalog rendering by adding an independent catalog-local HTML escaping function, removing the renderer's dependency on the later page-level esc binding, and verifying during the build that catalog cards no longer call esc().
