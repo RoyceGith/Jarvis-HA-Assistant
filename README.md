@@ -1,1 +1,1 @@
-Jarvis Workshop Assistant v0.11.2 — restores the Installed Plugins container after the catalog layout transformation, adds defensive DOM fallbacks for plugin and catalog result nodes, and verifies the required Plugins interface structure during the Docker build.
+Jarvis Workshop Assistant v0.11.3 — fixes the Plugins interface initialization order by removing temporal-dead-zone references to later JavaScript bindings, ensuring the plugin DOM exists before loading, and resolving the installed-plugin container again immediately before rendering.
