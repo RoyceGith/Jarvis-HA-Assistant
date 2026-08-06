@@ -1,1 +1,1 @@
-Jarvis Workshop Assistant v0.10.2 — repairs Entities and Plugins tab activation, reloads and surfaces Home Assistant entity inventory errors instead of silently showing an empty table, and renders response headings/subtitles in black in the light theme.
+Jarvis Workshop Assistant v0.11.0 — adds a searchable remote MCP Plugin Catalog, features the official GitHub MCP server, supports search and category filtering, retains custom MCP installation under Advanced, caches registry results for one hour, and preserves disabled-by-default installation plus read-only tool enforcement.
