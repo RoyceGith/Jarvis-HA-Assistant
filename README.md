@@ -1,1 +1,1 @@
-Jarvis Workshop Assistant v0.10.0 — adds a security-first MCP Plugin Manager with public-HTTPS validation, private-network and redirect blocking, disabled-by-default installation, per-tool allow-listing, masked secret storage, plugin health controls, and read-only tool enforcement.
+Jarvis Workshop Assistant v0.10.1 — fixes the v0.10.0 Home Assistant image build by making the Plugins navigation patch compatible with the actual title-cased Settings button, adding post-patch verification, and compiling the generated backend during the Docker build for clearer failures.
