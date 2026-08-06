@@ -39,7 +39,13 @@ def patch_index() -> None:
         '.message h2, .message h3, .message h4 { color: var(--phosphor); font-weight: 800; line-height: 1.28; letter-spacing: .01em; }\n    .message h2 { margin: .65rem 0 .6rem; font-size: 1.28rem; }\n    .message h3 { margin: .55rem 0 .5rem; font-size: 1.12rem; }\n    .message h4 { margin: .45rem 0 .42rem; font-size: 1.02rem; }\n    .message > h2:first-child, .message > h3:first-child, .message > h4:first-child { margin-top: .15rem; }',
         "response heading hierarchy",
     )
-    text = replace_required(text, 'Workshop Intelligence Interface · HUD 0.8.5', 'Workshop Intelligence Interface · HUD 0.8.9', "HUD version")
+    text = replace_required(
+        text,
+        '.chat-list-item { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: .25rem; border: 1px solid transparent; border-radius: 4px; }',
+        '.chat-list-item { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: .25rem; border: 1px solid transparent; border-radius: 4px; }\n    .chat-actions { display: inline-flex; align-items: center; gap: .05rem; }\n    .chat-rename, .chat-delete { padding: .45rem; border: 0; background: transparent; color: #6f8b90; }\n    .chat-rename:hover { color: var(--cyan) !important; }\n    .chat-title-editor { min-width: 0; width: 100%; padding: .52rem .5rem; border: 1px solid var(--cyan-dim); border-radius: 3px; background: var(--surface-strong); color: inherit; }',
+        "chat rename styles",
+    )
+    text = replace_required(text, 'Workshop Intelligence Interface · HUD 0.8.5', 'Workshop Intelligence Interface · HUD 0.9.1', "HUD version")
     text = replace_required(
         text,
         'const numbered = trimmed.match(/^\\d+[.)]\\s+(.+)$/);\n    if (numbered) {\n      openList("ol");\n      html.push(`<li>${renderInlineMarkdown(numbered[1])}</li>`);',
@@ -74,14 +80,129 @@ def patch_index() -> None:
     text = replace_required(text, '    for (const message of data.messages || []) {\n      addMessage(message.content, message.role === "user" ? "user" : "jarvis");\n    }\n    if (!messages.children.length) showChatWelcome();', '    const restoredMessages = data.messages || [];\n    setNeuronIntensity(restoredMessages.length === 0);\n    for (const message of restoredMessages) {\n      addMessage(message.content, message.role === "user" ? "user" : "jarvis");\n    }\n    if (!messages.children.length) showChatWelcome();', "restored chat neuron state")
     text = replace_required(text, '  const jarvisMessage = addMessage("Connecting…", "jarvis");', '  setNeuronIntensity(false);\n  const jarvisMessage = addMessage("Connecting…", "jarvis");', "subdued active conversation state")
     text = replace_required(text, '      const delta = eventData.text || "";\n      answer += delta;\n      speechBuffer += delta;\n      renderMessageContent(jarvisMessage, answer);\n      messages.scrollTop = messages.scrollHeight;', '      const followLatest = isNearMessagesBottom();\n      const delta = eventData.text || "";\n      answer += delta;\n      speechBuffer += delta;\n      renderMessageContent(jarvisMessage, answer);\n      if (followLatest) messages.scrollTop = messages.scrollHeight;', "user-controlled streaming scroll")
-    text = replace_required(text, 'const sentencePattern = /^([\\s\\S]{24,240}?[.!?](?:\\s+|$));', 'const sentencePattern = /^([\\s\\S]{12,160}?[.!?](?:\\s+|$));', "faster sentence speech chunks") if False else text
+    text = replace_required(
+        text,
+        '      const deleteButton = document.createElement("button");',
+        '''      const renameButton = document.createElement("button");
+      renameButton.type = "button";
+      renameButton.className = "chat-rename";
+      renameButton.textContent = "✎";
+      renameButton.title = "Rename chat";
+      renameButton.setAttribute("aria-label", `Rename ${chat.title || "chat"}`);
+      renameButton.addEventListener("click", event => {
+        event.stopPropagation();
+        beginChatRename(row, openButton, chat);
+      });
+
+      const deleteButton = document.createElement("button");''',
+        "rename button",
+    )
+    text = replace_required(
+        text,
+        '      row.append(openButton, deleteButton);\n      chatList.appendChild(row);',
+        '      const actions = document.createElement("span");\n      actions.className = "chat-actions";\n      actions.append(renameButton, deleteButton);\n      row.append(openButton, actions);\n      chatList.appendChild(row);',
+        "chat action group",
+    )
+    text = replace_required(
+        text,
+        'async function openChat(sessionId) {',
+        '''async function renameChat(sessionId, title) {
+  const response = await fetch(`api/chats/${encodeURIComponent(sessionId)}/title`, {
+    method: "PUT",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({title}),
+  });
+  const data = await response.json().catch(() => ({}));
+  if (!response.ok) throw new Error(data.detail || `HTTP ${response.status}`);
+  return data.title;
+}
+
+function beginChatRename(row, openButton, chat) {
+  if (row.querySelector(".chat-title-editor")) return;
+  const previousTitle = chat.title || "New chat";
+  const editor = document.createElement("input");
+  editor.className = "chat-title-editor";
+  editor.type = "text";
+  editor.maxLength = 100;
+  editor.value = previousTitle;
+  openButton.replaceWith(editor);
+  editor.focus();
+  editor.select();
+  let finished = false;
+
+  const finish = async save => {
+    if (finished) return;
+    finished = true;
+    const requestedTitle = editor.value.trim();
+    if (!save || !requestedTitle) {
+      openButton.textContent = previousTitle;
+      openButton.title = previousTitle;
+      editor.replaceWith(openButton);
+      return;
+    }
+    try {
+      const savedTitle = await renameChat(chat.session_id, requestedTitle);
+      chat.title = savedTitle;
+      openButton.textContent = savedTitle;
+      openButton.title = savedTitle;
+      editor.replaceWith(openButton);
+    } catch (error) {
+      finished = false;
+      editor.setCustomValidity(error.message || "Rename failed");
+      editor.reportValidity();
+      editor.focus();
+    }
+  };
+
+  editor.addEventListener("keydown", event => {
+    if (event.key === "Enter") {
+      event.preventDefault();
+      finish(true);
+    } else if (event.key === "Escape") {
+      event.preventDefault();
+      finish(false);
+    }
+  });
+  editor.addEventListener("blur", () => finish(true));
+}
+
+async function openChat(sessionId) {''',
+        "chat rename behavior",
+    )
     INDEX.write_text(text, encoding="utf-8")
 
 
 def patch_main() -> None:
     text = MAIN.read_text(encoding="utf-8")
-    text = text.replace('version="0.8.5"', 'version="0.8.9"')
-    text = text.replace('"version": "0.8.5"', '"version": "0.8.9"')
+    text = replace_required(
+        text,
+        'class ChatSessionCreate(BaseModel):\n    session_id: str = Field(min_length=1, max_length=128)',
+        'class ChatSessionCreate(BaseModel):\n    session_id: str = Field(min_length=1, max_length=128)\n\n\nclass ChatRenameRequest(BaseModel):\n    title: str = Field(min_length=1, max_length=100)',
+        "chat rename request model",
+    )
+    text = replace_required(
+        text,
+        '@app.get("/api/settings")',
+        '''@app.put("/api/chats/{session_id}/title")
+async def rename_chat(session_id: str, request: ChatRenameRequest) -> dict[str, Any]:
+    if session_id not in CHAT_SESSIONS:
+        raise HTTPException(status_code=404, detail="Chat not found")
+    title = " ".join(request.title.strip().split())
+    if not title:
+        raise HTTPException(status_code=400, detail="Chat title cannot be empty")
+    metadata = CHAT_SESSION_META.setdefault(session_id, {})
+    metadata["title"] = title
+    metadata["title_manual"] = True
+    metadata["updated_at"] = time.time()
+    persist_chat_sessions()
+    return {"saved": True, "session_id": session_id, "title": title}
+
+
+@app.get("/api/settings")''',
+        "chat rename endpoint",
+    )
+    text = text.replace('version="0.8.5"', 'version="0.9.1"')
+    text = text.replace('"version": "0.8.5"', '"version": "0.9.1"')
     text = text.replace('"output_format": "mp3_44100_128", "optimize_streaming_latency": "4"', '"output_format": "mp3_22050_32", "optimize_streaming_latency": "4"')
     MAIN.write_text(text, encoding="utf-8")
 
