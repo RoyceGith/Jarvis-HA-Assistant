@@ -24,8 +24,8 @@ class InterfaceTests(unittest.TestCase):
     def test_hud_graph_and_versions(self):
         self.assertIn('id="brain-network"', INDEX)
         self.assertIn("prefers-reduced-motion: reduce", INDEX)
-        self.assertIn('version: "0.8.4"', CONFIG)
-        self.assertIn('"version": "0.8.4"', MAIN)
+        self.assertIn('version: "0.8.5"', CONFIG)
+        self.assertIn('"version": "0.8.5"', MAIN)
 
     def test_public_defaults_and_saved_app_options(self):
         self.assertNotIn("192.168.178.49", CONFIG)
@@ -81,6 +81,15 @@ class InterfaceTests(unittest.TestCase):
         self.assertIn('id="general-instructions"', INDEX)
         self.assertIn('fetch("api/settings"', INDEX)
         self.assertIn('@app.get("/api/settings")', MAIN)
+        self.assertIn("ChatGPT-like Markdown style", MAIN)
+
+    def test_chat_replies_render_markdown_structure(self):
+        self.assertIn("function renderMarkdownText", INDEX)
+        self.assertIn("function renderMessageContent", INDEX)
+        self.assertIn('item.innerHTML = renderMarkdownText(text);', INDEX)
+        self.assertIn('.message h3', INDEX)
+        self.assertIn('.message ul, .message ol', INDEX)
+        self.assertIn('.message code', INDEX)
 
     def test_persistent_elevenlabs_voice_controls(self):
         for control in ("stability", "similarity", "style", "speed"):
@@ -152,6 +161,7 @@ class InterfaceTests(unittest.TestCase):
         self.assertIn('fetch("api/voice/speech"', INDEX)
         self.assertIn('new Audio(activeAudioUrl)', INDEX)
         self.assertIn('function queueSpeech', INDEX)
+        self.assertIn('function speechTextForPlayback', INDEX)
         self.assertIn('extractSpeakableChunks(speechBuffer)', INDEX)
         self.assertIn('stopAudioPlayback("VOICE STOPPED")', INDEX)
         self.assertIn('@app.post("/api/voice/transcribe")', MAIN)

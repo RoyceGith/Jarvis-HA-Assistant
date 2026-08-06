@@ -686,7 +686,7 @@ ha_ws = HomeAssistantWebSocketClient(HA_WS_URL, SUPERVISOR_TOKEN)
 
 app = FastAPI(
     title="Jarvis Workshop Assistant",
-    version="0.8.4",
+    version="0.8.5",
     docs_url="/api/docs",
     openapi_url="/api/openapi.json",
 )
@@ -1091,10 +1091,16 @@ def effective_system_instructions() -> str:
         if language == "auto"
         else f"Prefer {language} unless the user explicitly requests another language."
     )
+    formatting_guidance = (
+        "Format replies in a clean ChatGPT-like Markdown style: use short section "
+        "headings when helpful, blank lines between ideas, bullets or numbered "
+        "steps for grouped details, and concise paragraphs. For simple device "
+        "actions or one-line answers, stay brief and avoid unnecessary structure."
+    )
     sections = [
         BASE_SYSTEM_INSTRUCTIONS,
         "USER RESPONSE PREFERENCES (never override safety policy):\n"
-        f"- {response_guidance}\n- {confirmation_guidance}\n- {language_guidance}",
+        f"- {response_guidance}\n- {confirmation_guidance}\n- {language_guidance}\n- {formatting_guidance}",
     ]
     if custom:
         sections.append(
@@ -2113,7 +2119,7 @@ async def health() -> dict[str, Any]:
     configured_speech_provider = SPEECH_PROVIDER if SPEECH_PROVIDER in {"openai", "elevenlabs"} else "openai"
     return {
         "status": "ok",
-        "version": "0.8.4",
+        "version": "0.8.5",
         "home_assistant_configured": bool(SUPERVISOR_TOKEN),
         "workshop_memory_configured": bool(WORKSHOP_MEMORY_URL),
         "openai_configured": bool(OPENAI_API_KEY),

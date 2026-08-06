@@ -1,4 +1,8 @@
-# Jarvis Workshop Assistant v0.8.4
+# Jarvis Workshop Assistant v0.8.5
+
+Version 0.8.5 adds clean Markdown rendering for Jarvis chat replies and guides
+assistant responses toward readable sections, spacing, bullets, and concise
+paragraphs.
 
 Version 0.8.4 starts text-to-speech from streamed response chunks instead of
 waiting for the full assistant response to finish, so Jarvis can begin speaking

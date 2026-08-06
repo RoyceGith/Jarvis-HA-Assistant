@@ -135,12 +135,18 @@
     .core-stage { position: relative; min-width: 0; min-height: 0; display: flex; flex-direction: column; overflow: hidden; isolation: isolate; }
     .core-stage::before { content: ""; position: absolute; inset: 4% 3% 12%; background: radial-gradient(ellipse at 50% 44%, rgba(151,184,165,.10), transparent 62%); filter: blur(28px); pointer-events: none; z-index: 0; }
     #messages { position: relative; z-index: 1; flex: 1; min-height: 0; overflow-y: auto; scrollbar-color: var(--cyan-dim) transparent; padding: .55rem; }
-    .message { position: relative; padding: .55rem 1rem .55rem 4.8rem; margin: .35rem 0; white-space: pre-wrap; border-left: 1px solid transparent; }
+    .message { position: relative; padding: .55rem 1rem .55rem 4.8rem; margin: .35rem 0; white-space: normal; border-left: 1px solid transparent; line-height: 1.52; }
     .message::before { position: absolute; left: .8rem; top: .9rem; font-size: .7rem; letter-spacing: .08em; }
     .user { border-left-color: color-mix(in srgb, var(--cyan) 52%, transparent); color: var(--cyan); margin-left: 12%; text-shadow: 0 0 10px rgba(92,236,255,.18); }
     .user::before { content: "YOU"; color: var(--cyan); }
     .jarvis { border-left-color: color-mix(in srgb, var(--phosphor) 46%, transparent); margin-right: 12%; }
     .jarvis::before { content: "JARVIS"; color: var(--phosphor); }
+    .message p, .message ul, .message ol { margin: 0 0 .65rem; }
+    .message p:last-child, .message ul:last-child, .message ol:last-child { margin-bottom: 0; }
+    .message h3 { margin: .2rem 0 .45rem; color: var(--phosphor); font-size: .92rem; letter-spacing: 0; }
+    .message ul, .message ol { padding-left: 1.2rem; }
+    .message li { margin: .22rem 0; }
+    .message code { padding: .08rem .28rem; border: 1px solid color-mix(in srgb, var(--line) 70%, transparent); border-radius: 3px; background: color-mix(in srgb, var(--surface-strong) 68%, transparent); color: var(--cyan); font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: .92em; }
     form { position: relative; z-index: 1; display: flex; gap: .6rem; margin-top: 1rem; }
     #message {
       flex: 1; min-width: 0; padding: .9rem 1rem; border-radius: 4px;
@@ -261,7 +267,7 @@
   <header>
     <div>
       <h1>Jarvis</h1>
-      <div class="status">Workshop Intelligence Interface · HUD 0.8.4</div>
+      <div class="status">Workshop Intelligence Interface · HUD 0.8.5</div>
     </div>
     <div id="health" class="status">Checking…</div>
   </header>
@@ -698,8 +704,18 @@ async function runSpeechQueue(force = false) {
   }
 }
 
+function speechTextForPlayback(text) {
+  return String(text || "")
+    .replace(/^#{1,3}\s+/gm, "")
+    .replace(/^\s*[-*]\s+/gm, "")
+    .replace(/^\s*\d+[.)]\s+/gm, "")
+    .replace(/\*\*([^*]+)\*\*/g, "$1")
+    .replace(/`([^`]+)`/g, "$1")
+    .trim();
+}
+
 function queueSpeech(text, force = false) {
-  const spoken = text.trim();
+  const spoken = speechTextForPlayback(text);
   if (!spoken || !canSpeakNow(force)) return;
   speechQueue.push(spoken);
   runSpeechQueue(force);
@@ -1020,10 +1036,99 @@ function backupEntityAliases(entityId, aliasesText) {
   localStorage.setItem(ENTITY_ALIAS_BACKUP_KEY, JSON.stringify(entityAliasBackup));
 }
 
+function escapeHtml(text) {
+  return String(text)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
+function renderInlineMarkdown(text) {
+  return escapeHtml(text)
+    .replace(/`([^`]+)`/g, "<code>$1</code>")
+    .replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>");
+}
+
+function renderMarkdownText(text) {
+  const lines = String(text || "").replace(/\r\n/g, "\n").split("\n");
+  const html = [];
+  let paragraph = [];
+  let listType = "";
+
+  function closeParagraph() {
+    if (!paragraph.length) return;
+    html.push(`<p>${paragraph.map(renderInlineMarkdown).join("<br>")}</p>`);
+    paragraph = [];
+  }
+
+  function closeList() {
+    if (!listType) return;
+    html.push(`</${listType}>`);
+    listType = "";
+  }
+
+  function openList(nextType) {
+    closeParagraph();
+    if (listType === nextType) return;
+    closeList();
+    listType = nextType;
+    html.push(`<${listType}>`);
+  }
+
+  for (const line of lines) {
+    const trimmed = line.trim();
+    if (!trimmed) {
+      closeParagraph();
+      closeList();
+      continue;
+    }
+
+    const heading = trimmed.match(/^#{1,3}\s+(.+)$/);
+    if (heading) {
+      closeParagraph();
+      closeList();
+      html.push(`<h3>${renderInlineMarkdown(heading[1])}</h3>`);
+      continue;
+    }
+
+    const bullet = trimmed.match(/^[-*]\s+(.+)$/);
+    if (bullet) {
+      openList("ul");
+      html.push(`<li>${renderInlineMarkdown(bullet[1])}</li>`);
+      continue;
+    }
+
+    const numbered = trimmed.match(/^\d+[.)]\s+(.+)$/);
+    if (numbered) {
+      openList("ol");
+      html.push(`<li>${renderInlineMarkdown(numbered[1])}</li>`);
+      continue;
+    }
+
+    closeList();
+    paragraph.push(line);
+  }
+
+  closeParagraph();
+  closeList();
+  return html.join("") || "<p></p>";
+}
+
+function renderMessageContent(item, text) {
+  item.dataset.rawText = text;
+  if (item.classList.contains("jarvis")) {
+    item.innerHTML = renderMarkdownText(text);
+  } else {
+    item.textContent = text;
+  }
+}
+
 function addMessage(text, role) {
   const item = document.createElement("div");
   item.className = `message ${role}`;
-  item.textContent = text;
+  renderMessageContent(item, text);
   messages.appendChild(item);
   messages.scrollTop = messages.scrollHeight;
   return item;
@@ -1675,9 +1780,9 @@ stopButton.addEventListener("click", () => {
     socket.close();
   }
   const existing = jarvisMessage.textContent.trim();
-  jarvisMessage.textContent = existing && existing !== "Connecting…"
+  renderMessageContent(jarvisMessage, existing && existing !== "Connecting…"
     ? `${existing}\n\n[Response stopped]`
-    : "Response stopped.";
+    : "Response stopped.");
   stopAudioPlayback("STOPPED");
   stopButton.disabled = true;
 });
@@ -1711,8 +1816,7 @@ form.addEventListener("submit", async (event) => {
 
   const connectionTimer = window.setTimeout(() => {
     if (!opened && socket.readyState !== WebSocket.OPEN) {
-      jarvisMessage.textContent =
-        "Request failed: WebSocket did not connect. Check the Jarvis app log.";
+      renderMessageContent(jarvisMessage, "Request failed: WebSocket did not connect. Check the Jarvis app log.");
       socket.close();
     }
   }, 8000);
@@ -1728,7 +1832,7 @@ form.addEventListener("submit", async (event) => {
     try {
       eventData = JSON.parse(messageEvent.data);
     } catch {
-      jarvisMessage.textContent = `Invalid stream event: ${messageEvent.data}`;
+      renderMessageContent(jarvisMessage, `Invalid stream event: ${messageEvent.data}`);
       return;
     }
 
@@ -1736,40 +1840,41 @@ form.addEventListener("submit", async (event) => {
 
     if (eventData.type === "status") {
       statusText = eventData.message || "Working…";
-      if (!answer) jarvisMessage.textContent = statusText;
+      if (!answer) renderMessageContent(jarvisMessage, statusText);
     } else if (eventData.type === "delta") {
-      if (!answer) jarvisMessage.textContent = "";
+      if (!answer) renderMessageContent(jarvisMessage, "");
       const delta = eventData.text || "";
       answer += delta;
       speechBuffer += delta;
-      jarvisMessage.textContent = answer;
+      renderMessageContent(jarvisMessage, answer);
       messages.scrollTop = messages.scrollHeight;
       const speech = extractSpeakableChunks(speechBuffer);
       speechBuffer = speech.remaining;
       speech.chunks.forEach(chunk => queueSpeech(chunk));
     } else if (eventData.type === "error") {
-      jarvisMessage.textContent =
-        `Request failed: ${eventData.message || "Unknown error"}`;
+      renderMessageContent(jarvisMessage, `Request failed: ${eventData.message || "Unknown error"}`);
     } else if (eventData.type === "stopped") {
       if (!jarvisMessage.textContent.includes("[Response stopped]")) {
-        jarvisMessage.textContent += "\n\n[Response stopped]";
+        renderMessageContent(jarvisMessage, `${jarvisMessage.dataset.rawText || jarvisMessage.textContent}\n\n[Response stopped]`);
       }
     }
   });
 
   socket.addEventListener("error", () => {
     if (!answer) {
-      jarvisMessage.textContent = "Request failed: WebSocket connection error";
+      renderMessageContent(jarvisMessage, "Request failed: WebSocket connection error");
     }
   });
 
   socket.addEventListener("close", (closeEvent) => {
     window.clearTimeout(connectionTimer);
     if (!requestState.stopped && !answer && !jarvisMessage.textContent.startsWith("Request failed:")) {
-      jarvisMessage.textContent =
+      renderMessageContent(
+        jarvisMessage,
         closeEvent.code === 1000
           ? (statusText || "No response received.")
-          : `Request failed: WebSocket closed (${closeEvent.code}).`;
+          : `Request failed: WebSocket closed (${closeEvent.code}).`
+      );
     }
     if (activeRequest === requestState) activeRequest = null;
     input.disabled = false;

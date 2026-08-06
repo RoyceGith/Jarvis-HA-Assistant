@@ -1,1 +1,1 @@
-Jarvis Workshop Assistant v0.8.4 — starts voice playback progressively from streamed chat chunks to reduce the wait before Jarvis speaks.
+Jarvis Workshop Assistant v0.8.5 — renders Jarvis replies with cleaner ChatGPT-style Markdown sections, spacing, bullets, and inline code.
