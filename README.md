@@ -1,1 +1,1 @@
-Jarvis Workshop Assistant v0.8.6 — fixes ordered-list numbering, improves response section headings, preserves manual scroll position during streaming, and reduces voice startup latency.
+Jarvis Workshop Assistant v0.8.7 — refreshes the Light theme with neutral white surfaces and makes the neuron field intense in empty chats, then smoothly subdues it after the first prompt.
