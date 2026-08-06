@@ -1,1 +1,1 @@
-Jarvis Workshop Assistant v0.8.8 — adds a clear response heading hierarchy with larger bold titles, subtitles, and standalone bold section labels.
+Jarvis Workshop Assistant v0.8.9 — renders short numbered section labels followed by bullet details as larger bold headings while preserving genuine ordered lists.
