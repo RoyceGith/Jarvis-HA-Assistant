@@ -1,0 +1,60 @@
+name: "Jarvis Workshop Assistant"
+description: "Local Jarvis agent and interface for Workshop Memory and Home Assistant"
+version: "0.7.3"
+slug: "jarvis_workshop_assistant"
+init: false
+startup: application
+stage: experimental
+arch:
+  - aarch64
+
+homeassistant_api: true
+ingress: true
+ingress_port: 8099
+ingress_stream: true
+panel_icon: "mdi:robot"
+panel_title: "Jarvis"
+panel_admin: true
+
+ports:
+  8099/tcp: 8099
+ports_description:
+  8099/tcp: "Direct Jarvis web interface"
+
+options:
+  log_level: "info"
+  workshop_memory_url: "http://192.168.178.49:3001/mcp"
+  workshop_memory_internal_url: "http://workshop_memory:3001/mcp"
+  openai_api_key: ""
+  openai_model: "gpt-5-mini"
+  openai_transcription_model: "gpt-4o-transcribe"
+  openai_tts_model: "gpt-4o-mini-tts"
+  speech_provider: "openai"
+  elevenlabs_api_key: ""
+  elevenlabs_voice_id: ""
+  elevenlabs_voice_name: "Jarvis"
+  elevenlabs_model_id: "eleven_flash_v2_5"
+  speech_fallback_to_openai: true
+  ha_read_entities: ""
+  ha_control_entities: ""
+  enable_direct_port: true
+
+schema:
+  log_level: "list(trace|debug|info|warning|error)"
+  workshop_memory_url: "str"
+  workshop_memory_internal_url: "str?"
+  openai_api_key: "password"
+  openai_model: "str"
+  openai_transcription_model: "str"
+  openai_tts_model: "str"
+  speech_provider: "list(openai|elevenlabs)"
+  elevenlabs_api_key: "password"
+  elevenlabs_voice_id: "str?"
+  elevenlabs_voice_name: "str"
+  elevenlabs_model_id: "str"
+  speech_fallback_to_openai: "bool"
+  ha_read_entities: "str?"
+  ha_control_entities: "str?"
+  enable_direct_port: "bool"
+
+backup: hot

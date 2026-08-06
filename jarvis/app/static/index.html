@@ -1,0 +1,1397 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Jarvis Workshop Assistant</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      font-family: "IBM Plex Mono", "Cascadia Code", ui-monospace, SFMono-Regular, Menlo, monospace;
+      background: #050806;
+      color: #dfffe9;
+      --phosphor: #74f8bd;
+      --phosphor-dim: #24745d;
+      --cyan: #5cecff;
+      --cyan-dim: #16798a;
+      --panel: rgba(3, 12, 14, .9);
+      --line: rgba(92, 236, 255, .24);
+    }
+    * { box-sizing: border-box; }
+    html, body { width: 100%; height: 100%; overflow: hidden; }
+    body { margin: 0; min-height: 100vh; min-height: 100dvh; background: radial-gradient(circle at 50% 38%, #09252a 0, #03090a 55%, #010405 100%); }
+    body::after {
+      content: ""; position: fixed; inset: 0; z-index: 2; pointer-events: none;
+      background: repeating-linear-gradient(0deg, transparent 0 3px, rgba(92,236,255,.025) 3px 4px);
+    }
+    #brain-network { position: fixed; inset: 0; width: 100%; height: 100%; z-index: 0; opacity: .58; pointer-events: none; }
+    main {
+      position: relative; z-index: 1; width: 100%; height: 100vh; height: 100dvh;
+      margin: 0; padding: .75rem; display: grid; grid-template-rows: auto auto minmax(0, 1fr);
+    }
+    header { display: flex; justify-content: space-between; align-items: center; gap: 1rem; }
+    h1 { margin: 0 0 .35rem; color: var(--phosphor); letter-spacing: .22em; text-transform: uppercase; text-shadow: 0 0 18px rgba(101,255,155,.38); }
+    h1::before { content: "> "; color: var(--cyan); }
+    .status, .muted { font-size: .9rem; color: #9eb0c2; }
+    #health { border: 1px solid var(--line); padding: .5rem .75rem; background: rgba(4,12,8,.72); }
+    #health::before { content: "●"; color: var(--phosphor); margin-right: .55rem; text-shadow: 0 0 9px var(--phosphor); }
+    nav { display: flex; gap: .5rem; margin: .6rem 0; }
+    button, select, input {
+      font: inherit;
+    }
+    button {
+      padding: .75rem 1rem; border: 1px solid var(--line); border-radius: 4px;
+      cursor: pointer; font-weight: 700; background: rgba(12, 35, 23, .92); color: inherit;
+    }
+    button:hover:not(:disabled), button.active { border-color: var(--phosphor); color: var(--phosphor); box-shadow: inset 0 0 18px rgba(101,255,155,.08), 0 0 12px rgba(101,255,155,.08); }
+    button:disabled { opacity: .36; cursor: not-allowed; }
+    .panel {
+      position: relative; border: 1px solid var(--line); border-radius: 6px;
+      background: var(--panel); min-height: 0; height: 100%; padding: 1rem;
+      box-shadow: 0 0 42px rgba(0,0,0,.52), inset 0 0 32px rgba(40,255,110,.025);
+      backdrop-filter: blur(8px);
+    }
+    .panel::before { content: "SYS/JARVIS_WORKSHOP"; position: absolute; top: -1.55rem; right: 0; color: var(--phosphor-dim); font-size: .72rem; letter-spacing: .1em; }
+    .hidden { display: none !important; }
+    #chat-panel { display: flex; flex-direction: column; overflow: hidden; }
+    .chat-shell { display: grid; grid-template-columns: 230px minmax(0, 1fr); gap: 1rem; min-height: 0; height: 100%; }
+    .chat-sidebar { min-width: 0; min-height: 0; padding: .75rem; border: 1px solid rgba(92,236,255,.18); background: rgba(1,8,10,.82); display: flex; flex-direction: column; }
+    .chat-sidebar-header { display: flex; align-items: center; justify-content: space-between; gap: .5rem; margin-bottom: .75rem; }
+    .chat-sidebar h2 { margin: 0; color: var(--cyan); font-size: .72rem; letter-spacing: .14em; font-weight: 500; }
+    #new-chat-button { padding: .45rem .65rem; color: var(--cyan); }
+    #chat-list { display: flex; flex-direction: column; gap: .35rem; min-height: 0; flex: 1; overflow-y: auto; }
+    .chat-list-item { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: .25rem; border: 1px solid transparent; border-radius: 4px; }
+    .chat-list-item.active { border-color: var(--cyan-dim); background: rgba(8,42,48,.62); }
+    .chat-open { min-width: 0; padding: .65rem .55rem; border: 0; background: transparent; text-align: left; color: #a7c7cc; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .chat-list-item.active .chat-open { color: var(--cyan); }
+    .chat-delete { padding: .45rem; border: 0; background: transparent; color: #6f8b90; }
+    .chat-delete:hover { color: #ffaaa5 !important; }
+    .chat-empty { padding: .75rem .35rem; color: #577b80; font-size: .72rem; }
+    .hud-layout { display: grid; grid-template-columns: 190px minmax(0, 1fr) 190px; gap: 1rem; min-height: 0; height: 100%; }
+    .hud-rail { padding: .7rem; border: 1px solid rgba(92,236,255,.14); background: rgba(1,8,10,.68); font-size: .7rem; color: #7ba4aa; }
+    .hud-rail h2 { margin: 0 0 1rem; color: var(--cyan); font-size: .72rem; letter-spacing: .18em; font-weight: 500; }
+    .telemetry { margin: 0 0 1.1rem; }
+    .telemetry-label { display: flex; justify-content: space-between; color: #9bb7bb; margin-bottom: .35rem; }
+    .telemetry-line { height: 24px; border-bottom: 1px solid rgba(92,236,255,.23); background: linear-gradient(165deg, transparent 45%, rgba(92,236,255,.42) 47% 50%, transparent 52%); }
+    .command-list { margin: 0; padding: 0; list-style: none; line-height: 1.9; }
+    .command-list li::before { content: "> "; color: var(--cyan); }
+    .rail-log { margin-top: 1rem; padding-top: .8rem; border-top: 1px solid rgba(92,236,255,.16); line-height: 1.55; color: #577b80; }
+    .core-stage { position: relative; min-width: 0; min-height: 0; display: flex; flex-direction: column; }
+    .core-stage::before { content: ""; position: absolute; width: min(40vw, 470px); aspect-ratio: 1; left: 50%; top: 44%; transform: translate(-50%,-50%); border-radius: 50%; background: radial-gradient(circle, rgba(92,236,255,.16), rgba(92,236,255,.035) 45%, transparent 69%); border: 1px solid rgba(92,236,255,.09); box-shadow: 0 0 90px rgba(92,236,255,.1); pointer-events: none; }
+    #messages { position: relative; z-index: 1; flex: 1; min-height: 0; overflow-y: auto; scrollbar-color: var(--cyan-dim) transparent; }
+    .message { position: relative; padding: .8rem 1rem .8rem 4.8rem; margin: .5rem 0; border-radius: 3px; white-space: pre-wrap; border-left: 2px solid; }
+    .message::before { position: absolute; left: .8rem; top: .9rem; font-size: .7rem; letter-spacing: .08em; }
+    .user { background: rgba(7, 35, 42, .88); border-color: var(--cyan); color: var(--cyan); margin-left: 12%; text-shadow: 0 0 10px rgba(92,236,255,.18); }
+    .user::before { content: "YOU"; color: var(--cyan); }
+    .jarvis { background: rgba(12, 39, 24, .82); border-color: var(--phosphor); margin-right: 12%; }
+    .jarvis::before { content: "JARVIS"; color: var(--phosphor); }
+    form { position: relative; z-index: 1; display: flex; gap: .6rem; margin-top: 1rem; }
+    #message {
+      flex: 1; min-width: 0; padding: .9rem 1rem; border-radius: 4px;
+      border: 1px solid var(--line); background: rgba(2, 9, 6, .94); color: inherit;
+      caret-color: var(--phosphor);
+    }
+    #message:focus { outline: none; border-color: var(--phosphor); box-shadow: 0 0 14px rgba(101,255,155,.12); }
+    #stop-button { display: inline-flex; align-items: center; gap: .5rem; color: #ffaaa5; border-color: rgba(255,100,90,.35); }
+    .stop-icon { width: .78rem; height: .78rem; display: inline-block; background: currentColor; border-radius: 1px; box-shadow: 0 0 8px currentColor; }
+    #mic-button { display: inline-flex; align-items: center; gap: .5rem; color: var(--cyan); border-color: rgba(92,236,255,.35); }
+    #mic-button.listening { color: #ff6f78; border-color: #ff6f78; animation: voice-pulse 1s ease-in-out infinite; }
+    .mic-icon { width: .72rem; height: 1rem; display: inline-block; border: 2px solid currentColor; border-radius: 999px 999px 7px 7px; box-shadow: 0 0 8px currentColor; }
+    .voice-bar { display: flex; align-items: center; justify-content: space-between; gap: .75rem; margin-top: .45rem; font-size: .7rem; color: #648071; }
+    #voice-state { color: var(--cyan); letter-spacing: .08em; }
+    .voice-settings { display: flex; align-items: center; gap: .65rem; flex-wrap: wrap; justify-content: flex-end; }
+    .voice-settings label { display: inline-flex; align-items: center; gap: .35rem; }
+    #speech-provider, #voice-select { color: #9edce5; background: rgba(2,9,6,.94); border: 1px solid var(--line); padding: .2rem .35rem; }
+    @keyframes voice-pulse { 50% { box-shadow: 0 0 18px rgba(255,111,120,.4); } }
+    .toolbar {
+      display: grid;
+      grid-template-columns: minmax(240px, 1fr) 180px auto auto auto auto;
+      gap: .6rem;
+      align-items: center;
+      margin-bottom: 1rem;
+    }
+    .toolbar input, .toolbar select {
+      padding: .75rem .85rem; border-radius: 10px;
+      border: 1px solid #34485d; background: #0b1118; color: inherit;
+    }
+    .summary { margin-bottom: .8rem; }
+    #entities-panel { overflow: hidden; }
+    #settings-panel { overflow-y: auto; }
+    .settings-card { max-width: 900px; padding: 1.1rem; border: 1px solid var(--line); background: rgba(1,8,10,.72); }
+    .settings-card h2 { margin: 0 0 .6rem; color: var(--cyan); font-size: 1rem; letter-spacing: .08em; }
+    .settings-card p { color: #8faeb3; line-height: 1.55; }
+    #general-instructions { width: 100%; min-height: 280px; resize: vertical; padding: .9rem; border: 1px solid var(--line); border-radius: 4px; background: rgba(2,9,6,.94); color: inherit; font: inherit; line-height: 1.5; }
+    #general-instructions:focus { outline: none; border-color: var(--phosphor); }
+    .settings-actions { display: flex; align-items: center; gap: .75rem; margin-top: .75rem; }
+    #settings-save-state { color: #8faeb3; }
+    .table-wrap { overflow: auto; height: calc(100% - 5rem); border: 1px solid #263445; border-radius: 12px; }
+    table { width: 100%; border-collapse: collapse; min-width: 900px; }
+    th, td { text-align: left; padding: .72rem; border-bottom: 1px solid #263445; vertical-align: top; }
+    th { position: sticky; top: 0; background: #172231; z-index: 1; }
+    .entity-id { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: .88rem; }
+    .badge {
+      display: inline-block; border: 1px solid #3a5068; border-radius: 999px;
+      padding: .18rem .5rem; font-size: .78rem; white-space: nowrap;
+    }
+    .available { color: #b8e6c9; }
+    .unavailable { color: #ffb6b6; }
+    @media (max-width: 760px) {
+      main { padding: .45rem; }
+      header .status { display: none; }
+      h1 { font-size: 1.25rem; }
+      nav { margin: .4rem 0; }
+      .chat-shell { grid-template-columns: 1fr; }
+      .chat-sidebar { max-height: 132px; }
+      .hud-layout { grid-template-columns: 1fr; }
+      .hud-rail { display: none; }
+      .toolbar { grid-template-columns: 1fr; }
+      .user, .jarvis { margin-left: 0; margin-right: 0; }
+      form { flex-wrap: wrap; }
+      #message { flex-basis: 100%; }
+      .voice-bar { align-items: flex-start; flex-direction: column; }
+      .voice-settings { justify-content: flex-start; }
+    }
+  </style>
+</head>
+<body>
+<canvas id="brain-network" aria-hidden="true"></canvas>
+<main>
+  <header>
+    <div>
+      <h1>Jarvis</h1>
+      <div class="status">Workshop Intelligence Interface · HUD 0.7.3</div>
+    </div>
+    <div id="health" class="status">Checking…</div>
+  </header>
+
+  <nav>
+    <button id="chat-tab" class="active">Chat</button>
+    <button id="entities-tab">Entities</button>
+    <button id="settings-tab">Settings</button>
+  </nav>
+
+  <section id="chat-panel" class="panel">
+    <div class="chat-shell">
+      <aside class="chat-sidebar" aria-label="Saved conversations">
+        <div class="chat-sidebar-header">
+          <h2>CONVERSATIONS</h2>
+          <button id="new-chat-button" type="button" aria-label="Start new chat">＋</button>
+        </div>
+        <div id="chat-list"><div class="chat-empty">Loading chats…</div></div>
+      </aside>
+      <div class="hud-layout">
+      <aside class="hud-rail left-rail" aria-label="System telemetry">
+        <h2>CORE METRICS</h2>
+        <div class="telemetry"><div class="telemetry-label"><span>LINK</span><span>STABLE</span></div><div class="telemetry-line"></div></div>
+        <div class="telemetry"><div class="telemetry-label"><span>LATENCY</span><span>LOCAL</span></div><div class="telemetry-line"></div></div>
+        <div class="telemetry"><div class="telemetry-label"><span>ENTITY BUS</span><span id="entity-bus-count">SYNC</span></div><div class="telemetry-line"></div></div>
+        <div class="rail-log">NEURAL MAP ACTIVE<br>HA SOCKET CONNECTED<br>POLICY GUARD ONLINE<br>MEMORY LINK READY</div>
+      </aside>
+      <div class="core-stage">
+        <div id="messages">
+          <div class="message jarvis">Jarvis intelligence core online.</div>
+        </div>
+        <form id="chat-form">
+          <input id="message" autocomplete="off" placeholder="Enter command…" required>
+          <button id="mic-button" type="button" aria-label="Start microphone"><span class="mic-icon" aria-hidden="true"></span><span id="mic-label">Talk</span></button>
+          <button id="stop-button" type="button" disabled aria-label="Stop Jarvis response"><span class="stop-icon" aria-hidden="true"></span>Stop</button>
+          <button id="send-button" type="submit">Send</button>
+        </form>
+        <div class="voice-bar">
+          <span id="voice-state" role="status" aria-live="polite">VOICE READY</span>
+          <span class="voice-settings">
+            <label><input id="auto-speak" type="checkbox" checked> Speak replies</label>
+            <label>Provider
+              <select id="speech-provider">
+                <option value="openai">OpenAI</option>
+                <option value="elevenlabs">ElevenLabs</option>
+              </select>
+            </label>
+            <label>Voice
+              <select id="voice-select">
+                <option value="cedar">Cedar</option>
+                <option value="marin">Marin</option>
+                <option value="onyx">Onyx</option>
+                <option value="coral">Coral</option>
+                <option value="nova">Nova</option>
+                <option value="sage">Sage</option>
+              </select>
+            </label>
+            <span>↑ ↓ history · AI-generated voice</span>
+          </span>
+        </div>
+      </div>
+      <aside class="hud-rail right-rail" aria-label="Command deck">
+        <h2>COMMAND DECK</h2>
+        <ul class="command-list"><li>DEVICE CONTROL</li><li>ENTITY STATUS</li><li>THERMOSTAT LINK</li><li>MEMORY RECALL</li><li>PROJECT ROUTING</li></ul>
+        <div class="rail-log">SESSION <span id="session-fragment">ACTIVE</span><br>CLOCK <span id="hud-clock">--:--:--</span><br>MODE LOW-RISK<br><span id="voice-rail-state">VOICE READY</span></div>
+      </aside>
+      </div>
+    </div>
+  </section>
+
+  <section id="entities-panel" class="panel hidden">
+    <div class="toolbar">
+      <input id="entity-search" placeholder="Search entity ID or friendly name…">
+      <select id="domain-filter">
+        <option value="">All domains</option>
+      </select>
+      <button id="refresh-entities">Refresh</button>
+      <button id="export-entities">Export JSON</button>
+      <button id="save-memory-draft">Optional Memory Draft</button>
+      <button id="show-approved">Show Approved</button>
+      <button id="clear-chat" type="button">New Chat</button>
+    </div>
+    <div id="entity-summary" class="summary muted">Load the inventory to begin.</div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Select</th>
+            <th>Friendly name</th>
+            <th>Entity ID</th>
+            <th>Domain</th>
+            <th>State</th>
+            <th>Class / unit</th>
+            <th>Access</th>
+            <th>Aliases</th>
+          </tr>
+        </thead>
+        <tbody id="entity-rows"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <section id="settings-panel" class="panel hidden">
+    <div class="settings-card">
+      <h2>GENERAL INSTRUCTIONS</h2>
+      <p>
+        These instructions are applied to every new Jarvis response. They can shape tone,
+        format, preferences, and behavior, but cannot override device permissions or safety rules.
+      </p>
+      <textarea id="general-instructions" maxlength="12000" placeholder="Examples:&#10;- Keep answers brief unless I ask for detail.&#10;- When giving workshop steps, put safety checks first."></textarea>
+      <div class="settings-actions">
+        <button id="save-settings" type="button">Save Instructions</button>
+        <span id="settings-save-state" role="status" aria-live="polite"></span>
+      </div>
+      <p class="muted">
+        You can also say in chat: “Remember this as a general instruction: when I ask for options,
+        recommend one and explain why.” Jarvis saves only explicit requests.
+      </p>
+    </div>
+  </section>
+</main>
+
+<script>
+let jarvisChatSessionId =
+  localStorage.getItem("jarvis_chat_session_id") ||
+  (crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}-${Math.random()}`);
+localStorage.setItem("jarvis_chat_session_id", jarvisChatSessionId);
+
+const messages = document.getElementById("messages");
+const form = document.getElementById("chat-form");
+const input = document.getElementById("message");
+const health = document.getElementById("health");
+const stopButton = document.getElementById("stop-button");
+const sendButton = document.getElementById("send-button");
+const micButton = document.getElementById("mic-button");
+const micLabel = document.getElementById("mic-label");
+const voiceState = document.getElementById("voice-state");
+const voiceRailState = document.getElementById("voice-rail-state");
+const autoSpeak = document.getElementById("auto-speak");
+const speechProvider = document.getElementById("speech-provider");
+const voiceSelect = document.getElementById("voice-select");
+const chatList = document.getElementById("chat-list");
+const newChatButton = document.getElementById("new-chat-button");
+
+const VOICE_SETTINGS_KEY = "jarvis_voice_settings_v1";
+let mediaRecorder = null;
+let microphoneStream = null;
+let recordingChunks = [];
+let recordingTimer = null;
+let activeAudio = null;
+let activeAudioUrl = null;
+let speechAbortController = null;
+let hasSavedSpeechProvider = false;
+
+try {
+  const voiceSettings = JSON.parse(localStorage.getItem(VOICE_SETTINGS_KEY) || "{}");
+  if (typeof voiceSettings.autoSpeak === "boolean") autoSpeak.checked = voiceSettings.autoSpeak;
+  if ([...speechProvider.options].some(option => option.value === voiceSettings.provider)) {
+    speechProvider.value = voiceSettings.provider;
+    hasSavedSpeechProvider = true;
+  }
+  if ([...voiceSelect.options].some(option => option.value === voiceSettings.voice)) {
+    voiceSelect.value = voiceSettings.voice;
+  }
+} catch {}
+
+function saveVoiceSettings() {
+  localStorage.setItem(VOICE_SETTINGS_KEY, JSON.stringify({
+    autoSpeak: autoSpeak.checked,
+    provider: speechProvider.value,
+    voice: voiceSelect.value,
+  }));
+}
+
+autoSpeak.addEventListener("change", saveVoiceSettings);
+speechProvider.addEventListener("change", () => {
+  updateVoiceProviderControls();
+  saveVoiceSettings();
+});
+voiceSelect.addEventListener("change", saveVoiceSettings);
+
+function updateVoiceProviderControls(elevenLabsVoiceName = "Jarvis") {
+  const elevenLabs = speechProvider.value === "elevenlabs";
+  let configuredOption = voiceSelect.querySelector('option[value="__elevenlabs__"]');
+  if (!configuredOption) {
+    configuredOption = document.createElement("option");
+    configuredOption.value = "__elevenlabs__";
+    voiceSelect.append(configuredOption);
+  }
+  configuredOption.textContent = `${elevenLabsVoiceName} (ElevenLabs)`;
+  configuredOption.hidden = !elevenLabs;
+  if (elevenLabs) voiceSelect.value = "__elevenlabs__";
+  else if (voiceSelect.value === "__elevenlabs__") voiceSelect.value = "cedar";
+  voiceSelect.disabled = elevenLabs;
+}
+
+function setVoiceState(state, detail = "") {
+  const text = detail ? `${state} · ${detail}` : state;
+  voiceState.textContent = text;
+  voiceRailState.textContent = state;
+}
+
+function stopAudioPlayback(nextState = "VOICE READY") {
+  if (speechAbortController) speechAbortController.abort();
+  speechAbortController = null;
+  if (activeAudio) {
+    activeAudio.pause();
+    activeAudio.currentTime = 0;
+  }
+  activeAudio = null;
+  if (activeAudioUrl) URL.revokeObjectURL(activeAudioUrl);
+  activeAudioUrl = null;
+  if (!activeRequest && !mediaRecorder) stopButton.disabled = true;
+  setVoiceState(nextState);
+}
+
+async function speakText(text) {
+  if (!autoSpeak.checked || !text.trim()) return;
+  stopAudioPlayback("SPEECH BUFFERING");
+  speechAbortController = new AbortController();
+  stopButton.disabled = false;
+  try {
+    const response = await fetch("api/voice/speech", {
+      method: "POST",
+      headers: {"Content-Type": "application/json"},
+      signal: speechAbortController.signal,
+      body: JSON.stringify({
+        text: text.slice(0, 4000),
+        provider: speechProvider.value,
+        voice: voiceSelect.value,
+      }),
+    });
+    if (!response.ok) {
+      const data = await response.json().catch(() => ({}));
+      throw new Error(data.detail || `HTTP ${response.status}`);
+    }
+    const canStreamMp3 = response.body && window.MediaSource &&
+      MediaSource.isTypeSupported("audio/mpeg");
+    if (!canStreamMp3) {
+      const blob = await response.blob();
+      activeAudioUrl = URL.createObjectURL(blob);
+      activeAudio = new Audio(activeAudioUrl);
+      activeAudio.addEventListener("ended", () => stopAudioPlayback());
+      activeAudio.addEventListener("error", () => stopAudioPlayback("VOICE PLAYBACK FAILED"));
+      setVoiceState("SPEAKING");
+      await activeAudio.play();
+      return;
+    }
+
+    const mediaSource = new MediaSource();
+    activeAudioUrl = URL.createObjectURL(mediaSource);
+    activeAudio = new Audio(activeAudioUrl);
+    activeAudio.addEventListener("ended", () => stopAudioPlayback());
+    activeAudio.addEventListener("error", () => stopAudioPlayback("VOICE PLAYBACK FAILED"));
+    await new Promise((resolve, reject) => {
+      mediaSource.addEventListener("sourceopen", resolve, {once: true});
+      mediaSource.addEventListener("error", () => reject(new Error("Audio stream failed")), {once: true});
+      activeAudio.load();
+    });
+    const sourceBuffer = mediaSource.addSourceBuffer("audio/mpeg");
+    sourceBuffer.mode = "sequence";
+    const reader = response.body.getReader();
+    let playbackStarted = false;
+    while (true) {
+      const {done, value} = await reader.read();
+      if (done) break;
+      if (!value?.byteLength) continue;
+      await new Promise((resolve, reject) => {
+        sourceBuffer.addEventListener("updateend", resolve, {once: true});
+        sourceBuffer.addEventListener("error", () => reject(new Error("Audio buffer failed")), {once: true});
+        sourceBuffer.appendBuffer(value);
+      });
+      if (!playbackStarted) {
+        playbackStarted = true;
+        setVoiceState("SPEAKING");
+        activeAudio.play().catch(error => {
+          if (error.name !== "AbortError") setVoiceState("VOICE ERROR", error.message || String(error));
+        });
+      }
+    }
+    if (mediaSource.readyState === "open" && !sourceBuffer.updating) mediaSource.endOfStream();
+  } catch (error) {
+    if (error.name !== "AbortError") setVoiceState("VOICE ERROR", error.message || String(error));
+    if (!activeRequest) stopButton.disabled = true;
+  } finally {
+    speechAbortController = null;
+  }
+}
+
+function cleanupMicrophone() {
+  if (recordingTimer) window.clearTimeout(recordingTimer);
+  recordingTimer = null;
+  if (microphoneStream) microphoneStream.getTracks().forEach(track => track.stop());
+  microphoneStream = null;
+  mediaRecorder = null;
+  micButton.classList.remove("listening");
+  micLabel.textContent = "Talk";
+  micButton.setAttribute("aria-label", "Start microphone");
+}
+
+function recordingMimeType() {
+  const candidates = ["audio/webm;codecs=opus", "audio/webm", "audio/mp4"];
+  return candidates.find(type => window.MediaRecorder?.isTypeSupported(type)) || "";
+}
+
+async function transcribeRecording(blob) {
+  setVoiceState("TRANSCRIBING");
+  micButton.disabled = true;
+  try {
+    const extension = blob.type.includes("mp4") ? "m4a" : "webm";
+    const formData = new FormData();
+    formData.append("audio", blob, `jarvis-recording.${extension}`);
+    const response = await fetch("api/voice/transcribe", {method: "POST", body: formData});
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.detail || `HTTP ${response.status}`);
+    input.value = data.text || "";
+    setVoiceState("PROCESSING");
+    if (input.value.trim()) form.requestSubmit();
+  } catch (error) {
+    setVoiceState("VOICE ERROR", error.message || String(error));
+  } finally {
+    micButton.disabled = false;
+  }
+}
+
+async function startRecording() {
+  if (!navigator.mediaDevices?.getUserMedia || !window.MediaRecorder) {
+    setVoiceState("MIC UNAVAILABLE", "use HTTPS and a supported browser");
+    return;
+  }
+  stopAudioPlayback("MIC REQUEST");
+  try {
+    microphoneStream = await navigator.mediaDevices.getUserMedia({
+      audio: {echoCancellation: true, noiseSuppression: true, autoGainControl: true},
+    });
+    recordingChunks = [];
+    const mimeType = recordingMimeType();
+    mediaRecorder = new MediaRecorder(microphoneStream, mimeType ? {mimeType} : undefined);
+    mediaRecorder.addEventListener("dataavailable", event => {
+      if (event.data.size) recordingChunks.push(event.data);
+    });
+    mediaRecorder.addEventListener("stop", () => {
+      const blob = new Blob(recordingChunks, {type: mediaRecorder?.mimeType || mimeType || "audio/webm"});
+      cleanupMicrophone();
+      if (blob.size) transcribeRecording(blob);
+      else setVoiceState("VOICE ERROR", "empty recording");
+    }, {once: true});
+    mediaRecorder.start(250);
+    micButton.classList.add("listening");
+    micLabel.textContent = "Done";
+    micButton.setAttribute("aria-label", "Stop microphone and send");
+    setVoiceState("LISTENING", "tap Done to send");
+    recordingTimer = window.setTimeout(stopRecording, 60000);
+  } catch (error) {
+    cleanupMicrophone();
+    const permissionMessage = error.name === "NotAllowedError"
+      ? "microphone permission denied"
+      : (error.message || String(error));
+    setVoiceState("MIC ERROR", permissionMessage);
+  }
+}
+
+function stopRecording() {
+  if (mediaRecorder && mediaRecorder.state !== "inactive") mediaRecorder.stop();
+}
+
+micButton.addEventListener("click", () => {
+  if (mediaRecorder && mediaRecorder.state !== "inactive") stopRecording();
+  else if (!activeRequest) startRecording();
+});
+
+const PROMPT_HISTORY_KEY = "jarvis_prompt_history_v1";
+const PROMPT_HISTORY_LIMIT = 100;
+let promptHistory = [];
+try {
+  const storedHistory = JSON.parse(localStorage.getItem(PROMPT_HISTORY_KEY) || "[]");
+  if (Array.isArray(storedHistory)) {
+    promptHistory = storedHistory.filter(item => typeof item === "string" && item.trim()).slice(-PROMPT_HISTORY_LIMIT);
+  }
+} catch {
+  promptHistory = [];
+}
+let promptHistoryIndex = promptHistory.length;
+let promptDraft = "";
+let activeRequest = null;
+
+function rememberPrompt(prompt) {
+  if (promptHistory[promptHistory.length - 1] !== prompt) promptHistory.push(prompt);
+  promptHistory = promptHistory.slice(-PROMPT_HISTORY_LIMIT);
+  localStorage.setItem(PROMPT_HISTORY_KEY, JSON.stringify(promptHistory));
+  promptHistoryIndex = promptHistory.length;
+  promptDraft = "";
+}
+
+input.addEventListener("keydown", event => {
+  if (event.key !== "ArrowUp" && event.key !== "ArrowDown") return;
+  if (!promptHistory.length) return;
+  event.preventDefault();
+
+  if (event.key === "ArrowUp") {
+    if (promptHistoryIndex === promptHistory.length) promptDraft = input.value;
+    promptHistoryIndex = Math.max(0, promptHistoryIndex - 1);
+    input.value = promptHistory[promptHistoryIndex];
+  } else {
+    promptHistoryIndex = Math.min(promptHistory.length, promptHistoryIndex + 1);
+    input.value = promptHistoryIndex === promptHistory.length
+      ? promptDraft
+      : promptHistory[promptHistoryIndex];
+  }
+  input.setSelectionRange(input.value.length, input.value.length);
+});
+
+const chatTab = document.getElementById("chat-tab");
+const entitiesTab = document.getElementById("entities-tab");
+const settingsTab = document.getElementById("settings-tab");
+const chatPanel = document.getElementById("chat-panel");
+const entitiesPanel = document.getElementById("entities-panel");
+const settingsPanel = document.getElementById("settings-panel");
+const generalInstructions = document.getElementById("general-instructions");
+const saveSettings = document.getElementById("save-settings");
+const settingsSaveState = document.getElementById("settings-save-state");
+
+const entitySearch = document.getElementById("entity-search");
+const domainFilter = document.getElementById("domain-filter");
+const refreshEntities = document.getElementById("refresh-entities");
+const exportEntities = document.getElementById("export-entities");
+const saveMemoryDraft = document.getElementById("save-memory-draft");
+const showApproved = document.getElementById("show-approved");
+const clearChat = document.getElementById("clear-chat");
+const entityRows = document.getElementById("entity-rows");
+const entitySummary = document.getElementById("entity-summary");
+
+let entityInventory = [];
+let inventoryLoaded = false;
+const entityReview = new Map();
+const ENTITY_ALIAS_BACKUP_KEY = "jarvis_entity_aliases_v1";
+let entityAliasBackup = {};
+try {
+  const storedAliases = JSON.parse(localStorage.getItem(ENTITY_ALIAS_BACKUP_KEY) || "{}");
+  if (storedAliases && typeof storedAliases === "object" && !Array.isArray(storedAliases)) {
+    entityAliasBackup = storedAliases;
+  }
+} catch {
+  entityAliasBackup = {};
+}
+
+function backupEntityAliases(entityId, aliasesText) {
+  const normalized = String(aliasesText || "");
+  entityAliasBackup[entityId] = normalized;
+  localStorage.setItem(ENTITY_ALIAS_BACKUP_KEY, JSON.stringify(entityAliasBackup));
+}
+
+function addMessage(text, role) {
+  const item = document.createElement("div");
+  item.className = `message ${role}`;
+  item.textContent = text;
+  messages.appendChild(item);
+  messages.scrollTop = messages.scrollHeight;
+  return item;
+}
+
+function createSessionId() {
+  return crypto.randomUUID
+    ? crypto.randomUUID()
+    : `${Date.now()}-${Math.random().toString(16).slice(2)}`;
+}
+
+function showChatWelcome() {
+  messages.innerHTML = "";
+  addMessage("Jarvis intelligence core online.", "jarvis");
+}
+
+function updateSessionDisplay() {
+  localStorage.setItem("jarvis_chat_session_id", jarvisChatSessionId);
+  document.getElementById("session-fragment").textContent =
+    jarvisChatSessionId.slice(0, 8).toUpperCase();
+}
+
+async function refreshChatList() {
+  try {
+    const response = await fetch("api/chats");
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.detail || `HTTP ${response.status}`);
+    const chats = Array.isArray(data.chats) ? data.chats : [];
+    if (!chats.some(chat => chat.session_id === jarvisChatSessionId)) {
+      chats.unshift({session_id: jarvisChatSessionId, title: "New chat", updated_at: Date.now() / 1000});
+    }
+    chatList.innerHTML = "";
+    for (const chat of chats) {
+      const row = document.createElement("div");
+      row.className = `chat-list-item${chat.session_id === jarvisChatSessionId ? " active" : ""}`;
+
+      const openButton = document.createElement("button");
+      openButton.type = "button";
+      openButton.className = "chat-open";
+      openButton.textContent = chat.title || "New chat";
+      openButton.title = chat.title || "New chat";
+      openButton.addEventListener("click", () => openChat(chat.session_id));
+
+      const deleteButton = document.createElement("button");
+      deleteButton.type = "button";
+      deleteButton.className = "chat-delete";
+      deleteButton.textContent = "×";
+      deleteButton.title = "Delete chat";
+      deleteButton.setAttribute("aria-label", `Delete ${chat.title || "chat"}`);
+      deleteButton.addEventListener("click", () => deleteChat(chat.session_id));
+
+      row.append(openButton, deleteButton);
+      chatList.appendChild(row);
+    }
+  } catch {
+    chatList.innerHTML = '<div class="chat-empty">Chat list unavailable.</div>';
+  }
+}
+
+async function openChat(sessionId) {
+  if (activeRequest) return;
+  try {
+    const response = await fetch(`api/chat/history/${encodeURIComponent(sessionId)}`);
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.detail || `HTTP ${response.status}`);
+    jarvisChatSessionId = sessionId;
+    updateSessionDisplay();
+    messages.innerHTML = "";
+    for (const message of data.messages || []) {
+      addMessage(message.content, message.role === "user" ? "user" : "jarvis");
+    }
+    if (!messages.children.length) showChatWelcome();
+    await refreshChatList();
+    input.focus();
+  } catch (error) {
+    showChatWelcome();
+    addMessage(`Could not restore chat: ${error.message || error}`, "jarvis");
+  }
+}
+
+async function createNewChat() {
+  if (activeRequest) return;
+  const sessionId = createSessionId();
+  await fetch("api/chats", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({session_id: sessionId}),
+  });
+  showPanel("chat");
+  await openChat(sessionId);
+}
+
+async function deleteChat(sessionId) {
+  if (activeRequest && sessionId === jarvisChatSessionId) return;
+  await fetch(`api/chat/history/${encodeURIComponent(sessionId)}`, {method: "DELETE"});
+  if (sessionId === jarvisChatSessionId) {
+    await createNewChat();
+  } else {
+    await refreshChatList();
+  }
+}
+
+newChatButton.addEventListener("click", createNewChat);
+
+async function checkHealth() {
+  try {
+    const response = await fetch("api/health");
+    const data = await response.json();
+    health.textContent = data.status === "ok" ? `Online · ${data.version}` : "Degraded";
+    const providers = data.speech_providers || {};
+    for (const option of speechProvider.options) {
+      option.disabled = providers[option.value]?.configured === false;
+    }
+    if (!hasSavedSpeechProvider && providers[data.speech_provider]?.configured) {
+      speechProvider.value = data.speech_provider;
+    }
+    if (providers[speechProvider.value]?.configured === false) {
+      const preferred = providers[data.speech_provider]?.configured
+        ? data.speech_provider
+        : (providers.openai?.configured ? "openai" : "elevenlabs");
+      speechProvider.value = preferred;
+    }
+    updateVoiceProviderControls(providers.elevenlabs?.voice_name || "Jarvis");
+    saveVoiceSettings();
+  } catch {
+    health.textContent = "Offline";
+  }
+}
+
+function showPanel(panel) {
+  const showChat = panel === "chat";
+  const showEntities = panel === "entities";
+  const showSettings = panel === "settings";
+  chatPanel.classList.toggle("hidden", !showChat);
+  entitiesPanel.classList.toggle("hidden", !showEntities);
+  settingsPanel.classList.toggle("hidden", !showSettings);
+  chatTab.classList.toggle("active", showChat);
+  entitiesTab.classList.toggle("active", showEntities);
+  settingsTab.classList.toggle("active", showSettings);
+}
+
+chatTab.addEventListener("click", () => showPanel("chat"));
+entitiesTab.addEventListener("click", async () => {
+  showPanel("entities");
+  if (!inventoryLoaded) await loadEntities();
+});
+
+async function loadSettings() {
+  settingsSaveState.textContent = "Loading…";
+  try {
+    const response = await fetch("api/settings");
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.detail || `HTTP ${response.status}`);
+    generalInstructions.value = data.general_instructions || "";
+    if (data.max_characters) generalInstructions.maxLength = data.max_characters;
+    settingsSaveState.textContent = "";
+  } catch (error) {
+    settingsSaveState.textContent = `Could not load: ${error.message || error}`;
+  }
+}
+
+settingsTab.addEventListener("click", async () => {
+  showPanel("settings");
+  await loadSettings();
+});
+
+saveSettings.addEventListener("click", async () => {
+  saveSettings.disabled = true;
+  settingsSaveState.textContent = "Saving…";
+  try {
+    const response = await fetch("api/settings", {
+      method: "PUT",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({general_instructions: generalInstructions.value}),
+    });
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.detail || `HTTP ${response.status}`);
+    generalInstructions.value = data.general_instructions || "";
+    settingsSaveState.textContent = "Saved. New replies will use these instructions.";
+  } catch (error) {
+    settingsSaveState.textContent = `Save failed: ${error.message || error}`;
+  } finally {
+    saveSettings.disabled = false;
+  }
+});
+
+function entityMatches(entity) {
+  const query = entitySearch.value.trim().toLowerCase();
+  const selectedDomain = domainFilter.value;
+
+  const matchesSearch =
+    !query ||
+    entity.entity_id.toLowerCase().includes(query) ||
+    entity.friendly_name.toLowerCase().includes(query) ||
+    String(entity.device_class || "").toLowerCase().includes(query);
+
+  const matchesDomain = !selectedDomain || entity.domain === selectedDomain;
+  return matchesSearch && matchesDomain;
+}
+
+function ensureReview(entity) {
+  if (!entityReview.has(entity.entity_id)) {
+    entityReview.set(entity.entity_id, {
+      selected: Boolean(entity.auto_approved),
+      access: entity.auto_approved ? "low_risk_control_proposed" : entity.risk,
+      aliases: "",
+    });
+  }
+  return entityReview.get(entity.entity_id);
+}
+
+let policySaveTimers = new Map();
+const pendingPolicySaves = new Map();
+const policySaveRevisions = new Map();
+const policySaveChains = new Map();
+
+async function saveEntityPolicy(entity, review, keepalive = false) {
+  const aliases = review.aliases
+    .split(",")
+    .map(alias => alias.trim())
+    .filter(Boolean);
+
+  const response = await fetch(
+    `api/ha/entity-policy/${encodeURIComponent(entity.entity_id)}`,
+    {
+      method: "PUT",
+      keepalive,
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({
+        enabled: review.selected,
+        friendly_name: entity.friendly_name,
+        domain: entity.domain,
+        device_class: entity.device_class,
+        unit: entity.unit,
+        access: review.access,
+        aliases,
+      }),
+    }
+  );
+
+  const data = await response.json();
+  if (!response.ok) {
+    throw new Error(data.detail || `HTTP ${response.status}`);
+  }
+  return data;
+}
+
+function queuePolicySave(entity, review, delay = 0) {
+  const existing = policySaveTimers.get(entity.entity_id);
+  if (existing) window.clearTimeout(existing);
+
+  const revision = (policySaveRevisions.get(entity.entity_id) || 0) + 1;
+  policySaveRevisions.set(entity.entity_id, revision);
+  pendingPolicySaves.set(entity.entity_id, {entity, review, revision});
+  const timer = window.setTimeout(async () => {
+    try {
+      entitySummary.textContent = `Saving approval for ${entity.friendly_name}…`;
+      const previousSave = policySaveChains.get(entity.entity_id) || Promise.resolve();
+      const currentSave = previousSave
+        .catch(() => {})
+        .then(() => saveEntityPolicy(entity, review));
+      policySaveChains.set(entity.entity_id, currentSave);
+      await currentSave;
+      if (policySaveRevisions.get(entity.entity_id) === revision) {
+        pendingPolicySaves.delete(entity.entity_id);
+      }
+      updateSelectionSummary();
+    } catch (error) {
+      entitySummary.textContent =
+        `Failed to approve ${entity.friendly_name}: ${error.message || error}`;
+    } finally {
+      policySaveTimers.delete(entity.entity_id);
+    }
+  }, delay);
+
+  policySaveTimers.set(entity.entity_id, timer);
+}
+
+function flushEntityPolicy(entity, review) {
+  const existing = policySaveTimers.get(entity.entity_id);
+  if (existing) window.clearTimeout(existing);
+  policySaveTimers.delete(entity.entity_id);
+  queuePolicySave(entity, review);
+}
+
+function flushPendingPoliciesOnExit() {
+  for (const {entity, review} of pendingPolicySaves.values()) {
+    saveEntityPolicy(entity, review, true).catch(() => {});
+  }
+}
+
+window.addEventListener("pagehide", flushPendingPoliciesOnExit);
+document.addEventListener("visibilitychange", () => {
+  if (document.visibilityState === "hidden") flushPendingPoliciesOnExit();
+});
+
+function renderEntities() {
+  const filtered = entityInventory.filter(entityMatches);
+  entityRows.replaceChildren();
+
+  for (const entity of filtered) {
+    const review = ensureReview(entity);
+    const row = document.createElement("tr");
+
+    const selectCell = document.createElement("td");
+    const checkbox = document.createElement("input");
+    checkbox.type = "checkbox";
+    checkbox.checked = review.selected;
+    checkbox.disabled = Boolean(entity.auto_approved);
+    checkbox.title = entity.auto_approved
+      ? "Automatically approved by socket/HVAC policy"
+      : "Include this entity in Jarvis policy";
+    checkbox.addEventListener("change", () => {
+      review.selected = checkbox.checked;
+      updateSelectionSummary();
+      queuePolicySave(entity, review);
+    });
+    selectCell.appendChild(checkbox);
+    row.appendChild(selectCell);
+
+    const nameCell = document.createElement("td");
+    nameCell.textContent = entity.friendly_name;
+    if (entity.auto_approved) nameCell.textContent += " · AUTO";
+    row.appendChild(nameCell);
+
+    const idCell = document.createElement("td");
+    idCell.className = "entity-id";
+    idCell.textContent = entity.entity_id;
+    row.appendChild(idCell);
+
+    const domainCell = document.createElement("td");
+    domainCell.textContent = entity.domain;
+    row.appendChild(domainCell);
+
+    const stateCell = document.createElement("td");
+    stateCell.classList.add(entity.available ? "available" : "unavailable");
+    stateCell.textContent = entity.state ?? "—";
+    row.appendChild(stateCell);
+
+    const classCell = document.createElement("td");
+    classCell.textContent = [entity.device_class, entity.unit]
+      .filter(Boolean)
+      .join(" · ") || "—";
+    row.appendChild(classCell);
+
+    const accessCell = document.createElement("td");
+    const accessSelect = document.createElement("select");
+    [
+      ["read_only", "read_only"],
+      ["state_only", "state_only"],
+      ["low_risk_control_proposed", "low_risk_control (approved)"],
+      ["confirmation_required", "confirmation_required"],
+      ["restricted", "restricted"],
+    ].forEach(([access, label]) => {
+      const option = document.createElement("option");
+      option.value = access;
+      option.textContent = label;
+      option.selected = review.access === access;
+      accessSelect.appendChild(option);
+    });
+    accessSelect.addEventListener("change", () => {
+      review.access = accessSelect.value;
+      if (review.selected) queuePolicySave(entity, review);
+    });
+    accessSelect.disabled = Boolean(entity.auto_approved);
+    accessCell.appendChild(accessSelect);
+    row.appendChild(accessCell);
+
+    const aliasesCell = document.createElement("td");
+    const aliasesInput = document.createElement("input");
+    aliasesInput.placeholder = "comma-separated aliases";
+    aliasesInput.value = review.aliases;
+    aliasesInput.addEventListener("input", () => {
+      review.aliases = aliasesInput.value;
+      backupEntityAliases(entity.entity_id, review.aliases);
+      queuePolicySave(entity, review, 600);
+    });
+    aliasesInput.addEventListener("blur", () => {
+      review.aliases = aliasesInput.value;
+      flushEntityPolicy(entity, review);
+    });
+    aliasesInput.addEventListener("keydown", event => {
+      if (event.key !== "Enter") return;
+      event.preventDefault();
+      review.aliases = aliasesInput.value;
+      flushEntityPolicy(entity, review);
+      aliasesInput.blur();
+    });
+    aliasesCell.appendChild(aliasesInput);
+    row.appendChild(aliasesCell);
+
+    entityRows.appendChild(row);
+  }
+
+  updateSelectionSummary(filtered.length);
+}
+
+function updateSelectionSummary(filteredCount = null) {
+  const selectedCount = [...entityReview.values()]
+    .filter(item => item.selected).length;
+  const shown = filteredCount ?? entityInventory.filter(entityMatches).length;
+
+  entitySummary.textContent =
+    `${shown} shown · ${entityInventory.length} total · ` +
+    `${selectedCount} approved now. Changes save immediately to Jarvis runtime policy.`;
+}
+
+async function loadEntities() {
+  entitySummary.textContent = "Loading Home Assistant entities…";
+  refreshEntities.disabled = true;
+
+  try {
+    const response = await fetch("api/ha/entities");
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.detail || `HTTP ${response.status}`);
+    }
+
+    entityInventory = data.entities || [];
+
+    const approvedResponse = await fetch("api/ha/approved");
+    const approvedData = await approvedResponse.json();
+    const policy = approvedData.policy || {};
+
+    entityReview.clear();
+    const interruptedSaves = [];
+    for (const entity of entityInventory) {
+      const existing = policy[entity.entity_id];
+      const serverAliases = existing && Array.isArray(existing.aliases)
+        ? existing.aliases.join(", ")
+        : "";
+      const hasLocalAliases = Object.prototype.hasOwnProperty.call(
+        entityAliasBackup,
+        entity.entity_id
+      );
+      const localAliases = hasLocalAliases && typeof entityAliasBackup[entity.entity_id] === "string"
+        ? entityAliasBackup[entity.entity_id]
+        : "";
+      if (existing || hasLocalAliases) {
+        const restoredAliases = hasLocalAliases ? localAliases : serverAliases;
+        entityReview.set(entity.entity_id, {
+          selected: entity.auto_approved || Boolean(existing && existing.enabled),
+          access: entity.auto_approved
+            ? "low_risk_control_proposed"
+            : ((existing && existing.access) || entity.risk),
+          aliases: restoredAliases,
+        });
+        if (!hasLocalAliases && serverAliases) {
+          backupEntityAliases(entity.entity_id, serverAliases);
+        } else if (hasLocalAliases && localAliases !== serverAliases) {
+          interruptedSaves.push(entity);
+        }
+      }
+    }
+
+    for (const entity of interruptedSaves) {
+      queuePolicySave(entity, entityReview.get(entity.entity_id));
+    }
+
+    inventoryLoaded = true;
+
+    domainFilter.innerHTML = '<option value="">All domains</option>';
+    for (const domain of data.domains || []) {
+      const option = document.createElement("option");
+      option.value = domain;
+      option.textContent = domain;
+      domainFilter.appendChild(option);
+    }
+
+    renderEntities();
+  } catch (error) {
+    entitySummary.textContent = `Failed to load entities: ${error.message || error}`;
+  } finally {
+    refreshEntities.disabled = false;
+  }
+}
+
+entitySearch.addEventListener("input", renderEntities);
+domainFilter.addEventListener("change", renderEntities);
+refreshEntities.addEventListener("click", loadEntities);
+
+function selectedCatalog() {
+  return entityInventory
+    .filter(entity => ensureReview(entity).selected)
+    .map(entity => {
+      const review = ensureReview(entity);
+      return {
+        entity_id: entity.entity_id,
+        friendly_name: entity.friendly_name,
+        domain: entity.domain,
+        device_class: entity.device_class,
+        unit: entity.unit,
+        access: review.access,
+        aliases: review.aliases
+          .split(",")
+          .map(alias => alias.trim())
+          .filter(Boolean),
+      };
+    });
+}
+
+exportEntities.addEventListener("click", () => {
+  const selected = selectedCatalog();
+  const source = selected.length ? selected : entityInventory.map(entity => ({
+    entity_id: entity.entity_id,
+    friendly_name: entity.friendly_name,
+    domain: entity.domain,
+    device_class: entity.device_class,
+    unit: entity.unit,
+    access: ensureReview(entity).access,
+    aliases: ensureReview(entity).aliases
+      .split(",")
+      .map(alias => alias.trim())
+      .filter(Boolean),
+  }));
+
+  const blob = new Blob(
+    [JSON.stringify({generated_by: "Jarvis", entities: source}, null, 2)],
+    {type: "application/json"}
+  );
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = "home-assistant-entity-catalog.json";
+  link.click();
+  URL.revokeObjectURL(url);
+});
+
+saveMemoryDraft.addEventListener("click", async () => {
+  const entities = selectedCatalog();
+  if (!entities.length) {
+    entitySummary.textContent = "Select at least one entity before saving a draft.";
+    return;
+  }
+
+  saveMemoryDraft.disabled = true;
+  entitySummary.textContent =
+    `Saving ${entities.length} selected entities as a Workshop Memory review draft…`;
+
+  try {
+    const response = await fetch("api/memory/entity-catalog-draft", {
+      method: "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({
+        project: "Jarvis Workshop Assistant",
+        entities,
+      }),
+    });
+
+    const data = await response.json();
+    if (!response.ok) {
+      throw new Error(data.detail || `HTTP ${response.status}`);
+    }
+
+    const result = data.workshop_memory_result || {};
+    const filename =
+      result.filename || result.draft_file || result.session_filename || "session draft";
+
+    entitySummary.textContent =
+      `Saved ${entities.length} entities to Workshop Memory as ${filename}. ` +
+      "Permanent project notes were not changed.";
+  } catch (error) {
+    entitySummary.textContent =
+      `Failed to save Workshop Memory draft: ${error.message || error}`;
+  } finally {
+    saveMemoryDraft.disabled = false;
+  }
+});
+
+showApproved.addEventListener("click", async () => {
+  try {
+    const response = await fetch("api/ha/approved");
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.detail || `HTTP ${response.status}`);
+    entitySummary.textContent =
+      `Read approved: ${data.read_entities.length} · ` +
+      `Control approved: ${data.control_entities.length} · ` +
+      `Safe control domains: ${data.safe_control_domains.join(", ")}`;
+  } catch (error) {
+    entitySummary.textContent =
+      `Failed to load approved entities: ${error.message || error}`;
+  }
+});
+
+clearChat?.addEventListener("click", createNewChat);
+
+stopButton.addEventListener("click", () => {
+  if (!activeRequest) {
+    stopAudioPlayback("VOICE STOPPED");
+    return;
+  }
+  activeRequest.stopped = true;
+  const {socket, jarvisMessage} = activeRequest;
+  if (socket.readyState === WebSocket.OPEN) {
+    socket.send(JSON.stringify({type: "stop"}));
+  } else {
+    socket.close();
+  }
+  const existing = jarvisMessage.textContent.trim();
+  jarvisMessage.textContent = existing && existing !== "Connecting…"
+    ? `${existing}\n\n[Response stopped]`
+    : "Response stopped.";
+  stopButton.disabled = true;
+  setVoiceState("STOPPED");
+});
+
+form.addEventListener("submit", async (event) => {
+  event.preventDefault();
+  const message = input.value.trim();
+  if (!message || activeRequest) return;
+
+  stopAudioPlayback("PROCESSING");
+  rememberPrompt(message);
+  addMessage(message, "user");
+  input.value = "";
+  input.disabled = true;
+  sendButton.disabled = true;
+  micButton.disabled = true;
+  stopButton.disabled = false;
+
+  const jarvisMessage = addMessage("Connecting…", "jarvis");
+  let answer = "";
+  let statusText = "Connecting…";
+
+  const endpoint = new URL("api/chat/ws", document.baseURI);
+  endpoint.protocol = endpoint.protocol === "https:" ? "wss:" : "ws:";
+
+  const socket = new WebSocket(endpoint);
+  let opened = false;
+  const requestState = {socket, jarvisMessage, stopped: false};
+  activeRequest = requestState;
+
+  const connectionTimer = window.setTimeout(() => {
+    if (!opened && socket.readyState !== WebSocket.OPEN) {
+      jarvisMessage.textContent =
+        "Request failed: WebSocket did not connect. Check the Jarvis app log.";
+      socket.close();
+    }
+  }, 8000);
+
+  socket.addEventListener("open", () => {
+    opened = true;
+    window.clearTimeout(connectionTimer);
+    socket.send(JSON.stringify({session_id: jarvisChatSessionId, message}));
+  });
+
+  socket.addEventListener("message", (messageEvent) => {
+    let eventData;
+    try {
+      eventData = JSON.parse(messageEvent.data);
+    } catch {
+      jarvisMessage.textContent = `Invalid stream event: ${messageEvent.data}`;
+      return;
+    }
+
+    if (requestState.stopped && eventData.type !== "stopped") return;
+
+    if (eventData.type === "status") {
+      statusText = eventData.message || "Working…";
+      if (!answer) jarvisMessage.textContent = statusText;
+    } else if (eventData.type === "delta") {
+      if (!answer) jarvisMessage.textContent = "";
+      answer += eventData.text || "";
+      jarvisMessage.textContent = answer;
+      messages.scrollTop = messages.scrollHeight;
+    } else if (eventData.type === "error") {
+      jarvisMessage.textContent =
+        `Request failed: ${eventData.message || "Unknown error"}`;
+    } else if (eventData.type === "stopped") {
+      if (!jarvisMessage.textContent.includes("[Response stopped]")) {
+        jarvisMessage.textContent += "\n\n[Response stopped]";
+      }
+    }
+  });
+
+  socket.addEventListener("error", () => {
+    if (!answer) {
+      jarvisMessage.textContent = "Request failed: WebSocket connection error";
+    }
+  });
+
+  socket.addEventListener("close", (closeEvent) => {
+    window.clearTimeout(connectionTimer);
+    if (!requestState.stopped && !answer && !jarvisMessage.textContent.startsWith("Request failed:")) {
+      jarvisMessage.textContent =
+        closeEvent.code === 1000
+          ? (statusText || "No response received.")
+          : `Request failed: WebSocket closed (${closeEvent.code}).`;
+    }
+    if (activeRequest === requestState) activeRequest = null;
+    input.disabled = false;
+    sendButton.disabled = false;
+    micButton.disabled = false;
+    stopButton.disabled = true;
+    refreshChatList();
+    input.focus();
+    if (!requestState.stopped && answer) speakText(answer);
+    else if (!requestState.stopped) setVoiceState("VOICE READY");
+  });
+});
+
+function startBrainNetwork() {
+  const canvas = document.getElementById("brain-network");
+  const context = canvas.getContext("2d");
+  const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  let nodes = [];
+  let width = 0;
+  let height = 0;
+  let frame = 0;
+
+  function resize() {
+    const ratio = Math.min(window.devicePixelRatio || 1, 1.5);
+    width = window.innerWidth;
+    height = window.innerHeight;
+    canvas.width = Math.floor(width * ratio);
+    canvas.height = Math.floor(height * ratio);
+    context.setTransform(ratio, 0, 0, ratio, 0, 0);
+    const count = Math.min(42, Math.max(20, Math.floor((width * height) / 30000)));
+    nodes = Array.from({length: count}, (_, index) => ({
+      x: Math.random() * width,
+      y: Math.random() * height,
+      vx: reducedMotion ? 0 : (Math.random() - .5) * .12,
+      vy: reducedMotion ? 0 : (Math.random() - .5) * .12,
+      core: index < 4,
+    }));
+    draw();
+  }
+
+  function draw() {
+    context.clearRect(0, 0, width, height);
+    for (let i = 0; i < nodes.length; i += 1) {
+      const node = nodes[i];
+      node.x += node.vx;
+      node.y += node.vy;
+      if (node.x < 0 || node.x > width) node.vx *= -1;
+      if (node.y < 0 || node.y > height) node.vy *= -1;
+      for (let j = i + 1; j < nodes.length; j += 1) {
+        const other = nodes[j];
+        const distance = Math.hypot(node.x - other.x, node.y - other.y);
+        if (distance < 155) {
+          context.strokeStyle = `rgba(82, 238, 136, ${.14 * (1 - distance / 155)})`;
+          context.beginPath();
+          context.moveTo(node.x, node.y);
+          context.lineTo(other.x, other.y);
+          context.stroke();
+        }
+      }
+      context.fillStyle = node.core ? "rgba(100,231,255,.78)" : "rgba(101,255,155,.48)";
+      context.beginPath();
+      context.arc(node.x, node.y, node.core ? 2.6 : 1.6, 0, Math.PI * 2);
+      context.fill();
+    }
+    if (!reducedMotion) frame = window.requestAnimationFrame(draw);
+  }
+
+  window.addEventListener("resize", () => {
+    if (frame) window.cancelAnimationFrame(frame);
+    resize();
+  });
+  resize();
+}
+
+checkHealth();
+openChat(jarvisChatSessionId);
+window.setInterval(() => {
+  document.getElementById("hud-clock").textContent = new Date().toLocaleTimeString([], {hour12: false});
+}, 1000);
+fetch("api/ha/approved")
+  .then(response => response.json())
+  .then(data => {
+    document.getElementById("entity-bus-count").textContent =
+      String((data.read_entities || []).length + (data.control_entities || []).length).padStart(3, "0");
+  })
+  .catch(() => {});
+startBrainNetwork();
+</script>
+</body>
+</html>
