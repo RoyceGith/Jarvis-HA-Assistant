@@ -1784,6 +1784,7 @@ function startBrainNetwork() {
     context.clearRect(0, 0, width, height);
     const reducedMotion = prefersReducedMotion();
     const angle = reducedMotion ? .32 : now * .000035;
+    const tilt = -.15 + Math.sin(reducedMotion ? 0 : now * .00009) * .035;
     const cosAngle = Math.cos(angle);
     const sinAngle = Math.sin(angle);
     const cosTilt = Math.cos(tilt);
