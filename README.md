@@ -1,1 +1,1 @@
-Jarvis Workshop Assistant v0.8.7 — refreshes the Light theme with neutral white surfaces and makes the neuron field intense in empty chats, then smoothly subdues it after the first prompt.
+Jarvis Workshop Assistant v0.8.8 — adds a clear response heading hierarchy with larger bold titles, subtitles, and standalone bold section labels.
