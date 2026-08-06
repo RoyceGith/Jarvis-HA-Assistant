@@ -24,6 +24,13 @@ def patch_index() -> None:
 
     text = replace_required(
         text,
+        'Workshop Intelligence Interface · HUD 0.8.5',
+        'Workshop Intelligence Interface · HUD 0.8.6',
+        "HUD version",
+    )
+
+    text = replace_required(
+        text,
         'const numbered = trimmed.match(/^\\d+[.)]\\s+(.+)$/);\n    if (numbered) {\n      openList("ol");\n      html.push(`<li>${renderInlineMarkdown(numbered[1])}</li>`);',
         'const numbered = trimmed.match(/^(\\d+)[.)]\\s+(.+)$/);\n    if (numbered) {\n      openList("ol");\n      html.push(`<li value="${Number(numbered[1])}">${renderInlineMarkdown(numbered[2])}</li>`);',
         "ordered-list numbering",
@@ -62,6 +69,8 @@ def patch_index() -> None:
 
 def patch_main() -> None:
     text = MAIN.read_text(encoding="utf-8")
+    text = text.replace('version="0.8.5"', 'version="0.8.6"')
+    text = text.replace('"version": "0.8.5"', '"version": "0.8.6"')
     text = text.replace(
         '"output_format": "mp3_44100_128", "optimize_streaming_latency": "4"',
         '"output_format": "mp3_22050_32", "optimize_streaming_latency": "4"',
