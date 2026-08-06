@@ -1,1 +1,1 @@
-Jarvis Workshop Assistant v0.11.3 — fixes the Plugins interface initialization order by removing temporal-dead-zone references to later JavaScript bindings, ensuring the plugin DOM exists before loading, and resolving the installed-plugin container again immediately before rendering.
+Jarvis Workshop Assistant v0.11.4 — fixes the Plugin Catalog initialization order by replacing vulnerable lexical DOM bindings, resolving catalog elements at load time, delaying recovery-triggered catalog loading by one event-loop turn, and removing the premature active-tab auto-load.
