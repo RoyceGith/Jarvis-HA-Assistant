@@ -32,6 +32,7 @@ COPY apply_catalog_escape_fix_v0115.py ./apply_catalog_escape_fix_v0115.py
 COPY apply_catalog_backend_and_chat_ui_v0116.py ./apply_catalog_backend_and_chat_ui_v0116.py
 COPY apply_build_source_fix_v0118.py ./apply_build_source_fix_v0118.py
 COPY apply_plugin_controls_and_new_chat_v0119.py ./apply_plugin_controls_and_new_chat_v0119.py
+COPY apply_chat_catalog_github_auth_v01110.py ./apply_chat_catalog_github_auth_v01110.py
 RUN python3 ./apply_interface_hotfix.py \
     && python3 ./apply_agent_controls_v090.py \
     && python3 ./apply_build_fix_v0101.py \
@@ -46,8 +47,9 @@ RUN python3 ./apply_interface_hotfix.py \
     && python3 ./apply_build_source_fix_v0118.py \
     && python3 ./apply_catalog_backend_and_chat_ui_v0116.py \
     && python3 ./apply_plugin_controls_and_new_chat_v0119.py \
+    && python3 ./apply_chat_catalog_github_auth_v01110.py \
     && python3 -m py_compile ./app/main.py \
-    && rm ./apply_interface_hotfix.py ./apply_agent_controls_v090.py ./apply_plugin_manager_v0100.py ./apply_build_fix_v0101.py ./apply_ui_recovery_v0102.py ./apply_plugin_catalog_v0110.py ./apply_plugin_catalog_fix_v0111.py ./apply_plugin_dom_fix_v0112.py ./apply_plugin_init_fix_v0113.py ./apply_catalog_tdz_fix_v0114.py ./apply_catalog_escape_fix_v0115.py ./apply_catalog_backend_and_chat_ui_v0116.py ./apply_build_source_fix_v0118.py ./apply_plugin_controls_and_new_chat_v0119.py
+    && rm ./apply_interface_hotfix.py ./apply_agent_controls_v090.py ./apply_plugin_manager_v0100.py ./apply_build_fix_v0101.py ./apply_ui_recovery_v0102.py ./apply_plugin_catalog_v0110.py ./apply_plugin_catalog_fix_v0111.py ./apply_plugin_dom_fix_v0112.py ./apply_plugin_init_fix_v0113.py ./apply_catalog_tdz_fix_v0114.py ./apply_catalog_escape_fix_v0115.py ./apply_catalog_backend_and_chat_ui_v0116.py ./apply_build_source_fix_v0118.py ./apply_plugin_controls_and_new_chat_v0119.py ./apply_chat_catalog_github_auth_v01110.py
 
 COPY run.sh /run.sh
 RUN chmod a+x /run.sh
