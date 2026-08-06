@@ -1,6 +1,8 @@
-# Jarvis Workshop Assistant v0.8.0
+# Jarvis Workshop Assistant v0.8.1
 
-Version 0.8.0 expands Settings with ElevenLabs model/test/speaker boost,
+Version 0.8.1 restores the obsidian neuron field behind chat after fixing its
+canvas projection, while retaining the unframed perimeter introduced in v0.8.0.
+Version 0.8.0 expanded Settings with ElevenLabs model/test/speaker boost,
 auto-speak, response detail, cautious low-risk confirmation, conversation
 context and retention, language/pronunciation, accessibility and density,
 quiet hours, volume, and secret-free backup/restore. It also adds a modern gray
