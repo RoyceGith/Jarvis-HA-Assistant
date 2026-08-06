@@ -1,4 +1,9 @@
-# Jarvis Workshop Assistant v0.8.2
+# Jarvis Workshop Assistant v0.8.3
+
+Version 0.8.3 removes the core metrics rail from chat, replaces boxed
+green/cyan message bubbles with a cleaner transcript style, streams first-pass
+assistant replies progressively, and reduces voice playback lag with streamed
+speech relay and lower-latency ElevenLabs defaults.
 
 Version 0.8.2 makes the obsidian neural collective clearly visible through the
 glass chat layer with stronger node definition, brighter short links, deeper

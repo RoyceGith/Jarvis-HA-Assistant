@@ -24,8 +24,8 @@ class InterfaceTests(unittest.TestCase):
     def test_hud_graph_and_versions(self):
         self.assertIn('id="brain-network"', INDEX)
         self.assertIn("prefers-reduced-motion: reduce", INDEX)
-        self.assertIn('version: "0.8.2"', CONFIG)
-        self.assertIn('"version": "0.8.2"', MAIN)
+        self.assertIn('version: "0.8.3"', CONFIG)
+        self.assertIn('"version": "0.8.3"', MAIN)
 
     def test_public_defaults_and_saved_app_options(self):
         self.assertNotIn("192.168.178.49", CONFIG)
@@ -56,7 +56,7 @@ class InterfaceTests(unittest.TestCase):
         self.assertIn('filter: contrast(1.12) saturate(1.08)', INDEX)
         self.assertIn('const depthAlpha = Math.max(.18, Math.min(.62', INDEX)
         self.assertIn('const nodeRadius = Math.max(1,', INDEX)
-        self.assertIn('backdrop-filter: blur(2px)', INDEX)
+        self.assertIn('#messages { position: relative; z-index: 1;', INDEX)
         self.assertNotIn('#brain-network { border:', INDEX)
         self.assertNotIn('#brain-network { border-radius:', INDEX)
         self.assertNotIn('border-radius: 50%; background: radial-gradient(circle', INDEX)
@@ -125,9 +125,10 @@ class InterfaceTests(unittest.TestCase):
         self.assertIn("await list_ha_entities()", MAIN)
         self.assertIn('SAFE_CONTROL_DOMAINS = {"light", "switch", "fan", "input_boolean", "climate"}', MAIN)
 
-    def test_cyan_user_response_and_hud_panels(self):
+    def test_cyan_user_response_and_clean_command_deck(self):
         self.assertIn("color: var(--cyan);", INDEX)
-        self.assertIn('class="hud-rail left-rail"', INDEX)
+        self.assertNotIn("CORE METRICS", INDEX)
+        self.assertNotIn('class="hud-rail left-rail"', INDEX)
         self.assertIn('class="hud-rail right-rail"', INDEX)
 
     def test_persistent_chat_sidebar_and_restore(self):

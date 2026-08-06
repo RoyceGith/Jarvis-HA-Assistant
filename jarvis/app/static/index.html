@@ -123,7 +123,7 @@
     .chat-delete { padding: .45rem; border: 0; background: transparent; color: #6f8b90; }
     .chat-delete:hover { color: #ffaaa5 !important; }
     .chat-empty { padding: .75rem .35rem; color: #577b80; font-size: .72rem; }
-    .hud-layout { display: grid; grid-template-columns: 190px minmax(0, 1fr) 190px; gap: 1rem; min-height: 0; height: 100%; }
+    .hud-layout { display: grid; grid-template-columns: minmax(0, 1fr) 190px; gap: 1rem; min-height: 0; height: 100%; }
     .hud-rail { padding: .7rem; border: 1px solid var(--line); border-radius: 12px; background: color-mix(in srgb, var(--surface) 62%, transparent); font-size: .7rem; color: var(--text-muted); backdrop-filter: blur(10px); }
     .hud-rail h2 { margin: 0 0 1rem; color: var(--cyan); font-size: .72rem; letter-spacing: .18em; font-weight: 500; }
     .telemetry { margin: 0 0 1.1rem; }
@@ -134,12 +134,12 @@
     .rail-log { margin-top: 1rem; padding-top: .8rem; border-top: 1px solid rgba(92,236,255,.16); line-height: 1.55; color: #577b80; }
     .core-stage { position: relative; min-width: 0; min-height: 0; display: flex; flex-direction: column; overflow: hidden; isolation: isolate; }
     .core-stage::before { content: ""; position: absolute; inset: 4% 3% 12%; background: radial-gradient(ellipse at 50% 44%, rgba(151,184,165,.10), transparent 62%); filter: blur(28px); pointer-events: none; z-index: 0; }
-    #messages { position: relative; z-index: 1; flex: 1; min-height: 0; overflow-y: auto; scrollbar-color: var(--cyan-dim) transparent; padding: .55rem; border: 1px solid color-mix(in srgb, var(--line) 85%, transparent); border-radius: 16px; background: color-mix(in srgb, var(--surface) 22%, transparent); backdrop-filter: blur(2px); box-shadow: inset 0 1px rgba(255,255,255,.045); }
-    .message { position: relative; padding: .8rem 1rem .8rem 4.8rem; margin: .5rem 0; border-radius: 12px; white-space: pre-wrap; border: 1px solid; backdrop-filter: blur(14px); box-shadow: 0 8px 24px rgba(0,0,0,.12); }
+    #messages { position: relative; z-index: 1; flex: 1; min-height: 0; overflow-y: auto; scrollbar-color: var(--cyan-dim) transparent; padding: .55rem; }
+    .message { position: relative; padding: .55rem 1rem .55rem 4.8rem; margin: .35rem 0; white-space: pre-wrap; border-left: 1px solid transparent; }
     .message::before { position: absolute; left: .8rem; top: .9rem; font-size: .7rem; letter-spacing: .08em; }
-    .user { background: color-mix(in srgb, var(--cyan-dim) 34%, transparent); border-color: color-mix(in srgb, var(--cyan) 45%, transparent); color: var(--cyan); margin-left: 12%; text-shadow: 0 0 10px rgba(92,236,255,.18); }
+    .user { border-left-color: color-mix(in srgb, var(--cyan) 52%, transparent); color: var(--cyan); margin-left: 12%; text-shadow: 0 0 10px rgba(92,236,255,.18); }
     .user::before { content: "YOU"; color: var(--cyan); }
-    .jarvis { background: color-mix(in srgb, var(--phosphor-dim) 28%, transparent); border-color: color-mix(in srgb, var(--phosphor) 42%, transparent); margin-right: 12%; }
+    .jarvis { border-left-color: color-mix(in srgb, var(--phosphor) 46%, transparent); margin-right: 12%; }
     .jarvis::before { content: "JARVIS"; color: var(--phosphor); }
     form { position: relative; z-index: 1; display: flex; gap: .6rem; margin-top: 1rem; }
     #message {
@@ -232,8 +232,6 @@
     :root[data-theme="light"] .rail-log, :root[data-theme="light"] .chat-empty { color: #667d78; }
     :root[data-theme="light"] .chat-open { color: #46615d; }
     :root[data-theme="light"] .chat-list-item.active { background: rgba(190,217,215,.55); }
-    :root[data-theme="light"] .user { background: rgba(212,235,238,.9); }
-    :root[data-theme="light"] .jarvis { background: rgba(226,237,211,.9); }
     :root[data-theme="light"] .toolbar input, :root[data-theme="light"] .toolbar select { border-color: #9aaca6; background: #f8faf5; }
     :root[data-theme="light"] .table-wrap, :root[data-theme="light"] th, :root[data-theme="light"] td { border-color: #b5c1bb; }
     :root[data-theme="light"] th { background: #dde6df; }
@@ -263,7 +261,7 @@
   <header>
     <div>
       <h1>Jarvis</h1>
-      <div class="status">Workshop Intelligence Interface · HUD 0.8.2</div>
+      <div class="status">Workshop Intelligence Interface · HUD 0.8.3</div>
     </div>
     <div id="health" class="status">Checking…</div>
   </header>
@@ -284,13 +282,6 @@
         <div id="chat-list"><div class="chat-empty">Loading chats…</div></div>
       </aside>
       <div class="hud-layout">
-      <aside class="hud-rail left-rail" aria-label="System telemetry">
-        <h2>CORE METRICS</h2>
-        <div class="telemetry"><div class="telemetry-label"><span>LINK</span><span>STABLE</span></div><div class="telemetry-line"></div></div>
-        <div class="telemetry"><div class="telemetry-label"><span>LATENCY</span><span>LOCAL</span></div><div class="telemetry-line"></div></div>
-        <div class="telemetry"><div class="telemetry-label"><span>ENTITY BUS</span><span id="entity-bus-count">SYNC</span></div><div class="telemetry-line"></div></div>
-        <div class="rail-log">NEURAL MAP ACTIVE<br>HA SOCKET CONNECTED<br>POLICY GUARD ONLINE<br>MEMORY LINK READY</div>
-      </aside>
       <div class="core-stage">
         <canvas id="brain-network" aria-hidden="true"></canvas>
         <div id="messages">
@@ -1113,7 +1104,7 @@ async function loadSettings() {
     setElevenLabsVoiceControls(data.elevenlabs_voice_settings || elevenLabsVoiceDefaults);
     jarvisPreferences = data.preferences || {};
     elevenLabsModel.value = jarvisPreferences.elevenlabs_model || "eleven_flash_v2_5";
-    elevenLabsSpeakerBoost.checked = jarvisPreferences.elevenlabs_speaker_boost !== false;
+    elevenLabsSpeakerBoost.checked = jarvisPreferences.elevenlabs_speaker_boost === true;
     autoSpeak.checked = jarvisPreferences.auto_speak !== false;
     settingsAutoSpeak.checked = autoSpeak.checked;
     responseLength.value = jarvisPreferences.response_length || "balanced";
@@ -1871,8 +1862,11 @@ window.setInterval(() => {
 fetch("api/ha/approved")
   .then(response => response.json())
   .then(data => {
-    document.getElementById("entity-bus-count").textContent =
-      String((data.read_entities || []).length + (data.control_entities || []).length).padStart(3, "0");
+    const entityBusCount = document.getElementById("entity-bus-count");
+    if (entityBusCount) {
+      entityBusCount.textContent =
+        String((data.read_entities || []).length + (data.control_entities || []).length).padStart(3, "0");
+    }
   })
   .catch(() => {});
 startBrainNetwork();

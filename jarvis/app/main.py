@@ -80,7 +80,7 @@ JARVIS_PREFERENCE_DEFAULTS: dict[str, Any] = {
         }
         else "eleven_flash_v2_5"
     ),
-    "elevenlabs_speaker_boost": True,
+    "elevenlabs_speaker_boost": False,
     "auto_speak": True,
     "response_length": "balanced",
     "confirmation_strictness": "standard",
@@ -686,7 +686,7 @@ ha_ws = HomeAssistantWebSocketClient(HA_WS_URL, SUPERVISOR_TOKEN)
 
 app = FastAPI(
     title="Jarvis Workshop Assistant",
-    version="0.8.2",
+    version="0.8.3",
     docs_url="/api/docs",
     openapi_url="/api/openapi.json",
 )
@@ -708,7 +708,7 @@ class JarvisSettingsUpdate(BaseModel):
     elevenlabs_style: float = Field(default=0.15, ge=0.0, le=1.0)
     elevenlabs_speed: float = Field(default=0.96, ge=0.7, le=1.2)
     elevenlabs_model: str = Field(default="eleven_flash_v2_5")
-    elevenlabs_speaker_boost: bool = True
+    elevenlabs_speaker_boost: bool = False
     auto_speak: bool = True
     response_length: str = Field(default="balanced", pattern="^(brief|balanced|detailed)$")
     confirmation_strictness: str = Field(default="standard", pattern="^(standard|cautious)$")
@@ -1878,7 +1878,12 @@ async def _run_jarvis_stream_events(message: str, session_id: str = "default") -
         yield stream_event("done", tool_calls=local_result["tool_calls"])
         return
 
-    response = await create_openai_response(
+    audit: list[dict[str, Any]] = []
+    max_tool_rounds = 5
+    response: dict[str, Any] | None = None
+    emitted_initial_text = False
+
+    async for event in stream_openai_response(
         {
             "model": OPENAI_MODEL,
             "instructions": effective_system_instructions(),
@@ -1901,10 +1906,30 @@ async def _run_jarvis_stream_events(message: str, session_id: str = "default") -
             "tools": WORKSHOP_TOOLS,
             "tool_choice": "auto",
         }
-    )
+    ):
+        event_type = event.get("type")
+        if event_type == "response.output_text.delta":
+            if not emitted_initial_text:
+                yield stream_event("status", message="Responding…")
+                emitted_initial_text = True
+            delta = event.get("delta", "")
+            if delta:
+                yield stream_event("delta", text=delta)
+        elif event_type == "response.completed":
+            response = event.get("response")
+        elif event_type in {"response.failed", "error"}:
+            raise OpenAIError(
+                event.get("message")
+                or event.get("error", {}).get("message")
+                or "OpenAI streaming response failed"
+            )
 
-    audit: list[dict[str, Any]] = []
-    max_tool_rounds = 5
+    if response is None:
+        raise OpenAIError("OpenAI stream ended without response.completed")
+
+    if emitted_initial_text and not function_calls(response):
+        yield stream_event("done", tool_calls=audit)
+        return
 
     for round_index in range(max_tool_rounds + 1):
         calls = function_calls(response)
@@ -2088,7 +2113,7 @@ async def health() -> dict[str, Any]:
     configured_speech_provider = SPEECH_PROVIDER if SPEECH_PROVIDER in {"openai", "elevenlabs"} else "openai"
     return {
         "status": "ok",
-        "version": "0.8.2",
+        "version": "0.8.3",
         "home_assistant_configured": bool(SUPERVISOR_TOKEN),
         "workshop_memory_configured": bool(WORKSHOP_MEMORY_URL),
         "openai_configured": bool(OPENAI_API_KEY),
@@ -2789,7 +2814,7 @@ async def generate_speech(request: SpeechRequest) -> Response:
             upstream_request = client.build_request(
                 "POST",
                 f"{ELEVENLABS_SPEECH_URL}/{ELEVENLABS_VOICE_ID}/stream",
-                params={"output_format": "mp3_44100_128"},
+                params={"output_format": "mp3_44100_128", "optimize_streaming_latency": "4"},
                 headers=headers,
                 json=payload,
             )
@@ -2852,15 +2877,39 @@ async def generate_speech(request: SpeechRequest) -> Response:
         ),
         "response_format": "mp3",
     }
-    async with httpx.AsyncClient(timeout=httpx.Timeout(90.0, connect=10.0)) as client:
-        response = await client.post(OPENAI_SPEECH_URL, headers=headers, json=payload)
+    response = None
+    client = httpx.AsyncClient(timeout=httpx.Timeout(90.0, connect=10.0))
+    try:
+        upstream_request = client.build_request(
+            "POST",
+            OPENAI_SPEECH_URL,
+            headers=headers,
+            json=payload,
+        )
+        response = await client.send(upstream_request, stream=True)
+    except httpx.HTTPError:
+        await client.aclose()
+        raise
     if response.is_error:
+        await response.aread()
+        await response.aclose()
+        await client.aclose()
         raise HTTPException(
             status_code=502,
             detail=f"Speech generation failed: {openai_error_message(response)}",
         )
-    return Response(
-        content=response.content,
+
+    async def relay_openai_audio() -> AsyncIterator[bytes]:
+        try:
+            async for chunk in response.aiter_bytes():
+                if chunk:
+                    yield chunk
+        finally:
+            await response.aclose()
+            await client.aclose()
+
+    return StreamingResponse(
+        relay_openai_audio(),
         media_type="audio/mpeg",
         headers={
             "Cache-Control": "no-store",

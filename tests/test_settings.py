@@ -45,7 +45,7 @@ def load_settings_functions(storage_path: Path):
         },
         "JARVIS_PREFERENCE_DEFAULTS": {
             "elevenlabs_model": "eleven_flash_v2_5",
-            "elevenlabs_speaker_boost": True,
+            "elevenlabs_speaker_boost": False,
             "auto_speak": True,
             "response_length": "balanced",
             "confirmation_strictness": "standard",

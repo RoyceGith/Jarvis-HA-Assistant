@@ -1,1 +1,1 @@
-Jarvis Workshop Assistant v0.8.2 — increases the clarity, contrast, and depth of the unframed obsidian neural collective behind the glass chat panel, with complete preferences, modern dark/light/gray HUD themes, adjustable ElevenLabs delivery, persistent instructions and chats, backup/restore, and protected Home Assistant controls.
+Jarvis Workshop Assistant v0.8.3 — cleans up the chat interface, removes the core metrics rail, enables progressive first-token replies, and lowers voice playback latency.
