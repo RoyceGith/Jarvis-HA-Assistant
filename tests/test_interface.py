@@ -24,8 +24,8 @@ class InterfaceTests(unittest.TestCase):
     def test_hud_graph_and_versions(self):
         self.assertIn('id="brain-network"', INDEX)
         self.assertIn("prefers-reduced-motion: reduce", INDEX)
-        self.assertIn('version: "0.8.1"', CONFIG)
-        self.assertIn('"version": "0.8.1"', MAIN)
+        self.assertIn('version: "0.8.2"', CONFIG)
+        self.assertIn('"version": "0.8.2"', MAIN)
 
     def test_public_defaults_and_saved_app_options(self):
         self.assertNotIn("192.168.178.49", CONFIG)
@@ -53,6 +53,10 @@ class InterfaceTests(unittest.TestCase):
         self.assertIn('const cosTilt = Math.cos(tilt);', INDEX)
         self.assertIn('const sinTilt = Math.sin(tilt);', INDEX)
         self.assertIn('#brain-network { position: absolute; inset: 0;', INDEX)
+        self.assertIn('filter: contrast(1.12) saturate(1.08)', INDEX)
+        self.assertIn('const depthAlpha = Math.max(.18, Math.min(.62', INDEX)
+        self.assertIn('const nodeRadius = Math.max(1,', INDEX)
+        self.assertIn('backdrop-filter: blur(2px)', INDEX)
         self.assertNotIn('#brain-network { border:', INDEX)
         self.assertNotIn('#brain-network { border-radius:', INDEX)
         self.assertNotIn('border-radius: 50%; background: radial-gradient(circle', INDEX)

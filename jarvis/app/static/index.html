@@ -31,8 +31,8 @@
       --text-muted: #8faeb3;
       --shadow: rgba(0,0,0,.52);
       --node-core: 4, 7, 6;
-      --node-edge: 202, 255, 82;
-      --node-link: 160, 206, 72;
+      --node-edge: 220, 255, 118;
+      --node-link: 178, 232, 94;
     }
     :root[data-theme="light"] {
       color-scheme: light;
@@ -49,8 +49,8 @@
       --text-muted: #536b67;
       --shadow: rgba(35,50,42,.18);
       --node-core: 8, 12, 10;
-      --node-edge: 96, 131, 21;
-      --node-link: 63, 91, 20;
+      --node-edge: 74, 108, 12;
+      --node-link: 55, 85, 15;
     }
     :root[data-theme="gray"] {
       color-scheme: dark;
@@ -67,8 +67,8 @@
       --text-muted: #a4adb7;
       --shadow: rgba(0, 0, 0, .36);
       --node-core: 5, 7, 8;
-      --node-edge: 198, 220, 207;
-      --node-link: 132, 166, 154;
+      --node-edge: 224, 244, 235;
+      --node-link: 158, 199, 184;
     }
     * { box-sizing: border-box; }
     html, body { width: 100%; height: 100%; overflow: hidden; }
@@ -79,7 +79,7 @@
       content: ""; position: fixed; inset: 0; z-index: 2; pointer-events: none;
       background: repeating-linear-gradient(0deg, transparent 0 3px, rgba(92,236,255,.025) 3px 4px);
     }
-    #brain-network { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 0; opacity: .94; pointer-events: none; }
+    #brain-network { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 0; opacity: 1; filter: contrast(1.12) saturate(1.08); pointer-events: none; }
     main {
       position: relative; z-index: 1; width: 100%; height: 100vh; height: 100dvh;
       margin: 0; padding: .75rem; display: grid; grid-template-rows: auto auto minmax(0, 1fr);
@@ -134,7 +134,7 @@
     .rail-log { margin-top: 1rem; padding-top: .8rem; border-top: 1px solid rgba(92,236,255,.16); line-height: 1.55; color: #577b80; }
     .core-stage { position: relative; min-width: 0; min-height: 0; display: flex; flex-direction: column; overflow: hidden; isolation: isolate; }
     .core-stage::before { content: ""; position: absolute; inset: 4% 3% 12%; background: radial-gradient(ellipse at 50% 44%, rgba(151,184,165,.10), transparent 62%); filter: blur(28px); pointer-events: none; z-index: 0; }
-    #messages { position: relative; z-index: 1; flex: 1; min-height: 0; overflow-y: auto; scrollbar-color: var(--cyan-dim) transparent; padding: .55rem; border: 1px solid color-mix(in srgb, var(--line) 85%, transparent); border-radius: 16px; background: color-mix(in srgb, var(--surface) 38%, transparent); backdrop-filter: blur(5px); box-shadow: inset 0 1px rgba(255,255,255,.045); }
+    #messages { position: relative; z-index: 1; flex: 1; min-height: 0; overflow-y: auto; scrollbar-color: var(--cyan-dim) transparent; padding: .55rem; border: 1px solid color-mix(in srgb, var(--line) 85%, transparent); border-radius: 16px; background: color-mix(in srgb, var(--surface) 22%, transparent); backdrop-filter: blur(2px); box-shadow: inset 0 1px rgba(255,255,255,.045); }
     .message { position: relative; padding: .8rem 1rem .8rem 4.8rem; margin: .5rem 0; border-radius: 12px; white-space: pre-wrap; border: 1px solid; backdrop-filter: blur(14px); box-shadow: 0 8px 24px rgba(0,0,0,.12); }
     .message::before { position: absolute; left: .8rem; top: .9rem; font-size: .7rem; letter-spacing: .08em; }
     .user { background: color-mix(in srgb, var(--cyan-dim) 34%, transparent); border-color: color-mix(in srgb, var(--cyan) 45%, transparent); color: var(--cyan); margin-left: 12%; text-shadow: 0 0 10px rgba(92,236,255,.18); }
@@ -263,7 +263,7 @@
   <header>
     <div>
       <h1>Jarvis</h1>
-      <div class="status">Workshop Intelligence Interface · HUD 0.8.0</div>
+      <div class="status">Workshop Intelligence Interface · HUD 0.8.2</div>
     </div>
     <div id="health" class="status">Checking…</div>
   </header>
@@ -1810,34 +1810,39 @@ function startBrainNetwork() {
     const edgeRgb = cssRgb("--node-edge");
     const coreRgb = cssRgb("--node-core");
 
-    context.lineWidth = .65;
+    context.lineCap = "round";
     for (const link of links) {
       const from = projected[link.from];
       const to = projected[link.to];
-      const depthAlpha = Math.max(.08, Math.min(.44, .2 + (from.z + to.z) * .11));
-      context.strokeStyle = `rgba(${linkRgb}, ${depthAlpha * (1 - link.distance / .46)})`;
+      const depthAlpha = Math.max(.18, Math.min(.62, .34 + (from.z + to.z) * .14));
+      const proximity = .45 + .55 * Math.max(0, 1 - link.distance / .34);
+      context.strokeStyle = `rgba(${linkRgb}, ${depthAlpha * proximity})`;
+      context.lineWidth = .85 + Math.max(0, (from.z + to.z) * .12);
+      context.shadowColor = `rgba(${linkRgb}, ${depthAlpha * .42})`;
+      context.shadowBlur = 2.6;
       context.beginPath();
       context.moveTo(from.x, from.y);
       context.lineTo(to.x, to.y);
       context.stroke();
     }
+    context.shadowBlur = 0;
 
     projected.sort((left, right) => left.z - right.z);
     for (const point of projected) {
       const pulse = reducedMotion ? 1 : .82 + Math.sin(now * .0012 + point.node.phase) * .18;
-      const nodeRadius = Math.max(.65, (1.15 + point.node.weight * .9) * point.perspective * pulse);
-      const depthAlpha = Math.max(.28, Math.min(.96, .58 + point.z * .3));
-      context.shadowColor = `rgba(${edgeRgb}, ${depthAlpha * .32})`;
-      context.shadowBlur = nodeRadius * 3.4;
+      const nodeRadius = Math.max(1, (1.35 + point.node.weight * 1.05) * point.perspective * pulse);
+      const depthAlpha = Math.max(.42, Math.min(1, .68 + point.z * .3));
+      context.shadowColor = `rgba(${edgeRgb}, ${depthAlpha * .48})`;
+      context.shadowBlur = nodeRadius * 5.2;
       context.fillStyle = `rgba(${coreRgb}, ${Math.min(.98, depthAlpha + .15)})`;
       context.strokeStyle = `rgba(${edgeRgb}, ${depthAlpha})`;
-      context.lineWidth = Math.max(.55, nodeRadius * .33);
+      context.lineWidth = Math.max(.8, nodeRadius * .38);
       context.beginPath();
       context.arc(point.x, point.y, nodeRadius, 0, Math.PI * 2);
       context.fill();
       context.stroke();
       context.shadowBlur = 0;
-      context.fillStyle = `rgba(255, 255, 235, ${depthAlpha * .62})`;
+      context.fillStyle = `rgba(255, 255, 240, ${depthAlpha * .82})`;
       context.beginPath();
       context.arc(point.x - nodeRadius * .28, point.y - nodeRadius * .3, Math.max(.28, nodeRadius * .22), 0, Math.PI * 2);
       context.fill();

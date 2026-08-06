@@ -1,4 +1,9 @@
-# Jarvis Workshop Assistant v0.8.1
+# Jarvis Workshop Assistant v0.8.2
+
+Version 0.8.2 makes the obsidian neural collective clearly visible through the
+glass chat layer with stronger node definition, brighter short links, deeper
+highlights, and reduced background blur. The neural field remains completely
+unframed in all three themes.
 
 Version 0.8.1 restores the obsidian neuron field behind chat after fixing its
 canvas projection, while retaining the unframed perimeter introduced in v0.8.0.
