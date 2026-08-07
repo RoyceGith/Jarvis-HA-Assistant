@@ -43,6 +43,7 @@ COPY apply_oauth_popup_and_zbrano_brand_v01117.py ./apply_oauth_popup_and_zbrano
 COPY apply_shared_files_and_github_state_v01118.py ./apply_shared_files_and_github_state_v01118.py
 COPY apply_frontend_repair_and_device_picker_v01119.py ./apply_frontend_repair_and_device_picker_v01119.py
 COPY apply_github_chat_shared_fix_v01120.py ./apply_github_chat_shared_fix_v01120.py
+COPY apply_new_chat_draft_fix_v01121.py ./apply_new_chat_draft_fix_v01121.py
 COPY validate_inline_js.py ./validate_inline_js.py
 RUN python3 ./apply_interface_hotfix.py \
     && python3 ./apply_agent_controls_v090.py \
@@ -69,9 +70,10 @@ RUN python3 ./apply_interface_hotfix.py \
     && python3 ./apply_shared_files_and_github_state_v01118.py \
     && python3 ./apply_frontend_repair_and_device_picker_v01119.py \
     && python3 ./apply_github_chat_shared_fix_v01120.py \
+    && python3 ./apply_new_chat_draft_fix_v01121.py \
     && python3 ./validate_inline_js.py ./app/static/index.html \
     && python3 -m py_compile ./app/main.py \
-    && rm ./apply_interface_hotfix.py ./apply_agent_controls_v090.py ./apply_plugin_manager_v0100.py ./apply_build_fix_v0101.py ./apply_ui_recovery_v0102.py ./apply_plugin_catalog_v0110.py ./apply_plugin_catalog_fix_v0111.py ./apply_plugin_dom_fix_v0112.py ./apply_plugin_init_fix_v0113.py ./apply_catalog_tdz_fix_v0114.py ./apply_catalog_escape_fix_v0115.py ./apply_catalog_backend_and_chat_ui_v0116.py ./apply_build_source_fix_v0118.py ./apply_plugin_controls_and_new_chat_v0119.py ./apply_chat_catalog_github_auth_v01110.py ./apply_catalog_cache_and_auth_clarity_v01111.py ./apply_plugin_tdz_final_fix_v01112.py ./apply_install_routing_fix_v01113.py ./apply_install_routing_build_fix_v01114.py ./apply_github_oauth_enable_v01115.py ./apply_entities_brand_and_oauth_env_v01116.py ./apply_oauth_popup_and_zbrano_brand_v01117.py ./apply_shared_files_and_github_state_v01118.py ./apply_frontend_repair_and_device_picker_v01119.py ./apply_github_chat_shared_fix_v01120.py ./validate_inline_js.py
+    && rm ./apply_interface_hotfix.py ./apply_agent_controls_v090.py ./apply_plugin_manager_v0100.py ./apply_build_fix_v0101.py ./apply_ui_recovery_v0102.py ./apply_plugin_catalog_v0110.py ./apply_plugin_catalog_fix_v0111.py ./apply_plugin_dom_fix_v0112.py ./apply_plugin_init_fix_v0113.py ./apply_catalog_tdz_fix_v0114.py ./apply_catalog_escape_fix_v0115.py ./apply_catalog_backend_and_chat_ui_v0116.py ./apply_build_source_fix_v0118.py ./apply_plugin_controls_and_new_chat_v0119.py ./apply_chat_catalog_github_auth_v01110.py ./apply_catalog_cache_and_auth_clarity_v01111.py ./apply_plugin_tdz_final_fix_v01112.py ./apply_install_routing_fix_v01113.py ./apply_install_routing_build_fix_v01114.py ./apply_github_oauth_enable_v01115.py ./apply_entities_brand_and_oauth_env_v01116.py ./apply_oauth_popup_and_zbrano_brand_v01117.py ./apply_shared_files_and_github_state_v01118.py ./apply_frontend_repair_and_device_picker_v01119.py ./apply_github_chat_shared_fix_v01120.py ./apply_new_chat_draft_fix_v01121.py ./validate_inline_js.py
 
 COPY run.sh /run.sh
 RUN chmod a+x /run.sh
