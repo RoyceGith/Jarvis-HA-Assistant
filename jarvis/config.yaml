@@ -1,6 +1,6 @@
 name: "Jarvis Workshop Assistant"
 description: "Local Jarvis agent and interface for Workshop Memory and Home Assistant"
-version: "0.11.21"
+version: "0.11.22"
 slug: "jarvis_workshop_assistant"
 init: false
 startup: application
