@@ -21,12 +21,12 @@ def patch_main():
 def patch_index():
     text = INDEX.read_text(encoding='utf-8')
     start_marker = '    const newChat = event.target.closest?.("#new-chat-button, #clear-chat");\n'
-    must(text, start_marker, 'legacy capture-phase New Chat interceptor')
-    start = text.index(start_marker)
-    end_marker = '  }, true);\n})();'
-    end = text.index(end_marker, start)
-    # The New Chat branch is the last branch in this historical capture listener.
-    text = text[:start] + text[end:]
+    if start_marker in text:
+        start = text.index(start_marker)
+        end_marker = '  }, true);\n})();'
+        end = text.index(end_marker, start)
+        # The New Chat branch is the last branch in this historical capture listener.
+        text = text[:start] + text[end:]
     text = text.replace('HUD 0.11.23', 'HUD 0.11.24', 1)
     INDEX.write_text(text, encoding='utf-8')
 
