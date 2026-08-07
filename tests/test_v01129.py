@@ -28,6 +28,9 @@ def test_v01129_chat_handles_native_mcp_approval():
 
 def test_v01129_build_fix_precedes_policy_patch():
     assert 'plugin_public_end = text.find("\\ndef _is_github_plugin", plugin_public_start)' in BUILD_FIX
+    assert 'installed_heading = \'<h2>INSTALLED PLUGINS</h2>\'' in BUILD_FIX
+    assert 'help_start = text.find("<p>", heading_pos + len(installed_heading))' in BUILD_FIX
+    assert 'Only tools declared read-only by the MCP server can be enabled in v0.10.0.' not in BUILD_FIX
     assert 'apply_github_tool_approval_build_fix_v01129.py' in DOCKER
     assert 'apply_github_tool_approval_policy_v01129.py' in DOCKER
     assert DOCKER.index('python3 ./apply_plugin_manager_recovery_v01128.py') < DOCKER.index('python3 ./apply_github_tool_approval_build_fix_v01129.py')
