@@ -13,9 +13,9 @@ def require(text: str, marker: str, label: str) -> None:
 def patch_main() -> None:
     text = MAIN.read_text(encoding="utf-8")
 
-    # Protect against the v0.11.31 catalog crash explicitly. The fixed
-    # v0.11.29 build boundary should preserve this helper from v0.11.20; fail
-    # the build rather than shipping another runtime NameError if it does not.
+    # Build-time gates for regressions already observed in the plugin/catalog
+    # chain. Do not ship Developer Mode on top of a broken generated backend.
+    require(text, "def _mcp_response_json(response):", "MCP response helper")
     require(text, "def _plugin_url_key(url):", "GitHub URL normalization helper")
     require(text, 'async def _fetch_plugin_catalog(force=False):', "catalog backend")
     require(text, '@app.get("/api/plugin-catalog")', "catalog route")
@@ -26,6 +26,7 @@ def patch_main() -> None:
     backend = r'''
 DEVELOPER_STATE_PATH = Path("/data/zbrano_developer_mode.json")
 DEVELOPER_REPOSITORY = "RoyceGith/Jarvis-HA-Assistant"
+DEVELOPER_FRONTEND_PATH = Path(__file__).resolve().parent / "static/index.html"
 
 
 class DeveloperModeRequest(BaseModel):
@@ -76,20 +77,32 @@ def developer_diagnostics() -> dict[str, object]:
         "/api/plugins",
         "/api/files/shared",
         "/api/chats",
+        "/api/developer/status",
+        "/api/developer/diagnostics",
     ]
     for path in required_routes:
-        checks.append(_developer_check(f"Route {path}", path in route_paths, "registered" if path in route_paths else "missing"))
+        checks.append(_developer_check(
+            f"Route {path}",
+            path in route_paths,
+            "registered" if path in route_paths else "missing",
+        ))
 
     checks.append(_developer_check(
         "Catalog backend",
-        callable(globals().get("_fetch_plugin_catalog")) and callable(globals().get("_plugin_url_key")),
-        "fetcher and URL normalizer available",
+        callable(globals().get("_fetch_plugin_catalog"))
+        and callable(globals().get("_plugin_url_key"))
+        and callable(globals().get("_mcp_response_json")),
+        "catalog and MCP helpers available",
     ))
-    checks.append(_developer_check("Frontend source", INDEX.exists(), str(INDEX)))
+    checks.append(_developer_check(
+        "Frontend source",
+        DEVELOPER_FRONTEND_PATH.exists(),
+        str(DEVELOPER_FRONTEND_PATH),
+    ))
 
     frontend_text = ""
     try:
-        frontend_text = INDEX.read_text(encoding="utf-8")
+        frontend_text = DEVELOPER_FRONTEND_PATH.read_text(encoding="utf-8")
     except OSError:
         pass
     for element_id, label in (
@@ -98,8 +111,13 @@ def developer_diagnostics() -> dict[str, object]:
         ("attach-file", "Attach control"),
         ("plugins-tab", "Plugins tab"),
         ("entities-tab", "Entities tab"),
+        ("developer-tab", "Developer tab"),
     ):
-        checks.append(_developer_check(label, f'id="{element_id}"' in frontend_text, element_id))
+        checks.append(_developer_check(
+            label,
+            f'id="{element_id}"' in frontend_text,
+            element_id,
+        ))
 
     registry = {}
     try:
@@ -118,7 +136,10 @@ def developer_diagnostics() -> dict[str, object]:
     ) if isinstance(registry, dict) else None
     if github_plugin:
         tools = list(github_plugin.get("tools") or [])
-        exposed = [tool for tool in tools if tool.get("enabled") and tool.get("permission") in {"read_only", "write"}]
+        exposed = [
+            tool for tool in tools
+            if tool.get("enabled") and tool.get("permission") in {"read_only", "write"}
+        ]
         approvals = [tool for tool in exposed if tool.get("permission") == "write"]
         checks.append(_developer_check(
             "GitHub MCP",
@@ -167,8 +188,8 @@ async def get_developer_diagnostics():
 '''
     text = text.replace(backend_marker, backend + backend_marker, 1)
 
-    # Route all Responses API instruction assembly through Developer Mode while
-    # leaving the existing base instruction generator untouched.
+    # Route every Responses API instruction payload through the Developer Mode
+    # wrapper while leaving the existing base instruction generator intact.
     instruction_line = '"instructions": effective_system_instructions(),'
     replacements = text.count(instruction_line)
     if replacements < 1:
@@ -189,7 +210,11 @@ def patch_index() -> None:
     files_tab = '<button id="files-tab">Shared Files</button>'
     require(text, files_tab, "Shared Files tab")
     if 'id="developer-tab"' not in text:
-        text = text.replace(files_tab, '<button id="developer-tab">Developer</button>\n    ' + files_tab, 1)
+        text = text.replace(
+            files_tab,
+            '<button id="developer-tab">Developer</button>\n    ' + files_tab,
+            1,
+        )
 
     files_panel = '<section id="files-panel" class="panel hidden">'
     require(text, files_panel, "Shared Files panel")
@@ -275,6 +300,11 @@ def patch_index() -> None:
     interfaceStatus.textContent = parts.join(" · ");
   }
 
+  function hideDeveloperPanel() {
+    panel.classList.add("hidden");
+    tab.classList.remove("active");
+  }
+
   function activateDeveloperPanel() {
     for (const id of ["chat-panel", "entities-panel", "settings-panel", "plugins-panel", "files-panel", "developer-panel"]) {
       document.getElementById(id)?.classList.toggle("hidden", id !== "developer-panel");
@@ -335,6 +365,12 @@ def patch_index() -> None:
     runDiagnostics();
   }, true);
 
+  // Existing navigation predates Developer Mode. Hide this panel whenever an
+  // older navigation control is used so it cannot overlay Chat/Files/Plugins.
+  for (const id of ["chat-tab", "entities-tab", "settings-tab", "plugins-tab", "files-tab", "new-chat-button"]) {
+    document.getElementById(id)?.addEventListener("click", hideDeveloperPanel, true);
+  }
+
   toggle.addEventListener("click", async () => {
     const next = toggle.dataset.enabled !== "true";
     toggle.disabled = true;
@@ -378,8 +414,10 @@ def verify() -> None:
     missing = []
 
     for marker in (
+        'def _mcp_response_json(response):',
         'def _plugin_url_key(url):',
         'async def _fetch_plugin_catalog(force=False):',
+        'DEVELOPER_FRONTEND_PATH = Path(__file__).resolve().parent / "static/index.html"',
         'DEVELOPER_STATE_PATH',
         'def developer_system_instructions(base: str)',
         '@app.get("/api/developer/status")',
@@ -398,6 +436,7 @@ def verify() -> None:
         'id="developer-run-diagnostics"',
         'id="zbrano-v0120-developer-mode"',
         'Interface monitor healthy',
+        'hideDeveloperPanel',
         'HUD 0.12.0',
     ):
         if marker not in index:
