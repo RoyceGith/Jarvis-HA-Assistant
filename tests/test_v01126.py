@@ -8,10 +8,12 @@ CONFIG = (ROOT / "jarvis/config.yaml").read_text(encoding="utf-8")
 
 def test_v01126_moves_plugin_runtime_out_of_head():
     assert 'zbrano-v01126-plugin-runtime' in PATCH26
-    assert 'expected plugin runtime in the early head script' in PATCH26
+    assert 'text.find("</script>", runtime_start)' in PATCH26
+    assert 'runtime = text[runtime_start:first_script_close].strip()' in PATCH26
+    assert 'runtime_end_marker' not in PATCH26
     assert 'plugin runtime must execute after body DOM exists' in PATCH26
-    assert 'stale plugin DOM lookup in early head script' in PATCH26
-    assert 'unsafe document.body fallback in early head script' in PATCH26
+    assert 'stale plugin DOM lookup in head' in PATCH26
+    assert 'unsafe document.body fallback in head' in PATCH26
 
 
 def test_v01126_is_wired_after_v01125_and_before_validators():
