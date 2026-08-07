@@ -1,6 +1,6 @@
 name: "Jarvis Workshop Assistant"
 description: "Local Jarvis agent and interface for Workshop Memory and Home Assistant"
-version: "0.11.16"
+version: "0.11.17"
 slug: "jarvis_workshop_assistant"
 init: false
 startup: application
@@ -13,7 +13,7 @@ ingress: true
 ingress_port: 8099
 ingress_stream: true
 panel_icon: "mdi:robot"
-panel_title: "Jarvis"
+panel_title: "ZBRANO"
 panel_admin: true
 
 ports:
