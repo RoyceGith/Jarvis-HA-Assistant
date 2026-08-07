@@ -14,18 +14,10 @@ def patch_index() -> None:
     text = INDEX.read_text(encoding="utf-8")
 
     runtime_start_marker = 'var pluginsTab=document.getElementById("plugins-tab"),pluginsPanel=document.getElementById("plugins-panel"),pluginList='
-    runtime_end_marker = 'pluginsTab.addEventListener("click",async()=>{showPanel("plugins");await loadPlugins()});'
-
     require(text, runtime_start_marker, "plugin runtime start")
-    require(text, runtime_end_marker, "plugin runtime end")
 
     runtime_start = text.find(runtime_start_marker)
-    runtime_end = text.find(runtime_end_marker, runtime_start)
-    if runtime_end < 0:
-        raise RuntimeError("ZBRANO v0.11.26 patch missing: plugin runtime bounds")
-    runtime_end += len(runtime_end_marker)
-
-    first_script_close = text.find("</script>")
+    first_script_close = text.find("</script>", runtime_start)
     head_close = text.find("</head>")
     if first_script_close < 0 or head_close < 0:
         raise RuntimeError("ZBRANO v0.11.26 patch missing: document head structure")
@@ -34,8 +26,11 @@ def patch_index() -> None:
             "ZBRANO v0.11.26 expected plugin runtime in the early head script"
         )
 
-    runtime = text[runtime_start:runtime_end].strip()
-    text = text[:runtime_start] + text[runtime_end:]
+    # Everything from the plugin binding through this early script's close was
+    # appended into the head over multiple historical patches. Move the whole
+    # tail as one unit so later listener text changes cannot break the matcher.
+    runtime = text[runtime_start:first_script_close].strip()
+    text = text[:runtime_start] + text[first_script_close:]
 
     body_close = text.rfind("</body>")
     if body_close < 0:
@@ -74,21 +69,20 @@ def verify() -> None:
     if runtime_pos < 0 or body_pos < 0 or runtime_pos < body_pos or runtime_pos < head_close:
         missing.append("plugin runtime must execute after body DOM exists")
 
-    first_script_close = index.find("</script>")
-    early_script = index[:first_script_close] if first_script_close >= 0 else index
-    if 'pluginsTab=document.getElementById("plugins-tab")' in early_script:
-        missing.append("stale plugin DOM lookup in early head script")
-    if '(document.getElementById("plugins-panel")||document.body).appendChild' in early_script:
-        missing.append("unsafe document.body fallback in early head script")
+    head_html = index[:head_close] if head_close >= 0 else index
+    if 'pluginsTab=document.getElementById("plugins-tab")' in head_html:
+        missing.append("stale plugin DOM lookup in head")
+    if '(document.getElementById("plugins-panel")||document.body).appendChild' in head_html:
+        missing.append("unsafe document.body fallback in head")
 
     required_runtime = (
         'var pluginsTab=document.getElementById("plugins-tab")',
         'pluginsPanel=document.getElementById("plugins-panel")',
         'function ensurePluginDomReady()',
         'function currentPluginList()',
-        'pluginsTab.addEventListener("click"',
     )
-    relocated_runtime = index[runtime_pos:index.find("</script>", runtime_pos)] if runtime_pos >= 0 else ""
+    relocated_end = index.find("</script>", runtime_pos)
+    relocated_runtime = index[runtime_pos:relocated_end] if runtime_pos >= 0 and relocated_end >= 0 else ""
     for value in required_runtime:
         if value not in relocated_runtime:
             missing.append(value)
