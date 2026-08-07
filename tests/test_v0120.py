@@ -12,6 +12,7 @@ def test_v0120_preserves_catalog_and_github_helpers():
     assert 'previous_bad_boundary' in BUILD_FIX
     assert 'old_active_boundary' in BUILD_FIX
     assert 'PLUGIN_CATALOG_CACHE_PATH =' in BUILD_FIX
+    assert 'def _mcp_response_json(response):' in PATCH
     assert 'def _plugin_url_key(url):' in PATCH
     assert 'async def _fetch_plugin_catalog(force=False):' in PATCH
     assert '@app.get("/api/plugin-catalog")' in PATCH
@@ -19,6 +20,7 @@ def test_v0120_preserves_catalog_and_github_helpers():
 
 def test_v0120_developer_backend_is_guarded_and_persistent():
     assert 'DEVELOPER_STATE_PATH = Path("/data/zbrano_developer_mode.json")' in PATCH
+    assert 'DEVELOPER_FRONTEND_PATH = Path(__file__).resolve().parent / "static/index.html"' in PATCH
     assert 'class DeveloperModeRequest(BaseModel):' in PATCH
     assert 'def developer_mode_enabled() -> bool:' in PATCH
     assert 'def developer_system_instructions(base: str) -> str:' in PATCH
@@ -35,11 +37,14 @@ def test_v0120_diagnostics_cover_working_surfaces():
         '"/api/plugins"',
         '"/api/files/shared"',
         '"/api/chats"',
+        '"/api/developer/status"',
+        '"/api/developer/diagnostics"',
         '"new-chat-button"',
         '"files-tab"',
         '"attach-file"',
         '"plugins-tab"',
         '"entities-tab"',
+        '"developer-tab"',
         '"GitHub MCP"',
     ):
         assert marker in PATCH
@@ -55,6 +60,7 @@ def test_v0120_frontend_has_developer_mode_and_error_monitor():
         'window.addEventListener("error"',
         'window.addEventListener("unhandledrejection"',
         'Interface monitor healthy',
+        'hideDeveloperPanel',
     ):
         assert marker in PATCH
 
