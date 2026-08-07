@@ -16,6 +16,22 @@ def main() -> None:
     elif new_boundary not in text:
         raise RuntimeError("ZBRANO v0.11.29 build fix missing: plugin_public boundary")
 
+    # v0.11.0 inserted the entire plugin catalog backend between
+    # active_mcp_tools() and /api/plugins. The original v0.11.29 replacement
+    # used /api/plugins as its end marker and therefore deleted the catalog
+    # backend. Narrow the replacement boundary to the catalog block start so
+    # only active_mcp_tools() itself is replaced.
+    old_active_boundary = '''        "def active_mcp_tools():\\n",
+        '@app.get("/api/plugins")',
+        active_tools,'''
+    new_active_boundary = '''        "def active_mcp_tools():\\n",
+        "PLUGIN_CATALOG_CACHE_PATH =",
+        active_tools,'''
+    if old_active_boundary in text:
+        text = text.replace(old_active_boundary, new_active_boundary, 1)
+    elif new_active_boundary not in text:
+        raise RuntimeError("ZBRANO v0.11.29 build fix missing: active MCP/catalog boundary")
+
     # Earlier UI patches changed the explanatory text beneath INSTALLED
     # PLUGINS, so v0.11.29 must not depend on the original v0.10.0 sentence.
     old_help_patch = '''    old_help = '<p>Only tools declared read-only by the MCP server can be enabled in v0.10.0.</p>'
@@ -38,6 +54,8 @@ def main() -> None:
 
     if old_boundary in text or new_boundary not in text:
         raise RuntimeError("ZBRANO v0.11.29 build fix boundary verification failed")
+    if old_active_boundary in text or new_active_boundary not in text:
+        raise RuntimeError("ZBRANO v0.11.29 build fix catalog preservation verification failed")
     if old_help_patch in text or new_help_patch not in text:
         raise RuntimeError("ZBRANO v0.11.29 build fix help verification failed")
 
