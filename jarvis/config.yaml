@@ -1,6 +1,6 @@
 name: "Jarvis Workshop Assistant"
 description: "Local Jarvis agent and interface for Workshop Memory and Home Assistant"
-version: "0.11.10"
+version: "0.11.11"
 slug: "jarvis_workshop_assistant"
 init: false
 startup: application
@@ -35,7 +35,6 @@ options:
   elevenlabs_voice_name: "Jarvis"
   elevenlabs_model_id: "eleven_flash_v2_5"
   speech_fallback_to_openai: true
-  github_oauth_client_id: ""
   ha_read_entities: ""
   ha_control_entities: ""
   enable_direct_port: true
@@ -54,7 +53,6 @@ schema:
   elevenlabs_voice_name: "str"
   elevenlabs_model_id: "str"
   speech_fallback_to_openai: "bool"
-  github_oauth_client_id: "str?"
   ha_read_entities: "str?"
   ha_control_entities: "str?"
   enable_direct_port: "bool"
