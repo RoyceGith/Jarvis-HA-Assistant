@@ -127,3 +127,9 @@ persistent `/data` directory and also survive normal updates and restarts.
 Removing Jarvis and selecting the option to delete its data, or restoring a
 fresh Home Assistant installation without the app's backup data, can erase
 them. Keep a Home Assistant backup before major upgrades.
+
+## GitHub OAuth (v0.11.15)
+
+The official GitHub MCP plugin can use GitHub Device Flow. Create a GitHub OAuth App (or GitHub App) with **Device Flow enabled**, copy its **Client ID**, and set `github_oauth_client_id` in the Jarvis Home Assistant add-on configuration. No client secret is required for Device Flow.
+
+After saving the add-on configuration and restarting Jarvis, open **Plugins**, refresh the catalog, and press **Connect GitHub** on the official GitHub plugin. Jarvis opens GitHub sign-in/authorization, displays the one-time device code, polls for completion, stores the returned bearer token only in server-side plugin secret storage, and installs the plugin disabled by default for review.

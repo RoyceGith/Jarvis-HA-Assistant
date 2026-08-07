@@ -1,6 +1,6 @@
 name: "Jarvis Workshop Assistant"
 description: "Local Jarvis agent and interface for Workshop Memory and Home Assistant"
-version: "0.11.14"
+version: "0.11.15"
 slug: "jarvis_workshop_assistant"
 init: false
 startup: application
@@ -26,6 +26,7 @@ options:
   workshop_memory_url: "http://workshop-memory.local:3001/mcp"
   workshop_memory_internal_url: "http://workshop_memory:3001/mcp"
   openai_api_key: ""
+  github_oauth_client_id: ""
   openai_model: "gpt-5-mini"
   openai_transcription_model: "gpt-4o-transcribe"
   openai_tts_model: "gpt-4o-mini-tts"
@@ -44,6 +45,7 @@ schema:
   workshop_memory_url: "str"
   workshop_memory_internal_url: "str?"
   openai_api_key: "password"
+  github_oauth_client_id: "str?"
   openai_model: "str"
   openai_transcription_model: "str"
   openai_tts_model: "str"
