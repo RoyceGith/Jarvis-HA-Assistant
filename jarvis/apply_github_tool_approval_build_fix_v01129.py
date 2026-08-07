@@ -6,21 +6,24 @@ PATCH = Path("/opt/jarvis/apply_github_tool_approval_policy_v01129.py")
 def main() -> None:
     text = PATCH.read_text(encoding="utf-8")
 
-    # The policy helpers are injected between plugin_public() and
-    # discover_plugin_tools(), so stop the plugin_public replacement before
-    # those helpers instead of consuming them.
-    old_boundary = 'plugin_public_end = text.find("\\n\\nasync def discover_plugin_tools", plugin_public_start)'
-    new_boundary = 'plugin_public_end = text.find("\\ndef _is_github_plugin", plugin_public_start)'
-    if old_boundary in text:
-        text = text.replace(old_boundary, new_boundary, 1)
-    elif new_boundary not in text:
-        raise RuntimeError("ZBRANO v0.11.29 build fix missing: plugin_public boundary")
+    # plugin_public() is followed by helpers added in v0.11.20 before the
+    # v0.11.29 policy helpers are injected. Stop before the FIRST existing
+    # helper, not before discover_plugin_tools() or _is_github_plugin().
+    # Otherwise _mcp_response_json(), GITHUB_MCP_URL and _plugin_url_key() are
+    # deleted while later catalog/GitHub code still references them.
+    original_boundary = 'plugin_public_end = text.find("\\n\\nasync def discover_plugin_tools", plugin_public_start)'
+    previous_bad_boundary = 'plugin_public_end = text.find("\\ndef _is_github_plugin", plugin_public_start)'
+    safe_boundary = 'plugin_public_end = text.find("\\ndef _mcp_response_json", plugin_public_start)'
+    if original_boundary in text:
+        text = text.replace(original_boundary, safe_boundary, 1)
+    elif previous_bad_boundary in text:
+        text = text.replace(previous_bad_boundary, safe_boundary, 1)
+    elif safe_boundary not in text:
+        raise RuntimeError("ZBRANO v0.11.29 build fix missing: plugin_public safe boundary")
 
     # v0.11.0 inserted the entire plugin catalog backend between
-    # active_mcp_tools() and /api/plugins. The original v0.11.29 replacement
-    # used /api/plugins as its end marker and therefore deleted the catalog
-    # backend. Narrow the replacement boundary to the catalog block start so
-    # only active_mcp_tools() itself is replaced.
+    # active_mcp_tools() and /api/plugins. Narrow the replacement boundary to
+    # the catalog block start so only active_mcp_tools() itself is replaced.
     old_active_boundary = '''        "def active_mcp_tools():\\n",
         '@app.get("/api/plugins")',
         active_tools,'''
@@ -52,8 +55,8 @@ def main() -> None:
     elif new_help_patch not in text:
         raise RuntimeError("ZBRANO v0.11.29 build fix missing: installed plugins help matcher")
 
-    if old_boundary in text or new_boundary not in text:
-        raise RuntimeError("ZBRANO v0.11.29 build fix boundary verification failed")
+    if original_boundary in text or previous_bad_boundary in text or safe_boundary not in text:
+        raise RuntimeError("ZBRANO v0.11.29 build fix helper preservation verification failed")
     if old_active_boundary in text or new_active_boundary not in text:
         raise RuntimeError("ZBRANO v0.11.29 build fix catalog preservation verification failed")
     if old_help_patch in text or new_help_patch not in text:
