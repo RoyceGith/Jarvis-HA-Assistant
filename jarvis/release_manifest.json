@@ -1,23 +1,24 @@
 {
-  "version": "0.12.22",
+  "version": "0.12.23",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/Jarvis-HA-Assistant main",
-  "summary": "Repair the release-manifest build gate while retaining automatic Workshop Memory release synchronization.",
+  "summary": "Make long Developer Mode investigations observable and safely time-bounded.",
   "features": [
-    "Automatically record each newly installed ZBRANO version in Workshop Memory.",
-    "Keep the standing-authorization toggle, manual retry control, release-sync API, and Developer diagnostic status."
+    "Show changing, timed workflow phases while Developer tools are running.",
+    "Report when targeted diagnostic evidence confirms a problem without exposing private model reasoning.",
+    "Keep automatic Workshop Memory release synchronization enabled."
   ],
   "fixes": [
-    "Copy config.yaml into the build workspace before release validation to prevent the v0.12.21 FileNotFoundError.",
-    "Remove the temporary configuration copy after validation so it is not retained in the runtime image.",
-    "Preserve duplicate protection, non-blocking retries, and backup-backed Workshop Memory replacement."
+    "Time-bound targeted Developer investigation execution instead of leaving the interface indefinitely busy.",
+    "Warn when no new activity has arrived for 20 seconds and explain after 60 seconds that the request can be stopped safely.",
+    "Preserve the v0.12.22 release-validator build repair."
   ],
   "validation": [
     "Complete generated patch chain",
     "Inline JavaScript validation",
     "New Chat wiring validation",
     "Backend Python compilation",
-    "Release synchronization regression coverage"
+    "Live Developer progress and timeout regression coverage"
   ]
 }
