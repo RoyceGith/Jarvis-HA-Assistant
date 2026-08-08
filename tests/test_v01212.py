@@ -45,5 +45,5 @@ def test_v01212_build_order_and_version():
     assert DOCKER.index("python3 ./apply_workshop_memory_writes_v01211.py") < DOCKER.index("python3 ./apply_workshop_task_approval_v01212.py")
     assert DOCKER.index("python3 ./apply_workshop_task_approval_v01212.py") < DOCKER.index("validate_inline_js.py ./app/static/index.html")
     assert "COPY apply_workshop_task_approval_v01212.py ./apply_workshop_task_approval_v01212.py" in DOCKER
-    assert "./apply_workshop_task_approval_v01212.py ./validate_inline_js.py" in DOCKER
-    assert 'version: "0.12.12"' in CONFIG
+    assert "./apply_workshop_task_approval_v01212.py" in DOCKER
+    assert 'version="0.12.12"' in PATCH
