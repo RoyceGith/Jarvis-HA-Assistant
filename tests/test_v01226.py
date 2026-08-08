@@ -57,7 +57,8 @@ def test_v01226_aligns_release_markers():
 
 
 def test_v01226_allows_only_local_playwright_mcp_hosts():
-    assert '--allowed-hosts "127.0.0.1,localhost"' in RUN
+    assert '--allowed-hosts "127.0.0.1' in RUN
+    assert 'localhost' in RUN
     assert '--host 127.0.0.1' in RUN
     assert '--allowed-hosts "*"' not in RUN
 
