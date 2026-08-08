@@ -1,0 +1,24 @@
+{
+  "version": "0.12.21",
+  "project": "ZBRANO Workshop Assistant",
+  "note": "Release and Change Log.md",
+  "source": "RoyceGith/Jarvis-HA-Assistant main",
+  "summary": "Automatically synchronize installed ZBRANO releases to Workshop Memory.",
+  "features": [
+    "Automatically record each newly installed ZBRANO version in Workshop Memory.",
+    "Provide a standing-authorization toggle and manual retry control in Settings.",
+    "Show synchronization state through the release-sync API and Developer diagnostics."
+  ],
+  "fixes": [
+    "Prevent duplicate release entries with a stable version marker.",
+    "Retry synchronization without delaying or blocking application startup.",
+    "Preserve the complete existing release note through Workshop Memory backup-backed replacement."
+  ],
+  "validation": [
+    "Complete generated patch chain",
+    "Inline JavaScript validation",
+    "New Chat wiring validation",
+    "Backend Python compilation",
+    "Release synchronization regression coverage"
+  ]
+}
