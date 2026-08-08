@@ -77,9 +77,11 @@ COPY apply_release_alignment_v01213.py ./apply_release_alignment_v01213.py
 COPY apply_zbrano_identity_v01214.py ./apply_zbrano_identity_v01214.py
 COPY apply_ingress_oauth_callback_retry_v01215.py ./apply_ingress_oauth_callback_retry_v01215.py
 COPY apply_playwright_developer_tools_v01216.py ./apply_playwright_developer_tools_v01216.py
+COPY apply_build_cleanup_fix_v01217.py ./apply_build_cleanup_fix_v01217.py
 COPY validate_inline_js.py ./validate_inline_js.py
 COPY validate_new_chat_wiring.py ./validate_new_chat_wiring.py
-RUN python3 ./apply_interface_hotfix.py \
+RUN rm() { command rm -f "$@"; } \
+    && python3 ./apply_interface_hotfix.py \
     && python3 ./apply_agent_controls_v090.py \
     && python3 ./apply_build_fix_v0101.py \
     && python3 ./apply_plugin_manager_v0100.py \
@@ -133,6 +135,8 @@ RUN python3 ./apply_interface_hotfix.py \
     && python3 ./apply_zbrano_identity_v01214.py \
     && python3 ./apply_ingress_oauth_callback_retry_v01215.py \
     && python3 ./apply_playwright_developer_tools_v01216.py \
+    && python3 ./apply_build_cleanup_fix_v01217.py \
+    && rm ./apply_build_cleanup_fix_v01217.py \
     && python3 ./validate_inline_js.py ./app/static/index.html \
     && python3 ./validate_new_chat_wiring.py ./app/static/index.html \
     && python3 -m py_compile ./app/main.py \
