@@ -1,25 +1,29 @@
 {
-  "version": "0.12.25",
+  "version": "0.12.26",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/Jarvis-HA-Assistant main",
-  "summary": "Keep post-diagnostic self-repair observable and time-bounded.",
+  "summary": "Add native OpenAI Web Search and repair local Playwright MCP readiness.",
   "features": [
-    "Emit timed progress while the model reviews diagnostic evidence and waits for Developer repository tools.",
-    "Show remote MCP tool start and completion states when OpenAI streams them.",
-    "Retain Investigate & Fix, automatic Developer Mode activation, and return-to-diagnostic navigation.",
+    "Offer Web Auto, Search Web, and Web Off modes for each Chat message.",
+    "Use the current OpenAI Responses API web_search tool and request complete consulted-source metadata.",
+    "Display and persist a clickable Sources section beneath searched answers.",
+    "Add Web Search availability and context-size controls in Settings.",
     "Keep automatic Workshop Memory release synchronization enabled."
   ],
   "fixes": [
-    "Bound each silent model continuation to three minutes.",
-    "Bound the complete self-repair request to five minutes and report a recoverable timeout.",
-    "Preserve repository approval gates and stop timed-out work without an unapproved write."
+    "Keep public Web Search unavailable while Developer Mode tool isolation is active.",
+    "Deduplicate and validate HTTP(S) source URLs before rendering them.",
+    "Add Web Search diagnostics and targeted investigation metadata.",
+    "Allow only localhost and 127.0.0.1 host headers for the local Playwright MCP service.",
+    "Report the resolved Chromium path, MCP process state, bounded startup-log tail, and bounded HTTP error detail when Playwright initialization fails."
   ],
   "validation": [
     "Complete generated patch chain",
     "Inline JavaScript validation",
     "New Chat wiring validation",
     "Backend Python compilation",
-    "Model continuation heartbeat and deadline regression coverage"
+    "Native Web Search payload, citation, UI, isolation, and settings regression coverage",
+    "Playwright MCP local-host and bounded diagnostic-evidence regression coverage"
   ]
 }

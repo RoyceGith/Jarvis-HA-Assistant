@@ -36,6 +36,7 @@ else
     --executable-path "${PLAYWRIGHT_CHROMIUM}" \
     --output-dir /data/playwright \
     --host 127.0.0.1 \
+    --allowed-hosts "127.0.0.1,localhost" \
     --port 8931 \
     >/tmp/zbrano-playwright-mcp.log 2>&1 &
 fi
