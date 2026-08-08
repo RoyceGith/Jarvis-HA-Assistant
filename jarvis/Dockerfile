@@ -86,6 +86,7 @@ COPY apply_navigation_settings_and_chat_wrap_v01220.py ./apply_navigation_settin
 COPY apply_release_memory_sync_v01221.py ./apply_release_memory_sync_v01221.py
 COPY apply_release_validator_build_fix_v01222.py ./apply_release_validator_build_fix_v01222.py
 COPY apply_live_developer_progress_v01223.py ./apply_live_developer_progress_v01223.py
+COPY apply_diagnostic_investigate_fix_v01224.py ./apply_diagnostic_investigate_fix_v01224.py
 COPY validate_release_manifest.py ./validate_release_manifest.py
 COPY validate_inline_js.py ./validate_inline_js.py
 COPY validate_new_chat_wiring.py ./validate_new_chat_wiring.py
@@ -158,6 +159,8 @@ RUN rm() { command rm -f "$@"; } \
     && rm ./apply_release_validator_build_fix_v01222.py \
     && python3 ./apply_live_developer_progress_v01223.py \
     && rm ./apply_live_developer_progress_v01223.py \
+    && python3 ./apply_diagnostic_investigate_fix_v01224.py \
+    && rm ./apply_diagnostic_investigate_fix_v01224.py \
     && python3 ./validate_release_manifest.py \
     && rm ./validate_release_manifest.py ./config.yaml \
     && python3 ./validate_inline_js.py ./app/static/index.html \

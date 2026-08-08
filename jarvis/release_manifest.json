@@ -1,24 +1,25 @@
 {
-  "version": "0.12.23",
+  "version": "0.12.24",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/Jarvis-HA-Assistant main",
-  "summary": "Make long Developer Mode investigations observable and safely time-bounded.",
+  "summary": "Launch self-repair investigations directly from failed Developer diagnostics.",
   "features": [
-    "Show changing, timed workflow phases while Developer tools are running.",
-    "Report when targeted diagnostic evidence confirms a problem without exposing private model reasoning.",
+    "Show an Investigate & Fix action on every failed Developer diagnostic.",
+    "Enable Developer Mode automatically and launch the repair workflow in Chat with the diagnostic evidence.",
+    "Provide a return-to-diagnostic action from the active Chat investigation.",
     "Keep automatic Workshop Memory release synchronization enabled."
   ],
   "fixes": [
-    "Time-bound targeted Developer investigation execution instead of leaving the interface indefinitely busy.",
-    "Warn when no new activity has arrived for 20 seconds and explain after 60 seconds that the request can be stopped safely.",
-    "Preserve the v0.12.22 release-validator build repair."
+    "Prevent duplicate diagnostic launches while another Chat request is active.",
+    "Keep repository writes approval-gated while removing the separate manual Developer Mode activation step.",
+    "Preserve timed workflow progress, investigation timeouts, and release synchronization."
   ],
   "validation": [
     "Complete generated patch chain",
     "Inline JavaScript validation",
     "New Chat wiring validation",
     "Backend Python compilation",
-    "Live Developer progress and timeout regression coverage"
+    "Failed-diagnostic self-repair launch regression coverage"
   ]
 }
