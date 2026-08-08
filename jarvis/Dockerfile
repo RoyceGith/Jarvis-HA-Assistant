@@ -80,6 +80,7 @@ COPY apply_playwright_developer_tools_v01216.py ./apply_playwright_developer_too
 COPY apply_build_cleanup_fix_v01217.py ./apply_build_cleanup_fix_v01217.py
 COPY apply_workshop_bulk_edit_capacity_v01218.py ./apply_workshop_bulk_edit_capacity_v01218.py
 COPY apply_modern_controls_and_neural_settings_v01219.py ./apply_modern_controls_and_neural_settings_v01219.py
+COPY apply_navigation_settings_and_chat_wrap_v01220.py ./apply_navigation_settings_and_chat_wrap_v01220.py
 COPY validate_inline_js.py ./validate_inline_js.py
 COPY validate_new_chat_wiring.py ./validate_new_chat_wiring.py
 RUN rm() { command rm -f "$@"; } \
@@ -143,6 +144,8 @@ RUN rm() { command rm -f "$@"; } \
     && rm ./apply_workshop_bulk_edit_capacity_v01218.py \
     && python3 ./apply_modern_controls_and_neural_settings_v01219.py \
     && rm ./apply_modern_controls_and_neural_settings_v01219.py \
+    && python3 ./apply_navigation_settings_and_chat_wrap_v01220.py \
+    && rm ./apply_navigation_settings_and_chat_wrap_v01220.py \
     && python3 ./validate_inline_js.py ./app/static/index.html \
     && python3 ./validate_new_chat_wiring.py ./app/static/index.html \
     && python3 -m py_compile ./app/main.py \
