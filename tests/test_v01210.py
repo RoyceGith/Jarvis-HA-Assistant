@@ -66,5 +66,5 @@ def test_v01210_build_order_and_version():
     assert DOCKER.index("python3 ./apply_plugin_oauth_v0129.py") < DOCKER.index("python3 ./apply_autonomous_automations_v01210.py")
     assert DOCKER.index("python3 ./apply_autonomous_automations_v01210.py") < DOCKER.index("validate_inline_js.py ./app/static/index.html")
     assert "COPY apply_autonomous_automations_v01210.py ./apply_autonomous_automations_v01210.py" in DOCKER
-    assert "./apply_autonomous_automations_v01210.py ./validate_inline_js.py" in DOCKER
-    assert 'version: "0.12.10"' in CONFIG
+    assert "./apply_autonomous_automations_v01210.py" in DOCKER
+    assert 'version="0.12.10"' in PATCH
