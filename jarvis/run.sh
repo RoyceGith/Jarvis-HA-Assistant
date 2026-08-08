@@ -18,5 +18,27 @@ export SPEECH_FALLBACK_TO_OPENAI="$(bashio::config 'speech_fallback_to_openai')"
 export HA_READ_ENTITIES="$(bashio::config 'ha_read_entities')"
 export HA_CONTROL_ENTITIES="$(bashio::config 'ha_control_entities')"
 
-bashio::log.info "Starting Jarvis Workshop Assistant..."
+bashio::log.info "Starting local Playwright MCP browser service..."
+PLAYWRIGHT_CHROMIUM="$(command -v chromium-browser || command -v chromium)"
+if [[ -z "${PLAYWRIGHT_CHROMIUM}" ]]; then
+  bashio::log.warning "Chromium was not found; Playwright Developer inspection will be unavailable."
+else
+  mkdir -p /data/playwright
+  playwright-mcp \
+    --headless \
+    --browser chromium \
+    --no-sandbox \
+    --isolated \
+    --block-service-workers \
+    --allowed-origins "http://127.0.0.1:8099" \
+    --codegen none \
+    --image-responses omit \
+    --executable-path "${PLAYWRIGHT_CHROMIUM}" \
+    --output-dir /data/playwright \
+    --host 127.0.0.1 \
+    --port 8931 \
+    >/tmp/zbrano-playwright-mcp.log 2>&1 &
+fi
+
+bashio::log.info "Starting ZBRANO..."
 exec uvicorn app.main:app --host 0.0.0.0 --port 8099 --proxy-headers
