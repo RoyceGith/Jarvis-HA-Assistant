@@ -23,6 +23,7 @@ COPY requirements.txt .
 RUN pip3 install --no-cache-dir --break-system-packages -r requirements.txt
 
 COPY app ./app
+COPY config.yaml ./config.yaml
 COPY release_manifest.json ./release_manifest.json
 COPY apply_interface_hotfix.py ./apply_interface_hotfix.py
 COPY apply_agent_controls_v090.py ./apply_agent_controls_v090.py
@@ -83,6 +84,7 @@ COPY apply_workshop_bulk_edit_capacity_v01218.py ./apply_workshop_bulk_edit_capa
 COPY apply_modern_controls_and_neural_settings_v01219.py ./apply_modern_controls_and_neural_settings_v01219.py
 COPY apply_navigation_settings_and_chat_wrap_v01220.py ./apply_navigation_settings_and_chat_wrap_v01220.py
 COPY apply_release_memory_sync_v01221.py ./apply_release_memory_sync_v01221.py
+COPY apply_release_validator_build_fix_v01222.py ./apply_release_validator_build_fix_v01222.py
 COPY validate_release_manifest.py ./validate_release_manifest.py
 COPY validate_inline_js.py ./validate_inline_js.py
 COPY validate_new_chat_wiring.py ./validate_new_chat_wiring.py
@@ -151,8 +153,10 @@ RUN rm() { command rm -f "$@"; } \
     && rm ./apply_navigation_settings_and_chat_wrap_v01220.py \
     && python3 ./apply_release_memory_sync_v01221.py \
     && rm ./apply_release_memory_sync_v01221.py \
+    && python3 ./apply_release_validator_build_fix_v01222.py \
+    && rm ./apply_release_validator_build_fix_v01222.py \
     && python3 ./validate_release_manifest.py \
-    && rm ./validate_release_manifest.py \
+    && rm ./validate_release_manifest.py ./config.yaml \
     && python3 ./validate_inline_js.py ./app/static/index.html \
     && python3 ./validate_new_chat_wiring.py ./app/static/index.html \
     && python3 -m py_compile ./app/main.py \

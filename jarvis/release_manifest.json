@@ -1,18 +1,17 @@
 {
-  "version": "0.12.21",
+  "version": "0.12.22",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/Jarvis-HA-Assistant main",
-  "summary": "Automatically synchronize installed ZBRANO releases to Workshop Memory.",
+  "summary": "Repair the release-manifest build gate while retaining automatic Workshop Memory release synchronization.",
   "features": [
     "Automatically record each newly installed ZBRANO version in Workshop Memory.",
-    "Provide a standing-authorization toggle and manual retry control in Settings.",
-    "Show synchronization state through the release-sync API and Developer diagnostics."
+    "Keep the standing-authorization toggle, manual retry control, release-sync API, and Developer diagnostic status."
   ],
   "fixes": [
-    "Prevent duplicate release entries with a stable version marker.",
-    "Retry synchronization without delaying or blocking application startup.",
-    "Preserve the complete existing release note through Workshop Memory backup-backed replacement."
+    "Copy config.yaml into the build workspace before release validation to prevent the v0.12.21 FileNotFoundError.",
+    "Remove the temporary configuration copy after validation so it is not retained in the runtime image.",
+    "Preserve duplicate protection, non-blocking retries, and backup-backed Workshop Memory replacement."
   ],
   "validation": [
     "Complete generated patch chain",
