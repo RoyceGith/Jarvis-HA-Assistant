@@ -1,25 +1,25 @@
 {
-  "version": "0.12.24",
+  "version": "0.12.25",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/Jarvis-HA-Assistant main",
-  "summary": "Launch self-repair investigations directly from failed Developer diagnostics.",
+  "summary": "Keep post-diagnostic self-repair observable and time-bounded.",
   "features": [
-    "Show an Investigate & Fix action on every failed Developer diagnostic.",
-    "Enable Developer Mode automatically and launch the repair workflow in Chat with the diagnostic evidence.",
-    "Provide a return-to-diagnostic action from the active Chat investigation.",
+    "Emit timed progress while the model reviews diagnostic evidence and waits for Developer repository tools.",
+    "Show remote MCP tool start and completion states when OpenAI streams them.",
+    "Retain Investigate & Fix, automatic Developer Mode activation, and return-to-diagnostic navigation.",
     "Keep automatic Workshop Memory release synchronization enabled."
   ],
   "fixes": [
-    "Prevent duplicate diagnostic launches while another Chat request is active.",
-    "Keep repository writes approval-gated while removing the separate manual Developer Mode activation step.",
-    "Preserve timed workflow progress, investigation timeouts, and release synchronization."
+    "Bound each silent model continuation to three minutes.",
+    "Bound the complete self-repair request to five minutes and report a recoverable timeout.",
+    "Preserve repository approval gates and stop timed-out work without an unapproved write."
   ],
   "validation": [
     "Complete generated patch chain",
     "Inline JavaScript validation",
     "New Chat wiring validation",
     "Backend Python compilation",
-    "Failed-diagnostic self-repair launch regression coverage"
+    "Model continuation heartbeat and deadline regression coverage"
   ]
 }
