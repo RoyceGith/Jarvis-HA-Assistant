@@ -1,6 +1,6 @@
-name: "Jarvis Workshop Assistant"
-description: "Local Jarvis agent and interface for Workshop Memory and Home Assistant"
-version: "0.12.13"
+name: "ZBRANO"
+description: "Local ZBRANO intelligence core assistant for Workshop Memory and Home Assistant"
+version: "0.12.14"
 slug: "jarvis_workshop_assistant"
 init: false
 startup: application
@@ -19,7 +19,7 @@ panel_admin: true
 ports:
   8099/tcp: 8099
 ports_description:
-  8099/tcp: "Direct Jarvis web interface"
+  8099/tcp: "Direct ZBRANO web interface"
 
 options:
   log_level: "info"
@@ -33,7 +33,7 @@ options:
   speech_provider: "openai"
   elevenlabs_api_key: ""
   elevenlabs_voice_id: ""
-  elevenlabs_voice_name: "Jarvis"
+  elevenlabs_voice_name: "ZBRANO"
   elevenlabs_model_id: "eleven_flash_v2_5"
   speech_fallback_to_openai: true
   ha_read_entities: ""
