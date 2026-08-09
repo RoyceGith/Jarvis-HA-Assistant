@@ -1,28 +1,28 @@
 {
-  "version": "0.12.33",
+  "version": "0.12.34",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/Jarvis-HA-Assistant main",
-  "summary": "Identify the actual plugin in approval prompts, redact payloads, and make cancellation terminal.",
+  "summary": "Route plugin permission requests through the native approval gate and reorder the two persistent activity rows.",
   "features": [
-    "Resolve approval requests to the actual installed plugin name and composer plugin identity.",
-    "Summarize executable API operations as concise provider, method, and path descriptions.",
-    "Show cancelled plugin work as a distinct activity state without leaving an icon active.",
+    "Require the model to invoke an enabled remote plugin tool exactly once so the platform-native approval gate handles permission.",
+    "Keep the tool-specific activity result directly below Attach and place the overall response status beneath it.",
+    "Retain every existing activity indicator, timer, provider identity, and cancellation state.",
     "Keep automatic Workshop Memory release synchronization enabled."
   ],
   "fixes": [
-    "Remove the hard-coded GitHub label from approvals requested by Cloudflare and other plugins.",
-    "Stop displaying complete code arguments and unnecessary account identifiers in approval prompts.",
-    "Return immediately after cancellation so the model cannot ask for the same approval again.",
-    "Preserve approval requirements for tools capable of both read and write operations."
+    "Prevent AI-generated preflight approval prompts that expose account identifiers or cause double approval.",
+    "Accept approve or cancel only when the backend holds a native pending approval.",
+    "Prevent denied plugin actions from being reframed as a new approval request unless the user repeats the original task.",
+    "Preserve provider-aware summaries, argument redaction, Web Search curation, and Developer Mode isolation."
   ],
   "validation": [
     "Complete generated patch chain",
     "Inline JavaScript validation",
     "New Chat wiring validation",
     "Backend Python compilation",
-    "Provider resolution, concise operation extraction, argument redaction, and terminal cancellation regression coverage",
-    "Cancelled activity state and plugin identity coverage",
+    "Native approval instruction, no-manual-preflight, redaction, pending-decision, and denial-terminal regression coverage",
+    "Generated DOM order validation for tool activity followed by overall completion status",
     "Release and Workshop Memory synchronization metadata validation"
   ]
 }
