@@ -1,28 +1,29 @@
 {
-  "version": "0.12.30",
+  "version": "0.12.31",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/Jarvis-HA-Assistant main",
-  "summary": "Place Web and plugin controls directly beneath the textarea and bundle plugin icons locally.",
+  "summary": "Show live plugin and tool activity with readable phases, elapsed time, results, and approval state.",
   "features": [
-    "Group the textarea and its Web Auto, On, and Off control in one explicit vertical input stack.",
-    "Bundle official local SVGs for Playwright, GitHub, Cloudflare, Gmail, Drive, Calendar, and Chat.",
-    "Keep enabled-plugin health details, compact overflow, and Plugins workspace navigation.",
+    "Pulse the matching enabled-plugin icon only while its MCP tool is actively running.",
+    "Show readable phases for web search, Home Assistant, Workshop Memory, Playwright inspection, and Developer investigation.",
+    "Add a compact per-response timeline with live elapsed time and completed, failed, or approval-required state.",
+    "Match the Attach button and attachment-destination selector to the compact Web control styling.",
     "Keep automatic Workshop Memory release synchronization enabled."
   ],
   "fixes": [
-    "Remove all runtime requests to cdn.simpleicons.org from the generated application.",
-    "Use reliable letter fallbacks when a configured official SVG is unavailable.",
-    "Keep synthetic diagnostics conversations out of persistence and the user-visible chat list, and purge previously leaked diagnostic sessions on startup or the next diagnostics run.",
-    "Preserve v0.12.29 frontend cache prevention and expose frontend version 0.12.30."
+    "Replace opaque long-running tool feedback with real backend lifecycle events.",
+    "Stop active indicators reliably when a response completes, fails, is stopped, or the socket closes.",
+    "Limit the visual timeline to eight compact entries while preserving the response transcript.",
+    "Preserve all approval gates, local-only browser scope, and Developer Mode tool isolation."
   ],
   "validation": [
     "Complete generated patch chain",
     "Inline JavaScript validation",
     "New Chat wiring validation",
     "Backend Python compilation",
-    "Generated DOM hierarchy and textarea-control-stack regression coverage",
-    "Local icon asset, no-CDN, fallback, cache-policy, and plugin synchronization coverage",
-    "Diagnostic-chat persistence, visibility, cleanup, and user-history isolation coverage"
+    "Streaming activity metadata and lifecycle regression coverage",
+    "Plugin identity, approval-state, reduced-motion, and elapsed-time UI coverage",
+    "Release and Workshop Memory synchronization metadata validation"
   ]
 }
