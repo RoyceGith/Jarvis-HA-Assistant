@@ -1,28 +1,24 @@
 {
-  "version": "0.12.34",
+  "version": "0.12.35",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/Jarvis-HA-Assistant main",
-  "summary": "Route plugin permission requests through the native approval gate and reorder the two persistent activity rows.",
+  "summary": "Send valid approval-only MCP continuation payloads to OpenAI.",
   "features": [
-    "Require the model to invoke an enabled remote plugin tool exactly once so the platform-native approval gate handles permission.",
-    "Keep the tool-specific activity result directly below Attach and place the overall response status beneath it.",
-    "Retain every existing activity indicator, timer, provider identity, and cancellation state.",
+    "Continue approved native plugin actions using the Responses API MCP approval response contract.",
     "Keep automatic Workshop Memory release synchronization enabled."
   ],
   "fixes": [
-    "Prevent AI-generated preflight approval prompts that expose account identifiers or cause double approval.",
-    "Accept approve or cancel only when the backend holds a native pending approval.",
-    "Prevent denied plugin actions from being reframed as a new approval request unless the user repeats the original task.",
-    "Preserve provider-aware summaries, argument redaction, Web Search curation, and Developer Mode isolation."
+    "Omit the unsupported reason parameter whenever approve is true.",
+    "Use a literal true approval value after the terminal cancellation branch.",
+    "Preserve native approval prompts, provider identity, argument redaction, cancellation behavior, and activity ordering."
   ],
   "validation": [
     "Complete generated patch chain",
     "Inline JavaScript validation",
     "New Chat wiring validation",
     "Backend Python compilation",
-    "Native approval instruction, no-manual-preflight, redaction, pending-decision, and denial-terminal regression coverage",
-    "Generated DOM order validation for tool activity followed by overall completion status",
+    "Approved MCP payload boundary and no-reason regression coverage",
     "Release and Workshop Memory synchronization metadata validation"
   ]
 }
