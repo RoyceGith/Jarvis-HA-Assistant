@@ -1,24 +1,27 @@
 {
-  "version": "0.12.35",
+  "version": "0.12.36",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/Jarvis-HA-Assistant main",
-  "summary": "Send valid approval-only MCP continuation payloads to OpenAI.",
+  "summary": "Route Playwright only to browser faults and bound inspections with step-specific timeout evidence.",
   "features": [
-    "Continue approved native plugin actions using the Responses API MCP approval response contract.",
+    "Restrict Playwright selection to visible DOM, layout, rendering, console, and browser-network symptoms.",
+    "Report the active browser inspection step together with bounded Chromium, process, and startup-log evidence on timeout.",
     "Keep automatic Workshop Memory release synchronization enabled."
   ],
   "fixes": [
-    "Omit the unsupported reason parameter whenever approve is true.",
-    "Use a literal true approval value after the terminal cancellation branch.",
-    "Preserve native approval prompts, provider identity, argument redaction, cancellation behavior, and activity ordering."
+    "Prevent backend approval and API investigations from unnecessarily opening Playwright.",
+    "Limit Playwright inspection to 30 seconds end to end with a 35-second outer tool deadline.",
+    "Replace generic 90-second Playwright stalls with actionable browser-step evidence.",
+    "Preserve native plugin approvals, citation curation, activity ordering, and Developer Mode isolation."
   ],
   "validation": [
     "Complete generated patch chain",
     "Inline JavaScript validation",
     "New Chat wiring validation",
     "Backend Python compilation",
-    "Approved MCP payload boundary and no-reason regression coverage",
+    "Browser-only routing and backend/API exclusion regression coverage",
+    "Inspection step, 30-second inner deadline, 35-second outer deadline, and bounded evidence coverage",
     "Release and Workshop Memory synchronization metadata validation"
   ]
 }
