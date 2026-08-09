@@ -1,29 +1,29 @@
 {
-  "version": "0.12.31",
+  "version": "0.12.32",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/Jarvis-HA-Assistant main",
-  "summary": "Show live plugin and tool activity with readable phases, elapsed time, results, and approval state.",
+  "summary": "Curate native Web Search citations into a concise, relevant, primary-source-focused list.",
   "features": [
-    "Pulse the matching enabled-plugin icon only while its MCP tool is actively running.",
-    "Show readable phases for web search, Home Assistant, Workshop Memory, Playwright inspection, and Developer investigation.",
-    "Add a compact per-response timeline with live elapsed time and completed, failed, or approval-required state.",
-    "Match the Attach button and attachment-destination selector to the compact Web control styling.",
+    "Prefer URLs cited by the final response instead of displaying every raw search candidate.",
+    "Canonicalize source URLs, remove common tracking parameters, and deduplicate equivalent pages.",
+    "Prioritize current primary or official sources, direct pages, and accurate publication and event dates.",
+    "Keep community evidence available when useful while requiring it to be clearly described as anecdotal.",
     "Keep automatic Workshop Memory release synchronization enabled."
   ],
   "fixes": [
-    "Replace opaque long-running tool feedback with real backend lifecycle events.",
-    "Stop active indicators reliably when a response completes, fails, is stopped, or the socket closes.",
-    "Limit the visual timeline to eight compact entries while preserving the response transcript.",
-    "Preserve all approval gates, local-only browser scope, and Developer Mode tool isolation."
+    "Cap visible sources at eight in both backend and frontend rendering.",
+    "Prevent unrelated search candidates, archive pages, pagination, and stale results from overwhelming cited sources.",
+    "Strip UTM and common advertising or social tracking parameters before source comparison and display.",
+    "Preserve Web Auto, On, and Off behavior, Developer Mode isolation, tool activity, and approval boundaries."
   ],
   "validation": [
     "Complete generated patch chain",
     "Inline JavaScript validation",
     "New Chat wiring validation",
     "Backend Python compilation",
-    "Streaming activity metadata and lifecycle regression coverage",
-    "Plugin identity, approval-state, reduced-motion, and elapsed-time UI coverage",
+    "Citation-first selection, URL canonicalization, deduplication, and bounded-fallback regression coverage",
+    "Primary-source search guidance and eight-source frontend cap coverage",
     "Release and Workshop Memory synchronization metadata validation"
   ]
 }

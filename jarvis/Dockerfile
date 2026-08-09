@@ -95,6 +95,7 @@ COPY apply_composer_web_plugins_v01228.py ./apply_composer_web_plugins_v01228.py
 COPY apply_frontend_cache_refresh_v01229.py ./apply_frontend_cache_refresh_v01229.py
 COPY apply_local_plugin_icons_and_composer_stack_v01230.py ./apply_local_plugin_icons_and_composer_stack_v01230.py
 COPY apply_live_tool_timeline_v01231.py ./apply_live_tool_timeline_v01231.py
+COPY apply_web_source_curation_v01232.py ./apply_web_source_curation_v01232.py
 COPY validate_release_manifest.py ./validate_release_manifest.py
 COPY validate_inline_js.py ./validate_inline_js.py
 COPY validate_new_chat_wiring.py ./validate_new_chat_wiring.py
@@ -185,6 +186,8 @@ RUN rm() { command rm -f "$@"; } \
     && rm ./apply_local_plugin_icons_and_composer_stack_v01230.py \
     && python3 ./apply_live_tool_timeline_v01231.py \
     && rm ./apply_live_tool_timeline_v01231.py \
+    && python3 ./apply_web_source_curation_v01232.py \
+    && rm ./apply_web_source_curation_v01232.py \
     && python3 ./validate_release_manifest.py \
     && rm ./validate_release_manifest.py ./config.yaml \
     && python3 ./validate_inline_js.py ./app/static/index.html \
