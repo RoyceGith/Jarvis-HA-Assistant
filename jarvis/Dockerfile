@@ -93,6 +93,7 @@ COPY apply_playwright_mcp_readiness_fix_v01226.py ./apply_playwright_mcp_readine
 COPY apply_playwright_host_port_fix_v01227.py ./apply_playwright_host_port_fix_v01227.py
 COPY apply_composer_web_plugins_v01228.py ./apply_composer_web_plugins_v01228.py
 COPY apply_frontend_cache_refresh_v01229.py ./apply_frontend_cache_refresh_v01229.py
+COPY apply_local_plugin_icons_and_composer_stack_v01230.py ./apply_local_plugin_icons_and_composer_stack_v01230.py
 COPY validate_release_manifest.py ./validate_release_manifest.py
 COPY validate_inline_js.py ./validate_inline_js.py
 COPY validate_new_chat_wiring.py ./validate_new_chat_wiring.py
@@ -179,6 +180,8 @@ RUN rm() { command rm -f "$@"; } \
     && rm ./apply_composer_web_plugins_v01228.py \
     && python3 ./apply_frontend_cache_refresh_v01229.py \
     && rm ./apply_frontend_cache_refresh_v01229.py \
+    && python3 ./apply_local_plugin_icons_and_composer_stack_v01230.py \
+    && rm ./apply_local_plugin_icons_and_composer_stack_v01230.py \
     && python3 ./validate_release_manifest.py \
     && rm ./validate_release_manifest.py ./config.yaml \
     && python3 ./validate_inline_js.py ./app/static/index.html \

@@ -1,26 +1,28 @@
 {
-  "version": "0.12.29",
+  "version": "0.12.30",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/Jarvis-HA-Assistant main",
-  "summary": "Prevent Home Assistant ingress from retaining stale ZBRANO interface HTML after updates.",
+  "summary": "Place Web and plugin controls directly beneath the textarea and bundle plugin icons locally.",
   "features": [
-    "Preserve the compact Web Auto, On, and Off selector beneath the Chat composer.",
-    "Preserve enabled-plugin icons, health details, compact overflow, and Plugins workspace navigation.",
-    "Expose the served frontend version in an HTTP response header for diagnostics.",
+    "Group the textarea and its Web Auto, On, and Off control in one explicit vertical input stack.",
+    "Bundle official local SVGs for Playwright, GitHub, Cloudflare, Gmail, Drive, Calendar, and Chat.",
+    "Keep enabled-plugin health details, compact overflow, and Plugins workspace navigation.",
     "Keep automatic Workshop Memory release synchronization enabled."
   ],
   "fixes": [
-    "Serve index.html with no-store, no-cache, must-revalidate, max-age=0, Pragma, and Expires headers.",
-    "Add matching document cache metadata for embedded Home Assistant webviews.",
-    "Ensure interface releases become visible immediately after an add-on update and reload."
+    "Remove all runtime requests to cdn.simpleicons.org from the generated application.",
+    "Use reliable letter fallbacks when a configured official SVG is unavailable.",
+    "Keep synthetic diagnostics conversations out of persistence and the user-visible chat list, and purge previously leaked diagnostic sessions on startup or the next diagnostics run.",
+    "Preserve v0.12.29 frontend cache prevention and expose frontend version 0.12.30."
   ],
   "validation": [
     "Complete generated patch chain",
     "Inline JavaScript validation",
     "New Chat wiring validation",
     "Backend Python compilation",
-    "Frontend HTTP and document cache-policy regression coverage",
-    "Composer Web selector and enabled-plugin preservation coverage"
+    "Generated DOM hierarchy and textarea-control-stack regression coverage",
+    "Local icon asset, no-CDN, fallback, cache-policy, and plugin synchronization coverage",
+    "Diagnostic-chat persistence, visibility, cleanup, and user-history isolation coverage"
   ]
 }
