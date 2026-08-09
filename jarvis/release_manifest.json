@@ -1,26 +1,26 @@
 {
-  "version": "0.12.28",
+  "version": "0.12.29",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/Jarvis-HA-Assistant main",
-  "summary": "Add compact Web controls and enabled-plugin context beneath the Chat prompt.",
+  "summary": "Prevent Home Assistant ingress from retaining stale ZBRANO interface HTML after updates.",
   "features": [
-    "Place a compact Web Auto, On, and Off selector directly beneath the Chat composer.",
-    "Show enabled plugin icons with health, availability, tool-count details, and compact overflow.",
-    "Open the Plugins workspace when an enabled-plugin icon is selected.",
+    "Preserve the compact Web Auto, On, and Off selector beneath the Chat composer.",
+    "Preserve enabled-plugin icons, health details, compact overflow, and Plugins workspace navigation.",
+    "Expose the served frontend version in an HTTP response header for diagnostics.",
     "Keep automatic Workshop Memory release synchronization enabled."
   ],
   "fixes": [
-    "Keep composer plugin indicators synchronized after install, enable, refresh, removal, and OAuth actions.",
-    "Provide icon fallbacks, accessible labels, responsive wrapping, and a seven-icon overflow limit.",
-    "Preserve Native Web Search, Playwright MCP readiness, and Developer Mode isolation."
+    "Serve index.html with no-store, no-cache, must-revalidate, max-age=0, Pragma, and Expires headers.",
+    "Add matching document cache metadata for embedded Home Assistant webviews.",
+    "Ensure interface releases become visible immediately after an add-on update and reload."
   ],
   "validation": [
     "Complete generated patch chain",
     "Inline JavaScript validation",
     "New Chat wiring validation",
     "Backend Python compilation",
-    "Composer Web selector placement and mode regression coverage",
-    "Enabled-plugin filtering, icon fallback, accessibility, and synchronization coverage"
+    "Frontend HTTP and document cache-policy regression coverage",
+    "Composer Web selector and enabled-plugin preservation coverage"
   ]
 }
