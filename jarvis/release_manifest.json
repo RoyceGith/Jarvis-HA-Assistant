@@ -1,25 +1,26 @@
 {
-  "version": "0.12.27",
+  "version": "0.12.28",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/Jarvis-HA-Assistant main",
-  "summary": "Repair Playwright MCP readiness with port-qualified local hosts.",
+  "summary": "Add compact Web controls and enabled-plugin context beneath the Chat prompt.",
   "features": [
-    "Preserve native OpenAI Web Search and its visible, persistent citations.",
-    "Keep Playwright MCP browser inspection local to ZBRANO Developer Mode.",
+    "Place a compact Web Auto, On, and Off selector directly beneath the Chat composer.",
+    "Show enabled plugin icons with health, availability, tool-count details, and compact overflow.",
+    "Open the Plugins workspace when an enabled-plugin icon is selected.",
     "Keep automatic Workshop Memory release synchronization enabled."
   ],
   "fixes": [
-    "Allow the exact 127.0.0.1:8931 and localhost:8931 Host header values used by the local MCP transport.",
-    "Preserve the explicit local-only host restriction instead of disabling Playwright MCP host validation.",
-    "Retain bounded, redacted Chromium, process, HTTP, and startup-log diagnostic evidence."
+    "Keep composer plugin indicators synchronized after install, enable, refresh, removal, and OAuth actions.",
+    "Provide icon fallbacks, accessible labels, responsive wrapping, and a seven-icon overflow limit.",
+    "Preserve Native Web Search, Playwright MCP readiness, and Developer Mode isolation."
   ],
   "validation": [
     "Complete generated patch chain",
     "Inline JavaScript validation",
     "New Chat wiring validation",
     "Backend Python compilation",
-    "Port-qualified Playwright MCP host-header regression coverage",
-    "Native Web Search and bounded Playwright diagnostic regression coverage"
+    "Composer Web selector placement and mode regression coverage",
+    "Enabled-plugin filtering, icon fallback, accessibility, and synchronization coverage"
   ]
 }
