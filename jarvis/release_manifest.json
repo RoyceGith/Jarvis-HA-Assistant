@@ -1,29 +1,28 @@
 {
-  "version": "0.12.32",
+  "version": "0.12.33",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/Jarvis-HA-Assistant main",
-  "summary": "Curate native Web Search citations into a concise, relevant, primary-source-focused list.",
+  "summary": "Identify the actual plugin in approval prompts, redact payloads, and make cancellation terminal.",
   "features": [
-    "Prefer URLs cited by the final response instead of displaying every raw search candidate.",
-    "Canonicalize source URLs, remove common tracking parameters, and deduplicate equivalent pages.",
-    "Prioritize current primary or official sources, direct pages, and accurate publication and event dates.",
-    "Keep community evidence available when useful while requiring it to be clearly described as anecdotal.",
+    "Resolve approval requests to the actual installed plugin name and composer plugin identity.",
+    "Summarize executable API operations as concise provider, method, and path descriptions.",
+    "Show cancelled plugin work as a distinct activity state without leaving an icon active.",
     "Keep automatic Workshop Memory release synchronization enabled."
   ],
   "fixes": [
-    "Cap visible sources at eight in both backend and frontend rendering.",
-    "Prevent unrelated search candidates, archive pages, pagination, and stale results from overwhelming cited sources.",
-    "Strip UTM and common advertising or social tracking parameters before source comparison and display.",
-    "Preserve Web Auto, On, and Off behavior, Developer Mode isolation, tool activity, and approval boundaries."
+    "Remove the hard-coded GitHub label from approvals requested by Cloudflare and other plugins.",
+    "Stop displaying complete code arguments and unnecessary account identifiers in approval prompts.",
+    "Return immediately after cancellation so the model cannot ask for the same approval again.",
+    "Preserve approval requirements for tools capable of both read and write operations."
   ],
   "validation": [
     "Complete generated patch chain",
     "Inline JavaScript validation",
     "New Chat wiring validation",
     "Backend Python compilation",
-    "Citation-first selection, URL canonicalization, deduplication, and bounded-fallback regression coverage",
-    "Primary-source search guidance and eight-source frontend cap coverage",
+    "Provider resolution, concise operation extraction, argument redaction, and terminal cancellation regression coverage",
+    "Cancelled activity state and plugin identity coverage",
     "Release and Workshop Memory synchronization metadata validation"
   ]
 }
