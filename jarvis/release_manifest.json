@@ -1,18 +1,23 @@
 {
-  "version": "0.12.52",
+  "version": "0.12.53",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/Jarvis-HA-Assistant main",
-  "summary": "Deduplicate equivalent Notification Watchlist rules.",
+  "summary": "Reduce voice startup latency, protect the first word, and restore meaningful activity dots.",
   "features": [
-    "Recognize equivalent watches by trigger entity, trigger state, destination, time window, and one-shot behavior.",
-    "Refresh an equivalent watch with the newest settings and move it to first position.",
-    "Remove older equivalent Watchlist entries while retaining one active rule."
+    "Start the first speech request from an earlier phrase boundary while preserving every word.",
+    "Remember Speak replies independently for each chat across devices, using Settings only as the default for new conversations.",
+    "Use lightweight persisted-data revisions to detect meaningful tab changes from chat tools, background workers, other devices, and the local interface.",
+    "Monitor Chat, Shared Files, Plugins, Automations, Notifications, Settings, and Developer data without observing routine DOM rendering."
   ],
   "fixes": [
-    "Prevent repeated chat requests from creating duplicate notification watches.",
-    "Preserve watch ID, creation time, observed state, last trigger time, and trigger count when refreshing.",
-    "Preserve semantic activity indicators and Telegram Bot plain-text WebSocket delivery.",
+    "Reduce the delay between streamed response text and voice playback.",
+    "Buffer a small amount of MP3 audio before playback to prevent first-word clipping.",
+    "Restore orange activity dots after browser-only semantic hooks missed external and background changes.",
+    "Exclude volatile sensor-observation bookkeeping from Automation activity revisions.",
+    "Clear tool activity, response timing, and completed status when a new chat starts.",
+    "Prevent a chat-specific Speak replies change from modifying the global default or other conversations.",
+    "Preserve Watchlist deduplication and Telegram Bot plain-text WebSocket delivery.",
     "Keep automatic Workshop Memory release synchronization enabled."
   ],
   "validation": [
@@ -20,9 +25,12 @@
     "Inline JavaScript validation",
     "New Chat wiring validation",
     "Backend Python compilation",
-    "Semantic watch identity coverage",
-    "Duplicate removal and first-position coverage",
-    "Watch runtime-history preservation coverage",
+    "Early word-safe speech chunking coverage",
+    "MP3 startup buffering and fallback coverage",
+    "Persisted tab revision endpoint and polling coverage",
+    "New Chat tool-timeline and response-status reset coverage",
+    "Per-chat Speak replies persistence and new-chat default coverage",
+    "Watchlist deduplication and Telegram delivery preservation coverage",
     "Release and Workshop Memory synchronization metadata validation"
   ]
 }
