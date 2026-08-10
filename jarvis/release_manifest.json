@@ -1,29 +1,29 @@
 {
-  "version": "0.12.45",
+  "version": "0.12.46",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/Jarvis-HA-Assistant main",
-  "summary": "Restore Notifications scrolling and organize Notification Center and Watchlist into separate tabs.",
+  "summary": "Repair Home Assistant Telegram notify delivery with a compatible message-only payload.",
   "features": [
-    "Give the Automations workspace an explicit viewport-constrained vertical scroll container.",
-    "Support momentum touch scrolling and vertical pan gestures on phone layouts.",
-    "Separate Notification Center configuration and Notification Watchlist rules into focused inner tabs.",
+    "Send Telegram notify-entity requests without the incompatible optional title field.",
+    "Preserve notification titles as the first line of Telegram messages.",
+    "Retain native title fields for Home Assistant mobile and other notification channels.",
     "Keep automatic Workshop Memory release synchronization enabled."
   ],
   "fixes": [
-    "Repair the missing overflow ownership exposed when Notifications became taller than the fixed app viewport.",
-    "Prevent horizontal overflow from interfering with vertical scrolling.",
-    "Add bottom spacing so the final controls are not clipped on small screens.",
-    "Preserve v0.12.44 Notification Watchlist and metadata-backed Telegram detection."
+    "Repair HTTP 500 responses reproduced only when ZBRANO included title in an otherwise healthy Telegram notify call.",
+    "Record when Telegram message-only compatibility was used in Delivery History.",
+    "Keep BotFather credentials inside Home Assistant.",
+    "Preserve v0.12.45 scrolling and Notification Center/Watchlist organization."
   ],
   "validation": [
     "Complete generated patch chain",
     "Inline JavaScript validation",
     "New Chat wiring validation",
     "Backend Python compilation",
-    "Automations panel vertical-overflow ownership coverage",
-    "Mobile touch and momentum scrolling coverage",
-    "Notification Center and Watchlist inner-tab routing and bottom-content reachability coverage",
+    "Telegram message-only payload and title-field exclusion coverage",
+    "Non-Telegram native-title preservation coverage",
+    "Notification delivery evidence and prior interface preservation coverage",
     "Release and Workshop Memory synchronization metadata validation"
   ]
 }
