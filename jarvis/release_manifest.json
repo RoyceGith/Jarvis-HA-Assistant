@@ -1,26 +1,26 @@
 {
-  "version": "0.12.41",
+  "version": "0.12.42",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/Jarvis-HA-Assistant main",
-  "summary": "Use one compact height for every control in each conversation row.",
+  "summary": "Inset compact conversation controls within the selector frame and reduce name text size.",
   "features": [
-    "Align the visible chat-name control, rename editor, action group, Edit, and Delete controls.",
-    "Use independently compact desktop and phone conversation-row heights.",
+    "Give the active conversation frame internal spacing around all row controls.",
+    "Use smaller conversation-name and rename-field typography on desktop and phone.",
     "Keep automatic Workshop Memory release synchronization enabled."
   ],
   "fixes": [
-    "Correct the large left-hand conversation-name control identified in the supplied screenshot.",
-    "Prevent row stretching from making compact action controls appear tall.",
-    "Preserve v0.12.40 measured editor sizing and earlier layout repairs."
+    "Prevent Edit and Delete controls from overlapping the green active-chat selector border.",
+    "Preserve aligned compact control heights inside the newly inset row.",
+    "Preserve v0.12.41 full-row sizing and earlier layout repairs."
   ],
   "validation": [
     "Complete generated patch chain",
     "Inline JavaScript validation",
     "New Chat wiring validation",
     "Backend Python compilation",
-    "Full conversation row and visible chat-name control sizing coverage",
-    "Independent desktop and phone compact-height coverage",
+    "Active selector inset and contained action-control coverage",
+    "Desktop and phone conversation-name typography coverage",
     "Release and Workshop Memory synchronization metadata validation"
   ]
 }
