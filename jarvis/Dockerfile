@@ -118,6 +118,7 @@ COPY apply_semantic_tab_activity_v01251.py ./apply_semantic_tab_activity_v01251.
 COPY apply_notification_watch_dedup_v01252.py ./apply_notification_watch_dedup_v01252.py
 COPY apply_voice_latency_and_activity_revisions_v01253.py ./apply_voice_latency_and_activity_revisions_v01253.py
 COPY apply_gmail_pre_registered_oauth_v01254.py ./apply_gmail_pre_registered_oauth_v01254.py
+COPY apply_customizable_entity_columns_v01255.py ./apply_customizable_entity_columns_v01255.py
 COPY validate_release_manifest.py ./validate_release_manifest.py
 COPY validate_inline_js.py ./validate_inline_js.py
 COPY validate_new_chat_wiring.py ./validate_new_chat_wiring.py
@@ -254,6 +255,8 @@ RUN rm() { command rm -f "$@"; } \
     && rm ./apply_voice_latency_and_activity_revisions_v01253.py \
     && python3 ./apply_gmail_pre_registered_oauth_v01254.py \
     && rm ./apply_gmail_pre_registered_oauth_v01254.py \
+    && python3 ./apply_customizable_entity_columns_v01255.py \
+    && rm ./apply_customizable_entity_columns_v01255.py \
     && python3 ./validate_release_manifest.py \
     && rm ./validate_release_manifest.py ./config.yaml \
     && python3 ./validate_inline_js.py ./app/static/index.html \

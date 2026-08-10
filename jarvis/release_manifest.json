@@ -1,27 +1,20 @@
 {
-  "version": "0.12.54",
+  "version": "0.12.55",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/Jarvis-HA-Assistant main",
-  "summary": "Enable secure pre-registered Google OAuth for the curated Gmail connector.",
+  "summary": "Add persistent resizing and reordering to the Entities inventory columns.",
   "features": [
-    "Configure a Google Web OAuth client through secret Home Assistant add-on options.",
-    "Connect the curated Gmail MCP server using Google authorization-code OAuth with PKCE.",
-    "Copy the exact Home Assistant Ingress OAuth callback URL directly from the Gmail catalog card.",
-    "Retain offline refresh access so Gmail remains connected across add-on restarts.",
-    "Prioritize Home Assistant entity tools for clear device power commands before repository, plugin, memory, or web tools."
+    "Resize each Entities table column by dragging its header edge.",
+    "Reorder Entities columns by dragging their headers.",
+    "Persist column order and widths locally for each browser or device.",
+    "Restore the original Entities layout with a dedicated Reset columns control."
   ],
   "fixes": [
-    "Support OAuth providers that require a pre-registered client without weakening dynamic-registration providers.",
-    "Request provider-advertised scopes and Google offline consent parameters.",
-    "Keep Google credentials out of repository files and expose only configuration readiness in diagnostics.",
-    "Keep Gmail write-capable tools approval-gated after discovery.",
-    "Prevent common device power commands from entering repository-tool discovery or web search.",
-    "Retain the Home Assistant control fast path when Developer Mode was left enabled, without exposing Workshop Memory tools.",
-    "Coalesce Home Assistant entity lookup and control rounds into one activity indicator and elapsed timer.",
-    "Use the visible Shared Files inventory instead of directory metadata for activity detection.",
-    "Clear tab activity reliably when its content is viewed and remove the Shared Files system label.",
-    "Preserve per-chat voice playback, low-latency speech, semantic activity indicators, and New Chat reset.",
+    "Keep the customized layout applied when entity rows rerender after filtering or refresh.",
+    "Clamp column widths to usable minimum and maximum sizes.",
+    "Keep narrow-screen horizontal scrolling and entity form controls usable.",
+    "Preserve Gmail OAuth, Home Assistant priority routing, Shared Files activity acknowledgement, voice behavior, and New Chat reset.",
     "Keep automatic Workshop Memory release synchronization enabled."
   ],
   "validation": [
@@ -29,14 +22,10 @@
     "Inline JavaScript validation",
     "New Chat wiring validation",
     "Backend Python compilation",
-    "Pre-registered Google OAuth client coverage",
-    "Provider scope and offline refresh authorization coverage",
-    "Gmail catalog connect and callback helper coverage",
-    "Home Assistant secret-option and environment wiring coverage",
-    "Home Assistant device-intent classification and tool-priority coverage",
-    "Home Assistant tool-activity deduplication coverage",
-    "Shared Files semantic activity and acknowledgement coverage",
-    "Existing plugin approval and OAuth refresh behavior preservation coverage",
+    "Entities column drag-and-drop ordering coverage",
+    "Entities pointer-based resizing coverage",
+    "Entities local layout persistence and reset coverage",
+    "Entity render and narrow-screen table preservation coverage",
     "Release and Workshop Memory synchronization metadata validation"
   ]
 }
