@@ -1,26 +1,25 @@
 {
-  "version": "0.12.39",
+  "version": "0.12.40",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/Jarvis-HA-Assistant main",
-  "summary": "Align conversation rename fields and stack Safety & Authority checkbox controls.",
+  "summary": "Bind the conversation rename field to the actual rendered action-button height.",
   "features": [
-    "Enforce exact conversation rename-field heights matching Edit and Delete controls.",
-    "Display the three Safety & Authority checkboxes as separate full-width rows.",
+    "Measure the rendered Edit and Delete controls whenever the rename field opens.",
+    "Apply the measured height directly to the rename input with inline priority.",
     "Keep automatic Workshop Memory release synchronization enabled."
   ],
   "fixes": [
-    "Override inherited input sizing that kept the rename field taller than its adjacent actions.",
-    "Prevent authority checkbox choices from sharing grid columns or appearing misaligned.",
-    "Preserve v0.12.38 mobile and Automation layout repairs."
+    "Eliminate browser and inherited-style differences that resisted fixed CSS height rules.",
+    "Preserve v0.12.39 authority checkbox alignment and earlier mobile repairs."
   ],
   "validation": [
     "Complete generated patch chain",
     "Inline JavaScript validation",
     "New Chat wiring validation",
     "Backend Python compilation",
-    "Exact desktop and phone conversation editor sizing coverage",
-    "Full-width authority checkbox row and checkbox intrinsic sizing coverage",
+    "Rendered Edit and Delete height measurement coverage",
+    "Priority inline height, minimum-height, and maximum-height binding coverage",
     "Release and Workshop Memory synchronization metadata validation"
   ]
 }
