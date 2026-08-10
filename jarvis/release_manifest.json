@@ -1,25 +1,26 @@
 {
-  "version": "0.12.40",
+  "version": "0.12.41",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/Jarvis-HA-Assistant main",
-  "summary": "Bind the conversation rename field to the actual rendered action-button height.",
+  "summary": "Use one compact height for every control in each conversation row.",
   "features": [
-    "Measure the rendered Edit and Delete controls whenever the rename field opens.",
-    "Apply the measured height directly to the rename input with inline priority.",
+    "Align the visible chat-name control, rename editor, action group, Edit, and Delete controls.",
+    "Use independently compact desktop and phone conversation-row heights.",
     "Keep automatic Workshop Memory release synchronization enabled."
   ],
   "fixes": [
-    "Eliminate browser and inherited-style differences that resisted fixed CSS height rules.",
-    "Preserve v0.12.39 authority checkbox alignment and earlier mobile repairs."
+    "Correct the large left-hand conversation-name control identified in the supplied screenshot.",
+    "Prevent row stretching from making compact action controls appear tall.",
+    "Preserve v0.12.40 measured editor sizing and earlier layout repairs."
   ],
   "validation": [
     "Complete generated patch chain",
     "Inline JavaScript validation",
     "New Chat wiring validation",
     "Backend Python compilation",
-    "Rendered Edit and Delete height measurement coverage",
-    "Priority inline height, minimum-height, and maximum-height binding coverage",
+    "Full conversation row and visible chat-name control sizing coverage",
+    "Independent desktop and phone compact-height coverage",
     "Release and Workshop Memory synchronization metadata validation"
   ]
 }
