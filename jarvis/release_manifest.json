@@ -1,28 +1,30 @@
 {
-  "version": "0.12.50",
+  "version": "0.12.51",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/Jarvis-HA-Assistant main",
-  "summary": "Route Telegram notifications through the supported Telegram Bot action.",
+  "summary": "Replace noisy DOM-based tab dots with meaningful event indicators.",
   "features": [
-    "Route Telegram channels through telegram_bot.send_message.",
-    "Keep plain-text parsing enabled for generated Telegram notifications.",
-    "Continue routing non-Telegram channels through notify.send_message.",
-    "Keep unseen tab activity indicators and automatic Workshop Memory release synchronization enabled."
+    "Show unseen dots for completed chat replies while Chat is not being viewed.",
+    "Show unseen dots after successful Shared Files, Plugins, Automations, and Notifications changes.",
+    "Retain autonomous notification-log detection and plugin OAuth completion indicators.",
+    "Clear each indicator when its corresponding primary or nested tab is viewed."
   ],
   "fixes": [
-    "Prevent extra keys not allowed errors caused by sending parse_mode to the generic notify action.",
-    "Preserve Home Assistant WebSocket delivery without REST fallback or duplicate delivery risk.",
-    "Preserve Notification Watchlist and selectable Delivery Logs behavior."
+    "Remove generic MutationObserver activity detection that treated background rendering as new activity.",
+    "Ignore GET refreshes, loading text, health checks, clocks, and routine sensor rendering.",
+    "Preserve Telegram Bot plain-text WebSocket routing from v0.12.50.",
+    "Keep automatic Workshop Memory release synchronization enabled."
   ],
   "validation": [
     "Complete generated patch chain",
     "Inline JavaScript validation",
     "New Chat wiring validation",
     "Backend Python compilation",
-    "Telegram Bot action routing and plain-text coverage",
-    "Non-Telegram generic notify routing coverage",
-    "Home Assistant WebSocket transport preservation coverage",
+    "Generic DOM observer removal coverage",
+    "Meaningful chat, write-action, OAuth, and notification activity coverage",
+    "Background GET refresh exclusion and tab-clear coverage",
+    "Telegram delivery routing preservation coverage",
     "Release and Workshop Memory synchronization metadata validation"
   ]
 }
