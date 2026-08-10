@@ -1,25 +1,27 @@
 {
-  "version": "0.12.49",
+  "version": "0.12.50",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/Jarvis-HA-Assistant main",
-  "summary": "Protect Telegram notifications from message-format parsing failures.",
+  "summary": "Route Telegram notifications through the supported Telegram Bot action.",
   "features": [
-    "Send generated Telegram notification text with an explicit plain_text parse mode.",
-    "Preserve native formatting behavior for non-Telegram notification channels.",
+    "Route Telegram channels through telegram_bot.send_message.",
+    "Keep plain-text parsing enabled for generated Telegram notifications.",
+    "Continue routing non-Telegram channels through notify.send_message.",
     "Keep unseen tab activity indicators and automatic Workshop Memory release synchronization enabled."
   ],
   "fixes": [
-    "Prevent Telegram Can't parse entities errors caused by Markdown-sensitive punctuation or generated text.",
-    "Preserve the Home Assistant WebSocket delivery path introduced in v0.12.48.",
-    "Preserve selectable Delivery Logs and Notification Watchlist behavior."
+    "Prevent extra keys not allowed errors caused by sending parse_mode to the generic notify action.",
+    "Preserve Home Assistant WebSocket delivery without REST fallback or duplicate delivery risk.",
+    "Preserve Notification Watchlist and selectable Delivery Logs behavior."
   ],
   "validation": [
     "Complete generated patch chain",
     "Inline JavaScript validation",
     "New Chat wiring validation",
     "Backend Python compilation",
-    "Telegram-only plain-text payload coverage",
+    "Telegram Bot action routing and plain-text coverage",
+    "Non-Telegram generic notify routing coverage",
     "Home Assistant WebSocket transport preservation coverage",
     "Release and Workshop Memory synchronization metadata validation"
   ]
