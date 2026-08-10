@@ -101,6 +101,7 @@ COPY apply_native_approval_and_activity_order_v01234.py ./apply_native_approval_
 COPY apply_mcp_approval_payload_fix_v01235.py ./apply_mcp_approval_payload_fix_v01235.py
 COPY apply_playwright_routing_timeout_v01236.py ./apply_playwright_routing_timeout_v01236.py
 COPY apply_playwright_chat_isolation_v01237.py ./apply_playwright_chat_isolation_v01237.py
+COPY apply_mobile_chat_layout_v01238.py ./apply_mobile_chat_layout_v01238.py
 COPY validate_release_manifest.py ./validate_release_manifest.py
 COPY validate_inline_js.py ./validate_inline_js.py
 COPY validate_new_chat_wiring.py ./validate_new_chat_wiring.py
@@ -203,6 +204,8 @@ RUN rm() { command rm -f "$@"; } \
     && rm ./apply_playwright_routing_timeout_v01236.py \
     && python3 ./apply_playwright_chat_isolation_v01237.py \
     && rm ./apply_playwright_chat_isolation_v01237.py \
+    && python3 ./apply_mobile_chat_layout_v01238.py \
+    && rm ./apply_mobile_chat_layout_v01238.py \
     && python3 ./validate_release_manifest.py \
     && rm ./validate_release_manifest.py ./config.yaml \
     && python3 ./validate_inline_js.py ./app/static/index.html \

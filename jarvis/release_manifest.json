@@ -1,29 +1,32 @@
 {
-  "version": "0.12.37",
+  "version": "0.12.38",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/Jarvis-HA-Assistant main",
-  "summary": "Isolate Playwright chat sessions and refine the runtime header and conversation sidebar.",
+  "summary": "Restore a usable Chat viewport with a dedicated compact phone layout.",
   "features": [
-    "Give Playwright UI inspections a dedicated internal chat identity.",
-    "Exclude internal Playwright sessions from chat persistence and the visible chat catalog.",
-    "Add a persistent conversation-sidebar collapse control with compact New, Edit, and Delete actions.",
+    "Keep mobile primary navigation in one horizontally scrollable row.",
+    "Start Conversations collapsed on first use on phone-sized screens while preserving the user's saved choice.",
+    "Use a compact mobile composer and move detailed voice/model controls out of the Chat viewport.",
+    "Match the conversation rename field height to the compact Edit and Delete controls.",
+    "Give Automation authority forms an isolated responsive layout and remove the system panel label.",
     "Keep automatic Workshop Memory release synchronization enabled."
   ],
   "fixes": [
-    "Prevent repeated UI inspections from creating batches of empty user-visible chats.",
-    "Preserve normal browser chat identity, history, and draft behavior.",
-    "Place the Developer Mode indicator above the Online/version status.",
-    "Preserve the v0.12.36 Playwright routing boundaries and bounded timeout evidence."
+    "Prevent stacked navigation, Conversations, composer, and voice controls from consuming the entire phone screen.",
+    "Preserve the messages area on short-height and landscape phone viewports.",
+    "Prevent Safety & Authority fields and actions from overlaying Operating Mode and Hard Safety Boundaries.",
+    "Preserve v0.12.37 Playwright chat isolation, runtime indicator order, and conversation controls."
   ],
   "validation": [
     "Complete generated patch chain",
     "Inline JavaScript validation",
     "New Chat wiring validation",
     "Backend Python compilation",
-    "Internal Playwright navigation marker and dedicated chat identity coverage",
-    "Chat persistence and visible catalog exclusion coverage",
-    "Runtime indicator order, compact conversation actions, and persistent sidebar collapse coverage",
+    "Single-row mobile navigation and compact header coverage",
+    "Collapsed-by-default phone Conversations with persisted override coverage",
+    "Compact composer, message viewport, voice controls, and short-height phone coverage",
+    "Automation panel label removal and Safety & Authority form isolation coverage",
     "Release and Workshop Memory synchronization metadata validation"
   ]
 }
