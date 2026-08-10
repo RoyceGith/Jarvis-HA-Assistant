@@ -106,6 +106,7 @@ COPY apply_conversation_authority_alignment_v01239.py ./apply_conversation_autho
 COPY apply_measured_chat_editor_v01240.py ./apply_measured_chat_editor_v01240.py
 COPY apply_compact_conversation_rows_v01241.py ./apply_compact_conversation_rows_v01241.py
 COPY apply_conversation_row_inset_v01242.py ./apply_conversation_row_inset_v01242.py
+COPY apply_notification_center_v01243.py ./apply_notification_center_v01243.py
 COPY validate_release_manifest.py ./validate_release_manifest.py
 COPY validate_inline_js.py ./validate_inline_js.py
 COPY validate_new_chat_wiring.py ./validate_new_chat_wiring.py
@@ -218,6 +219,8 @@ RUN rm() { command rm -f "$@"; } \
     && rm ./apply_compact_conversation_rows_v01241.py \
     && python3 ./apply_conversation_row_inset_v01242.py \
     && rm ./apply_conversation_row_inset_v01242.py \
+    && python3 ./apply_notification_center_v01243.py \
+    && rm ./apply_notification_center_v01243.py \
     && python3 ./validate_release_manifest.py \
     && rm ./validate_release_manifest.py ./config.yaml \
     && python3 ./validate_inline_js.py ./app/static/index.html \

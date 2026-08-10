@@ -1,26 +1,29 @@
 {
-  "version": "0.12.42",
+  "version": "0.12.43",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/Jarvis-HA-Assistant main",
-  "summary": "Inset compact conversation controls within the selector frame and reduce name text size.",
+  "summary": "Add a Home Assistant-backed Notification Center with Telegram discovery and test delivery.",
   "features": [
-    "Give the active conversation frame internal spacing around all row controls.",
-    "Use smaller conversation-name and rename-field typography on desktop and phone.",
+    "Discover Home Assistant notify entities and identify configured Telegram channels.",
+    "Configure default channels, suggestion delivery, quiet hours, critical overrides, and repeat policy.",
+    "Send explicit test notifications and retain a bounded delivery-outcome log without message bodies.",
     "Keep automatic Workshop Memory release synchronization enabled."
   ],
   "fixes": [
-    "Prevent Edit and Delete controls from overlapping the green active-chat selector border.",
-    "Preserve aligned compact control heights inside the newly inset row.",
-    "Preserve v0.12.41 full-row sizing and earlier layout repairs."
+    "Keep BotFather tokens inside Home Assistant rather than ZBRANO storage, logs, backups, or repository files.",
+    "Include notification policy and delivery outcomes in ZBRANO backup and restore.",
+    "Add Notification Center API and frontend diagnostics while treating zero configured channels as ready rather than failed.",
+    "Preserve v0.12.42 interface repairs."
   ],
   "validation": [
     "Complete generated patch chain",
     "Inline JavaScript validation",
     "New Chat wiring validation",
     "Backend Python compilation",
-    "Active selector inset and contained action-control coverage",
-    "Desktop and phone conversation-name typography coverage",
+    "Notification channel discovery and Telegram classification coverage",
+    "Home Assistant notify.send_message delivery and failure logging coverage",
+    "Notification policy, responsive workspace, diagnostics, and backup/restore coverage",
     "Release and Workshop Memory synchronization metadata validation"
   ]
 }
