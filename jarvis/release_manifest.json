@@ -1,29 +1,29 @@
 {
-  "version": "0.12.43",
+  "version": "0.12.44",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/Jarvis-HA-Assistant main",
-  "summary": "Add a Home Assistant-backed Notification Center with Telegram discovery and test delivery.",
+  "summary": "Add an event-driven Notification Watchlist backed by notification-only automation rules.",
   "features": [
-    "Discover Home Assistant notify entities and identify configured Telegram channels.",
-    "Configure default channels, suggestion delivery, quiet hours, critical overrides, and repeat policy.",
-    "Send explicit test notifications and retain a bounded delivery-outcome log without message bodies.",
+    "Create armed notification watches from explicit natural-language chat requests.",
+    "Monitor Home Assistant state transitions with optional time windows, expiry, cooldown, and one-shot behavior.",
+    "Surface notification rules in a focused Watchlist while preserving Automation Library as the source of truth.",
     "Keep automatic Workshop Memory release synchronization enabled."
   ],
   "fixes": [
-    "Keep BotFather tokens inside Home Assistant rather than ZBRANO storage, logs, backups, or repository files.",
-    "Include notification policy and delivery outcomes in ZBRANO backup and restore.",
-    "Add Notification Center API and frontend diagnostics while treating zero configured channels as ready rather than failed.",
-    "Preserve v0.12.42 interface repairs."
+    "Identify Telegram notification entities from Home Assistant registry metadata instead of display-name guessing.",
+    "Respect Notification Center quiet hours and critical overrides during automatic watch delivery.",
+    "Avoid firing watches immediately on startup by requiring a real state transition.",
+    "Preserve v0.12.43 credential boundaries, diagnostics, delivery history, and backup behavior."
   ],
   "validation": [
     "Complete generated patch chain",
     "Inline JavaScript validation",
     "New Chat wiring validation",
     "Backend Python compilation",
-    "Notification channel discovery and Telegram classification coverage",
-    "Home Assistant notify.send_message delivery and failure logging coverage",
-    "Notification policy, responsive workspace, diagnostics, and backup/restore coverage",
+    "Home Assistant entity-registry Telegram classification coverage",
+    "Chat tool, automation persistence, watch lifecycle, and state-transition coverage",
+    "Quiet-hour, cooldown, time-window, expiry, one-shot, and responsive Watchlist coverage",
     "Release and Workshop Memory synchronization metadata validation"
   ]
 }
