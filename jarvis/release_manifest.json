@@ -1,27 +1,29 @@
 {
-  "version": "0.12.36",
+  "version": "0.12.37",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/Jarvis-HA-Assistant main",
-  "summary": "Route Playwright only to browser faults and bound inspections with step-specific timeout evidence.",
+  "summary": "Isolate Playwright chat sessions and refine the runtime header and conversation sidebar.",
   "features": [
-    "Restrict Playwright selection to visible DOM, layout, rendering, console, and browser-network symptoms.",
-    "Report the active browser inspection step together with bounded Chromium, process, and startup-log evidence on timeout.",
+    "Give Playwright UI inspections a dedicated internal chat identity.",
+    "Exclude internal Playwright sessions from chat persistence and the visible chat catalog.",
+    "Add a persistent conversation-sidebar collapse control with compact New, Edit, and Delete actions.",
     "Keep automatic Workshop Memory release synchronization enabled."
   ],
   "fixes": [
-    "Prevent backend approval and API investigations from unnecessarily opening Playwright.",
-    "Limit Playwright inspection to 30 seconds end to end with a 35-second outer tool deadline.",
-    "Replace generic 90-second Playwright stalls with actionable browser-step evidence.",
-    "Preserve native plugin approvals, citation curation, activity ordering, and Developer Mode isolation."
+    "Prevent repeated UI inspections from creating batches of empty user-visible chats.",
+    "Preserve normal browser chat identity, history, and draft behavior.",
+    "Place the Developer Mode indicator above the Online/version status.",
+    "Preserve the v0.12.36 Playwright routing boundaries and bounded timeout evidence."
   ],
   "validation": [
     "Complete generated patch chain",
     "Inline JavaScript validation",
     "New Chat wiring validation",
     "Backend Python compilation",
-    "Browser-only routing and backend/API exclusion regression coverage",
-    "Inspection step, 30-second inner deadline, 35-second outer deadline, and bounded evidence coverage",
+    "Internal Playwright navigation marker and dedicated chat identity coverage",
+    "Chat persistence and visible catalog exclusion coverage",
+    "Runtime indicator order, compact conversation actions, and persistent sidebar collapse coverage",
     "Release and Workshop Memory synchronization metadata validation"
   ]
 }
