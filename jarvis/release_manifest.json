@@ -1,32 +1,31 @@
 {
-  "version": "0.12.47",
+  "version": "0.12.48",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/Jarvis-HA-Assistant main",
-  "summary": "Make Telegram delivery exactly match the verified Home Assistant message-only action.",
+  "summary": "Use Home Assistant WebSocket notification delivery and show unseen tab activity.",
   "features": [
-    "Send Telegram the unmodified message without a title field or title prefix.",
-    "Retain notification titles locally in ZBRANO Delivery History.",
-    "Place Delivery Logs in a dedicated Notifications inner tab next to Watchlist.",
-    "Select and delete one or multiple Delivery Log records.",
-    "Preserve native title fields for Home Assistant mobile and other notification channels.",
+    "Show an orange dot when content changes inside a tab that is not currently being viewed.",
+    "Clear the unseen-change indicator when the affected tab is opened.",
+    "Support indicators on primary navigation, Plugins, Automations, Notifications, and Settings subtabs.",
+    "Detect new autonomous notification activity while another tab is open.",
     "Keep automatic Workshop Memory release synchronization enabled."
   ],
   "fixes": [
-    "Remove the remaining title-prefix difference from the Home Assistant action that delivered successfully.",
-    "Record when verified exact-message compatibility was used in Delivery History.",
-    "Keep BotFather credentials inside Home Assistant.",
-    "Preserve v0.12.45 scrolling and Notification Center/Watchlist organization."
+    "Send Notification Center and Watchlist messages through Home Assistant's WebSocket service-call path.",
+    "Eliminate false HTTP 500 delivery failures returned after Telegram already accepted a notification.",
+    "Avoid REST fallback retries that could duplicate an already delivered Telegram message.",
+    "Preserve the exact Telegram payload and Delivery Log controls introduced in v0.12.47."
   ],
   "validation": [
     "Complete generated patch chain",
     "Inline JavaScript validation",
     "New Chat wiring validation",
     "Backend Python compilation",
-    "Telegram exact-message payload and title/prefix exclusion coverage",
-    "Non-Telegram native-title preservation coverage",
-    "Delivery Logs tab routing, delivery evidence, and prior interface preservation coverage",
-    "Single and bulk Delivery Log deletion API and interface coverage",
+    "Home Assistant WebSocket notification transport and REST exclusion coverage",
+    "Primary and nested unseen-tab indicator coverage",
+    "Lightweight autonomous notification activity detection coverage",
+    "Indicator clearing and startup-grace coverage",
     "Release and Workshop Memory synchronization metadata validation"
   ]
 }
