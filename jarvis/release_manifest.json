@@ -1,18 +1,20 @@
 {
-  "version": "0.12.46",
+  "version": "0.12.47",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/Jarvis-HA-Assistant main",
-  "summary": "Repair Home Assistant Telegram notify delivery with a compatible message-only payload.",
+  "summary": "Make Telegram delivery exactly match the verified Home Assistant message-only action.",
   "features": [
-    "Send Telegram notify-entity requests without the incompatible optional title field.",
-    "Preserve notification titles as the first line of Telegram messages.",
-    "Retain native title fields for Home Assistant mobile and other notification channels.",
+    "Send Telegram the unmodified message without a title field or title prefix.",
+    "Retain notification titles locally in ZBRANO Delivery History.",
+    "Place Delivery Logs in a dedicated Notifications inner tab next to Watchlist.",
+    "Select and delete one or multiple Delivery Log records.",
+    "Preserve native title fields for Home Assistant mobile and other notification channels.",
     "Keep automatic Workshop Memory release synchronization enabled."
   ],
   "fixes": [
-    "Repair HTTP 500 responses reproduced only when ZBRANO included title in an otherwise healthy Telegram notify call.",
-    "Record when Telegram message-only compatibility was used in Delivery History.",
+    "Remove the remaining title-prefix difference from the Home Assistant action that delivered successfully.",
+    "Record when verified exact-message compatibility was used in Delivery History.",
     "Keep BotFather credentials inside Home Assistant.",
     "Preserve v0.12.45 scrolling and Notification Center/Watchlist organization."
   ],
@@ -21,9 +23,10 @@
     "Inline JavaScript validation",
     "New Chat wiring validation",
     "Backend Python compilation",
-    "Telegram message-only payload and title-field exclusion coverage",
+    "Telegram exact-message payload and title/prefix exclusion coverage",
     "Non-Telegram native-title preservation coverage",
-    "Notification delivery evidence and prior interface preservation coverage",
+    "Delivery Logs tab routing, delivery evidence, and prior interface preservation coverage",
+    "Single and bulk Delivery Log deletion API and interface coverage",
     "Release and Workshop Memory synchronization metadata validation"
   ]
 }

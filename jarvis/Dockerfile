@@ -110,6 +110,7 @@ COPY apply_notification_center_v01243.py ./apply_notification_center_v01243.py
 COPY apply_notification_watchlist_v01244.py ./apply_notification_watchlist_v01244.py
 COPY apply_notifications_scrolling_v01245.py ./apply_notifications_scrolling_v01245.py
 COPY apply_telegram_notify_compat_v01246.py ./apply_telegram_notify_compat_v01246.py
+COPY apply_telegram_exact_payload_v01247.py ./apply_telegram_exact_payload_v01247.py
 COPY validate_release_manifest.py ./validate_release_manifest.py
 COPY validate_inline_js.py ./validate_inline_js.py
 COPY validate_new_chat_wiring.py ./validate_new_chat_wiring.py
@@ -230,6 +231,8 @@ RUN rm() { command rm -f "$@"; } \
     && rm ./apply_notifications_scrolling_v01245.py \
     && python3 ./apply_telegram_notify_compat_v01246.py \
     && rm ./apply_telegram_notify_compat_v01246.py \
+    && python3 ./apply_telegram_exact_payload_v01247.py \
+    && rm ./apply_telegram_exact_payload_v01247.py \
     && python3 ./validate_release_manifest.py \
     && rm ./validate_release_manifest.py ./config.yaml \
     && python3 ./validate_inline_js.py ./app/static/index.html \
