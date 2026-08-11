@@ -132,6 +132,7 @@ COPY apply_workshop_approval_message_fix_v01264.py ./apply_workshop_approval_mes
 COPY apply_grinder_deep_monitoring_v01265.py ./apply_grinder_deep_monitoring_v01265.py
 COPY apply_grinder_hud_indicator_v01266.py ./apply_grinder_hud_indicator_v01266.py
 COPY apply_release_truth_reconciliation_v01267.py ./apply_release_truth_reconciliation_v01267.py
+COPY apply_workshop_write_reconciliation_v01268.py ./apply_workshop_write_reconciliation_v01268.py
 COPY validate_release_manifest.py ./validate_release_manifest.py
 COPY validate_inline_js.py ./validate_inline_js.py
 COPY validate_new_chat_wiring.py ./validate_new_chat_wiring.py
@@ -294,6 +295,8 @@ RUN rm() { command rm -f "$@"; } \
     && rm ./apply_grinder_hud_indicator_v01266.py \
     && python3 ./apply_release_truth_reconciliation_v01267.py \
     && rm ./apply_release_truth_reconciliation_v01267.py \
+    && python3 ./apply_workshop_write_reconciliation_v01268.py \
+    && rm ./apply_workshop_write_reconciliation_v01268.py \
     && python3 ./validate_release_manifest.py \
     && rm ./validate_release_manifest.py ./config.yaml \
     && python3 ./validate_inline_js.py ./app/static/index.html \

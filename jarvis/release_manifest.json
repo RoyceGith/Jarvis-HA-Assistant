@@ -1,10 +1,13 @@
 {
-  "version": "0.12.67",
+  "version": "0.12.68",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/Jarvis-HA-Assistant main",
-  "summary": "Reconcile canonical Workshop Memory current-release truth on every installed update.",
+  "summary": "Reconcile ambiguous Workshop Memory writes and complete only confirmed-missing approved operations.",
   "features": [
+    "Verify Workshop Memory note and template-pack state after ambiguous write failures.",
+    "Continue the remaining operations in an approved batch while preventing duplicate retries.",
+    "Return a deterministic reconciliation summary if post-write AI response generation fails.",
     "Maintain deterministic current-release source-of-truth blocks in five canonical ZBRANO project notes.",
     "Audit explicit present-version fields in Architecture, Decisions, Integrations, Data, Security, and Test notes.",
     "Show grinder connectivity globally beside the Developer Mode and application health indicators.",
@@ -26,6 +29,9 @@
     "Preserve multi-round Workshop Memory tasks after an approved write in both streaming and non-streaming chat."
   ],
   "fixes": [
+    "Stop successful Workshop Memory template-pack writes from appearing as an unknown failure.",
+    "Retry exact approved create/replace note writes only after state verification shows they remain missing.",
+    "Never automatically retry an uncertain append operation that could duplicate permanent content.",
     "Remove the release-history marker early exit that left Current Release sections stale.",
     "Preserve historical and superseded version records while updating only explicit present-status fields.",
     "Report which canonical notes were updated, already current, missing, or failed during synchronization.",
@@ -50,6 +56,7 @@
     "Preserve task-scoped Workshop Memory approval and per-draft Gmail approval isolation."
   ],
   "validation": [
+    "Ambiguous Workshop Memory write verification, bounded retry, conflict, and response-fallback coverage",
     "Canonical current-release reconciliation, historical preservation, idempotency, and multi-note status coverage",
     "Grinder HUD state, placement, polling, accessibility, and responsive styling coverage",
     "Grinder monitor configuration, read-only topic, persistence, and tool-routing coverage",
