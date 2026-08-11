@@ -1,1 +1,1 @@
-ZBRANO v0.12.60 publishes a prebuilt Home Assistant image so updates download the finished container instead of compiling Chromium, Playwright, Python, npm packages, and release patches on the Home Assistant device. It preserves the compact installed plugin settings behavior from v0.12.59.
+ZBRANO v0.12.61 keeps every installed plugin card compact, including Cloudflare, by moving all tool controls behind Settings after each render and reload. Updates continue to use the prebuilt Home Assistant image introduced in v0.12.60.

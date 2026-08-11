@@ -90,7 +90,6 @@ def patch_index() -> None:
 
   function compactPluginRows() {
     for (const row of pluginListNode.querySelectorAll(".plugin-row")) {
-      if (row.classList.contains("compact-plugin")) continue;
       const head = row.querySelector(".plugin-head");
       if (!head) continue;
 
@@ -98,10 +97,11 @@ def patch_index() -> None:
       if (!settings) {
         settings = document.createElement("div");
         settings.className = "plugin-settings";
-        const movable = [...row.children].filter(child => child !== head);
-        for (const child of movable) settings.appendChild(child);
         row.appendChild(settings);
       }
+      const movable = [...row.children].filter(child => child !== head && child !== settings);
+      for (const child of movable) settings.appendChild(child);
+      if (settings !== row.lastElementChild) row.appendChild(settings);
       row.classList.add("compact-plugin");
 
       const actions = head.querySelector(".plugin-actions") || head;
@@ -123,6 +123,9 @@ def patch_index() -> None:
     compactPluginRows();
     return result;
   };
+
+  const pluginRowsObserver = new MutationObserver(compactPluginRows);
+  pluginRowsObserver.observe(pluginListNode, {childList: true});
 
   pluginListNode.addEventListener("click", event => {
     const toggle = event.target.closest("button.plugin-settings-toggle");
