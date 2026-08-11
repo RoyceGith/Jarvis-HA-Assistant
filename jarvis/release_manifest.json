@@ -1,10 +1,12 @@
 {
-  "version": "0.12.65",
+  "version": "0.12.66",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/Jarvis-HA-Assistant main",
-  "summary": "Add read-only Grinder Deep Monitoring with a bounded MQTT flight recorder.",
+  "summary": "Add a live read-only grinder connection indicator to the main HUD.",
   "features": [
+    "Show grinder connectivity globally beside the Developer Mode and application health indicators.",
+    "Distinguish online, device offline, broker offline, waiting, monitoring-disabled, and status-unavailable states.",
     "Subscribe to grinder telemetry, boot events, and availability through local MQTT without publishing control commands.",
     "Keep a bounded 60-second per-device flight recorder and persist up to 100 reboot incidents.",
     "Expose grinder status and incidents through read-only chat tools and API endpoints.",
@@ -22,6 +24,8 @@
     "Preserve multi-round Workshop Memory tasks after an approved write in both streaming and non-streaming chat."
   ],
   "fixes": [
+    "Refresh grinder connectivity every five seconds without creating chats, notifications, or control actions.",
+    "Pause background HUD polling while the page is hidden and bound each status request to four seconds.",
     "Distinguish transient heartbeat loss from a confirmed reboot by comparing boot identifiers.",
     "Classify watchdog, panic, brownout, power, and abrupt grinding-time reset evidence without claiming certainty beyond telemetry.",
     "Avoid the caller-does-not-have-permission failure returned by the gated Google Workspace Gmail MCP preview.",
@@ -41,6 +45,7 @@
     "Preserve task-scoped Workshop Memory approval and per-draft Gmail approval isolation."
   ],
   "validation": [
+    "Grinder HUD state, placement, polling, accessibility, and responsive styling coverage",
     "Grinder monitor configuration, read-only topic, persistence, and tool-routing coverage",
     "Complete generated patch chain",
     "Inline JavaScript validation",
