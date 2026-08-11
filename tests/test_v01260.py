@@ -17,6 +17,8 @@ def test_v01260_uses_prebuilt_home_assistant_image():
     assert "home-assistant/builder/actions/publish-multi-arch-manifest@2026.06.0" in WORKFLOW
     assert "context: ./jarvis" in WORKFLOW
     assert "packages: write" in WORKFLOW
+    assert "version=${{ steps.info.outputs.version }}" in WORKFLOW
+    assert "version: ${{ steps.normalize.outputs.version }}" in WORKFLOW
 
 
 def test_v01260_release_version_and_build_order():
