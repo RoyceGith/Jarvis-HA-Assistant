@@ -16,7 +16,7 @@ def main() -> None:
     backend = MAIN.read_text(encoding="utf-8")
     frontend = INDEX.read_text(encoding="utf-8")
 
-    require(frontend, '<div class="plugin-actions">${pluginActions}</div>${p.oauth_connected?', "OAuth details after plugin header")
+    require(frontend, '<div class="plugin-actions">${pluginActions}</div></div>${p.oauth_connected?', "OAuth details after plugin header")
     require(frontend, '<div class="plugin-oauth-details">', "compact OAuth detail block")
     require(frontend, "child !== head && child !== settings", "detail migration into Settings")
     require(backend, 'version="0.12.61"', "previous backend version")

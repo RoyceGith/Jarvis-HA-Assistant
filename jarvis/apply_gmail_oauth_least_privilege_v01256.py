@@ -191,8 +191,8 @@ async def enforce_stored_gmail_scope_policy() -> None:
 
     frontend = replace_once(
         frontend,
-        '''<span class="plugin-meta">${pluginStateSummary}</span>${p.last_error?`<span class="plugin-meta">${esc(p.last_error)}</span>`:""}</div></div><div class="plugin-actions">${pluginActions}</div>''',
-        '''<span class="plugin-meta">${pluginStateSummary}</span>${p.last_error?`<span class="plugin-meta">${esc(p.last_error)}</span>`:""}</div></div><div class="plugin-actions">${pluginActions}</div>${p.oauth_connected?`<div class="plugin-oauth-details"><span class="plugin-meta">OAuth account: ${esc(p.oauth_account||"not reported")}</span><span class="plugin-meta">Granted scopes: ${esc((p.oauth_scopes||[]).join(", ")||"not reported")}</span></div>`:""}''',
+        '''<span class="plugin-meta">${pluginStateSummary}</span>${p.last_error?`<span class="plugin-meta">${esc(p.last_error)}</span>`:""}</div></div><div class="plugin-actions">${pluginActions}</div></div>''',
+        '''<span class="plugin-meta">${pluginStateSummary}</span>${p.last_error?`<span class="plugin-meta">${esc(p.last_error)}</span>`:""}</div></div><div class="plugin-actions">${pluginActions}</div></div>${p.oauth_connected?`<div class="plugin-oauth-details"><span class="plugin-meta">OAuth account: ${esc(p.oauth_account||"not reported")}</span><span class="plugin-meta">Granted scopes: ${esc((p.oauth_scopes||[]).join(", ")||"not reported")}</span></div>`:""}''',
         "safe installed-plugin OAuth details",
     )
     frontend = replace_once(

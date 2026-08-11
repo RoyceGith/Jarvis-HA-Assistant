@@ -1,1 +1,1 @@
-ZBRANO v0.12.62 moves installed-plugin OAuth account and granted-scope details behind Settings, keeping Cloudflare compact even when it reports hundreds of authorization scopes. Updates continue to use the prebuilt Home Assistant image introduced in v0.12.60.
+ZBRANO v0.12.63 places installed-plugin OAuth account and granted-scope details outside the front card header so the compact controller can move them behind Settings. Updates continue to use the prebuilt Home Assistant image introduced in v0.12.60.
