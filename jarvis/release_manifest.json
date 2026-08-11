@@ -1,10 +1,13 @@
 {
-  "version": "0.12.68",
+  "version": "0.12.69",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/Jarvis-HA-Assistant main",
-  "summary": "Reconcile ambiguous Workshop Memory writes and complete only confirmed-missing approved operations.",
+  "summary": "Route grinder incident analysis directly to its local pre-failure telemetry tools.",
   "features": [
+    "Detect grinder freeze, stuck measurement, reboot, telemetry, and incident-analysis intent.",
+    "Limit grinder diagnostic requests to the three local read-only grinder tools for reliable selection.",
+    "Direct incident analysis to the persisted pre-failure telemetry window and exact incident identifier.",
     "Verify Workshop Memory note and template-pack state after ambiguous write failures.",
     "Continue the remaining operations in an approved batch while preventing duplicate retries.",
     "Return a deterministic reconciliation summary if post-write AI response generation fails.",
@@ -29,6 +32,9 @@
     "Preserve multi-round Workshop Memory tasks after an approved write in both streaming and non-streaming chat."
   ],
   "fixes": [
+    "Stop ZBRANO from claiming grinder incident tools are unavailable in a normal chat session.",
+    "Exclude a later manual POWER ON reset from initiating-fault classification when identified by the operator.",
+    "Prevent enabled plugins and unrelated Workshop Memory tools from crowding out grinder diagnostics.",
     "Stop successful Workshop Memory template-pack writes from appearing as an unknown failure.",
     "Retry exact approved create/replace note writes only after state verification shows they remain missing.",
     "Never automatically retry an uncertain append operation that could duplicate permanent content.",
@@ -56,6 +62,7 @@
     "Preserve task-scoped Workshop Memory approval and per-draft Gmail approval isolation."
   ],
   "validation": [
+    "Grinder intent detection, isolated tool routing, pre-failure analysis instructions, and Developer Mode isolation coverage",
     "Ambiguous Workshop Memory write verification, bounded retry, conflict, and response-fallback coverage",
     "Canonical current-release reconciliation, historical preservation, idempotency, and multi-note status coverage",
     "Grinder HUD state, placement, polling, accessibility, and responsive styling coverage",
