@@ -1,7 +1,8 @@
 name: "ZBRANO"
 description: "Local ZBRANO intelligence core assistant for Workshop Memory and Home Assistant"
-version: "0.12.59"
+version: "0.12.60"
 slug: "jarvis_workshop_assistant"
+image: "ghcr.io/roycegith/jarvis-ha-assistant"
 init: false
 startup: application
 stage: experimental

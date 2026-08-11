@@ -8,7 +8,8 @@ LABEL \
   io.hass.description="Local ZBRANO workshop intelligence core assistant" \
   io.hass.version="${BUILD_VERSION}" \
   io.hass.type="app" \
-  io.hass.arch="${BUILD_ARCH}"
+  io.hass.arch="${BUILD_ARCH}" \
+  org.opencontainers.image.source="https://github.com/RoyceGith/Jarvis-HA-Assistant"
 
 RUN apk add --no-cache python3 py3-pip nodejs npm chromium nss freetype harfbuzz ca-certificates font-noto
 
@@ -123,6 +124,7 @@ COPY apply_gmail_oauth_least_privilege_v01256.py ./apply_gmail_oauth_least_privi
 COPY apply_gmail_direct_v01257.py ./apply_gmail_direct_v01257.py
 COPY apply_plugin_settings_visibility_v01258.py ./apply_plugin_settings_visibility_v01258.py
 COPY apply_release_bump_v01259.py ./apply_release_bump_v01259.py
+COPY apply_release_bump_v01260.py ./apply_release_bump_v01260.py
 COPY validate_release_manifest.py ./validate_release_manifest.py
 COPY validate_inline_js.py ./validate_inline_js.py
 COPY validate_new_chat_wiring.py ./validate_new_chat_wiring.py
@@ -269,6 +271,8 @@ RUN rm() { command rm -f "$@"; } \
     && rm ./apply_plugin_settings_visibility_v01258.py \
     && python3 ./apply_release_bump_v01259.py \
     && rm ./apply_release_bump_v01259.py \
+    && python3 ./apply_release_bump_v01260.py \
+    && rm ./apply_release_bump_v01260.py \
     && python3 ./validate_release_manifest.py \
     && rm ./validate_release_manifest.py ./config.yaml \
     && python3 ./validate_inline_js.py ./app/static/index.html \

@@ -1,16 +1,17 @@
 {
-  "version": "0.12.59",
+  "version": "0.12.60",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/Jarvis-HA-Assistant main",
-  "summary": "Repair the installed plugin settings visibility release bump while preserving compact Cloudflare plugin cards.",
+  "summary": "Publish a prebuilt Home Assistant image to replace slow on-device add-on builds during updates.",
   "features": [
     "Add Gmail Direct tools for bounded search, label listing, thread reading, and unsent draft creation.",
     "Reuse compliant Google OAuth connections while bypassing the Google Workspace Developer Preview MCP tool server.",
     "Require explicit approval for each Gmail draft while allowing read-only Gmail operations without repeated approval.",
     "Show Gmail Direct activity and identify the official remote Gmail MCP as a Developer Preview dependency rather than the active tool path.",
     "Keep high-tool-count installed plugins, including Cloudflare, compact until Settings is opened.",
-    "Advance the Home Assistant add-on version after the plugin settings visibility fix."
+    "Advance the Home Assistant add-on version after the plugin settings visibility fix.",
+    "Build and publish the aarch64 app image and generic manifest through the official Home Assistant builder actions."
   ],
   "fixes": [
     "Avoid the caller-does-not-have-permission failure returned by the gated Google Workspace Gmail MCP preview.",
@@ -20,7 +21,8 @@
     "Keep the exact gmail.readonly and gmail.compose OAuth scope allowlist and stored-token quarantine.",
     "Preserve customizable Entities columns, Home Assistant priority routing, notification activity, voice behavior, and New Chat reset.",
     "Render installed plugin tools inside the hidden settings container and prevent duplicate Settings buttons.",
-    "Use the compact controller for plugin settings visibility without changing the installed-plugin row template."
+    "Use the compact controller for plugin settings visibility without changing the installed-plugin row template.",
+    "Avoid compiling Alpine packages, Chromium, Playwright MCP, Python dependencies, and release patches on the Home Assistant device during each update."
   ],
   "validation": [
     "Complete generated patch chain",
@@ -33,6 +35,7 @@
     "Direct Google OAuth endpoint and standard Gmail REST API coverage",
     "Release and Workshop Memory synchronization metadata validation",
     "Installed plugin settings visibility coverage",
-    "Release bump coverage for v0.12.59"
+    "Release bump coverage for v0.12.59",
+    "Prebuilt image workflow and release bump coverage for v0.12.60"
   ]
 }

@@ -1,1 +1,1 @@
-ZBRANO v0.12.59 keeps installed plugin cards compact by hiding tool settings behind the Settings toggle, including high-tool-count plugins like Cloudflare. It preserves the v0.12.57 Gmail Direct connector and advances the Home Assistant add-on version so HA OS can detect the update.
+ZBRANO v0.12.60 publishes a prebuilt Home Assistant image so updates download the finished container instead of compiling Chromium, Playwright, Python, npm packages, and release patches on the Home Assistant device. It preserves the compact installed plugin settings behavior from v0.12.59.
