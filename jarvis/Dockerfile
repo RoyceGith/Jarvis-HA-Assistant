@@ -126,6 +126,7 @@ COPY apply_plugin_settings_visibility_v01258.py ./apply_plugin_settings_visibili
 COPY apply_release_bump_v01259.py ./apply_release_bump_v01259.py
 COPY apply_release_bump_v01260.py ./apply_release_bump_v01260.py
 COPY apply_plugin_compact_repair_v01261.py ./apply_plugin_compact_repair_v01261.py
+COPY apply_oauth_details_compact_v01262.py ./apply_oauth_details_compact_v01262.py
 COPY validate_release_manifest.py ./validate_release_manifest.py
 COPY validate_inline_js.py ./validate_inline_js.py
 COPY validate_new_chat_wiring.py ./validate_new_chat_wiring.py
@@ -276,6 +277,8 @@ RUN rm() { command rm -f "$@"; } \
     && rm ./apply_release_bump_v01260.py \
     && python3 ./apply_plugin_compact_repair_v01261.py \
     && rm ./apply_plugin_compact_repair_v01261.py \
+    && python3 ./apply_oauth_details_compact_v01262.py \
+    && rm ./apply_oauth_details_compact_v01262.py \
     && python3 ./validate_release_manifest.py \
     && rm ./validate_release_manifest.py ./config.yaml \
     && python3 ./validate_inline_js.py ./app/static/index.html \

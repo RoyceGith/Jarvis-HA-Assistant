@@ -1,9 +1,9 @@
 {
-  "version": "0.12.61",
+  "version": "0.12.62",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/Jarvis-HA-Assistant main",
-  "summary": "Repair compact installed plugin cards so Cloudflare tool controls remain behind Settings after every render.",
+  "summary": "Keep Cloudflare compact by moving OAuth account and granted-scope details behind installed-plugin Settings.",
   "features": [
     "Add Gmail Direct tools for bounded search, label listing, thread reading, and unsent draft creation.",
     "Reuse compliant Google OAuth connections while bypassing the Google Workspace Developer Preview MCP tool server.",
@@ -12,7 +12,8 @@
     "Keep high-tool-count installed plugins, including Cloudflare, compact until Settings is opened.",
     "Advance the Home Assistant add-on version after the plugin settings visibility fix.",
     "Build and publish the aarch64 app image and generic manifest through the official Home Assistant builder actions.",
-    "Observe installed plugin row rendering so compact settings are applied after every reload path."
+    "Observe installed plugin row rendering so compact settings are applied after every reload path.",
+    "Preserve OAuth identity and scope visibility inside the expandable installed-plugin Settings area."
   ],
   "fixes": [
     "Avoid the caller-does-not-have-permission failure returned by the gated Google Workspace Gmail MCP preview.",
@@ -24,7 +25,8 @@
     "Render installed plugin tools inside the hidden settings container and prevent duplicate Settings buttons.",
     "Use the compact controller for plugin settings visibility without changing the installed-plugin row template.",
     "Avoid compiling Alpine packages, Chromium, Playwright MCP, Python dependencies, and release patches on the Home Assistant device during each update.",
-    "Move every direct plugin tool control into the hidden settings container, even when a row was previously marked compact."
+    "Move every direct plugin tool control into the hidden settings container, even when a row was previously marked compact.",
+    "Remove Cloudflare's long granted-scope list from the front card while retaining it behind Settings."
   ],
   "validation": [
     "Complete generated patch chain",
@@ -39,6 +41,7 @@
     "Installed plugin settings visibility coverage",
     "Release bump coverage for v0.12.59",
     "Prebuilt image workflow and release bump coverage for v0.12.60",
-    "Idempotent installed plugin compaction and release bump coverage for v0.12.61"
+    "Idempotent installed plugin compaction and release bump coverage for v0.12.61",
+    "OAuth detail placement and release bump coverage for v0.12.62"
   ]
 }

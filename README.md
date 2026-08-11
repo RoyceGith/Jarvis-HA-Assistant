@@ -1,1 +1,1 @@
-ZBRANO v0.12.61 keeps every installed plugin card compact, including Cloudflare, by moving all tool controls behind Settings after each render and reload. Updates continue to use the prebuilt Home Assistant image introduced in v0.12.60.
+ZBRANO v0.12.62 moves installed-plugin OAuth account and granted-scope details behind Settings, keeping Cloudflare compact even when it reports hundreds of authorization scopes. Updates continue to use the prebuilt Home Assistant image introduced in v0.12.60.
