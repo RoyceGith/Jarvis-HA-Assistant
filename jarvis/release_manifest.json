@@ -1,34 +1,32 @@
 {
-  "version": "0.12.56",
+  "version": "0.12.57",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/Jarvis-HA-Assistant main",
-  "summary": "Enforce least-privilege Gmail MCP OAuth and reject broader authorization grants.",
+  "summary": "Replace the gated Gmail Developer Preview tool path with a built-in least-privilege Gmail REST connector.",
   "features": [
-    "Request exactly gmail.readonly and gmail.compose from Google for Gmail MCP.",
-    "Show the Google account chooser on every Gmail authorization.",
-    "Display the connected Gmail address and granted scope names without exposing credentials.",
-    "Replace the recovered Home Assistant Ingress 401 page with an authorization-progress screen."
+    "Add Gmail Direct tools for bounded search, label listing, thread reading, and unsent draft creation.",
+    "Reuse compliant Google OAuth connections while bypassing the Google Workspace Developer Preview MCP tool server.",
+    "Require explicit approval for each Gmail draft while allowing read-only Gmail operations without repeated approval.",
+    "Show Gmail Direct activity and identify the official remote Gmail MCP as a Developer Preview dependency rather than the active tool path."
   ],
   "fixes": [
-    "Reject and revoke Gmail tokens whose granted scopes are missing, broader than, or different from the allowlist.",
-    "Disable incremental authorization so previously granted broad scopes cannot be inherited.",
-    "Quarantine previously stored Gmail OAuth records that violate the new scope policy.",
-    "Verify the connected Gmail identity through the Gmail profile endpoint before storing credentials.",
-    "Preserve customizable Entities columns, Home Assistant priority routing, Shared Files activity acknowledgement, voice behavior, and New Chat reset.",
-    "Keep automatic Workshop Memory release synchronization enabled."
+    "Avoid the caller-does-not-have-permission failure returned by the gated Google Workspace Gmail MCP preview.",
+    "Treat email subjects, snippets, bodies, and links as untrusted data that cannot direct tool execution.",
+    "Bound search results, thread messages, body content, timeouts, and error output; never download attachments.",
+    "Expose no send, delete, trash, attachment, or label-mutation operation.",
+    "Keep the exact gmail.readonly and gmail.compose OAuth scope allowlist and stored-token quarantine.",
+    "Preserve customizable Entities columns, Home Assistant priority routing, notification activity, voice behavior, and New Chat reset."
   ],
   "validation": [
     "Complete generated patch chain",
     "Inline JavaScript validation",
     "New Chat wiring validation",
     "Backend Python compilation",
-    "Exact Gmail OAuth scope allowlist coverage",
-    "Unexpected and missing Gmail scope rejection coverage",
-    "Stored noncompliant Gmail token quarantine coverage",
-    "Google account selection and incremental-scope prevention coverage",
-    "Safe Gmail account and scope display coverage",
-    "Ingress callback transition coverage",
+    "Gmail Direct local-tool and remote-MCP isolation coverage",
+    "Per-draft approval and no-task-approval-bypass coverage",
+    "Untrusted email and bounded-content coverage",
+    "Direct Google OAuth endpoint and standard Gmail REST API coverage",
     "Release and Workshop Memory synchronization metadata validation"
   ]
 }
