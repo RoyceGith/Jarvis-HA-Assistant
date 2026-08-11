@@ -1,14 +1,15 @@
 {
-  "version": "0.12.57",
+  "version": "0.12.58",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/Jarvis-HA-Assistant main",
-  "summary": "Replace the gated Gmail Developer Preview tool path with a built-in least-privilege Gmail REST connector.",
+  "summary": "Hide installed plugin tool settings behind the Settings toggle while preserving the Gmail Direct connector.",
   "features": [
     "Add Gmail Direct tools for bounded search, label listing, thread reading, and unsent draft creation.",
     "Reuse compliant Google OAuth connections while bypassing the Google Workspace Developer Preview MCP tool server.",
     "Require explicit approval for each Gmail draft while allowing read-only Gmail operations without repeated approval.",
-    "Show Gmail Direct activity and identify the official remote Gmail MCP as a Developer Preview dependency rather than the active tool path."
+    "Show Gmail Direct activity and identify the official remote Gmail MCP as a Developer Preview dependency rather than the active tool path.",
+    "Keep high-tool-count installed plugins, including Cloudflare, compact until Settings is opened."
   ],
   "fixes": [
     "Avoid the caller-does-not-have-permission failure returned by the gated Google Workspace Gmail MCP preview.",
@@ -16,7 +17,8 @@
     "Bound search results, thread messages, body content, timeouts, and error output; never download attachments.",
     "Expose no send, delete, trash, attachment, or label-mutation operation.",
     "Keep the exact gmail.readonly and gmail.compose OAuth scope allowlist and stored-token quarantine.",
-    "Preserve customizable Entities columns, Home Assistant priority routing, notification activity, voice behavior, and New Chat reset."
+    "Preserve customizable Entities columns, Home Assistant priority routing, notification activity, voice behavior, and New Chat reset.",
+    "Render installed plugin tools inside the hidden settings container and prevent duplicate Settings buttons."
   ],
   "validation": [
     "Complete generated patch chain",
@@ -27,6 +29,7 @@
     "Per-draft approval and no-task-approval-bypass coverage",
     "Untrusted email and bounded-content coverage",
     "Direct Google OAuth endpoint and standard Gmail REST API coverage",
-    "Release and Workshop Memory synchronization metadata validation"
+    "Release and Workshop Memory synchronization metadata validation",
+    "Installed plugin settings visibility coverage"
   ]
 }

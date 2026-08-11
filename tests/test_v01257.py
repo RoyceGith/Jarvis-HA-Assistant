@@ -59,12 +59,9 @@ def test_no_dangerous_gmail_tools_are_exposed():
     assert "gmail_direct_modify_labels" not in PATCH
 
 
-def test_v01257_release_chain_and_markers():
+def test_v01257_gmail_direct_release_chain_and_markers():
     assert "COPY apply_gmail_direct_v01257.py ./apply_gmail_direct_v01257.py" in DOCKER
     assert DOCKER.index("python3 ./apply_gmail_oauth_least_privilege_v01256.py") < DOCKER.index("python3 ./apply_gmail_direct_v01257.py")
-    assert DOCKER.index("python3 ./apply_gmail_direct_v01257.py") < DOCKER.index("python3 ./validate_release_manifest.py")
-    assert 'version: "0.12.57"' in CONFIG
-    assert MANIFEST["version"] == "0.12.57"
-    assert "ZBRANO v0.12.57" in README
+    assert DOCKER.index("python3 ./apply_gmail_direct_v01257.py") < DOCKER.index("python3 ./apply_plugin_settings_visibility_v01258.py")
     assert 'version="0.12.57"' in PATCH
     assert "HUD 0.12.57" in PATCH
