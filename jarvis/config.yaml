@@ -1,6 +1,6 @@
 name: "ZBRANO"
 description: "Local ZBRANO intelligence core assistant for Workshop Memory and Home Assistant"
-version: "0.12.64"
+version: "0.12.65"
 slug: "jarvis_workshop_assistant"
 image: "ghcr.io/roycegith/jarvis-ha-assistant"
 init: false
@@ -42,6 +42,12 @@ options:
   ha_read_entities: ""
   ha_control_entities: ""
   enable_direct_port: true
+  grinder_monitor_enabled: false
+  grinder_mqtt_host: "core-mosquitto"
+  grinder_mqtt_port: 1883
+  grinder_mqtt_username: ""
+  grinder_mqtt_password: ""
+  grinder_mqtt_topic_prefix: "zbrano/grinder"
 
 schema:
   log_level: "list(trace|debug|info|warning|error)"
@@ -63,5 +69,11 @@ schema:
   ha_read_entities: "str?"
   ha_control_entities: "str?"
   enable_direct_port: "bool"
+  grinder_monitor_enabled: "bool"
+  grinder_mqtt_host: "str"
+  grinder_mqtt_port: "port"
+  grinder_mqtt_username: "str?"
+  grinder_mqtt_password: "password"
+  grinder_mqtt_topic_prefix: "str"
 
 backup: hot

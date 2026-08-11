@@ -1,10 +1,13 @@
 {
-  "version": "0.12.64",
+  "version": "0.12.65",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/Jarvis-HA-Assistant main",
-  "summary": "Repair the Workshop Memory approval-result continuation after permanent writes.",
+  "summary": "Add read-only Grinder Deep Monitoring with a bounded MQTT flight recorder.",
   "features": [
+    "Subscribe to grinder telemetry, boot events, and availability through local MQTT without publishing control commands.",
+    "Keep a bounded 60-second per-device flight recorder and persist up to 100 reboot incidents.",
+    "Expose grinder status and incidents through read-only chat tools and API endpoints.",
     "Add Gmail Direct tools for bounded search, label listing, thread reading, and unsent draft creation.",
     "Reuse compliant Google OAuth connections while bypassing the Google Workspace Developer Preview MCP tool server.",
     "Require explicit approval for each Gmail draft while allowing read-only Gmail operations without repeated approval.",
@@ -19,6 +22,8 @@
     "Preserve multi-round Workshop Memory tasks after an approved write in both streaming and non-streaming chat."
   ],
   "fixes": [
+    "Distinguish transient heartbeat loss from a confirmed reboot by comparing boot identifiers.",
+    "Classify watchdog, panic, brownout, power, and abrupt grinding-time reset evidence without claiming certainty beyond telemetry.",
     "Avoid the caller-does-not-have-permission failure returned by the gated Google Workspace Gmail MCP preview.",
     "Treat email subjects, snippets, bodies, and links as untrusted data that cannot direct tool execution.",
     "Bound search results, thread messages, body content, timeouts, and error output; never download attachments.",
@@ -36,6 +41,7 @@
     "Preserve task-scoped Workshop Memory approval and per-draft Gmail approval isolation."
   ],
   "validation": [
+    "Grinder monitor configuration, read-only topic, persistence, and tool-routing coverage",
     "Complete generated patch chain",
     "Inline JavaScript validation",
     "New Chat wiring validation",
