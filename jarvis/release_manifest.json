@@ -1,10 +1,12 @@
 {
-  "version": "0.12.66",
+  "version": "0.12.67",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/Jarvis-HA-Assistant main",
-  "summary": "Add a live read-only grinder connection indicator to the main HUD.",
+  "summary": "Reconcile canonical Workshop Memory current-release truth on every installed update.",
   "features": [
+    "Maintain deterministic current-release source-of-truth blocks in five canonical ZBRANO project notes.",
+    "Audit explicit present-version fields in Architecture, Decisions, Integrations, Data, Security, and Test notes.",
     "Show grinder connectivity globally beside the Developer Mode and application health indicators.",
     "Distinguish online, device offline, broker offline, waiting, monitoring-disabled, and status-unavailable states.",
     "Subscribe to grinder telemetry, boot events, and availability through local MQTT without publishing control commands.",
@@ -24,6 +26,9 @@
     "Preserve multi-round Workshop Memory tasks after an approved write in both streaming and non-streaming chat."
   ],
   "fixes": [
+    "Remove the release-history marker early exit that left Current Release sections stale.",
+    "Preserve historical and superseded version records while updating only explicit present-status fields.",
+    "Report which canonical notes were updated, already current, missing, or failed during synchronization.",
     "Refresh grinder connectivity every five seconds without creating chats, notifications, or control actions.",
     "Pause background HUD polling while the page is hidden and bound each status request to four seconds.",
     "Distinguish transient heartbeat loss from a confirmed reboot by comparing boot identifiers.",
@@ -45,6 +50,7 @@
     "Preserve task-scoped Workshop Memory approval and per-draft Gmail approval isolation."
   ],
   "validation": [
+    "Canonical current-release reconciliation, historical preservation, idempotency, and multi-note status coverage",
     "Grinder HUD state, placement, polling, accessibility, and responsive styling coverage",
     "Grinder monitor configuration, read-only topic, persistence, and tool-routing coverage",
     "Complete generated patch chain",
