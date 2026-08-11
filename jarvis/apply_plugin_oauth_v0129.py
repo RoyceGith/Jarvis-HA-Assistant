@@ -626,11 +626,11 @@ def patch_index() -> None:
         ?`<button data-a="oauth" data-id="${esc(p.id)}">${p.oauth_connected?"Reauthorize":"Connect"}</button>${p.oauth_connected?`<button data-a="oauth-disconnect" data-id="${esc(p.id)}">Sign out</button>`:""}`
         :"";
 ''' + text[row_pos:]
-    plugin_actions = '<div class="plugin-actions"><button data-a="toggle"'
+    plugin_actions = '<div class="plugin-actions"><button type="button" class="plugin-settings-toggle" data-a="settings" aria-expanded="false">Settings</button><button data-a="toggle"'
     require(text, plugin_actions, "installed plugin action buttons")
     text = text.replace(
         plugin_actions,
-        '<div class="plugin-actions">${oauthActions}<button data-a="toggle"',
+        '<div class="plugin-actions"><button type="button" class="plugin-settings-toggle" data-a="settings" aria-expanded="false">Settings</button>${oauthActions}<button data-a="toggle"',
         1,
     )
 

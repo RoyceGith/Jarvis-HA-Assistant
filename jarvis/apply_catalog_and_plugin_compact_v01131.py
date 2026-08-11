@@ -94,21 +94,26 @@ def patch_index() -> None:
       const head = row.querySelector(".plugin-head");
       if (!head) continue;
 
-      const settings = document.createElement("div");
-      settings.className = "plugin-settings";
-      const movable = [...row.children].filter(child => child !== head);
-      for (const child of movable) settings.appendChild(child);
-      row.appendChild(settings);
+      let settings = row.querySelector(":scope > .plugin-settings");
+      if (!settings) {
+        settings = document.createElement("div");
+        settings.className = "plugin-settings";
+        const movable = [...row.children].filter(child => child !== head);
+        for (const child of movable) settings.appendChild(child);
+        row.appendChild(settings);
+      }
       row.classList.add("compact-plugin");
 
       const actions = head.querySelector(".plugin-actions") || head;
-      const toggle = document.createElement("button");
-      toggle.type = "button";
-      toggle.className = "plugin-settings-toggle";
-      toggle.dataset.a = "settings";
-      toggle.setAttribute("aria-expanded", "false");
-      toggle.textContent = "Settings";
-      actions.prepend(toggle);
+      if (!actions.querySelector(".plugin-settings-toggle")) {
+        const toggle = document.createElement("button");
+        toggle.type = "button";
+        toggle.className = "plugin-settings-toggle";
+        toggle.dataset.a = "settings";
+        toggle.setAttribute("aria-expanded", row.classList.contains("open") ? "true" : "false");
+        toggle.textContent = "Settings";
+        actions.prepend(toggle);
+      }
     }
   }
 
