@@ -26,17 +26,18 @@ def main() -> None:
     frontend = INDEX.read_text(encoding="utf-8")
 
     for marker, label in (
-        ('class="plugin-settings-toggle" data-a="settings"', "installed plugin Settings action"),
-        ('<div class="plugin-settings">${tools||', "installed plugin settings container"),
+        ('toggle.className = "plugin-settings-toggle"', "installed plugin Settings action"),
+        ('settings.className = "plugin-settings"', "installed plugin settings container"),
         ('row.querySelector(":scope > .plugin-settings")', "compact settings reuse"),
+        ('actions.prepend(toggle)', "Settings toggle insertion"),
     ):
         require(frontend, marker, label)
 
-    backend = replace_once(backend, 'version="0.12.57"', 'version="0.12.58"', "backend version")
-    backend = replace_once(backend, '"version": "0.12.57"', '"version": "0.12.58"', "runtime version marker")
+    backend = backend.replace('version="0.12.57"', 'version="0.12.58"')
+    backend = backend.replace('"version": "0.12.57"', '"version": "0.12.58"')
     backend = backend.replace('"X-ZBRANO-Frontend-Version": "0.12.57"', '"X-ZBRANO-Frontend-Version": "0.12.58"')
     backend = backend.replace('"name": "ZBRANO Developer Mode", "version": "0.12.57"', '"name": "ZBRANO Developer Mode", "version": "0.12.58"')
-    frontend = replace_once(frontend, "HUD 0.12.57", "HUD 0.12.58", "HUD version")
+    frontend = frontend.replace("HUD 0.12.57", "HUD 0.12.58")
 
     require(backend, 'version="0.12.58"', "backend version")
     require(backend, '"version": "0.12.58"', "runtime version marker")
