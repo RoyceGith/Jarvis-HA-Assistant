@@ -1,20 +1,21 @@
 {
-  "version": "0.12.55",
+  "version": "0.12.56",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/Jarvis-HA-Assistant main",
-  "summary": "Add persistent resizing and reordering to the Entities inventory columns.",
+  "summary": "Enforce least-privilege Gmail MCP OAuth and reject broader authorization grants.",
   "features": [
-    "Resize each Entities table column by dragging its header edge.",
-    "Reorder Entities columns by dragging their headers.",
-    "Persist column order and widths locally for each browser or device.",
-    "Restore the original Entities layout with a dedicated Reset columns control."
+    "Request exactly gmail.readonly and gmail.compose from Google for Gmail MCP.",
+    "Show the Google account chooser on every Gmail authorization.",
+    "Display the connected Gmail address and granted scope names without exposing credentials.",
+    "Replace the recovered Home Assistant Ingress 401 page with an authorization-progress screen."
   ],
   "fixes": [
-    "Keep the customized layout applied when entity rows rerender after filtering or refresh.",
-    "Clamp column widths to usable minimum and maximum sizes.",
-    "Keep narrow-screen horizontal scrolling and entity form controls usable.",
-    "Preserve Gmail OAuth, Home Assistant priority routing, Shared Files activity acknowledgement, voice behavior, and New Chat reset.",
+    "Reject and revoke Gmail tokens whose granted scopes are missing, broader than, or different from the allowlist.",
+    "Disable incremental authorization so previously granted broad scopes cannot be inherited.",
+    "Quarantine previously stored Gmail OAuth records that violate the new scope policy.",
+    "Verify the connected Gmail identity through the Gmail profile endpoint before storing credentials.",
+    "Preserve customizable Entities columns, Home Assistant priority routing, Shared Files activity acknowledgement, voice behavior, and New Chat reset.",
     "Keep automatic Workshop Memory release synchronization enabled."
   ],
   "validation": [
@@ -22,10 +23,12 @@
     "Inline JavaScript validation",
     "New Chat wiring validation",
     "Backend Python compilation",
-    "Entities column drag-and-drop ordering coverage",
-    "Entities pointer-based resizing coverage",
-    "Entities local layout persistence and reset coverage",
-    "Entity render and narrow-screen table preservation coverage",
+    "Exact Gmail OAuth scope allowlist coverage",
+    "Unexpected and missing Gmail scope rejection coverage",
+    "Stored noncompliant Gmail token quarantine coverage",
+    "Google account selection and incremental-scope prevention coverage",
+    "Safe Gmail account and scope display coverage",
+    "Ingress callback transition coverage",
     "Release and Workshop Memory synchronization metadata validation"
   ]
 }
