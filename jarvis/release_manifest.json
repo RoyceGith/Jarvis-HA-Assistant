@@ -1,10 +1,19 @@
 {
-  "version": "0.12.72",
+  "version": "0.12.73",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/Jarvis-HA-Assistant main",
-  "summary": "Make streamed voice playback sound natural by aligning TTS segments with real sentence and clause boundaries.",
+  "summary": "Add editable reminders, a visual monthly calendar, and compact reordered primary navigation.",
   "features": [
+    "Order primary navigation as Chat, Shared Files, Automations, Entities, and Plugins while keeping Developer detached.",
+    "Use compact calendar and gear icons for Calendar and Settings with accessible labels and tooltips.",
+    "Display a responsive Monday-first monthly calendar with appointments visible inside each day.",
+    "Navigate to previous or next months, return to today, and inspect a selected day's full appointment agenda.",
+    "Keep the Upcoming list future-only while retaining completed appointments in their historical calendar days.",
+    "Edit an appointment's reminder schedule from Upcoming appointments or the Reminders view.",
+    "Combine standard reminder presets with custom whole-minute offsets.",
+    "Change the Notification Center destination or remove every reminder from an appointment.",
+    "Update calendar reminders conversationally through a dedicated chat tool.",
     "Align streamed speech chunks with real sentences and natural clause punctuation.",
     "Combine short response fragments before speech generation while retaining live playback.",
     "Add a dedicated Calendar primary tab with separate Upcoming and Reminders views.",
@@ -42,6 +51,8 @@
     "Preserve multi-round Workshop Memory tasks after an approved write in both streaming and non-streaming chat."
   ],
   "fixes": [
+    "Preserve already delivered reminders at unchanged offsets so editing cannot resend them accidentally.",
+    "Mark newly added reminder times that have already passed as missed instead of delivering a surprise late notification.",
     "Stop ordinary spaces around 56 to 88 characters from creating false comma-like pauses.",
     "Preserve commas, semicolons, colons, and dashes when they form a spoken chunk boundary.",
     "Normalize streamed Markdown line whitespace before sending text to the speech provider.",
@@ -79,6 +90,9 @@
     "Preserve task-scoped Workshop Memory approval and per-draft Gmail approval isolation."
   ],
   "validation": [
+    "Primary tab order, Calendar and Settings icon accessibility, responsive sizing, and release alignment coverage",
+    "Monthly grid, day grouping, month navigation, selected-day agenda, history filtering, responsive layout, and release alignment coverage",
+    "Editable reminder API, chat tool, preset and custom timing UI, destination selection, removal, delivery preservation, and release alignment coverage",
     "Natural sentence and clause segmentation, punctuation preservation, long-sentence fallback, live streaming, prefetch, and release alignment coverage",
     "Calendar chat tools, intent routing, persistence, reminder scheduling, backup, diagnostics, responsive UI, and release alignment coverage",
     "Live streamed-text speech, next-segment prefetch, cancellation, patch ordering, and release alignment coverage",

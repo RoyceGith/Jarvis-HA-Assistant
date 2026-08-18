@@ -137,6 +137,9 @@ COPY apply_grinder_incident_routing_v01269.py ./apply_grinder_incident_routing_v
 COPY apply_continuous_voice_playback_v01270.py ./apply_continuous_voice_playback_v01270.py
 COPY apply_calendar_center_v01271.py ./apply_calendar_center_v01271.py
 COPY apply_natural_voice_prosody_v01272.py ./apply_natural_voice_prosody_v01272.py
+COPY apply_editable_calendar_reminders_v01273.py ./apply_editable_calendar_reminders_v01273.py
+COPY apply_visual_calendar_v01274.py ./apply_visual_calendar_v01274.py
+COPY apply_navigation_icons_v01275.py ./apply_navigation_icons_v01275.py
 COPY validate_release_manifest.py ./validate_release_manifest.py
 COPY validate_inline_js.py ./validate_inline_js.py
 COPY validate_new_chat_wiring.py ./validate_new_chat_wiring.py
@@ -309,6 +312,12 @@ RUN rm() { command rm -f "$@"; } \
     && rm ./apply_calendar_center_v01271.py \
     && python3 ./apply_natural_voice_prosody_v01272.py \
     && rm ./apply_natural_voice_prosody_v01272.py \
+    && python3 ./apply_editable_calendar_reminders_v01273.py \
+    && rm ./apply_editable_calendar_reminders_v01273.py \
+    && python3 ./apply_visual_calendar_v01274.py \
+    && rm ./apply_visual_calendar_v01274.py \
+    && python3 ./apply_navigation_icons_v01275.py \
+    && rm ./apply_navigation_icons_v01275.py \
     && python3 ./validate_release_manifest.py \
     && rm ./validate_release_manifest.py ./config.yaml \
     && python3 ./validate_inline_js.py ./app/static/index.html \
