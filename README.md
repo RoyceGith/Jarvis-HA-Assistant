@@ -1,4 +1,4 @@
-ZBRANO v0.12.75 compacts the header, navigation, and chat composer to give conversations more space: the HUD version sits beside the ZBRANO title, runtime indicators share one row, Web and plugin controls join the Voice/Agent settings row, the legacy Voice Ready label is hidden, and the prompt, Talk, Stop, and Send controls align together. v0.12.74 adds organized local Fast Memory with automatic extraction, deterministic deduplication, bounded relevance retrieval, and a user-editable Memory Center.
+ZBRANO v0.12.76 adds bounded, read-only Home Assistant History and Event Timeline intelligence: Recorder trends, Logbook search, multi-entity correlation, deterministic anomaly summaries, a visual timeline workspace, real diagnostics, and isolated chat routing for approved entities. v0.12.75 compacts the header, navigation, and chat composer to give conversations more space.
 
 ZBRANO v0.12.72 improves natural voice prosody by preserving real punctuation, combining short phrases, and avoiding artificial TTS request boundaries at ordinary spaces while retaining streamed playback and next-segment prefetch.
 
