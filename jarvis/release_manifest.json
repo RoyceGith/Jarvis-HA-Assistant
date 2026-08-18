@@ -1,10 +1,12 @@
 {
-  "version": "0.12.69",
+  "version": "0.12.70",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/Jarvis-HA-Assistant main",
-  "summary": "Route grinder incident analysis directly to its local pre-failure telemetry tools.",
+  "summary": "Prefetch streamed speech segments to remove playback gaps without delaying voice until response completion.",
   "features": [
+    "Start spoken playback from the first available response phrase while text continues streaming.",
+    "Pre-generate the next speech segment concurrently while the current segment plays.",
     "Detect grinder freeze, stuck measurement, reboot, telemetry, and incident-analysis intent.",
     "Limit grinder diagnostic requests to the three local read-only grinder tools for reliable selection.",
     "Direct incident analysis to the persisted pre-failure telemetry window and exact incident identifier.",
@@ -32,6 +34,8 @@
     "Preserve multi-round Workshop Memory tasks after an approved write in both streaming and non-streaming chat."
   ],
   "fixes": [
+    "Remove the repeated multi-second pause caused by waiting to generate each sentence only after the previous one ended.",
+    "Preserve voice stop, quiet-hours, provider selection, volume, and per-chat Speak replies behavior.",
     "Stop ZBRANO from claiming grinder incident tools are unavailable in a normal chat session.",
     "Exclude a later manual POWER ON reset from initiating-fault classification when identified by the operator.",
     "Prevent enabled plugins and unrelated Workshop Memory tools from crowding out grinder diagnostics.",
@@ -62,6 +66,7 @@
     "Preserve task-scoped Workshop Memory approval and per-draft Gmail approval isolation."
   ],
   "validation": [
+    "Live streamed-text speech, next-segment prefetch, cancellation, patch ordering, and release alignment coverage",
     "Grinder intent detection, isolated tool routing, pre-failure analysis instructions, and Developer Mode isolation coverage",
     "Ambiguous Workshop Memory write verification, bounded retry, conflict, and response-fallback coverage",
     "Canonical current-release reconciliation, historical preservation, idempotency, and multi-note status coverage",
