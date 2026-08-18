@@ -141,6 +141,7 @@ COPY apply_editable_calendar_reminders_v01273.py ./apply_editable_calendar_remin
 COPY apply_visual_calendar_v01273.py ./apply_visual_calendar_v01273.py
 COPY apply_navigation_icons_v01273.py ./apply_navigation_icons_v01273.py
 COPY apply_fast_memory_v01274.py ./apply_fast_memory_v01274.py
+COPY apply_compact_header_v01275.py ./apply_compact_header_v01275.py
 COPY validate_release_manifest.py ./validate_release_manifest.py
 COPY validate_inline_js.py ./validate_inline_js.py
 COPY validate_new_chat_wiring.py ./validate_new_chat_wiring.py
@@ -321,6 +322,8 @@ RUN rm() { command rm -f "$@"; } \
     && rm ./apply_navigation_icons_v01273.py \
     && python3 ./apply_fast_memory_v01274.py \
     && rm ./apply_fast_memory_v01274.py \
+    && python3 ./apply_compact_header_v01275.py \
+    && rm ./apply_compact_header_v01275.py \
     && python3 ./validate_release_manifest.py \
     && rm ./validate_release_manifest.py ./config.yaml \
     && python3 ./validate_inline_js.py ./app/static/index.html \

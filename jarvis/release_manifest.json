@@ -1,10 +1,16 @@
 {
-  "version": "0.12.74",
+  "version": "0.12.75",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/Jarvis-HA-Assistant main",
-  "summary": "Add a fast, organized, deduplicated local memory layer for profiles, projects, decisions, facts, follow-ups, and session recovery.",
+  "summary": "Compact the ZBRANO header and primary navigation to create more vertical space for conversations.",
   "features": [
+    "Place the Workshop Intelligence Interface and HUD version beside the ZBRANO title.",
+    "Align Online/version, Grinder status, Calendar, and Developer indicators in one compact header row.",
+    "Reduce primary navigation button dimensions while preserving responsive mobile behavior.",
+    "Move Web selection and enabled plugin indicators into the Voice and Agent settings row.",
+    "Hide the legacy Voice Ready label while retaining its internal playback status hook.",
+    "Align the prompt, Talk, Stop, and Send controls in one compact row.",
     "Store compact Fast Memory records locally in indexed SQLite without loading full chat transcripts.",
     "Organize memory into profile, preference, project, decision, fact, follow-up, session-summary, and temporary records.",
     "Extract important memories asynchronously after completed replies so visible chat latency is unaffected.",
