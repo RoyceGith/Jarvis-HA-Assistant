@@ -2,7 +2,7 @@ from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[1]
-PATCH = (ROOT / "jarvis" / "apply_visual_calendar_v01274.py").read_text(encoding="utf-8")
+PATCH = (ROOT / "jarvis" / "apply_visual_calendar_v01273.py").read_text(encoding="utf-8")
 DOCKER = (ROOT / "jarvis" / "Dockerfile").read_text(encoding="utf-8")
 CONFIG = (ROOT / "jarvis" / "config.yaml").read_text(encoding="utf-8")
 MANIFEST = (ROOT / "jarvis" / "release_manifest.json").read_text(encoding="utf-8")
@@ -37,9 +37,9 @@ def test_month_controls_and_responsive_layout_are_present():
         assert marker in PATCH
 
 
-def test_v01274_release_alignment():
+def test_visual_calendar_v01273_release_alignment():
     assert 'version: "0.12.73"' in CONFIG
     assert '"version": "0.12.73"' in MANIFEST
-    assert "COPY apply_visual_calendar_v01274.py" in DOCKER
-    assert "python3 ./apply_visual_calendar_v01274.py" in DOCKER
-    assert DOCKER.index("apply_editable_calendar_reminders_v01273.py") < DOCKER.index("apply_visual_calendar_v01274.py")
+    assert "COPY apply_visual_calendar_v01273.py" in DOCKER
+    assert "python3 ./apply_visual_calendar_v01273.py" in DOCKER
+    assert DOCKER.index("apply_editable_calendar_reminders_v01273.py") < DOCKER.index("apply_visual_calendar_v01273.py")

@@ -2,7 +2,7 @@ from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[1]
-PATCH = (ROOT / "jarvis" / "apply_navigation_icons_v01275.py").read_text(encoding="utf-8")
+PATCH = (ROOT / "jarvis" / "apply_navigation_icons_v01273.py").read_text(encoding="utf-8")
 DOCKER = (ROOT / "jarvis" / "Dockerfile").read_text(encoding="utf-8")
 CONFIG = (ROOT / "jarvis" / "config.yaml").read_text(encoding="utf-8")
 MANIFEST = (ROOT / "jarvis" / "release_manifest.json").read_text(encoding="utf-8")
@@ -19,9 +19,9 @@ def test_calendar_and_settings_are_accessible_icon_tabs():
     assert "nav .primary-icon-tab svg" in PATCH
 
 
-def test_v01275_release_alignment():
+def test_navigation_v01273_release_alignment():
     assert 'version: "0.12.73"' in CONFIG
     assert '"version": "0.12.73"' in MANIFEST
-    assert "COPY apply_navigation_icons_v01275.py" in DOCKER
-    assert "python3 ./apply_navigation_icons_v01275.py" in DOCKER
-    assert DOCKER.index("apply_visual_calendar_v01274.py") < DOCKER.index("apply_navigation_icons_v01275.py")
+    assert "COPY apply_navigation_icons_v01273.py" in DOCKER
+    assert "python3 ./apply_navigation_icons_v01273.py" in DOCKER
+    assert DOCKER.index("apply_visual_calendar_v01273.py") < DOCKER.index("apply_navigation_icons_v01273.py")
