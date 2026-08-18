@@ -1,4 +1,4 @@
-ZBRANO v0.12.73 makes calendar reminders editable, adds a responsive monthly calendar with appointments visible on each day and a focused daily agenda, and reorganizes the primary navigation with compact Calendar and Settings icons.
+ZBRANO v0.12.74 adds an organized local Fast Memory: automatic post-response extraction, typed profile/project/decision/fact/follow-up/session records, deterministic deduplication and revision, relevance-ranked prompt retrieval, expiry and bounded pruning, explicit remember/search/forget chat tools, and a user-editable Memory Center. v0.12.73 makes calendar reminders editable, adds a responsive monthly calendar with appointments visible on each day and a focused daily agenda, and reorganizes the primary navigation with compact Calendar and Settings icons.
 
 ZBRANO v0.12.72 improves natural voice prosody by preserving real punctuation, combining short phrases, and avoiding artificial TTS request boundaries at ordinary spaces while retaining streamed playback and next-segment prefetch.
 

@@ -1,10 +1,17 @@
 {
-  "version": "0.12.73",
+  "version": "0.12.74",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/Jarvis-HA-Assistant main",
-  "summary": "Add editable reminders, a visual monthly calendar, and compact reordered primary navigation.",
+  "summary": "Add a fast, organized, deduplicated local memory layer for profiles, projects, decisions, facts, follow-ups, and session recovery.",
   "features": [
+    "Store compact Fast Memory records locally in indexed SQLite without loading full chat transcripts.",
+    "Organize memory into profile, preference, project, decision, fact, follow-up, session-summary, and temporary records.",
+    "Extract important memories asynchronously after completed replies so visible chat latency is unaffected.",
+    "Retrieve a bounded relevance-ranked memory context before normal model responses.",
+    "Expose explicit remember, search, and forget chat tools without Workshop Memory approval overhead.",
+    "Manage, search, filter, edit, pin, and delete records in the Settings Memory Center.",
+    "Include Fast Memory in ZBRANO backup, restore, diagnostics, and targeted Developer investigation.",
     "Order primary navigation as Chat, Shared Files, Automations, Entities, and Plugins while keeping Developer detached.",
     "Use compact calendar and gear icons for Calendar and Settings with accessible labels and tooltips.",
     "Display a responsive Monday-first monthly calendar with appointments visible inside each day.",
@@ -51,6 +58,9 @@
     "Preserve multi-round Workshop Memory tasks after an approved write in both streaming and non-streaming chat."
   ],
   "fixes": [
+    "Deduplicate exact and strongly similar memories and revise a canonical record when its value changes.",
+    "Reject credential-like automatic memories, ignore low-confidence details, expire temporary context, and prune low-value overflow.",
+    "Limit memory injection by relevance, record count, and character budget to prevent prompt overload.",
     "Preserve already delivered reminders at unchanged offsets so editing cannot resend them accidentally.",
     "Mark newly added reminder times that have already passed as missed instead of delivering a surprise late notification.",
     "Stop ordinary spaces around 56 to 88 characters from creating false comma-like pauses.",
@@ -90,6 +100,7 @@
     "Preserve task-scoped Workshop Memory approval and per-draft Gmail approval isolation."
   ],
   "validation": [
+    "SQLite storage, exact and fuzzy deduplication, revision, relevance, expiry, credential filtering, bounded context, API, UI, backup, diagnostics, and release alignment coverage",
     "Primary tab order, Calendar and Settings icon accessibility, responsive sizing, and release alignment coverage",
     "Monthly grid, day grouping, month navigation, selected-day agenda, history filtering, responsive layout, and release alignment coverage",
     "Editable reminder API, chat tool, preset and custom timing UI, destination selection, removal, delivery preservation, and release alignment coverage",
