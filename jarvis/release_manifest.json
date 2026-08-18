@@ -1,10 +1,18 @@
 {
-  "version": "0.12.70",
+  "version": "0.12.72",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/Jarvis-HA-Assistant main",
-  "summary": "Prefetch streamed speech segments to remove playback gaps without delaying voice until response completion.",
+  "summary": "Make streamed voice playback sound natural by aligning TTS segments with real sentence and clause boundaries.",
   "features": [
+    "Align streamed speech chunks with real sentences and natural clause punctuation.",
+    "Combine short response fragments before speech generation while retaining live playback.",
+    "Add a dedicated Calendar primary tab with separate Upcoming and Reminders views.",
+    "Show a compact calendar shortcut and upcoming-appointment count in the application header.",
+    "Create appointments conversationally after collecting only missing date, time, and reminder details.",
+    "Support one-day-before, same-day, 30-minute, appointment-time, custom, combined, or no-reminder schedules.",
+    "Deliver due calendar reminders through the Notification Center default channel, including Telegram.",
+    "Persist calendar data locally, include it in backup and restore, and expose calendar health in diagnostics.",
     "Start spoken playback from the first available response phrase while text continues streaming.",
     "Pre-generate the next speech segment concurrently while the current segment plays.",
     "Detect grinder freeze, stuck measurement, reboot, telemetry, and incident-analysis intent.",
@@ -34,6 +42,11 @@
     "Preserve multi-round Workshop Memory tasks after an approved write in both streaming and non-streaming chat."
   ],
   "fixes": [
+    "Stop ordinary spaces around 56 to 88 characters from creating false comma-like pauses.",
+    "Preserve commas, semicolons, colons, and dashes when they form a spoken chunk boundary.",
+    "Normalize streamed Markdown line whitespace before sending text to the speech provider.",
+    "Avoid duplicate appointments when the same title and start time are submitted more than once.",
+    "Keep reminder execution autonomous after the user explicitly creates the appointment while preserving Notification Center quiet hours.",
     "Remove the repeated multi-second pause caused by waiting to generate each sentence only after the previous one ended.",
     "Preserve voice stop, quiet-hours, provider selection, volume, and per-chat Speak replies behavior.",
     "Stop ZBRANO from claiming grinder incident tools are unavailable in a normal chat session.",
@@ -66,6 +79,8 @@
     "Preserve task-scoped Workshop Memory approval and per-draft Gmail approval isolation."
   ],
   "validation": [
+    "Natural sentence and clause segmentation, punctuation preservation, long-sentence fallback, live streaming, prefetch, and release alignment coverage",
+    "Calendar chat tools, intent routing, persistence, reminder scheduling, backup, diagnostics, responsive UI, and release alignment coverage",
     "Live streamed-text speech, next-segment prefetch, cancellation, patch ordering, and release alignment coverage",
     "Grinder intent detection, isolated tool routing, pre-failure analysis instructions, and Developer Mode isolation coverage",
     "Ambiguous Workshop Memory write verification, bounded retry, conflict, and response-fallback coverage",
