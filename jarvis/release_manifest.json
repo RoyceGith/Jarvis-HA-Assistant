@@ -1,10 +1,18 @@
 {
-  "version": "0.12.87",
+  "version": "0.12.89",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/Jarvis-HA-Assistant main",
-  "summary": "Add clear pending, completed, and attention status indicators with filterable reminder history.",
+  "summary": "Add a secure, paired, two-way Telegram Inbox while preserving Home Assistant as the bot-token boundary.",
   "features": [
+    "Receive Telegram text and command events through a dedicated Home Assistant WebSocket subscription without exposing the bot token to ZBRANO.",
+    "Pair individual Telegram chats with a short-lived one-time command and reject every unpaired chat.",
+    "Keep a persistent ZBRANO conversation per paired Telegram chat with deterministic /new, /status, /help, and /unlink commands.",
+    "Send responses back to the originating Telegram chat with bounded message splitting and an existing Telegram notify-channel fallback.",
+    "Control remote approval replies with a separate Notification Center policy switch.",
+    "Display a compact reminder-state marker on every appointment visible inside the monthly calendar grid.",
+    "Show individual reminder badges and an aggregate reminder-state summary on selected-day appointment cards.",
+    "Represent mixed reminder schedules with counts such as one pending and one completed.",
     "Show live All, Pending, Completed, and Attention counters in the Calendar Reminders view.",
     "Filter reminder history by delivery state while keeping pending reminders ordered by due time and completed reminders newest first.",
     "Keep delivered reminders visible after their appointments pass and display their delivery timestamps.",
@@ -81,6 +89,11 @@
     "Preserve multi-round Workshop Memory tasks after an approved write in both streaming and non-streaming chat."
   ],
   "fixes": [
+    "Prevent idle Telegram monitoring from generating model requests or consuming OpenAI tokens.",
+    "Deduplicate repeated Telegram events and serialize requests per chat so one message cannot be processed twice or overlap a prior request.",
+    "Reconnect the Telegram event listener with bounded backoff while keeping the main ZBRANO interface available.",
+    "Use the same Pending, Completed, and Attention terminology across Month, Upcoming, and Reminders views.",
+    "Avoid showing an unusable reminder-edit action on historical selected-day appointments.",
     "Use the complete calendar history for reminder status instead of hiding delivered reminders when an appointment leaves the upcoming list.",
     "Hide reminder editing for historical deliveries while retaining editing for pending future reminders.",
     "Keep Gmail and Google Calendar OAuth grants, scopes, tokens, registry identities, and validation strictly separate.",
@@ -129,6 +142,8 @@
     "Preserve task-scoped Workshop Memory approval and per-draft Gmail approval isolation."
   ],
   "validation": [
+    "Telegram event subscription, pairing, chat allowlist, command routing, approval isolation, deduplication, timeout, lifecycle, UI, and release alignment coverage",
+    "Month-cell status markers, mixed-state summaries, selected-day reminder badges, historical edit boundaries, responsive styling, and release alignment coverage",
     "Reminder status classification, counters, filtering, historical visibility, edit boundaries, responsive layout, and release alignment coverage",
     "Google Calendar scope isolation, OAuth identity, preview gate, incremental sync, duplicate protection, UI, diagnostics, worker lifecycle, and release alignment coverage",
     "SQLite storage, exact and fuzzy deduplication, revision, relevance, expiry, credential filtering, bounded context, API, UI, backup, diagnostics, and release alignment coverage",

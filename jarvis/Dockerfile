@@ -146,6 +146,8 @@ COPY apply_ha_history_timeline_v01276.py ./apply_ha_history_timeline_v01276.py
 COPY apply_release_bump_v01285.py ./apply_release_bump_v01285.py
 COPY apply_google_calendar_sync_v01286.py ./apply_google_calendar_sync_v01286.py
 COPY apply_calendar_reminder_status_v01287.py ./apply_calendar_reminder_status_v01287.py
+COPY apply_month_reminder_status_v01288.py ./apply_month_reminder_status_v01288.py
+COPY apply_two_way_telegram_v01289.py ./apply_two_way_telegram_v01289.py
 COPY validate_release_manifest.py ./validate_release_manifest.py
 COPY validate_inline_js.py ./validate_inline_js.py
 COPY validate_new_chat_wiring.py ./validate_new_chat_wiring.py
@@ -336,6 +338,10 @@ RUN rm() { command rm -f "$@"; } \
     && rm ./apply_google_calendar_sync_v01286.py \
     && python3 ./apply_calendar_reminder_status_v01287.py \
     && rm ./apply_calendar_reminder_status_v01287.py \
+    && python3 ./apply_month_reminder_status_v01288.py \
+    && rm ./apply_month_reminder_status_v01288.py \
+    && python3 ./apply_two_way_telegram_v01289.py \
+    && rm ./apply_two_way_telegram_v01289.py \
     && python3 ./validate_release_manifest.py \
     && rm ./validate_release_manifest.py ./config.yaml \
     && python3 ./validate_inline_js.py ./app/static/index.html \
