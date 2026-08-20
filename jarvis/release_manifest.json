@@ -1,10 +1,13 @@
 {
-  "version": "0.12.86",
+  "version": "0.12.87",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/Jarvis-HA-Assistant main",
-  "summary": "Add preview-first two-way Google Calendar synchronization through the standard Calendar API while preserving ZBRANO reminders.",
+  "summary": "Add clear pending, completed, and attention status indicators with filterable reminder history.",
   "features": [
+    "Show live All, Pending, Completed, and Attention counters in the Calendar Reminders view.",
+    "Filter reminder history by delivery state while keeping pending reminders ordered by due time and completed reminders newest first.",
+    "Keep delivered reminders visible after their appointments pass and display their delivery timestamps.",
     "Connect Google Calendar Direct with a separate OAuth grant using the existing Google Web OAuth client.",
     "Preview first-sync import, upload, and existing-link counts before enabling any calendar mutation.",
     "Synchronize Google event creation, updates, and cancellations into ZBRANO's visual calendar.",
@@ -78,6 +81,8 @@
     "Preserve multi-round Workshop Memory tasks after an approved write in both streaming and non-streaming chat."
   ],
   "fixes": [
+    "Use the complete calendar history for reminder status instead of hiding delivered reminders when an appointment leaves the upcoming list.",
+    "Hide reminder editing for historical deliveries while retaining editing for pending future reminders.",
     "Keep Gmail and Google Calendar OAuth grants, scopes, tokens, registry identities, and validation strictly separate.",
     "Prevent first-sync duplicates by linking matching title and start-time appointments instead of creating a second local record.",
     "Recover an expired Google incremental-sync token with a bounded full resynchronization after HTTP 410.",
@@ -124,6 +129,7 @@
     "Preserve task-scoped Workshop Memory approval and per-draft Gmail approval isolation."
   ],
   "validation": [
+    "Reminder status classification, counters, filtering, historical visibility, edit boundaries, responsive layout, and release alignment coverage",
     "Google Calendar scope isolation, OAuth identity, preview gate, incremental sync, duplicate protection, UI, diagnostics, worker lifecycle, and release alignment coverage",
     "SQLite storage, exact and fuzzy deduplication, revision, relevance, expiry, credential filtering, bounded context, API, UI, backup, diagnostics, and release alignment coverage",
     "Primary tab order, Calendar and Settings icon accessibility, responsive sizing, and release alignment coverage",
