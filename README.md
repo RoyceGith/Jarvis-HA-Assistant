@@ -1,3 +1,5 @@
+ZBRANO v0.12.99 creates and finalizes a fresh browser audio container for each detected wake utterance, preventing corrupt transcription uploads, and removes the obsolete voice/history helper label to reclaim composer width.
+
 ZBRANO v0.12.98 adds a bounded reliable wake fallback: local browser voice activity detection transcribes only short detected utterances when Chrome returns no speech result, with an hourly safety limit and no retained audio.
 
 ZBRANO v0.12.97 repairs Chrome wake activation by matching interim recognition, the configured phrase, and conservative phonetic forms of ZBRANO while displaying what Chrome heard.

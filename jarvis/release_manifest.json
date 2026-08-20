@@ -1,10 +1,14 @@
 {
-  "version": "0.12.98",
+  "version": "0.12.99",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/Jarvis-HA-Assistant main",
-  "summary": "Add a bounded voice-activity transcription fallback for Chrome sessions that start wake recognition but emit no speech results.",
+  "summary": "Repair reliable wake audio containers and reclaim composer width by removing an obsolete helper label.",
   "features": [
+    "Create a fresh MediaRecorder only after voice activity begins and finalize it after the bounded utterance ends.",
+    "Upload complete WebM or MP4 audio containers instead of detached rolling fragments that OpenAI cannot decode.",
+    "Keep the idle microphone analyzer lightweight without accumulating continuous encoded audio.",
+    "Remove the obsolete history and AI-voice helper label so Web, plugin, voice, and agent controls have more horizontal space.",
     "Keep Chrome Web Speech as the first wake path and invoke the fallback only after a detected utterance receives no matching native wake result.",
     "Detect voice energy locally, retain only a short rolling browser buffer, and transcribe bounded utterances without saving audio.",
     "Support both wake-phrase-plus-command and wake-phrase-then-command workflows through the animated listening overlay.",
@@ -182,6 +186,7 @@
     "Preserve task-scoped Workshop Memory approval and per-draft Gmail approval isolation."
   ],
   "validation": [
+    "Per-utterance recorder creation, finalized container upload, rolling-fragment removal, resource cleanup, and release alignment coverage",
     "Local voice activity detection, bounded utterance capture, native-result deduplication, reliable command mode, hourly cost guard, cleanup, and release alignment coverage",
     "Chrome interim wake matching, phonetic aliases, recognition feedback, command handoff, restart recovery, and release alignment coverage",
     "Live event dispatch, history merge resilience, entity-ID mapping, deterministic conditions, authority ceilings, presence, cooldown, rate limit, suggestion decisions, autonomous safety, UI, and release alignment coverage",

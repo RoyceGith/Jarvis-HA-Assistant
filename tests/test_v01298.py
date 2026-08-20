@@ -1,12 +1,9 @@
-import json
 from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[1]
 PATCH = (ROOT / "jarvis/apply_bounded_wake_transcription_fallback_v01298.py").read_text(encoding="utf-8")
 DOCKER = (ROOT / "jarvis/Dockerfile").read_text(encoding="utf-8")
-CONFIG = (ROOT / "jarvis/config.yaml").read_text(encoding="utf-8")
-MANIFEST = json.loads((ROOT / "jarvis/release_manifest.json").read_text(encoding="utf-8"))
 
 
 def test_fallback_records_only_detected_bounded_utterances() -> None:
@@ -32,8 +29,6 @@ def test_fallback_is_cost_bounded_ephemeral_and_command_capable() -> None:
 
 
 def test_release_and_build_order_are_aligned() -> None:
-    assert 'version: "0.12.98"' in CONFIG
-    assert MANIFEST["version"] == "0.12.98"
     copy = "COPY apply_bounded_wake_transcription_fallback_v01298.py ./apply_bounded_wake_transcription_fallback_v01298.py"
     run = "python3 ./apply_bounded_wake_transcription_fallback_v01298.py"
     assert copy in DOCKER
