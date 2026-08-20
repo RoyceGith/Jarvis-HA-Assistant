@@ -1,10 +1,17 @@
 {
-  "version": "0.12.89",
+  "version": "0.12.90",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/Jarvis-HA-Assistant main",
-  "summary": "Add a secure, paired, two-way Telegram Inbox while preserving Home Assistant as the bot-token boundary.",
+  "summary": "Activate the event-driven Real Automation Engine, repair History and Event Timeline visibility, and improve completed-reminder contrast.",
   "features": [
+    "Evaluate explicitly enabled automation rules directly from the authenticated Home Assistant state-change event stream without idle AI requests.",
+    "Support deterministic any-change, changes-to, equals, not-equals, above, and below triggers with optional sustained-condition timing.",
+    "Apply per-rule and global observe, suggest, approval-gated, and selective-autonomy authority policies.",
+    "Require presence evidence when configured and enforce cooldowns, hourly action limits, risk ceilings, reversible-action declarations, and autonomous domain allowlists.",
+    "Create evidence-backed suggestions with approve and dismiss controls and record every decision, suppression, action, and failure.",
+    "Keep every pre-existing automation draft disabled after upgrade until its trigger is configured and it is explicitly enabled.",
+    "Maintain a bounded in-memory journal of approved Home Assistant state changes for immediate History and automation evidence.",
     "Receive Telegram text and command events through a dedicated Home Assistant WebSocket subscription without exposing the bot token to ZBRANO.",
     "Pair individual Telegram chats with a short-lived one-time command and reject every unpaired chat.",
     "Keep a persistent ZBRANO conversation per paired Telegram chat with deterministic /new, /status, /help, and /unlink commands.",
@@ -89,6 +96,11 @@
     "Preserve multi-round Workshop Memory tasks after an approved write in both streaming and non-streaming chat."
   ],
   "fixes": [
+    "Map Home Assistant Recorder series by entity ID instead of response-list position when entities with no history are omitted.",
+    "Keep History usable when Logbook is unavailable and merge immediate live events with Recorder and Logbook evidence.",
+    "Automatically select recent approved entities and load their timeline when History and Event Timeline is opened.",
+    "Allow an appointment and its pending reminders to be deleted from the Month view after explicit confirmation.",
+    "Use a dark green completed-reminder indicator in the light theme, including one-day-before completed badges.",
     "Prevent idle Telegram monitoring from generating model requests or consuming OpenAI tokens.",
     "Deduplicate repeated Telegram events and serialize requests per chat so one message cannot be processed twice or overlap a prior request.",
     "Reconnect the Telegram event listener with bounded backoff while keeping the main ZBRANO interface available.",
@@ -142,6 +154,7 @@
     "Preserve task-scoped Workshop Memory approval and per-draft Gmail approval isolation."
   ],
   "validation": [
+    "Live event dispatch, history merge resilience, entity-ID mapping, deterministic conditions, authority ceilings, presence, cooldown, rate limit, suggestion decisions, autonomous safety, UI, and release alignment coverage",
     "Telegram event subscription, pairing, chat allowlist, command routing, approval isolation, deduplication, timeout, lifecycle, UI, and release alignment coverage",
     "Month-cell status markers, mixed-state summaries, selected-day reminder badges, historical edit boundaries, responsive styling, and release alignment coverage",
     "Reminder status classification, counters, filtering, historical visibility, edit boundaries, responsive layout, and release alignment coverage",

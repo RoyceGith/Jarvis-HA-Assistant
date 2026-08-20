@@ -58,8 +58,9 @@ def test_ui_and_lifecycle_are_wired() -> None:
 
 
 def test_release_and_build_order_are_aligned() -> None:
-    assert 'version: "0.12.89"' in CONFIG
-    assert MANIFEST["version"] == "0.12.89"
+    config_version = CONFIG.split('version: "', 1)[1].split('"', 1)[0]
+    assert tuple(map(int, config_version.split("."))) >= (0, 12, 89)
+    assert tuple(map(int, MANIFEST["version"].split("."))) >= (0, 12, 89)
     copy = "COPY apply_two_way_telegram_v01289.py ./apply_two_way_telegram_v01289.py"
     run = "python3 ./apply_two_way_telegram_v01289.py"
     assert copy in DOCKER

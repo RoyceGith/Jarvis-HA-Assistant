@@ -148,6 +148,7 @@ COPY apply_google_calendar_sync_v01286.py ./apply_google_calendar_sync_v01286.py
 COPY apply_calendar_reminder_status_v01287.py ./apply_calendar_reminder_status_v01287.py
 COPY apply_month_reminder_status_v01288.py ./apply_month_reminder_status_v01288.py
 COPY apply_two_way_telegram_v01289.py ./apply_two_way_telegram_v01289.py
+COPY apply_real_automation_engine_v01290.py ./apply_real_automation_engine_v01290.py
 COPY validate_release_manifest.py ./validate_release_manifest.py
 COPY validate_inline_js.py ./validate_inline_js.py
 COPY validate_new_chat_wiring.py ./validate_new_chat_wiring.py
@@ -342,6 +343,8 @@ RUN rm() { command rm -f "$@"; } \
     && rm ./apply_month_reminder_status_v01288.py \
     && python3 ./apply_two_way_telegram_v01289.py \
     && rm ./apply_two_way_telegram_v01289.py \
+    && python3 ./apply_real_automation_engine_v01290.py \
+    && rm ./apply_real_automation_engine_v01290.py \
     && python3 ./validate_release_manifest.py \
     && rm ./validate_release_manifest.py ./config.yaml \
     && python3 ./validate_inline_js.py ./app/static/index.html \
