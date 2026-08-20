@@ -155,6 +155,7 @@ COPY apply_ha_live_evidence_and_climate_confirmation_v01293.py ./apply_ha_live_e
 COPY apply_proactive_voice_and_wake_word_v01294.py ./apply_proactive_voice_and_wake_word_v01294.py
 COPY apply_entity_inventory_draft_and_scroll_v01295.py ./apply_entity_inventory_draft_and_scroll_v01295.py
 COPY apply_wake_listening_overlay_v01296.py ./apply_wake_listening_overlay_v01296.py
+COPY apply_chrome_wake_phrase_matching_v01297.py ./apply_chrome_wake_phrase_matching_v01297.py
 COPY validate_release_manifest.py ./validate_release_manifest.py
 COPY validate_inline_js.py ./validate_inline_js.py
 COPY validate_new_chat_wiring.py ./validate_new_chat_wiring.py
@@ -363,6 +364,8 @@ RUN rm() { command rm -f "$@"; } \
     && rm ./apply_entity_inventory_draft_and_scroll_v01295.py \
     && python3 ./apply_wake_listening_overlay_v01296.py \
     && rm ./apply_wake_listening_overlay_v01296.py \
+    && python3 ./apply_chrome_wake_phrase_matching_v01297.py \
+    && rm ./apply_chrome_wake_phrase_matching_v01297.py \
     && python3 ./validate_release_manifest.py \
     && rm ./validate_release_manifest.py ./config.yaml \
     && python3 ./validate_inline_js.py ./app/static/index.html \

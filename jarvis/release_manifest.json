@@ -1,10 +1,13 @@
 {
-  "version": "0.12.96",
+  "version": "0.12.97",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/Jarvis-HA-Assistant main",
-  "summary": "Show an animated listening overlay after wake-phrase activation with command feedback, timeout, and cancellation.",
+  "summary": "Repair Chrome wake-phrase activation with interim recognition, conservative phonetic matching, live recognition status, and reliable command handoff.",
   "features": [
+    "Match Chrome interim and final recognition results instead of waiting only for an exact final transcript.",
+    "Recognize conservative spoken forms of the default ZBRANO wake phrase while preserving custom configured phrases.",
+    "Show what Chrome heard when speech does not match, confirm the active microphone, and recover from transient listener startup failures.",
     "Display a focused listening overlay only after the configured wake phrase is detected, without covering the interface during passive monitoring.",
     "Animate a microphone core, expanding listening rings, audio-level bars, and a bounded command-window timer.",
     "Show recognized command text before submission and provide an immediate Cancel control.",
@@ -175,6 +178,7 @@
     "Preserve task-scoped Workshop Memory approval and per-draft Gmail approval isolation."
   ],
   "validation": [
+    "Chrome interim wake matching, phonetic aliases, recognition feedback, command handoff, restart recovery, and release alignment coverage",
     "Live event dispatch, history merge resilience, entity-ID mapping, deterministic conditions, authority ceilings, presence, cooldown, rate limit, suggestion decisions, autonomous safety, UI, and release alignment coverage",
     "Telegram event subscription, pairing, chat allowlist, command routing, approval isolation, deduplication, timeout, lifecycle, UI, and release alignment coverage",
     "Month-cell status markers, mixed-state summaries, selected-day reminder badges, historical edit boundaries, responsive styling, and release alignment coverage",
