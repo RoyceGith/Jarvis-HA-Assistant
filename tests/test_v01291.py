@@ -38,8 +38,9 @@ def test_picker_supports_mouse_keyboard_and_multi_entity_selection() -> None:
 
 
 def test_release_and_build_order_are_aligned() -> None:
-    assert 'version: "0.12.91"' in CONFIG
-    assert MANIFEST["version"] == "0.12.91"
+    config_version = CONFIG.split('version: "', 1)[1].split('"', 1)[0]
+    assert tuple(map(int, config_version.split("."))) >= (0, 12, 91)
+    assert tuple(map(int, MANIFEST["version"].split("."))) >= (0, 12, 91)
     copy = "COPY apply_telegram_chat_id_and_entity_search_v01291.py ./apply_telegram_chat_id_and_entity_search_v01291.py"
     run = "python3 ./apply_telegram_chat_id_and_entity_search_v01291.py"
     assert copy in DOCKER

@@ -150,6 +150,7 @@ COPY apply_month_reminder_status_v01288.py ./apply_month_reminder_status_v01288.
 COPY apply_two_way_telegram_v01289.py ./apply_two_way_telegram_v01289.py
 COPY apply_real_automation_engine_v01290.py ./apply_real_automation_engine_v01290.py
 COPY apply_telegram_chat_id_and_entity_search_v01291.py ./apply_telegram_chat_id_and_entity_search_v01291.py
+COPY apply_history_recent_entity_refresh_v01292.py ./apply_history_recent_entity_refresh_v01292.py
 COPY validate_release_manifest.py ./validate_release_manifest.py
 COPY validate_inline_js.py ./validate_inline_js.py
 COPY validate_new_chat_wiring.py ./validate_new_chat_wiring.py
@@ -348,6 +349,8 @@ RUN rm() { command rm -f "$@"; } \
     && rm ./apply_real_automation_engine_v01290.py \
     && python3 ./apply_telegram_chat_id_and_entity_search_v01291.py \
     && rm ./apply_telegram_chat_id_and_entity_search_v01291.py \
+    && python3 ./apply_history_recent_entity_refresh_v01292.py \
+    && rm ./apply_history_recent_entity_refresh_v01292.py \
     && python3 ./validate_release_manifest.py \
     && rm ./validate_release_manifest.py ./config.yaml \
     && python3 ./validate_inline_js.py ./app/static/index.html \
