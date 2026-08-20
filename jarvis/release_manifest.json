@@ -1,10 +1,16 @@
 {
-  "version": "0.12.99",
+  "version": "0.12.100",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/Jarvis-HA-Assistant main",
-  "summary": "Repair reliable wake audio containers and reclaim composer width by removing an obsolete helper label.",
+  "summary": "Make bounded wake transcription primary in Chrome and reject noise-triggered assistant-name hallucinations.",
   "features": [
+    "Open the bounded reliable wake microphone before attempting Chrome Web Speech so the silent native recognizer cannot take control.",
+    "Fall back to native Chrome recognition only when the reliable microphone or browser audio pipeline cannot start.",
+    "Display distinct Reliable listening, Speech detected, Checking wake phrase, and Transcribing command states.",
+    "Use a dedicated wake transcription endpoint without the Talk-button assistant-name prompt.",
+    "Require stronger and longer voice evidence, reject undersized audio, and filter known silence hallucinations before wake matching.",
+    "Enforce a six-second cooldown between wake-check transcriptions while keeping the immediate post-wake command window responsive.",
     "Create a fresh MediaRecorder only after voice activity begins and finalize it after the bounded utterance ends.",
     "Upload complete WebM or MP4 audio containers instead of detached rolling fragments that OpenAI cannot decode.",
     "Keep the idle microphone analyzer lightweight without accumulating continuous encoded audio.",
@@ -186,6 +192,7 @@
     "Preserve task-scoped Workshop Memory approval and per-draft Gmail approval isolation."
   ],
   "validation": [
+    "Reliable-listener priority, native fallback, visible microphone stages, unbiased wake transcription, noise gating, hallucination filtering, generated JavaScript, and release alignment coverage",
     "Per-utterance recorder creation, finalized container upload, rolling-fragment removal, resource cleanup, and release alignment coverage",
     "Local voice activity detection, bounded utterance capture, native-result deduplication, reliable command mode, hourly cost guard, cleanup, and release alignment coverage",
     "Chrome interim wake matching, phonetic aliases, recognition feedback, command handoff, restart recovery, and release alignment coverage",
