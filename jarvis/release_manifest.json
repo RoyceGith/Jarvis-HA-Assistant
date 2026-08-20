@@ -1,9 +1,9 @@
 {
-  "version": "0.12.92",
+  "version": "0.12.93",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/Jarvis-HA-Assistant main",
-  "summary": "Repair History refresh selection so recently changed Home Assistant entities are always queried and shown.",
+  "summary": "Populate Home Assistant History from approved current-state evidence and correctly confirm active climate modes.",
   "features": [
     "Search Home Assistant entities by friendly name, entity ID, domain, or current state in every Automations entity picker.",
     "Select multiple signal entities through the same filtered picker without manually memorizing entity IDs.",
@@ -98,6 +98,9 @@
     "Preserve multi-round Workshop Memory tasks after an approved write in both streaming and non-streaming chat."
   ],
   "fixes": [
+    "Treat active climate HVAC modes such as cool, heat, dry, fan_only, and auto as successful turn-on confirmation instead of requiring the generic state on.",
+    "Seed History and Event Timeline from approved Home Assistant current-state cache evidence when the live state-change journal is empty.",
+    "Keep current-state evidence permission-filtered and show separate total-evidence and live-change counts in the History workspace.",
     "Remove the History tab early return that reused stale entity selections and excluded recently changed devices.",
     "Prioritize live-journal entity IDs on every History refresh while preserving the operator's existing selection within the eight-entity bound.",
     "Display live WebSocket capture state and journal count alongside the loaded History timeline.",
