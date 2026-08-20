@@ -1,3 +1,5 @@
+ZBRANO v0.12.94 speaks newly generated autonomous suggestions, accepts a short spoken approve-or-decline response, and adds an optional browser wake phrase for hands-free commands while ZBRANO remains open.
+
 ZBRANO v0.12.93 makes History reliably populate from approved current-state evidence as well as live changes, and correctly confirms climate activation when Home Assistant reports an HVAC mode such as `cool` instead of generic `on`.
 
 ZBRANO v0.12.92 fixes an empty History and Event Timeline after device control by always prioritizing entities from the live state-change journal, merging them with the current selection, and displaying live-capture connection and journal counts.

@@ -1,10 +1,14 @@
 {
-  "version": "0.12.93",
+  "version": "0.12.94",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/Jarvis-HA-Assistant main",
-  "summary": "Populate Home Assistant History from approved current-state evidence and correctly confirm active climate modes.",
+  "summary": "Add proactive spoken automation suggestions, voice decisions, and an optional browser wake phrase.",
   "features": [
+    "Speak each newly generated approval-required automation suggestion through the configured ZBRANO speech provider without creating an AI request.",
+    "Open a bounded voice-response window after a spoken suggestion and map explicit approve or decline phrases to the existing suggestion decision endpoints.",
+    "Offer an optional configurable browser wake phrase for hands-free commands while the ZBRANO page is open, visible, and microphone-authorized.",
+    "Persist proactive voice, voice approval, wake listening, and wake phrase preferences in settings backup and restore data.",
     "Search Home Assistant entities by friendly name, entity ID, domain, or current state in every Automations entity picker.",
     "Select multiple signal entities through the same filtered picker without manually memorizing entity IDs.",
     "Evaluate explicitly enabled automation rules directly from the authenticated Home Assistant state-change event stream without idle AI requests.",

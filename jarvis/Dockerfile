@@ -152,6 +152,7 @@ COPY apply_real_automation_engine_v01290.py ./apply_real_automation_engine_v0129
 COPY apply_telegram_chat_id_and_entity_search_v01291.py ./apply_telegram_chat_id_and_entity_search_v01291.py
 COPY apply_history_recent_entity_refresh_v01292.py ./apply_history_recent_entity_refresh_v01292.py
 COPY apply_ha_live_evidence_and_climate_confirmation_v01293.py ./apply_ha_live_evidence_and_climate_confirmation_v01293.py
+COPY apply_proactive_voice_and_wake_word_v01294.py ./apply_proactive_voice_and_wake_word_v01294.py
 COPY validate_release_manifest.py ./validate_release_manifest.py
 COPY validate_inline_js.py ./validate_inline_js.py
 COPY validate_new_chat_wiring.py ./validate_new_chat_wiring.py
@@ -354,6 +355,8 @@ RUN rm() { command rm -f "$@"; } \
     && rm ./apply_history_recent_entity_refresh_v01292.py \
     && python3 ./apply_ha_live_evidence_and_climate_confirmation_v01293.py \
     && rm ./apply_ha_live_evidence_and_climate_confirmation_v01293.py \
+    && python3 ./apply_proactive_voice_and_wake_word_v01294.py \
+    && rm ./apply_proactive_voice_and_wake_word_v01294.py \
     && python3 ./validate_release_manifest.py \
     && rm ./validate_release_manifest.py ./config.yaml \
     && python3 ./validate_inline_js.py ./app/static/index.html \
