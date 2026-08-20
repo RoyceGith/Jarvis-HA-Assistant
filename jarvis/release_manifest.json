@@ -1,10 +1,16 @@
 {
-  "version": "0.12.85",
+  "version": "0.12.86",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/Jarvis-HA-Assistant main",
-  "summary": "Add bounded, read-only Home Assistant history, logbook, trend, anomaly, and multi-entity event correlation tools.",
+  "summary": "Add preview-first two-way Google Calendar synchronization through the standard Calendar API while preserving ZBRANO reminders.",
   "features": [
+    "Connect Google Calendar Direct with a separate OAuth grant using the existing Google Web OAuth client.",
+    "Preview first-sync import, upload, and existing-link counts before enabling any calendar mutation.",
+    "Synchronize Google event creation, updates, and cancellations into ZBRANO's visual calendar.",
+    "Upload future ZBRANO appointments and propagate linked local cancellations to the selected Google calendar.",
+    "Choose the Google calendar, pause synchronization, sync on demand, and view connection, pending, success, and error state.",
+    "Retain ZBRANO Notification Center and Telegram reminders independently of Google Calendar reminder settings.",
     "Read significant Home Assistant Recorder history for up to eight approved entities and seven days.",
     "Search bounded Logbook events without granting new entity permissions or exposing unrestricted Home Assistant data.",
     "Calculate deterministic numeric ranges, averages, changes, trends, state transitions, availability gaps, and possible jumps.",
@@ -72,6 +78,10 @@
     "Preserve multi-round Workshop Memory tasks after an approved write in both streaming and non-streaming chat."
   ],
   "fixes": [
+    "Keep Gmail and Google Calendar OAuth grants, scopes, tokens, registry identities, and validation strictly separate.",
+    "Prevent first-sync duplicates by linking matching title and start-time appointments instead of creating a second local record.",
+    "Recover an expired Google incremental-sync token with a bounded full resynchronization after HTTP 410.",
+    "Keep synchronization cached and non-blocking through a one-minute background worker with bounded API pages and timeouts.",
     "Deduplicate exact and strongly similar memories and revise a canonical record when its value changes.",
     "Reject credential-like automatic memories, ignore low-confidence details, expire temporary context, and prune low-value overflow.",
     "Limit memory injection by relevance, record count, and character budget to prevent prompt overload.",
@@ -114,6 +124,7 @@
     "Preserve task-scoped Workshop Memory approval and per-draft Gmail approval isolation."
   ],
   "validation": [
+    "Google Calendar scope isolation, OAuth identity, preview gate, incremental sync, duplicate protection, UI, diagnostics, worker lifecycle, and release alignment coverage",
     "SQLite storage, exact and fuzzy deduplication, revision, relevance, expiry, credential filtering, bounded context, API, UI, backup, diagnostics, and release alignment coverage",
     "Primary tab order, Calendar and Settings icon accessibility, responsive sizing, and release alignment coverage",
     "Monthly grid, day grouping, month navigation, selected-day agenda, history filtering, responsive layout, and release alignment coverage",
