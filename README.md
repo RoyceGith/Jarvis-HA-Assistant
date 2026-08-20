@@ -1,3 +1,5 @@
+ZBRANO v0.12.96 presents an animated, accessible listening overlay after the wake phrase is detected, including recognized-command feedback, timeout progress, and cancellation.
+
 ZBRANO v0.12.95 repairs Entities scrolling, replaces the obsolete Workshop Memory session-draft write with an approval-safe downloadable entity-inventory update draft, and stops unsupported Brave wake recognition from cycling continuously.
 
 ZBRANO v0.12.94 speaks newly generated autonomous suggestions, accepts a short spoken approve-or-decline response, and adds an optional browser wake phrase for hands-free commands while ZBRANO remains open.

@@ -1,10 +1,14 @@
 {
-  "version": "0.12.95",
+  "version": "0.12.96",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/Jarvis-HA-Assistant main",
-  "summary": "Repair Entities scrolling and replace its obsolete memory-write action with an approval-safe inventory update draft.",
+  "summary": "Show an animated listening overlay after wake-phrase activation with command feedback, timeout, and cancellation.",
   "features": [
+    "Display a focused listening overlay only after the configured wake phrase is detected, without covering the interface during passive monitoring.",
+    "Animate a microphone core, expanding listening rings, audio-level bars, and a bounded command-window timer.",
+    "Show recognized command text before submission and provide an immediate Cancel control.",
+    "Respect light theme, mobile viewport constraints, accessibility labels, and Reduced Motion preferences.",
     "Speak each newly generated approval-required automation suggestion through the configured ZBRANO speech provider without creating an AI request.",
     "Open a bounded voice-response window after a spoken suggestion and map explicit approve or decline phrases to the existing suggestion decision endpoints.",
     "Offer an optional configurable browser wake phrase for hands-free commands while the ZBRANO page is open, visible, and microphone-authorized.",
