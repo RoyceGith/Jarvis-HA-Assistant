@@ -1,10 +1,14 @@
 {
-  "version": "0.12.97",
+  "version": "0.12.98",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/Jarvis-HA-Assistant main",
-  "summary": "Repair Chrome wake-phrase activation with interim recognition, conservative phonetic matching, live recognition status, and reliable command handoff.",
+  "summary": "Add a bounded voice-activity transcription fallback for Chrome sessions that start wake recognition but emit no speech results.",
   "features": [
+    "Keep Chrome Web Speech as the first wake path and invoke the fallback only after a detected utterance receives no matching native wake result.",
+    "Detect voice energy locally, retain only a short rolling browser buffer, and transcribe bounded utterances without saving audio.",
+    "Support both wake-phrase-plus-command and wake-phrase-then-command workflows through the animated listening overlay.",
+    "Limit fallback transcription to 20 detected utterances per hour and stop microphone resources whenever wake listening pauses.",
     "Match Chrome interim and final recognition results instead of waiting only for an exact final transcript.",
     "Recognize conservative spoken forms of the default ZBRANO wake phrase while preserving custom configured phrases.",
     "Show what Chrome heard when speech does not match, confirm the active microphone, and recover from transient listener startup failures.",
@@ -178,6 +182,7 @@
     "Preserve task-scoped Workshop Memory approval and per-draft Gmail approval isolation."
   ],
   "validation": [
+    "Local voice activity detection, bounded utterance capture, native-result deduplication, reliable command mode, hourly cost guard, cleanup, and release alignment coverage",
     "Chrome interim wake matching, phonetic aliases, recognition feedback, command handoff, restart recovery, and release alignment coverage",
     "Live event dispatch, history merge resilience, entity-ID mapping, deterministic conditions, authority ceilings, presence, cooldown, rate limit, suggestion decisions, autonomous safety, UI, and release alignment coverage",
     "Telegram event subscription, pairing, chat allowlist, command routing, approval isolation, deduplication, timeout, lifecycle, UI, and release alignment coverage",
