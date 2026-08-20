@@ -1,12 +1,9 @@
-import json
 from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[1]
 PATCH = (ROOT / "jarvis/apply_proactive_voice_and_wake_word_v01294.py").read_text(encoding="utf-8")
 DOCKER = (ROOT / "jarvis/Dockerfile").read_text(encoding="utf-8")
-CONFIG = (ROOT / "jarvis/config.yaml").read_text(encoding="utf-8")
-MANIFEST = json.loads((ROOT / "jarvis/release_manifest.json").read_text(encoding="utf-8"))
 
 
 def test_proactive_suggestions_are_polled_without_ai_requests() -> None:
@@ -33,8 +30,6 @@ def test_wake_phrase_is_explicit_and_browser_bounded() -> None:
 
 
 def test_release_and_build_order_are_aligned() -> None:
-    assert 'version: "0.12.94"' in CONFIG
-    assert MANIFEST["version"] == "0.12.94"
     copy = "COPY apply_proactive_voice_and_wake_word_v01294.py ./apply_proactive_voice_and_wake_word_v01294.py"
     run = "python3 ./apply_proactive_voice_and_wake_word_v01294.py"
     assert copy in DOCKER

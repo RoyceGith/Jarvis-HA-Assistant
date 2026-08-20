@@ -1,9 +1,9 @@
 {
-  "version": "0.12.94",
+  "version": "0.12.95",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/Jarvis-HA-Assistant main",
-  "summary": "Add proactive spoken automation suggestions, voice decisions, and an optional browser wake phrase.",
+  "summary": "Repair Entities scrolling and replace its obsolete memory-write action with an approval-safe inventory update draft.",
   "features": [
     "Speak each newly generated approval-required automation suggestion through the configured ZBRANO speech provider without creating an AI request.",
     "Open a bounded voice-response window after a spoken suggestion and map explicit approve or decline phrases to the existing suggestion decision endpoints.",
@@ -102,6 +102,10 @@
     "Preserve multi-round Workshop Memory tasks after an approved write in both streaming and non-streaming chat."
   ],
   "fixes": [
+    "Detect Brave before starting browser wake recognition, stop its rapid recognition restart loop, and show Chrome, Edge, or Home Assistant voice-satellite alternatives while preserving push-to-talk.",
+    "Replace the removed Workshop Memory save_session_draft call with a local Markdown inventory preparation response that never bypasses approval.",
+    "Handle plain-text and JSON API errors safely instead of exposing an Unexpected token parsing failure.",
+    "Make the Entities panel a bounded flex viewport with independent vertical and horizontal table scrolling on desktop and mobile.",
     "Treat active climate HVAC modes such as cool, heat, dry, fan_only, and auto as successful turn-on confirmation instead of requiring the generic state on.",
     "Seed History and Event Timeline from approved Home Assistant current-state cache evidence when the live state-change journal is empty.",
     "Keep current-state evidence permission-filtered and show separate total-evidence and live-change counts in the History workspace.",
