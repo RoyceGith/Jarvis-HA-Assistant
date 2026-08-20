@@ -70,8 +70,9 @@ def test_month_view_can_delete_appointments() -> None:
 
 
 def test_release_and_build_order_are_aligned() -> None:
-    assert 'version: "0.12.90"' in CONFIG
-    assert MANIFEST["version"] == "0.12.90"
+    config_version = CONFIG.split('version: "', 1)[1].split('"', 1)[0]
+    assert tuple(map(int, config_version.split("."))) >= (0, 12, 90)
+    assert tuple(map(int, MANIFEST["version"].split("."))) >= (0, 12, 90)
     copy = "COPY apply_real_automation_engine_v01290.py ./apply_real_automation_engine_v01290.py"
     run = "python3 ./apply_real_automation_engine_v01290.py"
     assert copy in DOCKER

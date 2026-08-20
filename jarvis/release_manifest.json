@@ -1,10 +1,12 @@
 {
-  "version": "0.12.90",
+  "version": "0.12.91",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/Jarvis-HA-Assistant main",
-  "summary": "Activate the event-driven Real Automation Engine, repair History and Event Timeline visibility, and improve completed-reminder contrast.",
+  "summary": "Migrate two-way Telegram replies to chat_id and add searchable Home Assistant entity pickers throughout Automations.",
   "features": [
+    "Search Home Assistant entities by friendly name, entity ID, domain, or current state in every Automations entity picker.",
+    "Select multiple signal entities through the same filtered picker without manually memorizing entity IDs.",
     "Evaluate explicitly enabled automation rules directly from the authenticated Home Assistant state-change event stream without idle AI requests.",
     "Support deterministic any-change, changes-to, equals, not-equals, above, and below triggers with optional sustained-condition timing.",
     "Apply per-rule and global observe, suggest, approval-gated, and selective-autonomy authority policies.",
@@ -96,6 +98,7 @@
     "Preserve multi-round Workshop Memory tasks after an approved write in both streaming and non-streaming chat."
   ],
   "fixes": [
+    "Replace the deprecated Telegram Bot target parameter with chat_id for dynamically paired two-way Telegram replies.",
     "Map Home Assistant Recorder series by entity ID instead of response-list position when entities with no history are omitted.",
     "Keep History usable when Logbook is unavailable and merge immediate live events with Recorder and Logbook evidence.",
     "Automatically select recent approved entities and load their timeline when History and Event Timeline is opened.",
