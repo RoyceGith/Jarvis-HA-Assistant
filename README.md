@@ -1,3 +1,5 @@
+ZBRANO v0.12.105 restores the broader base wake model by default, makes the trained personal verifier an explicit opt-in filter, and allows deleting only the verifier while preserving every recorded calibration clip.
+
 ZBRANO v0.12.104 separates wake-sample uploads from the static verifier-training endpoint so Train personal verifier cannot be misrouted as an audio label, and renders structured API failures as readable messages instead of `[object Object]`. Existing private calibration samples are preserved.
 
 ZBRANO v0.12.103 adds explicit personal wake calibration: 20 user-triggered Hey ZBRANO recordings, 20 user-triggered ordinary-speech recordings, optional false-trigger evidence, local verifier training, persistent private add-on storage, and verifier-aware shadow evaluation. No calibration audio is saved unless its recording or false-trigger button is pressed.

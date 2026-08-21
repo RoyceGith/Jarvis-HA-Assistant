@@ -1,10 +1,13 @@
 {
-  "version": "0.12.104",
+  "version": "0.12.105",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/Jarvis-HA-Assistant main",
-  "summary": "Repair personal verifier training route resolution and display structured calibration failures clearly.",
+  "summary": "Restore broad base wake recognition by default and make the personal verifier an optional, independently removable filter.",
   "features": [
+    "Keep the broader Hey ZBRANO base wake model active by default even when a personal verifier has been trained.",
+    "Add an explicit Use personal verifier switch and persist that opt-in inside private add-on data.",
+    "Allow the trained verifier to be deleted without deleting positive or negative calibration recordings.",
     "Move calibration uploads under an explicit samples path so the static train endpoint cannot match the dynamic label route.",
     "Render FastAPI validation arrays and structured error details as readable calibration messages instead of object coercion.",
     "Preserve previously recorded positive and negative clips across the route-only repair update.",
