@@ -1,10 +1,13 @@
 {
-  "version": "0.12.101",
+  "version": "0.12.102",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/Jarvis-HA-Assistant main",
-  "summary": "Calibrate wake capture and evaluate the trained Hey ZBRANO model safely through silent local shadow detection.",
+  "summary": "Bundle and explicitly load the shared OpenWakeWord feature models required by local shadow detection.",
   "features": [
+    "Bundle the official OpenWakeWord v0.5.1 ONNX mel-spectrogram and audio-embedding models required by the trained classifier.",
+    "Load all three wake runtime models from explicit local add-on paths instead of relying on missing Python-package resources.",
+    "Report the exact missing runtime asset if any bundled model is unavailable.",
     "Bundle the first trained Hey ZBRANO OpenWakeWord model for personal, non-commercial silent shadow evaluation.",
     "Stream transient 16 kHz PCM microphone frames to a local Raspberry Pi inference endpoint without retaining audio or calling OpenAI.",
     "Expose browser-specific shadow enablement, detection threshold, live score, peak, detections, marked false detections, runtime, and reset controls.",

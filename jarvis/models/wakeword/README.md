@@ -13,3 +13,8 @@ real-room testing establishes an acceptable threshold.
 The model was trained using ACAV100M-derived negative features and is provided
 for this personal, non-commercial project under CC BY-NC-SA 4.0. OpenWakeWord
 runtime code is Apache-2.0 licensed.
+
+Runtime feature models from the official OpenWakeWord v0.5.1 release:
+
+- `melspectrogram.onnx`: SHA-256 `ba2b0e0f8b7b875369a2c89cb13360ff53bac436f2895cced9f479fa65eb176f`
+- `embedding_model.onnx`: SHA-256 `70d164290c1d095d1d4ee149bc5e00543250a7316b59f31d056cff7bd3075c1f`

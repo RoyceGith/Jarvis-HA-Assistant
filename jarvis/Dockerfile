@@ -163,6 +163,7 @@ COPY apply_valid_wake_audio_capture_v01299.py ./apply_valid_wake_audio_capture_v
 COPY apply_reliable_wake_primary_v012100.py ./apply_reliable_wake_primary_v012100.py
 COPY apply_wake_capture_watchdog_v012101.py ./apply_wake_capture_watchdog_v012101.py
 COPY apply_local_wake_shadow_v012101.py ./apply_local_wake_shadow_v012101.py
+COPY apply_wake_shadow_resources_v012102.py ./apply_wake_shadow_resources_v012102.py
 COPY validate_release_manifest.py ./validate_release_manifest.py
 COPY validate_inline_js.py ./validate_inline_js.py
 COPY validate_new_chat_wiring.py ./validate_new_chat_wiring.py
@@ -383,6 +384,8 @@ RUN rm() { command rm -f "$@"; } \
     && rm ./apply_wake_capture_watchdog_v012101.py \
     && python3 ./apply_local_wake_shadow_v012101.py \
     && rm ./apply_local_wake_shadow_v012101.py \
+    && python3 ./apply_wake_shadow_resources_v012102.py \
+    && rm ./apply_wake_shadow_resources_v012102.py \
     && python3 ./validate_release_manifest.py \
     && rm ./validate_release_manifest.py ./config.yaml \
     && python3 ./validate_inline_js.py ./app/static/index.html \
