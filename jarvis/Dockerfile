@@ -167,6 +167,7 @@ COPY apply_wake_shadow_resources_v012102.py ./apply_wake_shadow_resources_v01210
 COPY apply_personal_wake_verifier_v012103.py ./apply_personal_wake_verifier_v012103.py
 COPY apply_wake_verifier_route_fix_v012104.py ./apply_wake_verifier_route_fix_v012104.py
 COPY apply_optional_wake_verifier_v012105.py ./apply_optional_wake_verifier_v012105.py
+COPY apply_wake_diagnostics_export_v012106.py ./apply_wake_diagnostics_export_v012106.py
 COPY validate_release_manifest.py ./validate_release_manifest.py
 COPY validate_inline_js.py ./validate_inline_js.py
 COPY validate_new_chat_wiring.py ./validate_new_chat_wiring.py
@@ -395,6 +396,8 @@ RUN rm() { command rm -f "$@"; } \
     && rm ./apply_wake_verifier_route_fix_v012104.py \
     && python3 ./apply_optional_wake_verifier_v012105.py \
     && rm ./apply_optional_wake_verifier_v012105.py \
+    && python3 ./apply_wake_diagnostics_export_v012106.py \
+    && rm ./apply_wake_diagnostics_export_v012106.py \
     && python3 ./validate_release_manifest.py \
     && rm ./validate_release_manifest.py ./config.yaml \
     && python3 ./validate_inline_js.py ./app/static/index.html \

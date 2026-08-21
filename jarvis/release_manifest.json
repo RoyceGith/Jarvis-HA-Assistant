@@ -1,10 +1,13 @@
 {
-  "version": "0.12.105",
+  "version": "0.12.106",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/Jarvis-HA-Assistant main",
-  "summary": "Restore broad base wake recognition by default and make the personal verifier an optional, independently removable filter.",
+  "summary": "Measure microphone delivery separately from wake-model confidence and export preserved calibration audio for base-model retraining.",
   "features": [
+    "Show live microphone RMS and peak levels beside wake-model scores so input failures can be distinguished from recognition failures.",
+    "Provide a bounded four-second one-phrase diagnostic with paired microphone-level and model-confidence results.",
+    "Export positive and negative operator-recorded calibration clips as a structured ZIP for offline Hey ZBRANO v2 training.",
     "Keep the broader Hey ZBRANO base wake model active by default even when a personal verifier has been trained.",
     "Add an explicit Use personal verifier switch and persist that opt-in inside private add-on data.",
     "Allow the trained verifier to be deleted without deleting positive or negative calibration recordings.",
