@@ -1,9 +1,9 @@
 {
-  "version": "0.12.107",
+  "version": "0.12.108",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/Jarvis-HA-Assistant main",
-  "summary": "Reject invalid wake recordings, capture bounded speech utterances, and exclude corrupted calibration evidence from training and export.",
+  "summary": "Repair the validated wake-calibration image build with encoding-independent legacy source markers.",
   "features": [
     "Arm calibration until actual speech is detected, retain a short pre-roll, and stop after bounded post-speech silence.",
     "Measure RMS, peak, nonzero content, clipping, and duration server-side before accepting a calibration recording.",
@@ -152,6 +152,7 @@
     "Preserve multi-round Workshop Memory tasks after an approved write in both streaming and non-streaming chat."
   ],
   "fixes": [
+    "Replace the punctuation-dependent calibration patch boundary with a stable ASCII state marker and bounded message-line replacement.",
     "Prevent silent, excessively quiet, and materially clipped recordings from corrupting personal wake verification or future base-model training.",
     "Exclude previously stored invalid samples from verifier training and exported calibration archives.",
     "Detect Brave before starting browser wake recognition, stop its rapid recognition restart loop, and show Chrome, Edge, or Home Assistant voice-satellite alternatives while preserving push-to-talk.",

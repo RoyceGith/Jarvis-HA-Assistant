@@ -10,6 +10,8 @@ INDEX = ROOT / "app/static/index.html"
 def replace_once(text: str, old: str, new: str, label: str) -> str:
     count = text.count(old)
     if count != 1:
+        if label == "speech-armed calibration" and "started:false,armedAt:performance.now()" in text:
+            return text
         raise RuntimeError(f"ZBRANO v0.12.107 patch expected one {label} marker; found {count}")
     return text.replace(old, new, 1)
 
@@ -167,6 +169,18 @@ async def delete_invalid_wake_calibration() -> dict[str, Any]:
         '''const response=await fetch(`api/voice/wake-calibration/samples/${label}`,{method:"POST",body}),data=await response.json().catch(()=>({}));if(!response.ok)throw new Error(wakeCalibrationError(data,response.status));const quality=data.quality||{};wakeCalibrationMessage.textContent=`${message} RMS ${Number(quality.rms||0).toFixed(3)}, peak ${Number(quality.peak||0).toFixed(3)}.`''',
         "recording quality feedback",
     )
+    frontend = replace_once(
+        frontend,
+        '''wakeCalibrationCapture={label,samples:[]};''',
+        '''wakeCalibrationCapture={label,samples:[],started:false,armedAt:performance.now(),lastVoiceAt:0};''',
+        "speech-armed calibration state",
+    )
+    calibration_message_start = frontend.find('wakeCalibrationMessage.textContent=label==="positive"?', frontend.find('wakeCalibrationCapture={label,samples:[],started:false'))
+    calibration_message_end = frontend.find(";\n", calibration_message_start)
+    if calibration_message_start < 0 or calibration_message_end < 0:
+        raise RuntimeError("ZBRANO v0.12.107 patch could not isolate the legacy calibration message")
+    calibration_message = '''wakeCalibrationMessage.textContent=label==="positive"?'Armed - say "Hey ZBRANO" once. Recording begins when speech is detected.':"Armed - speak one normal sentence. Recording begins when speech is detected."'''
+    frontend = frontend[:calibration_message_start] + calibration_message + frontend[calibration_message_end:]
     frontend = replace_once(
         frontend,
         '''wakeCalibrationCapture={label,samples:[]};wakeCalibrationMessage.textContent=label==="positive"?'Recording now â€” say â€œHey ZBRANOâ€ once.':"Recording now â€” speak a normal sentence without the wake phrase.";''',
