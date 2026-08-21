@@ -1,3 +1,5 @@
+ZBRANO v0.12.101 adds calibrated RMS-plus-peak voice detection, an independent recording hard stop, explicit audio finalization, non-speech transcript rejection, and a silent local OpenWakeWord shadow test with live confidence and false-detection statistics. Shadow mode never activates chat, retains no audio, and makes no OpenAI transcription request.
+
 ZBRANO v0.12.100 makes the bounded reliable wake listener Chrome's primary path, exposes voice-detection stages, and prevents noise-triggered transcription bursts through an unbiased wake endpoint, stronger speech gating, hallucination rejection, and cooldown controls.
 
 ZBRANO v0.12.99 creates and finalizes a fresh browser audio container for each detected wake utterance, preventing corrupt transcription uploads, and removes the obsolete voice/history helper label to reclaim composer width.

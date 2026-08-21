@@ -1,10 +1,19 @@
 {
-  "version": "0.12.100",
+  "version": "0.12.101",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/Jarvis-HA-Assistant main",
-  "summary": "Make bounded wake transcription primary in Chrome and reject noise-triggered assistant-name hallucinations.",
+  "summary": "Calibrate wake capture and evaluate the trained Hey ZBRANO model safely through silent local shadow detection.",
   "features": [
+    "Bundle the first trained Hey ZBRANO OpenWakeWord model for personal, non-commercial silent shadow evaluation.",
+    "Stream transient 16 kHz PCM microphone frames to a local Raspberry Pi inference endpoint without retaining audio or calling OpenAI.",
+    "Expose browser-specific shadow enablement, detection threshold, live score, peak, detections, marked false detections, runtime, and reset controls.",
+    "Require two consecutive above-threshold frames and keep every shadow detection informational so chat cannot activate during calibration.",
+    "Force every detected wake recording to finalize after 8.5 seconds even if voice-activity sampling stops or remains above threshold.",
+    "Request pending MediaRecorder data before stopping and upload only after the complete container emits its stop event.",
+    "Recover cleanly from empty, inactive, or failed recorder output and display the Finalizing wake audio stage.",
+    "Calibrate the room noise floor before listening and require sustained RMS plus peak-energy evidence before recording.",
+    "Reject wake transcripts with no Latin or Greek speech characters, including unrelated Arabic silence hallucinations.",
     "Open the bounded reliable wake microphone before attempting Chrome Web Speech so the silent native recognizer cannot take control.",
     "Fall back to native Chrome recognition only when the reliable microphone or browser audio pipeline cannot start.",
     "Display distinct Reliable listening, Speech detected, Checking wake phrase, and Transcribing command states.",
@@ -192,6 +201,7 @@
     "Preserve task-scoped Workshop Memory approval and per-draft Gmail approval isolation."
   ],
   "validation": [
+    "Wake microphone calibration, RMS-plus-peak voice gating, capture watchdog, explicit MediaRecorder finalization, non-speech rejection, cleanup, and release alignment coverage",
     "Reliable-listener priority, native fallback, visible microphone stages, unbiased wake transcription, noise gating, hallucination filtering, generated JavaScript, and release alignment coverage",
     "Per-utterance recorder creation, finalized container upload, rolling-fragment removal, resource cleanup, and release alignment coverage",
     "Local voice activity detection, bounded utterance capture, native-result deduplication, reliable command mode, hourly cost guard, cleanup, and release alignment coverage",

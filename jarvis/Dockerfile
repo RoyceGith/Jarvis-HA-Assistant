@@ -11,7 +11,7 @@ LABEL \
   io.hass.arch="${BUILD_ARCH}" \
   org.opencontainers.image.source="https://github.com/RoyceGith/Jarvis-HA-Assistant"
 
-RUN apk add --no-cache python3 py3-pip nodejs npm chromium nss freetype harfbuzz ca-certificates font-noto
+RUN apk add --no-cache python3 py3-pip py3-numpy py3-scipy py3-scikit-learn py3-tqdm py3-onnxruntime nodejs npm chromium nss freetype harfbuzz ca-certificates font-noto
 
 # Playwright MCP runs locally beside Chromium. Pin the package so Raspberry Pi
 # rebuilds cannot silently acquire an incompatible browser protocol release.
@@ -22,8 +22,10 @@ WORKDIR /opt/jarvis
 
 COPY requirements.txt .
 RUN pip3 install --no-cache-dir --break-system-packages -r requirements.txt
+RUN pip3 install --no-cache-dir --break-system-packages --no-deps openwakeword==0.6.0
 
 COPY app ./app
+COPY models/wakeword ./models/wakeword
 COPY config.yaml ./config.yaml
 COPY release_manifest.json ./release_manifest.json
 COPY apply_interface_hotfix.py ./apply_interface_hotfix.py
@@ -159,6 +161,8 @@ COPY apply_chrome_wake_phrase_matching_v01297.py ./apply_chrome_wake_phrase_matc
 COPY apply_bounded_wake_transcription_fallback_v01298.py ./apply_bounded_wake_transcription_fallback_v01298.py
 COPY apply_valid_wake_audio_capture_v01299.py ./apply_valid_wake_audio_capture_v01299.py
 COPY apply_reliable_wake_primary_v012100.py ./apply_reliable_wake_primary_v012100.py
+COPY apply_wake_capture_watchdog_v012101.py ./apply_wake_capture_watchdog_v012101.py
+COPY apply_local_wake_shadow_v012101.py ./apply_local_wake_shadow_v012101.py
 COPY validate_release_manifest.py ./validate_release_manifest.py
 COPY validate_inline_js.py ./validate_inline_js.py
 COPY validate_new_chat_wiring.py ./validate_new_chat_wiring.py
@@ -375,6 +379,10 @@ RUN rm() { command rm -f "$@"; } \
     && rm ./apply_valid_wake_audio_capture_v01299.py \
     && python3 ./apply_reliable_wake_primary_v012100.py \
     && rm ./apply_reliable_wake_primary_v012100.py \
+    && python3 ./apply_wake_capture_watchdog_v012101.py \
+    && rm ./apply_wake_capture_watchdog_v012101.py \
+    && python3 ./apply_local_wake_shadow_v012101.py \
+    && rm ./apply_local_wake_shadow_v012101.py \
     && python3 ./validate_release_manifest.py \
     && rm ./validate_release_manifest.py ./config.yaml \
     && python3 ./validate_inline_js.py ./app/static/index.html \

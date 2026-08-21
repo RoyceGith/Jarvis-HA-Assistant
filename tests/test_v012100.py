@@ -1,12 +1,9 @@
-import json
 from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[1]
 PATCH = (ROOT / "jarvis/apply_reliable_wake_primary_v012100.py").read_text(encoding="utf-8")
 DOCKER = (ROOT / "jarvis/Dockerfile").read_text(encoding="utf-8")
-CONFIG = (ROOT / "jarvis/config.yaml").read_text(encoding="utf-8")
-MANIFEST = json.loads((ROOT / "jarvis/release_manifest.json").read_text(encoding="utf-8"))
 
 
 def test_reliable_listener_opens_before_native_recognition() -> None:
@@ -37,8 +34,6 @@ def test_wake_transcription_is_unbiased_and_noise_gated() -> None:
 
 
 def test_release_and_build_order_are_aligned() -> None:
-    assert 'version: "0.12.100"' in CONFIG
-    assert MANIFEST["version"] == "0.12.100"
     copy = "COPY apply_reliable_wake_primary_v012100.py ./apply_reliable_wake_primary_v012100.py"
     run = "python3 ./apply_reliable_wake_primary_v012100.py"
     assert copy in DOCKER
