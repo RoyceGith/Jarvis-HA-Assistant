@@ -1,3 +1,5 @@
+ZBRANO v0.12.107 waits for actual speech during wake calibration, validates recording quality before saving, audits existing samples, and removes or excludes silence, weak audio, and clipping without deleting valid recordings.
+
 ZBRANO v0.12.106 separates microphone delivery from model recognition with live RMS/peak measurements and bounded phrase tests, and exports preserved calibration recordings as a structured ZIP for Hey ZBRANO v2 training.
 
 ZBRANO v0.12.105 restores the broader base wake model by default, makes the trained personal verifier an explicit opt-in filter, and allows deleting only the verifier while preserving every recorded calibration clip.
