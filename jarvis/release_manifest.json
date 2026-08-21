@@ -1,10 +1,14 @@
 {
-  "version": "0.12.110",
+  "version": "0.12.111",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/Jarvis-HA-Assistant main",
-  "summary": "Remove the full-screen scanline texture for a cleaner ZBRANO interface.",
+  "summary": "Enable optional local wake activation and bounded follow-up conversation mode.",
   "features": [
+    "Allow the local Hey ZBRANO model to open the existing command-listening overlay through an explicit browser-local opt-in setting.",
+    "Offer an optional 15-second follow-up conversation window after each completed voice-originated response without requiring the wake phrase again.",
+    "Use ok thank you as the default conversation-closing phrase and allow each browser to configure its preferred stop phrase.",
+    "End conversation mode on timeout, explicit cancellation, tab hiding, setting disablement, the preferred closing phrase, or a built-in stop-conversation phrase.",
     "Render every ZBRANO theme without the decorative full-screen horizontal scanline overlay while preserving the neural background.",
     "Replace the synthetic-only baseline with a real-room-trained Hey ZBRANO v2 ONNX model while keeping local evaluation silent and unable to activate chat.",
     "Improve detection on the validated personal wake recordings from 10 of 21 to 20 of 21 at the existing 0.50 evaluation threshold.",
@@ -155,6 +159,7 @@
     "Preserve multi-round Workshop Memory tasks after an approved write in both streaming and non-streaming chat."
   ],
   "fixes": [
+    "Keep typed chats from opening hands-free follow-up listening and enforce an eight-second local wake activation cooldown.",
     "Stop thin repeating lines from washing across chat text, panels, tabs, controls, and empty interface space.",
     "Exclude the mislabeled name-containing ordinary-phrase sample from the accepted calibration result instead of blocking deployment indefinitely.",
     "Replace the punctuation-dependent calibration patch boundary with a stable ASCII state marker and bounded message-line replacement.",
@@ -229,6 +234,7 @@
     "Preserve task-scoped Workshop Memory approval and per-draft Gmail approval isolation."
   ],
   "validation": [
+    "Local wake opt-in, two-frame threshold, cooldown, command handoff, voice-only conversation chaining, stop conditions, patch order, and v0.12.111 release alignment coverage",
     "Global scanline removal, theme coverage, component-border preservation, patch order, and v0.12.110 release alignment coverage",
     "Model checksum, real-recording detection, non-wake rejection, silent-shadow boundary, patch order, and v0.12.109 release alignment coverage",
     "Wake microphone calibration, RMS-plus-peak voice gating, capture watchdog, explicit MediaRecorder finalization, non-speech rejection, cleanup, and release alignment coverage",
