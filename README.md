@@ -1,3 +1,5 @@
+ZBRANO v0.12.103 adds explicit personal wake calibration: 20 user-triggered Hey ZBRANO recordings, 20 user-triggered ordinary-speech recordings, optional false-trigger evidence, local verifier training, persistent private add-on storage, and verifier-aware shadow evaluation. No calibration audio is saved unless its recording or false-trigger button is pressed.
+
 ZBRANO v0.12.102 bundles OpenWakeWord's shared ONNX mel-spectrogram and embedding models and loads them from explicit local paths, repairing the v0.12.101 shadow detector startup failure without adding network inference or audio retention.
 
 ZBRANO v0.12.101 adds calibrated RMS-plus-peak voice detection, an independent recording hard stop, explicit audio finalization, non-speech transcript rejection, and a silent local OpenWakeWord shadow test with live confidence and false-detection statistics. Shadow mode never activates chat, retains no audio, and makes no OpenAI transcription request.

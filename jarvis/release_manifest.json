@@ -1,10 +1,15 @@
 {
-  "version": "0.12.102",
+  "version": "0.12.103",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/Jarvis-HA-Assistant main",
-  "summary": "Bundle and explicitly load the shared OpenWakeWord feature models required by local shadow detection.",
+  "summary": "Collect explicit personal voice evidence and train a local second-stage wake verifier before activation.",
   "features": [
+    "Collect personal wake-phrase and ordinary-speech PCM samples only after an explicit recording-button press.",
+    "Retain a bounded false-trigger candidate only in browser memory and save it as negative evidence only when Mark false is pressed.",
+    "Store calibration audio and the trained verifier inside Home Assistant add-on private data with exact count, reset, and training controls.",
+    "Require at least 20 positive and 20 negative clips before local logistic-regression verifier training.",
+    "Apply the trained personal verifier as a second-stage filter while keeping evaluation in silent shadow mode.",
     "Bundle the official OpenWakeWord v0.5.1 ONNX mel-spectrogram and audio-embedding models required by the trained classifier.",
     "Load all three wake runtime models from explicit local add-on paths instead of relying on missing Python-package resources.",
     "Report the exact missing runtime asset if any bundled model is unavailable.",
