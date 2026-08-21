@@ -1,10 +1,13 @@
 {
-  "version": "0.12.103",
+  "version": "0.12.104",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/Jarvis-HA-Assistant main",
-  "summary": "Collect explicit personal voice evidence and train a local second-stage wake verifier before activation.",
+  "summary": "Repair personal verifier training route resolution and display structured calibration failures clearly.",
   "features": [
+    "Move calibration uploads under an explicit samples path so the static train endpoint cannot match the dynamic label route.",
+    "Render FastAPI validation arrays and structured error details as readable calibration messages instead of object coercion.",
+    "Preserve previously recorded positive and negative clips across the route-only repair update.",
     "Collect personal wake-phrase and ordinary-speech PCM samples only after an explicit recording-button press.",
     "Retain a bounded false-trigger candidate only in browser memory and save it as negative evidence only when Mark false is pressed.",
     "Store calibration audio and the trained verifier inside Home Assistant add-on private data with exact count, reset, and training controls.",

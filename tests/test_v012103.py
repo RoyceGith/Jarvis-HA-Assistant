@@ -1,12 +1,9 @@
-import json
 from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[1]
 PATCH = (ROOT / "jarvis/apply_personal_wake_verifier_v012103.py").read_text(encoding="utf-8")
 DOCKER = (ROOT / "jarvis/Dockerfile").read_text(encoding="utf-8")
-CONFIG = (ROOT / "jarvis/config.yaml").read_text(encoding="utf-8")
-MANIFEST = json.loads((ROOT / "jarvis/release_manifest.json").read_text(encoding="utf-8"))
 
 
 def test_calibration_audio_requires_explicit_bounded_wav_capture() -> None:
@@ -28,8 +25,6 @@ def test_verifier_uses_positive_negative_and_false_trigger_evidence() -> None:
 
 
 def test_release_and_build_order_are_aligned() -> None:
-    assert 'version: "0.12.103"' in CONFIG
-    assert MANIFEST["version"] == "0.12.103"
     copy = "COPY apply_personal_wake_verifier_v012103.py ./apply_personal_wake_verifier_v012103.py"
     run = "python3 ./apply_personal_wake_verifier_v012103.py"
     assert copy in DOCKER and run in DOCKER
