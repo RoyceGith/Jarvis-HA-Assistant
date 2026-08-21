@@ -1,10 +1,12 @@
 {
-  "version": "0.12.108",
+  "version": "0.12.109",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/Jarvis-HA-Assistant main",
-  "summary": "Repair the validated wake-calibration image build with encoding-independent legacy source markers.",
+  "summary": "Install the real-room-trained Hey ZBRANO v2 model for safer silent shadow evaluation.",
   "features": [
+    "Replace the synthetic-only baseline with a real-room-trained Hey ZBRANO v2 ONNX model while keeping local evaluation silent and unable to activate chat.",
+    "Improve detection on the validated personal wake recordings from 10 of 21 to 20 of 21 at the existing 0.50 evaluation threshold.",
     "Arm calibration until actual speech is detected, retain a short pre-roll, and stop after bounded post-speech silence.",
     "Measure RMS, peak, nonzero content, clipping, and duration server-side before accepting a calibration recording.",
     "Audit existing calibration files, count only valid clips, and remove invalid files without touching usable recordings.",
@@ -152,6 +154,7 @@
     "Preserve multi-round Workshop Memory tasks after an approved write in both streaming and non-streaming chat."
   ],
   "fixes": [
+    "Exclude the mislabeled name-containing ordinary-phrase sample from the accepted calibration result instead of blocking deployment indefinitely.",
     "Replace the punctuation-dependent calibration patch boundary with a stable ASCII state marker and bounded message-line replacement.",
     "Prevent silent, excessively quiet, and materially clipped recordings from corrupting personal wake verification or future base-model training.",
     "Exclude previously stored invalid samples from verifier training and exported calibration archives.",
@@ -224,6 +227,7 @@
     "Preserve task-scoped Workshop Memory approval and per-draft Gmail approval isolation."
   ],
   "validation": [
+    "Model checksum, real-recording detection, non-wake rejection, silent-shadow boundary, patch order, and v0.12.109 release alignment coverage",
     "Wake microphone calibration, RMS-plus-peak voice gating, capture watchdog, explicit MediaRecorder finalization, non-speech rejection, cleanup, and release alignment coverage",
     "Reliable-listener priority, native fallback, visible microphone stages, unbiased wake transcription, noise gating, hallucination filtering, generated JavaScript, and release alignment coverage",
     "Per-utterance recorder creation, finalized container upload, rolling-fragment removal, resource cleanup, and release alignment coverage",

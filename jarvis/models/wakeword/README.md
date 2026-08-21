@@ -1,13 +1,15 @@
 # ZBRANO wake-word model
 
-`hey_zbrano.onnx` is the first ZBRANO OpenWakeWord baseline model. It is
-included for silent shadow-mode evaluation and must not activate chat until
-real-room testing establishes an acceptable threshold.
+`hey_zbrano.onnx` is the second ZBRANO OpenWakeWord model. It combines the
+original synthetic training corpus with validated real-room recordings. It is
+included for silent shadow-mode evaluation and cannot activate chat.
 
 - Phrase: `Hey ZBRANO`
 - Training pronunciation: `hˈeɪ zbɹˈɑːnoʊ`
-- SHA-256: `7ab701e62e79b0d4a4d996417102b96907a25a9fd5ebe34f9ca1eb509ec4df42`
-- Training evaluation: accuracy 83.37%, recall 66.96%, false positives 3.54/hour
+- SHA-256: `0fb509d0c50e4350c3c8fb8c222d0c5d21f49c6479c242f35e0b7f6da97bdf8a`
+- Training evaluation: accuracy 84.20%, recall 68.68%, false positives 8.58/hour
+- Accepted real-room calibration: 20/21 wake phrases detected and 19/19
+  correctly labelled ordinary phrases rejected at threshold 0.50
 - Model format: ONNX, 205,430 bytes
 
 The model was trained using ACAV100M-derived negative features and is provided

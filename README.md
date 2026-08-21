@@ -1,3 +1,5 @@
+ZBRANO v0.12.109 installs the real-room-trained Hey ZBRANO v2 wake model for silent shadow evaluation, improving validated personal wake-phrase detection from 10/21 to 20/21 while retaining non-activation safety.
+
 ZBRANO v0.12.108 repairs the validated wake-calibration image build by replacing a punctuation-dependent legacy source match with an encoding-independent patch boundary.
 
 ZBRANO v0.12.107 waits for actual speech during wake calibration, validates recording quality before saving, audits existing samples, and removes or excludes silence, weak audio, and clipping without deleting valid recordings.

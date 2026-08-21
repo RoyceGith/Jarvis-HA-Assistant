@@ -170,6 +170,7 @@ COPY apply_optional_wake_verifier_v012105.py ./apply_optional_wake_verifier_v012
 COPY apply_wake_diagnostics_export_v012106.py ./apply_wake_diagnostics_export_v012106.py
 COPY apply_validated_wake_samples_v012107.py ./apply_validated_wake_samples_v012107.py
 COPY apply_wake_calibration_build_fix_v012108.py ./apply_wake_calibration_build_fix_v012108.py
+COPY apply_real_room_wake_model_v012109.py ./apply_real_room_wake_model_v012109.py
 COPY validate_release_manifest.py ./validate_release_manifest.py
 COPY validate_inline_js.py ./validate_inline_js.py
 COPY validate_new_chat_wiring.py ./validate_new_chat_wiring.py
@@ -404,6 +405,8 @@ RUN rm() { command rm -f "$@"; } \
     && rm ./apply_validated_wake_samples_v012107.py \
     && python3 ./apply_wake_calibration_build_fix_v012108.py \
     && rm ./apply_wake_calibration_build_fix_v012108.py \
+    && python3 ./apply_real_room_wake_model_v012109.py \
+    && rm ./apply_real_room_wake_model_v012109.py \
     && python3 ./validate_release_manifest.py \
     && rm ./validate_release_manifest.py ./config.yaml \
     && python3 ./validate_inline_js.py ./app/static/index.html \
