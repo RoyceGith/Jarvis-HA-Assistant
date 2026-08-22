@@ -1418,7 +1418,7 @@
   <header>
     <div class="brand-line">
       <h1>ZBRANO</h1>
-      <div class="status hud-version-label">Workshop Intelligence Interface · HUD 0.13.2</div>
+      <div class="status hud-version-label">Workshop Intelligence Interface · HUD 0.13.3</div>
     </div>
     <div class="runtime-status-stack">
       <button id="calendar-quick-open" class="calendar-quick-open" type="button" aria-label="Open ZBRANO Calendar" title="Open Calendar">
@@ -1786,6 +1786,7 @@
       <div class="settings-grid">
         <label class="toggle-row"><input id="settings-auto-speak" type="checkbox"> Automatically speak replies</label>
         <div class="voice-control"><label for="voice-volume">Voice volume</label><output id="voice-volume-value" for="voice-volume">90%</output><input id="voice-volume" type="range" min="0" max="1" step="0.05" value="0.9"></div>
+        <div class="voice-control"><label for="voice-speed">Speech speed</label><output id="voice-speed-value" for="voice-speed">1.00×</output><input id="voice-speed" type="range" min="0.8" max="1.4" step="0.05" value="1"></div>
         <label class="toggle-row"><input id="quiet-hours-enabled" type="checkbox"> Enable quiet hours</label>
         <div class="setting-field"><label for="quiet-hours-start">Quiet hours start</label><input id="quiet-hours-start" type="time" value="22:00"></div>
         <div class="setting-field"><label for="quiet-hours-end">Quiet hours end</label><input id="quiet-hours-end" type="time" value="07:00"></div>
@@ -2217,6 +2218,7 @@ const newChatButton = document.getElementById("new-chat-button");
 
 const VOICE_SETTINGS_KEY = "jarvis_voice_settings_v1";
 const CHAT_AUTO_SPEAK_KEY = "zbrano_chat_auto_speak_v1";
+let speechPlaybackRate=1;
 let chatAutoSpeakPreferences = {};
 try {
   const storedChatVoice = JSON.parse(localStorage.getItem(CHAT_AUTO_SPEAK_KEY) || "{}");
@@ -2332,6 +2334,7 @@ try {
   if ([...voiceSelect.options].some(option => option.value === voiceSettings.voice)) {
     voiceSelect.value = voiceSettings.voice;
   }
+  const savedSpeed=Number(voiceSettings.speed);if(Number.isFinite(savedSpeed))speechPlaybackRate=Math.min(1.4,Math.max(.8,savedSpeed));
 } catch {}
 
 function saveVoiceSettings() {
@@ -2339,6 +2342,7 @@ function saveVoiceSettings() {
     autoSpeak: settingsAutoSpeak.checked,
     provider: speechProvider.value,
     voice: voiceSelect.value,
+    speed: speechPlaybackRate,
   }));
 }
 
@@ -2421,6 +2425,10 @@ function waitForAudioEnd(audio) {
   });
 }
 
+function applySpeechPlaybackSettings(audio){
+  audio.volume=Number(jarvisPreferences.voice_volume??.9);audio.playbackRate=speechPlaybackRate;audio.preservesPitch=true;
+}
+
 async function playSpeechText(text, force = false, prefetchedBlob = null) {
   if ((!force && (!autoSpeak.checked || isQuietHours())) || !text.trim()) {
     if (!force && isQuietHours()) setVoiceState("QUIET HOURS");
@@ -2435,7 +2443,7 @@ async function playSpeechText(text, force = false, prefetchedBlob = null) {
       if (speechController.signal.aborted || !blob) return;
       activeAudioUrl = URL.createObjectURL(blob);
       activeAudio = new Audio(activeAudioUrl);
-      activeAudio.volume = Number(jarvisPreferences.voice_volume ?? 0.9);
+      applySpeechPlaybackSettings(activeAudio);
       activeAudio.addEventListener("ended", () => cleanupActiveAudio(speechQueue.length ? "SPEECH BUFFERING" : "VOICE READY"));
       activeAudio.addEventListener("error", () => stopAudioPlayback("VOICE PLAYBACK FAILED"));
       setVoiceState("SPEAKING");
@@ -2464,7 +2472,7 @@ async function playSpeechText(text, force = false, prefetchedBlob = null) {
       const blob = await response.blob();
       activeAudioUrl = URL.createObjectURL(blob);
       activeAudio = new Audio(activeAudioUrl);
-      activeAudio.volume = Number(jarvisPreferences.voice_volume ?? 0.9);
+      applySpeechPlaybackSettings(activeAudio);
       activeAudio.addEventListener("ended", () => cleanupActiveAudio(speechQueue.length ? "SPEECH BUFFERING" : "VOICE READY"));
       activeAudio.addEventListener("error", () => stopAudioPlayback("VOICE PLAYBACK FAILED"));
       setVoiceState("SPEAKING");
@@ -2476,7 +2484,7 @@ async function playSpeechText(text, force = false, prefetchedBlob = null) {
     const mediaSource = new MediaSource();
     activeAudioUrl = URL.createObjectURL(mediaSource);
     activeAudio = new Audio(activeAudioUrl);
-    activeAudio.volume = Number(jarvisPreferences.voice_volume ?? 0.9);
+    applySpeechPlaybackSettings(activeAudio);
     activeAudio.addEventListener("ended", () => cleanupActiveAudio(speechQueue.length ? "SPEECH BUFFERING" : "VOICE READY"));
     activeAudio.addEventListener("error", () => stopAudioPlayback("VOICE PLAYBACK FAILED"));
     await new Promise((resolve, reject) => {
@@ -2967,6 +2975,8 @@ const quietHoursStart = document.getElementById("quiet-hours-start");
 const quietHoursEnd = document.getElementById("quiet-hours-end");
 const voiceVolume = document.getElementById("voice-volume");
 const voiceVolumeValue = document.getElementById("voice-volume-value");
+const voiceSpeed = document.getElementById("voice-speed");
+const voiceSpeedValue = document.getElementById("voice-speed-value");
 const exportBackup = document.getElementById("export-backup");
 const restoreBackup = document.getElementById("restore-backup");
 const clearAllChats = document.getElementById("clear-all-chats");
@@ -3054,6 +3064,9 @@ voiceVolume.addEventListener("input", () => {
   voiceVolumeValue.textContent = `${Math.round(Number(voiceVolume.value) * 100)}%`;
   if (activeAudio) activeAudio.volume = Number(voiceVolume.value);
 });
+
+voiceSpeed.value=String(speechPlaybackRate);voiceSpeedValue.textContent=`${speechPlaybackRate.toFixed(2)}×`;
+voiceSpeed.addEventListener("input",()=>{speechPlaybackRate=Math.min(1.4,Math.max(.8,Number(voiceSpeed.value)||1));voiceSpeedValue.textContent=`${speechPlaybackRate.toFixed(2)}×`;if(activeAudio)activeAudio.playbackRate=speechPlaybackRate;saveVoiceSettings()});
 
 testVoice.addEventListener("click", () => speakText("ZBRANO voice systems online. How may I assist?", true));
 settingsAutoSpeak.addEventListener("change", saveVoiceSettings);
@@ -7428,7 +7441,7 @@ catalogResults?.addEventListener("click",async event=>{
     if(wakeShadowAbove>=2&&!wakeShadowLatched){
       wakeShadowLatched=true;wakeShadowStats.detections++;wakeShadowLastCandidate=new Int16Array(wakeShadowHistory.slice(-64000));
       const canActivate=wakeLocalActivate.checked&&wakeFallbackMode==="wake"&&!wakeShadowAttempt&&!wakeCalibrationCapture&&!activeRequest&&!pendingSuggestion&&Date.now()-wakeLocalActivationAt>=8000;
-      if(canActivate){wakeLocalActivationAt=Date.now();wakeShadowMessage.textContent=`Local wake activation ${wakeShadowStats.detections} at ${score.toFixed(3)}.`;stopRecognition(wakeRecognition);wakeRecognition=null;showWakeOverlay("LOCAL WAKE PHRASE HEARD","Speak your command...");if(wakeFallbackStream)startFallbackCommandWindow();else{stopWake();setTimeout(startCommandWindow,180)}}
+      if(canActivate){wakeLocalActivationAt=Date.now();wakeShadowMessage.textContent=`Local wake activation ${wakeShadowStats.detections} at ${score.toFixed(3)}.`;stopRecognition(wakeRecognition);wakeRecognition=null;if(wakeFallbackStream&&startFallbackCommandWindow())showWakeOverlay("LOCAL WAKE PHRASE HEARD","Speak your command...");else{stopWake();setTimeout(startCommandWindow,180)}}
       else wakeShadowMessage.textContent=`Silent detection ${wakeShadowStats.detections} at ${score.toFixed(3)}.${wakeLocalActivate.checked?" Activation was busy or cooling down.":" Chat was not activated."}`;
     }
     if(score<threshold*.55)wakeShadowLatched=false;renderWakeShadow(score);
@@ -7474,10 +7487,12 @@ catalogResults?.addEventListener("click",async event=>{
   function stopWake(preserveFallback=false){if(wakeRestart)clearTimeout(wakeRestart);wakeRestart=null;stopRecognition(wakeRecognition);wakeRecognition=null;if(!preserveFallback)stopWakeFallback()}
 
   function startFallbackCommandWindow(){
-    wakeFallbackGeneration++;wakeFallbackMode="command";discardWakeFallbackRecorder();wakeFallbackCalibratingUntil=Math.min(wakeFallbackCalibratingUntil,performance.now()+160);beginWakeFallbackRecorder();
+    wakeFallbackGeneration++;wakeFallbackMode="command";discardWakeFallbackRecorder();wakeNoiseFloor=Math.min(wakeNoiseFloor,.012);wakeFallbackCalibratingUntil=Math.min(wakeFallbackCalibratingUntil,performance.now()+160);
+    if(!beginWakeFallbackRecorder()){wakeFallbackMode="wake";return false}
     clearWakeFallbackCommandTimer();const generation=wakeFallbackGeneration;
     wakeFallbackCommandTimer=setTimeout(()=>{if(generation!==wakeFallbackGeneration)return;wakeConversationListening=false;discardWakeFallbackRecorder();wakeFallbackMode="wake";hideWakeOverlay(250);status(`No command heard - listening for "${wakePhrase.value.trim()||"hey zbrano"}"`,"listening");scheduleWake()},wakeConversationListening?15000:9000);
     status("Wake phrase heard - reliable listener is waiting for your command","listening");
+    return true;
   }
 
   function fallbackRateAllowed(mode){
@@ -7501,8 +7516,8 @@ catalogResults?.addEventListener("click",async event=>{
       }
       const match=matchWakePhrase(transcript);
       if(!match){status(`Reliable listener heard "${transcript}" - waiting for "${wakePhrase.value.trim()||"hey zbrano"}"`,"listening");return}
-      stopRecognition(wakeRecognition);wakeRecognition=null;showWakeOverlay("WAKE PHRASE HEARD",match.command||"Speak your command...");
-      if(match.command){stopWake();submitVoiceCommand(match.command)}else startFallbackCommandWindow();
+      stopRecognition(wakeRecognition);wakeRecognition=null;
+      if(match.command){showWakeOverlay("WAKE PHRASE HEARD",match.command);stopWake();submitVoiceCommand(match.command)}else if(startFallbackCommandWindow())showWakeOverlay("WAKE PHRASE HEARD","Speak your command...");else{stopWake();hideWakeOverlay();scheduleWake(350)}
     }catch(error){if(generation===wakeFallbackGeneration)status(`Reliable wake transcription unavailable: ${error.message||error}`,"error")}
     finally{wakeFallbackBusy=false;if(mode==="command"&&generation===wakeFallbackGeneration&&wakeFallbackMode==="command"&&!wakeFallbackRecorder)beginWakeFallbackRecorder()}
   }
@@ -7550,7 +7565,13 @@ catalogResults?.addEventListener("click",async event=>{
   }
 
   async function startWakeFallback(){
-    if(wakeFallbackStream||wakeFallbackStarting||!wakeEnabled.checked||document.hidden)return;wakeFallbackStarting=true;
+    if(wakeFallbackStarting||!wakeEnabled.checked||document.hidden)return false;
+    if(wakeFallbackStream){
+      const liveTrack=wakeFallbackStream.getAudioTracks().some(track=>track.readyState==="live"&&track.enabled);
+      if(liveTrack&&wakeFallbackContext&&wakeFallbackAnalyser){try{if(wakeFallbackContext.state==="suspended")await wakeFallbackContext.resume();if(wakeFallbackContext.state==="running")return true}catch{}}
+      stopWakeFallback();
+    }
+    wakeFallbackStarting=true;
     try{
       const stream=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true,noiseSuppression:true,autoGainControl:true}});
       if(!wakeEnabled.checked||document.hidden){stream.getTracks().forEach(track=>track.stop());return}
@@ -7561,7 +7582,8 @@ catalogResults?.addEventListener("click",async event=>{
       startWakeShadow(context,source);
       wakeFallbackTimer=setInterval(sampleWakeFallback,80);status("Calibrating reliable wake microphone...","listening");
       setTimeout(()=>{if(wakeFallbackStream&&wakeEnabled.checked)status(`Reliable wake listening active for "${wakePhrase.value.trim()||"hey zbrano"}"`,"listening")},2600);
-    }catch(error){status(`Reliable wake listener unavailable: ${error.message||error}. Trying Chrome speech recognition...`,"error");stopWakeFallback()}
+      return true;
+    }catch(error){status(`Reliable wake listener unavailable: ${error.message||error}. Trying Chrome speech recognition...`,"error");stopWakeFallback();return false}
     finally{wakeFallbackStarting=false}
   }
   function recognitionLanguage(){const preferred=String(jarvisPreferences?.preferred_language||"").trim();return preferred&&preferred!=="auto"?preferred:document.documentElement.lang||navigator.language||"en-US"}
@@ -7616,7 +7638,7 @@ catalogResults?.addEventListener("click",async event=>{
         const rawTranscript=event.results[index][0]?.transcript||"";const match=matchWakePhrase(rawTranscript);if(match)wakeNativeMatchAt=performance.now();
         if(!match){if(event.results[index].isFinal&&clean(rawTranscript))status(`Heard "${rawTranscript.trim()}" - waiting for "${wakePhrase.value.trim()||"hey zbrano"}"`,"listening");continue}
         if(match.command){stopWake();showWakeOverlay("WAKE PHRASE HEARD",match.command);submitVoiceCommand(match.command)}
-        else if(wakeFallbackStream){stopRecognition(wakeRecognition);wakeRecognition=null;showWakeOverlay("WAKE PHRASE HEARD","Speak your command...");startFallbackCommandWindow()}
+        else if(wakeFallbackStream){stopRecognition(wakeRecognition);wakeRecognition=null;if(startFallbackCommandWindow())showWakeOverlay("WAKE PHRASE HEARD","Speak your command...");else{stopWake();hideWakeOverlay();scheduleWake(350)}}
         else{stopWake();showWakeOverlay("WAKE PHRASE HEARD","Speak your command...");setTimeout(startCommandWindow,180)}break;
       }
     };
@@ -7702,8 +7724,10 @@ catalogResults?.addEventListener("click",async event=>{
       if(!wakeConversationEnabled.checked||!wakeEnabled.checked||document.hidden)return;
       if(Date.now()>=expires){status("Conversation follow-up expired");scheduleWake();return}
       if(activeRequest||activeAudio||speechQueueRunning||mediaRecorder||pendingSuggestion){wakeConversationWaitTimer=setTimeout(attempt,300);return}
-      await startWakeFallback();if(!wakeFallbackStream){status("Conversation microphone unavailable","error");scheduleWake();return}
-      stopRecognition(wakeRecognition);wakeRecognition=null;wakeConversationListening=true;showWakeOverlay("CONVERSATION MODE","Listening for your follow-up...");startFallbackCommandWindow();status("Conversation mode - listening for a follow-up","listening");
+      const microphoneReady=await startWakeFallback();if(!microphoneReady||!wakeFallbackStream){status("Conversation microphone unavailable - retrying","error");wakeConversationWaitTimer=setTimeout(attempt,500);return}
+      stopRecognition(wakeRecognition);wakeRecognition=null;wakeConversationListening=true;
+      if(!startFallbackCommandWindow()){wakeConversationListening=false;stopWake();hideWakeOverlay();status("Conversation microphone capture did not arm - retrying","error");wakeConversationWaitTimer=setTimeout(attempt,500);return}
+      showWakeOverlay("CONVERSATION MODE","Listening for your follow-up...");status("Conversation mode - listening for a follow-up","listening");
     };
     attempt();
   }

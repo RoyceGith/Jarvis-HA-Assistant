@@ -1,10 +1,11 @@
 {
-  "version": "0.13.2",
+  "version": "0.13.3",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/Jarvis-HA-Assistant main",
-  "summary": "Preserve complete spoken commands and make repeated hands-free conversation turns reliable.",
+  "summary": "Keep repeated conversation capture armed across browser microphone lifecycle races.",
   "features": [
+    "Adjust spoken-reply playback from 0.80x to 1.40x in Voice Playback settings and retain the selected speed in the browser.",
     "Center compact animated sound bars above the chat prompt and drive their height and opacity from live microphone RMS and peak levels without adding a background frame.",
     "Record a bounded command-window pre-roll so speech detection cannot remove the first spoken word.",
     "Present wake-command and conversation listening as a compact animation directly above the chat prompt without obscuring the conversation.",
@@ -168,6 +169,10 @@
     "Preserve multi-round Workshop Memory tasks after an approved write in both streaming and non-streaming chat."
   ],
   "fixes": [
+    "Verify that the microphone track, audio context, analyser, and command recorder are live before presenting follow-up listening as active.",
+    "Resume a suspended audio context or rebuild a stale microphone stream before a conversation follow-up.",
+    "Retry follow-up microphone setup when capture cannot be armed instead of leaving a non-capturing listening animation visible.",
+    "Bound the command-window noise floor so stale room or playback measurements cannot make follow-up speech undetectable.",
     "Re-arm the bounded recorder after an empty follow-up transcription so the next utterance remains capturable.",
     "Discard command audio and close the inline listening state whenever a no-command timeout expires.",
     "Shorten follow-up microphone calibration after the bounded command window begins so immediate speech is not ignored.",
@@ -254,6 +259,7 @@
     "Preserve task-scoped Workshop Memory approval and per-draft Gmail approval isolation."
   ],
   "validation": [
+    "Live microphone readiness, suspended-context recovery, recorder-before-overlay ordering, bounded command noise floor, retry behavior, and v0.13.3 release alignment coverage",
     "Command pre-roll, follow-up recorder re-arming, timeout cleanup, centered unframed RMS-responsive sound bars, and v0.13.2 release alignment coverage",
     "Inline listening placement, non-modal accessibility, stop-phrase normalization, RMS-plus-peak continuation gating, prompt silence finalization, and v0.13.1 release alignment coverage",
     "Byte-for-byte equivalence between the frozen generated v0.12.112 runtime and the promoted canonical source before the version-only release transition",

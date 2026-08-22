@@ -24,8 +24,8 @@ class InterfaceTests(unittest.TestCase):
     def test_hud_graph_and_versions(self):
         self.assertIn('id="brain-network"', INDEX)
         self.assertIn("prefers-reduced-motion: reduce", INDEX)
-        self.assertIn('version: "0.13.2"', CONFIG)
-        self.assertIn('version="0.13.2"', MAIN)
+        self.assertIn('version: "0.13.3"', CONFIG)
+        self.assertIn('version="0.13.3"', MAIN)
 
     def test_public_defaults_and_saved_app_options(self):
         self.assertNotIn("192.168.178.49", CONFIG)
@@ -67,7 +67,7 @@ class InterfaceTests(unittest.TestCase):
             "settings-auto-speak", "response-length", "confirmation-strictness",
             "context-messages", "retention-days", "preferred-language",
             "pronunciation-dictionary", "reduced-motion", "text-size",
-            "interface-density", "quiet-hours-enabled", "voice-volume",
+            "interface-density", "quiet-hours-enabled", "voice-volume", "voice-speed",
             "export-backup", "restore-backup", "clear-all-chats",
         ):
             self.assertIn(f'id="{control}"', INDEX)
