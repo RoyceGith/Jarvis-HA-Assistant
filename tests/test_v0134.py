@@ -1,0 +1,36 @@
+from pathlib import Path
+import json
+import unittest
+
+
+ROOT = Path(__file__).resolve().parents[1]
+INDEX = (ROOT / "jarvis/app/static/index.html").read_text(encoding="utf-8")
+MAIN = (ROOT / "jarvis/app/main.py").read_text(encoding="utf-8")
+CONFIG = (ROOT / "jarvis/config.yaml").read_text(encoding="utf-8")
+MANIFEST = json.loads((ROOT / "jarvis/release_manifest.json").read_text(encoding="utf-8"))
+
+
+class StableSpeechSpeedTests(unittest.TestCase):
+    def test_release_markers_are_aligned(self):
+        self.assertIn('version: "0.13.4"', CONFIG)
+        self.assertIn('version="0.13.4"', MAIN)
+        self.assertIn("HUD 0.13.4", INDEX)
+        self.assertEqual(MANIFEST["version"], "0.13.4")
+
+    def test_adjusted_speed_disables_progressive_playback(self):
+        self.assertIn("Math.abs(speechPlaybackRate-1)<.001&&response.body&&window.MediaSource", INDEX.replace(" ", ""))
+
+    def test_rate_is_locked_when_metadata_loads(self):
+        playback = INDEX[INDEX.index("function applySpeechPlaybackSettings(audio)") : INDEX.index("async function playSpeechText")]
+        self.assertIn("audio.defaultPlaybackRate=rate", playback)
+        self.assertIn("audio.playbackRate=rate", playback)
+        self.assertIn('audio.addEventListener("loadedmetadata"', playback)
+
+    def test_slider_does_not_change_active_segment(self):
+        listener = INDEX[INDEX.index('voiceSpeed.addEventListener("input"') : INDEX.index("testVoice.addEventListener")]
+        self.assertIn("saveVoiceSettings()", listener)
+        self.assertNotIn("activeAudio", listener)
+
+
+if __name__ == "__main__":
+    unittest.main()

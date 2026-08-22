@@ -1418,7 +1418,7 @@
   <header>
     <div class="brand-line">
       <h1>ZBRANO</h1>
-      <div class="status hud-version-label">Workshop Intelligence Interface · HUD 0.13.3</div>
+      <div class="status hud-version-label">Workshop Intelligence Interface · HUD 0.13.4</div>
     </div>
     <div class="runtime-status-stack">
       <button id="calendar-quick-open" class="calendar-quick-open" type="button" aria-label="Open ZBRANO Calendar" title="Open Calendar">
@@ -2426,7 +2426,8 @@ function waitForAudioEnd(audio) {
 }
 
 function applySpeechPlaybackSettings(audio){
-  audio.volume=Number(jarvisPreferences.voice_volume??.9);audio.playbackRate=speechPlaybackRate;audio.preservesPitch=true;
+  const rate=speechPlaybackRate;audio.volume=Number(jarvisPreferences.voice_volume??.9);audio.defaultPlaybackRate=rate;audio.playbackRate=rate;audio.preservesPitch=true;
+  audio.addEventListener("loadedmetadata",()=>{audio.defaultPlaybackRate=rate;audio.playbackRate=rate},{once:true});
 }
 
 async function playSpeechText(text, force = false, prefetchedBlob = null) {
@@ -2466,7 +2467,7 @@ async function playSpeechText(text, force = false, prefetchedBlob = null) {
       const data = await response.json().catch(() => ({}));
       throw new Error(data.detail || `HTTP ${response.status}`);
     }
-    const canStreamMp3 = response.body && window.MediaSource &&
+    const canStreamMp3 = Math.abs(speechPlaybackRate-1)<.001 && response.body && window.MediaSource &&
       MediaSource.isTypeSupported("audio/mpeg");
     if (!canStreamMp3) {
       const blob = await response.blob();
@@ -3066,7 +3067,7 @@ voiceVolume.addEventListener("input", () => {
 });
 
 voiceSpeed.value=String(speechPlaybackRate);voiceSpeedValue.textContent=`${speechPlaybackRate.toFixed(2)}×`;
-voiceSpeed.addEventListener("input",()=>{speechPlaybackRate=Math.min(1.4,Math.max(.8,Number(voiceSpeed.value)||1));voiceSpeedValue.textContent=`${speechPlaybackRate.toFixed(2)}×`;if(activeAudio)activeAudio.playbackRate=speechPlaybackRate;saveVoiceSettings()});
+voiceSpeed.addEventListener("input",()=>{speechPlaybackRate=Math.min(1.4,Math.max(.8,Number(voiceSpeed.value)||1));voiceSpeedValue.textContent=`${speechPlaybackRate.toFixed(2)}×`;saveVoiceSettings()});
 
 testVoice.addEventListener("click", () => speakText("ZBRANO voice systems online. How may I assist?", true));
 settingsAutoSpeak.addEventListener("change", saveVoiceSettings);
