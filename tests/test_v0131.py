@@ -12,10 +12,10 @@ MANIFEST = json.loads((ROOT / "jarvis/release_manifest.json").read_text(encoding
 
 class VoiceConversationRegressionTests(unittest.TestCase):
     def test_release_markers_are_aligned(self):
-        self.assertIn('version: "0.13.1"', CONFIG)
-        self.assertIn('version="0.13.1"', MAIN)
-        self.assertIn("HUD 0.13.1", INDEX)
-        self.assertEqual(MANIFEST["version"], "0.13.1")
+        version = MANIFEST["version"]
+        self.assertIn(f'version: "{version}"', CONFIG)
+        self.assertIn(f'version="{version}"', MAIN)
+        self.assertIn(f"HUD {version}", INDEX)
 
     def test_listening_animation_is_inline_above_composer(self):
         panel = INDEX.index('id="wake-listening-overlay"')
