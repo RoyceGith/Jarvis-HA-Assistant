@@ -136,7 +136,7 @@ class ElevenLabsSpeechTests(unittest.TestCase):
         self.assertEqual(url, "https://api.elevenlabs.io/v1/text-to-speech/voice-test-id/stream")
         self.assertTrue(FakeClient.last_stream)
         self.assertEqual(kwargs["headers"]["xi-api-key"], "secret-test-key")
-        self.assertEqual(kwargs["params"]["output_format"], "mp3_44100_128")
+        self.assertEqual(kwargs["params"]["output_format"], "mp3_22050_32")
         self.assertEqual(kwargs["json"]["text"], "Workshop bench is on.")
         self.assertEqual(
             kwargs["json"]["voice_settings"],
@@ -152,7 +152,7 @@ class ElevenLabsSpeechTests(unittest.TestCase):
             return b"".join([chunk async for chunk in response.body_iterator])
         self.assertEqual(asyncio.run(collect_audio()), b"ID3-elevenlabs-audio")
         self.assertEqual(response.media_type, "audio/mpeg")
-        self.assertEqual(response.headers["x-jarvis-speech-provider"], "elevenlabs")
+        self.assertEqual(response.headers["x-zbrano-speech-provider"], "elevenlabs")
 
 
 if __name__ == "__main__":

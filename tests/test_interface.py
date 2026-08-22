@@ -24,8 +24,8 @@ class InterfaceTests(unittest.TestCase):
     def test_hud_graph_and_versions(self):
         self.assertIn('id="brain-network"', INDEX)
         self.assertIn("prefers-reduced-motion: reduce", INDEX)
-        self.assertIn('version: "0.8.5"', CONFIG)
-        self.assertIn('"version": "0.8.5"', MAIN)
+        self.assertIn('version: "0.13.0"', CONFIG)
+        self.assertIn('version="0.13.0"', MAIN)
 
     def test_public_defaults_and_saved_app_options(self):
         self.assertNotIn("192.168.178.49", CONFIG)
@@ -53,9 +53,9 @@ class InterfaceTests(unittest.TestCase):
         self.assertIn('const cosTilt = Math.cos(tilt);', INDEX)
         self.assertIn('const sinTilt = Math.sin(tilt);', INDEX)
         self.assertIn('#brain-network { position: absolute; inset: 0;', INDEX)
-        self.assertIn('filter: contrast(1.12) saturate(1.08)', INDEX)
+        self.assertIn('filter: contrast(1.02) saturate(.88)', INDEX)
         self.assertIn('const depthAlpha = Math.max(.18, Math.min(.62', INDEX)
-        self.assertIn('const nodeRadius = Math.max(1,', INDEX)
+        self.assertIn('const nodeRadius = Math.max(.65,', INDEX)
         self.assertIn('#messages { position: relative; z-index: 1;', INDEX)
         self.assertNotIn('#brain-network { border:', INDEX)
         self.assertNotIn('#brain-network { border-radius:', INDEX)
@@ -138,7 +138,7 @@ class InterfaceTests(unittest.TestCase):
         self.assertIn("color: var(--cyan);", INDEX)
         self.assertNotIn("CORE METRICS", INDEX)
         self.assertNotIn('class="hud-rail left-rail"', INDEX)
-        self.assertIn('class="hud-rail right-rail"', INDEX)
+        self.assertNotIn('class="hud-rail right-rail"', INDEX)
 
     def test_persistent_chat_sidebar_and_restore(self):
         self.assertIn('id="chat-list"', INDEX)
@@ -174,8 +174,8 @@ class InterfaceTests(unittest.TestCase):
         self.assertIn('provider: speechProvider.value', INDEX)
         self.assertIn('ELEVENLABS_SPEECH_URL', MAIN)
         self.assertIn('"xi-api-key": ELEVENLABS_API_KEY', MAIN)
-        self.assertIn('"output_format": "mp3_44100_128"', MAIN)
-        self.assertIn('"X-Jarvis-Speech-Provider": "elevenlabs"', MAIN)
+        self.assertIn('"output_format": "mp3_22050_32"', MAIN)
+        self.assertIn('"X-ZBRANO-Speech-Provider": "elevenlabs"', MAIN)
         self.assertIn('speech_provider: "list(openai|elevenlabs)"', CONFIG)
         self.assertIn('elevenlabs_api_key: "password"', CONFIG)
         self.assertIn('elevenlabs_model_id: "eleven_flash_v2_5"', CONFIG)

@@ -1,3 +1,5 @@
+ZBRANO v0.13.0 promotes the complete generated application into canonical source. The image now builds directly from the reviewed backend and frontend instead of reconstructing the product through 147 historical patch scripts, while preserving the validated v0.12.112 behavior.
+
 ZBRANO v0.12.112 captures spoken commands after local wake activation and groups the always-listening, local-model activation, and conversation controls together in the hands-free settings.
 
 ZBRANO v0.12.111 optionally lets the local Hey ZBRANO model open the command interface and provides a bounded hands-free follow-up conversation window after voice-originated replies.

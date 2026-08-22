@@ -6,6 +6,8 @@ import tempfile
 import time
 import unittest
 from typing import Any
+import re
+import shutil
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -20,6 +22,7 @@ def load_chat_functions(storage_path: Path):
         "persist_chat_sessions",
         "load_chat_sessions",
         "get_chat_history",
+        "is_internal_chat_session",
         "append_chat_message",
         "clear_chat_history",
     }
@@ -35,11 +38,17 @@ def load_chat_functions(storage_path: Path):
         "deque": deque,
         "CHAT_HISTORY_MAX_MESSAGES": 200,
         "CHAT_SESSIONS_MAX": 100,
+        "INTERNAL_CHAT_SESSION_PREFIXES": ("zbrano-diagnostic-", "zbrano-playwright-"),
         "CHAT_SESSIONS": {},
         "CHAT_SESSION_ORDER": deque(maxlen=100),
         "CHAT_SESSION_META": {},
         "LAST_ENTITY_BY_SESSION": {},
         "CHAT_STORAGE_PATH": storage_path,
+        "CHAT_UPLOAD_ROOT": storage_path.parent / "uploads",
+        "_attachment_message_parts": lambda content: (content, []),
+        "schedule_fast_memory_extraction": lambda *args: None,
+        "re": re,
+        "shutil": shutil,
     }
     exec(compile(ast.Module(body=selected, type_ignores=[]), str(MAIN_PATH), "exec"), namespace)
     return namespace
