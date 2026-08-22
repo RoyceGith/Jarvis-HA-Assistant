@@ -15,10 +15,10 @@ BASELINE = (ROOT / "docs" / "CANONICAL_BASELINE.md").read_text(encoding="utf-8")
 
 class CanonicalSourceTests(unittest.TestCase):
     def test_release_markers_are_aligned(self):
-        self.assertIn('version: "0.13.0"', CONFIG)
-        self.assertIn('version="0.13.0"', MAIN)
-        self.assertIn("HUD 0.13.0", INDEX)
-        self.assertEqual(MANIFEST["version"], "0.13.0")
+        version = MANIFEST["version"]
+        self.assertIn(f'version: "{version}"', CONFIG)
+        self.assertIn(f'version="{version}"', MAIN)
+        self.assertIn(f"HUD {version}", INDEX)
 
     def test_docker_build_uses_canonical_source(self):
         self.assertIn("COPY app ./app", DOCKER)

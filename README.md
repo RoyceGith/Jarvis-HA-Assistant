@@ -1,3 +1,5 @@
+ZBRANO v0.13.1 keeps voice interaction inside the chat workspace with a compact listening animation, recognizes configured conversation-closing phrases across common transcription variants, and finalizes spoken commands promptly after real post-speech silence without allowing steady room noise to prolong capture.
+
 ZBRANO v0.13.0 promotes the complete generated application into canonical source. The image now builds directly from the reviewed backend and frontend instead of reconstructing the product through 147 historical patch scripts, while preserving the validated v0.12.112 behavior.
 
 ZBRANO v0.12.112 captures spoken commands after local wake activation and groups the always-listening, local-model activation, and conversation controls together in the hands-free settings.

@@ -1,10 +1,13 @@
 {
-  "version": "0.13.0",
+  "version": "0.13.1",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/Jarvis-HA-Assistant main",
-  "summary": "Promote the complete generated application into canonical source and retire build-time feature reconstruction.",
+  "summary": "Keep hands-free voice interaction visible inside chat and finalize conversation turns reliably.",
   "features": [
+    "Present wake-command and conversation listening as a compact animation directly above the chat prompt without obscuring the conversation.",
+    "Recognize the configured conversation-closing phrase across common speech-transcription variants such as okay and thanks.",
+    "Finalize reliable command capture after bounded RMS-plus-peak post-speech silence while retaining the hard recording watchdog.",
     "Make the fully generated ZBRANO backend and frontend the authoritative checked-in source for future development.",
     "Build the application directly from canonical source while preserving every validated v0.12.112 capability.",
     "Record deterministic v0.12.112 source fingerprints and an equivalence baseline for future architectural work.",
@@ -163,6 +166,9 @@
     "Preserve multi-round Workshop Memory tasks after an approved write in both streaming and non-streaming chat."
   ],
   "fixes": [
+    "Stop the wake listening presentation from covering the chat transcript with a full-screen modal and background blur.",
+    "Prevent exact-only stop-phrase comparison from submitting ordinary transcription variants as another conversation turn.",
+    "Prevent steady room noise from continually refreshing the last-voice timestamp and delaying command transcription until the hard timeout.",
     "Remove the 147-step build-time patch reconstruction path that made releases slow, fragile, and difficult to review.",
     "Normalize the add-on launcher line endings during image construction so Windows checkouts cannot produce an invalid Linux interpreter path.",
     "Replace the obsolete interface test expectation for the original 0.8.5 source marker with the canonical release marker.",
@@ -243,6 +249,7 @@
     "Preserve task-scoped Workshop Memory approval and per-draft Gmail approval isolation."
   ],
   "validation": [
+    "Inline listening placement, non-modal accessibility, stop-phrase normalization, RMS-plus-peak continuation gating, prompt silence finalization, and v0.13.1 release alignment coverage",
     "Byte-for-byte equivalence between the frozen generated v0.12.112 runtime and the promoted canonical source before the version-only release transition",
     "Canonical Docker build, release alignment, 28 inline JavaScript blocks, New Chat wiring, backend compilation, and core platform regression coverage for v0.13.0",
     "Standalone canonical API smoke test: health returned HTTP 200 with version 0.13.0 and the frontend returned HTTP 200",
