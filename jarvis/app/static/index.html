@@ -1418,7 +1418,7 @@
   <header>
     <div class="brand-line">
       <h1>ZBRANO</h1>
-      <div class="status hud-version-label">Workshop Intelligence Interface · HUD 0.13.4</div>
+      <div class="status hud-version-label">Workshop Intelligence Interface · HUD 0.13.5</div>
     </div>
     <div class="runtime-status-stack">
       <button id="calendar-quick-open" class="calendar-quick-open" type="button" aria-label="Open ZBRANO Calendar" title="Open Calendar">
@@ -2467,7 +2467,7 @@ async function playSpeechText(text, force = false, prefetchedBlob = null) {
       const data = await response.json().catch(() => ({}));
       throw new Error(data.detail || `HTTP ${response.status}`);
     }
-    const canStreamMp3 = Math.abs(speechPlaybackRate-1)<.001 && response.body && window.MediaSource &&
+    const canStreamMp3 = response.body && window.MediaSource &&
       MediaSource.isTypeSupported("audio/mpeg");
     if (!canStreamMp3) {
       const blob = await response.blob();
@@ -2499,6 +2499,7 @@ async function playSpeechText(text, force = false, prefetchedBlob = null) {
     let playbackStarted = false;
     let playbackEnded = null;
     let bufferedBytes = 0;
+    const bufferingStarted=performance.now(),playbackBufferTarget=Math.max(1.25,1.35*speechPlaybackRate);
     const startBufferedPlayback = () => {
       if (playbackStarted) return;
       playbackStarted = true;
@@ -2521,7 +2522,8 @@ async function playSpeechText(text, force = false, prefetchedBlob = null) {
       const bufferedSeconds = sourceBuffer.buffered.length
         ? sourceBuffer.buffered.end(sourceBuffer.buffered.length - 1)
         : 0;
-      if (!playbackStarted && (bufferedBytes >= 24576 || bufferedSeconds >= 0.28)) startBufferedPlayback();
+      const bufferingSeconds=Math.max(.1,(performance.now()-bufferingStarted)/1000),productionRate=bufferedSeconds/bufferingSeconds;
+      if(!playbackStarted&&bufferedSeconds>=playbackBufferTarget&&productionRate>=speechPlaybackRate*1.5)startBufferedPlayback();
     }
     if (!playbackStarted && bufferedBytes > 0) startBufferedPlayback();
     if (mediaSource.readyState === "open" && !sourceBuffer.updating) mediaSource.endOfStream();
@@ -2610,12 +2612,14 @@ function queueSpeech(text, force = false) {
   primeSpeechPrefetch(force);
 }
 
-function extractSpeakableChunks(buffer, final = false) {
+function extractSpeakableChunks(buffer, final = false, fastStart = false) {
   const chunks = [];
   let remaining = buffer;
   // TTS treats every request boundary like punctuation. Keep requests on real
   // sentence or clause boundaries so streamed speech does not invent pauses.
-  const sentencePattern = /^([\s\S]{36,320}?[.!?](?:["')\]]?)(?:\s+|$))/;
+  const sentencePattern = fastStart
+    ? /^([\s\S]{18,240}?[.!?](?:["')\]]?)(?:\s+|$))/
+    : /^([\s\S]{36,320}?[.!?](?:["')\]]?)(?:\s+|$))/;
   while (true) {
     const match = remaining.match(sentencePattern);
     if (!match) break;
@@ -2625,8 +2629,8 @@ function extractSpeakableChunks(buffer, final = false) {
   if (final && remaining.trim()) {
     chunks.push(remaining.trim());
     remaining = "";
-  } else if (!chunks.length && remaining.length >= 120) {
-    const clauseLimit = Math.min(200, remaining.length);
+  } else if (!chunks.length && remaining.length >= (fastStart ? 64 : 120)) {
+    const clauseLimit = Math.min(fastStart ? 120 : 200, remaining.length);
     const splitAt = Math.max(
       remaining.lastIndexOf(", ", clauseLimit),
       remaining.lastIndexOf("; ", clauseLimit),
@@ -2634,11 +2638,14 @@ function extractSpeakableChunks(buffer, final = false) {
       remaining.lastIndexOf(" — ", clauseLimit),
       remaining.lastIndexOf(" – ", clauseLimit)
     );
-    if (splitAt >= 72) {
+    if (splitAt >= (fastStart ? 32 : 72)) {
       const delimiterLength = remaining.startsWith(" — ", splitAt) || remaining.startsWith(" – ", splitAt) ? 2 : 1;
       chunks.push(remaining.slice(0, splitAt + delimiterLength).trim());
       remaining = remaining.slice(splitAt + delimiterLength).trimStart();
     }
+  }
+  if(!chunks.length&&!final&&fastStart&&remaining.length>110){
+    const splitAt=remaining.lastIndexOf(" ",88);if(splitAt>=64){chunks.push(remaining.slice(0,splitAt).trim());remaining=remaining.slice(splitAt).trimStart()}
   }
   // Preserve live playback for a rare, very long sentence with no natural
   // boundary. This is intentionally much later than the old 56-character cut.
@@ -4286,7 +4293,8 @@ form.addEventListener("submit", async (event) => {
       speechBuffer += delta;
       renderMessageContent(jarvisMessage, answer);
       if (followLatest) messages.scrollTop = messages.scrollHeight;
-      const speech = extractSpeakableChunks(speechBuffer);
+      const fastSpeechStart=!speechQueueRunning&&!speechQueue.length&&!activeAudio;
+      const speech = extractSpeakableChunks(speechBuffer,false,fastSpeechStart);
       speechBuffer = speech.remaining;
       speech.chunks.forEach(chunk => queueSpeech(chunk));
     } else if (eventData.type === "sources") {

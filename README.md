@@ -1,3 +1,5 @@
+ZBRANO v0.13.5 prepares the first natural phrase while response text is still arriving, prefetches later speech, and starts adjusted-rate audio once an adaptive safety buffer and sustainable download rate are available.
+
 ZBRANO v0.13.4 keeps adjusted-rate speech stable by fully buffering it before playback, locking the chosen rate when audio metadata loads, and avoiding speed changes in the middle of a spoken segment.
 
 ZBRANO v0.13.3 verifies and recovers the live microphone path before showing conversation follow-up listening, prevents stale noise calibration from suppressing speech capture, and adds an adjustable 0.80×–1.40× speech playback speed.

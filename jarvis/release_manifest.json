@@ -1,10 +1,11 @@
 {
-  "version": "0.13.4",
+  "version": "0.13.5",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/Jarvis-HA-Assistant main",
-  "summary": "Keep adjusted speech playback at a stable rate without progressive-stream stalls.",
+  "summary": "Start adjusted speech promptly while retaining stable, underrun-resistant playback.",
   "features": [
+    "Prepare an early bounded opening phrase while response text is still streaming, then prefetch longer subsequent speech chunks during playback.",
     "Adjust spoken-reply playback from 0.80x to 1.40x in Voice Playback settings and retain the selected speed in the browser.",
     "Center compact animated sound bars above the chat prompt and drive their height and opacity from live microphone RMS and peak levels without adding a background frame.",
     "Record a bounded command-window pre-roll so speech detection cannot remove the first spoken word.",
@@ -169,6 +170,8 @@
     "Preserve multi-round Workshop Memory tasks after an approved write in both streaming and non-streaming chat."
   ],
   "fixes": [
+    "Restore progressive playback at adjusted speech speeds only after an adaptive safety buffer is available and measured audio delivery is faster than consumption.",
+    "Replace the unsafe 0.28-second startup threshold with a playback-rate-aware buffer target and throughput gate.",
     "Fully buffer adjusted-speed speech before playback so a faster player cannot outrun the progressive network buffer and pause mid-sentence.",
     "Lock both the default and active playback rates again when audio metadata loads so browsers cannot begin at normal speed before applying the selected rate.",
     "Apply speed-slider changes to the next spoken segment instead of changing rate during speech already in progress.",
@@ -262,6 +265,7 @@
     "Preserve task-scoped Workshop Memory approval and per-draft Gmail approval isolation."
   ],
   "validation": [
+    "Early opening-phrase extraction, subsequent speech prefetch preservation, adjusted-speed progressive playback, adaptive buffer target, sustainable-throughput gate, and v0.13.5 release alignment coverage",
     "Adjusted-speed full buffering, metadata rate lock, next-segment slider behavior, and v0.13.4 release alignment coverage",
     "Live microphone readiness, suspended-context recovery, recorder-before-overlay ordering, bounded command noise floor, retry behavior, and v0.13.3 release alignment coverage",
     "Command pre-roll, follow-up recorder re-arming, timeout cleanup, centered unframed RMS-responsive sound bars, and v0.13.2 release alignment coverage",

@@ -12,13 +12,13 @@ MANIFEST = json.loads((ROOT / "jarvis/release_manifest.json").read_text(encoding
 
 class StableSpeechSpeedTests(unittest.TestCase):
     def test_release_markers_are_aligned(self):
-        self.assertIn('version: "0.13.4"', CONFIG)
-        self.assertIn('version="0.13.4"', MAIN)
-        self.assertIn("HUD 0.13.4", INDEX)
-        self.assertEqual(MANIFEST["version"], "0.13.4")
+        self.assertIn('version: "0.13.5"', CONFIG)
+        self.assertIn('version="0.13.5"', MAIN)
+        self.assertIn("HUD 0.13.5", INDEX)
+        self.assertEqual(MANIFEST["version"], "0.13.5")
 
-    def test_adjusted_speed_disables_progressive_playback(self):
-        self.assertIn("Math.abs(speechPlaybackRate-1)<.001&&response.body&&window.MediaSource", INDEX.replace(" ", ""))
+    def test_adjusted_speed_avoids_the_unsafe_early_start_threshold(self):
+        self.assertNotIn("bufferedSeconds >= 0.28", INDEX)
 
     def test_rate_is_locked_when_metadata_loads(self):
         playback = INDEX[INDEX.index("function applySpeechPlaybackSettings(audio)") : INDEX.index("async function playSpeechText")]
