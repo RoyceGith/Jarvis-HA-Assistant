@@ -1418,7 +1418,7 @@
   <header>
     <div class="brand-line">
       <h1>ZBRANO</h1>
-      <div class="status hud-version-label">Workshop Intelligence Interface · HUD 0.13.5</div>
+      <div class="status hud-version-label">Workshop Intelligence Interface · HUD 0.13.6</div>
     </div>
     <div class="runtime-status-stack">
       <button id="calendar-quick-open" class="calendar-quick-open" type="button" aria-label="Open ZBRANO Calendar" title="Open Calendar">
@@ -7375,10 +7375,10 @@ catalogResults?.addEventListener("click",async event=>{
     return null;
   }
   let wakeFallbackStream=null,wakeFallbackContext=null,wakeFallbackAnalyser=null,wakeFallbackRecorder=null,wakeFallbackTimer=null,wakeFallbackCaptureTimer=null,wakeFallbackCalibratingUntil=0,wakeFallbackPeak=0;
-  let wakeFallbackChunks=[],wakeFallbackSpeechStart=0,wakeFallbackLastVoice=0,wakeFallbackVoiceFrames=0,wakeFallbackBusy=false;
+  let wakeFallbackChunks=[],wakeFallbackSpeechStart=0,wakeFallbackLastVoice=0,wakeFallbackVoiceFrames=0,wakeFallbackBusy=false,wakeFallbackFinalizing=false,wakeFallbackLastSampleAt=0;
   let wakeShadowSocket=null,wakeShadowProcessor=null,wakeShadowMute=null,wakeShadowPcm=[],wakeShadowAbove=0,wakeShadowLatched=false,wakeShadowSaveTimer=null;
   let wakeShadowHistory=[],wakeShadowLastCandidate=null,wakeCalibrationCapture=null,wakeCalibrationBusy=false,wakeShadowInputRms=0,wakeShadowInputPeak=0,wakeShadowAttempt=null,wakeShadowAttemptTimer=null,wakeShadowAttemptNumber=0;
-  let wakeFallbackMode="wake",wakeFallbackGeneration=0,wakeFallbackCommandTimer=null,wakeNativeMatchAt=0,wakeFallbackStarting=false,wakeNoiseFloor=.008;
+  let wakeFallbackMode="wake",wakeFallbackGeneration=0,wakeFallbackCommandTimer=null,wakeNativeMatchAt=0,wakeFallbackStarting=false,wakeFallbackStartToken=0,wakeNoiseFloor=.008;
   const wakeLevelBars=[...wakeOverlay.querySelectorAll(".wake-levels i")];
   const wakeFallbackAttempts=[];
   const WAKE_FALLBACK_LIMIT=20;
@@ -7389,7 +7389,7 @@ catalogResults?.addEventListener("click",async event=>{
   const wakeShadowFalse=document.getElementById("wake-shadow-false"),wakeShadowRuntime=document.getElementById("wake-shadow-runtime"),wakeShadowMessage=document.getElementById("wake-shadow-message");
   const wakeMicRms=document.getElementById("wake-mic-rms"),wakeMicPeak=document.getElementById("wake-mic-peak"),wakeAttemptResults=document.getElementById("wake-attempt-results"),wakeTestPhrase=document.getElementById("wake-test-phrase");
   const WAKE_SHADOW_KEY="zbrano_wake_shadow_v1";
-  let wakeLocalActivationAt=0,wakeConversationArmed=false,wakeConversationListening=false,wakeConversationWaitTimer=null;
+  let wakeLocalActivationAt=0,wakeConversationArmed=false,wakeConversationListening=false,wakeConversationWaitTimer=null,wakeConversationHealthTimer=null;
   const wakePositiveCount=document.getElementById("wake-positive-count"),wakeNegativeCount=document.getElementById("wake-negative-count"),wakeVerifierState=document.getElementById("wake-verifier-state"),wakeCalibrationMessage=document.getElementById("wake-calibration-message"),wakeTrainVerifier=document.getElementById("wake-train-verifier"),wakeUseVerifier=document.getElementById("wake-use-verifier"),wakeDeleteVerifier=document.getElementById("wake-delete-verifier");
   let wakeShadowStats={peak:0,detections:0,falseDetections:0,frames:0,runtimeMs:0,startedAt:0};
   try{wakeShadowStats={...wakeShadowStats,...JSON.parse(localStorage.getItem(WAKE_SHADOW_KEY)||"{}")}}catch{}
@@ -7474,24 +7474,30 @@ catalogResults?.addEventListener("click",async event=>{
     wakeLevelBars.forEach((bar,index)=>{const pulse=.72+.28*Math.sin(now/90+index*1.17),energy=Math.max(.06,level*shape[index]*pulse);bar.style.height=`${(3+energy*23).toFixed(1)}px`;bar.style.opacity=String((.28+energy*.72).toFixed(2))});
   }
   function clearWakeFallbackCommandTimer(){if(wakeFallbackCommandTimer)clearTimeout(wakeFallbackCommandTimer);wakeFallbackCommandTimer=null}
+  function clearWakeConversationHealth(){if(wakeConversationHealthTimer)clearTimeout(wakeConversationHealthTimer);wakeConversationHealthTimer=null}
   function discardWakeFallbackRecorder(){
-    const recorder=wakeFallbackRecorder;wakeFallbackRecorder=null;wakeFallbackChunks=[];wakeFallbackSpeechStart=0;wakeFallbackLastVoice=0;wakeFallbackVoiceFrames=0;
+    const recorder=wakeFallbackRecorder;wakeFallbackRecorder=null;wakeFallbackChunks=[];wakeFallbackSpeechStart=0;wakeFallbackLastVoice=0;wakeFallbackVoiceFrames=0;wakeFallbackFinalizing=false;
     if(wakeFallbackCaptureTimer)clearTimeout(wakeFallbackCaptureTimer);wakeFallbackCaptureTimer=null;
     if(recorder){recorder.ondataavailable=null;recorder.onstop=null;try{if(recorder.state!=="inactive")recorder.stop()}catch{}}
   }
   function beginWakeFallbackRecorder(){
-    if(wakeFallbackRecorder||!wakeFallbackStream)return Boolean(wakeFallbackRecorder);
+    if(wakeFallbackRecorder?.state==="recording")return true;if(wakeFallbackRecorder)discardWakeFallbackRecorder();
+    const liveTrack=wakeFallbackStream?.getAudioTracks().some(track=>track.readyState==="live"&&track.enabled&&!track.muted);if(!liveTrack)return false;
     try{const mimeType=recordingMimeType(),recorder=new MediaRecorder(wakeFallbackStream,mimeType?{mimeType}:undefined),chunks=[];recorder.ondataavailable=event=>{if(event.data.size)chunks.push(event.data)};recorder.start(100);wakeFallbackRecorder=recorder;wakeFallbackChunks=chunks;return true}
     catch(error){status(`Reliable wake audio capture failed: ${error.message||error}`,"error");return false}
   }
+  function wakeFallbackCaptureHealthy(requireRecorder=false){
+    const liveTrack=wakeFallbackStream?.getAudioTracks().some(track=>track.readyState==="live"&&track.enabled&&!track.muted),samplesFresh=performance.now()-wakeFallbackLastSampleAt<400;
+    return Boolean(liveTrack&&wakeFallbackContext?.state==="running"&&wakeFallbackAnalyser&&wakeFallbackTimer&&samplesFresh&&(!requireRecorder||wakeFallbackRecorder?.state==="recording"));
+  }
   function stopWakeFallback(){
-    wakeFallbackGeneration++;clearWakeFallbackCommandTimer();
+    wakeFallbackGeneration++;wakeFallbackStartToken++;clearWakeFallbackCommandTimer();clearWakeConversationHealth();
     if(wakeFallbackTimer)clearInterval(wakeFallbackTimer);wakeFallbackTimer=null;
     discardWakeFallbackRecorder();
     if(wakeFallbackStream)wakeFallbackStream.getTracks().forEach(track=>track.stop());
     stopWakeShadow();
     if(wakeFallbackContext)wakeFallbackContext.close().catch(()=>{});
-    wakeFallbackStream=null;wakeFallbackContext=null;wakeFallbackAnalyser=null;wakeFallbackBusy=false;wakeFallbackMode="wake";wakeFallbackStarting=false;updateWakeListeningLevel();
+    wakeFallbackStream=null;wakeFallbackContext=null;wakeFallbackAnalyser=null;wakeFallbackBusy=false;wakeFallbackMode="wake";wakeFallbackStarting=false;wakeFallbackLastSampleAt=0;updateWakeListeningLevel();
   }
   function stopWake(preserveFallback=false){if(wakeRestart)clearTimeout(wakeRestart);wakeRestart=null;stopRecognition(wakeRecognition);wakeRecognition=null;if(!preserveFallback)stopWakeFallback()}
 
@@ -7513,7 +7519,7 @@ catalogResults?.addEventListener("click",async event=>{
 
   async function transcribeWakeFallback(blob,mode,generation){
     if(wakeFallbackBusy||generation!==wakeFallbackGeneration||!wakeEnabled.checked||!fallbackRateAllowed(mode))return;
-    wakeFallbackBusy=true;status(mode==="command"?"Transcribing your command...":"Checking detected speech for the wake phrase...","listening");
+    wakeFallbackFinalizing=false;wakeFallbackBusy=true;status(mode==="command"?"Transcribing your command...":"Checking detected speech for the wake phrase...","listening");
     try{
       const extension=blob.type.includes("mp4")?"m4a":"webm";const body=new FormData();body.append("audio",blob,`zbrano-wake.${extension}`);
       const response=await fetch("api/voice/wake-transcribe",{method:"POST",body});const data=await response.json().catch(()=>({}));
@@ -7528,7 +7534,7 @@ catalogResults?.addEventListener("click",async event=>{
       stopRecognition(wakeRecognition);wakeRecognition=null;
       if(match.command){showWakeOverlay("WAKE PHRASE HEARD",match.command);stopWake();submitVoiceCommand(match.command)}else if(startFallbackCommandWindow())showWakeOverlay("WAKE PHRASE HEARD","Speak your command...");else{stopWake();hideWakeOverlay();scheduleWake(350)}
     }catch(error){if(generation===wakeFallbackGeneration)status(`Reliable wake transcription unavailable: ${error.message||error}`,"error")}
-    finally{wakeFallbackBusy=false;if(mode==="command"&&generation===wakeFallbackGeneration&&wakeFallbackMode==="command"&&!wakeFallbackRecorder)beginWakeFallbackRecorder()}
+    finally{wakeFallbackBusy=false;wakeFallbackFinalizing=false;if(mode==="command"&&generation===wakeFallbackGeneration&&wakeFallbackMode==="command"&&!wakeFallbackRecorder)beginWakeFallbackRecorder()}
   }
 
   function finishWakeFallbackUtterance(now){
@@ -7536,22 +7542,22 @@ catalogResults?.addEventListener("click",async event=>{
     const recorder=wakeFallbackRecorder;const chunks=wakeFallbackChunks;wakeFallbackRecorder=null;wakeFallbackChunks=[];
     if(wakeFallbackCaptureTimer)clearTimeout(wakeFallbackCaptureTimer);wakeFallbackCaptureTimer=null;
     wakeFallbackSpeechStart=0;wakeFallbackLastVoice=0;wakeFallbackVoiceFrames=0;
-    if(!recorder||recorder.state==="inactive"){status(`Reliable wake listening active for "${wakePhrase.value.trim()||"hey zbrano"}"`,"listening");return}
-    const validDuration=ended-started>=550;status("Finalizing wake audio...","listening");
+    if(!recorder||recorder.state==="inactive"){status(`Reliable wake listening active for "${wakePhrase.value.trim()||"hey zbrano"}"`,"listening");if(mode==="command"&&generation===wakeFallbackGeneration)beginWakeFallbackRecorder();return}
+    const validDuration=ended-started>=550;wakeFallbackFinalizing=true;status("Finalizing wake audio...","listening");
     recorder.onstop=()=>{
-      if(generation!==wakeFallbackGeneration)return;
-      if(!validDuration||!chunks.length){status(`Reliable wake listening active for "${wakePhrase.value.trim()||"hey zbrano"}"`,"listening");return}
+      if(generation!==wakeFallbackGeneration){wakeFallbackFinalizing=false;return}
+      if(!validDuration||!chunks.length){wakeFallbackFinalizing=false;status(`Reliable wake listening active for "${wakePhrase.value.trim()||"hey zbrano"}"`,"listening");if(mode==="command")beginWakeFallbackRecorder();return}
       const blob=new Blob(chunks,{type:recorder.mimeType||"audio/webm"});
       setTimeout(()=>{if(generation!==wakeFallbackGeneration)return;if(mode==="wake"&&wakeNativeMatchAt>=started)return;transcribeWakeFallback(blob,mode,generation)},250);
     };
-    recorder.onerror=event=>{if(generation===wakeFallbackGeneration)status(`Reliable wake audio failed: ${event.error?.message||"recorder error"}`,"error")};
-    try{recorder.requestData();recorder.stop()}catch(error){status(`Reliable wake audio finalization failed: ${error.message||error}`,"error")}
+    recorder.onerror=event=>{wakeFallbackFinalizing=false;if(generation===wakeFallbackGeneration){status(`Reliable wake audio failed: ${event.error?.message||"recorder error"}`,"error");if(mode==="command")beginWakeFallbackRecorder()}};
+    try{recorder.requestData();recorder.stop()}catch(error){wakeFallbackFinalizing=false;status(`Reliable wake audio finalization failed: ${error.message||error}`,"error");if(mode==="command"&&generation===wakeFallbackGeneration)beginWakeFallbackRecorder()}
   }
 
   function sampleWakeFallback(){
-    if(!wakeFallbackAnalyser||wakeFallbackBusy||(wakeShadowEnabled.checked&&wakeFallbackMode==="wake"))return;
+    if(!wakeFallbackAnalyser||(wakeShadowEnabled.checked&&wakeFallbackMode==="wake"))return;
     const samples=new Uint8Array(wakeFallbackAnalyser.fftSize);wakeFallbackAnalyser.getByteTimeDomainData(samples);
-    let energy=0,peak=0;for(const sample of samples){const value=(sample-128)/128;energy+=value*value;peak=Math.max(peak,Math.abs(value))}const rms=Math.sqrt(energy/samples.length);const now=performance.now();updateWakeListeningLevel(rms,peak);
+    let energy=0,peak=0;for(const sample of samples){const value=(sample-128)/128;energy+=value*value;peak=Math.max(peak,Math.abs(value))}const rms=Math.sqrt(energy/samples.length);const now=performance.now();wakeFallbackLastSampleAt=now;updateWakeListeningLevel(rms,peak);if(wakeFallbackBusy||wakeFallbackFinalizing)return;
     if(now<wakeFallbackCalibratingUntil){wakeNoiseFloor=Math.min(.08,wakeNoiseFloor*.9+rms*.1);wakeFallbackVoiceFrames=0;return}
     const threshold=Math.max(.032,wakeNoiseFloor*2.8);const strongVoice=rms>threshold&&peak>Math.max(.085,wakeNoiseFloor*4.2);
     if(!wakeFallbackSpeechStart){
@@ -7576,16 +7582,17 @@ catalogResults?.addEventListener("click",async event=>{
   async function startWakeFallback(){
     if(wakeFallbackStarting||!wakeEnabled.checked||document.hidden)return false;
     if(wakeFallbackStream){
-      const liveTrack=wakeFallbackStream.getAudioTracks().some(track=>track.readyState==="live"&&track.enabled);
+      const liveTrack=wakeFallbackStream.getAudioTracks().some(track=>track.readyState==="live"&&track.enabled&&!track.muted);
       if(liveTrack&&wakeFallbackContext&&wakeFallbackAnalyser){try{if(wakeFallbackContext.state==="suspended")await wakeFallbackContext.resume();if(wakeFallbackContext.state==="running")return true}catch{}}
       stopWakeFallback();
     }
-    wakeFallbackStarting=true;
+    const startToken=++wakeFallbackStartToken;wakeFallbackStarting=true;
     try{
       const stream=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true,noiseSuppression:true,autoGainControl:true}});
-      if(!wakeEnabled.checked||document.hidden){stream.getTracks().forEach(track=>track.stop());return}
+      if(startToken!==wakeFallbackStartToken||!wakeEnabled.checked||document.hidden){stream.getTracks().forEach(track=>track.stop());return false}
       const AudioContextClass=window.AudioContext||window.webkitAudioContext;if(!AudioContextClass||!window.MediaRecorder)throw new Error("browser audio monitoring is unavailable");
       const context=new AudioContextClass();await context.resume();const analyser=context.createAnalyser();analyser.fftSize=512;const source=context.createMediaStreamSource(stream);source.connect(analyser);
+      if(startToken!==wakeFallbackStartToken||!wakeEnabled.checked||document.hidden){stream.getTracks().forEach(track=>track.stop());context.close().catch(()=>{});return false}
       wakeFallbackStream=stream;wakeFallbackContext=context;wakeFallbackAnalyser=analyser;wakeFallbackRecorder=null;wakeFallbackMode="wake";wakeFallbackChunks=[];
       wakeNoiseFloor=.008;wakeFallbackCalibratingUntil=performance.now()+2500;wakeFallbackPeak=0;
       startWakeShadow(context,source);
@@ -7593,7 +7600,7 @@ catalogResults?.addEventListener("click",async event=>{
       setTimeout(()=>{if(wakeFallbackStream&&wakeEnabled.checked)status(`Reliable wake listening active for "${wakePhrase.value.trim()||"hey zbrano"}"`,"listening")},2600);
       return true;
     }catch(error){status(`Reliable wake listener unavailable: ${error.message||error}. Trying Chrome speech recognition...`,"error");stopWakeFallback();return false}
-    finally{wakeFallbackStarting=false}
+    finally{if(startToken===wakeFallbackStartToken)wakeFallbackStarting=false}
   }
   function recognitionLanguage(){const preferred=String(jarvisPreferences?.preferred_language||"").trim();return preferred&&preferred!=="auto"?preferred:document.documentElement.lang||navigator.language||"en-US"}
   function wakeCanRun(){return Boolean(wakeEnabled.checked&&Recognition&&!braveBrowser&&!document.hidden&&!pendingSuggestion&&!activeAudio&&!speechQueueRunning&&!mediaRecorder&&!activeRequest)}
@@ -7701,7 +7708,7 @@ catalogResults?.addEventListener("click",async event=>{
     }catch{}finally{pollActive=false}
   }
 
-  wakeOverlayCancel.addEventListener("click",()=>{stopRecognition(commandRecognition);commandRecognition=null;pendingSuggestion=null;wakeConversationArmed=false;wakeConversationListening=false;if(wakeConversationWaitTimer)clearTimeout(wakeConversationWaitTimer);clearWakeFallbackCommandTimer();wakeFallbackMode="wake";wakeFallbackGeneration++;wakeFallbackChunks=[];hideWakeOverlay();status("Listening cancelled");scheduleWake()});
+  wakeOverlayCancel.addEventListener("click",()=>{stopRecognition(commandRecognition);commandRecognition=null;pendingSuggestion=null;wakeConversationArmed=false;wakeConversationListening=false;if(wakeConversationWaitTimer)clearTimeout(wakeConversationWaitTimer);clearWakeConversationHealth();clearWakeFallbackCommandTimer();wakeFallbackMode="wake";wakeFallbackGeneration++;discardWakeFallbackRecorder();hideWakeOverlay();status("Listening cancelled");scheduleWake()});
   wakeTestPhrase.addEventListener("click",startWakeShadowAttempt);
   document.getElementById("wake-remove-invalid").addEventListener("click",async()=>{if(!confirm("Remove recordings that are silent, too quiet, or materially clipped? Valid recordings will be preserved."))return;wakeCalibrationBusy=true;try{const response=await fetch("api/voice/wake-calibration/invalid",{method:"DELETE"}),data=await response.json().catch(()=>({}));if(!response.ok)throw new Error(wakeCalibrationError(data,response.status));wakeCalibrationMessage.textContent=`Removed ${data.removed||0} invalid recording(s). Valid clips were preserved.`}catch(error){wakeCalibrationMessage.textContent=`Invalid-recording cleanup failed: ${error.message||error}`}finally{wakeCalibrationBusy=false;await loadWakeCalibration()}});
   document.getElementById("wake-export-calibration").addEventListener("click",()=>{const link=document.createElement("a");link.href=new URL("api/voice/wake-calibration/export",document.baseURI).toString();link.download="zbrano-wake-calibration.zip";document.body.appendChild(link);link.click();link.remove()});
@@ -7728,7 +7735,7 @@ catalogResults?.addEventListener("click",async event=>{
   const voiceObserver=new MutationObserver(()=>{if(activeAudio||speechQueueRunning)stopWake();else if(!pendingSuggestion)scheduleWake()});voiceObserver.observe(document.getElementById("voice-state"),{childList:true,subtree:true});
 
   function startConversationFollowup(){
-    if(wakeConversationWaitTimer)clearTimeout(wakeConversationWaitTimer);const expires=Date.now()+45000;
+    if(wakeConversationWaitTimer)clearTimeout(wakeConversationWaitTimer);clearWakeConversationHealth();const expires=Date.now()+45000;
     const attempt=async()=>{
       if(!wakeConversationEnabled.checked||!wakeEnabled.checked||document.hidden)return;
       if(Date.now()>=expires){status("Conversation follow-up expired");scheduleWake();return}
@@ -7736,7 +7743,14 @@ catalogResults?.addEventListener("click",async event=>{
       const microphoneReady=await startWakeFallback();if(!microphoneReady||!wakeFallbackStream){status("Conversation microphone unavailable - retrying","error");wakeConversationWaitTimer=setTimeout(attempt,500);return}
       stopRecognition(wakeRecognition);wakeRecognition=null;wakeConversationListening=true;
       if(!startFallbackCommandWindow()){wakeConversationListening=false;stopWake();hideWakeOverlay();status("Conversation microphone capture did not arm - retrying","error");wakeConversationWaitTimer=setTimeout(attempt,500);return}
-      showWakeOverlay("CONVERSATION MODE","Listening for your follow-up...");status("Conversation mode - listening for a follow-up","listening");
+      const generation=wakeFallbackGeneration;
+      const verifyCapture=()=>{
+        if(generation!==wakeFallbackGeneration||wakeFallbackMode!=="command"||!wakeConversationListening)return;
+        if(wakeFallbackBusy||wakeFallbackFinalizing||wakeFallbackSpeechStart){wakeConversationHealthTimer=setTimeout(verifyCapture,350);return}
+        if(wakeFallbackCaptureHealthy(true)){wakeConversationHealthTimer=setTimeout(verifyCapture,500);return}
+        wakeConversationListening=false;hideWakeOverlay();status("Conversation microphone stopped responding - reconnecting","error");stopWake();wakeConversationWaitTimer=setTimeout(attempt,500);
+      };
+      wakeConversationHealthTimer=setTimeout(verifyCapture,650);showWakeOverlay("CONVERSATION MODE","Listening for your follow-up...");status("Conversation mode - listening for a follow-up","listening");
     };
     attempt();
   }
