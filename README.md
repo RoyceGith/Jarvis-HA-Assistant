@@ -1,3 +1,5 @@
+ZBRANO v0.12.112 captures spoken commands after local wake activation and groups the always-listening, local-model activation, and conversation controls together in the hands-free settings.
+
 ZBRANO v0.12.111 optionally lets the local Hey ZBRANO model open the command interface and provides a bounded hands-free follow-up conversation window after voice-originated replies.
 
 ZBRANO v0.12.110 removes the full-screen horizontal scanline overlay from every theme while preserving the neural background and functional component borders.

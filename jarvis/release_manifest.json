@@ -1,10 +1,11 @@
 {
-  "version": "0.12.111",
+  "version": "0.12.112",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/Jarvis-HA-Assistant main",
-  "summary": "Enable optional local wake activation and bounded follow-up conversation mode.",
+  "summary": "Capture local-wake commands and organize the always-listening controls.",
   "features": [
+    "Group Enable always listening mode, local-model activation, and follow-up conversation settings in the same hands-free section.",
     "Allow the local Hey ZBRANO model to open the existing command-listening overlay through an explicit browser-local opt-in setting.",
     "Offer an optional 15-second follow-up conversation window after each completed voice-originated response without requiring the wake phrase again.",
     "Use ok thank you as the default conversation-closing phrase and allow each browser to configure its preferred stop phrase.",
@@ -159,6 +160,8 @@
     "Preserve multi-round Workshop Memory tasks after an approved write in both streaming and non-streaming chat."
   ],
   "fixes": [
+    "Remove the duplicate-looking local activation control from the diagnostic shadow panel and present it once beside its master listening switch.",
+    "Allow fallback voice-activity sampling in command mode even while the local wake model is enabled, so the listening overlay can transcribe and submit commands instead of timing out.",
     "Keep typed chats from opening hands-free follow-up listening and enforce an eight-second local wake activation cooldown.",
     "Stop thin repeating lines from washing across chat text, panels, tabs, controls, and empty interface space.",
     "Exclude the mislabeled name-containing ordinary-phrase sample from the accepted calibration result instead of blocking deployment indefinitely.",
@@ -234,6 +237,7 @@
     "Preserve task-scoped Workshop Memory approval and per-draft Gmail approval isolation."
   ],
   "validation": [
+    "Local wake command-mode VAD exception, wake-mode duplicate suppression, generated patch chain, inline JavaScript, backend compilation, and v0.12.112 release alignment coverage",
     "Local wake opt-in, two-frame threshold, cooldown, command handoff, voice-only conversation chaining, stop conditions, patch order, and v0.12.111 release alignment coverage",
     "Global scanline removal, theme coverage, component-border preservation, patch order, and v0.12.110 release alignment coverage",
     "Model checksum, real-recording detection, non-wake rejection, silent-shadow boundary, patch order, and v0.12.109 release alignment coverage",
