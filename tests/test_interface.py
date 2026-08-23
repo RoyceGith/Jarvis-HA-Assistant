@@ -24,8 +24,8 @@ class InterfaceTests(unittest.TestCase):
     def test_hud_graph_and_versions(self):
         self.assertIn('id="brain-network"', INDEX)
         self.assertIn("prefers-reduced-motion: reduce", INDEX)
-        self.assertIn('version: "0.13.7"', CONFIG)
-        self.assertIn('version="0.13.7"', MAIN)
+        self.assertIn('version: "0.13.8"', CONFIG)
+        self.assertIn('version="0.13.8"', MAIN)
 
     def test_public_defaults_and_saved_app_options(self):
         self.assertNotIn("192.168.178.49", CONFIG)
@@ -162,7 +162,7 @@ class InterfaceTests(unittest.TestCase):
         self.assertIn('new Audio(activeAudioUrl)', INDEX)
         self.assertIn('function queueSpeech', INDEX)
         self.assertIn('function speechTextForPlayback', INDEX)
-        self.assertIn('extractSpeakableChunks(speechBuffer)', INDEX)
+        self.assertIn('extractSpeakableChunks(speechBuffer,false,fastSpeechStart)', INDEX)
         self.assertIn('stopAudioPlayback("VOICE STOPPED")', INDEX)
         self.assertIn('@app.post("/api/voice/transcribe")', MAIN)
         self.assertIn('@app.post("/api/voice/speech")', MAIN)

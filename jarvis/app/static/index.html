@@ -1375,8 +1375,13 @@
     #wake-word-status[data-state="listening"] { color:var(--cyan); }
     #wake-word-status[data-state="error"] { color:var(--danger); }
 
-    /* v0.12.95 reliable Entities viewport scrolling. */
+    /* v0.13.8 reliable Entities viewport scrolling. */
     #entities-panel { display:flex; flex-direction:column; min-height:0; overflow:hidden; }
+    #entities-panel .entity-view-tabs { flex:0 0 auto; }
+    #entities-panel > [data-entity-view-panel] { flex:1 1 auto; min-height:0; }
+    #entities-panel > [data-entity-view-panel="inventory"] { display:flex; flex-direction:column; overflow:hidden; }
+    #entities-panel > [data-entity-view-panel="history"] { overflow:auto; overscroll-behavior:contain; -webkit-overflow-scrolling:touch; }
+    #entities-panel > [data-entity-view-panel].hidden { display:none; }
     #entities-panel .toolbar, #entities-panel .summary { flex:0 0 auto; }
     #entities-panel .table-wrap { flex:1 1 auto; min-height:0; height:auto; max-height:none; overflow:auto; overscroll-behavior:contain; -webkit-overflow-scrolling:touch; scrollbar-gutter:stable; }
     #entities-panel .table-wrap table { margin:0; }
@@ -1418,7 +1423,7 @@
   <header>
     <div class="brand-line">
       <h1>ZBRANO</h1>
-      <div class="status hud-version-label">Workshop Intelligence Interface · HUD 0.13.7</div>
+      <div class="status hud-version-label">Workshop Intelligence Interface · HUD 0.13.8</div>
     </div>
     <div class="runtime-status-stack">
       <button id="calendar-quick-open" class="calendar-quick-open" type="button" aria-label="Open ZBRANO Calendar" title="Open Calendar">
@@ -1601,6 +1606,7 @@
         </thead>
         <tbody id="entity-rows"></tbody>
       </table>
+    </div>
     </div>
     <div data-entity-view-panel="history" class="hidden">
       <div class="ha-history-shell">
