@@ -1,3 +1,5 @@
+ZBRANO v0.13.7 lets either Talk or the opted-in local “Hey ZBRANO” detector interrupt response generation and playback, then safely opens microphone capture for a replacement prompt.
+
 ZBRANO v0.13.6 prevents cancelled microphone starts from reinstalling stale listeners, re-arms short or failed captures, and actively reconnects conversation listening when any browser audio component stops responding.
 
 ZBRANO v0.13.5 prepares the first natural phrase while response text is still arriving, prefetches later speech, and starts adjusted-rate audio once an adaptive safety buffer and sustainable download rate are available.

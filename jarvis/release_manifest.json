@@ -1,10 +1,12 @@
 {
-  "version": "0.13.6",
+  "version": "0.13.7",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/Jarvis-HA-Assistant main",
-  "summary": "Keep conversation listening healthy and automatically recover stalled browser capture.",
+  "summary": "Let Talk interrupt current speech and safely begin a replacement voice prompt.",
   "features": [
+    "Allow the opted-in local Hey ZBRANO detector to stop active playback and generation, clear residual speaker audio, and arm a replacement command without pressing a button.",
+    "Use Talk as a single-action barge-in control that stops active generation and playback before opening microphone capture.",
     "Prepare an early bounded opening phrase while response text is still streaming, then prefetch longer subsequent speech chunks during playback.",
     "Adjust spoken-reply playback from 0.80x to 1.40x in Voice Playback settings and retain the selected speed in the browser.",
     "Center compact animated sound bars above the chat prompt and drive their height and opacity from live microphone RMS and peak levels without adding a background frame.",
@@ -170,6 +172,11 @@
     "Preserve multi-round Workshop Memory tasks after an approved write in both streaming and non-streaming chat."
   ],
   "fixes": [
+    "Keep only local wake inference active during playback and continue suppressing reliable-listener transcription until a confirmed playback-time wake activation.",
+    "Require a stronger three-frame local wake threshold during speaker playback to reduce self-triggering from echo.",
+    "Block wake interruption while the speech segment being played itself contains a configured wake phrase.",
+    "Keep Talk enabled while response text and early speech are streaming.",
+    "Prevent the interrupted response socket from later resetting controls or overwriting the state of its replacement voice request.",
     "Invalidate pending getUserMedia starts so a cancelled microphone request cannot later reinstall a stale listener during response playback.",
     "Treat muted audio tracks as unhealthy and rebuild them instead of accepting a live-but-silent browser stream.",
     "Re-arm command recording after short, empty, inactive, failed, or unsuccessfully finalized captures.",
@@ -269,6 +276,7 @@
     "Preserve task-scoped Workshop Memory approval and per-draft Gmail approval isolation."
   ],
   "validation": [
+    "Talk-during-response availability, local wake-only playback monitoring, stronger echo-resistant confirmation, atomic playback interruption, echo-clear command handoff, stale-close isolation, and v0.13.7 release alignment coverage",
     "Cancelled-start invalidation, muted-track rejection, failed-capture re-arming, live conversation watchdog recovery, cancel cleanup, and v0.13.6 release alignment coverage",
     "Early opening-phrase extraction, subsequent speech prefetch preservation, adjusted-speed progressive playback, adaptive buffer target, sustainable-throughput gate, and v0.13.5 release alignment coverage",
     "Adjusted-speed full buffering, metadata rate lock, next-segment slider behavior, and v0.13.4 release alignment coverage",

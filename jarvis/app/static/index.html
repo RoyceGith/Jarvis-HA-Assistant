@@ -1418,7 +1418,7 @@
   <header>
     <div class="brand-line">
       <h1>ZBRANO</h1>
-      <div class="status hud-version-label">Workshop Intelligence Interface · HUD 0.13.6</div>
+      <div class="status hud-version-label">Workshop Intelligence Interface · HUD 0.13.7</div>
     </div>
     <div class="runtime-status-stack">
       <button id="calendar-quick-open" class="calendar-quick-open" type="button" aria-label="Open ZBRANO Calendar" title="Open Calendar">
@@ -2276,6 +2276,7 @@ let speechQueue = [];
 let speechQueueRunning = false;
 let speechPrefetch = null;
 let speechPrefetchAbortController = null;
+let activeSpeechText = "";
 let hasSavedSpeechProvider = false;
 let agentControlsLoaded = false;
 
@@ -2378,6 +2379,7 @@ function setVoiceState(state, detail = "") {
 
 function cleanupActiveAudio(nextState = "VOICE READY") {
   activeAudio = null;
+  activeSpeechText = "";
   if (activeAudioUrl) URL.revokeObjectURL(activeAudioUrl);
   activeAudioUrl = null;
   if (!activeRequest && !mediaRecorder) stopButton.disabled = true;
@@ -2436,6 +2438,7 @@ async function playSpeechText(text, force = false, prefetchedBlob = null) {
     return;
   }
   const speechController = new AbortController();
+  activeSpeechText=String(text||"");
   speechAbortController = speechController;
   stopButton.disabled = false;
   try {
@@ -2736,9 +2739,20 @@ function stopRecording() {
   if (mediaRecorder && mediaRecorder.state !== "inactive") mediaRecorder.stop();
 }
 
+function interruptActiveResponseForVoice(){
+  const request=activeRequest;
+  if(request){
+    request.stopped=true;const {socket,jarvisMessage}=request;
+    if(socket.readyState===WebSocket.OPEN)socket.send(JSON.stringify({type:"stop"}));else socket.close();
+    const existing=jarvisMessage.textContent.trim();renderMessageContent(jarvisMessage,existing&&existing!=="Connectingâ€¦"?`${existing}\n\n[Interrupted for voice]`:"Interrupted for voice.");
+    activeRequest=null;finishOpenToolActivities("failed");finishResponseActivity("Stopped");input.disabled=false;sendButton.disabled=false;stopButton.disabled=true;
+  }
+  stopAudioPlayback("VOICE INTERRUPTED");
+}
+
 micButton.addEventListener("click", () => {
   if (mediaRecorder && mediaRecorder.state !== "inactive") stopRecording();
-  else if (!activeRequest) startRecording();
+  else{if(activeRequest)interruptActiveResponseForVoice();startRecording()}
 });
 
 const PROMPT_HISTORY_KEY = "jarvis_prompt_history_v1";
@@ -4224,7 +4238,7 @@ form.addEventListener("submit", async (event) => {
   startResponseActivity("Thinking");
   input.disabled = true;
   sendButton.disabled = true;
-  micButton.disabled = true;
+  micButton.disabled = false;
   stopButton.disabled = false;
 
   setNeuronIntensity(false);
@@ -4331,10 +4345,11 @@ form.addEventListener("submit", async (event) => {
         jarvisMessage,
         closeEvent.code === 1000
           ? (statusText || "No response received.")
-          : `Request failed: WebSocket closed (${closeEvent.code}).`
+        : `Request failed: WebSocket closed (${closeEvent.code}).`
       );
     }
-    if (activeRequest === requestState) activeRequest = null;
+    if(activeRequest!==requestState){if(requestState.stopped)refreshChatList();return}
+    activeRequest = null;
     finishOpenToolActivities(requestState.stopped ? "failed" : "completed");
     finishResponseActivity(requestState.stopped ? "Stopped" : (answer ? "Completed" : "No response"));
     if (!requestState.stopped && answer) window.zbranoMarkTabChanged?.("chat-tab");
@@ -7446,14 +7461,15 @@ catalogResults?.addEventListener("click",async event=>{
   }
   function handleWakeShadowScore(score){
     score=Math.max(0,Math.min(1,Number(score)||0));wakeShadowStats.frames++;wakeShadowStats.peak=Math.max(Number(wakeShadowStats.peak||0),score);if(wakeShadowAttempt){wakeShadowAttempt.score=Math.max(wakeShadowAttempt.score,score);wakeShadowAttempt.above=score>=Number(wakeShadowThreshold.value||.5)?wakeShadowAttempt.above+1:0;if(wakeShadowAttempt.above>=2)wakeShadowAttempt.detected=true}
-    const threshold=Number(wakeShadowThreshold.value||.5);wakeShadowAbove=score>=threshold?wakeShadowAbove+1:0;
-    if(wakeShadowAbove>=2&&!wakeShadowLatched){
+    const threshold=Number(wakeShadowThreshold.value||.5),playbackActive=Boolean(activeAudio||speechQueueRunning),activationThreshold=playbackActive?Math.max(.68,threshold+.12):threshold,requiredFrames=playbackActive?3:2;wakeShadowAbove=score>=activationThreshold?wakeShadowAbove+1:0;
+    if(wakeShadowAbove>=requiredFrames&&!wakeShadowLatched){
       wakeShadowLatched=true;wakeShadowStats.detections++;wakeShadowLastCandidate=new Int16Array(wakeShadowHistory.slice(-64000));
-      const canActivate=wakeLocalActivate.checked&&wakeFallbackMode==="wake"&&!wakeShadowAttempt&&!wakeCalibrationCapture&&!activeRequest&&!pendingSuggestion&&Date.now()-wakeLocalActivationAt>=8000;
-      if(canActivate){wakeLocalActivationAt=Date.now();wakeShadowMessage.textContent=`Local wake activation ${wakeShadowStats.detections} at ${score.toFixed(3)}.`;stopRecognition(wakeRecognition);wakeRecognition=null;if(wakeFallbackStream&&startFallbackCommandWindow())showWakeOverlay("LOCAL WAKE PHRASE HEARD","Speak your command...");else{stopWake();setTimeout(startCommandWindow,180)}}
+      const playbackContainsWake=wakeCandidates().some(candidate=>conversationPhrase(activeSpeechText).includes(candidate)),activationReady=wakeLocalActivate.checked&&wakeFallbackMode==="wake"&&!wakeShadowAttempt&&!wakeCalibrationCapture&&!pendingSuggestion&&Date.now()-wakeLocalActivationAt>=8000,canBargeIn=activationReady&&playbackActive&&!playbackContainsWake,canActivate=activationReady&&!playbackActive&&!activeRequest;
+      if(canBargeIn){wakeLocalActivationAt=Date.now();startPlaybackWakeBargeIn(score)}
+      else if(canActivate){wakeLocalActivationAt=Date.now();wakeShadowMessage.textContent=`Local wake activation ${wakeShadowStats.detections} at ${score.toFixed(3)}.`;stopRecognition(wakeRecognition);wakeRecognition=null;if(wakeFallbackStream&&startFallbackCommandWindow())showWakeOverlay("LOCAL WAKE PHRASE HEARD","Speak your command...");else{stopWake();setTimeout(startCommandWindow,180)}}
       else wakeShadowMessage.textContent=`Silent detection ${wakeShadowStats.detections} at ${score.toFixed(3)}.${wakeLocalActivate.checked?" Activation was busy or cooling down.":" Chat was not activated."}`;
     }
-    if(score<threshold*.55)wakeShadowLatched=false;renderWakeShadow(score);
+    if(score<activationThreshold*.55)wakeShadowLatched=false;renderWakeShadow(score);
   }
   function startWakeShadow(context,source){
     stopWakeShadow();if(!wakeShadowEnabled.checked)return;
@@ -7508,6 +7524,11 @@ catalogResults?.addEventListener("click",async event=>{
     wakeFallbackCommandTimer=setTimeout(()=>{if(generation!==wakeFallbackGeneration)return;wakeConversationListening=false;discardWakeFallbackRecorder();wakeFallbackMode="wake";hideWakeOverlay(250);status(`No command heard - listening for "${wakePhrase.value.trim()||"hey zbrano"}"`,"listening");scheduleWake()},wakeConversationListening?15000:9000);
     status("Wake phrase heard - reliable listener is waiting for your command","listening");
     return true;
+  }
+
+  function startPlaybackWakeBargeIn(score){
+    wakeShadowMessage.textContent=`Playback wake interruption detected at ${score.toFixed(3)}.`;stopRecognition(wakeRecognition);wakeRecognition=null;wakeConversationArmed=false;wakeConversationListening=false;interruptActiveResponseForVoice();status("Wake phrase heard - clearing speaker audio...","listening");
+    const stream=wakeFallbackStream;setTimeout(()=>{if(!wakeEnabled.checked||document.hidden||wakeFallbackStream!==stream)return;if(startFallbackCommandWindow())showWakeOverlay("WAKE PHRASE HEARD","Speak your new command...");else{hideWakeOverlay();stopWake();scheduleWake(350)}},240);
   }
 
   function fallbackRateAllowed(mode){
@@ -7732,7 +7753,11 @@ catalogResults?.addEventListener("click",async event=>{
   wakePhrase.addEventListener("change",()=>{wakePhrase.value=clean(wakePhrase.value)||"hey zbrano";if(wakeEnabled.checked){stopWake();scheduleWake()}});
   document.addEventListener("visibilitychange",()=>{if(document.hidden)stopWake();else{pollSuggestions();scheduleWake()}});
   window.addEventListener("zbrano-voice-preferences-loaded",()=>{if(wakeEnabled.checked){if(showWakeCompatibility())startWake()}else if(braveBrowser)showWakeCompatibility();else status("Wake listening is off. It works only while this page is open and microphone permission is granted.")});
-  const voiceObserver=new MutationObserver(()=>{if(activeAudio||speechQueueRunning)stopWake();else if(!pendingSuggestion)scheduleWake()});voiceObserver.observe(document.getElementById("voice-state"),{childList:true,subtree:true});
+  async function maintainPlaybackWake(){
+    if(!wakeEnabled.checked||!wakeShadowEnabled.checked||!wakeLocalActivate.checked||document.hidden){stopWake();return}
+    stopRecognition(wakeRecognition);wakeRecognition=null;stopWake(true);const ready=await startWakeFallback();if(ready&&(activeAudio||speechQueueRunning))status('Local "Hey ZBRANO" interruption ready during playback',"listening");
+  }
+  const voiceObserver=new MutationObserver(()=>{if(activeAudio||speechQueueRunning)maintainPlaybackWake();else if(!pendingSuggestion)scheduleWake()});voiceObserver.observe(document.getElementById("voice-state"),{childList:true,subtree:true});
 
   function startConversationFollowup(){
     if(wakeConversationWaitTimer)clearTimeout(wakeConversationWaitTimer);clearWakeConversationHealth();const expires=Date.now()+45000;
