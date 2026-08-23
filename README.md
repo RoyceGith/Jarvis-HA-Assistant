@@ -1,3 +1,5 @@
+ZBRANO v0.13.9 adds an Automation Brain workflow that turns natural-language requests into reviewable structured drafts, remembers confirmed entity mappings, separates Create New from Library, and speaks only the configured suggestion wording.
+
 ZBRANO v0.13.8 restores independent vertical and horizontal scrolling in the Entities inventory and keeps the History view bounded inside the panel.
 
 ZBRANO v0.13.7 lets either Talk or the opted-in local “Hey ZBRANO” detector interrupt response generation and playback, then safely opens microphone capture for a replacement prompt.

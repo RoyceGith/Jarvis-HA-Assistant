@@ -555,6 +555,8 @@
     .autonomy-mode{display:flex;gap:.6rem;border:1px solid var(--line);padding:.65rem;border-radius:6px;margin:.5rem 0}.autonomy-mode span,.autonomy-mode small{display:block}.autonomy-mode small{color:var(--text-muted);margin-top:.2rem}.autonomy-mode.locked{opacity:.65}
     .autonomy-boundary-list{display:grid;gap:.6rem;padding:0;list-style:none}.autonomy-boundary-list li{display:grid;gap:.15rem;border-left:2px solid var(--cyan);padding-left:.65rem}.autonomy-boundary-list span{color:var(--text-muted)}
     .autonomy-draft,.autonomy-context-row,.autonomy-event{border:1px solid var(--line);border-radius:6px;padding:.7rem;display:grid;gap:.35rem}.autonomy-draft-head{display:flex;justify-content:space-between;gap:.7rem}.autonomy-tags{display:flex;flex-wrap:wrap;gap:.35rem}.autonomy-tags span{border:1px solid var(--line);border-radius:999px;padding:.2rem .45rem;font-size:.7rem;color:var(--text-muted)}.autonomy-draft-actions{display:flex;gap:.4rem}.autonomy-event time{color:var(--text-muted);font-size:.72rem}
+    .automation-library-tabs{display:flex;gap:.4rem;border-bottom:1px solid var(--line);padding-bottom:.55rem;margin-bottom:.75rem}.automation-library-tabs button.active{border-color:var(--cyan);color:var(--cyan)}
+    [data-automation-library-panel].hidden{display:none}.automation-chat-builder{display:grid;gap:.65rem;margin-bottom:.75rem}.automation-chat-builder textarea{width:100%;min-height:88px;resize:vertical}.automation-advanced{margin-top:.75rem}.automation-advanced>summary{cursor:pointer;color:var(--cyan);padding:.65rem 0}.automation-memory-list{display:grid;gap:.45rem}.automation-memory-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:.25rem .6rem;align-items:center;border:1px solid var(--line);border-radius:6px;padding:.6rem}.automation-memory-row small{grid-column:1/-1;color:var(--text-muted)}
     @media(max-width:900px){.autonomy-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}.autonomy-overview-grid,.autonomy-safety-grid,.autonomy-library-grid{grid-template-columns:1fr}.autonomy-header{display:grid}.autonomy-engine-badge{white-space:normal}.autonomy-form-grid{grid-template-columns:1fr}.autonomy-form-grid .wide{grid-column:auto}}
 
     /* v0.12.19 modern neutral controls. Chat message colors intentionally remain unchanged. */
@@ -1423,7 +1425,7 @@
   <header>
     <div class="brand-line">
       <h1>ZBRANO</h1>
-      <div class="status hud-version-label">Workshop Intelligence Interface · HUD 0.13.8</div>
+      <div class="status hud-version-label">Workshop Intelligence Interface · HUD 0.13.9</div>
     </div>
     <div class="runtime-status-stack">
       <button id="calendar-quick-open" class="calendar-quick-open" type="button" aria-label="Open ZBRANO Calendar" title="Open Calendar">
@@ -2020,6 +2022,20 @@
       </section>
 
       <section class="autonomy-view hidden" data-auto-panel="library">
+        <div class="automation-library-tabs" role="tablist" aria-label="Automation library views">
+          <button type="button" class="active" data-automation-library-view="create" role="tab" aria-selected="true">Create New</button>
+          <button type="button" data-automation-library-view="saved" role="tab" aria-selected="false">Library</button>
+        </div>
+        <div data-automation-library-panel="create">
+        <article class="autonomy-card automation-chat-builder">
+          <div><h3>Create with ZBRANO</h3><p>Describe the behavior naturally. ZBRANO will find approved entities, ask about ambiguity, remember confirmed mappings, and prepare a disabled preview before activation.</p></div>
+          <form id="automation-chat-builder-form" class="automation-chat-builder">
+            <textarea id="automation-chat-request" maxlength="2000" required placeholder="If the living-room temperature stays above 25 degrees for two minutes, start cooling and notify me."></textarea>
+            <div class="autonomy-form-actions"><button type="submit">Build in Chat</button><span id="automation-chat-builder-status" role="status"></span></div>
+          </form>
+        </article>
+        <details class="automation-advanced">
+          <summary>Advanced manual editor and templates</summary>
         <div class="autonomy-library-grid">
           <article class="autonomy-card">
             <h3>Quick-start designs</h3><p>Templates prefill a disabled rule. Review its entities, trigger, action, and authority before enabling it.</p>
@@ -2062,7 +2078,12 @@
             <datalist id="automation-entity-options"></datalist>
           </article>
         </div>
-        <article class="autonomy-card"><div class="autonomy-card-head"><div><h3>Automation Library</h3><p>Disabled rules remain drafts; enabled rules are evaluated from live Home Assistant state changes.</p></div></div><div id="automation-library" class="autonomy-list"></div></article>
+        </details>
+        </div>
+        <div class="hidden" data-automation-library-panel="saved">
+          <article class="autonomy-card"><div class="autonomy-card-head"><div><h3>Automation Memory</h3><p>Confirmed natural names remembered for future automation requests.</p></div><span id="automation-memory-count" class="automation-state">0 mappings</span></div><div id="automation-memory-list" class="automation-memory-list"></div></article>
+          <article class="autonomy-card" style="margin-top:.75rem"><div class="autonomy-card-head"><div><h3>Automation Library</h3><p>Review-required drafts stay disabled until confirmed. Armed rules evaluate live Home Assistant events.</p></div></div><div id="automation-library" class="autonomy-list"></div></article>
+        </div>
       </section>
 
       <section class="autonomy-view hidden" data-auto-panel="safety">
@@ -5705,7 +5726,7 @@ catalogResults?.addEventListener("click",async event=>{
   if(!tab||!panel)return;
   const $=id=>document.getElementById(id);
   const esc=value=>String(value??"").replace(/[&<>"']/g,char=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"})[char]);
-  let state={settings:{},automations:[],suggestions:[],timeline:[],engine:{}};
+  let state={settings:{},automations:[],suggestions:[],timeline:[],entity_memory:[],engine:{}};
   let entityMap=new Map();
 
   async function api(path,options={}){
@@ -5723,6 +5744,11 @@ catalogResults?.addEventListener("click",async event=>{
   function showView(name){
     for(const button of panel.querySelectorAll("[data-auto-view]")){const active=button.dataset.autoView===name;button.classList.toggle("active",active);button.setAttribute("aria-selected",String(active))}
     for(const view of panel.querySelectorAll("[data-auto-panel]")){view.classList.toggle("hidden",view.dataset.autoPanel!==name)}
+  }
+
+  function showLibraryView(name){
+    for(const button of panel.querySelectorAll("[data-automation-library-view]")){const active=button.dataset.automationLibraryView===name;button.classList.toggle("active",active);button.setAttribute("aria-selected",String(active))}
+    for(const view of panel.querySelectorAll("[data-automation-library-panel]")){view.classList.toggle("hidden",view.dataset.automationLibraryPanel!==name)}
   }
 
   function modeLabel(value){return ({observe_only:"Observe only",suggest_only:"Suggest only",approval_gated:"Approval-gated",selective_autonomy:"Selective autonomy"})[value]||"Suggest only"}
@@ -5761,11 +5787,19 @@ catalogResults?.addEventListener("click",async event=>{
     for(const item of state.automations){
       const row=document.createElement("div");row.className="autonomy-draft";
       const isWatch=item.kind==="notification_watch";
-      const tags=[isWatch?(item.status||"armed"):(item.enabled?(item.status||"armed"):"Disabled"),authorityLabel(item.execution_policy),`${Math.round(Number(item.confidence_threshold||0)*100)}% confidence`,`${item.cooldown_minutes} min cooldown`,item.risk_level];
-      const primaryAction=isWatch?`<button type="button" data-auto-watch="${esc(item.id)}">Notifications</button>`:`<button type="button" data-auto-edit="${esc(item.id)}">Edit</button>`;
-      row.innerHTML=`<div class="autonomy-draft-head"><div><strong>${esc(item.name)}</strong><div>${esc(item.objective)}</div></div><div class="autonomy-draft-actions">${primaryAction}<button type="button" data-auto-delete="${esc(item.id)}">Delete</button></div></div><div class="autonomy-tags">${tags.map(tag=>`<span>${esc(tag)}</span>`).join("")}</div><small>Signals: ${esc((item.signal_entities||[]).join(", ")||"not selected")} · Action: ${esc(item.action_service||"not specified")}</small>`;
+      const tags=[item.source==="chat"?"Chat prepared":null,isWatch?(item.status||"armed"):(item.enabled?(item.status||"armed"):item.review_required?"Review required":"Disabled"),authorityLabel(item.execution_policy),`${Math.round(Number(item.confidence_threshold||0)*100)}% confidence`,`${item.cooldown_minutes} min cooldown`,item.risk_level].filter(Boolean);
+      const primaryAction=isWatch?`<button type="button" data-auto-watch="${esc(item.id)}">Notifications</button>`:item.review_required?`<button type="button" data-auto-edit="${esc(item.id)}">Review</button><button type="button" data-auto-activate="${esc(item.id)}">Enable</button>`:`<button type="button" data-auto-edit="${esc(item.id)}">Edit</button>`;
+      const triggerSummary=`${item.trigger_entity||"no trigger"} ${(item.trigger_operator||"").replaceAll("_"," ")}${item.trigger_value?` ${item.trigger_value}`:""}${item.trigger_for_seconds?` for ${item.trigger_for_seconds}s`:""}`;
+      const actionSummary=item.action_service&&item.action_entity?`${item.action_service} → ${item.action_entity}`:"No device action";
+      row.innerHTML=`<div class="autonomy-draft-head"><div><strong>${esc(item.name)}</strong><div>${esc(item.objective)}</div></div><div class="autonomy-draft-actions">${primaryAction}<button type="button" data-auto-delete="${esc(item.id)}">Delete</button></div></div><div class="autonomy-tags">${tags.map(tag=>`<span>${esc(tag)}</span>`).join("")}</div><small><strong>When:</strong> ${esc(triggerSummary)}<br><strong>Then:</strong> ${esc(item.proposal_template||"Record the match")}<br><strong>Action:</strong> ${esc(actionSummary)}<br><strong>Presence:</strong> ${esc(item.presence_entity||"not required by this rule")}</small>`;
       root.appendChild(row);
     }
+  }
+
+  function renderAutomationMemory(){
+    const root=$("automation-memory-list"),records=state.entity_memory||[];root.replaceChildren();$("automation-memory-count").textContent=`${records.length} mapping${records.length===1?"":"s"}`;
+    if(!records.length){root.innerHTML='<div class="autonomy-empty">No confirmed mappings yet. Create an automation in Chat and ZBRANO will remember your entity choices.</div>';return}
+    for(const item of records){const row=document.createElement("div");row.className="automation-memory-row";row.innerHTML=`<div><strong>${esc(item.alias)}</strong> <span class="automation-state">${esc(item.role||"entity")}</span></div><button type="button" data-automation-memory-forget="${esc(item.id)}">Forget</button><small>${esc(item.friendly_name||item.entity_id)} Â· ${esc(item.entity_id)}</small>`;root.appendChild(row)}
   }
 
   function renderTimeline(){
@@ -5786,7 +5820,7 @@ catalogResults?.addEventListener("click",async event=>{
     $("autonomy-notify-autonomous").checked=settings.notify_after_autonomous_action!==false;
   }
 
-  function renderAll(){renderSummary();renderSuggestions();renderContext();renderLibrary();renderTimeline();renderSettings()}
+  function renderAll(){renderSummary();renderSuggestions();renderContext();renderLibrary();renderAutomationMemory();renderTimeline();renderSettings()}
 
   async function loadEntityContext(){
     const root=$("autonomy-context");root.innerHTML='<div class="autonomy-empty">Loading Home Assistant context…</div>';
@@ -5805,7 +5839,7 @@ catalogResults?.addEventListener("click",async event=>{
   }
 
   function fillEditor(item){
-    $("automation-edit-id").value=item.id||"";$("automation-name").value=item.name||"";$("automation-objective").value=item.objective||"";$("automation-presence").value=item.presence_entity||"";$("automation-signals").value=(item.signal_entities||[]).join(", ");$("automation-trigger-entity").value=item.trigger_entity||(item.signal_entities||[])[0]||"";$("automation-trigger-operator").value=item.trigger_operator||"changes_to";$("automation-trigger-value").value=item.trigger_value||"";$("automation-trigger-for").value=String(item.trigger_for_seconds||0);$("automation-enabled").checked=Boolean(item.enabled);$("automation-context-notes").value=item.context_notes||"";$("automation-proposal").value=item.proposal_template||"";$("automation-action-entity").value=item.action_entity||"";$("automation-action-service").value=item.action_service||"";$("automation-action-data").value=JSON.stringify(item.action_service_data||{},null,2);$("automation-cooldown").value=String(item.cooldown_minutes||30);$("automation-confidence").value=String(item.confidence_threshold||0.75);$("automation-risk").value=item.risk_level||"controlled";$("automation-execution-policy").value=item.execution_policy||"suggest";$("automation-max-actions").value=String(item.max_actions_per_hour||2);$("automation-notify-action").checked=item.notify_on_action!==false;$("automation-reversible-only").checked=item.reversible_only!==false;$("automation-editor-title").textContent=item.id?"Edit automation":"New automation";$("automation-cancel-edit").hidden=!item.id;showView("library");$("automation-name").focus();
+    $("automation-edit-id").value=item.id||"";$("automation-name").value=item.name||"";$("automation-objective").value=item.objective||"";$("automation-presence").value=item.presence_entity||"";$("automation-signals").value=(item.signal_entities||[]).join(", ");$("automation-trigger-entity").value=item.trigger_entity||(item.signal_entities||[])[0]||"";$("automation-trigger-operator").value=item.trigger_operator||"changes_to";$("automation-trigger-value").value=item.trigger_value||"";$("automation-trigger-for").value=String(item.trigger_for_seconds||0);$("automation-enabled").checked=Boolean(item.enabled);$("automation-context-notes").value=item.context_notes||"";$("automation-proposal").value=item.proposal_template||"";$("automation-action-entity").value=item.action_entity||"";$("automation-action-service").value=item.action_service||"";$("automation-action-data").value=JSON.stringify(item.action_service_data||{},null,2);$("automation-cooldown").value=String(item.cooldown_minutes||30);$("automation-confidence").value=String(item.confidence_threshold||0.75);$("automation-risk").value=item.risk_level||"controlled";$("automation-execution-policy").value=item.execution_policy||"suggest";$("automation-max-actions").value=String(item.max_actions_per_hour||2);$("automation-notify-action").checked=item.notify_on_action!==false;$("automation-reversible-only").checked=item.reversible_only!==false;$("automation-editor-title").textContent=item.id?"Edit automation":"New automation";$("automation-cancel-edit").hidden=!item.id;showView("library");showLibraryView("create");document.querySelector(".automation-advanced")?.setAttribute("open","");$("automation-name").focus();
   }
 
   function template(name){
@@ -5819,20 +5853,30 @@ catalogResults?.addEventListener("click",async event=>{
   }
 
   panel.querySelector(".autonomy-tabs")?.addEventListener("click",event=>{const button=event.target.closest("[data-auto-view]");if(button)showView(button.dataset.autoView)});
+  panel.querySelector(".automation-library-tabs")?.addEventListener("click",event=>{const button=event.target.closest("[data-automation-library-view]");if(button)showLibraryView(button.dataset.automationLibraryView)});
   panel.addEventListener("click",async event=>{
     const templateButton=event.target.closest("[data-auto-template]");if(templateButton){template(templateButton.dataset.autoTemplate);return}
     const notificationWatch=event.target.closest("[data-auto-watch]");if(notificationWatch){showView("notifications");window.zbranoNotificationCenter?.showView("watchlist");window.zbranoNotificationCenter?.load();return}
     const approve=event.target.closest("[data-suggestion-approve]");if(approve){approve.disabled=true;try{await api(`api/automations/suggestions/${encodeURIComponent(approve.dataset.suggestionApprove)}/approve`,{method:"POST"});await loadWorkspace()}catch(error){alert(`Action failed: ${error.message||error}`);approve.disabled=false}return}
     const dismiss=event.target.closest("[data-suggestion-dismiss]");if(dismiss){dismiss.disabled=true;try{await api(`api/automations/suggestions/${encodeURIComponent(dismiss.dataset.suggestionDismiss)}/dismiss`,{method:"POST"});await loadWorkspace()}catch(error){alert(`Dismiss failed: ${error.message||error}`);dismiss.disabled=false}return}
     const edit=event.target.closest("[data-auto-edit]");if(edit){const item=state.automations.find(value=>value.id===edit.dataset.autoEdit);if(item)fillEditor(item);return}
+    const activateDraft=event.target.closest("[data-auto-activate]");if(activateDraft){const item=state.automations.find(value=>value.id===activateDraft.dataset.autoActivate),trigger=`${item?.trigger_entity||""} ${(item?.trigger_operator||"").replaceAll("_"," ")} ${item?.trigger_value||""}`.trim(),action=item?.action_service&&item?.action_entity?`${item.action_service} → ${item.action_entity}`:"no device action";if(!item||!confirm(`Enable ${item.name}?\n\nWhen: ${trigger}\nAction: ${action}\nAuthority: ${authorityLabel(item.execution_policy)}\nCooldown: ${item.cooldown_minutes} minutes\n\nLive evaluation begins immediately.`))return;activateDraft.disabled=true;try{await api(`api/automations/${encodeURIComponent(item.id)}/activate`,{method:"POST"});await loadWorkspace()}catch(error){alert(`Activation failed: ${error.message||error}`);activateDraft.disabled=false}return}
+    const forgetMemory=event.target.closest("[data-automation-memory-forget]");if(forgetMemory){if(!confirm("Forget this automation entity mapping? Existing rules will not be changed."))return;await api(`api/automations/entity-memory/${encodeURIComponent(forgetMemory.dataset.automationMemoryForget)}`,{method:"DELETE"});await loadWorkspace();return}
     const remove=event.target.closest("[data-auto-delete]");if(remove){if(!confirm("Delete this automation draft?"))return;await api(`api/automations/${encodeURIComponent(remove.dataset.autoDelete)}`,{method:"DELETE"});await loadWorkspace()}
+  });
+
+  $("automation-chat-builder-form").addEventListener("submit",event=>{
+    event.preventDefault();const request=$("automation-chat-request").value.trim();if(!request)return;
+    const chatTab=document.getElementById("chat-tab"),chatInput=document.getElementById("message"),chatForm=document.getElementById("chat-form");
+    if(!chatTab||!chatInput||!chatForm){$("automation-chat-builder-status").textContent="Chat is unavailable.";return}
+    chatTab.click();chatInput.value=request;chatInput.dispatchEvent(new Event("input",{bubbles:true}));chatForm.requestSubmit();
   });
 
   $("automation-draft-form").addEventListener("submit",async event=>{
     event.preventDefault();const id=$("automation-edit-id").value;const status=$("automation-draft-state");status.textContent="Saving…";
     let actionData={};try{actionData=JSON.parse($("automation-action-data").value||"{}");if(!actionData||Array.isArray(actionData)||typeof actionData!=="object")throw new Error("must be an object")}catch(error){status.textContent=`Action data must be valid JSON: ${error.message||error}`;return}
     const body={name:$("automation-name").value.trim(),objective:$("automation-objective").value.trim(),presence_entity:$("automation-presence").value.trim(),signal_entities:$("automation-signals").value.split(/[,\n]/).map(v=>v.trim()).filter(Boolean),trigger_entity:$("automation-trigger-entity").value.trim(),trigger_operator:$("automation-trigger-operator").value,trigger_value:$("automation-trigger-value").value.trim(),trigger_for_seconds:Number($("automation-trigger-for").value||0),enabled:$("automation-enabled").checked,context_notes:$("automation-context-notes").value.trim(),proposal_template:$("automation-proposal").value.trim(),action_entity:$("automation-action-entity").value.trim(),action_service:$("automation-action-service").value.trim(),action_service_data:actionData,cooldown_minutes:Number($("automation-cooldown").value),confidence_threshold:Number($("automation-confidence").value),risk_level:$("automation-risk").value,execution_policy:$("automation-execution-policy").value,notify_on_action:$("automation-notify-action").checked,reversible_only:$("automation-reversible-only").checked,max_actions_per_hour:Number($("automation-max-actions").value)};
-    try{await api(id?`api/automations/${encodeURIComponent(id)}`:"api/automations",{method:id?"PUT":"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)});clearEditor();await loadWorkspace();status.textContent="Draft saved."}catch(error){status.textContent=`Save failed: ${error.message||error}`}
+    try{await api(id?`api/automations/${encodeURIComponent(id)}`:"api/automations",{method:id?"PUT":"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)});clearEditor();await loadWorkspace();showLibraryView("saved")}catch(error){status.textContent=`Save failed: ${error.message||error}`}
   });
   $("automation-cancel-edit").addEventListener("click",clearEditor);
   $("autonomy-settings-form").addEventListener("submit",async event=>{
@@ -7719,7 +7763,7 @@ catalogResults?.addEventListener("click",async event=>{
 
   async function announceSuggestion(item){
     if(!proactive.checked||document.hidden||isQuietHours())return;
-    pendingSuggestion=item;stopWake();const prompt=[item.title,item.detail,"Say approve or decline."].filter(Boolean).join(". ");
+    pendingSuggestion=item;stopWake();const prompt=String(item.detail||"").trim();
     status("Speaking an autonomous suggestion…");await speakText(prompt,true);
     if(pendingSuggestion===item)listenForSuggestionDecision(item);
   }

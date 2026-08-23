@@ -152,6 +152,7 @@ def save_settings_payload(payload: dict[str, Any]) -> None:
 
 LAST_ENTITY_BY_SESSION: dict[str, dict[str, Any]] = {}
 PENDING_LOW_RISK_ACTIONS: dict[str, dict[str, Any]] = {}
+PENDING_AUTOMATION_CONFIRMATIONS: dict[str, str] = {}
 
 
 def load_general_instructions() -> str:
@@ -1460,7 +1461,7 @@ ha_ws = HomeAssistantWebSocketClient(HA_WS_URL, SUPERVISOR_TOKEN)
 
 app = FastAPI(
     title="ZBRANO",
-    version="0.13.8",
+    version="0.13.9",
     docs_url="/api/docs",
     openapi_url="/api/openapi.json",
 )
@@ -1579,6 +1580,30 @@ class AutonomousAutomationRequest(BaseModel):
     trigger_value: str = Field(default="", max_length=255)
     trigger_for_seconds: int = Field(default=0, ge=0, le=86400)
     action_service_data: dict[str, Any] = Field(default_factory=dict)
+
+
+class AutomationChatDraftRequest(BaseModel):
+    name: str = Field(min_length=2, max_length=100)
+    objective: str = Field(min_length=3, max_length=1000)
+    trigger_alias: str = Field(default="", max_length=255)
+    trigger_entity: str = Field(min_length=3, max_length=255, pattern=r"^[a-z0-9_]+\.[a-z0-9_]+$")
+    trigger_operator: str = Field(pattern="^(any_change|changes_to|equals|not_equals|above|below)$")
+    trigger_value: str = Field(default="", max_length=255)
+    trigger_for_seconds: int = Field(default=0, ge=0, le=86400)
+    presence_alias: str = Field(default="", max_length=255)
+    presence_entity: str = Field(default="", max_length=255, pattern=r"^(|[a-z0-9_]+\.[a-z0-9_]+)$")
+    signal_entities: list[str] = Field(default_factory=list, max_length=20)
+    suggestion: str = Field(min_length=3, max_length=1000)
+    action_alias: str = Field(default="", max_length=255)
+    action_entity: str = Field(default="", max_length=255, pattern=r"^(|[a-z0-9_]+\.[a-z0-9_]+)$")
+    action_service: str = Field(default="", max_length=120, pattern=r"^(|[a-z0-9_]+\.[a-z0-9_]+)$")
+    action_service_data: dict[str, Any] = Field(default_factory=dict)
+    execution_policy: str = Field(default="approval_required", pattern="^(observe|suggest|approval_required|autonomous)$")
+    cooldown_minutes: int = Field(default=30, ge=1, le=1440)
+    risk_level: str = Field(default="controlled", pattern="^(informational|low|controlled|high)$")
+    reversible_only: bool = True
+    max_actions_per_hour: int = Field(default=2, ge=1, le=60)
+    notify_on_action: bool = True
 
 
 class NotificationCenterSettingsRequest(BaseModel):
@@ -1879,6 +1904,46 @@ WORKSHOP_TOOLS: list[dict[str, Any]] = [
             "additionalProperties": False
         },
         "strict": True
+    },
+    {
+        "type": "function",
+        "name": "prepare_autonomous_automation",
+        "description": (
+            "Prepare a disabled, reviewable ZBRANO automation draft after the user asks for recurring behavior. "
+            "Resolve every natural entity name with find_home_assistant_entities and inspect action capabilities "
+            "with get_home_assistant_state first. If a required entity is ambiguous, ask one concise question and "
+            "do not call this tool yet. This tool never enables or executes the automation. It saves a structured "
+            "preview, remembers confirmed natural-name mappings, and requires a separate user confirmation before activation."
+        ),
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "name": {"type": "string"},
+                "objective": {"type": "string"},
+                "trigger_alias": {"type": "string", "description": "Natural trigger name used by the user."},
+                "trigger_entity": {"type": "string"},
+                "trigger_operator": {"type": "string", "enum": ["any_change", "changes_to", "equals", "not_equals", "above", "below"]},
+                "trigger_value": {"type": "string"},
+                "trigger_for_seconds": {"type": "integer"},
+                "presence_alias": {"type": "string"},
+                "presence_entity": {"type": "string"},
+                "signal_entities": {"type": "array", "items": {"type": "string"}},
+                "suggestion": {"type": "string"},
+                "action_alias": {"type": "string", "description": "Natural action-device name used by the user."},
+                "action_entity": {"type": "string"},
+                "action_service": {"type": "string"},
+                "action_service_data": {"type": "object"},
+                "execution_policy": {"type": "string", "enum": ["observe", "suggest", "approval_required", "autonomous"]},
+                "cooldown_minutes": {"type": "integer"},
+                "risk_level": {"type": "string", "enum": ["informational", "low", "controlled", "high"]},
+                "reversible_only": {"type": "boolean"},
+                "max_actions_per_hour": {"type": "integer"},
+                "notify_on_action": {"type": "boolean"}
+            },
+            "required": ["name", "objective", "trigger_alias", "trigger_entity", "trigger_operator", "trigger_value", "trigger_for_seconds", "presence_alias", "presence_entity", "signal_entities", "suggestion", "action_alias", "action_entity", "action_service", "action_service_data", "execution_policy", "cooldown_minutes", "risk_level", "reversible_only", "max_actions_per_hour", "notify_on_action"],
+            "additionalProperties": False
+        },
+        "strict": False
     },
     {
         "type": "function",
@@ -2221,6 +2286,13 @@ commands and references such as "it", "that device", "turn it back on", and
 one unique entity, reuse that entity for a follow-up action unless the user
 explicitly names another device.
 
+For recurring Home Assistant behavior, use the Automation Brain workflow rather than performing the requested
+device action immediately. Resolve trigger, presence, signal, and action entities from approved Home Assistant
+entities. Reuse remembered automation mappings only as candidates and verify them. Ask one concise clarification
+when a required mapping is ambiguous. Once all essentials are known, call prepare_autonomous_automation. It saves
+only a disabled structured draft. Explain its trigger, action, authority, cooldown, and safety conditions, then ask
+the user to reply confirm or cancel. Never claim a prepared draft is active before confirmation.
+
 For remote MCP plugin tools such as Cloudflare or GitHub, never write, simulate,
 or ask a manual preflight approval question in the assistant response. When the
 user requests an enabled plugin action, call the requested tool exactly once.
@@ -2487,7 +2559,7 @@ async def _list_workshop_memory_endpoint_tools(endpoint_url: str) -> list[dict[s
                 "capabilities": {},
                 "clientInfo": {
                     "name": "zbrano-workshop-assistant",
-                    "version": "0.13.8",
+                    "version": "0.13.9",
                 },
             },
         },
@@ -2744,6 +2816,10 @@ def find_approved_entities(query: str) -> dict[str, Any]:
     query_tokens = _search_tokens(normalized)
     policy = load_entity_policy()
     matches: list[dict[str, Any]] = []
+    remembered_aliases: dict[str, list[str]] = {}
+    with contextlib.suppress(Exception):
+        for memory in automation_store().get("entity_memory", []):
+            remembered_aliases.setdefault(str(memory.get("entity_id") or ""), []).append(str(memory.get("alias") or ""))
 
     # Include legacy config whitelist entries even if no UI policy exists.
     all_ids = set(policy) | HA_READ_ENTITIES | HA_CONTROL_ENTITIES
@@ -2759,6 +2835,7 @@ def find_approved_entities(query: str) -> dict[str, Any]:
             str(alias) for alias in record.get("aliases", [])
             if str(alias).strip()
         ]
+        aliases = list(dict.fromkeys([*aliases, *remembered_aliases.get(entity_id, [])]))
         haystacks = [entity_id.replace("_", " "), friendly_name, *aliases]
         normalized_haystacks = [" ".join(value.lower().split()) for value in haystacks]
 
@@ -3533,7 +3610,7 @@ async def _playwright_session():
                 "params": {
                     "protocolVersion": "2025-06-18",
                     "capabilities": {},
-                    "clientInfo": {"name": "ZBRANO Developer Mode", "version": "0.13.8"},
+                    "clientInfo": {"name": "ZBRANO Developer Mode", "version": "0.13.9"},
                 },
             },
         )
@@ -4302,6 +4379,8 @@ async def execute_tool_calls(
                     result = await execute_gmail_direct_tool(name, arguments)
                 elif name == "create_notification_watch":
                     result = await _create_notification_watch(NotificationWatchRequest(**arguments), source="chat")
+                elif name == "prepare_autonomous_automation":
+                    result = await _prepare_chat_automation(AutomationChatDraftRequest(**arguments), session_id)
                 elif name == "find_home_assistant_entities":
                     result = find_approved_entities(arguments["query"])
                 elif name == "get_home_assistant_state":
@@ -4410,6 +4489,22 @@ async def try_local_ha_route(
     """Execute a deterministic HA request, or return None for the model path."""
     previous_entity = get_session_entity(session_id)
     normalized = " ".join(message.lower().strip().split())
+    pending_automation_store = globals().get("PENDING_AUTOMATION_CONFIRMATIONS", {})
+    pending_automation = pending_automation_store.get(session_id)
+    if pending_automation and normalized in {"confirm", "yes", "yes confirm", "confirm it", "enable it", "proceed"}:
+        pending_automation_store.pop(session_id, None)
+        try:
+            result = _activate_automation(pending_automation, "chat_confirmation")
+        except HTTPException as exc:
+            return {"reply": f"I could not activate that automation: {exc.detail}", "tool_calls": []}
+        preview = result["preview"]
+        return {
+            "reply": f"Activated {preview['name']}. Trigger: {preview['trigger']}. Authority: {preview['authority']}.",
+            "tool_calls": [{"tool": "activate_autonomous_automation", "arguments": {"automation_id": pending_automation}, "success": True, "route": "local"}],
+        }
+    if pending_automation and normalized in {"cancel", "no", "no cancel", "do not", "don't"}:
+        pending_automation_store.pop(session_id, None)
+        return {"reply": "Cancelled. The automation remains saved as a disabled draft for later review.", "tool_calls": []}
     pending = PENDING_LOW_RISK_ACTIONS.get(session_id)
     if pending and normalized in {"confirm", "yes confirm", "confirm it", "proceed"}:
         intent = pending
@@ -4527,6 +4622,7 @@ async def run_jarvis(message: str, session_id: str = "default") -> dict[str, Any
             "input": (
                 model_chat_history(session_id)
                 + fast_memory_input(message, session_id)
+                + automation_memory_input(message)
                 + (
                     [{
                         "role": "developer",
@@ -4768,6 +4864,8 @@ def local_tool_activity(tool_names: list[str], *, writing: bool = False) -> dict
         "find_home_assistant_entities", "get_home_assistant_state",
         "turn_on_home_assistant_entity", "turn_off_home_assistant_entity", *history_tools,
     }
+    if "prepare_autonomous_automation" in tool_names:
+        return {"label": "Preparing automation preview", "provider": "home_assistant", "plugin_id": ""}
     if tool_names and all(name.startswith("get_grinder_") or name == "list_grinder_incidents" for name in tool_names):
         return {"label": "Reading grinder diagnostics", "provider": "grinder_monitor", "plugin_id": ""}
     if tool_names and all(name in local_ha for name in tool_names):
@@ -5307,6 +5405,7 @@ async def _run_jarvis_stream_events(message: str, session_id: str = "default", s
             "input": (
                 model_chat_history(session_id)
                 + fast_memory_input(message, session_id)
+                + automation_memory_input(message)
                 + (
                     [{
                         "role": "developer",
@@ -5661,7 +5760,7 @@ async def health() -> dict[str, Any]:
     configured_speech_provider = SPEECH_PROVIDER if SPEECH_PROVIDER in {"openai", "elevenlabs"} else "openai"
     return {
         "status": "ok",
-        "version": "0.13.8",
+        "version": "0.13.9",
         "home_assistant_configured": bool(SUPERVISOR_TOKEN),
         "workshop_memory_configured": bool(WORKSHOP_MEMORY_URL),
         "openai_configured": bool(OPENAI_API_KEY),
@@ -6992,7 +7091,7 @@ async def _oauth_discover(resource_url, allow_pre_registered=False):
         "jsonrpc": "2.0", "id": 1, "method": "initialize",
         "params": {
             "protocolVersion": "2025-06-18", "capabilities": {},
-            "clientInfo": {"name": "ZBRANO Plugin Manager", "version": "0.13.8"},
+            "clientInfo": {"name": "ZBRANO Plugin Manager", "version": "0.13.9"},
         },
     }
     async with httpx.AsyncClient(timeout=PLUGIN_TIMEOUT, follow_redirects=False) as client:
@@ -7772,6 +7871,7 @@ def _automation_empty_store():
         "automations": [],
         "suggestions": [],
         "timeline": [],
+        "entity_memory": [],
     }
 
 
@@ -7787,6 +7887,7 @@ def automation_store():
         "automations": data.get("automations") if isinstance(data.get("automations"), list) else [],
         "suggestions": data.get("suggestions") if isinstance(data.get("suggestions"), list) else [],
         "timeline": data.get("timeline") if isinstance(data.get("timeline"), list) else [],
+        "entity_memory": data.get("entity_memory") if isinstance(data.get("entity_memory"), list) else [],
     }
 
 
@@ -7794,7 +7895,66 @@ def _automation_save(data):
     data["automations"] = list(data.get("automations") or [])[:100]
     data["suggestions"] = list(data.get("suggestions") or [])[:100]
     data["timeline"] = list(data.get("timeline") or [])[:200]
+    data["entity_memory"] = list(data.get("entity_memory") or [])[:200]
     _plugin_save(AUTOMATION_STORAGE_PATH, data)
+
+
+def _automation_alias_key(value: Any) -> str:
+    return " ".join(re.sub(r"[^a-z0-9\u0370-\u03ff]+", " ", str(value or "").casefold()).split())[:255]
+
+
+def _automation_remember_entity(data: dict[str, Any], alias: str, entity_id: str, role: str) -> None:
+    import secrets
+
+    normalized_alias = _automation_alias_key(alias)
+    entity_id = str(entity_id or "").strip().lower()
+    if not normalized_alias or len(normalized_alias) < 2 or not entity_id:
+        return
+    ensure_read_allowed(entity_id)
+    policy = load_entity_policy().get(entity_id) or {}
+    records = data.setdefault("entity_memory", [])
+    existing = next((
+        item for item in records
+        if _automation_alias_key(item.get("alias")) == normalized_alias and str(item.get("role") or "") == role
+    ), None)
+    now = time.time()
+    if existing:
+        existing.update({
+            "entity_id": entity_id,
+            "friendly_name": str(policy.get("friendly_name") or entity_id)[:255],
+            "confirmed_at": now,
+            "use_count": int(existing.get("use_count") or 0) + 1,
+        })
+        return
+    records.insert(0, {
+        "id": secrets.token_hex(8),
+        "alias": normalized_alias,
+        "entity_id": entity_id,
+        "friendly_name": str(policy.get("friendly_name") or entity_id)[:255],
+        "role": role,
+        "confirmed_at": now,
+        "use_count": 1,
+    })
+
+
+def automation_entity_memory_context(message: str) -> str:
+    query = _automation_alias_key(message)
+    query_tokens = _search_tokens(query)
+    matches: list[dict[str, Any]] = []
+    for item in automation_store().get("entity_memory", []):
+        alias = _automation_alias_key(item.get("alias"))
+        alias_tokens = _search_tokens(alias)
+        if alias and (alias in query or query in alias or query_tokens & alias_tokens):
+            entity_id = str(item.get("entity_id") or "")
+            if effective_entity_access(entity_id):
+                matches.append(item)
+    if not matches:
+        return ""
+    compact = [{
+        "alias": item.get("alias"), "entity_id": item.get("entity_id"),
+        "friendly_name": item.get("friendly_name"), "role": item.get("role"),
+    } for item in matches[:12]]
+    return "Remembered automation entity mappings (verify availability before use): " + json.dumps(compact, ensure_ascii=False)
 
 
 def _automation_event(data, event_type, title, detail=""):
@@ -7839,6 +7999,13 @@ def _automation_payload(request):
     return payload
 
 
+def _automation_payload_http(request: AutonomousAutomationRequest) -> dict[str, Any]:
+    try:
+        return _automation_payload(request)
+    except PermissionError as exc:
+        raise HTTPException(status_code=403, detail=str(exc)) from exc
+
+
 @app.get("/api/automations")
 async def read_autonomous_automations():
     data = automation_store()
@@ -7881,12 +8048,155 @@ async def create_autonomous_automation(request: AutonomousAutomationRequest):
     automation = {
         "id": secrets.token_hex(12), "status": "armed" if request.enabled else "draft",
         "created_at": now, "updated_at": now,
-        **_automation_payload(request),
+        **_automation_payload_http(request),
     }
     data["automations"].insert(0, automation)
     _automation_event(data, "draft", f"Draft created: {automation['name']}", automation["objective"])
     _automation_save(data)
     return {"created": True, "automation": automation}
+
+
+def _automation_preview(item: dict[str, Any]) -> dict[str, Any]:
+    trigger = f"{item.get('trigger_entity')} {str(item.get('trigger_operator') or '').replace('_', ' ')}"
+    if str(item.get("trigger_value") or ""):
+        trigger += f" {item.get('trigger_value')}"
+    if int(item.get("trigger_for_seconds") or 0):
+        trigger += f" for {int(item.get('trigger_for_seconds') or 0)} seconds"
+    action = "No device action"
+    if item.get("action_service") and item.get("action_entity"):
+        action = f"{item.get('action_service')} → {item.get('action_entity')}"
+    return {
+        "name": item.get("name"),
+        "trigger": trigger,
+        "presence": item.get("presence_entity") or "not required by this rule",
+        "suggestion": item.get("proposal_template"),
+        "action": action,
+        "authority": item.get("execution_policy"),
+        "cooldown_minutes": item.get("cooldown_minutes"),
+        "enabled": bool(item.get("enabled")),
+    }
+
+
+async def _prepare_chat_automation(request: AutomationChatDraftRequest, session_id: str) -> dict[str, Any]:
+    import secrets
+
+    data = automation_store()
+    if len(data["automations"]) >= 100:
+        raise HTTPException(status_code=400, detail="Automation draft limit reached (100)")
+    if bool(request.action_entity) != bool(request.action_service):
+        raise HTTPException(status_code=400, detail="An automation action requires both an entity and a Home Assistant service")
+    if request.action_entity:
+        action_domain = entity_domain(request.action_entity)
+        service_domain = request.action_service.split(".", 1)[0]
+        if action_domain not in AUTOMATION_AUTONOMOUS_DOMAINS or service_domain != action_domain:
+            raise HTTPException(status_code=400, detail="Chat-created actions must use the same approved low-risk domain as their target entity")
+    try:
+        payload = _automation_payload(AutonomousAutomationRequest(
+            name=request.name,
+            objective=request.objective,
+            presence_entity=request.presence_entity,
+            signal_entities=request.signal_entities,
+            context_notes="Prepared conversationally from an explicit user request. Confirmed entity mappings are retained in Automation Memory.",
+            proposal_template=request.suggestion,
+            action_entity=request.action_entity,
+            action_service=request.action_service,
+            action_service_data=request.action_service_data,
+            cooldown_minutes=request.cooldown_minutes,
+            confidence_threshold=max(0.75, float(data["settings"].get("minimum_confidence") or 0.75)),
+            risk_level=request.risk_level,
+            execution_policy=request.execution_policy,
+            notify_on_action=request.notify_on_action,
+            reversible_only=request.reversible_only,
+            max_actions_per_hour=request.max_actions_per_hour,
+            enabled=False,
+            trigger_entity=request.trigger_entity,
+            trigger_operator=request.trigger_operator,
+            trigger_value=request.trigger_value,
+            trigger_for_seconds=request.trigger_for_seconds,
+        ))
+    except PermissionError as exc:
+        raise HTTPException(status_code=403, detail=str(exc)) from exc
+    now = time.time()
+    duplicate = next((item for item in data["automations"] if (
+        item.get("source") == "chat" and not item.get("enabled")
+        and str(item.get("trigger_entity") or "") == payload["trigger_entity"]
+        and str(item.get("trigger_operator") or "") == payload["trigger_operator"]
+        and str(item.get("trigger_value") or "") == payload["trigger_value"]
+        and str(item.get("action_entity") or "") == payload["action_entity"]
+        and str(item.get("action_service") or "") == payload["action_service"]
+    )), None)
+    if duplicate:
+        duplicate.update(payload)
+        duplicate.update({"status": "review_required", "updated_at": now, "review_required": True})
+        automation = duplicate
+        data["automations"] = [automation, *[item for item in data["automations"] if item is not automation]]
+    else:
+        automation = {
+            "id": secrets.token_hex(12), "status": "review_required",
+            "created_at": now, "updated_at": now, "source": "chat",
+            "review_required": True,
+            **payload,
+        }
+        data["automations"].insert(0, automation)
+    _automation_remember_entity(data, request.trigger_alias, request.trigger_entity, "trigger")
+    _automation_remember_entity(data, request.presence_alias, request.presence_entity, "presence")
+    _automation_remember_entity(data, request.action_alias, request.action_entity, "action")
+    _automation_event(data, "draft", f"Chat automation prepared: {automation['name']}", _automation_preview(automation)["trigger"])
+    _automation_save(data)
+    PENDING_AUTOMATION_CONFIRMATIONS[session_id] = automation["id"]
+    return {
+        "prepared": True,
+        "updated_existing_draft": bool(duplicate),
+        "automation_id": automation["id"],
+        "preview": _automation_preview(automation),
+        "confirmation_required": True,
+        "instruction": "Explain this preview in plain language and ask the user to reply confirm or cancel. Do not claim the automation is active yet.",
+    }
+
+
+def _activate_automation(automation_id: str, source: str) -> dict[str, Any]:
+    data = automation_store()
+    automation = next((item for item in data["automations"] if item.get("id") == automation_id), None)
+    if not automation:
+        raise HTTPException(status_code=404, detail="Automation draft not found")
+    try:
+        ensure_read_allowed(str(automation.get("trigger_entity") or ""))
+        if automation.get("presence_entity"):
+            ensure_read_allowed(str(automation.get("presence_entity")))
+        for entity_id in automation.get("signal_entities") or []:
+            ensure_read_allowed(str(entity_id))
+    except PermissionError as exc:
+        raise HTTPException(status_code=403, detail=str(exc)) from exc
+    policy = str(automation.get("execution_policy") or "suggest")
+    if policy in {"approval_required", "autonomous"} and not (
+        automation.get("action_entity") and automation.get("action_service")
+    ):
+        raise HTTPException(status_code=400, detail="This authority requires a complete proposed action")
+    automation["enabled"] = True
+    automation["status"] = "armed"
+    automation["review_required"] = False
+    automation["reviewed_at"] = time.time()
+    automation["updated_at"] = time.time()
+    _automation_event(data, "configuration", f"Automation activated: {automation.get('name')}", f"source={source}; authority={policy}")
+    _automation_save(data)
+    return {"activated": True, "automation": automation, "preview": _automation_preview(automation)}
+
+
+@app.post("/api/automations/{automation_id}/activate")
+async def activate_autonomous_automation(automation_id: str) -> dict[str, Any]:
+    return _activate_automation(automation_id, "interface_confirmation")
+
+
+@app.delete("/api/automations/entity-memory/{memory_id}")
+async def delete_automation_entity_memory(memory_id: str) -> dict[str, Any]:
+    data = automation_store()
+    original = list(data.get("entity_memory") or [])
+    data["entity_memory"] = [item for item in original if str(item.get("id") or "") != memory_id]
+    if len(data["entity_memory"]) == len(original):
+        raise HTTPException(status_code=404, detail="Automation entity mapping not found")
+    _automation_event(data, "memory", "Automation entity mapping forgotten", memory_id)
+    _automation_save(data)
+    return {"deleted": True, "remaining": len(data["entity_memory"])}
 
 
 @app.put("/api/automations/{automation_id}")
@@ -7895,9 +8205,12 @@ async def update_autonomous_automation(automation_id: str, request: AutonomousAu
     automation = next((item for item in data["automations"] if item.get("id") == automation_id), None)
     if not automation:
         raise HTTPException(status_code=404, detail="Automation draft not found")
-    automation.update(_automation_payload(request))
+    automation.update(_automation_payload_http(request))
     automation["updated_at"] = time.time()
     automation["status"] = "armed" if automation.get("enabled") else "draft"
+    if automation.get("enabled"):
+        automation["review_required"] = False
+        automation["reviewed_at"] = time.time()
     _automation_event(data, "configuration", f"Automation updated: {automation['name']}", automation["status"])
     _automation_save(data)
     return {"saved": True, "automation": automation}
@@ -7918,7 +8231,7 @@ async def delete_autonomous_automation(automation_id: str):
 AUTOMATION_ENGINE_LOCK = asyncio.Lock()
 AUTOMATION_PENDING_TASKS: dict[str, asyncio.Task[Any]] = {}
 AUTOMATION_RISK_ORDER = {"informational": 0, "low": 1, "controlled": 2, "high": 3}
-AUTOMATION_AUTONOMOUS_DOMAINS = {"light", "switch", "fan", "media_player", "climate"}
+AUTOMATION_AUTONOMOUS_DOMAINS = {"light", "switch", "fan", "media_player", "climate", "input_boolean"}
 
 
 def _automation_condition_matches(item: dict[str, Any], old_state: Any, new_state: Any) -> bool:
@@ -10812,10 +11125,12 @@ def is_home_assistant_priority_intent(message: str) -> bool:
     normalized = " ".join(str(message or "").lower().split())
     if not normalized:
         return False
+    if is_automation_intent(message):
+        return False
     non_device_context = (
         "developer mode", "repository", "github", "git branch", "commit", "push", "pull request",
         "source code", "plugin", "web search", "search mode", "speak replies", "voice playback",
-        "notification", "setting", "diagnostic",
+        "notification", "setting", "diagnostic", "automation", "autonomous", "automatically", "whenever",
     )
     if any(term in normalized for term in non_device_context):
         return False
@@ -10824,6 +11139,49 @@ def is_home_assistant_priority_intent(message: str) -> bool:
         or re.search(r"\b(?:power|shut)\s+(?:on|off|down)\b", normalized)
         or re.search(r"\btoggle\b", normalized)
     )
+
+
+AUTOMATION_INTENT_TERMS = (
+    "automation", "automate", "autonomous", "automatically", "whenever",
+    "every time", "create a rule", "create rule", "make a rule",
+)
+
+
+def is_automation_intent(message: str) -> bool:
+    normalized = " ".join(str(message or "").casefold().split())
+    if any(term in normalized for term in AUTOMATION_INTENT_TERMS):
+        return True
+    return bool(re.search(r"\b(?:if|when)\b.+\b(?:then|turn|switch|notify|suggest|tell|start|stop)\b", normalized))
+
+
+def automation_priority_tools() -> list[dict[str, Any]]:
+    names = {
+        "find_home_assistant_entities", "get_home_assistant_state",
+        "prepare_autonomous_automation", "create_notification_watch",
+    }
+    return [tool for tool in WORKSHOP_TOOLS if str(tool.get("name") or "") in names]
+
+
+def automation_memory_input(message: str) -> list[dict[str, str]]:
+    if not is_automation_intent(message):
+        return []
+    context = automation_entity_memory_context(message)
+    return [{"role": "developer", "content": context}] if context else []
+
+
+def automation_system_instructions(base: str) -> str:
+    return base + """
+
+AUTOMATION BRAIN WORKFLOW IS ACTIVE.
+Interpret the user's request as recurring behavior, not an immediate device command. First resolve each required
+natural entity name with find_home_assistant_entities. Inspect the exact trigger and action entities with
+get_home_assistant_state so current state and supported attributes are known. A remembered mapping is a candidate,
+not permission to guess. If more than one plausible entity remains, present the short choices and ask which one.
+Infer safe defaults only for cooldown and suggestion wording; ask when action semantics, presence, or authority are
+materially ambiguous. Never generate executable code. Call prepare_autonomous_automation only with exact approved
+entity IDs and a deterministic Home Assistant service. The tool stores a disabled draft and a review preview.
+Explain that preview and ask the user to reply confirm or cancel. Activation happens only on that separate reply.
+""".strip()
 
 
 def home_assistant_priority_tools() -> list[dict[str, Any]]:
@@ -10908,6 +11266,8 @@ Default to 24 hours when the user gives no period. Never request more than seven
 Report the exact observed window and distinguish measurements from inferred correlations. A close-in-time correlation
 is not proof of causation. Do not inspect repositories, Workshop Memory, plugins, or the public web for this request.
 """.strip()
+    if not developer_mode_enabled() and is_automation_intent(message):
+        return automation_system_instructions(base)
     if not developer_mode_enabled():
         base = calendar_system_instructions(base)
     if not developer_mode_enabled() and is_grinder_diagnostic_intent(message):
@@ -10982,6 +11342,8 @@ def runtime_chat_tools(search_mode: str = "auto", message: str = "") -> list[dic
         return grinder_priority_tools()
     if is_fast_memory_intent(message):
         return fast_memory_priority_tools()
+    if is_automation_intent(message):
+        return automation_priority_tools()
     if is_calendar_intent(message):
         return calendar_priority_tools()
     if is_home_assistant_history_intent(message):

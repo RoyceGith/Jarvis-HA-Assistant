@@ -1,10 +1,15 @@
 {
-  "version": "0.13.8",
+  "version": "0.13.9",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/Jarvis-HA-Assistant main",
-  "summary": "Restore bounded scrolling in the Entities inventory and History views.",
+  "summary": "Create safe structured automations conversationally, remember confirmed entity mappings, and simplify the automation editor.",
   "features": [
+    "Turn natural-language recurring-behavior requests into disabled structured automation drafts after resolving exact approved Home Assistant entities.",
+    "Require a separate chat or interface confirmation before a conversationally prepared automation begins live evaluation.",
+    "Remember confirmed natural trigger, presence, and action names as private automation entity mappings and reuse them as verified candidates in future requests.",
+    "Present a simple Create with ZBRANO request box, keep templates and the manual editor under Advanced, and separate Create New from the saved Library.",
+    "Show remembered Automation Memory mappings in the Library and allow individual mappings to be forgotten without changing existing rules.",
     "Allow the opted-in local Hey ZBRANO detector to stop active playback and generation, clear residual speaker audio, and arm a replacement command without pressing a button.",
     "Use Talk as a single-action barge-in control that stops active generation and playback before opening microphone capture.",
     "Prepare an early bounded opening phrase while response text is still streaming, then prefetch longer subsequent speech chunks during playback.",
@@ -172,6 +177,10 @@
     "Preserve multi-round Workshop Memory tasks after an approved write in both streaming and non-streaming chat."
   ],
   "fixes": [
+    "Return a clear forbidden response for unapproved automation entities instead of exposing an internal HTTP 500 failure.",
+    "Keep recurring if-then requests out of the immediate Home Assistant device-control route so they cannot execute as one-time commands.",
+    "Deduplicate equivalent unconfirmed chat drafts while retaining their stable review identity.",
+    "Speak only the configured suggestion wording when announcing a new automation suggestion, while retaining its name in the visual inbox and activity history.",
     "Close the Entities inventory view before the History view so both remain independent siblings with correct tab visibility.",
     "Constrain the active Entities view to the available panel height so the inventory table scrolls vertically and horizontally on desktop and mobile.",
     "Keep only local wake inference active during playback and continue suppressing reliable-listener transcription until a confirmed playback-time wake activation.",
@@ -278,6 +287,8 @@
     "Preserve task-scoped Workshop Memory approval and per-draft Gmail approval isolation."
   ],
   "validation": [
+    "Automation intent isolation, entity clarification policy, disabled chat drafts, explicit activation, remembered mappings, draft deduplication, practical Create New and Library views, and v0.13.9 release alignment coverage",
+    "Suggestion-only proactive speech, visual automation title preservation, and v0.13.9 release alignment coverage",
     "Entities view hierarchy, bounded inventory sizing, independent table overflow, History overflow, and v0.13.8 release alignment coverage",
     "Talk-during-response availability, local wake-only playback monitoring, stronger echo-resistant confirmation, atomic playback interruption, echo-clear command handoff, stale-close isolation, and v0.13.7 release alignment coverage",
     "Cancelled-start invalidation, muted-track rejection, failed-capture re-arming, live conversation watchdog recovery, cancel cleanup, and v0.13.6 release alignment coverage",
