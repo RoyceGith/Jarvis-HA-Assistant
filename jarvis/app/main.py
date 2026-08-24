@@ -7,7 +7,6 @@ import hashlib
 import ipaddress
 import json
 import socket
-import sqlite3
 import os
 import re
 import shutil
@@ -75,6 +74,31 @@ from .domains.google_calendar import (
     google_calendar_sync_status,
     google_calendar_sync_store,
     google_calendar_sync_worker,
+)
+from .domains.fast_memory import (
+    configure_fast_memory_domain,
+    FAST_MEMORY_TASKS,
+    _fast_memory_connect,
+    delete_fast_memory,
+    export_fast_memory,
+    fast_memory_input,
+    fast_memory_search,
+    fast_memory_status,
+    forget_fast_memory,
+    restore_fast_memory,
+    schedule_fast_memory_extraction,
+    upsert_fast_memory,
+)
+from .domains.workshop_memory import (
+    configure_workshop_memory_domain,
+    call_workshop_memory_tool,
+    call_workshop_memory_tool_uncached,
+    close_mcp_client,
+    refresh_workshop_memory_tools,
+    select_workshop_memory_endpoint,
+    workshop_memory_function_tools,
+    workshop_memory_runtime_status,
+    workshop_memory_tool_permission,
 )
 
 from .schemas import (
@@ -588,432 +612,46 @@ def model_chat_history(session_id: str) -> list[dict[str, str]]:
     ]
 
 
-FAST_MEMORY_PATH = Path("/data/zbrano_fast_memory.sqlite3")
-FAST_MEMORY_KINDS = {
-    "profile", "preference", "project", "decision", "fact",
-    "follow_up", "session_summary", "temporary",
-}
-FAST_MEMORY_MAX_RECORDS = 800
-FAST_MEMORY_CONTEXT_MAX_CHARS = 4800
-FAST_MEMORY_TASKS: set[asyncio.Task[Any]] = set()
-FAST_MEMORY_RUNTIME: dict[str, Any] = {
-    "running": False, "last_run": 0.0, "last_error": "", "captured": 0,
-}
-FAST_MEMORY_STOP_WORDS = {
-    "the", "and", "for", "that", "this", "with", "from", "have", "has", "had",
-    "you", "your", "are", "was", "were", "will", "would", "can", "could", "about",
-    "into", "then", "than", "but", "not", "all", "what", "when", "where", "which",
-    "how", "why", "our", "their", "there", "here", "also", "just", "some", "any",
-}
-FAST_MEMORY_SECRET_RE = re.compile(
-    r"(?i)(?:password|passphrase|api[_ -]?key|access[_ -]?token|refresh[_ -]?token|client[_ -]?secret|authorization)\s*[:=]|\b(?:sk|ghp|github_pat)_[A-Za-z0-9_-]{16,}"
-)
 
 
-def _fast_memory_connect() -> sqlite3.Connection:
-    FAST_MEMORY_PATH.parent.mkdir(parents=True, exist_ok=True)
-    connection = sqlite3.connect(str(FAST_MEMORY_PATH), timeout=3.0)
-    connection.row_factory = sqlite3.Row
-    connection.execute("PRAGMA journal_mode=WAL")
-    connection.execute("PRAGMA synchronous=NORMAL")
-    connection.execute(
-        """CREATE TABLE IF NOT EXISTS memory_records (
-        id TEXT PRIMARY KEY,
-        identity_key TEXT NOT NULL UNIQUE,
-        fingerprint TEXT NOT NULL,
-        kind TEXT NOT NULL,
-        subject TEXT NOT NULL,
-        memory_key TEXT NOT NULL,
-        value TEXT NOT NULL,
-        summary TEXT NOT NULL,
-        keywords TEXT NOT NULL,
-        importance INTEGER NOT NULL,
-        confidence REAL NOT NULL,
-        pinned INTEGER NOT NULL DEFAULT 0,
-        source_session TEXT NOT NULL DEFAULT '',
-        source_excerpt TEXT NOT NULL DEFAULT '',
-        automatic INTEGER NOT NULL DEFAULT 0,
-        confirmations INTEGER NOT NULL DEFAULT 1,
-        revision INTEGER NOT NULL DEFAULT 1,
-        created_at REAL NOT NULL,
-        updated_at REAL NOT NULL,
-        last_accessed REAL NOT NULL DEFAULT 0,
-        expires_at REAL NOT NULL DEFAULT 0
-        )"""
-    )
-    connection.execute("CREATE INDEX IF NOT EXISTS idx_fast_memory_kind ON memory_records(kind)")
-    connection.execute("CREATE INDEX IF NOT EXISTS idx_fast_memory_updated ON memory_records(updated_at DESC)")
-    connection.execute("CREATE INDEX IF NOT EXISTS idx_fast_memory_expiry ON memory_records(expires_at)")
-    return connection
 
 
-def _fast_memory_text(value: Any, limit: int) -> str:
-    return " ".join(str(value or "").strip().split())[:limit]
 
 
-def _fast_memory_slug(value: Any, limit: int = 120) -> str:
-    cleaned = re.sub(r"[^a-z0-9]+", "_", _fast_memory_text(value, limit).casefold()).strip("_")
-    return cleaned[:limit] or "general"
 
 
-def _fast_memory_tokens(value: Any) -> set[str]:
-    return {
-        token for token in re.findall(r"[a-z0-9_]{2,}", str(value or "").casefold())
-        if token not in FAST_MEMORY_STOP_WORDS
-    }
 
 
-def _fast_memory_identity(kind: str, subject: str, memory_key: str) -> str:
-    return f"{kind}|{_fast_memory_slug(subject, 100)}|{_fast_memory_slug(memory_key, 100)}"
 
 
-def _fast_memory_fingerprint(kind: str, subject: str, memory_key: str, value: str) -> str:
-    normalized = "|".join((kind, _fast_memory_slug(subject), _fast_memory_slug(memory_key), _fast_memory_text(value, 1600).casefold()))
-    return hashlib.sha256(normalized.encode("utf-8")).hexdigest()
 
 
-def _fast_memory_public(row: sqlite3.Row | dict[str, Any]) -> dict[str, Any]:
-    record = dict(row)
-    try:
-        keywords = json.loads(record.get("keywords") or "[]")
-    except (TypeError, json.JSONDecodeError):
-        keywords = []
-    record["keywords"] = keywords if isinstance(keywords, list) else []
-    record["pinned"] = bool(record.get("pinned"))
-    record["automatic"] = bool(record.get("automatic"))
-    record.pop("identity_key", None)
-    record.pop("fingerprint", None)
-    record["key"] = record.pop("memory_key", "")
-    return record
 
 
-def _fast_memory_prune() -> int:
-    now = time.time()
-    deleted = 0
-    with _fast_memory_connect() as connection:
-        cursor = connection.execute("DELETE FROM memory_records WHERE pinned=0 AND expires_at>0 AND expires_at<=?", (now,))
-        deleted += max(0, cursor.rowcount)
-        session_rows = connection.execute(
-            "SELECT id FROM memory_records WHERE kind='session_summary' AND pinned=0 ORDER BY updated_at DESC"
-        ).fetchall()
-        for row in session_rows[100:]:
-            connection.execute("DELETE FROM memory_records WHERE id=?", (row["id"],))
-            deleted += 1
-        count = int(connection.execute("SELECT COUNT(*) FROM memory_records").fetchone()[0])
-        excess = max(0, count - FAST_MEMORY_MAX_RECORDS)
-        if excess:
-            rows = connection.execute(
-                "SELECT id FROM memory_records WHERE pinned=0 ORDER BY importance ASC, confidence ASC, confirmations ASC, updated_at ASC LIMIT ?",
-                (excess,),
-            ).fetchall()
-            for row in rows:
-                connection.execute("DELETE FROM memory_records WHERE id=?", (row["id"],))
-                deleted += 1
-    return deleted
 
 
-def upsert_fast_memory(payload: dict[str, Any], *, source_session: str = "", automatic: bool = False) -> dict[str, Any]:
-    kind = _fast_memory_text(payload.get("kind"), 40).casefold()
-    if kind not in FAST_MEMORY_KINDS:
-        raise ValueError("Unsupported Fast Memory type")
-    subject = _fast_memory_text(payload.get("subject"), 160)
-    memory_key = _fast_memory_slug(payload.get("key"), 120)
-    value = _fast_memory_text(payload.get("value"), 1600)
-    summary = _fast_memory_text(payload.get("summary") or value, 500)
-    keywords = sorted({_fast_memory_text(item, 60).casefold() for item in payload.get("keywords", []) if _fast_memory_text(item, 60)})[:20]
-    importance = max(1, min(5, int(payload.get("importance") or 3)))
-    confidence = max(0.0, min(1.0, float(payload.get("confidence") if payload.get("confidence") is not None else 1.0)))
-    pinned = bool(payload.get("pinned"))
-    expires_at = max(0.0, float(payload.get("expires_at") or 0))
-    if not subject or not value:
-        raise ValueError("Fast Memory subject and value are required")
-    if automatic and kind != "session_summary" and (importance < 3 or confidence < 0.72):
-        return {"saved": False, "reason": "below_quality_threshold"}
-    if FAST_MEMORY_SECRET_RE.search(f"{memory_key} {value}"):
-        return {"saved": False, "reason": "credential_like_content_blocked"}
-    now = time.time()
-    identity = _fast_memory_identity(kind, subject, memory_key)
-    fingerprint = _fast_memory_fingerprint(kind, subject, memory_key, value)
-    record_id = hashlib.sha256(f"{identity}:{now}:{os.urandom(8).hex()}".encode()).hexdigest()[:24]
-    excerpt = _fast_memory_text(payload.get("source_excerpt"), 260)
-    action = "created"
-    with _fast_memory_connect() as connection:
-        existing = connection.execute(
-            "SELECT * FROM memory_records WHERE identity_key=? OR fingerprint=? ORDER BY identity_key=? DESC LIMIT 1",
-            (identity, fingerprint, identity),
-        ).fetchone()
-        if not existing:
-            incoming_tokens = _fast_memory_tokens(f"{value} {summary}")
-            candidates = connection.execute(
-                "SELECT * FROM memory_records WHERE kind=? ORDER BY updated_at DESC LIMIT 100", (kind,),
-            ).fetchall()
-            for candidate in candidates:
-                if _fast_memory_slug(candidate["subject"], 100) != _fast_memory_slug(subject, 100):
-                    continue
-                candidate_tokens = _fast_memory_tokens(f"{candidate['value']} {candidate['summary']}")
-                union = incoming_tokens | candidate_tokens
-                similarity = len(incoming_tokens & candidate_tokens) / len(union) if union else 0.0
-                if similarity >= 0.82:
-                    existing = candidate
-                    break
-        if existing:
-            record_id = str(existing["id"])
-            same_value = _fast_memory_text(existing["value"], 1600).casefold() == value.casefold()
-            action = "confirmed" if same_value else "updated"
-            connection.execute(
-                """UPDATE memory_records SET identity_key=?, fingerprint=?, kind=?, subject=?, memory_key=?, value=?, summary=?, keywords=?,
-                importance=?, confidence=?, pinned=?, source_session=?, source_excerpt=?, automatic=?, confirmations=?, revision=?, updated_at=?, expires_at=? WHERE id=?""",
-                (
-                    identity, fingerprint, kind, subject, memory_key, value, summary,
-                    json.dumps(keywords, ensure_ascii=False), max(importance, int(existing["importance"])) if same_value else importance,
-                    max(confidence, float(existing["confidence"])) if same_value else confidence,
-                    int(pinned or bool(existing["pinned"])), source_session or str(existing["source_session"]),
-                    excerpt or str(existing["source_excerpt"]), int(automatic and bool(existing["automatic"])),
-                    int(existing["confirmations"]) + 1 if same_value else 1,
-                    int(existing["revision"]) if same_value else int(existing["revision"]) + 1,
-                    now, expires_at, record_id,
-                ),
-            )
-        else:
-            connection.execute(
-                """INSERT INTO memory_records
-                (id,identity_key,fingerprint,kind,subject,memory_key,value,summary,keywords,importance,confidence,pinned,source_session,source_excerpt,automatic,confirmations,revision,created_at,updated_at,last_accessed,expires_at)
-                VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)""",
-                (
-                    record_id, identity, fingerprint, kind, subject, memory_key, value, summary,
-                    json.dumps(keywords, ensure_ascii=False), importance, confidence, int(pinned), source_session,
-                    excerpt, int(automatic), 1, 1, now, now, 0.0, expires_at,
-                ),
-            )
-        row = connection.execute("SELECT * FROM memory_records WHERE id=?", (record_id,)).fetchone()
-    _fast_memory_prune()
-    return {"saved": True, "action": action, "memory": _fast_memory_public(row)}
 
 
-def fast_memory_search(query: str = "", *, kind: str = "", limit: int = 20, session_id: str = "") -> dict[str, Any]:
-    _fast_memory_prune()
-    query = _fast_memory_text(query, 300)
-    kind = _fast_memory_text(kind, 40).casefold()
-    if kind and kind not in FAST_MEMORY_KINDS:
-        raise ValueError("Unsupported Fast Memory type")
-    now = time.time()
-    with _fast_memory_connect() as connection:
-        sql = "SELECT * FROM memory_records WHERE (expires_at=0 OR expires_at>?)"
-        values: list[Any] = [now]
-        if kind:
-            sql += " AND kind=?"
-            values.append(kind)
-        rows = connection.execute(sql, values).fetchall()
-    query_tokens = _fast_memory_tokens(query)
-    scored: list[tuple[float, sqlite3.Row]] = []
-    for row in rows:
-        subject_tokens = _fast_memory_tokens(row["subject"])
-        key_tokens = _fast_memory_tokens(row["memory_key"])
-        text_tokens = _fast_memory_tokens(f"{row['value']} {row['summary']} {row['keywords']}")
-        overlap = len(query_tokens & text_tokens)
-        subject_overlap = len(query_tokens & subject_tokens)
-        key_overlap = len(query_tokens & key_tokens)
-        baseline = 1.3 if session_id and row["kind"] in {"profile", "preference"} and int(row["importance"]) >= 4 else 0.0
-        if row["kind"] == "session_summary" and str(row["source_session"]) == session_id:
-            baseline += 3.0
-        if query_tokens and overlap + subject_overlap + key_overlap == 0 and baseline == 0:
-            continue
-        age_days = max(0.0, (now - float(row["updated_at"])) / 86400.0)
-        recency = max(0.0, 1.5 - min(age_days, 180.0) / 120.0)
-        score = overlap * 2.5 + subject_overlap * 4.0 + key_overlap * 3.0 + int(row["importance"]) * 0.7 + float(row["confidence"]) + recency + baseline + (4.0 if row["pinned"] else 0.0)
-        scored.append((score, row))
-    scored.sort(key=lambda item: (item[0], float(item[1]["updated_at"])), reverse=True)
-    selected = scored[:max(1, min(int(limit), 100))]
-    if selected:
-        with _fast_memory_connect() as connection:
-            connection.executemany("UPDATE memory_records SET last_accessed=? WHERE id=?", [(now, row["id"]) for _, row in selected])
-    return {"query": query, "count": len(selected), "memories": [_fast_memory_public(row) for _, row in selected]}
 
 
-def fast_memory_status() -> dict[str, Any]:
-    _fast_memory_prune()
-    with _fast_memory_connect() as connection:
-        total = int(connection.execute("SELECT COUNT(*) FROM memory_records").fetchone()[0])
-        grouped = {str(row["kind"]): int(row["count"]) for row in connection.execute("SELECT kind,COUNT(*) AS count FROM memory_records GROUP BY kind")}
-        pinned = int(connection.execute("SELECT COUNT(*) FROM memory_records WHERE pinned=1").fetchone()[0])
-    return {
-        "operational": True, "total": total, "pinned": pinned, "by_kind": grouped,
-        "database_bytes": FAST_MEMORY_PATH.stat().st_size if FAST_MEMORY_PATH.exists() else 0,
-        "max_records": FAST_MEMORY_MAX_RECORDS, "runtime": dict(FAST_MEMORY_RUNTIME),
-    }
 
 
-def delete_fast_memory(memory_id: str) -> bool:
-    with _fast_memory_connect() as connection:
-        cursor = connection.execute("DELETE FROM memory_records WHERE id=?", (_fast_memory_text(memory_id, 64),))
-        return cursor.rowcount > 0
 
 
-def forget_fast_memory(query: str) -> dict[str, Any]:
-    matches = fast_memory_search(query, limit=100).get("memories", [])
-    deleted = 0
-    for memory in matches:
-        if delete_fast_memory(str(memory.get("id") or "")):
-            deleted += 1
-    return {"deleted": deleted, "query": query}
 
 
-def export_fast_memory() -> dict[str, Any]:
-    with _fast_memory_connect() as connection:
-        rows = connection.execute("SELECT * FROM memory_records ORDER BY updated_at DESC").fetchall()
-    return {"version": 1, "memories": [_fast_memory_public(row) for row in rows]}
 
 
-def restore_fast_memory(payload: dict[str, Any]) -> int:
-    memories = payload.get("memories") if isinstance(payload, dict) else None
-    if not isinstance(memories, list):
-        raise ValueError("Fast Memory backup data is malformed")
-    with _fast_memory_connect() as connection:
-        connection.execute("DELETE FROM memory_records")
-    restored = 0
-    for item in memories[:FAST_MEMORY_MAX_RECORDS]:
-        if not isinstance(item, dict):
-            continue
-        try:
-            result = upsert_fast_memory(item, source_session=str(item.get("source_session") or ""), automatic=bool(item.get("automatic")))
-            restored += int(bool(result.get("saved")))
-        except (TypeError, ValueError):
-            continue
-    return restored
 
 
-def fast_memory_context(message: str, session_id: str) -> str:
-    preferences = load_preferences()
-    if not preferences.get("fast_memory_enabled", True):
-        return ""
-    limit = max(2, min(20, int(preferences.get("fast_memory_context_items", 10) or 10)))
-    memories = fast_memory_search(message, limit=limit, session_id=session_id).get("memories", [])
-    lines: list[str] = []
-    size = 0
-    for memory in memories:
-        line = f"- [{memory['kind']}] {memory['subject']} / {memory['key']}: {memory['summary'] or memory['value']}"
-        if size + len(line) > FAST_MEMORY_CONTEXT_MAX_CHARS:
-            break
-        lines.append(line)
-        size += len(line)
-    if not lines:
-        return ""
-    return (
-        "FAST MEMORY (local, concise, user-editable context). Use only when relevant. "
-        "If it conflicts with the user's current statement, trust the current statement and update memory.\n"
-        + "\n".join(lines)
-    )
 
 
-def fast_memory_input(message: str, session_id: str) -> list[dict[str, str]]:
-    context = fast_memory_context(message, session_id)
-    return [{"role": "developer", "content": context}] if context else []
 
 
-def _fast_memory_exchange_eligible(session_id: str, user_text: str, assistant_text: str) -> bool:
-    if is_internal_chat_session(session_id) or not load_preferences().get("fast_memory_auto_capture", True):
-        return False
-    normalized = " ".join(user_text.casefold().split())
-    if len(normalized) < 12 or normalized in {"approve", "approved", "cancel", "yes", "no", "ok", "thanks", "thank you"}:
-        return False
-    blocked = ("reply **approve**", "permission required", "request failed:", "tool-call limit")
-    return not any(marker in assistant_text.casefold() for marker in blocked)
 
 
-async def extract_fast_memory_from_exchange(session_id: str, user_text: str, assistant_text: str) -> None:
-    if not _fast_memory_exchange_eligible(session_id, user_text, assistant_text):
-        return
-    FAST_MEMORY_RUNTIME.update(running=True, last_error="")
-    try:
-        previous = fast_memory_search("", kind="session_summary", limit=100).get("memories", [])
-        previous_summary = next((item.get("value", "") for item in previous if item.get("source_session") == session_id), "")
-        extractor_tool = {
-            "type": "function", "name": "record_fast_memory_batch",
-            "description": "Return only durable, useful memory extracted from the completed conversation exchange.",
-            "parameters": {
-                "type": "object",
-                "properties": {
-                    "session_summary": {"type": "string", "description": "Updated rolling session summary in at most 420 characters."},
-                    "memories": {
-                        "type": "array", "maxItems": 6,
-                        "items": {
-                            "type": "object",
-                            "properties": {
-                                "kind": {"type": "string", "enum": ["profile", "preference", "project", "decision", "fact", "follow_up", "temporary"]},
-                                "subject": {"type": "string"}, "key": {"type": "string"}, "value": {"type": "string"},
-                                "summary": {"type": "string"}, "keywords": {"type": "array", "items": {"type": "string"}},
-                                "importance": {"type": "integer", "minimum": 1, "maximum": 5},
-                                "confidence": {"type": "number", "minimum": 0, "maximum": 1},
-                                "expiry_days": {"type": "integer", "minimum": 0, "maximum": 365},
-                            },
-                            "required": ["kind", "subject", "key", "value", "summary", "keywords", "importance", "confidence", "expiry_days"],
-                            "additionalProperties": False,
-                        },
-                    },
-                },
-                "required": ["session_summary", "memories"], "additionalProperties": False,
-            },
-            "strict": True,
-        }
-        response = await create_openai_response({
-            "model": active_agent_model(),
-            "instructions": (
-                "Extract compact Fast Memory. Save only durable user facts, preferences, project state, accepted decisions, and real follow-ups. "
-                "Never save credentials, access tokens, private keys, raw transcripts, tool chatter, speculative assistant claims, greetings, or trivial details. "
-                "A memory must be explicitly stated or clearly confirmed by the user. Use stable snake_case keys so later updates replace earlier values. "
-                "Importance 3 is useful, 4 is important, 5 is identity-critical. Confidence must be at least 0.72 to save. "
-                "Temporary information needs expiry_days. Update the rolling summary rather than repeating the whole conversation."
-            ),
-            "input": [{"role": "user", "content": json.dumps({
-                "previous_session_summary": previous_summary[:420],
-                "user": _fast_memory_text(user_text, 4000),
-                "assistant": _fast_memory_text(assistant_text, 4000),
-            }, ensure_ascii=False)}],
-            "tools": [extractor_tool],
-            "tool_choice": {"type": "function", "name": "record_fast_memory_batch"},
-            "max_output_tokens": 1200,
-        })
-        calls = function_calls(response)
-        if not calls:
-            return
-        arguments = json.loads(calls[0].get("arguments") or "{}")
-        captured = 0
-        summary = _fast_memory_text(arguments.get("session_summary"), 420)
-        if summary:
-            result = upsert_fast_memory({
-                "kind": "session_summary", "subject": session_id, "key": "rolling_summary",
-                "value": summary, "summary": summary, "keywords": [], "importance": 2,
-                "confidence": 1.0, "pinned": False, "expires_at": 0,
-                "source_excerpt": _fast_memory_text(user_text, 260),
-            }, source_session=session_id, automatic=True)
-            captured += int(bool(result.get("saved")))
-        for item in arguments.get("memories", [])[:6]:
-            if not isinstance(item, dict):
-                continue
-            expiry_days = max(0, min(365, int(item.pop("expiry_days", 0) or 0)))
-            item["expires_at"] = time.time() + expiry_days * 86400 if expiry_days else 0
-            item["source_excerpt"] = _fast_memory_text(user_text, 260)
-            result = upsert_fast_memory(item, source_session=session_id, automatic=True)
-            captured += int(bool(result.get("saved")))
-        FAST_MEMORY_RUNTIME["captured"] = int(FAST_MEMORY_RUNTIME.get("captured", 0)) + captured
-        FAST_MEMORY_RUNTIME["last_run"] = time.time()
-    except Exception as exc:
-        FAST_MEMORY_RUNTIME["last_error"] = str(exc)[:500]
-        FAST_MEMORY_RUNTIME["last_run"] = time.time()
-    finally:
-        FAST_MEMORY_RUNTIME["running"] = False
 
 
-def schedule_fast_memory_extraction(session_id: str, user_text: str, assistant_text: str) -> None:
-    if not _fast_memory_exchange_eligible(session_id, user_text, assistant_text):
-        return
-    try:
-        loop = asyncio.get_running_loop()
-    except RuntimeError:
-        return
-    task = loop.create_task(extract_fast_memory_from_exchange(session_id, user_text, assistant_text), name="zbrano-fast-memory")
-    FAST_MEMORY_TASKS.add(task)
-    task.add_done_callback(FAST_MEMORY_TASKS.discard)
 
 
 def append_chat_message(session_id: str, role: str, content: str) -> None:
@@ -1363,98 +1001,24 @@ ha_ws = HomeAssistantWebSocketClient(
 
 app = FastAPI(
     title="ZBRANO",
-    version="0.13.19",
+    version="0.13.20",
     docs_url="/api/docs",
     openapi_url="/api/openapi.json",
 )
 
 
-MCP_HTTP_TIMEOUT = httpx.Timeout(30.0, connect=2.0)
-MCP_HTTP_LIMITS = httpx.Limits(
-    max_connections=10,
-    max_keepalive_connections=5,
-    keepalive_expiry=60.0,
-)
-MCP_CLIENT: httpx.AsyncClient | None = None
-MCP_ACTIVE_URL: str | None = None
-MCP_LAST_ERROR: str | None = None
-MCP_LAST_LATENCY_MS: float | None = None
-MCP_LAST_SUCCESS_AT: float | None = None
-MCP_ENDPOINT_LATENCY_MS: dict[str, float] = {}
-MCP_TOOL_CACHE: dict[str, tuple[float, dict[str, Any]]] = {}
-MCP_CACHE_TTLS = {
-    "get_profile_summary": 900.0,
-    "get_project_context": 300.0,
-    "get_latest_handoff": 120.0,
-    "get_open_decisions": 120.0,
-    "list_projects": 120.0,
-}
-MCP_LOCK = asyncio.Lock()
 
 
-def workshop_memory_candidates() -> list[str]:
-    candidates: list[str] = []
-    for value in (WORKSHOP_MEMORY_INTERNAL_URL, WORKSHOP_MEMORY_URL):
-        cleaned = value.strip().rstrip("/")
-        if cleaned and cleaned not in candidates:
-            candidates.append(cleaned)
-    return candidates
 
 
-def mcp_cache_key(tool_name: str, arguments: dict[str, Any]) -> str:
-    return json.dumps(
-        {"tool": tool_name, "arguments": arguments},
-        sort_keys=True,
-        separators=(",", ":"),
-        ensure_ascii=False,
-    )
 
 
-def get_cached_mcp_result(
-    tool_name: str,
-    arguments: dict[str, Any],
-) -> dict[str, Any] | None:
-    ttl = MCP_CACHE_TTLS.get(tool_name)
-    if not ttl:
-        return None
-    entry = MCP_TOOL_CACHE.get(mcp_cache_key(tool_name, arguments))
-    if not entry:
-        return None
-    created_at, result = entry
-    if time.monotonic() - created_at > ttl:
-        MCP_TOOL_CACHE.pop(mcp_cache_key(tool_name, arguments), None)
-        return None
-    return result
 
 
-def set_cached_mcp_result(
-    tool_name: str,
-    arguments: dict[str, Any],
-    result: dict[str, Any],
-) -> None:
-    if tool_name in MCP_CACHE_TTLS:
-        MCP_TOOL_CACHE[mcp_cache_key(tool_name, arguments)] = (
-            time.monotonic(),
-            result,
-        )
 
 
-async def get_mcp_client() -> httpx.AsyncClient:
-    global MCP_CLIENT
-    if MCP_CLIENT is None or MCP_CLIENT.is_closed:
-        MCP_CLIENT = httpx.AsyncClient(
-            timeout=MCP_HTTP_TIMEOUT,
-            limits=MCP_HTTP_LIMITS,
-            http2=False,
-        )
-    return MCP_CLIENT
 
 
-async def close_mcp_client() -> None:
-    global MCP_CLIENT
-    if MCP_CLIENT is not None and not MCP_CLIENT.is_closed:
-        await MCP_CLIENT.aclose()
-    MCP_CLIENT = None
 
 
 class OpenAIError(RuntimeError):
@@ -2008,272 +1572,26 @@ def chat_context_limit() -> int:
         return CHAT_CONTEXT_MAX_MESSAGES
 
 
-async def _mcp_post(
-    client: httpx.AsyncClient,
-    endpoint_url: str,
-    payload: dict[str, Any],
-    session_id: str | None = None,
-) -> tuple[list[dict[str, Any]], str | None]:
-    headers = {
-        "Accept": "application/json, text/event-stream",
-        "Content-Type": "application/json",
-    }
-    if session_id:
-        headers["Mcp-Session-Id"] = session_id
-
-    response = await client.post(
-        endpoint_url,
-        headers=headers,
-        json=payload,
-    )
-    messages = await _read_mcp_response(response)
-    returned_session_id = response.headers.get("mcp-session-id") or session_id
-    return messages, returned_session_id
 
 
-async def _call_workshop_memory_endpoint(
-    endpoint_url: str,
-    tool_name: str,
-    arguments: dict[str, Any],
-) -> dict[str, Any]:
-    client = await get_mcp_client()
-
-    initialize_id = 1
-    initialize_payload = {
-        "jsonrpc": "2.0",
-        "id": initialize_id,
-        "method": "initialize",
-        "params": {
-            "protocolVersion": "2025-03-26",
-            "capabilities": {},
-            "clientInfo": {
-                "name": "zbrano-workshop-assistant",
-                "version": "0.7.0",
-            },
-        },
-    }
-
-    init_messages, session_id = await _mcp_post(
-        client,
-        endpoint_url,
-        initialize_payload,
-    )
-    _find_result(init_messages, initialize_id)
-
-    await _mcp_post(
-        client,
-        endpoint_url,
-        {
-            "jsonrpc": "2.0",
-            "method": "notifications/initialized",
-            "params": {},
-        },
-        session_id,
-    )
-
-    call_id = 2
-    call_messages, _ = await _mcp_post(
-        client,
-        endpoint_url,
-        {
-            "jsonrpc": "2.0",
-            "id": call_id,
-            "method": "tools/call",
-            "params": {
-                "name": tool_name,
-                "arguments": arguments,
-            },
-        },
-        session_id,
-    )
-    result = _find_result(call_messages, call_id)
-    return decode_workshop_tool_result(result)
 
 
-WORKSHOP_DYNAMIC_TOOLS: dict[str, dict[str, Any]] = {}
-WORKSHOP_DYNAMIC_TOOLS_REFRESHED_AT = 0.0
-WORKSHOP_DYNAMIC_TOOLS_TTL = 60.0
 
 
-async def _list_workshop_memory_endpoint_tools(endpoint_url: str) -> list[dict[str, Any]]:
-    client = await get_mcp_client()
-    initialize_id = 1
-    init_messages, session_id = await _mcp_post(
-        client,
-        endpoint_url,
-        {
-            "jsonrpc": "2.0",
-            "id": initialize_id,
-            "method": "initialize",
-            "params": {
-                "protocolVersion": "2025-03-26",
-                "capabilities": {},
-                "clientInfo": {
-                    "name": "zbrano-workshop-assistant",
-                    "version": "0.13.19",
-                },
-            },
-        },
-    )
-    _find_result(init_messages, initialize_id)
-    await _mcp_post(
-        client,
-        endpoint_url,
-        {"jsonrpc": "2.0", "method": "notifications/initialized", "params": {}},
-        session_id,
-    )
-    list_id = 2
-    list_messages, _ = await _mcp_post(
-        client,
-        endpoint_url,
-        {"jsonrpc": "2.0", "id": list_id, "method": "tools/list", "params": {}},
-        session_id,
-    )
-    tools = _find_result(list_messages, list_id).get("tools") or []
-    return [tool for tool in tools if isinstance(tool, dict)]
 
 
-def _workshop_tool_permission(tool: dict[str, Any]) -> str:
-    annotations = tool.get("annotations") or {}
-    return "read_only" if annotations.get("readOnlyHint") is True else "write"
 
 
-async def refresh_workshop_memory_tools(force: bool = False) -> dict[str, dict[str, Any]]:
-    """Discover local MCP tools; unknown or unannotated tools default to write."""
-    global WORKSHOP_DYNAMIC_TOOLS, WORKSHOP_DYNAMIC_TOOLS_REFRESHED_AT
-    if (
-        not force
-        and WORKSHOP_DYNAMIC_TOOLS_REFRESHED_AT
-        and time.monotonic() - WORKSHOP_DYNAMIC_TOOLS_REFRESHED_AT < WORKSHOP_DYNAMIC_TOOLS_TTL
-    ):
-        return WORKSHOP_DYNAMIC_TOOLS
-    try:
-        endpoint_url = await select_workshop_memory_endpoint()
-        discovered = await _list_workshop_memory_endpoint_tools(endpoint_url)
-    except (MCPError, httpx.HTTPError, OSError, RuntimeError, ValueError):
-        return WORKSHOP_DYNAMIC_TOOLS
-
-    static_names = {tool.get("name") for tool in WORKSHOP_TOOLS}
-    catalog: dict[str, dict[str, Any]] = {}
-    for tool in discovered:
-        name = str(tool.get("name") or "").strip()
-        if (
-            not name
-            or len(name) > 64
-            or not re.fullmatch(r"[A-Za-z0-9_-]+", name)
-            or name in static_names
-        ):
-            continue
-        parameters = tool.get("inputSchema")
-        if not isinstance(parameters, dict) or parameters.get("type") != "object":
-            parameters = {"type": "object", "properties": {}}
-        parameters = dict(parameters)
-        parameters.pop("$schema", None)
-        catalog[name] = {
-            "name": name,
-            "description": str(tool.get("description") or f"Workshop Memory tool: {name}")[:1000],
-            "parameters": parameters,
-            "permission": _workshop_tool_permission(tool),
-        }
-    WORKSHOP_DYNAMIC_TOOLS = catalog
-    WORKSHOP_DYNAMIC_TOOLS_REFRESHED_AT = time.monotonic()
-    return catalog
 
 
-def workshop_memory_function_tools() -> list[dict[str, Any]]:
-    return [
-        {
-            "type": "function",
-            "name": tool["name"],
-            "description": tool["description"],
-            "parameters": tool["parameters"],
-            "strict": False,
-        }
-        for tool in WORKSHOP_DYNAMIC_TOOLS.values()
-    ]
 
 
-def workshop_memory_tool_permission(name: str) -> str | None:
-    if name in GMAIL_DIRECT_WRITE_TOOLS:
-        return "write"
-    if name in GMAIL_DIRECT_TOOL_NAMES:
-        return "read_only"
-    tool = WORKSHOP_DYNAMIC_TOOLS.get(name)
-    return str(tool.get("permission")) if tool else None
 
 
-async def probe_workshop_memory_endpoint(endpoint_url: str) -> tuple[bool, float, str | None]:
-    started = time.perf_counter()
-    try:
-        await _call_workshop_memory_endpoint(
-            endpoint_url,
-            "check_server_status",
-            {},
-        )
-        latency_ms = (time.perf_counter() - started) * 1000
-        MCP_ENDPOINT_LATENCY_MS[endpoint_url] = round(latency_ms, 2)
-        return True, latency_ms, None
-    except (MCPError, httpx.HTTPError, OSError, RuntimeError) as exc:
-        return False, (time.perf_counter() - started) * 1000, str(exc)
 
 
-async def select_workshop_memory_endpoint(force: bool = False) -> str:
-    global MCP_ACTIVE_URL, MCP_LAST_ERROR, MCP_LAST_LATENCY_MS
-
-    if MCP_ACTIVE_URL and not force:
-        return MCP_ACTIVE_URL
-
-    errors: list[str] = []
-    for endpoint_url in workshop_memory_candidates():
-        ok, latency_ms, error = await probe_workshop_memory_endpoint(endpoint_url)
-        if ok:
-            MCP_ACTIVE_URL = endpoint_url
-            MCP_LAST_LATENCY_MS = round(latency_ms, 2)
-            MCP_LAST_ERROR = None
-            return endpoint_url
-        errors.append(f"{endpoint_url}: {error}")
-
-    MCP_ACTIVE_URL = None
-    MCP_LAST_ERROR = " | ".join(errors) or "No Workshop Memory endpoint configured"
-    raise MCPError(MCP_LAST_ERROR)
 
 
-async def call_workshop_memory_tool(
-    tool_name: str,
-    arguments: dict[str, Any],
-) -> dict[str, Any]:
-    global MCP_ACTIVE_URL, MCP_LAST_ERROR, MCP_LAST_LATENCY_MS, MCP_LAST_SUCCESS_AT
-
-    cached = get_cached_mcp_result(tool_name, arguments)
-    if cached is not None:
-        return {**cached, "_jarvis_cache": "hit"}
-
-    async with MCP_LOCK:
-        endpoint_url = await select_workshop_memory_endpoint()
-        started = time.perf_counter()
-
-        try:
-            result = await _call_workshop_memory_endpoint(
-                endpoint_url,
-                tool_name,
-                arguments,
-            )
-        except (MCPError, httpx.HTTPError, OSError, RuntimeError) as first_error:
-            MCP_LAST_ERROR = str(first_error)
-            MCP_ACTIVE_URL = None
-            endpoint_url = await select_workshop_memory_endpoint(force=True)
-            started = time.perf_counter()
-            result = await _call_workshop_memory_endpoint(
-                endpoint_url,
-                tool_name,
-                arguments,
-            )
-
-        MCP_LAST_LATENCY_MS = round((time.perf_counter() - started) * 1000, 2)
-        MCP_LAST_SUCCESS_AT = time.time()
-        MCP_LAST_ERROR = None
-        set_cached_mcp_result(tool_name, arguments, result)
-        return result
 
 
 def openai_error_message(response: httpx.Response) -> str:
@@ -3166,7 +2484,7 @@ async def _playwright_session():
                 "params": {
                     "protocolVersion": "2025-06-18",
                     "capabilities": {},
-                    "clientInfo": {"name": "ZBRANO Developer Mode", "version": "0.13.19"},
+                    "clientInfo": {"name": "ZBRANO Developer Mode", "version": "0.13.20"},
                 },
             },
         )
@@ -3669,18 +2987,6 @@ def workshop_result_error(result: Any) -> str | None:
     return None
 
 
-async def call_workshop_memory_tool_uncached(
-    tool_name: str,
-    arguments: dict[str, Any],
-) -> dict[str, Any]:
-    """Call Workshop Memory without using a possibly stale post-write cache."""
-    async with MCP_LOCK:
-        endpoint_url = await select_workshop_memory_endpoint(force=True)
-        return await _call_workshop_memory_endpoint(
-            endpoint_url,
-            tool_name,
-            arguments,
-        )
 
 
 def reconciled_workshop_result(
@@ -5311,7 +4617,7 @@ async def health() -> dict[str, Any]:
     configured_speech_provider = SPEECH_PROVIDER if SPEECH_PROVIDER in {"openai", "elevenlabs"} else "openai"
     return {
         "status": "ok",
-        "version": "0.13.19",
+        "version": "0.13.20",
         "home_assistant_configured": bool(SUPERVISOR_TOKEN),
         "workshop_memory_configured": bool(WORKSHOP_MEMORY_URL),
         "openai_configured": bool(OPENAI_API_KEY),
@@ -5343,14 +4649,7 @@ async def connections_status() -> dict[str, Any]:
             "rest_fallback_url": HA_API_BASE,
         },
         "workshop_memory": {
-            "active_url": MCP_ACTIVE_URL,
-            "candidates": workshop_memory_candidates(),
-            "last_latency_ms": MCP_LAST_LATENCY_MS,
-            "endpoint_latency_ms": MCP_ENDPOINT_LATENCY_MS,
-            "last_success_at_unix": MCP_LAST_SUCCESS_AT,
-            "last_error": MCP_LAST_ERROR,
-            "http_pool_open": bool(MCP_CLIENT and not MCP_CLIENT.is_closed),
-            "cache_entries": len(MCP_TOOL_CACHE),
+            **workshop_memory_runtime_status(),
             "release_sync": release_sync_status(),
         },
         "openai": {
@@ -6510,7 +5809,7 @@ async def _oauth_discover(resource_url, allow_pre_registered=False):
         "jsonrpc": "2.0", "id": 1, "method": "initialize",
         "params": {
             "protocolVersion": "2025-06-18", "capabilities": {},
-            "clientInfo": {"name": "ZBRANO Plugin Manager", "version": "0.13.19"},
+            "clientInfo": {"name": "ZBRANO Plugin Manager", "version": "0.13.20"},
         },
     }
     async with httpx.AsyncClient(timeout=PLUGIN_TIMEOUT, follow_redirects=False) as client:
@@ -10533,6 +9832,20 @@ configure_google_calendar_domain(
     refresh_oauth_token_fn=_refresh_plugin_oauth_token,
     plugin_registry_fn=plugin_registry,
     sync_task_provider=lambda: GOOGLE_CALENDAR_SYNC_TASK,
+)
+configure_fast_memory_domain(
+    load_preferences_fn=load_preferences,
+    is_internal_chat_session_fn=is_internal_chat_session,
+    active_agent_model_fn=active_agent_model,
+    create_openai_response_fn=create_openai_response,
+    function_calls_fn=function_calls,
+)
+configure_workshop_memory_domain(
+    internal_url=WORKSHOP_MEMORY_INTERNAL_URL,
+    external_url=WORKSHOP_MEMORY_URL,
+    static_tool_names={str(tool.get("name") or "") for tool in WORKSHOP_TOOLS},
+    direct_tool_names=GMAIL_DIRECT_TOOL_NAMES,
+    direct_write_tools=GMAIL_DIRECT_WRITE_TOOLS,
 )
 configure_calendar_domain(
     plugin_load=_plugin_load,

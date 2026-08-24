@@ -1,4 +1,4 @@
-ZBRANO v0.13.19 restores Release Memory reconciliation after modularization by colocating its current-version patterns and managed-block delimiters with the release-note service and auditing every extracted backend module for undeclared globals.
+ZBRANO v0.13.20 separates Fast Memory persistence and Workshop Memory MCP transport into explicit backend domains while preserving stored data, approvals, release synchronization, and runtime behavior.
 
 ZBRANO v0.13.18 prevents Release Memory synchronization from remaining indefinitely in a non-terminal state by adding worker timeout recovery, note progress, task-health reporting, and automatic interface polling.
 

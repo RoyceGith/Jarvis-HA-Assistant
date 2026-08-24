@@ -30,12 +30,18 @@ Stateful engines live under `jarvis/app/domains/`:
   cancellation, and Notification Center reminder delivery.
 - `google_calendar.py` owns Google OAuth-backed calendar access, event mapping,
   preview, incremental synchronization, synchronization status, and its worker.
+- `fast_memory.py` owns the existing SQLite record format, pruning, relevance,
+  backup/restore, prompt context, and background exchange extraction.
+- `workshop_memory.py` owns the Workshop Memory MCP HTTP pool, endpoint failover,
+  result cache, dynamic tool discovery, serialization lock, and connection metrics.
 
 The composition root retains the FastAPI route wrappers and explicitly configures
 each domain with its runtime dependencies after all providers have been defined.
 Notification watches intentionally remain in the automation store for data
 compatibility. Local Calendar and Google Calendar exchange storage operations through
-configured callbacks, while startup and shutdown continue to own their task objects.
+configured callbacks. Fast Memory retains `/data/zbrano_fast_memory.sqlite3`, and
+Workshop Memory retains the same endpoint selection and cache semantics. Startup and
+shutdown continue to own their task objects.
 Future extractions must retain `app.main:app`, use
 dependency injection rather than circular imports, and preserve persisted schemas.
 

@@ -1,9 +1,9 @@
 {
-  "version": "0.13.19",
+  "version": "0.13.20",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/Jarvis-HA-Assistant main",
-  "summary": "Restore Release Memory reconciliation by colocating its version patterns and managed-block delimiters with the extracted release-note service and auditing modules for undeclared globals.",
+  "summary": "Separate Fast Memory persistence and Workshop Memory MCP transport into explicit backend domains without changing stored data, routes, approvals, or release synchronization.",
   "history_backfill": [
     {
       "version": "0.13.0",
@@ -80,22 +80,28 @@
     {
       "version": "0.13.18",
       "summary": "Prevented Release Memory synchronization from remaining indefinitely non-terminal through bounded worker recovery, task-health reporting, note progress, and automatic polling."
+    },
+    {
+      "version": "0.13.19",
+      "summary": "Restored Release Memory reconciliation by colocating its current-version patterns and managed-block delimiters with the release-note service and auditing modules for undeclared globals."
     }
   ],
   "release_entry": {
     "features": [
-      "Audit every extracted backend service, domain, and schema module for undeclared global dependencies."
+      "Move Fast Memory SQLite persistence, relevance, backup, context injection, and extraction into an explicit domain module.",
+      "Move Workshop Memory MCP pooling, endpoint failover, caching, dynamic tool discovery, locking, and health metrics into an explicit domain module."
     ],
     "fixes": [
-      "Move CURRENT_VERSION_LABELS into release_notes.py so explicit current-version reconciliation no longer raises NameError.",
-      "Move the current-release managed-block delimiters into release_notes.py before their later reconciliation paths can fail.",
-      "Validate the release-note module directly instead of relying only on combined-source tests that can mask missing module globals."
+      "Keep Fast Memory's existing /data SQLite path and record schema unchanged across the module boundary.",
+      "Keep Workshop Memory approval, write reconciliation, release synchronization, endpoint selection, and cache behavior unchanged."
     ],
     "validation": [
-      "Isolated release-note execution, all-module undeclared-global audit, current-version reconciliation, managed-block rendering, complete regression suite, and v0.13.19 release alignment coverage"
+      "Fast Memory isolated persistence and configuration, Workshop Memory isolated transport state, module-global audit, backend compilation, regression suite, and v0.13.20 release alignment coverage"
     ]
   },
   "features": [
+    "Extract Fast Memory persistence, context selection, backup/restore, and exchange capture into an explicit dependency-configured domain module.",
+    "Extract Workshop Memory HTTP transport, endpoint failover, caching, dynamic tool discovery, lock, and runtime metrics into an explicit domain module.",
     "Audit extracted backend modules for undeclared global dependencies and execute release-note transformations in isolation.",
     "Show Release Memory note progress and poll synchronization status until the worker reaches a terminal state.",
     "Extract local Calendar reminders and Google Calendar synchronization into explicit dependency-configured backend domain modules.",
@@ -423,6 +429,7 @@
     "Preserve task-scoped Workshop Memory approval and per-draft Gmail approval isolation."
   ],
   "validation": [
+    "Fast Memory storage compatibility and configured callbacks, Workshop Memory endpoint/runtime state, isolated module globals, backend compilation, regression suite, and v0.13.20 release alignment coverage",
     "Isolated release-note service execution, all-module global-dependency audit, managed-block rendering, complete regression suite, and v0.13.19 release alignment coverage",
     "Release Memory worker timeout and exception recovery, inactive-task repair, progress reporting, frontend polling, diagnostics visibility, and v0.13.18 release alignment coverage",
     "Local and Google Calendar domain boundaries, explicit cross-domain wiring, route and lifecycle preservation, backend compilation, complete regression suite, and v0.13.17 release alignment coverage",
