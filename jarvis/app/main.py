@@ -1461,7 +1461,7 @@ ha_ws = HomeAssistantWebSocketClient(HA_WS_URL, SUPERVISOR_TOKEN)
 
 app = FastAPI(
     title="ZBRANO",
-    version="0.13.13",
+    version="0.13.14",
     docs_url="/api/docs",
     openapi_url="/api/openapi.json",
 )
@@ -2467,6 +2467,32 @@ def _find_result(messages: list[dict[str, Any]], request_id: int) -> dict[str, A
     raise MCPError(f"No MCP result received for request id {request_id}")
 
 
+def decode_workshop_tool_result(result: Any) -> dict[str, Any]:
+    """Decode MCP tool output for application use, preferring structured data."""
+    if not isinstance(result, dict):
+        raise MCPError("Workshop Memory returned an invalid tool result")
+    content = result.get("content") if isinstance(result.get("content"), list) else []
+    text_parts = [
+        str(item.get("text") or "")
+        for item in content
+        if isinstance(item, dict) and item.get("type") == "text"
+    ]
+    combined = "\n".join(part for part in text_parts if part)
+    if result.get("isError") is True:
+        raise MCPError(combined or "Workshop Memory tool execution failed")
+
+    structured = result.get("structuredContent")
+    if structured is not None:
+        return structured if isinstance(structured, dict) else {"result": structured}
+    if not combined:
+        return result
+    try:
+        parsed = json.loads(combined)
+    except json.JSONDecodeError:
+        return {"text": combined}
+    return parsed if isinstance(parsed, dict) else {"result": parsed}
+
+
 async def _call_workshop_memory_endpoint(
     endpoint_url: str,
     tool_name: str,
@@ -2523,25 +2549,7 @@ async def _call_workshop_memory_endpoint(
         session_id,
     )
     result = _find_result(call_messages, call_id)
-
-    content = result.get("content", [])
-    if not content:
-        return result
-
-    text_parts = [
-        item.get("text", "")
-        for item in content
-        if item.get("type") == "text"
-    ]
-    if not text_parts:
-        return result
-
-    combined = "\n".join(text_parts)
-    try:
-        parsed = json.loads(combined)
-    except json.JSONDecodeError:
-        return {"text": combined}
-    return parsed if isinstance(parsed, dict) else {"result": parsed}
+    return decode_workshop_tool_result(result)
 
 
 WORKSHOP_DYNAMIC_TOOLS: dict[str, dict[str, Any]] = {}
@@ -2564,7 +2572,7 @@ async def _list_workshop_memory_endpoint_tools(endpoint_url: str) -> list[dict[s
                 "capabilities": {},
                 "clientInfo": {
                     "name": "zbrano-workshop-assistant",
-                    "version": "0.13.13",
+                    "version": "0.13.14",
                 },
             },
         },
@@ -3621,7 +3629,7 @@ async def _playwright_session():
                 "params": {
                     "protocolVersion": "2025-06-18",
                     "capabilities": {},
-                    "clientInfo": {"name": "ZBRANO Developer Mode", "version": "0.13.13"},
+                    "clientInfo": {"name": "ZBRANO Developer Mode", "version": "0.13.14"},
                 },
             },
         )
@@ -5771,7 +5779,7 @@ async def health() -> dict[str, Any]:
     configured_speech_provider = SPEECH_PROVIDER if SPEECH_PROVIDER in {"openai", "elevenlabs"} else "openai"
     return {
         "status": "ok",
-        "version": "0.13.13",
+        "version": "0.13.14",
         "home_assistant_configured": bool(SUPERVISOR_TOKEN),
         "workshop_memory_configured": bool(WORKSHOP_MEMORY_URL),
         "openai_configured": bool(OPENAI_API_KEY),
@@ -5983,6 +5991,9 @@ def release_marker(version: str) -> str:
 def render_release_entry(manifest: dict[str, Any]) -> str:
     version = str(manifest["version"])
     installed_at = time.strftime("%Y-%m-%d %H:%M:%S UTC", time.gmtime())
+    details = manifest.get("release_entry")
+    if not isinstance(details, dict):
+        details = manifest
     lines = [
         release_marker(version),
         f"### v{version} — Installed {installed_at}",
@@ -5992,7 +6003,7 @@ def render_release_entry(manifest: dict[str, Any]) -> str:
         f"- **Summary:** {str(manifest.get('summary') or 'ZBRANO application update')}",
     ]
     for heading, key in (("New features", "features"), ("Fixes and reliability", "fixes"), ("Validation", "validation")):
-        values = [str(item).strip() for item in manifest.get(key, []) if str(item).strip()]
+        values = [str(item).strip() for item in details.get(key, []) if str(item).strip()]
         if values:
             lines.extend(("", f"#### {heading}"))
             lines.extend(f"- {item}" for item in values)
@@ -6025,6 +6036,35 @@ def render_release_history_backfill(manifest: dict[str, Any]) -> list[str]:
             f"- **Summary:** {records[version]}",
         )))
     return entries
+
+
+def upsert_marked_release_history_entry(content: str, entry: str) -> str:
+    version_match = re.search(r"<!-- zbrano-release:([^>]+) -->", entry)
+    if not version_match:
+        return content
+    marker = release_marker(version_match.group(1).strip())
+    marker_match = re.search(rf"(?m)^{re.escape(marker)}[ \t]*\r?$", content)
+    if not marker_match:
+        return insert_release_history(content, entry)
+
+    scan_start = marker_match.end()
+    own_heading = re.match(r"(?:\r?\n)+###\s+[^\r\n]+(?:\r?\n)?", content[scan_start:])
+    if own_heading:
+        scan_start += own_heading.end()
+    boundary = re.search(
+        r"(?m)^(?:<!-- zbrano-release:[^>]+ -->|###\s+v?\d+\.\d+\.\d+\b|##\s+)",
+        content[scan_start:],
+    )
+    end = scan_start + boundary.start() if boundary else len(content)
+    suffix = content[end:].lstrip("\r\n")
+    return content[:marker_match.start()] + entry.rstrip() + "\n\n" + suffix
+
+
+def reconcile_release_history_backfill(content: str, manifest: dict[str, Any]) -> str:
+    updated = content
+    for entry in render_release_history_backfill(manifest):
+        updated = upsert_marked_release_history_entry(updated, entry)
+    return updated
 
 
 def insert_release_history(content: str, entry: str) -> str:
@@ -6245,8 +6285,7 @@ async def synchronize_release_to_workshop_memory_once() -> dict[str, Any]:
         if note_name == release_note:
             release_history_present = release_marker(version) in content
             updated = upsert_current_release_truth(updated, manifest, release_log=True)
-            for historical_entry in render_release_history_backfill(manifest):
-                updated = insert_release_history(updated, historical_entry)
+            updated = reconcile_release_history_backfill(updated, manifest)
             updated = insert_release_history(updated, render_release_entry(manifest))
         elif note_name in RELEASE_SYNC_PRIMARY_NOTES:
             updated = upsert_current_release_truth(updated, manifest, release_log=False)
@@ -7175,7 +7214,7 @@ async def _oauth_discover(resource_url, allow_pre_registered=False):
         "jsonrpc": "2.0", "id": 1, "method": "initialize",
         "params": {
             "protocolVersion": "2025-06-18", "capabilities": {},
-            "clientInfo": {"name": "ZBRANO Plugin Manager", "version": "0.13.13"},
+            "clientInfo": {"name": "ZBRANO Plugin Manager", "version": "0.13.14"},
         },
     }
     async with httpx.AsyncClient(timeout=PLUGIN_TIMEOUT, follow_redirects=False) as client:

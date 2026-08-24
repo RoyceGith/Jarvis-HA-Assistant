@@ -1,9 +1,9 @@
 {
-  "version": "0.13.13",
+  "version": "0.13.14",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/Jarvis-HA-Assistant main",
-  "summary": "Confirm ambiguous Workshop Memory release-note writes through exact read-back verification instead of reporting a false missing-status failure.",
+  "summary": "Decode MCP tool results correctly and compact ZBRANO-managed v0.13 release records so canonical memory synchronization stays within the note-size limit.",
   "history_backfill": [
     {
       "version": "0.13.0",
@@ -56,9 +56,29 @@
     {
       "version": "0.13.12",
       "summary": "Refreshed navigation, nested menus, cards, forms, and data tables with a modern theme-aware visual system while preserving chat and existing behavior."
+    },
+    {
+      "version": "0.13.13",
+      "summary": "Added exact read-back verification for ambiguous Workshop Memory release-note writes and canonical description backfill for prior v0.13 releases."
     }
   ],
+  "release_entry": {
+    "features": [
+      "Prefer MCP structuredContent for application data while retaining compatible JSON text fallback.",
+      "Compact only ZBRANO-marked v0.13 release blocks into concise canonical descriptions before adding the current release."
+    ],
+    "fixes": [
+      "Surface Workshop Memory isError details instead of misreporting tool failures as a missing status.",
+      "Prevent cumulative release-detail repetition from pushing Release and Change Log.md beyond Workshop Memory's one-megabyte note limit.",
+      "Preserve unmarked historical entries and unrelated release-log content during managed-block compaction."
+    ],
+    "validation": [
+      "Structured MCP decoding, tool-error propagation, compact managed history, legacy-content preservation, note-size reduction, and v0.13.14 release alignment coverage"
+    ]
+  },
   "features": [
+    "Prefer structured MCP tool results for application logic and preserve JSON text as a compatibility fallback.",
+    "Compact ZBRANO-managed v0.13 release blocks to concise canonical records while preserving unmarked historical content.",
     "Backfill missing canonical v0.13.0 through v0.13.12 descriptions into Workshop Memory Release History without duplicating marked entries.",
     "Read write status from both plain Workshop Memory responses and MCP structured-result envelopes.",
     "Verify an ambiguously reported release-note write against the exact intended note content before marking it successful.",
@@ -249,6 +269,8 @@
     "Preserve multi-round Workshop Memory tasks after an approved write in both streaming and non-streaming chat."
   ],
   "fixes": [
+    "Expose the actual Workshop Memory tool error carried by isError instead of converting it into an ambiguous missing-status failure.",
+    "Stop cumulative manifest details from repeatedly inflating Release and Change Log.md toward the one-megabyte note limit.",
     "Stop a successful Release and Change Log update from remaining in retrying state only because its response omitted a top-level status field.",
     "Keep ambiguous or mismatched release-note writes failed and retryable instead of accepting an unverified permanent-memory change.",
     "Replace dated square menu treatments with a consistent rounded application-navigation hierarchy across desktop and mobile.",
@@ -368,6 +390,7 @@
     "Preserve task-scoped Workshop Memory approval and per-draft Gmail approval isolation."
   ],
   "validation": [
+    "MCP structured-result preference, isError propagation, managed v0.13 block compaction, unmarked-history preservation, compact current entry, and v0.13.14 release alignment coverage",
     "Plain and structured write-status extraction, newline-tolerant exact read-back matching, ambiguous-status verification wiring, canonical v0.13.0-v0.13.12 description backfill, deduplication, ordering, and v0.13.13 release alignment coverage",
     "Scoped final-style-layer, primary and nested navigation preservation, responsive overflow, reduced-motion, existing chat controls, and v0.13.12 release alignment coverage",
     "Label registry import, site-to-Zone resolution, site-aware presence, semantic label roles, label action blocks, learning reconciliation, Entity site UI, and v0.13.11 release alignment coverage",

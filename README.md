@@ -1,3 +1,5 @@
+ZBRANO v0.13.14 correctly decodes structured MCP results and tool errors, compacts only ZBRANO-managed v0.13 release blocks into concise descriptions, and prevents Release History from exceeding Workshop Memory's note-size limit.
+
 ZBRANO v0.13.13 verifies ambiguous Workshop Memory release-note writes by reading the saved note back, preventing successful reconciliation from being reported as a missing-status failure.
 
 ZBRANO v0.13.12 refreshes the application navigation, nested menus, cards, forms, and data tables with a cleaner modern visual system while preserving the established chat experience and all existing behavior.
