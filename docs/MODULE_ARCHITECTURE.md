@@ -26,11 +26,17 @@ Stateful engines live under `jarvis/app/domains/`:
   learning, deterministic matching, decisions, suggestions, and safe execution.
 - `notifications.py` owns Notification Center persistence, channel discovery,
   quiet-hours policy, notification watches, and the watch worker.
+- `calendar.py` owns local appointments, reminder schedules, reminder editing,
+  cancellation, and Notification Center reminder delivery.
+- `google_calendar.py` owns Google OAuth-backed calendar access, event mapping,
+  preview, incremental synchronization, synchronization status, and its worker.
 
 The composition root retains the FastAPI route wrappers and explicitly configures
 each domain with its runtime dependencies after all providers have been defined.
 Notification watches intentionally remain in the automation store for data
-compatibility. Future extractions must retain `app.main:app`, use
+compatibility. Local Calendar and Google Calendar exchange storage operations through
+configured callbacks, while startup and shutdown continue to own their task objects.
+Future extractions must retain `app.main:app`, use
 dependency injection rather than circular imports, and preserve persisted schemas.
 
 ## Frontend modules

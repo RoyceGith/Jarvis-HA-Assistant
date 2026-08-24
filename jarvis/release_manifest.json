@@ -1,9 +1,9 @@
 {
-  "version": "0.13.16",
+  "version": "0.13.17",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/Jarvis-HA-Assistant main",
-  "summary": "Extract the stateful Automation Brain and Notification Center engines into explicit dependency-configured backend domains without changing routes, shared watch storage, lifecycle, or stored data.",
+  "summary": "Separate local Calendar reminders and Google Calendar synchronization into explicit dependency-configured backend domains without changing routes, OAuth state, sync tokens, lifecycle, or stored data.",
   "history_backfill": [
     {
       "version": "0.13.0",
@@ -68,24 +68,29 @@
     {
       "version": "0.13.15",
       "summary": "Split canonical frontend assets, API schemas, Home Assistant transport, and low-coupling backend services into direct maintainable modules while preserving runtime behavior and stored data."
+    },
+    {
+      "version": "0.13.16",
+      "summary": "Moved Automation Brain and Notification Center engines into explicit backend domains while preserving routes, shared watch storage, worker lifecycle, and persisted data."
     }
   ],
   "release_entry": {
     "features": [
-      "Move Automation Brain storage, area context, learning, matching, decision, approval, and execution logic into a dedicated stateful domain module.",
-      "Move Notification Center storage, channel discovery, quiet-hours policy, watches, and watch worker into a dedicated stateful domain module.",
-      "Connect both domains through explicit runtime configuration while retaining thin FastAPI route wrappers in the stable composition root."
+      "Move local appointment persistence, reminder editing, cancellation, formatting, and reminder delivery into a dedicated Calendar domain.",
+      "Move Google Calendar OAuth access, API mapping, preview, incremental synchronization, status, and sync worker into a dedicated Google Calendar domain.",
+      "Connect local and Google calendars through explicit callbacks while retaining thin FastAPI route wrappers and existing lifecycle ownership."
     ],
     "fixes": [
-      "Preserve the existing autonomous_automations.json and notification_center.json paths, payload structures, limits, and backup behavior.",
-      "Keep notification watches in the shared automation store and retain automation-to-notification delivery behavior without a circular import.",
-      "Preserve startup and shutdown worker ownership, Home Assistant event dispatch, API URLs, request models, and app.main:app."
+      "Preserve zbrano_calendar.json and zbrano_google_calendar_sync.json paths, appointment/reminder payloads, OAuth secrets, sync tokens, and backup behavior.",
+      "Keep reminder delivery connected to Notification Center and retain concurrent local-change merging without circular imports.",
+      "Preserve all Calendar API URLs, request models, Google preview gate, worker startup/shutdown behavior, and app.main:app."
     ],
     "validation": [
-      "Explicit domain dependency wiring, route-wrapper preservation, storage-path compatibility, unresolved-global audit, backend compilation, complete regression suite, and v0.13.16 release alignment coverage"
+      "Calendar domain dependency wiring, route and lifecycle preservation, storage and OAuth compatibility, unresolved-global audit, backend compilation, complete regression suite, and v0.13.17 release alignment coverage"
     ]
   },
   "features": [
+    "Extract local Calendar reminders and Google Calendar synchronization into explicit dependency-configured backend domain modules.",
     "Extract Automation Brain and Notification Center stateful engines into explicit dependency-configured backend domain modules.",
     "Extract frontend CSS and JavaScript into semantic domain directories while retaining deterministic classic-script execution order.",
     "Extract API schemas, Home Assistant WebSocket transport, MCP protocol, release-note, and entity-policy logic into direct backend modules.",
@@ -282,6 +287,7 @@
     "Preserve multi-round Workshop Memory tasks after an approved write in both streaming and non-streaming chat."
   ],
   "fixes": [
+    "Preserve Calendar routes, appointment and reminder storage, Google OAuth and sync state, notification delivery, and worker lifecycle across domain extraction.",
     "Preserve automation and notification routes, shared watch storage, worker lifecycle, and persisted payload formats across stateful domain extraction.",
     "Keep the Home Assistant app startup target, API surface, persistence paths, frontend identifiers, and stored data formats unchanged during modularization.",
     "Prevent stale extracted assets after add-on upgrades by applying no-cache response headers to every frontend file.",
@@ -407,6 +413,7 @@
     "Preserve task-scoped Workshop Memory approval and per-draft Gmail approval isolation."
   ],
   "validation": [
+    "Local and Google Calendar domain boundaries, explicit cross-domain wiring, route and lifecycle preservation, backend compilation, complete regression suite, and v0.13.17 release alignment coverage",
     "Automation and notification domain boundaries, explicit runtime wiring, storage compatibility, backend compilation, complete regression suite, and v0.13.16 release alignment coverage",
     "Canonical frontend asset extraction, classic-script ordering, modular source aggregation, backend service seams, FastAPI composition root, no-cache asset delivery, complete app compilation, and v0.13.15 release alignment coverage",
     "MCP structured-result preference, isError propagation, managed v0.13 block compaction, unmarked-history preservation, compact current entry, and v0.13.14 release alignment coverage",

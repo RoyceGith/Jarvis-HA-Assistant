@@ -49,6 +49,34 @@ from .domains.notifications import (
     notification_watches,
 )
 
+from .domains.calendar import (
+    configure_calendar_domain,
+    CALENDAR_REMINDER_OFFSETS,
+    CALENDAR_STORAGE_PATH,
+    _calendar_save,
+    _cancel_calendar_appointment,
+    _create_calendar_appointment,
+    _update_calendar_reminders,
+    calendar_reminder_worker,
+    calendar_store,
+    list_calendar_appointments,
+)
+from .domains.google_calendar import (
+    configure_google_calendar_domain,
+    GOOGLE_CALENDAR_API_BASE,
+    GOOGLE_CALENDAR_OAUTH_SCOPES,
+    GOOGLE_CALENDAR_RESOURCE_URL,
+    _google_calendar_plugin_id,
+    _google_calendar_sync_save,
+    google_calendar_connected,
+    google_calendar_list_calendars,
+    google_calendar_preview,
+    google_calendar_sync_once,
+    google_calendar_sync_status,
+    google_calendar_sync_store,
+    google_calendar_sync_worker,
+)
+
 from .schemas import (
     ChatRequest,
     ChatSessionCreate,
@@ -1335,7 +1363,7 @@ ha_ws = HomeAssistantWebSocketClient(
 
 app = FastAPI(
     title="ZBRANO",
-    version="0.13.16",
+    version="0.13.17",
     docs_url="/api/docs",
     openapi_url="/api/openapi.json",
 )
@@ -2082,7 +2110,7 @@ async def _list_workshop_memory_endpoint_tools(endpoint_url: str) -> list[dict[s
                 "capabilities": {},
                 "clientInfo": {
                     "name": "zbrano-workshop-assistant",
-                    "version": "0.13.16",
+                    "version": "0.13.17",
                 },
             },
         },
@@ -3138,7 +3166,7 @@ async def _playwright_session():
                 "params": {
                     "protocolVersion": "2025-06-18",
                     "capabilities": {},
-                    "clientInfo": {"name": "ZBRANO Developer Mode", "version": "0.13.16"},
+                    "clientInfo": {"name": "ZBRANO Developer Mode", "version": "0.13.17"},
                 },
             },
         )
@@ -5283,7 +5311,7 @@ async def health() -> dict[str, Any]:
     configured_speech_provider = SPEECH_PROVIDER if SPEECH_PROVIDER in {"openai", "elevenlabs"} else "openai"
     return {
         "status": "ok",
-        "version": "0.13.16",
+        "version": "0.13.17",
         "home_assistant_configured": bool(SUPERVISOR_TOKEN),
         "workshop_memory_configured": bool(WORKSHOP_MEMORY_URL),
         "openai_configured": bool(OPENAI_API_KEY),
@@ -6456,7 +6484,7 @@ async def _oauth_discover(resource_url, allow_pre_registered=False):
         "jsonrpc": "2.0", "id": 1, "method": "initialize",
         "params": {
             "protocolVersion": "2025-06-18", "capabilities": {},
-            "clientInfo": {"name": "ZBRANO Plugin Manager", "version": "0.13.16"},
+            "clientInfo": {"name": "ZBRANO Plugin Manager", "version": "0.13.17"},
         },
     }
     async with httpx.AsyncClient(timeout=PLUGIN_TIMEOUT, follow_redirects=False) as client:
@@ -7400,375 +7428,7 @@ async def automation_discovery_feedback(discovery_id: str, request: AutomationDi
     return {"learned": True, "discovery": discovery}
 
 
-GOOGLE_CALENDAR_OAUTH_SCOPES = (
-    "https://www.googleapis.com/auth/calendar.calendarlist.readonly",
-    "https://www.googleapis.com/auth/calendar.events",
-)
-GOOGLE_CALENDAR_RESOURCE_URL = "https://calendarmcp.googleapis.com/mcp/v1"
-GOOGLE_CALENDAR_API_BASE = "https://www.googleapis.com/calendar/v3"
-GOOGLE_CALENDAR_SYNC_PATH = Path("/data/zbrano_google_calendar_sync.json")
 GOOGLE_CALENDAR_SYNC_TASK: asyncio.Task[Any] | None = None
-GOOGLE_CALENDAR_SYNC_LOCK = asyncio.Lock()
-
-
-def _google_calendar_plugin_id() -> str:
-    import hashlib
-
-    return hashlib.sha256(GOOGLE_CALENDAR_RESOURCE_URL.encode()).hexdigest()[:16]
-
-
-def google_calendar_sync_store() -> dict[str, Any]:
-    raw = _plugin_load(GOOGLE_CALENDAR_SYNC_PATH) or {}
-    return {
-        "version": 1,
-        "enabled": bool(raw.get("enabled")),
-        "calendar_id": str(raw.get("calendar_id") or "primary")[:1024],
-        "calendar_name": str(raw.get("calendar_name") or "Primary calendar")[:300],
-        "sync_token": str(raw.get("sync_token") or "")[:12000],
-        "previewed_at": float(raw.get("previewed_at") or 0),
-        "preview": raw.get("preview") if isinstance(raw.get("preview"), dict) else {},
-        "initial_sync_complete": bool(raw.get("initial_sync_complete")),
-        "last_sync_at": float(raw.get("last_sync_at") or 0),
-        "last_success_at": float(raw.get("last_success_at") or 0),
-        "last_error": str(raw.get("last_error") or "")[:1000],
-        "last_result": raw.get("last_result") if isinstance(raw.get("last_result"), dict) else {},
-    }
-
-
-def _google_calendar_sync_save(state: dict[str, Any]) -> None:
-    _plugin_save(GOOGLE_CALENDAR_SYNC_PATH, {**google_calendar_sync_store(), **state, "version": 1})
-
-
-def _google_calendar_merge_concurrent_local_changes(data: dict[str, Any]) -> None:
-    """Preserve reminders and appointments changed while a network sync was awaiting Google."""
-    fresh = calendar_store()
-    staged = {str(item.get("id") or ""): item for item in data.get("appointments") or []}
-    for current in fresh["appointments"]:
-        appointment_id = str(current.get("id") or "")
-        target = staged.get(appointment_id)
-        if not target:
-            data.setdefault("appointments", []).append(current)
-            staged[appointment_id] = current
-            continue
-        target["reminders"] = current.get("reminders", [])
-        target["destination"] = current.get("destination", "")
-        if current.get("status") == "cancelled" and target.get("status") != "cancelled":
-            target["status"] = "cancelled"
-            target["google_sync_state"] = current.get("google_sync_state", target.get("google_sync_state"))
-            target["updated_at"] = max(float(target.get("updated_at") or 0), float(current.get("updated_at") or 0))
-
-
-def google_calendar_connected() -> bool:
-    plugin_id = _google_calendar_plugin_id()
-    record = plugin_oauth_records().get(plugin_id) or {}
-    return bool(
-        plugin_secrets().get(plugin_id)
-        and set(GOOGLE_CALENDAR_OAUTH_SCOPES).issubset(_oauth_scope_set(record.get("scope")))
-    )
-
-
-async def _google_calendar_access_token() -> str:
-    plugin_id = _google_calendar_plugin_id()
-    await _refresh_plugin_oauth_token(plugin_id)
-    token = str(plugin_secrets().get(plugin_id) or "")
-    record = plugin_oauth_records().get(plugin_id) or {}
-    if not token or not set(GOOGLE_CALENDAR_OAUTH_SCOPES).issubset(_oauth_scope_set(record.get("scope"))):
-        raise PermissionError("Google Calendar Direct is not connected with the required scopes")
-    return token
-
-
-def _google_calendar_error(response: httpx.Response) -> str:
-    detail = ""
-    with contextlib.suppress(ValueError, TypeError):
-        payload = response.json()
-        error = payload.get("error") or {}
-        detail = str(error.get("message") or error.get("status") or "") if isinstance(error, dict) else str(error)
-    return (detail or f"Google Calendar API returned HTTP {response.status_code}")[:500]
-
-
-async def _google_calendar_request(
-    method: str, path: str, *, params: dict[str, Any] | None = None,
-    json_body: dict[str, Any] | None = None, allow_empty: bool = False,
-) -> dict[str, Any]:
-    if not path.startswith("/") or ".." in path or not re.fullmatch(r"/[A-Za-z0-9_./%@:+-]+", path):
-        raise ValueError("Invalid Google Calendar API path")
-    plugin_id = _google_calendar_plugin_id()
-    token = await _google_calendar_access_token()
-    async with httpx.AsyncClient(timeout=httpx.Timeout(25.0, connect=8.0), follow_redirects=False) as client:
-        response = await client.request(
-            method, GOOGLE_CALENDAR_API_BASE + path, params=params, json=json_body,
-            headers={"Authorization": f"Bearer {token}"},
-        )
-        if response.status_code == 401 and await _refresh_plugin_oauth_token(plugin_id, force=True):
-            token = str(plugin_secrets().get(plugin_id) or "")
-            response = await client.request(
-                method, GOOGLE_CALENDAR_API_BASE + path, params=params, json=json_body,
-                headers={"Authorization": f"Bearer {token}"},
-            )
-    if response.is_redirect:
-        raise RuntimeError("Google Calendar API redirects are blocked")
-    if response.is_error:
-        error = RuntimeError(_google_calendar_error(response))
-        setattr(error, "status_code", response.status_code)
-        raise error
-    if allow_empty and not response.content:
-        return {}
-    payload = response.json()
-    if not isinstance(payload, dict):
-        raise RuntimeError("Google Calendar API returned an invalid response")
-    return payload
-
-
-async def google_calendar_list_calendars() -> dict[str, Any]:
-    payload = await _google_calendar_request("GET", "/users/me/calendarList", params={"maxResults": 250})
-    calendars = []
-    for item in (payload.get("items") or [])[:250]:
-        if not isinstance(item, dict) or not item.get("id"):
-            continue
-        calendars.append({
-            "id": str(item.get("id"))[:1024],
-            "name": str(item.get("summaryOverride") or item.get("summary") or item.get("id"))[:300],
-            "primary": bool(item.get("primary")),
-            "access_role": str(item.get("accessRole") or ""),
-        })
-    return {"calendars": calendars, "count": len(calendars)}
-
-
-def _google_event_times(event: dict[str, Any]) -> tuple[str, float, float, int]:
-    from datetime import datetime, timedelta
-
-    start = event.get("start") or {}
-    end = event.get("end") or {}
-    raw_start = str(start.get("dateTime") or "")
-    all_day = not raw_start and bool(start.get("date"))
-    if all_day:
-        raw_start = str(start.get("date") or "") + "T00:00:00"
-    parsed = datetime.fromisoformat(raw_start.replace("Z", "+00:00"))
-    if parsed.tzinfo is None:
-        parsed = parsed.astimezone()
-    raw_end = str(end.get("dateTime") or "")
-    if all_day:
-        raw_end = str(end.get("date") or "") + "T00:00:00"
-    try:
-        parsed_end = datetime.fromisoformat(raw_end.replace("Z", "+00:00"))
-        if parsed_end.tzinfo is None:
-            parsed_end = parsed_end.astimezone()
-    except ValueError:
-        parsed_end = parsed + timedelta(minutes=60)
-    duration = max(5, min(10080, round((parsed_end.timestamp() - parsed.timestamp()) / 60)))
-    return parsed.isoformat(), parsed.timestamp(), parsed_end.timestamp(), duration
-
-
-def _google_event_to_local(event: dict[str, Any], existing: dict[str, Any] | None = None) -> dict[str, Any] | None:
-    import secrets
-
-    if not event.get("id") or event.get("status") == "cancelled":
-        return None
-    try:
-        start_at, start_timestamp, end_timestamp, duration = _google_event_times(event)
-    except (TypeError, ValueError):
-        return None
-    now = time.time()
-    local = dict(existing or {})
-    local.update({
-        "id": str(local.get("id") or secrets.token_hex(12)),
-        "title": str(event.get("summary") or "Untitled Google Calendar event")[:160],
-        "start_at": start_at,
-        "start_timestamp": start_timestamp,
-        "end_timestamp": end_timestamp,
-        "duration_minutes": duration,
-        "location": str(event.get("location") or "")[:300],
-        "notes": str(event.get("description") or "")[:3000],
-        "status": "scheduled" if end_timestamp >= now else "completed",
-        "source": "google_calendar",
-        "updated_at": now,
-        "google_event_id": str(event.get("id"))[:1024],
-        "google_etag": str(event.get("etag") or "")[:500],
-        "google_updated": str(event.get("updated") or "")[:100],
-        "google_html_link": str(event.get("htmlLink") or "")[:2000],
-        "google_sync_state": "synced",
-    })
-    local.setdefault("created_at", now)
-    local.setdefault("destination", "")
-    local.setdefault("reminders", [])
-    return local
-
-
-def _local_to_google_event(appointment: dict[str, Any]) -> dict[str, Any]:
-    from datetime import datetime
-
-    start = datetime.fromtimestamp(float(appointment.get("start_timestamp") or 0)).astimezone()
-    end = datetime.fromtimestamp(float(appointment.get("end_timestamp") or 0)).astimezone()
-    return {
-        "summary": str(appointment.get("title") or "Untitled appointment")[:160],
-        "description": str(appointment.get("notes") or "")[:3000],
-        "location": str(appointment.get("location") or "")[:300],
-        "start": {"dateTime": start.isoformat()},
-        "end": {"dateTime": end.isoformat()},
-        "extendedProperties": {"private": {"zbrano_id": str(appointment.get("id") or "")[:255]}},
-    }
-
-
-async def _google_calendar_event_pages(calendar_id: str, sync_token: str = "") -> tuple[list[dict[str, Any]], str]:
-    from datetime import datetime, timedelta, timezone
-    from urllib.parse import quote
-
-    path = f"/calendars/{quote(calendar_id, safe='')}/events"
-    params: dict[str, Any] = {"maxResults": 2500, "showDeleted": "true", "singleEvents": "true"}
-    if sync_token:
-        params = {"maxResults": 2500, "showDeleted": "true", "syncToken": sync_token}
-    else:
-        params["timeMin"] = (datetime.now(timezone.utc) - timedelta(days=365)).isoformat()
-        params["timeMax"] = (datetime.now(timezone.utc) + timedelta(days=730)).isoformat()
-        params["orderBy"] = "startTime"
-    events: list[dict[str, Any]] = []
-    next_sync_token = ""
-    for _ in range(10):
-        payload = await _google_calendar_request("GET", path, params=params)
-        events.extend(item for item in (payload.get("items") or []) if isinstance(item, dict))
-        page_token = str(payload.get("nextPageToken") or "")
-        next_sync_token = str(payload.get("nextSyncToken") or next_sync_token)
-        if not page_token:
-            break
-        params["pageToken"] = page_token
-    return events[:10000], next_sync_token
-
-
-async def google_calendar_preview() -> dict[str, Any]:
-    state = google_calendar_sync_store()
-    calendar_id = state["calendar_id"]
-    events, _ = await _google_calendar_event_pages(calendar_id)
-    local = calendar_store()["appointments"]
-    external_ids = {str(item.get("google_event_id") or "") for item in local if item.get("google_event_id")}
-    importable = [item for item in events if item.get("status") != "cancelled" and str(item.get("id") or "") not in external_ids]
-    uploadable = [
-        item for item in local
-        if item.get("status") == "scheduled" and not item.get("google_event_id")
-        and float(item.get("end_timestamp") or 0) >= time.time()
-    ]
-    preview = {
-        "google_events_seen": len(events), "would_import": len(importable),
-        "would_upload": len(uploadable), "existing_links": len(external_ids),
-        "sample_import_titles": [str(item.get("summary") or "Untitled")[:100] for item in importable[:5]],
-    }
-    state.update({"previewed_at": time.time(), "preview": preview, "last_error": ""})
-    _google_calendar_sync_save(state)
-    return preview
-
-
-async def google_calendar_sync_once() -> dict[str, Any]:
-    async with GOOGLE_CALENDAR_SYNC_LOCK:
-        state = google_calendar_sync_store()
-        if not google_calendar_connected():
-            raise PermissionError("Connect Google Calendar Direct before synchronizing")
-        calendar_id = state["calendar_id"]
-        data = calendar_store()
-        created = deleted = imported = updated = cancelled = 0
-
-        # Propagate local cancellations before pulling remote changes.
-        from urllib.parse import quote
-        for appointment in data["appointments"]:
-            event_id = str(appointment.get("google_event_id") or "")
-            if appointment.get("google_sync_state") == "pending_delete" and event_id:
-                try:
-                    await _google_calendar_request(
-                        "DELETE", f"/calendars/{quote(calendar_id, safe='')}/events/{quote(event_id, safe='')}",
-                        allow_empty=True,
-                    )
-                except RuntimeError as exc:
-                    if getattr(exc, "status_code", 0) not in {404, 410}:
-                        raise
-                appointment["google_sync_state"] = "deleted"
-                deleted += 1
-        _google_calendar_merge_concurrent_local_changes(data)
-        _calendar_save(data)
-
-        try:
-            events, next_token = await _google_calendar_event_pages(calendar_id, state.get("sync_token") or "")
-        except RuntimeError as exc:
-            if getattr(exc, "status_code", 0) != 410:
-                raise
-            events, next_token = await _google_calendar_event_pages(calendar_id)
-            state["sync_token"] = ""
-
-        data = calendar_store()
-        by_google = {str(item.get("google_event_id")): item for item in data["appointments"] if item.get("google_event_id")}
-        for event in events:
-            event_id = str(event.get("id") or "")
-            existing = by_google.get(event_id)
-            if event.get("status") == "cancelled":
-                if existing and existing.get("status") != "cancelled":
-                    existing["status"] = "cancelled"
-                    existing["google_sync_state"] = "deleted"
-                    existing["updated_at"] = time.time()
-                    for reminder in existing.get("reminders") or []:
-                        if reminder.get("status") == "scheduled":
-                            reminder["status"] = "cancelled"
-                    cancelled += 1
-                continue
-            mapped = _google_event_to_local(event, existing)
-            if not mapped:
-                continue
-            if existing:
-                existing.clear(); existing.update(mapped); updated += 1
-            else:
-                # First-sync duplicate protection links matching title/start instead of creating a second appointment.
-                duplicate = next((item for item in data["appointments"] if item.get("status") != "cancelled" and not item.get("google_event_id") and str(item.get("title") or "").casefold() == str(mapped.get("title") or "").casefold() and abs(float(item.get("start_timestamp") or 0) - float(mapped.get("start_timestamp") or 0)) < 60), None)
-                if duplicate:
-                    preserved = {"id": duplicate.get("id"), "destination": duplicate.get("destination", ""), "reminders": duplicate.get("reminders", []), "created_at": duplicate.get("created_at", time.time())}
-                    duplicate.clear(); duplicate.update(mapped); duplicate.update(preserved)
-                else:
-                    data["appointments"].append(mapped); imported += 1
-
-        # Upload future ZBRANO-created appointments after import/deduplication.
-        for appointment in data["appointments"]:
-            if appointment.get("status") != "scheduled" or appointment.get("google_event_id") or float(appointment.get("end_timestamp") or 0) < time.time():
-                continue
-            payload = await _google_calendar_request(
-                "POST", f"/calendars/{quote(calendar_id, safe='')}/events",
-                json_body=_local_to_google_event(appointment),
-            )
-            appointment["google_event_id"] = str(payload.get("id") or "")[:1024]
-            appointment["google_etag"] = str(payload.get("etag") or "")[:500]
-            appointment["google_updated"] = str(payload.get("updated") or "")[:100]
-            appointment["google_html_link"] = str(payload.get("htmlLink") or "")[:2000]
-            appointment["google_sync_state"] = "synced"
-            created += 1
-        _google_calendar_merge_concurrent_local_changes(data)
-        _calendar_save(data)
-        result = {"imported": imported, "updated": updated, "cancelled": cancelled, "uploaded": created, "deleted": deleted}
-        state.update({
-            "sync_token": next_token or state.get("sync_token") or "",
-            "initial_sync_complete": True, "last_sync_at": time.time(),
-            "last_success_at": time.time(), "last_error": "", "last_result": result,
-        })
-        _google_calendar_sync_save(state)
-        return result
-
-
-def google_calendar_sync_status() -> dict[str, Any]:
-    state = google_calendar_sync_store()
-    plugin = plugin_registry().get(_google_calendar_plugin_id()) or {}
-    pending = sum(1 for item in calendar_store()["appointments"] if item.get("google_sync_state") in {"pending_create", "pending_delete"})
-    return {
-        **state, "connected": google_calendar_connected(), "account": str(plugin.get("oauth_account") or ""),
-        "pending_local_changes": pending, "worker_active": GOOGLE_CALENDAR_SYNC_TASK is not None and not GOOGLE_CALENDAR_SYNC_TASK.done(),
-        "required_scopes": list(GOOGLE_CALENDAR_OAUTH_SCOPES),
-    }
-
-
-async def google_calendar_sync_worker() -> None:
-    while True:
-        await asyncio.sleep(60.0)
-        state = google_calendar_sync_store()
-        if not state["enabled"] or not google_calendar_connected():
-            continue
-        try:
-            await google_calendar_sync_once()
-        except (PermissionError, RuntimeError, ValueError, httpx.HTTPError, OSError) as exc:
-            fresh = google_calendar_sync_store()
-            fresh.update({"last_sync_at": time.time(), "last_error": str(exc)[:1000]})
-            _google_calendar_sync_save(fresh)
 
 
 @app.get("/api/calendar/google/status")
@@ -7809,281 +7469,7 @@ async def run_google_calendar_sync() -> dict[str, Any]:
     return {"synchronized": True, "result": await google_calendar_sync_once(), "status": google_calendar_sync_status()}
 
 
-CALENDAR_STORAGE_PATH = Path("/data/zbrano_calendar.json")
 CALENDAR_REMINDER_TASK: asyncio.Task[Any] | None = None
-CALENDAR_MAX_APPOINTMENTS = 500
-CALENDAR_REMINDER_OFFSETS = {
-    0: "At appointment time",
-    30: "30 minutes before",
-    120: "Same day · 2 hours before",
-    1440: "One day before",
-    10080: "One week before",
-}
-
-
-def calendar_store() -> dict[str, Any]:
-    data = _plugin_load(CALENDAR_STORAGE_PATH) or {}
-    appointments = data.get("appointments") if isinstance(data.get("appointments"), list) else []
-    return {"version": 1, "appointments": appointments[:CALENDAR_MAX_APPOINTMENTS]}
-
-
-def _calendar_save(data: dict[str, Any]) -> None:
-    appointments = list(data.get("appointments") or [])[:CALENDAR_MAX_APPOINTMENTS]
-    appointments.sort(key=lambda item: float(item.get("start_timestamp") or 0))
-    _plugin_save(CALENDAR_STORAGE_PATH, {"version": 1, "appointments": appointments})
-
-
-def _calendar_start(value: str) -> tuple[Any, float]:
-    from datetime import datetime
-
-    raw = str(value or "").strip().replace("Z", "+00:00")
-    try:
-        parsed = datetime.fromisoformat(raw)
-    except ValueError as exc:
-        raise HTTPException(status_code=400, detail="Appointment start must be a valid ISO-8601 date and time") from exc
-    if parsed.tzinfo is None:
-        parsed = parsed.astimezone()
-    timestamp = parsed.timestamp()
-    if timestamp < time.time() - 60:
-        raise HTTPException(status_code=400, detail="Appointment start must be in the future")
-    return parsed, timestamp
-
-
-def _calendar_public(appointment: dict[str, Any]) -> dict[str, Any]:
-    return {
-        key: value for key, value in appointment.items()
-        if key not in {"last_error"} or value
-    }
-
-
-def list_calendar_appointments(include_past: bool = False) -> dict[str, Any]:
-    now = time.time()
-    appointments = [
-        _calendar_public(item) for item in calendar_store()["appointments"]
-        if item.get("status") != "cancelled"
-        and (include_past or float(item.get("end_timestamp") or item.get("start_timestamp") or 0) >= now)
-    ]
-    appointments.sort(key=lambda item: float(item.get("start_timestamp") or 0))
-    return {"appointments": appointments, "count": len(appointments), "generated_at": now}
-
-
-async def _create_calendar_appointment(request: CalendarAppointmentRequest, source: str = "interface") -> dict[str, Any]:
-    import secrets
-
-    parsed, start_timestamp = _calendar_start(request.start_at)
-    offsets = sorted({int(value) for value in request.reminder_offsets_minutes}, reverse=True)
-    if any(value < 0 or value > 525600 for value in offsets):
-        raise HTTPException(status_code=400, detail="Reminder offsets must be between 0 and 525600 minutes")
-    destination = request.destination.strip().lower() or str(notification_store()["settings"].get("default_channel") or "")
-    if offsets:
-        channels = await notification_channels()
-        if not destination:
-            raise HTTPException(status_code=400, detail="Choose a default Notification Center channel before adding reminders")
-        if not any(item["entity_id"] == destination for item in channels):
-            raise HTTPException(status_code=400, detail="Calendar reminder destination is unavailable")
-
-    data = calendar_store()
-    normalized_title = " ".join(request.title.split())
-    duplicate = next((
-        item for item in data["appointments"]
-        if item.get("status") != "cancelled"
-        and str(item.get("title") or "").casefold() == normalized_title.casefold()
-        and abs(float(item.get("start_timestamp") or 0) - start_timestamp) < 60
-    ), None)
-    if duplicate:
-        return {"created": False, "deduplicated": True, "appointment": _calendar_public(duplicate)}
-
-    now = time.time()
-    appointment_id = secrets.token_hex(12)
-    reminders = [
-        {
-            "id": secrets.token_hex(8),
-            "offset_minutes": offset,
-            "label": CALENDAR_REMINDER_OFFSETS.get(offset, f"{offset} minutes before"),
-            "due_at": start_timestamp - offset * 60,
-            "status": "scheduled",
-            "last_attempt_at": 0.0,
-            "delivered_at": 0.0,
-        }
-        for offset in offsets
-    ]
-    appointment = {
-        "id": appointment_id,
-        "title": normalized_title,
-        "start_at": parsed.isoformat(),
-        "start_timestamp": start_timestamp,
-        "end_timestamp": start_timestamp + request.duration_minutes * 60,
-        "duration_minutes": request.duration_minutes,
-        "location": request.location.strip(),
-        "notes": request.notes.strip(),
-        "destination": destination,
-        "status": "scheduled",
-        "source": source,
-        "google_sync_state": "pending_create" if google_calendar_sync_store()["enabled"] else "local_only",
-        "created_at": now,
-        "updated_at": now,
-        "reminders": reminders,
-    }
-    data["appointments"].append(appointment)
-    _calendar_save(data)
-    return {"created": True, "deduplicated": False, "appointment": _calendar_public(appointment)}
-
-
-async def _update_calendar_reminders(
-    appointment_id: str, request: CalendarRemindersUpdateRequest, source: str = "interface",
-) -> dict[str, Any]:
-    import secrets
-
-    offsets = sorted({int(value) for value in request.reminder_offsets_minutes}, reverse=True)
-    if any(value < 0 or value > 525600 for value in offsets):
-        raise HTTPException(status_code=400, detail="Reminder offsets must be between 0 and 525600 minutes")
-    destination = request.destination.strip().lower() or str(notification_store()["settings"].get("default_channel") or "")
-    if offsets:
-        channels = await notification_channels()
-        if not destination:
-            raise HTTPException(status_code=400, detail="Choose a default Notification Center channel before adding reminders")
-        if not any(item["entity_id"] == destination for item in channels):
-            raise HTTPException(status_code=400, detail="Calendar reminder destination is unavailable")
-
-    data = calendar_store()
-    appointment = next((item for item in data["appointments"] if item.get("id") == appointment_id), None)
-    if not appointment or appointment.get("status") == "cancelled":
-        raise HTTPException(status_code=404, detail="Calendar appointment not found")
-    if float(appointment.get("end_timestamp") or 0) < time.time():
-        raise HTTPException(status_code=400, detail="Past appointment reminders cannot be edited")
-
-    existing = {
-        int(item.get("offset_minutes") or 0): item
-        for item in appointment.get("reminders") or []
-    }
-    start_timestamp = float(appointment.get("start_timestamp") or 0)
-    now = time.time()
-    reminders = []
-    for offset in offsets:
-        previous = existing.get(offset)
-        due_at = start_timestamp - offset * 60
-        if previous:
-            reminder = dict(previous)
-            reminder["due_at"] = due_at
-            reminder["label"] = CALENDAR_REMINDER_OFFSETS.get(offset, f"{offset} minutes before")
-        else:
-            reminder = {
-                "id": secrets.token_hex(8),
-                "offset_minutes": offset,
-                "label": CALENDAR_REMINDER_OFFSETS.get(offset, f"{offset} minutes before"),
-                "due_at": due_at,
-                "status": "scheduled" if due_at >= now else "missed",
-                "last_attempt_at": 0.0,
-                "delivered_at": 0.0,
-            }
-        reminders.append(reminder)
-
-    appointment["destination"] = destination
-    appointment["reminders"] = reminders
-    appointment["updated_at"] = now
-    appointment["reminders_updated_by"] = source
-    _calendar_save(data)
-    return {"updated": True, "appointment": _calendar_public(appointment)}
-
-
-def _cancel_calendar_appointment(appointment_id: str) -> dict[str, Any]:
-    data = calendar_store()
-    appointment = next((item for item in data["appointments"] if item.get("id") == appointment_id), None)
-    if not appointment:
-        raise HTTPException(status_code=404, detail="Calendar appointment not found")
-    appointment["status"] = "cancelled"
-    appointment["google_sync_state"] = "pending_delete" if appointment.get("google_event_id") and google_calendar_sync_store()["enabled"] else appointment.get("google_sync_state", "local_only")
-    appointment["updated_at"] = time.time()
-    for reminder in appointment.get("reminders") or []:
-        if reminder.get("status") == "scheduled":
-            reminder["status"] = "cancelled"
-    _calendar_save(data)
-    return {"cancelled": True, "appointment": _calendar_public(appointment)}
-
-
-def _calendar_reminder_message(appointment: dict[str, Any], reminder: dict[str, Any]) -> str:
-    from datetime import datetime
-
-    local_start = datetime.fromtimestamp(float(appointment.get("start_timestamp") or 0)).astimezone()
-    when = local_start.strftime("%A, %d %B %Y at %H:%M")
-    parts = [f"{appointment.get('title')}", f"When: {when}"]
-    if appointment.get("location"):
-        parts.append(f"Where: {appointment['location']}")
-    if reminder.get("label"):
-        parts.append(f"Reminder: {reminder['label']}")
-    return "\n".join(parts)
-
-
-async def calendar_reminder_worker() -> None:
-    while True:
-        await asyncio.sleep(15.0)
-        data = calendar_store()
-        now = time.time()
-        changed = False
-        pending_deliveries: list[tuple[str, str, dict[str, Any], dict[str, Any]]] = []
-        for appointment in data["appointments"]:
-            if appointment.get("status") != "scheduled":
-                continue
-            if now >= float(appointment.get("end_timestamp") or 0):
-                appointment["status"] = "completed"
-                appointment["updated_at"] = now
-                for reminder in appointment.get("reminders") or []:
-                    if reminder.get("status") == "scheduled":
-                        reminder["status"] = "missed"
-                changed = True
-                continue
-            for reminder in appointment.get("reminders") or []:
-                if reminder.get("status") != "scheduled" or now < float(reminder.get("due_at") or 0):
-                    continue
-                due_at = float(reminder.get("due_at") or 0)
-                if now - due_at > 86400:
-                    reminder["status"] = "missed"
-                    changed = True
-                    continue
-                if now - float(reminder.get("last_attempt_at") or 0) < 60:
-                    continue
-                reminder["last_attempt_at"] = now
-                changed = True
-                if _notification_quiet_now("information", now):
-                    reminder["status"] = "suppressed"
-                    continue
-                appointment["updated_at"] = time.time()
-                pending_deliveries.append((
-                    str(appointment.get("id") or ""), str(reminder.get("id") or ""),
-                    dict(appointment), dict(reminder),
-                ))
-        if changed:
-            _calendar_save(data)
-        for appointment_id, reminder_id, appointment, reminder in pending_deliveries:
-            delivered = False
-            error = ""
-            try:
-                await test_notification_channel(NotificationTestRequest(
-                    target=str(appointment.get("destination") or ""),
-                    severity="information",
-                    title=f"Calendar · {appointment.get('title')}",
-                    message=_calendar_reminder_message(appointment, reminder),
-                ))
-                delivered = True
-            except (HTTPException, RuntimeError, OSError, ValueError) as exc:
-                error = str(getattr(exc, "detail", exc))[:500]
-            fresh = calendar_store()
-            fresh_appointment = next((item for item in fresh["appointments"] if item.get("id") == appointment_id), None)
-            fresh_reminder = next((
-                item for item in (fresh_appointment.get("reminders") or [])
-                if item.get("id") == reminder_id
-            ), None) if fresh_appointment else None
-            if not fresh_reminder:
-                continue
-            if delivered:
-                fresh_reminder["status"] = "delivered"
-                fresh_reminder["delivered_at"] = time.time()
-                fresh_reminder.pop("last_error", None)
-            else:
-                fresh_reminder["status"] = "scheduled"
-                fresh_reminder["last_error"] = error
-            fresh_appointment["updated_at"] = time.time()
-            _calendar_save(fresh)
 
 
 @app.get("/api/calendar")
@@ -11108,6 +10494,27 @@ async def frontend(path: str = "") -> FileResponse:
     )
 
 
+configure_google_calendar_domain(
+    plugin_load=_plugin_load,
+    plugin_save=_plugin_save,
+    calendar_store_fn=calendar_store,
+    calendar_save_fn=_calendar_save,
+    oauth_records_fn=plugin_oauth_records,
+    plugin_secrets_fn=plugin_secrets,
+    oauth_scope_set_fn=_oauth_scope_set,
+    refresh_oauth_token_fn=_refresh_plugin_oauth_token,
+    plugin_registry_fn=plugin_registry,
+    sync_task_provider=lambda: GOOGLE_CALENDAR_SYNC_TASK,
+)
+configure_calendar_domain(
+    plugin_load=_plugin_load,
+    plugin_save=_plugin_save,
+    notification_store_fn=notification_store,
+    notification_channels_fn=notification_channels,
+    google_sync_store_fn=google_calendar_sync_store,
+    notification_quiet_now_fn=_notification_quiet_now,
+    notification_test_fn=test_notification_channel,
+)
 configure_notification_domain(
     plugin_load=_plugin_load,
     plugin_save=_plugin_save,

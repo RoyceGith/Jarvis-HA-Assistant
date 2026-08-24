@@ -19,11 +19,11 @@ MANIFEST = json.loads((ROOT / "jarvis/release_manifest.json").read_text(encoding
 
 class StatefulDomainExtractionTests(unittest.TestCase):
     def test_release_markers_are_aligned(self):
-        self.assertIn('version: "0.13.16"', CONFIG)
-        self.assertIn('version="0.13.16"', MAIN)
-        self.assertIn("HUD 0.13.16", HTML)
-        self.assertEqual(MANIFEST["version"], "0.13.16")
-        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.15")
+        self.assertIn('version: "0.13.17"', CONFIG)
+        self.assertIn('version="0.13.17"', MAIN)
+        self.assertIn("HUD 0.13.17", HTML)
+        self.assertEqual(MANIFEST["version"], "0.13.17")
+        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.16")
 
     def test_automation_engine_is_a_configured_domain(self):
         for marker in (
