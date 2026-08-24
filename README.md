@@ -1,3 +1,5 @@
+ZBRANO v0.13.16 moves the stateful Automation Brain and Notification Center engines into explicit backend domain modules while preserving their routes, shared watch storage, lifecycle, and persisted data formats.
+
 ZBRANO v0.13.15 begins the canonical architecture split by extracting ordered frontend assets, API schemas, the Home Assistant transport, and low-coupling backend services while preserving `app.main:app`, API routes, stored data formats, and existing behavior.
 
 ZBRANO v0.13.14 correctly decodes structured MCP results and tool errors, compacts only ZBRANO-managed v0.13 release blocks into concise descriptions, and prevents Release History from exceeding Workshop Memory's note-size limit.

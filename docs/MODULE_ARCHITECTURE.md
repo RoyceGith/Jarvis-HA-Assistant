@@ -20,10 +20,18 @@ Pure, low-coupling behavior is extracted under `jarvis/app/services/`:
 The API boundary models live in `jarvis/app/schemas.py`, keeping validation contracts
 separate from route orchestration without changing their names or fields.
 
-Stateful domains remain in `main.py` until their global state and lifecycle
-dependencies can be replaced with explicit service objects. Future extractions must
-retain `app.main:app`, use dependency injection rather than circular imports, and
-preserve the persisted data schema.
+Stateful engines live under `jarvis/app/domains/`:
+
+- `automations.py` owns Automation Brain persistence, Home Assistant area context,
+  learning, deterministic matching, decisions, suggestions, and safe execution.
+- `notifications.py` owns Notification Center persistence, channel discovery,
+  quiet-hours policy, notification watches, and the watch worker.
+
+The composition root retains the FastAPI route wrappers and explicitly configures
+each domain with its runtime dependencies after all providers have been defined.
+Notification watches intentionally remain in the automation store for data
+compatibility. Future extractions must retain `app.main:app`, use
+dependency injection rather than circular imports, and preserve persisted schemas.
 
 ## Frontend modules
 

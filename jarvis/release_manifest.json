@@ -1,9 +1,9 @@
 {
-  "version": "0.13.15",
+  "version": "0.13.16",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/Jarvis-HA-Assistant main",
-  "summary": "Split canonical frontend assets, API schemas, Home Assistant transport, and low-coupling backend services into direct maintainable modules without changing runtime behavior, routes, or stored data.",
+  "summary": "Extract the stateful Automation Brain and Notification Center engines into explicit dependency-configured backend domains without changing routes, shared watch storage, lifecycle, or stored data.",
   "history_backfill": [
     {
       "version": "0.13.0",
@@ -64,24 +64,29 @@
     {
       "version": "0.13.14",
       "summary": "Correctly decoded structured MCP results and tool errors, compacted ZBRANO-managed release records, and kept Release History within Workshop Memory's note-size limit."
+    },
+    {
+      "version": "0.13.15",
+      "summary": "Split canonical frontend assets, API schemas, Home Assistant transport, and low-coupling backend services into direct maintainable modules while preserving runtime behavior and stored data."
     }
   ],
   "release_entry": {
     "features": [
-      "Extract four ordered stylesheet layers and 27 application script blocks into direct semantic frontend source paths while retaining the pre-paint theme bootstrap inline.",
-      "Extract API request schemas, Home Assistant WebSocket transport, MCP protocol decoding, release-note transformation, and entity-risk policy into explicit backend modules.",
-      "Document the composition-root, module-boundary, classic-script compatibility, and validation contracts for future restructuring."
+      "Move Automation Brain storage, area context, learning, matching, decision, approval, and execution logic into a dedicated stateful domain module.",
+      "Move Notification Center storage, channel discovery, quiet-hours policy, watches, and watch worker into a dedicated stateful domain module.",
+      "Connect both domains through explicit runtime configuration while retaining thin FastAPI route wrappers in the stable composition root."
     ],
     "fixes": [
-      "Preserve app.main:app, every established API route, frontend script order and IDs, persistent data paths, and request payload formats through the physical split.",
-      "Serve extracted JavaScript and CSS with no-cache headers so Home Assistant upgrades cannot mix new HTML with stale assets.",
-      "Compile every backend module during the canonical Docker build instead of validating only the former monolith entry files."
+      "Preserve the existing autonomous_automations.json and notification_center.json paths, payload structures, limits, and backup behavior.",
+      "Keep notification watches in the shared automation store and retain automation-to-notification delivery behavior without a circular import.",
+      "Preserve startup and shutdown worker ownership, Home Assistant event dispatch, API URLs, request models, and app.main:app."
     ],
     "validation": [
-      "Frontend asset inventory and order, external JavaScript syntax, New Chat cross-file wiring, backend service imports, composition-root compatibility, full app compilation, complete regression suite, and v0.13.15 release alignment coverage"
+      "Explicit domain dependency wiring, route-wrapper preservation, storage-path compatibility, unresolved-global audit, backend compilation, complete regression suite, and v0.13.16 release alignment coverage"
     ]
   },
   "features": [
+    "Extract Automation Brain and Notification Center stateful engines into explicit dependency-configured backend domain modules.",
     "Extract frontend CSS and JavaScript into semantic domain directories while retaining deterministic classic-script execution order.",
     "Extract API schemas, Home Assistant WebSocket transport, MCP protocol, release-note, and entity-policy logic into direct backend modules.",
     "Document stable module boundaries and aggregate modular sources for behavior-preserving source-level regression tests.",
@@ -277,6 +282,7 @@
     "Preserve multi-round Workshop Memory tasks after an approved write in both streaming and non-streaming chat."
   ],
   "fixes": [
+    "Preserve automation and notification routes, shared watch storage, worker lifecycle, and persisted payload formats across stateful domain extraction.",
     "Keep the Home Assistant app startup target, API surface, persistence paths, frontend identifiers, and stored data formats unchanged during modularization.",
     "Prevent stale extracted assets after add-on upgrades by applying no-cache response headers to every frontend file.",
     "Compile the complete backend package during image validation so newly extracted modules cannot bypass syntax checks.",
@@ -401,6 +407,7 @@
     "Preserve task-scoped Workshop Memory approval and per-draft Gmail approval isolation."
   ],
   "validation": [
+    "Automation and notification domain boundaries, explicit runtime wiring, storage compatibility, backend compilation, complete regression suite, and v0.13.16 release alignment coverage",
     "Canonical frontend asset extraction, classic-script ordering, modular source aggregation, backend service seams, FastAPI composition root, no-cache asset delivery, complete app compilation, and v0.13.15 release alignment coverage",
     "MCP structured-result preference, isError propagation, managed v0.13 block compaction, unmarked-history preservation, compact current entry, and v0.13.14 release alignment coverage",
     "Plain and structured write-status extraction, newline-tolerant exact read-back matching, ambiguous-status verification wiring, canonical v0.13.0-v0.13.12 description backfill, deduplication, ordering, and v0.13.13 release alignment coverage",

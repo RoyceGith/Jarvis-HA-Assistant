@@ -10,10 +10,11 @@ def load_backend_source() -> str:
     sources = [(APP / "main.py").read_text(encoding="utf-8")]
     schema_source = (APP / "schemas.py").read_text(encoding="utf-8")
     sources.append(schema_source.replace("from __future__ import annotations\n", "", 1))
-    for path in sorted((APP / "services").glob("*.py")):
-        if path.name == "__init__.py":
-            continue
-        source = path.read_text(encoding="utf-8")
-        source = source.replace("from __future__ import annotations\n", "", 1)
-        sources.append(source)
+    for directory in (APP / "services", APP / "domains"):
+        for path in sorted(directory.glob("*.py")):
+            if path.name == "__init__.py":
+                continue
+            source = path.read_text(encoding="utf-8")
+            source = source.replace("from __future__ import annotations\n", "", 1)
+            sources.append(source)
     return "\n".join(sources)
