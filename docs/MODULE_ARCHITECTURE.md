@@ -34,6 +34,8 @@ Stateful engines live under `jarvis/app/domains/`:
   backup/restore, prompt context, and background exchange extraction.
 - `workshop_memory.py` owns the Workshop Memory MCP HTTP pool, endpoint failover,
   result cache, dynamic tool discovery, serialization lock, and connection metrics.
+- `grinder.py` owns the read-only MQTT telemetry subscriber, heartbeat supervision,
+  bounded pre-failure buffers, incident persistence, diagnostic tools, and task lifecycle.
 
 The composition root retains the FastAPI route wrappers and explicitly configures
 each domain with its runtime dependencies after all providers have been defined.
@@ -41,7 +43,8 @@ Notification watches intentionally remain in the automation store for data
 compatibility. Local Calendar and Google Calendar exchange storage operations through
 configured callbacks. Fast Memory retains `/data/zbrano_fast_memory.sqlite3`, and
 Workshop Memory retains the same endpoint selection and cache semantics. Startup and
-shutdown continue to own their task objects.
+shutdown explicitly delegate Grinder task ownership to its domain while retaining
+composition ownership for the other task objects.
 Future extractions must retain `app.main:app`, use
 dependency injection rather than circular imports, and preserve persisted schemas.
 

@@ -1,4 +1,4 @@
-ZBRANO v0.13.21 restores application startup after the Workshop Memory modularization by wiring the MCP client provider back into the composition root.
+ZBRANO v0.13.22 separates read-only Grinder monitoring into an explicit backend domain while preserving MQTT telemetry, incident history, diagnostic tools, routes, and lifecycle behavior.
 
 ZBRANO v0.13.18 prevents Release Memory synchronization from remaining indefinitely in a non-terminal state by adding worker timeout recovery, note progress, task-health reporting, and automatic interface polling.
 

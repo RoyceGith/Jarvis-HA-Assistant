@@ -12,10 +12,10 @@ MANIFEST = json.loads((ROOT / "jarvis/release_manifest.json").read_text(encoding
 
 class WorkshopMemoryStartupWiringTests(unittest.TestCase):
     def test_release_markers_are_aligned(self):
-        self.assertIn('version: "0.13.21"', CONFIG)
-        self.assertIn('version="0.13.21"', MAIN)
-        self.assertIn("HUD 0.13.21", HTML)
-        self.assertEqual(MANIFEST["version"], "0.13.21")
+        self.assertIn('version: "0.13.22"', CONFIG)
+        self.assertIn('version="0.13.22"', MAIN)
+        self.assertIn("HUD 0.13.22", HTML)
+        self.assertEqual(MANIFEST["version"], "0.13.22")
 
     def test_startup_mcp_client_is_imported_from_domain(self):
         import_block = MAIN.split("from .domains.workshop_memory import (", 1)[1].split(")", 1)[0]
