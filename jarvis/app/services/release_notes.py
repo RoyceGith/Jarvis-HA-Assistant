@@ -4,6 +4,16 @@ import re
 import time
 from typing import Any
 
+
+CURRENT_RELEASE_BLOCK_START = "<!-- zbrano-current-release:start -->"
+CURRENT_RELEASE_BLOCK_END = "<!-- zbrano-current-release:end -->"
+CURRENT_VERSION_LABELS = (
+    "source and runtime version|current version|current source version|"
+    "current runtime version|current release|source version|runtime version|"
+    "running version|installed version|deployed version"
+)
+
+
 def release_marker(version: str) -> str:
     return f"<!-- zbrano-release:{version} -->"
 

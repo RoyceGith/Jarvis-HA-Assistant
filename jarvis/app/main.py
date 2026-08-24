@@ -1363,7 +1363,7 @@ ha_ws = HomeAssistantWebSocketClient(
 
 app = FastAPI(
     title="ZBRANO",
-    version="0.13.18",
+    version="0.13.19",
     docs_url="/api/docs",
     openapi_url="/api/openapi.json",
 )
@@ -2110,7 +2110,7 @@ async def _list_workshop_memory_endpoint_tools(endpoint_url: str) -> list[dict[s
                 "capabilities": {},
                 "clientInfo": {
                     "name": "zbrano-workshop-assistant",
-                    "version": "0.13.18",
+                    "version": "0.13.19",
                 },
             },
         },
@@ -3166,7 +3166,7 @@ async def _playwright_session():
                 "params": {
                     "protocolVersion": "2025-06-18",
                     "capabilities": {},
-                    "clientInfo": {"name": "ZBRANO Developer Mode", "version": "0.13.18"},
+                    "clientInfo": {"name": "ZBRANO Developer Mode", "version": "0.13.19"},
                 },
             },
         )
@@ -5311,7 +5311,7 @@ async def health() -> dict[str, Any]:
     configured_speech_provider = SPEECH_PROVIDER if SPEECH_PROVIDER in {"openai", "elevenlabs"} else "openai"
     return {
         "status": "ok",
-        "version": "0.13.18",
+        "version": "0.13.19",
         "home_assistant_configured": bool(SUPERVISOR_TOKEN),
         "workshop_memory_configured": bool(WORKSHOP_MEMORY_URL),
         "openai_configured": bool(OPENAI_API_KEY),
@@ -5491,15 +5491,6 @@ RELEASE_SYNC_AUDIT_NOTES = (
     "Security and Permissions.md",
     "Test Log.md",
 )
-CURRENT_RELEASE_BLOCK_START = "<!-- zbrano-current-release:start -->"
-CURRENT_RELEASE_BLOCK_END = "<!-- zbrano-current-release:end -->"
-CURRENT_VERSION_LABELS = (
-    "source and runtime version|current version|current source version|"
-    "current runtime version|current release|source version|runtime version|"
-    "running version|installed version|deployed version"
-)
-
-
 async def confirm_release_note_write(
     result: dict[str, Any],
     relative_path: str,
@@ -6519,7 +6510,7 @@ async def _oauth_discover(resource_url, allow_pre_registered=False):
         "jsonrpc": "2.0", "id": 1, "method": "initialize",
         "params": {
             "protocolVersion": "2025-06-18", "capabilities": {},
-            "clientInfo": {"name": "ZBRANO Plugin Manager", "version": "0.13.18"},
+            "clientInfo": {"name": "ZBRANO Plugin Manager", "version": "0.13.19"},
         },
     }
     async with httpx.AsyncClient(timeout=PLUGIN_TIMEOUT, follow_redirects=False) as client:

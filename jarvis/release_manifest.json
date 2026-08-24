@@ -1,9 +1,9 @@
 {
-  "version": "0.13.18",
+  "version": "0.13.19",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/Jarvis-HA-Assistant main",
-  "summary": "Prevent Release Memory synchronization from remaining indefinitely non-terminal through bounded worker recovery, task-health reporting, note progress, and automatic status polling.",
+  "summary": "Restore Release Memory reconciliation by colocating its version patterns and managed-block delimiters with the extracted release-note service and auditing modules for undeclared globals.",
   "history_backfill": [
     {
       "version": "0.13.0",
@@ -76,23 +76,27 @@
     {
       "version": "0.13.17",
       "summary": "Separated local Calendar reminders and Google Calendar synchronization into explicit backend domains while preserving routes, OAuth state, sync tokens, lifecycle, and stored data."
+    },
+    {
+      "version": "0.13.18",
+      "summary": "Prevented Release Memory synchronization from remaining indefinitely non-terminal through bounded worker recovery, task-health reporting, note progress, and automatic polling."
     }
   ],
   "release_entry": {
     "features": [
-      "Report the current canonical note and note-count progress while Release Memory reconciliation is active.",
-      "Poll Release Memory status automatically until the worker reaches synchronized, failed, or disabled."
+      "Audit every extracted backend service, domain, and schema module for undeclared global dependencies."
     ],
     "fixes": [
-      "Convert an inactive worker left in pending, synchronizing, or retrying into an actionable failed state instead of displaying an endless synchronization.",
-      "Catch unexpected reconciliation exceptions and bound the complete retry worker to five minutes.",
-      "Expose task activity and note progress in Developer diagnostics so slow and stopped synchronization can be distinguished."
+      "Move CURRENT_VERSION_LABELS into release_notes.py so explicit current-version reconciliation no longer raises NameError.",
+      "Move the current-release managed-block delimiters into release_notes.py before their later reconciliation paths can fail.",
+      "Validate the release-note module directly instead of relying only on combined-source tests that can mask missing module globals."
     ],
     "validation": [
-      "Release worker timeout, unexpected-exception recovery, inactive-task repair, note progress, terminal-aware frontend polling, diagnostics visibility, and v0.13.18 release alignment coverage"
+      "Isolated release-note execution, all-module undeclared-global audit, current-version reconciliation, managed-block rendering, complete regression suite, and v0.13.19 release alignment coverage"
     ]
   },
   "features": [
+    "Audit extracted backend modules for undeclared global dependencies and execute release-note transformations in isolation.",
     "Show Release Memory note progress and poll synchronization status until the worker reaches a terminal state.",
     "Extract local Calendar reminders and Google Calendar synchronization into explicit dependency-configured backend domain modules.",
     "Extract Automation Brain and Notification Center stateful engines into explicit dependency-configured backend domain modules.",
@@ -291,6 +295,7 @@
     "Preserve multi-round Workshop Memory tasks after an approved write in both streaming and non-streaming chat."
   ],
   "fixes": [
+    "Restore Release Memory reconciliation by moving version labels and managed-block constants into the extracted release-note service that uses them.",
     "Prevent Release Memory synchronization from remaining indefinitely in pending, synchronizing, or retrying after a stopped or hung worker.",
     "Preserve Calendar routes, appointment and reminder storage, Google OAuth and sync state, notification delivery, and worker lifecycle across domain extraction.",
     "Preserve automation and notification routes, shared watch storage, worker lifecycle, and persisted payload formats across stateful domain extraction.",
@@ -418,6 +423,7 @@
     "Preserve task-scoped Workshop Memory approval and per-draft Gmail approval isolation."
   ],
   "validation": [
+    "Isolated release-note service execution, all-module global-dependency audit, managed-block rendering, complete regression suite, and v0.13.19 release alignment coverage",
     "Release Memory worker timeout and exception recovery, inactive-task repair, progress reporting, frontend polling, diagnostics visibility, and v0.13.18 release alignment coverage",
     "Local and Google Calendar domain boundaries, explicit cross-domain wiring, route and lifecycle preservation, backend compilation, complete regression suite, and v0.13.17 release alignment coverage",
     "Automation and notification domain boundaries, explicit runtime wiring, storage compatibility, backend compilation, complete regression suite, and v0.13.16 release alignment coverage",
