@@ -1425,7 +1425,7 @@
   <header>
     <div class="brand-line">
       <h1>ZBRANO</h1>
-      <div class="status hud-version-label">Workshop Intelligence Interface · HUD 0.13.10</div>
+      <div class="status hud-version-label">Workshop Intelligence Interface · HUD 0.13.11</div>
     </div>
     <div class="runtime-status-stack">
       <button id="calendar-quick-open" class="calendar-quick-open" type="button" aria-label="Open ZBRANO Calendar" title="Open Calendar">
@@ -1601,6 +1601,8 @@
             <th>Entity ID</th>
             <th>Domain</th>
             <th>Area</th>
+            <th>Site / Zone</th>
+            <th>HA Labels</th>
             <th>State</th>
             <th>Class / unit</th>
             <th>Access</th>
@@ -3837,7 +3839,10 @@ function entityMatches(entity) {
     !query ||
     entity.entity_id.toLowerCase().includes(query) ||
     entity.friendly_name.toLowerCase().includes(query) ||
-    String(entity.device_class || "").toLowerCase().includes(query);
+    String(entity.device_class || "").toLowerCase().includes(query) ||
+    String(entity.area_name || "").toLowerCase().includes(query) ||
+    String(entity.site_name || "").toLowerCase().includes(query) ||
+    (entity.labels || []).some(label => String(label).toLowerCase().includes(query));
 
   const matchesDomain = !selectedDomain || entity.domain === selectedDomain;
   return matchesSearch && matchesDomain;
@@ -3984,6 +3989,17 @@ function renderEntities() {
       : "Assign this entity or its device to an Area in Home Assistant";
     row.appendChild(areaCell);
 
+    const siteCell = document.createElement("td");
+    siteCell.textContent = entity.site_name || "Unlinked";
+    siteCell.title = entity.zone_entity_id
+      ? `${entity.site_label || entity.site_name} → ${entity.zone_entity_id}`
+      : "Add a site-* label matching a Home Assistant Zone to this Area";
+    row.appendChild(siteCell);
+
+    const labelsCell = document.createElement("td");
+    labelsCell.textContent = (entity.labels || []).join(", ") || "—";
+    row.appendChild(labelsCell);
+
     const stateCell = document.createElement("td");
     stateCell.classList.add(entity.available ? "available" : "unavailable");
     stateCell.textContent = entity.state ?? "—";
@@ -4063,7 +4079,7 @@ async function loadEntities() {
   refreshEntities.disabled = true;
 
   try {
-    const response = await fetch("api/ha/entities");
+    const response = await fetch("api/ha/entities?refresh=1");
     const data = await response.json();
 
     if (!response.ok) {
@@ -4148,6 +4164,9 @@ function selectedCatalog() {
         friendly_name: entity.friendly_name,
         domain: entity.domain,
         area: entity.area_name || "",
+        site: entity.site_name || "",
+        zone: entity.zone_entity_id || "",
+        labels: entity.labels || [],
         zbrano_role: entity.zbrano_role || "",
         device_class: entity.device_class,
         unit: entity.unit,
@@ -4167,6 +4186,9 @@ exportEntities.addEventListener("click", () => {
     friendly_name: entity.friendly_name,
     domain: entity.domain,
     area: entity.area_name || "",
+    site: entity.site_name || "",
+    zone: entity.zone_entity_id || "",
+    labels: entity.labels || [],
     zbrano_role: entity.zbrano_role || "",
     device_class: entity.device_class,
     unit: entity.unit,
@@ -5820,11 +5842,12 @@ catalogResults?.addEventListener("click",async event=>{
   }
 
   function renderAutomationBrain(){
-    const root=$("automation-brain-list"),patterns=state.patterns||[],discoveries=state.discoveries||[],areas=state.area_context?.areas||[];root.replaceChildren();
-    $("automation-brain-count").textContent=`${patterns.filter(item=>item.status==="learned").length} learned · ${areas.length} rooms`;
+    const root=$("automation-brain-list"),patterns=state.patterns||[],discoveries=state.discoveries||[],context=state.area_context||{},areas=context.areas||[],zones=context.zones||[];root.replaceChildren();
+    $("automation-brain-count").textContent=`${patterns.filter(item=>item.status==="learned").length} learned · ${areas.length} rooms · ${zones.length} zones`;
+    if(!areas.length){root.innerHTML='<div class="autonomy-empty">No Home Assistant Areas were found. Assign devices to Areas so ZBRANO can reason room by room.</div>';return}
+    for(const area of areas.slice(0,30)){const row=document.createElement("div");row.className="automation-brain-row";const linked=Boolean(area.zone_entity_id);row.innerHTML=`<div><strong>${esc(area.name||area.area_id)}</strong><div>${esc(area.site_name||"No site label")}</div></div><span class="automation-state">${linked?"zone linked":"area only"}</span><small>${linked?`${esc(area.site_label||area.site_name)} → ${esc(area.zone_entity_id)}`:"Add a site-* label matching a Zone to make presence location-aware."}</small>`;root.appendChild(row)}
     const visible=[...discoveries.slice(0,8),...patterns.filter(item=>item.status==="learned").slice(0,8)];
-    if(!visible.length){root.innerHTML=`<div class="autonomy-empty">${areas.length?`${areas.length} Home Assistant area${areas.length===1?" is":"s are"} understood. ZBRANO is observing approved presence, lighting, and environmental context for useful patterns.`:"No Home Assistant Areas were found. Assign devices to Areas in Home Assistant so ZBRANO can reason room by room."}</div>`;return}
-    for(const item of visible){const discovery=Boolean(item.kind==="dark_occupied_light"),row=document.createElement("div");row.className="automation-brain-row";const confidence=Math.round(Number(item.confidence||0)*100);const actions=discovery&&item.preference!=="never_suggest"?`<div class="autonomy-draft-actions"><button type="button" data-discovery-feedback="always_suggest" data-discovery-id="${esc(item.id)}">Keep suggesting</button><button type="button" data-discovery-feedback="never_suggest" data-discovery-id="${esc(item.id)}">Never suggest</button></div>`:"";row.innerHTML=`<div><strong>${esc(item.title||`${item.area_name||"Room"}: occupancy then lighting`)}</strong><div>${discovery?"Common-sense opportunity":`${Number(item.occurrences||0)} repeated sequence${Number(item.occurrences||0)===1?"":"s"}`}</div></div><span class="automation-state">${confidence}% · ${esc(item.status||"learning")}</span><small>${esc(item.evidence||`${item.presence_entity||"Presence"} followed by ${item.action_entity||"an action"}`)}</small>${actions}`;root.appendChild(row)}
+    for(const item of visible){const discovery=Boolean(item.kind==="dark_occupied_light"),row=document.createElement("div");row.className="automation-brain-row";const confidence=Math.round(Number(item.confidence||0)*100);const actions=discovery&&item.preference!=="never_suggest"?`<div class="autonomy-draft-actions"><button type="button" data-discovery-feedback="always_suggest" data-discovery-id="${esc(item.id)}">Keep suggesting</button><button type="button" data-discovery-feedback="never_suggest" data-discovery-id="${esc(item.id)}">Never suggest</button></div>`:"";row.innerHTML=`<div><strong>${esc(item.title||`${item.area_name||"Room"}: occupancy then lighting`)}</strong><div>${item.site_name?`${esc(item.site_name)} · `:""}${discovery?"Common-sense opportunity":`${Number(item.occurrences||0)} repeated sequence${Number(item.occurrences||0)===1?"":"s"}`}</div></div><span class="automation-state">${confidence}% · ${esc(item.status||"learning")}</span><small>${esc(item.evidence||`${item.presence_entity||"Presence"} followed by ${item.action_entity||"an action"}`)}</small>${actions}`;root.appendChild(row)}
   }
 
   function renderTimeline(){
@@ -6358,6 +6381,8 @@ catalogResults?.addEventListener("click",async event=>{
     {key:"entity_id", label:"Entity ID", width:230, min:110},
     {key:"domain", label:"Domain", width:110, min:74},
     {key:"area", label:"Area", width:150, min:88},
+    {key:"site", label:"Site / Zone", width:170, min:100},
+    {key:"labels", label:"HA Labels", width:220, min:120},
     {key:"state", label:"State", width:110, min:72},
     {key:"class_unit", label:"Class / unit", width:150, min:88},
     {key:"access", label:"Access", width:210, min:125},

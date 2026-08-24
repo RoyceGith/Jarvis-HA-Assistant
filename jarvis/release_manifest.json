@@ -1,10 +1,16 @@
 {
-  "version": "0.13.10",
+  "version": "0.13.11",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/Jarvis-HA-Assistant main",
-  "summary": "Understand Home Assistant Areas, discover useful room-level patterns locally, and learn from suggestion feedback without granting automatic control.",
+  "summary": "Link Home Assistant rooms to geographic sites through Labels and Zones, then apply site-aware presence and label-defined safety.",
   "features": [
+    "Import the Home Assistant Label registry and current Zone entities alongside Areas, devices, and entities.",
+    "Resolve Area labels such as site-factory-workshop to a matching zone.factory_workshop geographic context without inventing a duplicate room hierarchy.",
+    "Require the configured person or device tracker to match a room's linked Zone before making site-specific Automation Brain suggestions.",
+    "Use presence signal and primary light labels as semantic hints while honoring never automate, observe only, and no control labels as Brain action blocks.",
+    "Show each entity's Area, site, linked Zone, and inherited Home Assistant Labels in the searchable Entity Inventory.",
+    "Reconcile stored discoveries and learned patterns when an entity is moved or its Area, site Label, or Zone relationship changes.",
     "Import Home Assistant Area, device, and entity registry relationships so ZBRANO can reason about approved entities room by room without duplicating Home Assistant configuration.",
     "Persist a bounded local observation history and learn repeated room-occupancy-to-lighting sequences without polling an AI model while idle.",
     "Apply a common-sense lighting instinct after sustained room occupancy when illuminance or sun context indicates darkness and an approved room light remains off.",
@@ -183,6 +189,8 @@
     "Preserve multi-round Workshop Memory tasks after an approved write in both streaming and non-streaming chat."
   ],
   "fixes": [
+    "Prevent a home presence state from authorizing a factory-room suggestion, or a factory Zone state from authorizing a home-room suggestion.",
+    "Replace stale learned Area and site names after Home Assistant organization changes while preserving feedback history.",
     "Avoid requiring users to manually define the most basic room-aware suggestion rules before ZBRANO can notice a useful opportunity.",
     "Keep passive discovery separate from enabled manual automations so learned context cannot silently expand execution authority.",
     "Return a clear forbidden response for unapproved automation entities instead of exposing an internal HTTP 500 failure.",
@@ -295,6 +303,7 @@
     "Preserve task-scoped Workshop Memory approval and per-draft Gmail approval isolation."
   ],
   "validation": [
+    "Label registry import, site-to-Zone resolution, site-aware presence, semantic label roles, label action blocks, learning reconciliation, Entity site UI, and v0.13.11 release alignment coverage",
     "Home Assistant Area inheritance, bounded learning storage, sustained-occupancy discovery, darkness evidence, permission-gated Brain actions, feedback suppression, room UI, and v0.13.10 release alignment coverage",
     "Automation intent isolation, entity clarification policy, disabled chat drafts, explicit activation, remembered mappings, draft deduplication, practical Create New and Library views, and v0.13.9 release alignment coverage",
     "Suggestion-only proactive speech, visual automation title preservation, and v0.13.9 release alignment coverage",

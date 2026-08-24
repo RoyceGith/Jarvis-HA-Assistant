@@ -1461,7 +1461,7 @@ ha_ws = HomeAssistantWebSocketClient(HA_WS_URL, SUPERVISOR_TOKEN)
 
 app = FastAPI(
     title="ZBRANO",
-    version="0.13.10",
+    version="0.13.11",
     docs_url="/api/docs",
     openapi_url="/api/openapi.json",
 )
@@ -2564,7 +2564,7 @@ async def _list_workshop_memory_endpoint_tools(endpoint_url: str) -> list[dict[s
                 "capabilities": {},
                 "clientInfo": {
                     "name": "zbrano-workshop-assistant",
-                    "version": "0.13.10",
+                    "version": "0.13.11",
                 },
             },
         },
@@ -3621,7 +3621,7 @@ async def _playwright_session():
                 "params": {
                     "protocolVersion": "2025-06-18",
                     "capabilities": {},
-                    "clientInfo": {"name": "ZBRANO Developer Mode", "version": "0.13.10"},
+                    "clientInfo": {"name": "ZBRANO Developer Mode", "version": "0.13.11"},
                 },
             },
         )
@@ -5771,7 +5771,7 @@ async def health() -> dict[str, Any]:
     configured_speech_provider = SPEECH_PROVIDER if SPEECH_PROVIDER in {"openai", "elevenlabs"} else "openai"
     return {
         "status": "ok",
-        "version": "0.13.10",
+        "version": "0.13.11",
         "home_assistant_configured": bool(SUPERVISOR_TOKEN),
         "workshop_memory_configured": bool(WORKSHOP_MEMORY_URL),
         "openai_configured": bool(OPENAI_API_KEY),
@@ -7102,7 +7102,7 @@ async def _oauth_discover(resource_url, allow_pre_registered=False):
         "jsonrpc": "2.0", "id": 1, "method": "initialize",
         "params": {
             "protocolVersion": "2025-06-18", "capabilities": {},
-            "clientInfo": {"name": "ZBRANO Plugin Manager", "version": "0.13.10"},
+            "clientInfo": {"name": "ZBRANO Plugin Manager", "version": "0.13.11"},
         },
     }
     async with httpx.AsyncClient(timeout=PLUGIN_TIMEOUT, follow_redirects=False) as client:
@@ -7890,7 +7890,7 @@ def _automation_empty_store():
         "suggestions": [],
         "timeline": [],
         "entity_memory": [],
-        "area_context": {"refreshed_at": 0, "areas": [], "entities": []},
+        "area_context": {"refreshed_at": 0, "areas": [], "entities": [], "labels": [], "zones": []},
         "observations": [],
         "patterns": [],
         "discoveries": [],
@@ -7910,7 +7910,7 @@ def automation_store():
         "suggestions": data.get("suggestions") if isinstance(data.get("suggestions"), list) else [],
         "timeline": data.get("timeline") if isinstance(data.get("timeline"), list) else [],
         "entity_memory": data.get("entity_memory") if isinstance(data.get("entity_memory"), list) else [],
-        "area_context": data.get("area_context") if isinstance(data.get("area_context"), dict) else {"refreshed_at": 0, "areas": [], "entities": []},
+        "area_context": data.get("area_context") if isinstance(data.get("area_context"), dict) else {"refreshed_at": 0, "areas": [], "entities": [], "labels": [], "zones": []},
         "observations": data.get("observations") if isinstance(data.get("observations"), list) else [],
         "patterns": data.get("patterns") if isinstance(data.get("patterns"), list) else [],
         "discoveries": data.get("discoveries") if isinstance(data.get("discoveries"), list) else [],
@@ -7952,8 +7952,39 @@ def _automation_entity_role(entity_id: str, attributes: dict[str, Any] | None = 
     return domain or "entity"
 
 
+def _automation_context_key(value: Any) -> str:
+    return "_".join(re.findall(r"[a-z0-9]+", str(value or "").casefold()))
+
+
+def _automation_site_key(value: Any) -> str:
+    key = _automation_context_key(value)
+    for prefix in ("site_", "location_", "property_"):
+        if key.startswith(prefix):
+            return key[len(prefix):]
+    return key
+
+
+def _automation_reconcile_learning(data: dict[str, Any], snapshot: dict[str, Any]) -> None:
+    entity_map = {str(item.get("entity_id") or ""): item for item in snapshot.get("entities", [])}
+    for collection in ("patterns", "discoveries"):
+        for item in data.get(collection, []):
+            mapping = entity_map.get(str(item.get("action_entity") or ""))
+            if not mapping or not mapping.get("area_id"):
+                continue
+            item["area_id"] = mapping.get("area_id")
+            item["area_name"] = mapping.get("area_name")
+            item["site_label"] = mapping.get("site_label") or ""
+            item["site_name"] = mapping.get("site_name") or ""
+            item["zone_entity_id"] = mapping.get("zone_entity_id") or ""
+            kind = str(item.get("kind") or "")
+            prefix = "dark_occupied_light" if kind == "dark_occupied_light" else "occupancy_light"
+            item["key"] = f"{prefix}:{mapping.get('area_id')}:{item.get('action_entity')}"
+            if kind == "dark_occupied_light":
+                item["title"] = f"{mapping.get('area_name') or mapping.get('area_id')} lighting"
+
+
 async def _automation_refresh_area_context(force: bool = False) -> dict[str, Any]:
-    """Import Home Assistant Areas and inherited device assignments without duplicating HA configuration."""
+    """Import HA Areas, Labels, Zones, and inherited device assignments."""
     global AUTOMATION_AREA_REFRESHED_AT
     now = time.time()
     current = automation_store().get("area_context") or {}
@@ -7970,14 +8001,58 @@ async def _automation_refresh_area_context(force: bool = False) -> dict[str, Any
             ha_ws.command({"type": "config/device_registry/list"}),
             ha_ws.command({"type": "config/entity_registry/list"}),
         )
-        areas = {
-            str(item.get("area_id") or item.get("id") or ""): str(item.get("name") or item.get("area_id") or item.get("id") or "")
+        try:
+            label_result = await ha_ws.command({"type": "config/label_registry/list"})
+        except (RuntimeError, OSError, asyncio.TimeoutError):
+            label_result = {"result": []}
+        area_records = {
+            str(item.get("area_id") or item.get("id") or ""): item
             for item in area_result.get("result") or [] if isinstance(item, dict)
+        }
+        labels = {
+            str(item.get("label_id") or item.get("id") or ""): str(item.get("name") or item.get("label_id") or item.get("id") or "")
+            for item in label_result.get("result") or [] if isinstance(item, dict)
         }
         devices = {
             str(item.get("id") or ""): item for item in device_result.get("result") or []
             if isinstance(item, dict) and item.get("id")
         }
+        zones = []
+        zone_keys: dict[str, dict[str, Any]] = {}
+        for entity_id, state in ha_ws.state_cache.items():
+            if not entity_id.startswith("zone."):
+                continue
+            attributes = state.get("attributes") or {}
+            zone = {
+                "entity_id": entity_id,
+                "name": str(attributes.get("friendly_name") or entity_id.split(".", 1)[1].replace("_", " ").title()),
+                "occupants": state.get("state"),
+                "passive": bool(attributes.get("passive", False)),
+            }
+            zones.append(zone)
+            for value in (zone["name"], entity_id.split(".", 1)[1]):
+                zone_keys[_automation_site_key(value)] = zone
+
+        areas: dict[str, dict[str, Any]] = {}
+        for area_id, entry in area_records.items():
+            if not area_id:
+                continue
+            label_ids = [str(value) for value in entry.get("labels") or [] if str(value)]
+            label_names = [labels.get(value, value) for value in label_ids]
+            site_label = next((name for name in label_names if _automation_context_key(name).startswith(("site_", "location_", "property_"))), "")
+            if not site_label:
+                site_label = next((name for name in label_names if _automation_site_key(name) in zone_keys), "")
+            zone = zone_keys.get(_automation_site_key(site_label)) if site_label else None
+            areas[area_id] = {
+                "area_id": area_id,
+                "name": str(entry.get("name") or area_id),
+                "label_ids": label_ids,
+                "labels": label_names,
+                "site_label": site_label,
+                "site_name": str((zone or {}).get("name") or site_label.removeprefix("site-").removeprefix("site_").strip()),
+                "zone_entity_id": str((zone or {}).get("entity_id") or ""),
+            }
+
         entities: list[dict[str, Any]] = []
         for entry in entity_result.get("result") or []:
             if not isinstance(entry, dict) or not entry.get("entity_id"):
@@ -7989,31 +8064,48 @@ async def _automation_refresh_area_context(force: bool = False) -> dict[str, Any
             direct_area = str(entry.get("area_id") or "")
             inherited_area = str(device.get("area_id") or "")
             area_id = direct_area or inherited_area
+            area = areas.get(area_id) or {}
+            entity_label_ids = [str(value) for value in entry.get("labels") or [] if str(value)]
+            device_label_ids = [str(value) for value in device.get("labels") or [] if str(value)]
+            combined_label_ids = list(dict.fromkeys([*entity_label_ids, *device_label_ids, *area.get("label_ids", [])]))
+            combined_labels = [labels.get(value, value) for value in combined_label_ids]
+            label_keys = {_automation_context_key(value) for value in combined_labels}
+            role = _automation_entity_role(entity_id, attributes)
+            if label_keys & {"presence_signal", "room_presence", "occupancy_signal"}:
+                role = "room_presence"
             entities.append({
                 "entity_id": entity_id,
                 "area_id": area_id,
-                "area_name": areas.get(area_id, "") if area_id else "",
+                "area_name": area.get("name") or "",
                 "area_source": "entity" if direct_area else "device" if inherited_area else "unassigned",
                 "device_id": str(entry.get("device_id") or ""),
-                "role": _automation_entity_role(entity_id, attributes),
+                "role": role,
+                "label_ids": combined_label_ids,
+                "labels": combined_labels,
+                "control_blocked_by_label": bool(label_keys & {"never_automate", "observe_only", "no_control"}),
+                "primary_entity": bool(label_keys & {"primary_light", "primary_device"}),
+                "site_label": area.get("site_label") or "",
+                "site_name": area.get("site_name") or "",
+                "zone_entity_id": area.get("zone_entity_id") or "",
             })
         snapshot = {
             "refreshed_at": now,
-            "areas": [
-                {"area_id": area_id, "name": name}
-                for area_id, name in sorted(areas.items(), key=lambda item: item[1].casefold()) if area_id
-            ],
+            "areas": sorted(areas.values(), key=lambda item: str(item.get("name") or "").casefold()),
             "entities": entities,
+            "labels": [{"label_id": key, "name": value} for key, value in sorted(labels.items(), key=lambda item: item[1].casefold()) if key],
+            "zones": sorted(zones, key=lambda item: str(item.get("name") or "").casefold()),
         }
         engine_lock = globals().get("AUTOMATION_ENGINE_LOCK")
         if engine_lock is None:
             data = automation_store()
             data["area_context"] = snapshot
+            _automation_reconcile_learning(data, snapshot)
             _automation_save(data)
         else:
             async with engine_lock:
                 data = automation_store()
                 data["area_context"] = snapshot
+                _automation_reconcile_learning(data, snapshot)
                 _automation_save(data)
         AUTOMATION_AREA_REFRESHED_AT = now
         return snapshot
@@ -8024,6 +8116,10 @@ def _automation_area_entity(data: dict[str, Any], entity_id: str) -> dict[str, A
         item for item in (data.get("area_context") or {}).get("entities", [])
         if str(item.get("entity_id") or "") == entity_id
     ), {})
+
+
+def _automation_label_blocks_control(data: dict[str, Any], entity_id: str) -> bool:
+    return bool(_automation_area_entity(data, entity_id).get("control_blocked_by_label"))
 
 
 def _automation_alias_key(value: Any) -> str:
@@ -8089,7 +8185,12 @@ def automation_brain_memory_context(message: str) -> str:
     if not any(term in normalized for term in ("automation", "learn", "notice", "pattern", "suggest", "room", "area", "home", "light")):
         return ""
     data = automation_store()
-    areas = [str(item.get("name") or "") for item in (data.get("area_context") or {}).get("areas", []) if item.get("name")]
+    context = data.get("area_context") or {}
+    areas = [{
+        "name": item.get("name"), "site": item.get("site_name"),
+        "site_label": item.get("site_label"), "zone": item.get("zone_entity_id"),
+    } for item in context.get("areas", []) if item.get("name")]
+    zones = [{"entity_id": item.get("entity_id"), "name": item.get("name"), "occupants": item.get("occupants")} for item in context.get("zones", [])]
     patterns = [{
         "kind": item.get("kind"), "area": item.get("area_name"),
         "action_entity": item.get("action_entity"), "occurrences": item.get("occurrences"),
@@ -8103,7 +8204,8 @@ def automation_brain_memory_context(message: str) -> str:
     if not areas and not patterns and not discoveries:
         return ""
     return "Automation Brain local context (observations are evidence, not certainty): " + json.dumps({
-        "home_assistant_areas": areas[:30], "learned_patterns": patterns, "discoveries": discoveries,
+        "home_assistant_areas": areas[:30], "home_assistant_zones": zones[:20],
+        "learned_patterns": patterns, "discoveries": discoveries,
     }, ensure_ascii=False)
 
 
@@ -8169,6 +8271,8 @@ async def read_autonomous_automations():
             "context_reasoning": True,
             "passive_learning": bool(data["settings"].get("passive_learning_enabled", True)),
             "known_areas": len((data.get("area_context") or {}).get("areas", [])),
+            "known_labels": len((data.get("area_context") or {}).get("labels", [])),
+            "known_zones": len((data.get("area_context") or {}).get("zones", [])),
             "observation_count": len(data.get("observations") or []),
             "learned_pattern_count": len(data.get("patterns") or []),
             "automatic_execution": data["settings"].get("operating_mode") == "selective_autonomy",
@@ -8429,6 +8533,8 @@ def _automation_record_behavior(data: dict[str, Any], record: dict[str, Any], ma
         "id": secrets.token_hex(6), "created_at": now,
         "entity_id": record.get("entity_id"), "area_id": area_id,
         "area_name": mapping.get("area_name") or "Unassigned",
+        "site_name": mapping.get("site_name") or "",
+        "zone_entity_id": mapping.get("zone_entity_id") or "",
         "role": role, "old_state": record.get("old_state"), "state": record.get("state"),
     }
     data.setdefault("observations", []).insert(0, observation)
@@ -8448,6 +8554,8 @@ def _automation_record_behavior(data: dict[str, Any], record: dict[str, Any], ma
         pattern = {
             "id": secrets.token_hex(8), "key": key, "kind": "occupancy_then_light",
             "area_id": area_id, "area_name": mapping.get("area_name") or area_id,
+            "site_label": mapping.get("site_label") or "", "site_name": mapping.get("site_name") or "",
+            "zone_entity_id": mapping.get("zone_entity_id") or "",
             "presence_entity": recent_presence.get("entity_id"), "action_entity": light_id,
             "occurrences": 0, "confidence": 0.55, "status": "watching", "created_at": now,
         }
@@ -8458,16 +8566,19 @@ def _automation_record_behavior(data: dict[str, Any], record: dict[str, Any], ma
     pattern["last_observed_at"] = now
 
 
-def _automation_discovery_record(data: dict[str, Any], area_id: str, area_name: str, light_id: str) -> dict[str, Any]:
+def _automation_discovery_record(data: dict[str, Any], area_id: str, area_name: str, light_id: str, mapping: dict[str, Any] | None = None) -> dict[str, Any]:
     import secrets
 
     key = f"dark_occupied_light:{area_id}:{light_id}"
     discovery = next((item for item in data.get("discoveries", []) if item.get("key") == key), None)
     if discovery:
         return discovery
+    mapping = mapping or {}
     discovery = {
         "id": secrets.token_hex(8), "key": key, "kind": "dark_occupied_light",
         "title": f"{area_name} lighting", "area_id": area_id, "area_name": area_name,
+        "site_label": mapping.get("site_label") or "", "site_name": mapping.get("site_name") or "",
+        "zone_entity_id": mapping.get("zone_entity_id") or "",
         "action_entity": light_id, "action_service": "light.turn_on",
         "status": "learning", "confidence": 0.0, "evidence_count": 0,
         "positive_feedback": 0, "negative_feedback": 0, "preference": "ask",
@@ -8490,6 +8601,9 @@ async def _automation_discover_area(area_id: str) -> None:
         if not mappings:
             return
         area_name = str(next((item.get("area_name") for item in mappings if item.get("area_name")), area_id))
+        area_mapping = next((item for item in mappings if item.get("area_name")), mappings[0])
+        site_name = str(area_mapping.get("site_name") or "")
+        zone_entity_id = str(area_mapping.get("zone_entity_id") or "")
         occupancy = [item for item in mappings if item.get("role") == "room_presence" and effective_entity_access(str(item.get("entity_id") or ""))]
         now = time.time()
         sustained_presence_ids = {
@@ -8502,7 +8616,7 @@ async def _automation_discover_area(area_id: str) -> None:
         if not active_occupancy:
             return
         if data["settings"].get("require_presence") and data["settings"].get("presence_entity"):
-            presence_ok, presence_detail = _automation_presence_confirmed({}, data["settings"])
+            presence_ok, presence_detail = _automation_presence_confirmed({}, data["settings"], zone_entity_id)
         else:
             presence_ok, presence_detail = True, f"room occupancy confirmed by {str(active_occupancy[0].get('entity_id') or '')}"
         if not presence_ok:
@@ -8510,14 +8624,15 @@ async def _automation_discover_area(area_id: str) -> None:
         dark, darkness_detail, base_confidence = _automation_dark_context(data, area_id)
         if not dark:
             return
-        lights = [item for item in mappings if item.get("role") == "light" and effective_entity_access(str(item.get("entity_id") or "")) == "low_risk_control_proposed"]
+        lights = [item for item in mappings if item.get("role") == "light" and not item.get("control_blocked_by_label") and effective_entity_access(str(item.get("entity_id") or "")) == "low_risk_control_proposed"]
+        lights.sort(key=lambda item: (not bool(item.get("primary_entity")), str(item.get("entity_id") or "")))
         off_lights = [item for item in lights if str((ha_ws.state_cache.get(str(item.get("entity_id") or "")) or {}).get("state") or "").casefold() == "off"]
         if not off_lights:
             return
         occupancy_id = str(active_occupancy[0].get("entity_id") or "")
         for light in off_lights[:3]:
             light_id = str(light.get("entity_id") or "")
-            discovery = _automation_discovery_record(data, area_id, area_name, light_id)
+            discovery = _automation_discovery_record(data, area_id, area_name, light_id, light)
             if discovery.get("preference") == "never_suggest" or discovery.get("status") == "suppressed":
                 continue
             pattern = _automation_learning_pattern(data, area_id, light_id)
@@ -8528,7 +8643,7 @@ async def _automation_discover_area(area_id: str) -> None:
                 "status": "ready", "confidence": confidence,
                 "evidence_count": int(discovery.get("evidence_count") or 0) + 1,
                 "last_evidence_at": now, "presence_entity": occupancy_id,
-                "evidence": f"{area_name} presence remained plausible for {AUTOMATION_ROOM_OCCUPANCY_SECONDS} seconds; {darkness_detail}; {light_id}=off; {presence_detail}",
+                "evidence": f"{site_name + ' · ' if site_name else ''}{area_name} presence remained plausible for {AUTOMATION_ROOM_OCCUPANCY_SECONDS} seconds; {darkness_detail}; {light_id}=off; {presence_detail}",
             })
             if data["settings"].get("operating_mode") == "observe_only" or confidence < float(data["settings"].get("minimum_confidence") or 0.75):
                 continue
@@ -8610,7 +8725,7 @@ def _automation_condition_matches(item: dict[str, Any], old_state: Any, new_stat
     return current_number > expected_number if operator == "above" else current_number < expected_number
 
 
-def _automation_presence_confirmed(item: dict[str, Any], settings: dict[str, Any]) -> tuple[bool, str]:
+def _automation_presence_confirmed(item: dict[str, Any], settings: dict[str, Any], expected_zone: str = "") -> tuple[bool, str]:
     if not settings.get("require_presence"):
         return True, "presence not required"
     entity_id = str(item.get("presence_entity") or settings.get("presence_entity") or "")
@@ -8618,8 +8733,23 @@ def _automation_presence_confirmed(item: dict[str, Any], settings: dict[str, Any
         return False, "presence required but no presence entity is configured"
     state = ha_ws.state_cache.get(entity_id) or {}
     value = str(state.get("state") or "").casefold()
-    present = value in {"on", "home", "present", "occupied", "true", "1"}
+    accepted = {"on", "home", "present", "occupied", "true", "1"}
+    expected = _automation_context_key(expected_zone.split(".", 1)[1] if expected_zone.startswith("zone.") else expected_zone)
+    if expected and entity_id.split(".", 1)[0] in {"person", "device_tracker"}:
+        zone = next((item for item in (automation_store().get("area_context") or {}).get("zones", []) if item.get("entity_id") == expected_zone), {})
+        expected_values = {expected, _automation_context_key(zone.get("name"))}
+        present = _automation_context_key(value) in expected_values
+        return present, f"{entity_id}={value or 'unavailable'}; expected {expected_zone}"
+    present = value in accepted
     return present, f"{entity_id}={value or 'unavailable'}"
+
+
+def _automation_expected_zone(data: dict[str, Any], item: dict[str, Any]) -> str:
+    for entity_id in (item.get("action_entity"), item.get("trigger_entity"), *(item.get("signal_entities") or [])):
+        mapping = _automation_area_entity(data, str(entity_id or ""))
+        if mapping.get("zone_entity_id"):
+            return str(mapping["zone_entity_id"])
+    return ""
 
 
 def _automation_rate_available(item: dict[str, Any], now: float) -> tuple[bool, str]:
@@ -8714,7 +8844,7 @@ async def _automation_commit_match(automation_id: str, evidence: dict[str, Any])
         rate_ok, rate_detail = _automation_rate_available(item, now)
         if not rate_ok:
             return
-        presence_ok, presence_detail = _automation_presence_confirmed(item, data["settings"])
+        presence_ok, presence_detail = _automation_presence_confirmed(item, data["settings"], _automation_expected_zone(data, item))
         if not presence_ok:
             item["last_suppressed_at"] = now
             item["status"] = "suppressed"
@@ -8793,6 +8923,8 @@ async def approve_automation_suggestion(suggestion_id: str) -> dict[str, Any]:
         if suggestion.get("source") == "automation_brain":
             entity_id = str(suggestion.get("action_entity") or "")
             service = str(suggestion.get("action_service") or "")
+            if _automation_label_blocks_control(data, entity_id):
+                raise HTTPException(status_code=403, detail="Automation Brain control is blocked by a Home Assistant label")
             try:
                 domain = ensure_control_allowed(entity_id)
             except (PermissionError, ValueError) as exc:
@@ -12179,7 +12311,7 @@ async def api_home_assistant_logbook(entity_ids: str, hours: int = 24, query: st
 
 
 @app.get("/api/ha/entities")
-async def list_ha_entities() -> dict[str, Any]:
+async def list_ha_entities(refresh: bool = False) -> dict[str, Any]:
     """Return normalized Home Assistant entity inventory with WS-first discovery."""
     if not SUPERVISOR_TOKEN:
         raise HTTPException(status_code=503, detail="Home Assistant API token unavailable")
@@ -12233,7 +12365,7 @@ async def list_ha_entities() -> dict[str, Any]:
         raise HTTPException(status_code=502, detail=detail)
 
     try:
-        area_context = await _automation_refresh_area_context()
+        area_context = await _automation_refresh_area_context(force=bool(refresh))
     except (RuntimeError, OSError, asyncio.TimeoutError):
         area_context = automation_store().get("area_context") or {}
     area_entities = {
@@ -12275,6 +12407,10 @@ async def list_ha_entities() -> dict[str, Any]:
             "area_name": area.get("area_name") or "",
             "area_source": area.get("area_source") or "unassigned",
             "zbrano_role": area.get("role") or _automation_entity_role(entity_id, attributes),
+            "labels": area.get("labels") or [],
+            "site_label": area.get("site_label") or "",
+            "site_name": area.get("site_name") or "",
+            "zone_entity_id": area.get("zone_entity_id") or "",
         })
 
     policy = load_entity_policy()
