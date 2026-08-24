@@ -1,9 +1,9 @@
 {
-  "version": "0.13.22",
+  "version": "0.13.23",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/Jarvis-HA-Assistant main",
-  "summary": "Separate read-only Grinder monitoring into an explicit backend domain while preserving telemetry, incident history, diagnostic tools, routes, and lifecycle behavior.",
+  "summary": "Separate Release Memory synchronization into an explicit backend domain while preserving 11-note reconciliation, persisted status, retries, exact verification, routes, and lifecycle behavior.",
   "history_backfill": [
     {
       "version": "0.13.0",
@@ -92,21 +92,26 @@
     {
       "version": "0.13.21",
       "summary": "Restored application startup after Workshop Memory modularization by importing the MCP client provider used by the startup lifecycle."
+    },
+    {
+      "version": "0.13.22",
+      "summary": "Separated read-only Grinder monitoring into an explicit backend domain while preserving telemetry, incident history, diagnostic tools, routes, and lifecycle behavior."
     }
   ],
   "release_entry": {
     "features": [
-      "Move read-only Grinder MQTT telemetry, heartbeat supervision, bounded buffers, incident persistence, and diagnostic tools into an explicit backend domain.",
-      "Delegate Grinder monitor task startup and shutdown to the domain while retaining the existing FastAPI lifecycle."
+      "Move Release Memory manifest validation, 11-note reconciliation, exact write verification, persisted progress, and bounded retries into an explicit backend domain.",
+      "Delegate Release Memory scheduling, cancellation, and shutdown to the domain while retaining existing FastAPI routes and settings behavior."
     ],
     "fixes": [
-      "Keep the existing /data/grinder_incidents.json format, MQTT topic contract, routes, and tool names unchanged across the module boundary."
+      "Keep /data/zbrano_release_sync.json, Workshop Memory tool calls, read-back verification, retry delays, timeout, and synchronized 11/11 terminal state unchanged."
     ],
     "validation": [
-      "Grinder function equivalence, domain-global audit, lifecycle wiring, backend compilation, regression suite, frontend wiring, release manifest, and v0.13.22 release alignment coverage"
+      "Release synchronization function equivalence, module-global audit, lifecycle wiring, persistence contract, backend compilation, regression suite, and v0.13.23 release alignment coverage"
     ]
   },
   "features": [
+    "Extract Release Memory reconciliation, exact verification, persisted progress, retry state, and task lifecycle into an explicit backend domain.",
     "Extract read-only Grinder MQTT monitoring, incident persistence, diagnostic tools, and task lifecycle into an explicit backend domain.",
     "Validate Workshop Memory startup lifecycle imports at the composition boundary.",
     "Extract Fast Memory persistence, context selection, backup/restore, and exchange capture into an explicit dependency-configured domain module.",
@@ -438,6 +443,7 @@
     "Preserve task-scoped Workshop Memory approval and per-draft Gmail approval isolation."
   ],
   "validation": [
+    "Release Memory function equivalence, 11-note contract, persistence path, lifecycle delegation, backend compilation, regression suite, and v0.13.23 release alignment coverage",
     "Grinder function equivalence, isolated domain globals, lifecycle delegation, backend compilation, regression suite, and v0.13.22 release alignment coverage",
     "Workshop Memory get_mcp_client startup wiring, backend compilation, regression suite, frontend validation, and v0.13.21 release alignment coverage",
     "Fast Memory storage compatibility and configured callbacks, Workshop Memory endpoint/runtime state, isolated module globals, backend compilation, regression suite, and v0.13.20 release alignment coverage",
