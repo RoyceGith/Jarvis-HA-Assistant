@@ -3,7 +3,7 @@ import re
 from pathlib import Path
 
 
-ROOT = Path("/opt/jarvis")
+ROOT = Path(__file__).resolve().parent
 CONFIG = ROOT / "config.yaml"
 MAIN = ROOT / "app/main.py"
 INDEX = ROOT / "app/static/index.html"

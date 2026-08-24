@@ -4,11 +4,13 @@ import json
 import re
 import time
 import unittest
+from tests.frontend_source import load_frontend_source
+from tests.backend_source import load_backend_source
 
 
 ROOT = Path(__file__).resolve().parents[1]
-MAIN = (ROOT / "jarvis/app/main.py").read_text(encoding="utf-8")
-INDEX = (ROOT / "jarvis/app/static/index.html").read_text(encoding="utf-8")
+MAIN = load_backend_source()
+INDEX = load_frontend_source()
 CONFIG = (ROOT / "jarvis/config.yaml").read_text(encoding="utf-8")
 MANIFEST = json.loads((ROOT / "jarvis/release_manifest.json").read_text(encoding="utf-8"))
 
@@ -26,10 +28,10 @@ def load_functions(*names):
 
 class ReleaseMemoryProtocolAndCompactionTests(unittest.TestCase):
     def test_release_markers_are_aligned(self):
-        self.assertIn('version: "0.13.14"', CONFIG)
-        self.assertIn('version="0.13.14"', MAIN)
-        self.assertIn("HUD 0.13.14", INDEX)
-        self.assertEqual(MANIFEST["version"], "0.13.14")
+        self.assertIn('version: "0.13.15"', CONFIG)
+        self.assertIn('version="0.13.15"', MAIN)
+        self.assertIn("HUD 0.13.15", INDEX)
+        self.assertEqual(MANIFEST["version"], "0.13.15")
 
     def test_decoder_prefers_structured_content(self):
         decode = load_functions("decode_workshop_tool_result")["decode_workshop_tool_result"]
@@ -79,8 +81,8 @@ class ReleaseMemoryProtocolAndCompactionTests(unittest.TestCase):
     def test_current_entry_uses_release_specific_details(self):
         functions = load_functions("release_marker", "render_release_entry")
         entry = functions["render_release_entry"](MANIFEST)
-        self.assertIn("Prefer MCP structuredContent", entry)
-        self.assertIn("Surface Workshop Memory isError details", entry)
+        self.assertIn(MANIFEST["release_entry"]["features"][0], entry)
+        self.assertIn(MANIFEST["release_entry"]["fixes"][0], entry)
         self.assertNotIn("Import the Home Assistant Label registry", entry)
 
 

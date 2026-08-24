@@ -3,11 +3,13 @@ import ast
 import json
 import re
 import unittest
+from tests.frontend_source import load_frontend_source
+from tests.backend_source import load_backend_source
 
 
 ROOT = Path(__file__).resolve().parents[1]
-INDEX = (ROOT / "jarvis/app/static/index.html").read_text(encoding="utf-8")
-MAIN = (ROOT / "jarvis/app/main.py").read_text(encoding="utf-8")
+INDEX = load_frontend_source()
+MAIN = load_backend_source()
 CONFIG = (ROOT / "jarvis/config.yaml").read_text(encoding="utf-8")
 MANIFEST = json.loads((ROOT / "jarvis/release_manifest.json").read_text(encoding="utf-8"))
 
@@ -22,10 +24,10 @@ def load_functions(*names):
 
 class SiteAwareAutomationBrainTests(unittest.TestCase):
     def test_release_markers_are_aligned(self):
-        self.assertIn('version: "0.13.14"', CONFIG)
-        self.assertIn('version="0.13.14"', MAIN)
-        self.assertIn("HUD 0.13.14", INDEX)
-        self.assertEqual(MANIFEST["version"], "0.13.14")
+        self.assertIn('version: "0.13.15"', CONFIG)
+        self.assertIn('version="0.13.15"', MAIN)
+        self.assertIn("HUD 0.13.15", INDEX)
+        self.assertEqual(MANIFEST["version"], "0.13.15")
 
     def test_labels_and_zones_are_imported_without_coordinates(self):
         self.assertIn('"type": "config/label_registry/list"', MAIN)

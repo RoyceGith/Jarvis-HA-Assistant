@@ -1,11 +1,13 @@
 from pathlib import Path
 import json
 import unittest
+from tests.frontend_source import load_frontend_source
+from tests.backend_source import load_backend_source
 
 
 ROOT = Path(__file__).resolve().parents[1]
-INDEX = (ROOT / "jarvis/app/static/index.html").read_text(encoding="utf-8")
-MAIN = (ROOT / "jarvis/app/main.py").read_text(encoding="utf-8")
+INDEX = load_frontend_source()
+MAIN = load_backend_source()
 CONFIG = (ROOT / "jarvis/config.yaml").read_text(encoding="utf-8")
 MANIFEST = json.loads((ROOT / "jarvis/release_manifest.json").read_text(encoding="utf-8"))
 

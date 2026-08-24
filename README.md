@@ -1,3 +1,5 @@
+ZBRANO v0.13.15 begins the canonical architecture split by extracting ordered frontend assets, API schemas, the Home Assistant transport, and low-coupling backend services while preserving `app.main:app`, API routes, stored data formats, and existing behavior.
+
 ZBRANO v0.13.14 correctly decodes structured MCP results and tool errors, compacts only ZBRANO-managed v0.13 release blocks into concise descriptions, and prevents Release History from exceeding Workshop Memory's note-size limit.
 
 ZBRANO v0.13.13 verifies ambiguous Workshop Memory release-note writes by reading the saved note back, preventing successful reconciliation from being reported as a missing-status failure.

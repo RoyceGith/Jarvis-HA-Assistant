@@ -1,21 +1,23 @@
 from pathlib import Path
 import json
 import unittest
+from tests.frontend_source import load_frontend_source
+from tests.backend_source import load_backend_source
 
 
 ROOT = Path(__file__).resolve().parents[1]
-INDEX = (ROOT / "jarvis/app/static/index.html").read_text(encoding="utf-8")
-MAIN = (ROOT / "jarvis/app/main.py").read_text(encoding="utf-8")
+INDEX = load_frontend_source()
+MAIN = load_backend_source()
 CONFIG = (ROOT / "jarvis/config.yaml").read_text(encoding="utf-8")
 MANIFEST = json.loads((ROOT / "jarvis/release_manifest.json").read_text(encoding="utf-8"))
 
 
 class ConversationCaptureHealthTests(unittest.TestCase):
     def test_release_markers_are_aligned(self):
-        self.assertIn('version: "0.13.14"', CONFIG)
-        self.assertIn('version="0.13.14"', MAIN)
-        self.assertIn("HUD 0.13.14", INDEX)
-        self.assertEqual(MANIFEST["version"], "0.13.14")
+        self.assertIn('version: "0.13.15"', CONFIG)
+        self.assertIn('version="0.13.15"', MAIN)
+        self.assertIn("HUD 0.13.15", INDEX)
+        self.assertEqual(MANIFEST["version"], "0.13.15")
 
     def test_cancelled_microphone_start_cannot_install_stale_stream(self):
         fallback = INDEX[INDEX.index("async function startWakeFallback()") : INDEX.index("function recognitionLanguage()")]

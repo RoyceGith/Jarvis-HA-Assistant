@@ -1,12 +1,14 @@
 import json
 from pathlib import Path
 import unittest
+from tests.frontend_source import load_frontend_source
+from tests.backend_source import load_backend_source
 
 
 ROOT = Path(__file__).resolve().parents[1]
 APP = ROOT / "jarvis" / "app"
-MAIN = (APP / "main.py").read_text(encoding="utf-8")
-INDEX = (APP / "static" / "index.html").read_text(encoding="utf-8")
+MAIN = load_backend_source()
+INDEX = load_frontend_source()
 CONFIG = (ROOT / "jarvis" / "config.yaml").read_text(encoding="utf-8")
 DOCKER = (ROOT / "jarvis" / "Dockerfile").read_text(encoding="utf-8")
 MANIFEST = json.loads((ROOT / "jarvis" / "release_manifest.json").read_text(encoding="utf-8"))

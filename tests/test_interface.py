@@ -1,10 +1,12 @@
 from pathlib import Path
 import unittest
+from tests.frontend_source import load_frontend_source
+from tests.backend_source import load_backend_source
 
 
 ROOT = Path(__file__).resolve().parents[1]
-INDEX = (ROOT / "jarvis/app/static/index.html").read_text(encoding="utf-8")
-MAIN = (ROOT / "jarvis/app/main.py").read_text(encoding="utf-8")
+INDEX = load_frontend_source()
+MAIN = load_backend_source()
 CONFIG = (ROOT / "jarvis/config.yaml").read_text(encoding="utf-8")
 RUN_SCRIPT = (ROOT / "jarvis/run.sh").read_text(encoding="utf-8")
 
@@ -24,8 +26,8 @@ class InterfaceTests(unittest.TestCase):
     def test_hud_graph_and_versions(self):
         self.assertIn('id="brain-network"', INDEX)
         self.assertIn("prefers-reduced-motion: reduce", INDEX)
-        self.assertIn('version: "0.13.14"', CONFIG)
-        self.assertIn('version="0.13.14"', MAIN)
+        self.assertIn('version: "0.13.15"', CONFIG)
+        self.assertIn('version="0.13.15"', MAIN)
 
     def test_public_defaults_and_saved_app_options(self):
         self.assertNotIn("192.168.178.49", CONFIG)

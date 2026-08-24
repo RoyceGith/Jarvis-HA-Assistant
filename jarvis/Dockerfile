@@ -38,7 +38,7 @@ COPY validate_new_chat_wiring.py ./validate_new_chat_wiring.py
 RUN python3 ./validate_release_manifest.py \
     && python3 ./validate_inline_js.py ./app/static/index.html \
     && python3 ./validate_new_chat_wiring.py ./app/static/index.html \
-    && python3 -m py_compile ./app/main.py ./app/intent_router.py \
+    && python3 -m compileall -q ./app \
     && rm ./validate_release_manifest.py ./validate_inline_js.py ./validate_new_chat_wiring.py ./config.yaml
 
 COPY run.sh /run.sh

@@ -17,13 +17,72 @@ from typing import Any, AsyncIterator
 
 from .intent_router import parse_local_ha_intent
 
+from .schemas import (
+    ChatRequest,
+    ChatSessionCreate,
+    ChatRenameRequest,
+    JarvisSettingsUpdate,
+    AgentSettingsUpdate,
+    CatalogInstallRequest,
+    PluginOAuthStartRequest,
+    PluginInstallRequest,
+    PluginToolUpdate,
+    AutonomySettingsRequest,
+    AutonomousAutomationRequest,
+    AutomationChatDraftRequest,
+    AutomationDiscoveryFeedbackRequest,
+    NotificationCenterSettingsRequest,
+    NotificationTestRequest,
+    NotificationWatchRequest,
+    NotificationWatchStateRequest,
+    CalendarAppointmentRequest,
+    CalendarRemindersUpdateRequest,
+    GoogleCalendarSyncSettingsRequest,
+    FastMemoryWriteRequest,
+    FastMemoryForgetRequest,
+    TelegramInboundSettingsRequest,
+    TelegramInboundUnlinkRequest,
+    SettingsRestoreRequest,
+    SpeechRequest,
+    EntityCatalogItem,
+    EntityCatalogDraftRequest,
+    EntityPolicyUpdate,
+    NotificationDeliveryDeleteRequest,
+    SharedFilesDeleteRequest,
+    DeveloperModeRequest,
+    DeveloperInvestigationRequest,
+)
+
+from .services.entity_policy import classify_entity_risk, should_auto_approve_entity
+from .services.ha_client import HomeAssistantWebSocketClient
+from .services.mcp_protocol import (
+    MCPError,
+    _decode_sse,
+    _find_result,
+    _read_mcp_response,
+    decode_workshop_tool_result,
+)
+from .services.release_notes import (
+    _insert_after_title,
+    insert_release_history,
+    reconcile_explicit_current_versions,
+    reconcile_release_history_backfill,
+    release_marker,
+    release_sync_content_matches,
+    release_sync_write_status,
+    render_current_release_truth,
+    render_release_entry,
+    render_release_history_backfill,
+    upsert_current_release_truth,
+    upsert_marked_release_history_entry,
+)
+
 import aiomqtt
 import httpx
 import websockets
 from websockets.exceptions import ConnectionClosed
 from fastapi import FastAPI, File, HTTPException, Request, UploadFile, WebSocket, WebSocketDisconnect
 from fastapi.responses import FileResponse, Response, StreamingResponse
-from pydantic import BaseModel, Field
 
 APP_DIR = Path(__file__).resolve().parent
 STATIC_DIR = APP_DIR / "static"
@@ -1236,504 +1295,18 @@ def effective_entity_access(entity_id: str) -> str | None:
     return None
 
 
-class HomeAssistantWebSocketClient:
-    """Persistent Home Assistant WebSocket client with state cache and REST fallback."""
-
-    def __init__(self, url: str, token: str) -> None:
-        self.url = url
-        self.token = token
-        self.websocket: Any | None = None
-        self.reader_task: asyncio.Task[None] | None = None
-        self.connect_lock = asyncio.Lock()
-        self.send_lock = asyncio.Lock()
-        self.pending: dict[int, asyncio.Future[dict[str, Any]]] = {}
-        self.next_id = 1
-        self.state_cache: dict[str, dict[str, Any]] = {}
-        self.connected = False
-        self.last_error: str | None = None
-        self.subscription_id: int | None = None
-
-    async def connect(self) -> None:
-        if self.connected and self.websocket is not None:
-            return
-        if not self.token:
-            raise RuntimeError("Home Assistant API token unavailable")
-
-        async with self.connect_lock:
-            if self.connected and self.websocket is not None:
-                return
-            await self._disconnect()
-
-            try:
-                ws = await websockets.connect(
-                    self.url,
-                    open_timeout=10,
-                    ping_interval=20,
-                    ping_timeout=20,
-                    close_timeout=5,
-                    max_size=4 * 1024 * 1024,
-                )
-                hello = json.loads(await asyncio.wait_for(ws.recv(), timeout=10))
-                if hello.get("type") != "auth_required":
-                    await ws.close()
-                    raise RuntimeError(
-                        f"Unexpected Home Assistant WebSocket greeting: {hello.get('type')}"
-                    )
-
-                await ws.send(json.dumps({"type": "auth", "access_token": self.token}))
-                auth = json.loads(await asyncio.wait_for(ws.recv(), timeout=10))
-                if auth.get("type") != "auth_ok":
-                    await ws.close()
-                    raise RuntimeError(
-                        auth.get("message") or "Home Assistant WebSocket authentication failed"
-                    )
-
-                self.websocket = ws
-                self.connected = True
-                self.last_error = None
-                self.reader_task = asyncio.create_task(
-                    self._reader_loop(),
-                    name="jarvis-ha-websocket-reader",
-                )
-
-                states_result = await self.command({"type": "get_states"}, ensure=False)
-                states = states_result.get("result") or []
-                self.state_cache = {
-                    state["entity_id"]: state
-                    for state in states
-                    if isinstance(state, dict) and state.get("entity_id")
-                }
-
-                subscription = await self.command(
-                    {"type": "subscribe_events", "event_type": "state_changed"},
-                    ensure=False,
-                )
-                self.subscription_id = subscription.get("id")
-            except Exception as exc:
-                self.last_error = str(exc)
-                await self._disconnect()
-                raise RuntimeError(
-                    f"Home Assistant WebSocket connection failed: {exc}"
-                ) from exc
-
-    async def _reader_loop(self) -> None:
-        try:
-            assert self.websocket is not None
-            async for raw in self.websocket:
-                message = json.loads(raw)
-                message_type = message.get("type")
-
-                if message_type == "result":
-                    future = self.pending.pop(int(message.get("id", -1)), None)
-                    if future and not future.done():
-                        future.set_result(message)
-                    continue
-
-                if message_type == "event":
-                    event = message.get("event") or {}
-                    if event.get("event_type") != "state_changed":
-                        continue
-                    data = event.get("data") or {}
-                    entity_id = data.get("entity_id")
-                    new_state = data.get("new_state")
-                    if not entity_id:
-                        continue
-                    if new_state is None:
-                        self.state_cache.pop(entity_id, None)
-                    elif isinstance(new_state, dict):
-                        self.state_cache[entity_id] = new_state
-                    _dispatch_ha_state_changed(event)
-        except asyncio.CancelledError:
-            raise
-        except (ConnectionClosed, OSError, json.JSONDecodeError) as exc:
-            self.last_error = str(exc)
-        finally:
-            self.connected = False
-            error = RuntimeError(
-                f"Home Assistant WebSocket disconnected: {self.last_error or 'connection closed'}"
-            )
-            for future in self.pending.values():
-                if not future.done():
-                    future.set_exception(error)
-            self.pending.clear()
-
-    async def command(
-        self,
-        payload: dict[str, Any],
-        timeout: float = 15.0,
-        ensure: bool = True,
-    ) -> dict[str, Any]:
-        if ensure:
-            await self.connect()
-        if not self.connected or self.websocket is None:
-            raise RuntimeError("Home Assistant WebSocket is not connected")
-
-        loop = asyncio.get_running_loop()
-        async with self.send_lock:
-            command_id = self.next_id
-            self.next_id += 1
-            future: asyncio.Future[dict[str, Any]] = loop.create_future()
-            self.pending[command_id] = future
-            message = {"id": command_id, **payload}
-            try:
-                await self.websocket.send(json.dumps(message))
-            except Exception:
-                self.pending.pop(command_id, None)
-                self.connected = False
-                raise
-
-        try:
-            response = await asyncio.wait_for(future, timeout=timeout)
-        except Exception:
-            self.pending.pop(command_id, None)
-            raise
-
-        if not response.get("success"):
-            error = response.get("error") or {}
-            raise RuntimeError(
-                error.get("message")
-                or error.get("code")
-                or "Home Assistant WebSocket command failed"
-            )
-        return response
-
-    async def get_state(self, entity_id: str) -> dict[str, Any] | None:
-        await self.connect()
-        return self.state_cache.get(entity_id)
-
-    async def call_service(
-        self,
-        domain: str,
-        service: str,
-        service_data: dict[str, Any],
-    ) -> dict[str, Any]:
-        return await self.command(
-            {
-                "type": "call_service",
-                "domain": domain,
-                "service": service,
-                "service_data": service_data,
-                "return_response": False,
-            }
-        )
-
-    async def wait_for_state(
-        self,
-        entity_id: str,
-        expected: str,
-        timeout: float = 5.0,
-    ) -> dict[str, Any] | None:
-        deadline = asyncio.get_running_loop().time() + timeout
-        while asyncio.get_running_loop().time() < deadline:
-            state = self.state_cache.get(entity_id)
-            if state and state.get("state") == expected:
-                return state
-            await asyncio.sleep(0.05)
-        return self.state_cache.get(entity_id)
-
-    async def _disconnect(self) -> None:
-        self.connected = False
-        if self.reader_task and self.reader_task is not asyncio.current_task():
-            self.reader_task.cancel()
-            with contextlib.suppress(asyncio.CancelledError):
-                await self.reader_task
-        self.reader_task = None
-
-        if self.websocket is not None:
-            with contextlib.suppress(Exception):
-                await self.websocket.close()
-        self.websocket = None
-        self.subscription_id = None
-
-    async def close(self) -> None:
-        await self._disconnect()
-
-    def status(self) -> dict[str, Any]:
-        return {
-            "connected": self.connected,
-            "cached_entities": len(self.state_cache),
-            "subscription_active": self.subscription_id is not None,
-            "last_error": self.last_error,
-        }
-
-
-ha_ws = HomeAssistantWebSocketClient(HA_WS_URL, SUPERVISOR_TOKEN)
+ha_ws = HomeAssistantWebSocketClient(
+    HA_WS_URL,
+    SUPERVISOR_TOKEN,
+    lambda event: _dispatch_ha_state_changed(event),
+)
 
 app = FastAPI(
     title="ZBRANO",
-    version="0.13.14",
+    version="0.13.15",
     docs_url="/api/docs",
     openapi_url="/api/openapi.json",
 )
-
-
-class ChatRequest(BaseModel):
-    session_id: str = Field(default="default", min_length=1, max_length=128)
-    message: str = Field(min_length=1, max_length=4000)
-    attachment_ids: list[str] = Field(default_factory=list, max_length=20)
-    search_mode: str = Field(default="auto", pattern="^(auto|search|off)$")
-
-
-class ChatSessionCreate(BaseModel):
-    session_id: str = Field(min_length=1, max_length=128)
-
-
-class ChatRenameRequest(BaseModel):
-    title: str = Field(min_length=1, max_length=100)
-
-
-class JarvisSettingsUpdate(BaseModel):
-    general_instructions: str = Field(default="", max_length=GENERAL_INSTRUCTIONS_MAX_CHARS)
-    elevenlabs_stability: float = Field(default=0.55, ge=0.0, le=1.0)
-    elevenlabs_similarity: float = Field(default=0.75, ge=0.0, le=1.0)
-    elevenlabs_style: float = Field(default=0.15, ge=0.0, le=1.0)
-    elevenlabs_speed: float = Field(default=0.96, ge=0.7, le=1.2)
-    elevenlabs_model: str = Field(default="eleven_flash_v2_5")
-    elevenlabs_speaker_boost: bool = False
-    agent_model: str = Field(default=OPENAI_MODEL, min_length=1, max_length=120)
-    reasoning_effort: str = Field(default="medium", pattern="^(none|minimal|low|medium|high|xhigh)$")
-    auto_speak: bool = True
-    proactive_voice_enabled: bool = True
-    voice_approval_enabled: bool = True
-    wake_word_enabled: bool = False
-    wake_phrase: str = Field(default="hey zbrano", min_length=2, max_length=40)
-    response_length: str = Field(default="balanced", pattern="^(brief|balanced|detailed)$")
-    confirmation_strictness: str = Field(default="standard", pattern="^(standard|cautious)$")
-    context_messages: int = Field(default=20, ge=4, le=50)
-    retention_days: int = Field(default=90, ge=0, le=365)
-    preferred_language: str = Field(default="auto", min_length=2, max_length=40)
-    pronunciation_dictionary: str = Field(default="", max_length=8000)
-    theme: str = Field(default="dark", pattern="^(dark|light|gray)$")
-    neural_style: str = Field(default="constellation", pattern="^(constellation|mesh|orbital|minimal)$")
-    neural_scale: float = Field(default=1.0, ge=0.7, le=1.4)
-    neural_node_size: float = Field(default=1.0, ge=0.6, le=1.6)
-    neural_opacity: float = Field(default=0.38, ge=0.05, le=0.8)
-    reduced_motion: bool = False
-    text_size: str = Field(default="medium", pattern="^(small|medium|large)$")
-    interface_density: str = Field(default="comfortable", pattern="^(compact|comfortable)$")
-    quiet_hours_enabled: bool = False
-    quiet_hours_start: str = Field(default="22:00", pattern="^([01]\\d|2[0-3]):[0-5]\\d$")
-    quiet_hours_end: str = Field(default="07:00", pattern="^([01]\\d|2[0-3]):[0-5]\\d$")
-    voice_volume: float = Field(default=0.9, ge=0.0, le=1.0)
-    auto_sync_releases_to_workshop_memory: bool = True
-    web_search_enabled: bool = True
-    web_search_context_size: str = Field(default="medium", pattern="^(low|medium|high)$")
-    fast_memory_enabled: bool = True
-    fast_memory_auto_capture: bool = True
-    fast_memory_context_items: int = Field(default=10, ge=2, le=20)
-
-
-class AgentSettingsUpdate(BaseModel):
-    agent_model: str = Field(min_length=1, max_length=120)
-    reasoning_effort: str = Field(default="medium", pattern="^(none|minimal|low|medium|high|xhigh)$")
-
-
-class CatalogInstallRequest(BaseModel):
-    bearer_token: str = Field(default="", max_length=4000)
-
-
-class PluginOAuthStartRequest(BaseModel):
-    redirect_uri: str = Field(min_length=12, max_length=1000)
-
-
-class PluginInstallRequest(BaseModel):
-    name: str = Field(min_length=1, max_length=80)
-    url: str = Field(min_length=8, max_length=500)
-    bearer_token: str = Field(default="", max_length=4000)
-
-
-class PluginToolUpdate(BaseModel):
-    enabled: bool = False
-    permission: str = Field(default="blocked", pattern="^(blocked|read_only|write)$")
-
-
-class AutonomySettingsRequest(BaseModel):
-    operating_mode: str = Field(default="suggest_only", pattern="^(observe_only|suggest_only|approval_gated|selective_autonomy)$")
-    presence_entity: str = Field(default="", max_length=255)
-    require_presence: bool = True
-    respect_quiet_hours: bool = True
-    minimum_confidence: float = Field(default=0.75, ge=0.5, le=0.99)
-    default_cooldown_minutes: int = Field(default=30, ge=1, le=1440)
-    autonomous_risk_ceiling: str = Field(default="low", pattern="^(informational|low|controlled)$")
-    notify_after_autonomous_action: bool = True
-    passive_learning_enabled: bool = True
-
-
-class AutonomousAutomationRequest(BaseModel):
-    name: str = Field(min_length=2, max_length=100)
-    objective: str = Field(min_length=3, max_length=1000)
-    presence_entity: str = Field(default="", max_length=255)
-    signal_entities: list[str] = Field(default_factory=list, max_length=20)
-    context_notes: str = Field(default="", max_length=3000)
-    proposal_template: str = Field(default="", max_length=1000)
-    action_entity: str = Field(default="", max_length=255)
-    action_service: str = Field(default="", max_length=120)
-    cooldown_minutes: int = Field(default=30, ge=1, le=1440)
-    confidence_threshold: float = Field(default=0.75, ge=0.5, le=0.99)
-    risk_level: str = Field(default="controlled", pattern="^(informational|low|controlled|high)$")
-    execution_policy: str = Field(default="suggest", pattern="^(observe|suggest|approval_required|autonomous)$")
-    notify_on_action: bool = True
-    reversible_only: bool = True
-    max_actions_per_hour: int = Field(default=2, ge=1, le=60)
-    enabled: bool = False
-    trigger_entity: str = Field(default="", max_length=255, pattern=r"^(|[a-z0-9_]+\.[a-z0-9_]+)$")
-    trigger_operator: str = Field(default="changes_to", pattern="^(any_change|changes_to|equals|not_equals|above|below)$")
-    trigger_value: str = Field(default="", max_length=255)
-    trigger_for_seconds: int = Field(default=0, ge=0, le=86400)
-    action_service_data: dict[str, Any] = Field(default_factory=dict)
-
-
-class AutomationChatDraftRequest(BaseModel):
-    name: str = Field(min_length=2, max_length=100)
-    objective: str = Field(min_length=3, max_length=1000)
-    trigger_alias: str = Field(default="", max_length=255)
-    trigger_entity: str = Field(min_length=3, max_length=255, pattern=r"^[a-z0-9_]+\.[a-z0-9_]+$")
-    trigger_operator: str = Field(pattern="^(any_change|changes_to|equals|not_equals|above|below)$")
-    trigger_value: str = Field(default="", max_length=255)
-    trigger_for_seconds: int = Field(default=0, ge=0, le=86400)
-    presence_alias: str = Field(default="", max_length=255)
-    presence_entity: str = Field(default="", max_length=255, pattern=r"^(|[a-z0-9_]+\.[a-z0-9_]+)$")
-    signal_entities: list[str] = Field(default_factory=list, max_length=20)
-    suggestion: str = Field(min_length=3, max_length=1000)
-    action_alias: str = Field(default="", max_length=255)
-    action_entity: str = Field(default="", max_length=255, pattern=r"^(|[a-z0-9_]+\.[a-z0-9_]+)$")
-    action_service: str = Field(default="", max_length=120, pattern=r"^(|[a-z0-9_]+\.[a-z0-9_]+)$")
-    action_service_data: dict[str, Any] = Field(default_factory=dict)
-    execution_policy: str = Field(default="approval_required", pattern="^(observe|suggest|approval_required|autonomous)$")
-    cooldown_minutes: int = Field(default=30, ge=1, le=1440)
-    risk_level: str = Field(default="controlled", pattern="^(informational|low|controlled|high)$")
-    reversible_only: bool = True
-    max_actions_per_hour: int = Field(default=2, ge=1, le=60)
-    notify_on_action: bool = True
-
-
-class AutomationDiscoveryFeedbackRequest(BaseModel):
-    feedback: str = Field(pattern="^(helpful|not_helpful|always_suggest|never_suggest)$")
-
-
-class NotificationCenterSettingsRequest(BaseModel):
-    default_channel: str = Field(default="", max_length=255)
-    suggestion_notifications: bool = True
-    autonomous_action_notifications: bool = True
-    quiet_hours_enabled: bool = False
-    quiet_hours_start: str = Field(default="22:00", pattern=r"^([01]\d|2[0-3]):[0-5]\d$")
-    quiet_hours_end: str = Field(default="07:00", pattern=r"^([01]\d|2[0-3]):[0-5]\d$")
-    critical_override: bool = True
-    repeat_critical_minutes: int = Field(default=15, ge=0, le=1440)
-
-
-class NotificationTestRequest(BaseModel):
-    target: str = Field(min_length=3, max_length=255, pattern=r"^notify\.[a-z0-9_]+$")
-    severity: str = Field(default="information", pattern="^(information|suggestion|warning|critical)$")
-    title: str = Field(default="ZBRANO notification test", max_length=120)
-    message: str = Field(min_length=1, max_length=2000)
-
-
-class NotificationWatchRequest(BaseModel):
-    name: str = Field(min_length=2, max_length=100)
-    entity_id: str = Field(min_length=3, max_length=255, pattern=r"^[a-z0-9_]+\.[a-z0-9_]+$")
-    trigger_state: str = Field(min_length=1, max_length=255)
-    destination: str = Field(default="", max_length=255, pattern=r"^(|notify\.[a-z0-9_]+)$")
-    severity: str = Field(default="information", pattern="^(information|suggestion|warning|critical)$")
-    title: str = Field(default="ZBRANO notification", max_length=120)
-    message: str = Field(min_length=1, max_length=2000)
-    active_start: str = Field(default="", pattern=r"^(|([01]\d|2[0-3]):[0-5]\d)$")
-    active_end: str = Field(default="", pattern=r"^(|([01]\d|2[0-3]):[0-5]\d)$")
-    one_shot: bool = False
-    expires_at: float = Field(default=0, ge=0)
-    cooldown_minutes: int = Field(default=5, ge=0, le=10080)
-    enabled: bool = True
-
-
-class NotificationWatchStateRequest(BaseModel):
-    enabled: bool
-
-
-class CalendarAppointmentRequest(BaseModel):
-    title: str = Field(min_length=2, max_length=160)
-    start_at: str = Field(min_length=10, max_length=64)
-    duration_minutes: int = Field(default=60, ge=5, le=10080)
-    location: str = Field(default="", max_length=300)
-    notes: str = Field(default="", max_length=3000)
-    destination: str = Field(default="", max_length=255, pattern=r"^(|notify\.[a-z0-9_]+)$")
-    reminder_offsets_minutes: list[int] = Field(default_factory=list, max_length=8)
-
-
-class CalendarRemindersUpdateRequest(BaseModel):
-    destination: str = Field(default="", max_length=255, pattern=r"^(|notify\.[a-z0-9_]+)$")
-    reminder_offsets_minutes: list[int] = Field(default_factory=list, max_length=8)
-
-
-class GoogleCalendarSyncSettingsRequest(BaseModel):
-    calendar_id: str = Field(default="primary", min_length=1, max_length=1024)
-    enabled: bool = False
-
-
-class FastMemoryWriteRequest(BaseModel):
-    kind: str = Field(pattern="^(profile|preference|project|decision|fact|follow_up|session_summary|temporary)$")
-    subject: str = Field(min_length=1, max_length=160)
-    key: str = Field(min_length=1, max_length=120)
-    value: str = Field(min_length=1, max_length=1600)
-    summary: str = Field(default="", max_length=500)
-    keywords: list[str] = Field(default_factory=list, max_length=20)
-    importance: int = Field(default=3, ge=1, le=5)
-    confidence: float = Field(default=1.0, ge=0.0, le=1.0)
-    pinned: bool = False
-    expires_at: float = Field(default=0, ge=0)
-
-
-class FastMemoryForgetRequest(BaseModel):
-    query: str = Field(min_length=2, max_length=300)
-
-
-class TelegramInboundSettingsRequest(BaseModel):
-    enabled: bool = False
-    reply_channel: str = Field(default="", max_length=255, pattern=r"^(|notify\.[a-z0-9_]+)$")
-    remote_approvals_enabled: bool = False
-
-
-class TelegramInboundUnlinkRequest(BaseModel):
-    chat_id: str = Field(min_length=1, max_length=64, pattern=r"^-?[0-9]+$")
-
-
-class SettingsRestoreRequest(BaseModel):
-    backup: dict[str, Any]
-
-
-class SpeechRequest(BaseModel):
-    text: str = Field(min_length=1, max_length=4000)
-    provider: str = Field(default="default", pattern="^(default|openai|elevenlabs)$")
-    voice: str = Field(default="cedar", min_length=1, max_length=100)
-
-
-class EntityCatalogItem(BaseModel):
-    entity_id: str = Field(min_length=3, max_length=255)
-    friendly_name: str = Field(min_length=1, max_length=255)
-    domain: str = Field(min_length=1, max_length=64)
-    device_class: str | None = Field(default=None, max_length=100)
-    unit: str | None = Field(default=None, max_length=64)
-    access: str = Field(
-        pattern="^(read_only|state_only|low_risk_control_proposed|confirmation_required|restricted)$"
-    )
-    aliases: list[str] = Field(default_factory=list, max_length=20)
-
-
-class EntityCatalogDraftRequest(BaseModel):
-    project: str = Field(default="ZBRANO", min_length=1, max_length=255)
-    entities: list[EntityCatalogItem] = Field(min_length=1, max_length=500)
-
-
-class EntityPolicyUpdate(BaseModel):
-    enabled: bool
-    friendly_name: str = Field(min_length=1, max_length=255)
-    domain: str = Field(min_length=1, max_length=64)
-    device_class: str | None = Field(default=None, max_length=100)
-    unit: str | None = Field(default=None, max_length=64)
-    access: str = Field(
-        pattern="^(read_only|state_only|low_risk_control_proposed|confirmation_required|restricted)$"
-    )
-    aliases: list[str] = Field(default_factory=list, max_length=20)
-
 
 
 MCP_HTTP_TIMEOUT = httpx.Timeout(30.0, connect=2.0)
@@ -1822,10 +1395,6 @@ async def close_mcp_client() -> None:
     if MCP_CLIENT is not None and not MCP_CLIENT.is_closed:
         await MCP_CLIENT.aclose()
     MCP_CLIENT = None
-
-
-class MCPError(RuntimeError):
-    pass
 
 
 class OpenAIError(RuntimeError):
@@ -2379,59 +1948,6 @@ def chat_context_limit() -> int:
         return CHAT_CONTEXT_MAX_MESSAGES
 
 
-def _decode_sse(text: str) -> list[dict[str, Any]]:
-    messages: list[dict[str, Any]] = []
-    data_lines: list[str] = []
-
-    for raw_line in text.splitlines():
-        line = raw_line.rstrip("\r")
-        if not line:
-            if data_lines:
-                payload = "\n".join(data_lines)
-                try:
-                    messages.append(json.loads(payload))
-                except json.JSONDecodeError as exc:
-                    raise MCPError(f"Invalid MCP SSE JSON: {exc}") from exc
-                data_lines = []
-            continue
-
-        if line.startswith("data:"):
-            data_lines.append(line[5:].lstrip())
-
-    if data_lines:
-        payload = "\n".join(data_lines)
-        try:
-            messages.append(json.loads(payload))
-        except json.JSONDecodeError as exc:
-            raise MCPError(f"Invalid MCP SSE JSON: {exc}") from exc
-
-    return messages
-
-
-async def _read_mcp_response(response: httpx.Response) -> list[dict[str, Any]]:
-    if response.is_error:
-        detail = response.text[:1000]
-        raise MCPError(f"MCP HTTP {response.status_code}: {detail}")
-
-    if response.status_code in (202, 204) or not response.content.strip():
-        return []
-
-    content_type = response.headers.get("content-type", "").lower()
-    if "text/event-stream" in content_type:
-        return _decode_sse(response.text)
-
-    if "application/json" in content_type:
-        try:
-            body = response.json()
-        except json.JSONDecodeError as exc:
-            raise MCPError(
-                f"Invalid MCP JSON response: {response.text[:500]}"
-            ) from exc
-        return body if isinstance(body, list) else [body]
-
-    raise MCPError(f"Unsupported MCP response type: {content_type or 'missing'}")
-
-
 async def _mcp_post(
     client: httpx.AsyncClient,
     endpoint_url: str,
@@ -2453,44 +1969,6 @@ async def _mcp_post(
     messages = await _read_mcp_response(response)
     returned_session_id = response.headers.get("mcp-session-id") or session_id
     return messages, returned_session_id
-
-
-def _find_result(messages: list[dict[str, Any]], request_id: int) -> dict[str, Any]:
-    for message in messages:
-        if message.get("id") == request_id:
-            if "error" in message:
-                error = message["error"]
-                raise MCPError(
-                    f"MCP error {error.get('code')}: {error.get('message')}"
-                )
-            return message.get("result", {})
-    raise MCPError(f"No MCP result received for request id {request_id}")
-
-
-def decode_workshop_tool_result(result: Any) -> dict[str, Any]:
-    """Decode MCP tool output for application use, preferring structured data."""
-    if not isinstance(result, dict):
-        raise MCPError("Workshop Memory returned an invalid tool result")
-    content = result.get("content") if isinstance(result.get("content"), list) else []
-    text_parts = [
-        str(item.get("text") or "")
-        for item in content
-        if isinstance(item, dict) and item.get("type") == "text"
-    ]
-    combined = "\n".join(part for part in text_parts if part)
-    if result.get("isError") is True:
-        raise MCPError(combined or "Workshop Memory tool execution failed")
-
-    structured = result.get("structuredContent")
-    if structured is not None:
-        return structured if isinstance(structured, dict) else {"result": structured}
-    if not combined:
-        return result
-    try:
-        parsed = json.loads(combined)
-    except json.JSONDecodeError:
-        return {"text": combined}
-    return parsed if isinstance(parsed, dict) else {"result": parsed}
 
 
 async def _call_workshop_memory_endpoint(
@@ -2572,7 +2050,7 @@ async def _list_workshop_memory_endpoint_tools(endpoint_url: str) -> list[dict[s
                 "capabilities": {},
                 "clientInfo": {
                     "name": "zbrano-workshop-assistant",
-                    "version": "0.13.14",
+                    "version": "0.13.15",
                 },
             },
         },
@@ -3463,7 +2941,6 @@ async def ha_set_power(entity_id: str, turn_on: bool) -> dict[str, Any]:
     }
 
 
-
 PLAYWRIGHT_MCP_URL = os.getenv("PLAYWRIGHT_MCP_URL", "http://127.0.0.1:8931/mcp")
 PLAYWRIGHT_LOCAL_ORIGIN = "http://127.0.0.1:8099"
 PLAYWRIGHT_REQUIRED_TOOLS = {
@@ -3629,7 +3106,7 @@ async def _playwright_session():
                 "params": {
                     "protocolVersion": "2025-06-18",
                     "capabilities": {},
-                    "clientInfo": {"name": "ZBRANO Developer Mode", "version": "0.13.14"},
+                    "clientInfo": {"name": "ZBRANO Developer Mode", "version": "0.13.15"},
                 },
             },
         )
@@ -4121,7 +3598,6 @@ async def execute_gmail_direct_tool(name: str, arguments: dict[str, Any]) -> dic
     raise ValueError("Unknown Gmail Direct tool")
 
 
-
 def workshop_result_error(result: Any) -> str | None:
     if not isinstance(result, dict):
         return "Workshop Memory returned an invalid result."
@@ -4594,7 +4070,6 @@ async def try_local_ha_route(
     }
 
 
-
 def runtime_tool_round_limit(session_id: str) -> int:
     """Bound tool loops while giving approved multi-note tasks enough capacity."""
     if developer_mode_enabled():
@@ -4941,7 +4416,6 @@ def agent_reasoning_payload() -> dict[str, Any]:
     return {} if effort == "none" else {"reasoning": {"effort": effort}}
 
 
-
 PENDING_WORKSHOP_APPROVALS: dict[str, dict[str, Any]] = {}
 WORKSHOP_TASK_APPROVAL_GRANTS: dict[str, float] = {}
 WORKSHOP_TASK_APPROVAL_SECONDS = 15 * 60
@@ -5038,8 +4512,6 @@ def summarize_workshop_memory_arguments(raw_arguments: Any) -> str:
     summary = summarize(arguments)
     rendered = json.dumps(summary, ensure_ascii=False, separators=(",", ":"))
     return rendered if len(rendered) <= 1000 else rendered[:1000] + "…"
-
-
 
 
 def workshop_memory_write_calls(calls: list[dict[str, Any]]) -> list[dict[str, Any]]:
@@ -5779,7 +5251,7 @@ async def health() -> dict[str, Any]:
     configured_speech_provider = SPEECH_PROVIDER if SPEECH_PROVIDER in {"openai", "elevenlabs"} else "openai"
     return {
         "status": "ok",
-        "version": "0.13.14",
+        "version": "0.13.15",
         "home_assistant_configured": bool(SUPERVISOR_TOKEN),
         "workshop_memory_configured": bool(WORKSHOP_MEMORY_URL),
         "openai_configured": bool(OPENAI_API_KEY),
@@ -5848,59 +5320,6 @@ async def memory_project(project_name: str) -> dict[str, Any]:
         return {"connected": True, "project": project_name, "result": result}
     except (MCPError, httpx.HTTPError) as exc:
         raise HTTPException(status_code=502, detail=str(exc)) from exc
-
-
-def should_auto_approve_entity(
-    entity_id: str,
-    friendly_name: str,
-    domain: str,
-    device_class: str | None,
-) -> bool:
-    """Match the socket and HVAC inventory explicitly approved by the owner."""
-    searchable = f"{entity_id} {friendly_name}".lower().replace("_", " ")
-    words = set(re.findall(r"[a-z0-9]+", searchable))
-    is_socket = domain == "switch" and (
-        (device_class or "").lower() in {"outlet", "socket"}
-        or bool(words & {"socket", "outlet", "plug"})
-    )
-    is_thermostat = domain == "climate" or "thermostat" in words
-    is_air_conditioning_status = (
-        domain in {"sensor", "binary_sensor"}
-        and (
-            "aircondition" in searchable.replace(" ", "")
-            or "air conditioning" in searchable
-            or "air conditioner" in searchable
-            or "hvac" in words
-            or "ac" in words
-        )
-        and bool(words & {"status", "state", "mode", "temperature", "temp"})
-    )
-    return is_socket or is_thermostat or is_air_conditioning_status
-
-
-def classify_entity_risk(
-    domain: str,
-    device_class: str | None,
-    entity_id: str = "",
-    friendly_name: str = "",
-) -> str:
-    """Conservative default classification for inventory display only."""
-    if should_auto_approve_entity(entity_id, friendly_name, domain, device_class):
-        return "low_risk_control_proposed"
-
-    if domain in {"sensor", "binary_sensor"}:
-        return "read_only"
-
-    if domain in {"light", "fan", "media_player", "scene"}:
-        return "state_only"
-
-    if domain in {"lock", "cover", "climate", "switch", "button", "script", "automation"}:
-        return "restricted"
-
-    if device_class in {"smoke", "gas", "moisture", "safety", "problem"}:
-        return "read_only"
-
-    return "state_only"
 
 
 RELEASE_MANIFEST_PATH = APP_DIR.parent / "release_manifest.json"
@@ -5984,102 +5403,6 @@ def persist_release_sync_status() -> None:
         pass
 
 
-def release_marker(version: str) -> str:
-    return f"<!-- zbrano-release:{version} -->"
-
-
-def render_release_entry(manifest: dict[str, Any]) -> str:
-    version = str(manifest["version"])
-    installed_at = time.strftime("%Y-%m-%d %H:%M:%S UTC", time.gmtime())
-    details = manifest.get("release_entry")
-    if not isinstance(details, dict):
-        details = manifest
-    lines = [
-        release_marker(version),
-        f"### v{version} — Installed {installed_at}",
-        "",
-        f"- **Runtime status:** Started successfully as v{version}",
-        f"- **Source:** {str(manifest.get('source') or 'ZBRANO release manifest')}",
-        f"- **Summary:** {str(manifest.get('summary') or 'ZBRANO application update')}",
-    ]
-    for heading, key in (("New features", "features"), ("Fixes and reliability", "fixes"), ("Validation", "validation")):
-        values = [str(item).strip() for item in details.get(key, []) if str(item).strip()]
-        if values:
-            lines.extend(("", f"#### {heading}"))
-            lines.extend(f"- {item}" for item in values)
-    return "\n".join(lines).rstrip()
-
-
-def render_release_history_backfill(manifest: dict[str, Any]) -> list[str]:
-    source = str(manifest.get("source") or "ZBRANO release manifest")
-    current_version = str(manifest.get("version") or "")
-    records: dict[str, str] = {}
-    for item in manifest.get("history_backfill", []):
-        if not isinstance(item, dict):
-            continue
-        version = str(item.get("version") or "").strip()
-        summary = " ".join(str(item.get("summary") or "").split())
-        if not re.fullmatch(r"\d+\.\d+\.\d+", version) or version == current_version or not summary:
-            continue
-        records[version] = summary
-
-    def version_key(version: str) -> tuple[int, int, int]:
-        return tuple(int(part) for part in version.split("."))
-
-    entries: list[str] = []
-    for version in sorted(records, key=version_key):
-        entries.append("\n".join((
-            release_marker(version),
-            f"### v{version} — Canonical release record",
-            "",
-            f"- **Source:** {source}",
-            f"- **Summary:** {records[version]}",
-        )))
-    return entries
-
-
-def upsert_marked_release_history_entry(content: str, entry: str) -> str:
-    version_match = re.search(r"<!-- zbrano-release:([^>]+) -->", entry)
-    if not version_match:
-        return content
-    marker = release_marker(version_match.group(1).strip())
-    marker_match = re.search(rf"(?m)^{re.escape(marker)}[ \t]*\r?$", content)
-    if not marker_match:
-        return insert_release_history(content, entry)
-
-    scan_start = marker_match.end()
-    own_heading = re.match(r"(?:\r?\n)+###\s+[^\r\n]+(?:\r?\n)?", content[scan_start:])
-    if own_heading:
-        scan_start += own_heading.end()
-    boundary = re.search(
-        r"(?m)^(?:<!-- zbrano-release:[^>]+ -->|###\s+v?\d+\.\d+\.\d+\b|##\s+)",
-        content[scan_start:],
-    )
-    end = scan_start + boundary.start() if boundary else len(content)
-    suffix = content[end:].lstrip("\r\n")
-    return content[:marker_match.start()] + entry.rstrip() + "\n\n" + suffix
-
-
-def reconcile_release_history_backfill(content: str, manifest: dict[str, Any]) -> str:
-    updated = content
-    for entry in render_release_history_backfill(manifest):
-        updated = upsert_marked_release_history_entry(updated, entry)
-    return updated
-
-
-def insert_release_history(content: str, entry: str) -> str:
-    version_match = re.search(r"<!-- zbrano-release:([^>]+) -->", entry)
-    if version_match and release_marker(version_match.group(1).strip()) in content:
-        return content
-    heading = re.search(r"(?m)^## Release History\s*$", content)
-    if heading:
-        before = content[:heading.end()].rstrip()
-        after = content[heading.end():].strip("\n")
-        return before + "\n\n" + entry + ("\n\n" + after if after else "") + "\n"
-    title = content.rstrip()
-    return title + ("\n\n" if title else "") + "## Release History\n\n" + entry + "\n"
-
-
 RELEASE_SYNC_PRIMARY_NOTES = (
     "Project Overview.md",
     "Requirements.md",
@@ -6102,115 +5425,6 @@ CURRENT_VERSION_LABELS = (
     "current runtime version|current release|source version|runtime version|"
     "running version|installed version|deployed version"
 )
-
-
-def render_current_release_truth(manifest: dict[str, Any], *, release_log: bool) -> str:
-    version = str(manifest["version"])
-    summary = " ".join(str(manifest.get("summary") or "ZBRANO application update").split())
-    source = " ".join(str(manifest.get("source") or "ZBRANO release manifest").split())
-    heading = "## Current Release" if release_log else "## Current Release Source of Truth"
-    return "\n".join((
-        CURRENT_RELEASE_BLOCK_START,
-        heading,
-        "",
-        f"- **Source and runtime version:** {version}",
-        "- **Runtime status:** Started successfully",
-        f"- **Source:** {source}",
-        f"- **Summary:** {summary}",
-        CURRENT_RELEASE_BLOCK_END,
-    ))
-
-
-def _insert_after_title(content: str, block: str) -> str:
-    title = re.search(r"(?m)^#\s+.+$", content)
-    if not title:
-        return block + "\n\n" + content.lstrip()
-    before = content[:title.end()].rstrip()
-    after = content[title.end():].lstrip("\n")
-    return before + "\n\n" + block + ("\n\n" + after if after else "\n")
-
-
-def upsert_current_release_truth(content: str, manifest: dict[str, Any], *, release_log: bool) -> str:
-    block = render_current_release_truth(manifest, release_log=release_log)
-    managed = re.compile(
-        re.escape(CURRENT_RELEASE_BLOCK_START) + r".*?" + re.escape(CURRENT_RELEASE_BLOCK_END),
-        re.DOTALL,
-    )
-    if managed.search(content):
-        return managed.sub(block, content, count=1)
-    if release_log:
-        heading = re.search(r"(?im)^##\s+Current Release(?:\s+Source of Truth)?\s*$", content)
-        if heading:
-            next_heading = re.search(r"(?m)^##\s+", content[heading.end():])
-            end = heading.end() + (next_heading.start() if next_heading else len(content[heading.end():]))
-            before = content[:heading.start()].rstrip()
-            after = content[end:].lstrip("\n")
-            return before + "\n\n" + block + ("\n\n" + after if after else "\n")
-    return _insert_after_title(content, block)
-
-
-def reconcile_explicit_current_versions(content: str, version: str) -> str:
-    version_token = r"v?\d+\.\d+\.\d+"
-    bold = re.compile(
-        rf"(?im)^(\s*(?:[-*]\s*)?\*\*(?:{CURRENT_VERSION_LABELS}):\*\*\s*)(v?){version_token[2:]}"
-    )
-    plain = re.compile(
-        rf"(?im)^(\s*(?:[-*]\s*)?(?:{CURRENT_VERSION_LABELS})\s*:\s*)(v?){version_token[2:]}"
-    )
-    table = re.compile(
-        rf"(?im)^(\s*\|\s*(?:{CURRENT_VERSION_LABELS})\s*\|\s*)(v?){version_token[2:]}"
-    )
-
-    def replace_labeled(match: re.Match[str]) -> str:
-        return match.group(1) + ("v" if match.group(2) else "") + version
-
-    updated = bold.sub(replace_labeled, content)
-    updated = plain.sub(replace_labeled, updated)
-    updated = table.sub(replace_labeled, updated)
-    updated = re.sub(
-        rf"(?i)(\bcurrent(?: source| runtime| installed| deployed)? version(?:\s+is|\s*:)\s*)(v?){version_token[2:]}",
-        lambda match: match.group(1) + ("v" if match.group(2) else "") + version,
-        updated,
-    )
-    updated = re.sub(
-        rf"(?i)(v?){version_token[2:]}(\s+is\s+(?:the\s+)?current(?: source| runtime| installed| deployed)?(?:\s+version|\s+release)?)",
-        lambda match: ("v" if match.group(1) else "") + version + match.group(2),
-        updated,
-    )
-
-    lines = updated.splitlines(keepends=True)
-    in_current_section = False
-    for index, line in enumerate(lines):
-        heading = re.match(r"^##\s+(.+?)\s*$", line.strip("\r\n"))
-        if heading:
-            normalized = heading.group(1).strip().casefold()
-            in_current_section = normalized in {
-                "current source truth", "current release", "current release source of truth",
-                "current state", "source truth",
-            }
-            continue
-        if not in_current_section or re.search(r"(?i)historical|previous|superseded|legacy|old version", line):
-            continue
-        if re.match(r"^\s*(?:[-*]\s*)?(?:\*\*)?(?:version|source version|runtime version|release version)", line, re.I):
-            lines[index] = re.sub(version_token, lambda match: ("v" if match.group(0).startswith("v") else "") + version, line, count=1)
-    return "".join(lines)
-
-
-def release_sync_write_status(result: Any) -> str:
-    """Read a write status from plain or MCP structured-result envelopes."""
-    if not isinstance(result, dict):
-        return ""
-    candidates = (result, result.get("structuredContent"), result.get("result"))
-    for candidate in candidates:
-        if isinstance(candidate, dict) and candidate.get("status"):
-            return str(candidate["status"]).strip().casefold()
-    return ""
-
-
-def release_sync_content_matches(actual: Any, expected: Any) -> bool:
-    """Compare note content while tolerating the writer's final newline policy."""
-    normalize = lambda value: str(value or "").replace("\r\n", "\n").rstrip("\n")
-    return normalize(actual) == normalize(expected)
 
 
 async def confirm_release_note_write(
@@ -6369,7 +5583,6 @@ async def retry_release_memory_sync() -> dict[str, Any]:
     return {**release_sync_status(), "scheduled": True}
 
 
-
 @app.get("/api/grinder-monitor/status")
 async def get_grinder_monitor_status() -> dict[str, Any]:
     return grinder_monitor_status()
@@ -6522,7 +5735,6 @@ async def update_agent_settings(request: AgentSettingsUpdate) -> dict[str, Any]:
     return {"saved": True, "preferences": save_preferences(preferences)}
 
 
-
 PLUGIN_REGISTRY_PATH=Path("/data/plugins/registry.json")
 PLUGIN_SECRETS_PATH=Path("/data/plugins/secrets.json")
 PLUGIN_TIMEOUT=httpx.Timeout(15.0,connect=4.0)
@@ -6619,7 +5831,6 @@ GITHUB_MCP_URL="https://api.githubcopilot.com/mcp/"
 
 def _plugin_url_key(url):
     return str(url or "").strip().rstrip("/").lower()
-
 
 
 def _is_github_plugin(url: str = "", name: str = "") -> bool:
@@ -7140,7 +6351,6 @@ async def install_catalog_plugin(catalog_id: str, request: CatalogInstallRequest
     return await install_plugin(install)
 
 
-
 PLUGIN_OAUTH_PATH = Path("/data/plugins/oauth.json")
 PLUGIN_OAUTH_FLOWS = {}
 PLUGIN_OAUTH_REFRESH_TASK = None
@@ -7214,7 +6424,7 @@ async def _oauth_discover(resource_url, allow_pre_registered=False):
         "jsonrpc": "2.0", "id": 1, "method": "initialize",
         "params": {
             "protocolVersion": "2025-06-18", "capabilities": {},
-            "clientInfo": {"name": "ZBRANO Plugin Manager", "version": "0.13.14"},
+            "clientInfo": {"name": "ZBRANO Plugin Manager", "version": "0.13.15"},
         },
     }
     async with httpx.AsyncClient(timeout=PLUGIN_TIMEOUT, follow_redirects=False) as client:
@@ -9183,7 +8393,6 @@ async def notification_channels() -> list[dict[str, Any]]:
     return channels
 
 
-
 GOOGLE_CALENDAR_OAUTH_SCOPES = (
     "https://www.googleapis.com/auth/calendar.calendarlist.readonly",
     "https://www.googleapis.com/auth/calendar.events",
@@ -10149,10 +9358,6 @@ async def delete_notification_watch(watch_id: str) -> dict[str, Any]:
     return {"deleted": True}
 
 
-class NotificationDeliveryDeleteRequest(BaseModel):
-    ids: list[str] = Field(min_length=1, max_length=100)
-
-
 @app.put("/api/chat/{session_id}/voice")
 async def update_chat_voice_preference(session_id: str, payload: dict[str, Any]) -> dict[str, Any]:
     enabled = payload.get("auto_speak")
@@ -10871,9 +10076,7 @@ async def delete_chat_history(session_id: str) -> dict[str, Any]:
     return {"cleared": True, "session_id": session_id}
 
 
-
 TEXT_FILE_EXTENSIONS={".txt",".md",".json",".csv",".tsv",".yaml",".yml",".xml",".log",".py",".js",".ts",".css",".html",".ini",".cfg"}
-class SharedFilesDeleteRequest(BaseModel): file_ids:list[str]=Field(default_factory=list,max_length=100)
 def _sid(s): return re.sub(r"[^A-Za-z0-9_.-]","_",s)[:128] or "default"
 def _fid(): return hashlib.sha256(f"{time.time_ns()}:{os.urandom(16).hex()}".encode()).hexdigest()[:24]
 def _meta(p):
@@ -10929,10 +10132,6 @@ async def delete_shared_files(r:SharedFilesDeleteRequest):
 DEVELOPER_STATE_PATH = Path("/data/zbrano_developer_mode.json")
 DEVELOPER_REPOSITORY = "RoyceGith/Jarvis-HA-Assistant"
 DEVELOPER_FRONTEND_PATH = Path(__file__).resolve().parent / "static/index.html"
-
-
-class DeveloperModeRequest(BaseModel):
-    enabled: bool
 
 
 def developer_mode_enabled() -> bool:
@@ -11596,12 +10795,6 @@ DEVELOPER_FEATURE_SPECS = {
 }
 
 
-class DeveloperInvestigationRequest(BaseModel):
-    feature: str = Field(default="auto", max_length=80)
-    symptom: str = Field(min_length=3, max_length=2000)
-    browser_evidence: dict[str, Any] = Field(default_factory=dict)
-
-
 def _resolve_developer_feature(feature: str, symptom: str) -> str:
     requested = feature.strip().lower().replace("-", "_").replace(" ", "_")
     if requested in DEVELOPER_FEATURE_SPECS:
@@ -11961,7 +11154,6 @@ def is_grinder_diagnostic_intent(message: str) -> bool:
 
 def grinder_priority_tools() -> list[dict[str, Any]]:
     return list(GRINDER_MONITOR_TOOLS)
-
 
 
 FAST_MEMORY_INTENT_TERMS = (
@@ -13105,7 +12297,14 @@ async def chat(request: ChatRequest) -> dict[str, Any]:
 async def frontend(path: str = "") -> FileResponse:
     candidate = STATIC_DIR / path
     if path and candidate.is_file():
-        return FileResponse(candidate)
+        return FileResponse(
+            candidate,
+            headers={
+                "Cache-Control": "no-store, no-cache, must-revalidate, max-age=0",
+                "Pragma": "no-cache",
+                "Expires": "0",
+            },
+        )
     return FileResponse(
         STATIC_DIR / "index.html",
         headers={

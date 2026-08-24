@@ -1,0 +1,383 @@
+  .diagnostic-investigate-fix { margin-top: .65rem; width: 100%; }
+  .diagnostic-investigate-fix:disabled { cursor: wait; opacity: .72; }
+  .diagnostic-return-banner {
+    display: flex; align-items: center; justify-content: space-between; gap: .75rem;
+    margin: .55rem .75rem 0; padding: .55rem .7rem; border: 1px solid var(--line);
+    border-radius: 8px; background: color-mix(in srgb, var(--surface) 86%, transparent);
+  }
+  .diagnostic-return-banner span { min-width: 0; overflow-wrap: anywhere; }
+  .diagnostic-return-banner button { flex: 0 0 auto; }
+  .message.jarvis a { color: var(--cyan); text-decoration: underline; text-underline-offset: .15em; overflow-wrap: anywhere; }
+  #web-search-mode { min-width: 4.4rem; }
+  .composer-context-row {
+    display: flex;
+    align-items: center;
+    gap: .75rem;
+    min-height: 2.25rem;
+    padding: .35rem .15rem .2rem;
+    color: var(--text-muted);
+  }
+  .composer-web-control,.composer-plugin-context {
+    display: inline-flex;
+    align-items: center;
+    gap: .4rem;
+    min-width: 0;
+    font-size: .72rem;
+    letter-spacing: .04em;
+  }
+  .composer-web-control {
+    flex: 0 0 auto;
+    padding-right: .75rem;
+    border-right: 1px solid var(--line);
+  }
+  .composer-web-control select {
+    min-height: 1.9rem;
+    padding: .25rem 1.7rem .25rem .55rem;
+    border-radius: 999px;
+    font-size: .72rem;
+  }
+  .composer-plugin-context { flex: 1 1 auto; overflow: hidden; }
+  .composer-context-label { flex: 0 0 auto; }
+  .composer-plugin-icons { display: flex; align-items: center; gap: .3rem; min-width: 0; }
+  .composer-plugin-button,.composer-plugin-overflow {
+    position: relative;
+    display: inline-grid;
+    place-items: center;
+    flex: 0 0 auto;
+    width: 1.8rem;
+    height: 1.8rem;
+    min-height: 0;
+    padding: 0;
+    border: 1px solid var(--line);
+    border-radius: 50%;
+    background: color-mix(in srgb, var(--surface-strong) 82%, transparent);
+  }
+  .composer-plugin-button:hover,.composer-plugin-button:focus-visible { border-color: var(--cyan); transform: translateY(-1px); }
+  .composer-plugin-button img { width: 1rem; height: 1rem; object-fit: contain; }
+  .composer-plugin-fallback { font-size: .68rem; font-weight: 650; color: var(--cyan); }
+  .composer-plugin-status {
+    position: absolute;
+    right: -.08rem;
+    bottom: -.08rem;
+    width: .45rem;
+    height: .45rem;
+    border: 2px solid var(--surface-strong);
+    border-radius: 50%;
+    background: #d29a32;
+  }
+  .composer-plugin-button.available .composer-plugin-status { background: #2faa76; }
+  .composer-plugin-button.unhealthy .composer-plugin-status { background: #d35d62; }
+  .composer-plugin-overflow { width: auto; min-width: 1.8rem; padding: 0 .38rem; border-radius: 999px; font-size: .66rem; }
+  .composer-plugin-empty { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: .7rem; }
+  .composer-input-stack {
+    display: flex;
+    flex: 1 1 auto;
+    flex-direction: column;
+    gap: .2rem;
+    min-width: 0;
+  }
+  .composer-input-stack #message { box-sizing: border-box; flex: 0 0 auto; width: 100%; }
+  .composer-input-stack .composer-context-row { padding-left: .1rem; }
+  @media (max-width: 680px) {
+    .composer-context-row { align-items: flex-start; flex-wrap: wrap; }
+    .composer-plugin-context { flex-basis: 100%; }
+    .composer-web-control { border-right: 0; padding-right: 0; }
+  }
+
+    /* v0.12.38 compact phone layout keeps the conversation viewport usable. */
+    #automations-panel::before, #files-panel::before { display: none; }
+    #autonomy-settings-form,
+    #automation-draft-form {
+      display: block;
+      min-width: 0;
+      margin-top: .65rem;
+    }
+    .autonomy-safety-grid > .autonomy-card,
+    .autonomy-form-grid,
+    .autonomy-form-grid label { min-width: 0; }
+    .autonomy-form-grid input,
+    .autonomy-form-grid select,
+    .autonomy-form-grid textarea {
+      display: block;
+      width: 100%;
+      max-width: 100%;
+      min-width: 0;
+    }
+    .autonomy-form-actions { flex-wrap: wrap; }
+    #autonomy-settings-state { min-width: 0; overflow-wrap: anywhere; }
+    .chat-title-editor {
+      height: 1.8rem;
+      min-height: 1.8rem;
+      padding: 0 .45rem;
+      line-height: 1.8rem;
+    }
+    @media (max-width: 760px) {
+      main {
+        padding: .28rem;
+        grid-template-rows: auto auto minmax(0, 1fr);
+      }
+      header { min-height: 1.9rem; gap: .4rem; }
+      header h1 { margin: 0; font-size: 1rem; letter-spacing: .14em; }
+      .developer-mode-indicator { padding: .2rem .35rem; font-size: .55rem; letter-spacing: .04em; }
+      nav {
+        flex-wrap: nowrap;
+        gap: .24rem;
+        margin: .24rem 0;
+        overflow-x: auto;
+        overscroll-behavior-x: contain;
+        scrollbar-width: none;
+      }
+      nav::-webkit-scrollbar { display: none; }
+      nav button {
+        flex: 0 0 auto;
+        padding: .4rem .52rem;
+        font-size: .7rem;
+        line-height: 1.1;
+      }
+      #developer-tab { margin-left: 0; }
+      #developer-tab::before { margin-right: .22rem; }
+      .panel { padding: .32rem; border-radius: 5px; }
+      .panel::before { display: none; }
+      .chat-shell { gap: .32rem; }
+      .chat-sidebar {
+        padding: .38rem;
+        max-height: min(28dvh, 10rem);
+        border-radius: 7px;
+      }
+      .chat-sidebar-header { margin-bottom: .32rem; gap: .3rem; }
+      .chat-sidebar.conversations-collapsed {
+        min-height: 2.25rem;
+        max-height: 2.25rem;
+        padding: .2rem .35rem;
+      }
+      #conversations-toggle, #new-chat-button, .chat-rename, .chat-delete {
+        width: 1.65rem;
+        height: 1.65rem;
+        min-width: 1.65rem;
+      }
+      .chat-title-editor {
+        height: 1.65rem;
+        min-height: 1.65rem;
+        line-height: 1.65rem;
+        font-size: .75rem;
+      }
+      #chat-list { gap: .15rem; }
+      .chat-open { padding: .38rem .42rem; font-size: .75rem; }
+      .hud-layout, .core-stage { min-height: 0; }
+      #messages { min-height: 5rem; padding: .2rem; }
+      .message {
+        padding: .42rem .45rem .42rem 3.25rem;
+        margin: .18rem 0;
+        font-size: .86rem;
+        line-height: 1.42;
+      }
+      .message::before { left: .42rem; top: .58rem; font-size: .58rem; }
+      .message h2 { font-size: 1.06rem; }
+      .message h3 { font-size: .98rem; }
+      .message h4 { font-size: .92rem; }
+      .attachment-strip { margin-top: .2rem; }
+      .attachment-controls { gap: .28rem; margin-top: .22rem; }
+      .attachment-controls button,
+      .attachment-controls select { min-height: 1.9rem; padding: .3rem .42rem; font-size: .68rem; }
+      #chat-form {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: .28rem;
+        margin-top: .32rem;
+      }
+      .composer-input-stack { grid-column: 1 / -1; width: 100%; }
+      .composer-input-stack #message { min-height: 2.7rem; max-height: 8rem; padding: .58rem .68rem; }
+      .composer-context-row { gap: .3rem; padding-top: .32rem; }
+      .composer-plugin-context { display: none; }
+      #chat-form > button { padding: .42rem .58rem; font-size: .72rem; min-height: 2rem; }
+      .voice-bar { margin-top: .2rem; min-height: 1rem; }
+      .voice-settings { display: none; }
+      #voice-state { font-size: .58rem; }
+    }
+    @media (max-width: 760px) and (max-height: 560px) {
+      header h1 { font-size: .86rem; }
+      .chat-sidebar.conversations-collapsed { min-height: 2rem; max-height: 2rem; }
+      #messages { min-height: 3.5rem; }
+      .voice-bar { display: none; }
+    }
+
+    /* v0.12.39 exact conversation editor and authority-list alignment. */
+    .chat-list-item .chat-title-editor {
+      box-sizing: border-box !important;
+      height: 1.8rem !important;
+      min-height: 1.8rem !important;
+      max-height: 1.8rem !important;
+      padding: 0 .45rem !important;
+      line-height: normal !important;
+      align-self: center;
+    }
+    #autonomy-settings-form .autonomy-form-grid .check {
+      grid-column: 1 / -1;
+      width: 100%;
+      min-width: 0;
+      display: flex;
+      align-items: center;
+      gap: .5rem;
+      margin: 0;
+      padding: .2rem 0;
+    }
+    #autonomy-settings-form .autonomy-form-grid .check input[type="checkbox"] {
+      width: auto;
+      min-width: auto;
+      flex: 0 0 auto;
+      margin: 0;
+    }
+    @media (max-width: 760px) {
+      .chat-list-item .chat-title-editor {
+        height: 1.65rem !important;
+        min-height: 1.65rem !important;
+        max-height: 1.65rem !important;
+      }
+    }
+
+    /* v0.12.41 one compact height for every conversation-row control. */
+    .chat-list-item {
+      min-height: 1.8rem;
+      max-height: 1.8rem;
+      align-items: center;
+    }
+    .chat-list-item .chat-open,
+    .chat-list-item .chat-title-editor,
+    .chat-list-item .chat-actions,
+    .chat-list-item .chat-rename,
+    .chat-list-item .chat-delete {
+      box-sizing: border-box !important;
+      height: 1.8rem !important;
+      min-height: 1.8rem !important;
+      max-height: 1.8rem !important;
+      align-self: center;
+    }
+    .chat-list-item .chat-open {
+      display: flex;
+      align-items: center;
+      padding: 0 .55rem !important;
+      line-height: normal;
+    }
+    .chat-list-item .chat-actions { display: inline-flex; align-items: center; }
+    @media (max-width: 760px) {
+      .chat-list-item { min-height: 1.65rem; max-height: 1.65rem; }
+      .chat-list-item .chat-open,
+      .chat-list-item .chat-title-editor,
+      .chat-list-item .chat-actions,
+      .chat-list-item .chat-rename,
+      .chat-list-item .chat-delete {
+        height: 1.65rem !important;
+        min-height: 1.65rem !important;
+        max-height: 1.65rem !important;
+      }
+    }
+
+    /* v0.12.42 inset compact controls inside the active conversation frame. */
+    .chat-list-item {
+      box-sizing: border-box;
+      min-height: 2rem;
+      max-height: 2rem;
+      padding: 2px;
+      overflow: hidden;
+    }
+    .chat-list-item .chat-open,
+    .chat-list-item .chat-title-editor,
+    .chat-list-item .chat-actions,
+    .chat-list-item .chat-rename,
+    .chat-list-item .chat-delete {
+      height: 1.7rem !important;
+      min-height: 1.7rem !important;
+      max-height: 1.7rem !important;
+    }
+    .chat-list-item .chat-open,
+    .chat-list-item .chat-title-editor {
+      font-size: .78rem;
+      font-weight: 550;
+    }
+    @media (max-width: 760px) {
+      .chat-list-item { min-height: 1.85rem; max-height: 1.85rem; }
+      .chat-list-item .chat-open,
+      .chat-list-item .chat-title-editor,
+      .chat-list-item .chat-actions,
+      .chat-list-item .chat-rename,
+      .chat-list-item .chat-delete {
+        height: 1.55rem !important;
+        min-height: 1.55rem !important;
+        max-height: 1.55rem !important;
+      }
+      .chat-list-item .chat-open,
+      .chat-list-item .chat-title-editor { font-size: .72rem; }
+    }
+
+    .notification-center-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:.75rem; margin-top:.75rem; }
+    .notification-center-lower { margin-top:.75rem; }
+    #notification-settings-form, #notification-test-form { display:block; min-width:0; margin-top:.65rem; }
+    .notification-form-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:.6rem; }
+    .notification-form-grid label { display:grid; gap:.3rem; min-width:0; }
+    .notification-form-grid .wide { grid-column:1/-1; }
+    .notification-form-grid .check { display:flex; align-items:center; gap:.5rem; }
+    .notification-form-grid input:not([type="checkbox"]), .notification-form-grid select, .notification-form-grid textarea { width:100%; min-width:0; max-width:100%; }
+    .notification-form-grid input[type="checkbox"] { width:auto; flex:0 0 auto; }
+    .notification-channel-list, .notification-delivery-list { display:grid; gap:.45rem; margin-top:.65rem; }
+    .notification-channel, .notification-delivery { display:grid; gap:.2rem; border:1px solid var(--line); border-radius:6px; padding:.65rem; min-width:0; }
+    .notification-channel-head, .notification-delivery-head { display:flex; justify-content:space-between; align-items:center; gap:.6rem; }
+    .notification-platform { border:1px solid var(--line); border-radius:999px; padding:.15rem .42rem; color:var(--cyan); font-size:.68rem; text-transform:uppercase; }
+    .notification-channel code { overflow-wrap:anywhere; }
+    .notification-delivery[data-status="failed"] { border-color:rgba(255,100,90,.42); }
+    .notification-delivery[data-status="delivered"] { border-color:rgba(92,236,255,.3); }
+    @media(max-width:900px) { .notification-center-grid, .notification-form-grid { grid-template-columns:1fr; } .notification-form-grid .wide { grid-column:auto; } }
+
+    .notification-watchlist-card { margin-top:.75rem; }
+    .notification-watch-list { display:grid; gap:.5rem; margin-top:.65rem; }
+    .notification-watch { display:grid; gap:.35rem; border:1px solid var(--line); border-radius:6px; padding:.7rem; min-width:0; }
+    .notification-watch[data-status="failed"], .notification-watch[data-status="unavailable"] { border-color:rgba(255,100,90,.42); }
+    .notification-watch[data-status="triggered"] { border-color:rgba(92,236,255,.38); }
+    .notification-watch-head { display:flex; justify-content:space-between; align-items:flex-start; gap:.65rem; }
+    .notification-watch-actions { display:flex; flex-wrap:wrap; gap:.35rem; }
+    .notification-watch-meta { display:flex; flex-wrap:wrap; gap:.35rem; }
+    .notification-watch-meta span { border:1px solid var(--line); border-radius:999px; padding:.14rem .42rem; font-size:.7rem; }
+    @media(max-width:650px) { .notification-watch-head { display:grid; } .notification-watch-actions { width:100%; } }
+
+    /* v0.12.45: every Automations view, including Notifications, owns a viewport scroll container. */
+    #automations-panel {
+      min-height:0;
+      overflow-x:hidden;
+      overflow-y:auto;
+      overscroll-behavior:contain;
+      scrollbar-gutter:stable;
+      scrollbar-color:var(--cyan-dim) transparent;
+      -webkit-overflow-scrolling:touch;
+    }
+    #automations-panel .autonomy-shell { min-height:max-content; padding-bottom:1rem; }
+    #automations-panel .autonomy-view { min-width:0; }
+    .notification-subtabs { display:flex; gap:.4rem; flex-wrap:wrap; margin-bottom:.75rem; border-bottom:1px solid var(--line); padding-bottom:.55rem; }
+    .notification-subtabs button.active { border-color:var(--cyan); color:var(--cyan); }
+    [data-notification-panel].hidden { display:none; }
+    [data-notification-panel="watchlist"] .notification-watchlist-card { margin-top:0; }
+    @media(max-width:700px) {
+      #automations-panel { scrollbar-gutter:auto; touch-action:pan-y; }
+      #automations-panel .autonomy-shell { padding-bottom:1.5rem; }
+    }
+
+    [data-notification-panel="logs"] .notification-delivery-log-card { margin-top:0; }
+    .notification-log-toolbar { display:flex; align-items:center; gap:.6rem; flex-wrap:wrap; margin-top:.65rem; }
+    .notification-log-toolbar label { display:flex; align-items:center; gap:.35rem; }
+    .notification-log-toolbar input, .notification-delivery-select { width:auto; flex:0 0 auto; }
+    .notification-log-toolbar button { margin-left:auto; }
+    .notification-delivery-title { display:flex; align-items:center; gap:.5rem; min-width:0; }
+    @media(max-width:600px) { .notification-log-toolbar button { margin-left:0; } }
+
+    /* Unseen content indicator shared by primary and nested tabs. */
+    .zbrano-tab-unseen { position:relative; }
+    .zbrano-tab-unseen::after {
+      content:"";
+      position:absolute;
+      top:.28rem;
+      right:.28rem;
+      width:.48rem;
+      height:.48rem;
+      border-radius:50%;
+      background:#f39a32;
+      box-shadow:0 0 0 2px var(--surface-strong), 0 0 8px rgba(243,154,50,.55);
+      pointer-events:none;
+    }
