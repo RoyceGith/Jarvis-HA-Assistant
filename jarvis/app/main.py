@@ -1461,7 +1461,7 @@ ha_ws = HomeAssistantWebSocketClient(HA_WS_URL, SUPERVISOR_TOKEN)
 
 app = FastAPI(
     title="ZBRANO",
-    version="0.13.12",
+    version="0.13.13",
     docs_url="/api/docs",
     openapi_url="/api/openapi.json",
 )
@@ -2564,7 +2564,7 @@ async def _list_workshop_memory_endpoint_tools(endpoint_url: str) -> list[dict[s
                 "capabilities": {},
                 "clientInfo": {
                     "name": "zbrano-workshop-assistant",
-                    "version": "0.13.12",
+                    "version": "0.13.13",
                 },
             },
         },
@@ -3621,7 +3621,7 @@ async def _playwright_session():
                 "params": {
                     "protocolVersion": "2025-06-18",
                     "capabilities": {},
-                    "clientInfo": {"name": "ZBRANO Developer Mode", "version": "0.13.12"},
+                    "clientInfo": {"name": "ZBRANO Developer Mode", "version": "0.13.13"},
                 },
             },
         )
@@ -5771,7 +5771,7 @@ async def health() -> dict[str, Any]:
     configured_speech_provider = SPEECH_PROVIDER if SPEECH_PROVIDER in {"openai", "elevenlabs"} else "openai"
     return {
         "status": "ok",
-        "version": "0.13.12",
+        "version": "0.13.13",
         "home_assistant_configured": bool(SUPERVISOR_TOKEN),
         "workshop_memory_configured": bool(WORKSHOP_MEMORY_URL),
         "openai_configured": bool(OPENAI_API_KEY),
@@ -5999,6 +5999,34 @@ def render_release_entry(manifest: dict[str, Any]) -> str:
     return "\n".join(lines).rstrip()
 
 
+def render_release_history_backfill(manifest: dict[str, Any]) -> list[str]:
+    source = str(manifest.get("source") or "ZBRANO release manifest")
+    current_version = str(manifest.get("version") or "")
+    records: dict[str, str] = {}
+    for item in manifest.get("history_backfill", []):
+        if not isinstance(item, dict):
+            continue
+        version = str(item.get("version") or "").strip()
+        summary = " ".join(str(item.get("summary") or "").split())
+        if not re.fullmatch(r"\d+\.\d+\.\d+", version) or version == current_version or not summary:
+            continue
+        records[version] = summary
+
+    def version_key(version: str) -> tuple[int, int, int]:
+        return tuple(int(part) for part in version.split("."))
+
+    entries: list[str] = []
+    for version in sorted(records, key=version_key):
+        entries.append("\n".join((
+            release_marker(version),
+            f"### v{version} — Canonical release record",
+            "",
+            f"- **Source:** {source}",
+            f"- **Summary:** {records[version]}",
+        )))
+    return entries
+
+
 def insert_release_history(content: str, entry: str) -> str:
     version_match = re.search(r"<!-- zbrano-release:([^>]+) -->", entry)
     if version_match and release_marker(version_match.group(1).strip()) in content:
@@ -6128,6 +6156,51 @@ def reconcile_explicit_current_versions(content: str, version: str) -> str:
     return "".join(lines)
 
 
+def release_sync_write_status(result: Any) -> str:
+    """Read a write status from plain or MCP structured-result envelopes."""
+    if not isinstance(result, dict):
+        return ""
+    candidates = (result, result.get("structuredContent"), result.get("result"))
+    for candidate in candidates:
+        if isinstance(candidate, dict) and candidate.get("status"):
+            return str(candidate["status"]).strip().casefold()
+    return ""
+
+
+def release_sync_content_matches(actual: Any, expected: Any) -> bool:
+    """Compare note content while tolerating the writer's final newline policy."""
+    normalize = lambda value: str(value or "").replace("\r\n", "\n").rstrip("\n")
+    return normalize(actual) == normalize(expected)
+
+
+async def confirm_release_note_write(
+    result: dict[str, Any],
+    relative_path: str,
+    expected_content: str,
+) -> str:
+    error = workshop_result_error(result)
+    if error:
+        raise RuntimeError(error)
+    status = release_sync_write_status(result)
+    if status in {"created", "replaced", "updated", "ok", "success", "written"}:
+        return status
+
+    try:
+        verified = await call_workshop_memory_tool_uncached(
+            "read_project_note",
+            {"relative_path": relative_path},
+        )
+    except (MCPError, httpx.HTTPError, OSError, RuntimeError, ValueError) as exc:
+        raise RuntimeError(
+            f"ambiguous write status: {status or 'missing'}; read-back failed: {str(exc)[:180]}"
+        ) from exc
+    if release_sync_content_matches(verified.get("content"), expected_content):
+        return "verified"
+    raise RuntimeError(
+        f"ambiguous write status: {status or 'missing'}; read-back did not match the intended note"
+    )
+
+
 async def synchronize_release_to_workshop_memory_once() -> dict[str, Any]:
     if not release_sync_enabled():
         RELEASE_SYNC_STATUS.update({"state": "disabled", "last_error": None})
@@ -6172,6 +6245,8 @@ async def synchronize_release_to_workshop_memory_once() -> dict[str, Any]:
         if note_name == release_note:
             release_history_present = release_marker(version) in content
             updated = upsert_current_release_truth(updated, manifest, release_log=True)
+            for historical_entry in render_release_history_backfill(manifest):
+                updated = insert_release_history(updated, historical_entry)
             updated = insert_release_history(updated, render_release_entry(manifest))
         elif note_name in RELEASE_SYNC_PRIMARY_NOTES:
             updated = upsert_current_release_truth(updated, manifest, release_log=False)
@@ -6189,9 +6264,7 @@ async def synchronize_release_to_workshop_memory_once() -> dict[str, Any]:
                     "create_folders": False,
                 },
             )
-            status = str(result.get("status") or "")
-            if status not in {"replaced", "updated", "ok"}:
-                raise RuntimeError(f"unexpected write status: {status or 'missing'}")
+            await confirm_release_note_write(result, relative_path, updated)
             updated_notes.append(note_name)
         except (MCPError, httpx.HTTPError, OSError, RuntimeError, ValueError) as exc:
             failed_notes.append(f"{note_name}: write failed: {str(exc)[:240]}")
@@ -7102,7 +7175,7 @@ async def _oauth_discover(resource_url, allow_pre_registered=False):
         "jsonrpc": "2.0", "id": 1, "method": "initialize",
         "params": {
             "protocolVersion": "2025-06-18", "capabilities": {},
-            "clientInfo": {"name": "ZBRANO Plugin Manager", "version": "0.13.12"},
+            "clientInfo": {"name": "ZBRANO Plugin Manager", "version": "0.13.13"},
         },
     }
     async with httpx.AsyncClient(timeout=PLUGIN_TIMEOUT, follow_redirects=False) as client:

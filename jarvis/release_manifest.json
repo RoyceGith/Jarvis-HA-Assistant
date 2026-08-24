@@ -1,10 +1,67 @@
 {
-  "version": "0.13.12",
+  "version": "0.13.13",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/Jarvis-HA-Assistant main",
-  "summary": "Modernize ZBRANO navigation and workspace surfaces without changing established platform behavior or the chat experience.",
+  "summary": "Confirm ambiguous Workshop Memory release-note writes through exact read-back verification instead of reporting a false missing-status failure.",
+  "history_backfill": [
+    {
+      "version": "0.13.0",
+      "summary": "Promoted the complete generated application into canonical source and replaced the 147-script reconstruction chain while preserving validated v0.12.112 behavior."
+    },
+    {
+      "version": "0.13.1",
+      "summary": "Kept voice interaction inside chat, recognized conversation-closing phrase variants, and finalized spoken commands promptly after real post-speech silence."
+    },
+    {
+      "version": "0.13.2",
+      "summary": "Preserved command beginnings, reliably re-armed follow-up capture, cleaned up expired listening windows, and added compact RMS-responsive sound bars."
+    },
+    {
+      "version": "0.13.3",
+      "summary": "Verified and recovered the live microphone before follow-up listening, prevented stale noise calibration, and added adjustable 0.80x to 1.40x speech speed."
+    },
+    {
+      "version": "0.13.4",
+      "summary": "Stabilized adjusted-rate speech by fully buffering it, locking playback rate after metadata, and preventing mid-segment speed changes."
+    },
+    {
+      "version": "0.13.5",
+      "summary": "Prepared an opening phrase while text was streaming, prefetched later speech, and started adjusted-rate audio after a sustainable adaptive buffer."
+    },
+    {
+      "version": "0.13.6",
+      "summary": "Prevented cancelled microphone starts from restoring stale listeners and actively recovered failed conversation capture components."
+    },
+    {
+      "version": "0.13.7",
+      "summary": "Allowed Talk or the opted-in local Hey ZBRANO detector to interrupt playback and generation, then safely capture a replacement prompt."
+    },
+    {
+      "version": "0.13.8",
+      "summary": "Restored independent vertical and horizontal scrolling in Entity Inventory and kept History bounded within its panel."
+    },
+    {
+      "version": "0.13.9",
+      "summary": "Added the Automation Brain natural-language draft workflow, remembered confirmed entity mappings, separated creation from the Library, and spoke suggestion text only."
+    },
+    {
+      "version": "0.13.10",
+      "summary": "Added Home Assistant Area awareness and passive local learning for evidence-based room opportunities, feedback, and safe suggestions."
+    },
+    {
+      "version": "0.13.11",
+      "summary": "Linked Home Assistant Areas to geographic Zones through Labels, applied label-defined roles and safety boundaries, and reconciled room context after HA changes."
+    },
+    {
+      "version": "0.13.12",
+      "summary": "Refreshed navigation, nested menus, cards, forms, and data tables with a modern theme-aware visual system while preserving chat and existing behavior."
+    }
+  ],
   "features": [
+    "Backfill missing canonical v0.13.0 through v0.13.12 descriptions into Workshop Memory Release History without duplicating marked entries.",
+    "Read write status from both plain Workshop Memory responses and MCP structured-result envelopes.",
+    "Verify an ambiguously reported release-note write against the exact intended note content before marking it successful.",
     "Present primary navigation as a compact responsive application bar with clearer active, hover, and focus states.",
     "Unify Entities, Settings, Automations, Notifications, and Calendar submenus as horizontally resilient segmented controls.",
     "Refresh non-chat panels, cards, forms, buttons, and data tables with softer hierarchy, spacing, and theme-aware surfaces.",
@@ -192,6 +249,8 @@
     "Preserve multi-round Workshop Memory tasks after an approved write in both streaming and non-streaming chat."
   ],
   "fixes": [
+    "Stop a successful Release and Change Log update from remaining in retrying state only because its response omitted a top-level status field.",
+    "Keep ambiguous or mismatched release-note writes failed and retryable instead of accepting an unverified permanent-memory change.",
     "Replace dated square menu treatments with a consistent rounded application-navigation hierarchy across desktop and mobile.",
     "Keep long primary and nested menus usable on narrow screens through bounded horizontal scrolling instead of compressed or wrapped controls.",
     "Preserve the established chat structure and all existing navigation identifiers, event wiring, themes, and accessibility labels.",
@@ -309,6 +368,7 @@
     "Preserve task-scoped Workshop Memory approval and per-draft Gmail approval isolation."
   ],
   "validation": [
+    "Plain and structured write-status extraction, newline-tolerant exact read-back matching, ambiguous-status verification wiring, canonical v0.13.0-v0.13.12 description backfill, deduplication, ordering, and v0.13.13 release alignment coverage",
     "Scoped final-style-layer, primary and nested navigation preservation, responsive overflow, reduced-motion, existing chat controls, and v0.13.12 release alignment coverage",
     "Label registry import, site-to-Zone resolution, site-aware presence, semantic label roles, label action blocks, learning reconciliation, Entity site UI, and v0.13.11 release alignment coverage",
     "Home Assistant Area inheritance, bounded learning storage, sustained-occupancy discovery, darkness evidence, permission-gated Brain actions, feedback suppression, room UI, and v0.13.10 release alignment coverage",
