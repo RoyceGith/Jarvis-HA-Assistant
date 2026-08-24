@@ -1,4 +1,4 @@
-ZBRANO v0.13.23 separates Release Memory synchronization into an explicit backend domain while preserving its 11-note reconciliation, persisted status, retries, verification, routes, and lifecycle behavior.
+ZBRANO v0.13.24 separates persistent Settings and preference handling into an explicit backend domain while preserving stored JSON, defaults, validation, pronunciation, voice settings, routes, and backup compatibility.
 
 ZBRANO v0.13.18 prevents Release Memory synchronization from remaining indefinitely in a non-terminal state by adding worker timeout recovery, note progress, task-health reporting, and automatic interface polling.
 

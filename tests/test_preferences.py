@@ -8,15 +8,14 @@ from unittest.mock import AsyncMock
 
 
 MAIN_PATH = Path(__file__).resolve().parents[1] / "jarvis/app/main.py"
+SETTINGS_PATH = Path(__file__).resolve().parents[1] / "jarvis/app/domains/settings.py"
 
 
 def load_preference_functions():
-    tree = ast.parse(MAIN_PATH.read_text(encoding="utf-8"))
-    selected = [
-        node for node in tree.body
-        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef))
-        and node.name in {"try_local_ha_route", "apply_pronunciation_dictionary"}
-    ]
+    main_tree = ast.parse(MAIN_PATH.read_text(encoding="utf-8"))
+    settings_tree = ast.parse(SETTINGS_PATH.read_text(encoding="utf-8"))
+    selected = [node for node in main_tree.body if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)) and node.name == "try_local_ha_route"]
+    selected.extend(node for node in settings_tree.body if isinstance(node, ast.FunctionDef) and node.name == "apply_pronunciation_dictionary")
     for node in selected:
         node.decorator_list = []
     namespace = {"re": re, "Any": Any}

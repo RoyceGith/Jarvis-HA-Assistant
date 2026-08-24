@@ -9,10 +9,11 @@ from typing import Any
 
 ROOT = Path(__file__).resolve().parents[1]
 MAIN_PATH = ROOT / "jarvis/app/main.py"
+SETTINGS_PATH = ROOT / "jarvis/app/domains/settings.py"
 
 
 def load_settings_functions(storage_path: Path):
-    source = MAIN_PATH.read_text(encoding="utf-8")
+    source = SETTINGS_PATH.read_text(encoding="utf-8")
     tree = ast.parse(source)
     names = {
         "load_settings_payload",
@@ -64,7 +65,7 @@ def load_settings_functions(storage_path: Path):
         },
         "re": __import__("re"),
     }
-    exec(compile(ast.Module(body=selected, type_ignores=[]), str(MAIN_PATH), "exec"), namespace)
+    exec(compile(ast.Module(body=selected, type_ignores=[]), str(SETTINGS_PATH), "exec"), namespace)
     return namespace
 
 

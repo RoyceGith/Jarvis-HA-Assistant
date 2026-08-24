@@ -38,6 +38,8 @@ Stateful engines live under `jarvis/app/domains/`:
   bounded pre-failure buffers, incident persistence, diagnostic tools, and task lifecycle.
 - `release_sync.py` owns Release Memory manifest validation, 11-note reconciliation,
   exact write verification, persisted progress, bounded retries, and worker lifecycle.
+- `settings.py` owns `/data/jarvis_settings.json`, general instructions, preference
+  defaults, ElevenLabs voice settings, and pronunciation-dictionary transformation.
 
 The composition root retains the FastAPI route wrappers and explicitly configures
 each domain with its runtime dependencies after all providers have been defined.
