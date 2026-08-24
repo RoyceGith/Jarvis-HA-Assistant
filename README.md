@@ -1,3 +1,5 @@
+ZBRANO v0.13.12 refreshes the application navigation, nested menus, cards, forms, and data tables with a cleaner modern visual system while preserving the established chat experience and all existing behavior.
+
 ZBRANO v0.13.11 links Home Assistant Areas to geographic Zones through site Labels, applies label-defined entity roles and safety boundaries, and keeps learned room context aligned when HA organization changes.
 
 ZBRANO v0.13.10 adds Home Assistant Area awareness and a local passive-learning loop that discovers room-level opportunities, suggests safe actions from evidence, and learns from approval, dismissal, and explicit preferences.

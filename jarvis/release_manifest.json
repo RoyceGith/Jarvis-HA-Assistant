@@ -1,10 +1,13 @@
 {
-  "version": "0.13.11",
+  "version": "0.13.12",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/Jarvis-HA-Assistant main",
-  "summary": "Link Home Assistant rooms to geographic sites through Labels and Zones, then apply site-aware presence and label-defined safety.",
+  "summary": "Modernize ZBRANO navigation and workspace surfaces without changing established platform behavior or the chat experience.",
   "features": [
+    "Present primary navigation as a compact responsive application bar with clearer active, hover, and focus states.",
+    "Unify Entities, Settings, Automations, Notifications, and Calendar submenus as horizontally resilient segmented controls.",
+    "Refresh non-chat panels, cards, forms, buttons, and data tables with softer hierarchy, spacing, and theme-aware surfaces.",
     "Import the Home Assistant Label registry and current Zone entities alongside Areas, devices, and entities.",
     "Resolve Area labels such as site-factory-workshop to a matching zone.factory_workshop geographic context without inventing a duplicate room hierarchy.",
     "Require the configured person or device tracker to match a room's linked Zone before making site-specific Automation Brain suggestions.",
@@ -189,6 +192,9 @@
     "Preserve multi-round Workshop Memory tasks after an approved write in both streaming and non-streaming chat."
   ],
   "fixes": [
+    "Replace dated square menu treatments with a consistent rounded application-navigation hierarchy across desktop and mobile.",
+    "Keep long primary and nested menus usable on narrow screens through bounded horizontal scrolling instead of compressed or wrapped controls.",
+    "Preserve the established chat structure and all existing navigation identifiers, event wiring, themes, and accessibility labels.",
     "Prevent a home presence state from authorizing a factory-room suggestion, or a factory Zone state from authorizing a home-room suggestion.",
     "Replace stale learned Area and site names after Home Assistant organization changes while preserving feedback history.",
     "Avoid requiring users to manually define the most basic room-aware suggestion rules before ZBRANO can notice a useful opportunity.",
@@ -303,6 +309,7 @@
     "Preserve task-scoped Workshop Memory approval and per-draft Gmail approval isolation."
   ],
   "validation": [
+    "Scoped final-style-layer, primary and nested navigation preservation, responsive overflow, reduced-motion, existing chat controls, and v0.13.12 release alignment coverage",
     "Label registry import, site-to-Zone resolution, site-aware presence, semantic label roles, label action blocks, learning reconciliation, Entity site UI, and v0.13.11 release alignment coverage",
     "Home Assistant Area inheritance, bounded learning storage, sustained-occupancy discovery, darkness evidence, permission-gated Brain actions, feedback suppression, room UI, and v0.13.10 release alignment coverage",
     "Automation intent isolation, entity clarification policy, disabled chat drafts, explicit activation, remembered mappings, draft deduplication, practical Create New and Library views, and v0.13.9 release alignment coverage",
