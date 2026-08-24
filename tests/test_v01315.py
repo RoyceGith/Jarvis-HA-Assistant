@@ -21,10 +21,10 @@ MANIFEST = json.loads((ROOT / "jarvis/release_manifest.json").read_text(encoding
 
 class CanonicalModuleArchitectureTests(unittest.TestCase):
     def test_release_markers_are_aligned(self):
-        self.assertIn('version: "0.13.20"', CONFIG)
-        self.assertIn('version="0.13.20"', MAIN_RAW)
-        self.assertIn("HUD 0.13.20", HTML)
-        self.assertEqual(MANIFEST["version"], "0.13.20")
+        self.assertIn('version: "0.13.21"', CONFIG)
+        self.assertIn('version="0.13.21"', MAIN_RAW)
+        self.assertIn("HUD 0.13.21", HTML)
+        self.assertEqual(MANIFEST["version"], "0.13.21")
 
     def test_frontend_is_directly_split_with_stable_order(self):
         stylesheet_paths = re.findall(r'<link[^>]+href="([^"]+\.css)"', HTML)

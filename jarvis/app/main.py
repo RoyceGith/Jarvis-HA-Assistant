@@ -94,6 +94,7 @@ from .domains.workshop_memory import (
     call_workshop_memory_tool,
     call_workshop_memory_tool_uncached,
     close_mcp_client,
+    get_mcp_client,
     refresh_workshop_memory_tools,
     select_workshop_memory_endpoint,
     workshop_memory_function_tools,
@@ -1001,7 +1002,7 @@ ha_ws = HomeAssistantWebSocketClient(
 
 app = FastAPI(
     title="ZBRANO",
-    version="0.13.20",
+    version="0.13.21",
     docs_url="/api/docs",
     openapi_url="/api/openapi.json",
 )
@@ -2484,7 +2485,7 @@ async def _playwright_session():
                 "params": {
                     "protocolVersion": "2025-06-18",
                     "capabilities": {},
-                    "clientInfo": {"name": "ZBRANO Developer Mode", "version": "0.13.20"},
+                    "clientInfo": {"name": "ZBRANO Developer Mode", "version": "0.13.21"},
                 },
             },
         )
@@ -4617,7 +4618,7 @@ async def health() -> dict[str, Any]:
     configured_speech_provider = SPEECH_PROVIDER if SPEECH_PROVIDER in {"openai", "elevenlabs"} else "openai"
     return {
         "status": "ok",
-        "version": "0.13.20",
+        "version": "0.13.21",
         "home_assistant_configured": bool(SUPERVISOR_TOKEN),
         "workshop_memory_configured": bool(WORKSHOP_MEMORY_URL),
         "openai_configured": bool(OPENAI_API_KEY),
@@ -5809,7 +5810,7 @@ async def _oauth_discover(resource_url, allow_pre_registered=False):
         "jsonrpc": "2.0", "id": 1, "method": "initialize",
         "params": {
             "protocolVersion": "2025-06-18", "capabilities": {},
-            "clientInfo": {"name": "ZBRANO Plugin Manager", "version": "0.13.20"},
+            "clientInfo": {"name": "ZBRANO Plugin Manager", "version": "0.13.21"},
         },
     }
     async with httpx.AsyncClient(timeout=PLUGIN_TIMEOUT, follow_redirects=False) as client:

@@ -1,9 +1,9 @@
 {
-  "version": "0.13.20",
+  "version": "0.13.21",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/Jarvis-HA-Assistant main",
-  "summary": "Separate Fast Memory persistence and Workshop Memory MCP transport into explicit backend domains without changing stored data, routes, approvals, or release synchronization.",
+  "summary": "Restore application startup after Workshop Memory modularization by importing the MCP client provider used by the startup lifecycle.",
   "history_backfill": [
     {
       "version": "0.13.0",
@@ -84,22 +84,25 @@
     {
       "version": "0.13.19",
       "summary": "Restored Release Memory reconciliation by colocating its current-version patterns and managed-block delimiters with the release-note service and auditing modules for undeclared globals."
+    },
+    {
+      "version": "0.13.20",
+      "summary": "Separated Fast Memory persistence and Workshop Memory MCP transport into explicit backend domains without changing stored data, routes, approvals, or release synchronization."
     }
   ],
   "release_entry": {
     "features": [
-      "Move Fast Memory SQLite persistence, relevance, backup, context injection, and extraction into an explicit domain module.",
-      "Move Workshop Memory MCP pooling, endpoint failover, caching, dynamic tool discovery, locking, and health metrics into an explicit domain module."
+      "Validate that every Workshop Memory lifecycle function used by the composition root is imported from its extracted domain."
     ],
     "fixes": [
-      "Keep Fast Memory's existing /data SQLite path and record schema unchanged across the module boundary.",
-      "Keep Workshop Memory approval, write reconciliation, release synchronization, endpoint selection, and cache behavior unchanged."
+      "Import get_mcp_client from the Workshop Memory domain so the startup handler no longer raises NameError and exits before opening port 8099."
     ],
     "validation": [
-      "Fast Memory isolated persistence and configuration, Workshop Memory isolated transport state, module-global audit, backend compilation, regression suite, and v0.13.20 release alignment coverage"
+      "Workshop Memory startup-client wiring, backend compilation, regression suite, frontend wiring, release manifest, and v0.13.21 release alignment coverage"
     ]
   },
   "features": [
+    "Validate Workshop Memory startup lifecycle imports at the composition boundary.",
     "Extract Fast Memory persistence, context selection, backup/restore, and exchange capture into an explicit dependency-configured domain module.",
     "Extract Workshop Memory HTTP transport, endpoint failover, caching, dynamic tool discovery, lock, and runtime metrics into an explicit domain module.",
     "Audit extracted backend modules for undeclared global dependencies and execute release-note transformations in isolation.",
@@ -429,6 +432,7 @@
     "Preserve task-scoped Workshop Memory approval and per-draft Gmail approval isolation."
   ],
   "validation": [
+    "Workshop Memory get_mcp_client startup wiring, backend compilation, regression suite, frontend validation, and v0.13.21 release alignment coverage",
     "Fast Memory storage compatibility and configured callbacks, Workshop Memory endpoint/runtime state, isolated module globals, backend compilation, regression suite, and v0.13.20 release alignment coverage",
     "Isolated release-note service execution, all-module global-dependency audit, managed-block rendering, complete regression suite, and v0.13.19 release alignment coverage",
     "Release Memory worker timeout and exception recovery, inactive-task repair, progress reporting, frontend polling, diagnostics visibility, and v0.13.18 release alignment coverage",
