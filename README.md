@@ -1,3 +1,5 @@
+ZBRANO v0.13.18 prevents Release Memory synchronization from remaining indefinitely in a non-terminal state by adding worker timeout recovery, note progress, task-health reporting, and automatic interface polling.
+
 ZBRANO v0.13.17 separates local appointments/reminders and Google Calendar synchronization into explicit backend domains while preserving routes, OAuth state, sync tokens, reminder delivery, worker lifecycle, and stored calendar data.
 
 ZBRANO v0.13.16 moves the stateful Automation Brain and Notification Center engines into explicit backend domain modules while preserving their routes, shared watch storage, lifecycle, and persisted data formats.

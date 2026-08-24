@@ -798,6 +798,7 @@ const reducedMotionSetting = document.getElementById("reduced-motion");
 const releaseMemoryAutoSync = document.getElementById("release-memory-auto-sync");
 const releaseMemorySyncStatus = document.getElementById("release-memory-sync-status");
 const releaseMemorySyncRetry = document.getElementById("release-memory-sync-retry");
+let releaseMemorySyncPollTimer = 0;
 const neuralStyle = document.getElementById("neural-style");
 const neuralScale = document.getElementById("neural-scale");
 const neuralNodeSize = document.getElementById("neural-node-size");
@@ -1453,12 +1454,14 @@ entitiesTab.addEventListener("click", async () => {
 
 function renderReleaseSyncStatus(status = {}) {
   const state = String(status.state || "pending");
+  const progress = [status.note_progress, status.current_note].filter(Boolean).join(" - ");
   releaseMemorySyncStatus.dataset.state = state;
   const version = status.version ? `v${status.version}` : "current release";
   const detail = status.last_error ? ` · ${status.last_error}` : "";
   releaseMemorySyncStatus.textContent = status.enabled === false
     ? "Automatic release synchronization is disabled."
     : `${version} · ${state}${status.already_present ? " · already recorded" : ""}${detail}`;
+  if (progress) releaseMemorySyncStatus.textContent += ` - ${progress}`;
 }
 
 async function refreshReleaseSyncStatus() {
@@ -1467,6 +1470,10 @@ async function refreshReleaseSyncStatus() {
     const status = await response.json();
     if (!response.ok) throw new Error(status.detail || `HTTP ${response.status}`);
     renderReleaseSyncStatus(status);
+    window.clearTimeout(releaseMemorySyncPollTimer);
+    if (status.task_active || ["pending", "synchronizing", "retrying"].includes(status.state)) {
+      releaseMemorySyncPollTimer = window.setTimeout(refreshReleaseSyncStatus, 2500);
+    }
   } catch (error) {
     renderReleaseSyncStatus({state: "failed", last_error: error.message || String(error)});
   }

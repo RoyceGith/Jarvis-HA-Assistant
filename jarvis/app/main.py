@@ -1363,7 +1363,7 @@ ha_ws = HomeAssistantWebSocketClient(
 
 app = FastAPI(
     title="ZBRANO",
-    version="0.13.17",
+    version="0.13.18",
     docs_url="/api/docs",
     openapi_url="/api/openapi.json",
 )
@@ -2110,7 +2110,7 @@ async def _list_workshop_memory_endpoint_tools(endpoint_url: str) -> list[dict[s
                 "capabilities": {},
                 "clientInfo": {
                     "name": "zbrano-workshop-assistant",
-                    "version": "0.13.17",
+                    "version": "0.13.18",
                 },
             },
         },
@@ -3166,7 +3166,7 @@ async def _playwright_session():
                 "params": {
                     "protocolVersion": "2025-06-18",
                     "capabilities": {},
-                    "clientInfo": {"name": "ZBRANO Developer Mode", "version": "0.13.17"},
+                    "clientInfo": {"name": "ZBRANO Developer Mode", "version": "0.13.18"},
                 },
             },
         )
@@ -5311,7 +5311,7 @@ async def health() -> dict[str, Any]:
     configured_speech_provider = SPEECH_PROVIDER if SPEECH_PROVIDER in {"openai", "elevenlabs"} else "openai"
     return {
         "status": "ok",
-        "version": "0.13.17",
+        "version": "0.13.18",
         "home_assistant_configured": bool(SUPERVISOR_TOKEN),
         "workshop_memory_configured": bool(WORKSHOP_MEMORY_URL),
         "openai_configured": bool(OPENAI_API_KEY),
@@ -5385,6 +5385,7 @@ async def memory_project(project_name: str) -> dict[str, Any]:
 RELEASE_MANIFEST_PATH = APP_DIR.parent / "release_manifest.json"
 RELEASE_SYNC_STATE_PATH = Path("/data/zbrano_release_sync.json")
 RELEASE_SYNC_TASK: asyncio.Task | None = None
+RELEASE_SYNC_WORKER_TIMEOUT_SECONDS = 300
 RELEASE_SYNC_STATUS: dict[str, Any] = {
     "state": "pending",
     "version": None,
@@ -5397,6 +5398,8 @@ RELEASE_SYNC_STATUS: dict[str, Any] = {
     "already_current_notes": [],
     "missing_notes": [],
     "failed_notes": [],
+    "current_note": None,
+    "note_progress": None,
 }
 
 
@@ -5410,6 +5413,7 @@ def restore_release_sync_status() -> None:
     for key in (
         "version", "state", "last_error", "last_success_at", "already_present",
         "updated_notes", "already_current_notes", "missing_notes", "failed_notes",
+        "current_note", "note_progress",
     ):
         if key in stored:
             RELEASE_SYNC_STATUS[key] = stored[key]
@@ -5439,6 +5443,13 @@ def release_sync_status() -> dict[str, Any]:
     status = dict(RELEASE_SYNC_STATUS)
     status["enabled"] = release_sync_enabled()
     status["task_active"] = bool(RELEASE_SYNC_TASK and not RELEASE_SYNC_TASK.done())
+    if status.get("state") in {"pending", "synchronizing", "retrying"} and not status["task_active"]:
+        RELEASE_SYNC_STATUS.update({
+            "state": "failed",
+            "last_error": status.get("last_error") or "Release synchronization worker stopped before reaching a terminal state",
+        })
+        status.update(RELEASE_SYNC_STATUS)
+        persist_release_sync_status()
     return status
 
 
@@ -5453,6 +5464,8 @@ def persist_release_sync_status() -> None:
         "already_current_notes": RELEASE_SYNC_STATUS.get("already_current_notes", []),
         "missing_notes": RELEASE_SYNC_STATUS.get("missing_notes", []),
         "failed_notes": RELEASE_SYNC_STATUS.get("failed_notes", []),
+        "current_note": RELEASE_SYNC_STATUS.get("current_note"),
+        "note_progress": RELEASE_SYNC_STATUS.get("note_progress"),
     }
     try:
         RELEASE_SYNC_STATE_PATH.parent.mkdir(parents=True, exist_ok=True)
@@ -5541,9 +5554,15 @@ async def synchronize_release_to_workshop_memory_once() -> dict[str, Any]:
         "already_current_notes": [],
         "missing_notes": [],
         "failed_notes": [],
+        "current_note": None,
+        "note_progress": f"0/{len(note_names)}",
     })
 
-    for note_name in note_names:
+    for note_index, note_name in enumerate(note_names, start=1):
+        RELEASE_SYNC_STATUS.update({
+            "current_note": note_name,
+            "note_progress": f"{note_index}/{len(note_names)}",
+        })
         relative_path = f"{project}/{note_name}"
         try:
             current = await call_workshop_memory_tool("read_project_note", {"relative_path": relative_path})
@@ -5595,12 +5614,14 @@ async def synchronize_release_to_workshop_memory_once() -> dict[str, Any]:
         "state": "synchronized",
         "last_success_at": time.time(),
         "last_error": None,
+        "current_note": None,
+        "note_progress": f"{len(note_names)}/{len(note_names)}",
     })
     persist_release_sync_status()
     return release_sync_status()
 
 
-async def release_sync_worker() -> None:
+async def _release_sync_worker_attempts() -> None:
     delays = (0, 10, 30, 120)
     for attempt, delay in enumerate(delays, start=1):
         if delay:
@@ -5611,12 +5632,26 @@ async def release_sync_worker() -> None:
             return
         except asyncio.CancelledError:
             raise
-        except (MCPError, httpx.HTTPError, OSError, RuntimeError, ValueError) as exc:
+        except Exception as exc:
             RELEASE_SYNC_STATUS.update({
                 "state": "retrying" if attempt < len(delays) else "failed",
                 "last_error": str(exc)[:1000],
             })
             persist_release_sync_status()
+
+
+async def release_sync_worker() -> None:
+    try:
+        await asyncio.wait_for(
+            _release_sync_worker_attempts(),
+            timeout=RELEASE_SYNC_WORKER_TIMEOUT_SECONDS,
+        )
+    except asyncio.TimeoutError:
+        RELEASE_SYNC_STATUS.update({
+            "state": "failed",
+            "last_error": f"Release synchronization exceeded {RELEASE_SYNC_WORKER_TIMEOUT_SECONDS} seconds",
+        })
+        persist_release_sync_status()
 
 
 def schedule_release_sync() -> asyncio.Task | None:
@@ -6484,7 +6519,7 @@ async def _oauth_discover(resource_url, allow_pre_registered=False):
         "jsonrpc": "2.0", "id": 1, "method": "initialize",
         "params": {
             "protocolVersion": "2025-06-18", "capabilities": {},
-            "clientInfo": {"name": "ZBRANO Plugin Manager", "version": "0.13.17"},
+            "clientInfo": {"name": "ZBRANO Plugin Manager", "version": "0.13.18"},
         },
     }
     async with httpx.AsyncClient(timeout=PLUGIN_TIMEOUT, follow_redirects=False) as client:
@@ -8460,7 +8495,9 @@ async def developer_diagnostics() -> dict[str, object]:
                 ) if isinstance(payload, dict) else "failed",
                 (
                     f"state={payload.get('state')}; version={payload.get('version') or app.version}; "
-                    f"enabled={payload.get('enabled')}; target={payload.get('target')}"
+                    f"enabled={payload.get('enabled')}; task_active={payload.get('task_active')}; "
+                    f"progress={payload.get('note_progress')}; current_note={payload.get('current_note')}; "
+                    f"target={payload.get('target')}"
                     if isinstance(payload, dict) else "invalid release synchronization payload"
                 ),
             ),

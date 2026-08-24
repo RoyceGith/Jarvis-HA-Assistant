@@ -1,9 +1,9 @@
 {
-  "version": "0.13.17",
+  "version": "0.13.18",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/Jarvis-HA-Assistant main",
-  "summary": "Separate local Calendar reminders and Google Calendar synchronization into explicit dependency-configured backend domains without changing routes, OAuth state, sync tokens, lifecycle, or stored data.",
+  "summary": "Prevent Release Memory synchronization from remaining indefinitely non-terminal through bounded worker recovery, task-health reporting, note progress, and automatic status polling.",
   "history_backfill": [
     {
       "version": "0.13.0",
@@ -72,24 +72,28 @@
     {
       "version": "0.13.16",
       "summary": "Moved Automation Brain and Notification Center engines into explicit backend domains while preserving routes, shared watch storage, worker lifecycle, and persisted data."
+    },
+    {
+      "version": "0.13.17",
+      "summary": "Separated local Calendar reminders and Google Calendar synchronization into explicit backend domains while preserving routes, OAuth state, sync tokens, lifecycle, and stored data."
     }
   ],
   "release_entry": {
     "features": [
-      "Move local appointment persistence, reminder editing, cancellation, formatting, and reminder delivery into a dedicated Calendar domain.",
-      "Move Google Calendar OAuth access, API mapping, preview, incremental synchronization, status, and sync worker into a dedicated Google Calendar domain.",
-      "Connect local and Google calendars through explicit callbacks while retaining thin FastAPI route wrappers and existing lifecycle ownership."
+      "Report the current canonical note and note-count progress while Release Memory reconciliation is active.",
+      "Poll Release Memory status automatically until the worker reaches synchronized, failed, or disabled."
     ],
     "fixes": [
-      "Preserve zbrano_calendar.json and zbrano_google_calendar_sync.json paths, appointment/reminder payloads, OAuth secrets, sync tokens, and backup behavior.",
-      "Keep reminder delivery connected to Notification Center and retain concurrent local-change merging without circular imports.",
-      "Preserve all Calendar API URLs, request models, Google preview gate, worker startup/shutdown behavior, and app.main:app."
+      "Convert an inactive worker left in pending, synchronizing, or retrying into an actionable failed state instead of displaying an endless synchronization.",
+      "Catch unexpected reconciliation exceptions and bound the complete retry worker to five minutes.",
+      "Expose task activity and note progress in Developer diagnostics so slow and stopped synchronization can be distinguished."
     ],
     "validation": [
-      "Calendar domain dependency wiring, route and lifecycle preservation, storage and OAuth compatibility, unresolved-global audit, backend compilation, complete regression suite, and v0.13.17 release alignment coverage"
+      "Release worker timeout, unexpected-exception recovery, inactive-task repair, note progress, terminal-aware frontend polling, diagnostics visibility, and v0.13.18 release alignment coverage"
     ]
   },
   "features": [
+    "Show Release Memory note progress and poll synchronization status until the worker reaches a terminal state.",
     "Extract local Calendar reminders and Google Calendar synchronization into explicit dependency-configured backend domain modules.",
     "Extract Automation Brain and Notification Center stateful engines into explicit dependency-configured backend domain modules.",
     "Extract frontend CSS and JavaScript into semantic domain directories while retaining deterministic classic-script execution order.",
@@ -287,6 +291,7 @@
     "Preserve multi-round Workshop Memory tasks after an approved write in both streaming and non-streaming chat."
   ],
   "fixes": [
+    "Prevent Release Memory synchronization from remaining indefinitely in pending, synchronizing, or retrying after a stopped or hung worker.",
     "Preserve Calendar routes, appointment and reminder storage, Google OAuth and sync state, notification delivery, and worker lifecycle across domain extraction.",
     "Preserve automation and notification routes, shared watch storage, worker lifecycle, and persisted payload formats across stateful domain extraction.",
     "Keep the Home Assistant app startup target, API surface, persistence paths, frontend identifiers, and stored data formats unchanged during modularization.",
@@ -413,6 +418,7 @@
     "Preserve task-scoped Workshop Memory approval and per-draft Gmail approval isolation."
   ],
   "validation": [
+    "Release Memory worker timeout and exception recovery, inactive-task repair, progress reporting, frontend polling, diagnostics visibility, and v0.13.18 release alignment coverage",
     "Local and Google Calendar domain boundaries, explicit cross-domain wiring, route and lifecycle preservation, backend compilation, complete regression suite, and v0.13.17 release alignment coverage",
     "Automation and notification domain boundaries, explicit runtime wiring, storage compatibility, backend compilation, complete regression suite, and v0.13.16 release alignment coverage",
     "Canonical frontend asset extraction, classic-script ordering, modular source aggregation, backend service seams, FastAPI composition root, no-cache asset delivery, complete app compilation, and v0.13.15 release alignment coverage",
