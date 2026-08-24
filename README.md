@@ -1,3 +1,5 @@
+ZBRANO v0.13.10 adds Home Assistant Area awareness and a local passive-learning loop that discovers room-level opportunities, suggests safe actions from evidence, and learns from approval, dismissal, and explicit preferences.
+
 ZBRANO v0.13.9 adds an Automation Brain workflow that turns natural-language requests into reviewable structured drafts, remembers confirmed entity mappings, separates Create New from Library, and speaks only the configured suggestion wording.
 
 ZBRANO v0.13.8 restores independent vertical and horizontal scrolling in the Entities inventory and keeps the History view bounded inside the panel.

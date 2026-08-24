@@ -1461,7 +1461,7 @@ ha_ws = HomeAssistantWebSocketClient(HA_WS_URL, SUPERVISOR_TOKEN)
 
 app = FastAPI(
     title="ZBRANO",
-    version="0.13.9",
+    version="0.13.10",
     docs_url="/api/docs",
     openapi_url="/api/openapi.json",
 )
@@ -1556,6 +1556,7 @@ class AutonomySettingsRequest(BaseModel):
     default_cooldown_minutes: int = Field(default=30, ge=1, le=1440)
     autonomous_risk_ceiling: str = Field(default="low", pattern="^(informational|low|controlled)$")
     notify_after_autonomous_action: bool = True
+    passive_learning_enabled: bool = True
 
 
 class AutonomousAutomationRequest(BaseModel):
@@ -1604,6 +1605,10 @@ class AutomationChatDraftRequest(BaseModel):
     reversible_only: bool = True
     max_actions_per_hour: int = Field(default=2, ge=1, le=60)
     notify_on_action: bool = True
+
+
+class AutomationDiscoveryFeedbackRequest(BaseModel):
+    feedback: str = Field(pattern="^(helpful|not_helpful|always_suggest|never_suggest)$")
 
 
 class NotificationCenterSettingsRequest(BaseModel):
@@ -2559,7 +2564,7 @@ async def _list_workshop_memory_endpoint_tools(endpoint_url: str) -> list[dict[s
                 "capabilities": {},
                 "clientInfo": {
                     "name": "zbrano-workshop-assistant",
-                    "version": "0.13.9",
+                    "version": "0.13.10",
                 },
             },
         },
@@ -3165,6 +3170,12 @@ def _dispatch_ha_state_changed(event: dict[str, Any]) -> None:
         return
     HA_EVENT_TASKS.add(task)
     task.add_done_callback(HA_EVENT_TASKS.discard)
+    try:
+        brain_task = asyncio.create_task(_automation_brain_state_change(record), name=f"zbrano-learning-{entity_id}")
+    except RuntimeError:
+        return
+    HA_EVENT_TASKS.add(brain_task)
+    brain_task.add_done_callback(HA_EVENT_TASKS.discard)
 
 
 def _ha_live_events(entity_ids: list[str], hours: int, limit: int) -> list[dict[str, Any]]:
@@ -3610,7 +3621,7 @@ async def _playwright_session():
                 "params": {
                     "protocolVersion": "2025-06-18",
                     "capabilities": {},
-                    "clientInfo": {"name": "ZBRANO Developer Mode", "version": "0.13.9"},
+                    "clientInfo": {"name": "ZBRANO Developer Mode", "version": "0.13.10"},
                 },
             },
         )
@@ -5760,7 +5771,7 @@ async def health() -> dict[str, Any]:
     configured_speech_provider = SPEECH_PROVIDER if SPEECH_PROVIDER in {"openai", "elevenlabs"} else "openai"
     return {
         "status": "ok",
-        "version": "0.13.9",
+        "version": "0.13.10",
         "home_assistant_configured": bool(SUPERVISOR_TOKEN),
         "workshop_memory_configured": bool(WORKSHOP_MEMORY_URL),
         "openai_configured": bool(OPENAI_API_KEY),
@@ -7091,7 +7102,7 @@ async def _oauth_discover(resource_url, allow_pre_registered=False):
         "jsonrpc": "2.0", "id": 1, "method": "initialize",
         "params": {
             "protocolVersion": "2025-06-18", "capabilities": {},
-            "clientInfo": {"name": "ZBRANO Plugin Manager", "version": "0.13.9"},
+            "clientInfo": {"name": "ZBRANO Plugin Manager", "version": "0.13.10"},
         },
     }
     async with httpx.AsyncClient(timeout=PLUGIN_TIMEOUT, follow_redirects=False) as client:
@@ -7862,7 +7873,14 @@ AUTOMATION_DEFAULT_SETTINGS = {
     "default_cooldown_minutes": 30,
     "autonomous_risk_ceiling": "low",
     "notify_after_autonomous_action": True,
+    "passive_learning_enabled": True,
 }
+
+AUTOMATION_AREA_CACHE_SECONDS = 300
+AUTOMATION_ROOM_OCCUPANCY_SECONDS = 120
+AUTOMATION_CONTEXT_LOCK = asyncio.Lock()
+AUTOMATION_AREA_REFRESHED_AT = 0.0
+AUTOMATION_DISCOVERY_TASKS: dict[str, asyncio.Task[Any]] = {}
 
 
 def _automation_empty_store():
@@ -7872,6 +7890,10 @@ def _automation_empty_store():
         "suggestions": [],
         "timeline": [],
         "entity_memory": [],
+        "area_context": {"refreshed_at": 0, "areas": [], "entities": []},
+        "observations": [],
+        "patterns": [],
+        "discoveries": [],
     }
 
 
@@ -7888,6 +7910,10 @@ def automation_store():
         "suggestions": data.get("suggestions") if isinstance(data.get("suggestions"), list) else [],
         "timeline": data.get("timeline") if isinstance(data.get("timeline"), list) else [],
         "entity_memory": data.get("entity_memory") if isinstance(data.get("entity_memory"), list) else [],
+        "area_context": data.get("area_context") if isinstance(data.get("area_context"), dict) else {"refreshed_at": 0, "areas": [], "entities": []},
+        "observations": data.get("observations") if isinstance(data.get("observations"), list) else [],
+        "patterns": data.get("patterns") if isinstance(data.get("patterns"), list) else [],
+        "discoveries": data.get("discoveries") if isinstance(data.get("discoveries"), list) else [],
     }
 
 
@@ -7896,7 +7922,108 @@ def _automation_save(data):
     data["suggestions"] = list(data.get("suggestions") or [])[:100]
     data["timeline"] = list(data.get("timeline") or [])[:200]
     data["entity_memory"] = list(data.get("entity_memory") or [])[:200]
+    data["observations"] = list(data.get("observations") or [])[:1500]
+    data["patterns"] = list(data.get("patterns") or [])[:200]
+    data["discoveries"] = list(data.get("discoveries") or [])[:100]
     _plugin_save(AUTOMATION_STORAGE_PATH, data)
+
+
+def _automation_entity_role(entity_id: str, attributes: dict[str, Any] | None = None) -> str:
+    attributes = attributes or {}
+    domain = entity_id.split(".", 1)[0] if "." in entity_id else ""
+    device_class = str(attributes.get("device_class") or "").casefold()
+    identity = f"{entity_id} {attributes.get('friendly_name') or ''}".casefold()
+    if domain == "light":
+        return "light"
+    if domain in {"person", "device_tracker"}:
+        return "home_presence"
+    if domain == "binary_sensor" and device_class in {"occupancy", "motion", "presence"}:
+        return "room_presence"
+    if domain == "binary_sensor" and any(word in identity for word in ("occupancy", "motion", "presence")):
+        return "room_presence"
+    if domain == "sensor" and (device_class == "illuminance" or "illuminance" in identity or "lux" in identity):
+        return "illuminance"
+    if domain == "sensor" and device_class == "temperature":
+        return "temperature"
+    if domain == "climate":
+        return "climate"
+    if domain == "sun":
+        return "daylight"
+    return domain or "entity"
+
+
+async def _automation_refresh_area_context(force: bool = False) -> dict[str, Any]:
+    """Import Home Assistant Areas and inherited device assignments without duplicating HA configuration."""
+    global AUTOMATION_AREA_REFRESHED_AT
+    now = time.time()
+    current = automation_store().get("area_context") or {}
+    if not force and current.get("entities") and now - AUTOMATION_AREA_REFRESHED_AT < AUTOMATION_AREA_CACHE_SECONDS:
+        return current
+    async with AUTOMATION_CONTEXT_LOCK:
+        now = time.time()
+        current = automation_store().get("area_context") or {}
+        if not force and current.get("entities") and now - AUTOMATION_AREA_REFRESHED_AT < AUTOMATION_AREA_CACHE_SECONDS:
+            return current
+        await ha_ws.connect()
+        area_result, device_result, entity_result = await asyncio.gather(
+            ha_ws.command({"type": "config/area_registry/list"}),
+            ha_ws.command({"type": "config/device_registry/list"}),
+            ha_ws.command({"type": "config/entity_registry/list"}),
+        )
+        areas = {
+            str(item.get("area_id") or item.get("id") or ""): str(item.get("name") or item.get("area_id") or item.get("id") or "")
+            for item in area_result.get("result") or [] if isinstance(item, dict)
+        }
+        devices = {
+            str(item.get("id") or ""): item for item in device_result.get("result") or []
+            if isinstance(item, dict) and item.get("id")
+        }
+        entities: list[dict[str, Any]] = []
+        for entry in entity_result.get("result") or []:
+            if not isinstance(entry, dict) or not entry.get("entity_id"):
+                continue
+            entity_id = str(entry["entity_id"]).lower()
+            state = ha_ws.state_cache.get(entity_id) or {}
+            attributes = state.get("attributes") or {}
+            device = devices.get(str(entry.get("device_id") or "")) or {}
+            direct_area = str(entry.get("area_id") or "")
+            inherited_area = str(device.get("area_id") or "")
+            area_id = direct_area or inherited_area
+            entities.append({
+                "entity_id": entity_id,
+                "area_id": area_id,
+                "area_name": areas.get(area_id, "") if area_id else "",
+                "area_source": "entity" if direct_area else "device" if inherited_area else "unassigned",
+                "device_id": str(entry.get("device_id") or ""),
+                "role": _automation_entity_role(entity_id, attributes),
+            })
+        snapshot = {
+            "refreshed_at": now,
+            "areas": [
+                {"area_id": area_id, "name": name}
+                for area_id, name in sorted(areas.items(), key=lambda item: item[1].casefold()) if area_id
+            ],
+            "entities": entities,
+        }
+        engine_lock = globals().get("AUTOMATION_ENGINE_LOCK")
+        if engine_lock is None:
+            data = automation_store()
+            data["area_context"] = snapshot
+            _automation_save(data)
+        else:
+            async with engine_lock:
+                data = automation_store()
+                data["area_context"] = snapshot
+                _automation_save(data)
+        AUTOMATION_AREA_REFRESHED_AT = now
+        return snapshot
+
+
+def _automation_area_entity(data: dict[str, Any], entity_id: str) -> dict[str, Any]:
+    return next((
+        item for item in (data.get("area_context") or {}).get("entities", [])
+        if str(item.get("entity_id") or "") == entity_id
+    ), {})
 
 
 def _automation_alias_key(value: Any) -> str:
@@ -7957,6 +8084,29 @@ def automation_entity_memory_context(message: str) -> str:
     return "Remembered automation entity mappings (verify availability before use): " + json.dumps(compact, ensure_ascii=False)
 
 
+def automation_brain_memory_context(message: str) -> str:
+    normalized = _automation_alias_key(message)
+    if not any(term in normalized for term in ("automation", "learn", "notice", "pattern", "suggest", "room", "area", "home", "light")):
+        return ""
+    data = automation_store()
+    areas = [str(item.get("name") or "") for item in (data.get("area_context") or {}).get("areas", []) if item.get("name")]
+    patterns = [{
+        "kind": item.get("kind"), "area": item.get("area_name"),
+        "action_entity": item.get("action_entity"), "occurrences": item.get("occurrences"),
+        "confidence": item.get("confidence"), "status": item.get("status"),
+    } for item in data.get("patterns", []) if item.get("status") == "learned"][:8]
+    discoveries = [{
+        "title": item.get("title"), "area": item.get("area_name"),
+        "confidence": item.get("confidence"), "status": item.get("status"),
+        "preference": item.get("preference"), "evidence": item.get("evidence"),
+    } for item in data.get("discoveries", [])][:8]
+    if not areas and not patterns and not discoveries:
+        return ""
+    return "Automation Brain local context (observations are evidence, not certainty): " + json.dumps({
+        "home_assistant_areas": areas[:30], "learned_patterns": patterns, "discoveries": discoveries,
+    }, ensure_ascii=False)
+
+
 def _automation_event(data, event_type, title, detail=""):
     import secrets
 
@@ -8008,6 +8158,8 @@ def _automation_payload_http(request: AutonomousAutomationRequest) -> dict[str, 
 
 @app.get("/api/automations")
 async def read_autonomous_automations():
+    with contextlib.suppress(RuntimeError, OSError, asyncio.TimeoutError):
+        await _automation_refresh_area_context()
     data = automation_store()
     return {
         **data,
@@ -8015,6 +8167,10 @@ async def read_autonomous_automations():
             "status": "active" if ha_ws.connected else "waiting_for_home_assistant",
             "continuous_monitoring": True,
             "context_reasoning": True,
+            "passive_learning": bool(data["settings"].get("passive_learning_enabled", True)),
+            "known_areas": len((data.get("area_context") or {}).get("areas", [])),
+            "observation_count": len(data.get("observations") or []),
+            "learned_pattern_count": len(data.get("patterns") or []),
             "automatic_execution": data["settings"].get("operating_mode") == "selective_autonomy",
             "live_event_count": len(HA_LIVE_EVENTS),
             "pending_evaluations": sum(not task.done() for task in AUTOMATION_PENDING_TASKS.values()),
@@ -8234,6 +8390,206 @@ AUTOMATION_RISK_ORDER = {"informational": 0, "low": 1, "controlled": 2, "high": 
 AUTOMATION_AUTONOMOUS_DOMAINS = {"light", "switch", "fan", "media_player", "climate", "input_boolean"}
 
 
+def _automation_state_positive(value: Any) -> bool:
+    return str(value or "").casefold() in {"on", "home", "present", "occupied", "true", "1"}
+
+
+def _automation_dark_context(data: dict[str, Any], area_id: str) -> tuple[bool, str, float]:
+    illuminance = []
+    for mapping in (data.get("area_context") or {}).get("entities", []):
+        if mapping.get("area_id") != area_id or mapping.get("role") != "illuminance":
+            continue
+        state = ha_ws.state_cache.get(str(mapping.get("entity_id") or "")) or {}
+        try:
+            illuminance.append((str(mapping.get("entity_id")), float(state.get("state"))))
+        except (TypeError, ValueError):
+            continue
+    if illuminance:
+        entity_id, lux = min(illuminance, key=lambda item: item[1])
+        return lux < 80.0, f"{entity_id}={lux:g} lux", 0.92 if lux < 40 else 0.86
+    sun_state = str((ha_ws.state_cache.get("sun.sun") or {}).get("state") or "").casefold()
+    if sun_state:
+        return sun_state == "below_horizon", f"sun.sun={sun_state}", 0.82
+    hour = time.localtime().tm_hour
+    return hour >= 21 or hour < 6, f"local hour={hour}; no illuminance or sun state", 0.68
+
+
+def _automation_learning_pattern(data: dict[str, Any], area_id: str, light_id: str) -> dict[str, Any] | None:
+    key = f"occupancy_light:{area_id}:{light_id}"
+    return next((item for item in data.get("patterns", []) if item.get("key") == key), None)
+
+
+def _automation_record_behavior(data: dict[str, Any], record: dict[str, Any], mapping: dict[str, Any]) -> None:
+    import secrets
+
+    now = time.time()
+    role = str(mapping.get("role") or "entity")
+    area_id = str(mapping.get("area_id") or "")
+    observation = {
+        "id": secrets.token_hex(6), "created_at": now,
+        "entity_id": record.get("entity_id"), "area_id": area_id,
+        "area_name": mapping.get("area_name") or "Unassigned",
+        "role": role, "old_state": record.get("old_state"), "state": record.get("state"),
+    }
+    data.setdefault("observations", []).insert(0, observation)
+    if role != "light" or not _automation_state_positive(record.get("state")) or not area_id:
+        return
+    recent_presence = next((item for item in data.get("observations", [])[1:] if (
+        item.get("area_id") == area_id and item.get("role") == "room_presence"
+        and _automation_state_positive(item.get("state")) and now - float(item.get("created_at") or 0) <= 600
+    )), None)
+    if not recent_presence:
+        return
+    light_id = str(record.get("entity_id") or "")
+    key = f"occupancy_light:{area_id}:{light_id}"
+    patterns = data.setdefault("patterns", [])
+    pattern = next((item for item in patterns if item.get("key") == key), None)
+    if not pattern:
+        pattern = {
+            "id": secrets.token_hex(8), "key": key, "kind": "occupancy_then_light",
+            "area_id": area_id, "area_name": mapping.get("area_name") or area_id,
+            "presence_entity": recent_presence.get("entity_id"), "action_entity": light_id,
+            "occurrences": 0, "confidence": 0.55, "status": "watching", "created_at": now,
+        }
+        patterns.insert(0, pattern)
+    pattern["occurrences"] = int(pattern.get("occurrences") or 0) + 1
+    pattern["confidence"] = min(0.96, 0.55 + pattern["occurrences"] * 0.1)
+    pattern["status"] = "learned" if pattern["occurrences"] >= 3 else "watching"
+    pattern["last_observed_at"] = now
+
+
+def _automation_discovery_record(data: dict[str, Any], area_id: str, area_name: str, light_id: str) -> dict[str, Any]:
+    import secrets
+
+    key = f"dark_occupied_light:{area_id}:{light_id}"
+    discovery = next((item for item in data.get("discoveries", []) if item.get("key") == key), None)
+    if discovery:
+        return discovery
+    discovery = {
+        "id": secrets.token_hex(8), "key": key, "kind": "dark_occupied_light",
+        "title": f"{area_name} lighting", "area_id": area_id, "area_name": area_name,
+        "action_entity": light_id, "action_service": "light.turn_on",
+        "status": "learning", "confidence": 0.0, "evidence_count": 0,
+        "positive_feedback": 0, "negative_feedback": 0, "preference": "ask",
+        "created_at": time.time(), "last_suggested_at": 0,
+    }
+    data.setdefault("discoveries", []).insert(0, discovery)
+    return discovery
+
+
+async def _automation_discover_area(area_id: str) -> None:
+    import secrets
+
+    if not area_id:
+        return
+    async with AUTOMATION_ENGINE_LOCK:
+        data = automation_store()
+        if not data["settings"].get("passive_learning_enabled", True):
+            return
+        mappings = [item for item in (data.get("area_context") or {}).get("entities", []) if item.get("area_id") == area_id]
+        if not mappings:
+            return
+        area_name = str(next((item.get("area_name") for item in mappings if item.get("area_name")), area_id))
+        occupancy = [item for item in mappings if item.get("role") == "room_presence" and effective_entity_access(str(item.get("entity_id") or ""))]
+        now = time.time()
+        sustained_presence_ids = {
+            str(item.get("entity_id") or "") for item in data.get("observations", [])
+            if item.get("area_id") == area_id and item.get("role") == "room_presence"
+            and _automation_state_positive(item.get("state"))
+            and AUTOMATION_ROOM_OCCUPANCY_SECONDS <= now - float(item.get("created_at") or 0) <= 300
+        }
+        active_occupancy = [item for item in occupancy if str(item.get("entity_id") or "") in sustained_presence_ids]
+        if not active_occupancy:
+            return
+        if data["settings"].get("require_presence") and data["settings"].get("presence_entity"):
+            presence_ok, presence_detail = _automation_presence_confirmed({}, data["settings"])
+        else:
+            presence_ok, presence_detail = True, f"room occupancy confirmed by {str(active_occupancy[0].get('entity_id') or '')}"
+        if not presence_ok:
+            return
+        dark, darkness_detail, base_confidence = _automation_dark_context(data, area_id)
+        if not dark:
+            return
+        lights = [item for item in mappings if item.get("role") == "light" and effective_entity_access(str(item.get("entity_id") or "")) == "low_risk_control_proposed"]
+        off_lights = [item for item in lights if str((ha_ws.state_cache.get(str(item.get("entity_id") or "")) or {}).get("state") or "").casefold() == "off"]
+        if not off_lights:
+            return
+        occupancy_id = str(active_occupancy[0].get("entity_id") or "")
+        for light in off_lights[:3]:
+            light_id = str(light.get("entity_id") or "")
+            discovery = _automation_discovery_record(data, area_id, area_name, light_id)
+            if discovery.get("preference") == "never_suggest" or discovery.get("status") == "suppressed":
+                continue
+            pattern = _automation_learning_pattern(data, area_id, light_id)
+            pattern_confidence = float((pattern or {}).get("confidence") or 0)
+            feedback_delta = 0.03 * int(discovery.get("positive_feedback") or 0) - 0.08 * int(discovery.get("negative_feedback") or 0)
+            confidence = max(0.5, min(0.98, max(base_confidence, pattern_confidence) + feedback_delta))
+            discovery.update({
+                "status": "ready", "confidence": confidence,
+                "evidence_count": int(discovery.get("evidence_count") or 0) + 1,
+                "last_evidence_at": now, "presence_entity": occupancy_id,
+                "evidence": f"{area_name} presence remained plausible for {AUTOMATION_ROOM_OCCUPANCY_SECONDS} seconds; {darkness_detail}; {light_id}=off; {presence_detail}",
+            })
+            if data["settings"].get("operating_mode") == "observe_only" or confidence < float(data["settings"].get("minimum_confidence") or 0.75):
+                continue
+            cooldown = max(30, int(data["settings"].get("default_cooldown_minutes") or 30)) * 60
+            if now - float(discovery.get("last_suggested_at") or 0) < cooldown:
+                continue
+            if any(item.get("discovery_id") == discovery["id"] and item.get("status") in {"pending", "approval_required"} for item in data.get("suggestions", [])):
+                continue
+            detail = f"It is dark and you have been in {area_name} for a while. Would you like me to turn on the light?"
+            suggestion = {
+                "id": secrets.token_hex(10), "source": "automation_brain", "discovery_id": discovery["id"],
+                "title": f"Lighting suggestion for {area_name}", "detail": detail,
+                "evidence": discovery["evidence"], "confidence": confidence,
+                "status": "approval_required", "action_entity": light_id,
+                "action_service": "light.turn_on", "created_at": now,
+            }
+            data.setdefault("suggestions", []).insert(0, suggestion)
+            discovery["last_suggested_at"] = now
+            discovery["suggestion_count"] = int(discovery.get("suggestion_count") or 0) + 1
+            _automation_event(data, "discovery", f"Automation Brain suggestion: {area_name} lighting", discovery["evidence"])
+            _automation_save(data)
+            await _automation_notify(suggestion["title"], detail)
+
+
+async def _automation_delayed_area_discovery(area_id: str, delay: int = AUTOMATION_ROOM_OCCUPANCY_SECONDS) -> None:
+    try:
+        await asyncio.sleep(max(1, delay))
+        await _automation_discover_area(area_id)
+    finally:
+        AUTOMATION_DISCOVERY_TASKS.pop(area_id, None)
+
+
+async def _automation_brain_state_change(record: dict[str, Any]) -> None:
+    if not automation_store()["settings"].get("passive_learning_enabled", True):
+        return
+    try:
+        await _automation_refresh_area_context()
+    except (RuntimeError, OSError, asyncio.TimeoutError):
+        return
+    discover_now = ""
+    async with AUTOMATION_ENGINE_LOCK:
+        data = automation_store()
+        mapping = _automation_area_entity(data, str(record.get("entity_id") or ""))
+        if not mapping or not mapping.get("area_id"):
+            return
+        _automation_record_behavior(data, record, mapping)
+        _automation_save(data)
+        area_id = str(mapping.get("area_id") or "")
+        if mapping.get("role") == "room_presence":
+            existing = AUTOMATION_DISCOVERY_TASKS.get(area_id)
+            if _automation_state_positive(record.get("state")) and not (existing and not existing.done()):
+                AUTOMATION_DISCOVERY_TASKS[area_id] = asyncio.create_task(
+                    _automation_delayed_area_discovery(area_id),
+                    name=f"zbrano-discovery-{area_id}",
+                )
+        elif mapping.get("role") in {"light", "illuminance"}:
+            discover_now = area_id
+    if discover_now:
+        await _automation_discover_area(discover_now)
+
+
 def _automation_condition_matches(item: dict[str, Any], old_state: Any, new_state: Any) -> bool:
     operator = str(item.get("trigger_operator") or "changes_to")
     expected = str(item.get("trigger_value") or "")
@@ -8434,6 +8790,28 @@ async def approve_automation_suggestion(suggestion_id: str) -> dict[str, Any]:
         suggestion = next((item for item in data["suggestions"] if item.get("id") == suggestion_id), None)
         if not suggestion or suggestion.get("status") not in {"pending", "approval_required"}:
             raise HTTPException(status_code=404, detail="Pending automation suggestion not found")
+        if suggestion.get("source") == "automation_brain":
+            entity_id = str(suggestion.get("action_entity") or "")
+            service = str(suggestion.get("action_service") or "")
+            try:
+                domain = ensure_control_allowed(entity_id)
+            except (PermissionError, ValueError) as exc:
+                raise HTTPException(status_code=403, detail=str(exc)) from exc
+            if service != f"{domain}.turn_on" or domain not in {"light", "switch", "fan", "input_boolean"}:
+                raise HTTPException(status_code=400, detail="Automation Brain action is outside its low-risk approval boundary")
+            try:
+                await ha_ws.call_service(domain, "turn_on", {"entity_id": entity_id})
+            except Exception as exc:
+                raise HTTPException(status_code=502, detail=f"Automation Brain action failed: {exc}") from exc
+            suggestion["status"] = "executed"
+            suggestion["resolved_at"] = time.time()
+            discovery = next((item for item in data.get("discoveries", []) if item.get("id") == suggestion.get("discovery_id")), None)
+            if discovery:
+                discovery["positive_feedback"] = int(discovery.get("positive_feedback") or 0) + 1
+                discovery["last_feedback"] = "helpful"
+            _automation_event(data, "feedback", f"Automation Brain suggestion approved: {suggestion.get('title')}", entity_id)
+            _automation_save(data)
+            return {"executed": True, "service": service, "entity_id": entity_id, "suggestion": suggestion}
         automation = next((item for item in data["automations"] if item.get("id") == suggestion.get("automation_id")), None)
         if not automation:
             raise HTTPException(status_code=404, detail="Automation definition not found")
@@ -8452,9 +8830,34 @@ async def dismiss_automation_suggestion(suggestion_id: str) -> dict[str, Any]:
         raise HTTPException(status_code=404, detail="Pending automation suggestion not found")
     suggestion["status"] = "dismissed"
     suggestion["resolved_at"] = time.time()
+    if suggestion.get("source") == "automation_brain":
+        discovery = next((item for item in data.get("discoveries", []) if item.get("id") == suggestion.get("discovery_id")), None)
+        if discovery:
+            discovery["negative_feedback"] = int(discovery.get("negative_feedback") or 0) + 1
+            discovery["last_feedback"] = "not_helpful"
     _automation_event(data, "dismissed", f"Suggestion dismissed: {suggestion.get('title')}")
     _automation_save(data)
     return {"dismissed": True, "suggestion": suggestion}
+
+
+@app.post("/api/automations/discoveries/{discovery_id}/feedback")
+async def automation_discovery_feedback(discovery_id: str, request: AutomationDiscoveryFeedbackRequest) -> dict[str, Any]:
+    data = automation_store()
+    discovery = next((item for item in data.get("discoveries", []) if item.get("id") == discovery_id), None)
+    if not discovery:
+        raise HTTPException(status_code=404, detail="Automation Brain discovery not found")
+    feedback = request.feedback
+    if feedback in {"helpful", "always_suggest"}:
+        discovery["positive_feedback"] = int(discovery.get("positive_feedback") or 0) + 1
+    else:
+        discovery["negative_feedback"] = int(discovery.get("negative_feedback") or 0) + 1
+    discovery["preference"] = feedback if feedback in {"always_suggest", "never_suggest"} else discovery.get("preference", "ask")
+    discovery["status"] = "suppressed" if feedback == "never_suggest" else "ready"
+    discovery["last_feedback"] = feedback
+    discovery["last_feedback_at"] = time.time()
+    _automation_event(data, "feedback", f"Automation Brain learned: {discovery.get('title')}", feedback.replace("_", " "))
+    _automation_save(data)
+    return {"learned": True, "discovery": discovery}
 
 
 NOTIFICATION_STORAGE_PATH = Path("/data/notification_center.json")
@@ -11163,10 +11566,12 @@ def automation_priority_tools() -> list[dict[str, Any]]:
 
 
 def automation_memory_input(message: str) -> list[dict[str, str]]:
-    if not is_automation_intent(message):
-        return []
-    context = automation_entity_memory_context(message)
-    return [{"role": "developer", "content": context}] if context else []
+    contexts = []
+    if is_automation_intent(message):
+        contexts.append(automation_entity_memory_context(message))
+    contexts.append(automation_brain_memory_context(message))
+    content = "\n".join(context for context in contexts if context)
+    return [{"role": "developer", "content": content}] if content else []
 
 
 def automation_system_instructions(base: str) -> str:
@@ -11827,6 +12232,15 @@ async def list_ha_entities() -> dict[str, Any]:
             detail += ": " + " | ".join(errors)
         raise HTTPException(status_code=502, detail=detail)
 
+    try:
+        area_context = await _automation_refresh_area_context()
+    except (RuntimeError, OSError, asyncio.TimeoutError):
+        area_context = automation_store().get("area_context") or {}
+    area_entities = {
+        str(item.get("entity_id") or ""): item
+        for item in area_context.get("entities", []) if isinstance(item, dict)
+    }
+
     entities: list[dict[str, Any]] = []
     for item in raw_states:
         entity_id = item.get("entity_id", "")
@@ -11843,6 +12257,7 @@ async def list_ha_entities() -> dict[str, Any]:
             entity_id=entity_id,
             friendly_name=friendly_name,
         )
+        area = area_entities.get(entity_id) or {}
         entities.append({
             "entity_id": entity_id,
             "friendly_name": friendly_name,
@@ -11856,6 +12271,10 @@ async def list_ha_entities() -> dict[str, Any]:
             "auto_approved": risk == "low_risk_control_proposed",
             "last_changed": item.get("last_changed"),
             "last_updated": item.get("last_updated"),
+            "area_id": area.get("area_id") or "",
+            "area_name": area.get("area_name") or "",
+            "area_source": area.get("area_source") or "unassigned",
+            "zbrano_role": area.get("role") or _automation_entity_role(entity_id, attributes),
         })
 
     policy = load_entity_policy()

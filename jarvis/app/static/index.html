@@ -556,7 +556,7 @@
     .autonomy-boundary-list{display:grid;gap:.6rem;padding:0;list-style:none}.autonomy-boundary-list li{display:grid;gap:.15rem;border-left:2px solid var(--cyan);padding-left:.65rem}.autonomy-boundary-list span{color:var(--text-muted)}
     .autonomy-draft,.autonomy-context-row,.autonomy-event{border:1px solid var(--line);border-radius:6px;padding:.7rem;display:grid;gap:.35rem}.autonomy-draft-head{display:flex;justify-content:space-between;gap:.7rem}.autonomy-tags{display:flex;flex-wrap:wrap;gap:.35rem}.autonomy-tags span{border:1px solid var(--line);border-radius:999px;padding:.2rem .45rem;font-size:.7rem;color:var(--text-muted)}.autonomy-draft-actions{display:flex;gap:.4rem}.autonomy-event time{color:var(--text-muted);font-size:.72rem}
     .automation-library-tabs{display:flex;gap:.4rem;border-bottom:1px solid var(--line);padding-bottom:.55rem;margin-bottom:.75rem}.automation-library-tabs button.active{border-color:var(--cyan);color:var(--cyan)}
-    [data-automation-library-panel].hidden{display:none}.automation-chat-builder{display:grid;gap:.65rem;margin-bottom:.75rem}.automation-chat-builder textarea{width:100%;min-height:88px;resize:vertical}.automation-advanced{margin-top:.75rem}.automation-advanced>summary{cursor:pointer;color:var(--cyan);padding:.65rem 0}.automation-memory-list{display:grid;gap:.45rem}.automation-memory-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:.25rem .6rem;align-items:center;border:1px solid var(--line);border-radius:6px;padding:.6rem}.automation-memory-row small{grid-column:1/-1;color:var(--text-muted)}
+    [data-automation-library-panel].hidden{display:none}.automation-chat-builder{display:grid;gap:.65rem;margin-bottom:.75rem}.automation-chat-builder textarea{width:100%;min-height:88px;resize:vertical}.automation-advanced{margin-top:.75rem}.automation-advanced>summary{cursor:pointer;color:var(--cyan);padding:.65rem 0}.automation-memory-list,.automation-brain-list{display:grid;gap:.45rem}.automation-memory-row,.automation-brain-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:.25rem .6rem;align-items:center;border:1px solid var(--line);border-radius:6px;padding:.6rem}.automation-memory-row small,.automation-brain-row small{grid-column:1/-1;color:var(--text-muted)}
     @media(max-width:900px){.autonomy-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}.autonomy-overview-grid,.autonomy-safety-grid,.autonomy-library-grid{grid-template-columns:1fr}.autonomy-header{display:grid}.autonomy-engine-badge{white-space:normal}.autonomy-form-grid{grid-template-columns:1fr}.autonomy-form-grid .wide{grid-column:auto}}
 
     /* v0.12.19 modern neutral controls. Chat message colors intentionally remain unchanged. */
@@ -1425,7 +1425,7 @@
   <header>
     <div class="brand-line">
       <h1>ZBRANO</h1>
-      <div class="status hud-version-label">Workshop Intelligence Interface · HUD 0.13.9</div>
+      <div class="status hud-version-label">Workshop Intelligence Interface · HUD 0.13.10</div>
     </div>
     <div class="runtime-status-stack">
       <button id="calendar-quick-open" class="calendar-quick-open" type="button" aria-label="Open ZBRANO Calendar" title="Open Calendar">
@@ -1600,6 +1600,7 @@
             <th>Friendly name</th>
             <th>Entity ID</th>
             <th>Domain</th>
+            <th>Area</th>
             <th>State</th>
             <th>Class / unit</th>
             <th>Access</th>
@@ -1993,7 +1994,7 @@
         <div><h2>AUTONOMOUS AUTOMATIONS</h2><p>Design how ZBRANO should observe workshop context, reason about conditions, and propose useful actions.</p></div>
         <span class="autonomy-engine-badge">LIVE EVENT ENGINE</span>
       </div>
-      <div class="autonomy-boundary"><strong>Current capability:</strong> Live Home Assistant events are evaluated without AI polling. Existing drafts remain disabled until you add a structured trigger and explicitly enable them.</div>
+      <div class="autonomy-boundary"><strong>Automation Brain:</strong> ZBRANO learns locally from approved Home Assistant events and Areas, proposes evidence-backed low-risk help, and requires your permission before a discovered action. Existing manual drafts remain disabled until explicitly enabled.</div>
       <div class="autonomy-tabs" role="tablist" aria-label="Automation workspace views">
         <button class="active" type="button" data-auto-view="overview" role="tab" aria-selected="true">Overview</button>
         <button type="button" data-auto-view="library" role="tab" aria-selected="false">Automation Library</button>
@@ -2015,8 +2016,12 @@
             <div id="autonomy-suggestions" class="autonomy-list"><div class="autonomy-empty">No live automation suggestions yet.</div></div>
           </article>
           <article class="autonomy-card">
-            <div class="autonomy-card-head"><div><h3>Workshop Context Snapshot</h3><p>Current Home Assistant states referenced by enabled and draft automations.</p></div><button id="autonomy-refresh-context" type="button">Refresh</button></div>
+            <div class="autonomy-card-head"><div><h3>Home Context Snapshot</h3><p>Current Home Assistant states referenced by enabled and draft automations.</p></div><button id="autonomy-refresh-context" type="button">Refresh</button></div>
             <div id="autonomy-context" class="autonomy-list"><div class="autonomy-empty">Open this tab to load Home Assistant entity context.</div></div>
+          </article>
+          <article class="autonomy-card">
+            <div class="autonomy-card-head"><div><h3>Rooms &amp; Learning</h3><p>ZBRANO inherits Home Assistant Areas, observes approved context locally, and learns repeated useful sequences.</p></div><span id="automation-brain-count" class="automation-state">0 patterns</span></div>
+            <div id="automation-brain-list" class="automation-brain-list"><div class="autonomy-empty">ZBRANO is waiting for enough room context to learn.</div></div>
           </article>
         </div>
       </section>
@@ -2103,6 +2108,7 @@
                 <label class="check"><input id="autonomy-require-presence" type="checkbox" checked> Require confirmed workshop presence</label>
                 <label class="check"><input id="autonomy-respect-quiet" type="checkbox" checked> Respect configured quiet hours</label>
                 <label class="check"><input id="autonomy-notify-autonomous" type="checkbox" checked> Notify after autonomous actions</label>
+                <label class="check"><input id="autonomy-passive-learning" type="checkbox" checked> Enable local room and behavior learning</label>
               </div>
               <div class="autonomy-form-actions"><button type="submit">Save authority policy</button><span id="autonomy-settings-state" role="status"></span></div>
             </form>
@@ -3971,6 +3977,13 @@ function renderEntities() {
     domainCell.textContent = entity.domain;
     row.appendChild(domainCell);
 
+    const areaCell = document.createElement("td");
+    areaCell.textContent = entity.area_name || "Unassigned";
+    areaCell.title = entity.area_name
+      ? `Inherited from Home Assistant ${entity.area_source || "area"} assignment`
+      : "Assign this entity or its device to an Area in Home Assistant";
+    row.appendChild(areaCell);
+
     const stateCell = document.createElement("td");
     stateCell.classList.add(entity.available ? "available" : "unavailable");
     stateCell.textContent = entity.state ?? "—";
@@ -4134,6 +4147,8 @@ function selectedCatalog() {
         entity_id: entity.entity_id,
         friendly_name: entity.friendly_name,
         domain: entity.domain,
+        area: entity.area_name || "",
+        zbrano_role: entity.zbrano_role || "",
         device_class: entity.device_class,
         unit: entity.unit,
         access: review.access,
@@ -4151,6 +4166,8 @@ exportEntities.addEventListener("click", () => {
     entity_id: entity.entity_id,
     friendly_name: entity.friendly_name,
     domain: entity.domain,
+    area: entity.area_name || "",
+    zbrano_role: entity.zbrano_role || "",
     device_class: entity.device_class,
     unit: entity.unit,
     access: ensureReview(entity).access,
@@ -5726,7 +5743,7 @@ catalogResults?.addEventListener("click",async event=>{
   if(!tab||!panel)return;
   const $=id=>document.getElementById(id);
   const esc=value=>String(value??"").replace(/[&<>"']/g,char=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"})[char]);
-  let state={settings:{},automations:[],suggestions:[],timeline:[],entity_memory:[],engine:{}};
+  let state={settings:{},automations:[],suggestions:[],timeline:[],entity_memory:[],area_context:{areas:[],entities:[]},patterns:[],discoveries:[],engine:{}};
   let entityMap=new Map();
 
   async function api(path,options={}){
@@ -5765,7 +5782,7 @@ catalogResults?.addEventListener("click",async event=>{
     const root=$("autonomy-suggestions");root.replaceChildren();
     const visible=(state.suggestions||[]).filter(item=>!["dismissed"].includes(item.status)).slice(0,30);
     if(!visible.length){root.innerHTML='<div class="autonomy-empty">No live automation suggestions yet.</div>';return}
-    for(const item of visible){const row=document.createElement("div");row.className="autonomy-draft";const actionable=["pending","approval_required"].includes(item.status)&&item.action_service&&item.action_entity;const actions=actionable?`<div class="autonomy-draft-actions"><button type="button" data-suggestion-approve="${esc(item.id)}">Approve action</button><button type="button" data-suggestion-dismiss="${esc(item.id)}">Dismiss</button></div>`:"";row.innerHTML=`<div class="autonomy-draft-head"><strong>${esc(item.title||"Suggestion")}</strong><span class="automation-state" data-state="${esc(item.status||"pending")}">${esc(item.status||"pending")}</span></div><span>${esc(item.detail||"")}</span>${item.evidence?`<small>Evidence: ${esc(item.evidence)}</small>`:""}${actions}`;root.appendChild(row)}
+    for(const item of visible){const row=document.createElement("div");row.className="autonomy-draft";const actionable=["pending","approval_required"].includes(item.status)&&item.action_service&&item.action_entity;const brain=item.source==="automation_brain";const actions=actionable?`<div class="autonomy-draft-actions"><button type="button" data-suggestion-approve="${esc(item.id)}">Approve action</button><button type="button" data-suggestion-dismiss="${esc(item.id)}">Not now</button>${brain?`<button type="button" data-discovery-feedback="never_suggest" data-discovery-id="${esc(item.discovery_id)}">Never suggest</button>`:""}</div>`:"";row.innerHTML=`<div class="autonomy-draft-head"><strong>${esc(item.title||"Suggestion")}</strong><span class="automation-state" data-state="${esc(item.status||"pending")}">${brain?"Brain discovery · ":""}${esc(item.status||"pending")}</span></div><span>${esc(item.detail||"")}</span>${item.evidence?`<small>Evidence: ${esc(item.evidence)}</small>`:""}${actions}`;root.appendChild(row)}
   }
 
   function referencedEntities(){
@@ -5802,6 +5819,14 @@ catalogResults?.addEventListener("click",async event=>{
     for(const item of records){const row=document.createElement("div");row.className="automation-memory-row";row.innerHTML=`<div><strong>${esc(item.alias)}</strong> <span class="automation-state">${esc(item.role||"entity")}</span></div><button type="button" data-automation-memory-forget="${esc(item.id)}">Forget</button><small>${esc(item.friendly_name||item.entity_id)} Â· ${esc(item.entity_id)}</small>`;root.appendChild(row)}
   }
 
+  function renderAutomationBrain(){
+    const root=$("automation-brain-list"),patterns=state.patterns||[],discoveries=state.discoveries||[],areas=state.area_context?.areas||[];root.replaceChildren();
+    $("automation-brain-count").textContent=`${patterns.filter(item=>item.status==="learned").length} learned · ${areas.length} rooms`;
+    const visible=[...discoveries.slice(0,8),...patterns.filter(item=>item.status==="learned").slice(0,8)];
+    if(!visible.length){root.innerHTML=`<div class="autonomy-empty">${areas.length?`${areas.length} Home Assistant area${areas.length===1?" is":"s are"} understood. ZBRANO is observing approved presence, lighting, and environmental context for useful patterns.`:"No Home Assistant Areas were found. Assign devices to Areas in Home Assistant so ZBRANO can reason room by room."}</div>`;return}
+    for(const item of visible){const discovery=Boolean(item.kind==="dark_occupied_light"),row=document.createElement("div");row.className="automation-brain-row";const confidence=Math.round(Number(item.confidence||0)*100);const actions=discovery&&item.preference!=="never_suggest"?`<div class="autonomy-draft-actions"><button type="button" data-discovery-feedback="always_suggest" data-discovery-id="${esc(item.id)}">Keep suggesting</button><button type="button" data-discovery-feedback="never_suggest" data-discovery-id="${esc(item.id)}">Never suggest</button></div>`:"";row.innerHTML=`<div><strong>${esc(item.title||`${item.area_name||"Room"}: occupancy then lighting`)}</strong><div>${discovery?"Common-sense opportunity":`${Number(item.occurrences||0)} repeated sequence${Number(item.occurrences||0)===1?"":"s"}`}</div></div><span class="automation-state">${confidence}% · ${esc(item.status||"learning")}</span><small>${esc(item.evidence||`${item.presence_entity||"Presence"} followed by ${item.action_entity||"an action"}`)}</small>${actions}`;root.appendChild(row)}
+  }
+
   function renderTimeline(){
     const root=$("autonomy-timeline");root.replaceChildren();
     if(!state.timeline.length){root.innerHTML='<div class="autonomy-empty">No activity yet. Configuration changes and future decisions will appear here.</div>';return}
@@ -5818,9 +5843,10 @@ catalogResults?.addEventListener("click",async event=>{
     $("autonomy-require-presence").checked=settings.require_presence!==false;
     $("autonomy-respect-quiet").checked=settings.respect_quiet_hours!==false;
     $("autonomy-notify-autonomous").checked=settings.notify_after_autonomous_action!==false;
+    $("autonomy-passive-learning").checked=settings.passive_learning_enabled!==false;
   }
 
-  function renderAll(){renderSummary();renderSuggestions();renderContext();renderLibrary();renderAutomationMemory();renderTimeline();renderSettings()}
+  function renderAll(){renderSummary();renderSuggestions();renderContext();renderLibrary();renderAutomationMemory();renderAutomationBrain();renderTimeline();renderSettings()}
 
   async function loadEntityContext(){
     const root=$("autonomy-context");root.innerHTML='<div class="autonomy-empty">Loading Home Assistant context…</div>';
@@ -5859,6 +5885,7 @@ catalogResults?.addEventListener("click",async event=>{
     const notificationWatch=event.target.closest("[data-auto-watch]");if(notificationWatch){showView("notifications");window.zbranoNotificationCenter?.showView("watchlist");window.zbranoNotificationCenter?.load();return}
     const approve=event.target.closest("[data-suggestion-approve]");if(approve){approve.disabled=true;try{await api(`api/automations/suggestions/${encodeURIComponent(approve.dataset.suggestionApprove)}/approve`,{method:"POST"});await loadWorkspace()}catch(error){alert(`Action failed: ${error.message||error}`);approve.disabled=false}return}
     const dismiss=event.target.closest("[data-suggestion-dismiss]");if(dismiss){dismiss.disabled=true;try{await api(`api/automations/suggestions/${encodeURIComponent(dismiss.dataset.suggestionDismiss)}/dismiss`,{method:"POST"});await loadWorkspace()}catch(error){alert(`Dismiss failed: ${error.message||error}`);dismiss.disabled=false}return}
+    const discoveryFeedback=event.target.closest("[data-discovery-feedback]");if(discoveryFeedback){discoveryFeedback.disabled=true;try{await api(`api/automations/discoveries/${encodeURIComponent(discoveryFeedback.dataset.discoveryId)}/feedback`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({feedback:discoveryFeedback.dataset.discoveryFeedback})});await loadWorkspace()}catch(error){alert(`Learning feedback failed: ${error.message||error}`);discoveryFeedback.disabled=false}return}
     const edit=event.target.closest("[data-auto-edit]");if(edit){const item=state.automations.find(value=>value.id===edit.dataset.autoEdit);if(item)fillEditor(item);return}
     const activateDraft=event.target.closest("[data-auto-activate]");if(activateDraft){const item=state.automations.find(value=>value.id===activateDraft.dataset.autoActivate),trigger=`${item?.trigger_entity||""} ${(item?.trigger_operator||"").replaceAll("_"," ")} ${item?.trigger_value||""}`.trim(),action=item?.action_service&&item?.action_entity?`${item.action_service} → ${item.action_entity}`:"no device action";if(!item||!confirm(`Enable ${item.name}?\n\nWhen: ${trigger}\nAction: ${action}\nAuthority: ${authorityLabel(item.execution_policy)}\nCooldown: ${item.cooldown_minutes} minutes\n\nLive evaluation begins immediately.`))return;activateDraft.disabled=true;try{await api(`api/automations/${encodeURIComponent(item.id)}/activate`,{method:"POST"});await loadWorkspace()}catch(error){alert(`Activation failed: ${error.message||error}`);activateDraft.disabled=false}return}
     const forgetMemory=event.target.closest("[data-automation-memory-forget]");if(forgetMemory){if(!confirm("Forget this automation entity mapping? Existing rules will not be changed."))return;await api(`api/automations/entity-memory/${encodeURIComponent(forgetMemory.dataset.automationMemoryForget)}`,{method:"DELETE"});await loadWorkspace();return}
@@ -5881,7 +5908,7 @@ catalogResults?.addEventListener("click",async event=>{
   $("automation-cancel-edit").addEventListener("click",clearEditor);
   $("autonomy-settings-form").addEventListener("submit",async event=>{
     event.preventDefault();const status=$("autonomy-settings-state");status.textContent="Saving…";const mode=panel.querySelector('input[name="autonomy-mode"]:checked')?.value||"suggest_only";
-    const body={operating_mode:mode,presence_entity:$("autonomy-presence-entity").value.trim(),require_presence:$("autonomy-require-presence").checked,respect_quiet_hours:$("autonomy-respect-quiet").checked,minimum_confidence:Number($("autonomy-min-confidence").value),default_cooldown_minutes:Number($("autonomy-default-cooldown").value),autonomous_risk_ceiling:$("autonomy-risk-ceiling").value,notify_after_autonomous_action:$("autonomy-notify-autonomous").checked};
+    const body={operating_mode:mode,presence_entity:$("autonomy-presence-entity").value.trim(),require_presence:$("autonomy-require-presence").checked,respect_quiet_hours:$("autonomy-respect-quiet").checked,minimum_confidence:Number($("autonomy-min-confidence").value),default_cooldown_minutes:Number($("autonomy-default-cooldown").value),autonomous_risk_ceiling:$("autonomy-risk-ceiling").value,notify_after_autonomous_action:$("autonomy-notify-autonomous").checked,passive_learning_enabled:$("autonomy-passive-learning").checked};
     try{await api("api/automations/settings",{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)});status.textContent="Authority policy saved.";await loadWorkspace()}catch(error){status.textContent=`Save failed: ${error.message||error}`}
   });
   $("autonomy-refresh-context").addEventListener("click",loadEntityContext);
@@ -6330,6 +6357,7 @@ catalogResults?.addEventListener("click",async event=>{
     {key:"name", label:"Friendly name", width:190, min:90},
     {key:"entity_id", label:"Entity ID", width:230, min:110},
     {key:"domain", label:"Domain", width:110, min:74},
+    {key:"area", label:"Area", width:150, min:88},
     {key:"state", label:"State", width:110, min:72},
     {key:"class_unit", label:"Class / unit", width:150, min:88},
     {key:"access", label:"Access", width:210, min:125},
