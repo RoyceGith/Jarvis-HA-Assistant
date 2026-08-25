@@ -14,10 +14,10 @@ MANIFEST = json.loads((ROOT / "jarvis/release_manifest.json").read_text(encoding
 
 class ReleaseSyncDomainBoundaryTests(unittest.TestCase):
     def test_release_markers_are_aligned(self):
-        self.assertIn('version: "0.13.28"', CONFIG)
-        self.assertIn('version="0.13.28"', MAIN)
-        self.assertIn("HUD 0.13.28", HTML)
-        self.assertEqual(MANIFEST["version"], "0.13.28")
+        self.assertIn('version: "0.13.29"', CONFIG)
+        self.assertIn('version="0.13.29"', MAIN)
+        self.assertIn("HUD 0.13.29", HTML)
+        self.assertEqual(MANIFEST["version"], "0.13.29")
 
     def test_release_worker_is_outside_composition_root(self):
         self.assertNotIn("async def synchronize_release_to_workshop_memory_once(", MAIN)

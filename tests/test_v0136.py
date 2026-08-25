@@ -14,10 +14,10 @@ MANIFEST = json.loads((ROOT / "jarvis/release_manifest.json").read_text(encoding
 
 class ConversationCaptureHealthTests(unittest.TestCase):
     def test_release_markers_are_aligned(self):
-        self.assertIn('version: "0.13.28"', CONFIG)
-        self.assertIn('version="0.13.28"', MAIN)
-        self.assertIn("HUD 0.13.28", INDEX)
-        self.assertEqual(MANIFEST["version"], "0.13.28")
+        self.assertIn('version: "0.13.29"', CONFIG)
+        self.assertIn('version="0.13.29"', MAIN)
+        self.assertIn("HUD 0.13.29", INDEX)
+        self.assertEqual(MANIFEST["version"], "0.13.29")
 
     def test_cancelled_microphone_start_cannot_install_stale_stream(self):
         fallback = INDEX[INDEX.index("async function startWakeFallback()") : INDEX.index("function recognitionLanguage()")]

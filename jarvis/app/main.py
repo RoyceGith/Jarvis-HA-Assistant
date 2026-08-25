@@ -188,6 +188,12 @@ from .domains.telegram_inbound import (
     telegram_inbound_store,
     telegram_public_status,
 )
+from .domains.developer_state import (
+    DEVELOPER_STATE_PATH,
+    developer_mode_enabled,
+    developer_system_instructions,
+    set_developer_mode,
+)
 
 from .schemas import (
     ChatRequest,
@@ -258,6 +264,14 @@ from .services.web_search import (
     web_search_quality_instructions,
     web_search_tool_choice,
     web_sources_markdown,
+)
+from .services.openai_responses import (
+    OpenAIError,
+    configure_openai_responses,
+    create_openai_response,
+    function_calls,
+    openai_error_message,
+    response_text,
 )
 
 import httpx
@@ -517,7 +531,7 @@ ha_ws = HomeAssistantWebSocketClient(
 
 app = FastAPI(
     title="ZBRANO",
-    version="0.13.28",
+    version="0.13.29",
     docs_url="/api/docs",
     openapi_url="/api/openapi.json",
 )
@@ -535,10 +549,6 @@ app = FastAPI(
 
 
 
-
-
-class OpenAIError(RuntimeError):
-    pass
 
 
 WORKSHOP_TOOLS: list[dict[str, Any]] = [
@@ -1108,54 +1118,6 @@ def chat_context_limit() -> int:
 
 
 
-
-
-def openai_error_message(response: httpx.Response) -> str:
-    try:
-        detail = response.json()
-    except json.JSONDecodeError:
-        detail = response.text[:1000]
-    return f"OpenAI HTTP {response.status_code}: {detail}"
-
-
-async def create_openai_response(payload: dict[str, Any]) -> dict[str, Any]:
-    if not OPENAI_API_KEY:
-        raise OpenAIError("OpenAI API key is not configured")
-
-    headers = {
-        "Authorization": f"Bearer {OPENAI_API_KEY}",
-        "Content-Type": "application/json",
-    }
-
-    async with httpx.AsyncClient(timeout=90.0) as client:
-        response = await client.post(
-            OPENAI_RESPONSES_URL,
-            headers=headers,
-            json=payload,
-        )
-
-    if response.is_error:
-        raise OpenAIError(openai_error_message(response))
-
-    return response.json()
-
-
-def response_text(response: dict[str, Any]) -> str:
-    texts: list[str] = []
-    for item in response.get("output", []):
-        if item.get("type") == "message":
-            for content in item.get("content", []):
-                if content.get("type") == "output_text":
-                    texts.append(content.get("text", ""))
-    return "\n".join(text for text in texts if text).strip()
-
-
-def function_calls(response: dict[str, Any]) -> list[dict[str, Any]]:
-    return [
-        item
-        for item in response.get("output", [])
-        if item.get("type") == "function_call"
-    ]
 
 
 def entity_domain(entity_id: str) -> str:
@@ -3476,7 +3438,7 @@ async def health() -> dict[str, Any]:
     configured_speech_provider = SPEECH_PROVIDER if SPEECH_PROVIDER in {"openai", "elevenlabs"} else "openai"
     return {
         "status": "ok",
-        "version": "0.13.28",
+        "version": "0.13.29",
         "home_assistant_configured": bool(SUPERVISOR_TOKEN),
         "workshop_memory_configured": bool(WORKSHOP_MEMORY_URL),
         "openai_configured": bool(OPENAI_API_KEY),
@@ -4407,7 +4369,7 @@ async def _oauth_discover(resource_url, allow_pre_registered=False):
         "jsonrpc": "2.0", "id": 1, "method": "initialize",
         "params": {
             "protocolVersion": "2025-06-18", "capabilities": {},
-            "clientInfo": {"name": "ZBRANO Plugin Manager", "version": "0.13.28"},
+            "clientInfo": {"name": "ZBRANO Plugin Manager", "version": "0.13.29"},
         },
     }
     async with httpx.AsyncClient(timeout=PLUGIN_TIMEOUT, follow_redirects=False) as client:
@@ -5922,41 +5884,8 @@ async def delete_shared_files(r:SharedFilesDeleteRequest):
     return {"deleted":done,"count":len(done)}
 
 
-DEVELOPER_STATE_PATH = Path("/data/zbrano_developer_mode.json")
 DEVELOPER_REPOSITORY = "RoyceGith/Jarvis-HA-Assistant"
 DEVELOPER_FRONTEND_PATH = Path(__file__).resolve().parent / "static/index.html"
-
-
-def developer_mode_enabled() -> bool:
-    try:
-        payload = json.loads(DEVELOPER_STATE_PATH.read_text(encoding="utf-8"))
-        return bool(payload.get("enabled")) if isinstance(payload, dict) else False
-    except (OSError, json.JSONDecodeError):
-        return False
-
-
-def set_developer_mode(enabled: bool) -> None:
-    DEVELOPER_STATE_PATH.parent.mkdir(parents=True, exist_ok=True)
-    DEVELOPER_STATE_PATH.write_text(
-        json.dumps({"enabled": bool(enabled), "updated_at": time.time()}, indent=2),
-        encoding="utf-8",
-    )
-
-
-def developer_system_instructions(base: str) -> str:
-    if not developer_mode_enabled():
-        return base
-    return base + """
-
-ZBRANO DEVELOPER MODE IS ACTIVE.
-You are maintaining your own software repository: RoyceGith/Jarvis-HA-Assistant.
-You may inspect the repository and use the connected GitHub MCP tools to propose and implement software changes requested by the user.
-Treat all GitHub mutations as approval-gated actions. Never bypass, weaken, remove, or silently alter approval rules, authentication, rollback protections, or Developer Mode protections.
-This repository's release policy is direct updates to main; do not create a branch unless the user explicitly requests one. Every repository mutation, including a direct-main write, commit, or push, remains separately approval-gated. Inspect the canonical source files directly before editing; do not assume historical generated markers exist.
-Before proposing a release, verify the changed Python and JavaScript paths, preserve New Chat, Shared Files, Plugins, Entities, and GitHub integration, and report exactly what was tested.
-When the user asks to check, audit, verify, inspect, or diagnose any ZBRANO feature, health state, or version, call investigate_zbrano_feature exactly once for that request, even if no failure was reported and general diagnostics are healthy. Never claim that runtime checks are unavailable before calling this targeted Developer tool. After it returns, do not call it again in the same turn; use only the returned evidence and GitHub repository tools. While Developer Mode is active, Workshop Memory, Home Assistant, and non-GitHub remote MCP tools are unavailable. The built-in Playwright inspection tool remains available only for read-only evidence from ZBRANO's local UI. After the single targeted diagnostic, use Playwright only when the user reported a visible DOM, layout, rendering, browser-console, or browser-network defect. Never use Playwright for backend API behavior, MCP approval payloads, version checks, repository source verification, or non-visual tool execution. Treat an inconclusive result as an open defect: use its evidence and relevant_files to inspect the repository with read tools, identify a supported root cause, add a regression test, and propose a versioned repair. Never invent successful reproduction.
-Do not claim a Home Assistant deployment or restart occurred unless the running system confirms it. This Developer Mode can prepare repository updates; installation remains an explicit deployment step.
-""".strip()
 
 
 def _developer_check(name: str, ok: bool, detail: str = "") -> dict[str, object]:
@@ -7994,6 +7923,10 @@ configure_playwright_bridge(
 configure_web_search_service(
     developer_mode_enabled_fn=developer_mode_enabled,
     load_preferences_fn=load_preferences,
+)
+configure_openai_responses(
+    api_key=OPENAI_API_KEY,
+    responses_url=OPENAI_RESPONSES_URL,
 )
 configure_gmail_direct_domain(
     plugin_registry_fn=plugin_registry,

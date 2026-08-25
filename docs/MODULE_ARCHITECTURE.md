@@ -20,6 +20,8 @@ Pure, low-coupling behavior is extracted under `jarvis/app/services/`:
   output bounds, credential redaction, preflight diagnostics, and built-in plugin status.
 - `web_search.py` owns hosted-search configuration, search guidance, progress,
   canonical source URLs, citation priority, and bounded source rendering.
+- `openai_responses.py` owns non-streaming Responses API requests, HTTP error
+  normalization, assistant-text extraction, and function-call extraction.
 
 The API boundary models live in `jarvis/app/schemas.py`, keeping validation contracts
 separate from route orchestration without changing their names or fields.
@@ -52,6 +54,8 @@ Stateful engines live under `jarvis/app/domains/`:
   decoding, unsent draft creation, OAuth scope checks, and write-audit redaction.
 - `telegram_inbound.py` owns Telegram pairing state, chat isolation, event
   deduplication, Home Assistant event subscription, replies, and worker lifecycle.
+- `developer_state.py` owns `/data/zbrano_developer_mode.json`, Developer Mode
+  enablement, update timestamps, and the established developer safety instructions.
 
 The composition root retains the FastAPI route wrappers and explicitly configures
 each domain with its runtime dependencies after all providers have been defined.
