@@ -365,6 +365,27 @@ from .services.tool_progress import (
     openai_tool_activity,
     remote_mcp_progress,
 )
+from .services.automation_intents import (
+    automation_memory_input,
+    automation_priority_tools,
+    automation_system_instructions,
+    configure_automation_intents,
+    is_automation_intent,
+)
+from .services.home_assistant_intents import (
+    configure_home_assistant_intents,
+    home_assistant_history_system_instructions,
+    home_assistant_history_tools,
+    home_assistant_priority_tools,
+    is_home_assistant_history_intent,
+    is_home_assistant_priority_intent,
+)
+from .services.calendar_intents import (
+    calendar_priority_tools,
+    calendar_system_instructions,
+    configure_calendar_intents,
+    is_calendar_intent,
+)
 
 import httpx
 import websockets
@@ -546,7 +567,7 @@ ha_ws = HomeAssistantWebSocketClient(
 
 app = FastAPI(
     title="ZBRANO",
-    version="0.13.35",
+    version="0.13.36",
     docs_url="/api/docs",
     openapi_url="/api/openapi.json",
 )
@@ -2789,7 +2810,7 @@ async def health() -> dict[str, Any]:
     configured_speech_provider = SPEECH_PROVIDER if SPEECH_PROVIDER in {"openai", "elevenlabs"} else "openai"
     return {
         "status": "ok",
-        "version": "0.13.35",
+        "version": "0.13.36",
         "home_assistant_configured": bool(SUPERVISOR_TOKEN),
         "workshop_memory_configured": bool(WORKSHOP_MEMORY_URL),
         "openai_configured": bool(OPENAI_API_KEY),
@@ -3556,7 +3577,7 @@ async def _oauth_discover(resource_url, allow_pre_registered=False):
         "jsonrpc": "2.0", "id": 1, "method": "initialize",
         "params": {
             "protocolVersion": "2025-06-18", "capabilities": {},
-            "clientInfo": {"name": "ZBRANO Plugin Manager", "version": "0.13.35"},
+            "clientInfo": {"name": "ZBRANO Plugin Manager", "version": "0.13.36"},
         },
     }
     async with httpx.AsyncClient(timeout=PLUGIN_TIMEOUT, follow_redirects=False) as client:
@@ -5697,163 +5718,9 @@ def developer_mcp_tools() -> list[dict[str, Any]]:
     ]
 
 
-HOME_ASSISTANT_PRIORITY_TOOL_NAMES = {
-    "find_home_assistant_entities",
-    "get_home_assistant_state",
-    "turn_on_home_assistant_entity",
-    "turn_off_home_assistant_entity",
-}
-
-
-def is_home_assistant_priority_intent(message: str) -> bool:
-    import re
-
-    normalized = " ".join(str(message or "").lower().split())
-    if not normalized:
-        return False
-    if is_automation_intent(message):
-        return False
-    non_device_context = (
-        "developer mode", "repository", "github", "git branch", "commit", "push", "pull request",
-        "source code", "plugin", "web search", "search mode", "speak replies", "voice playback",
-        "notification", "setting", "diagnostic", "automation", "autonomous", "automatically", "whenever",
-    )
-    if any(term in normalized for term in non_device_context):
-        return False
-    return bool(
-        re.search(r"\b(?:turn|switch)\s+(?:on|off)\b", normalized)
-        or re.search(r"\b(?:power|shut)\s+(?:on|off|down)\b", normalized)
-        or re.search(r"\btoggle\b", normalized)
-    )
-
-
-AUTOMATION_INTENT_TERMS = (
-    "automation", "automate", "autonomous", "automatically", "whenever",
-    "every time", "create a rule", "create rule", "make a rule",
-)
-
-
-def is_automation_intent(message: str) -> bool:
-    normalized = " ".join(str(message or "").casefold().split())
-    if any(term in normalized for term in AUTOMATION_INTENT_TERMS):
-        return True
-    return bool(re.search(r"\b(?:if|when)\b.+\b(?:then|turn|switch|notify|suggest|tell|start|stop)\b", normalized))
-
-
-def automation_priority_tools() -> list[dict[str, Any]]:
-    names = {
-        "find_home_assistant_entities", "get_home_assistant_state",
-        "prepare_autonomous_automation", "create_notification_watch",
-    }
-    return [tool for tool in WORKSHOP_TOOLS if str(tool.get("name") or "") in names]
-
-
-def automation_memory_input(message: str) -> list[dict[str, str]]:
-    contexts = []
-    if is_automation_intent(message):
-        contexts.append(automation_entity_memory_context(message))
-    contexts.append(automation_brain_memory_context(message))
-    content = "\n".join(context for context in contexts if context)
-    return [{"role": "developer", "content": content}] if content else []
-
-
-def automation_system_instructions(base: str) -> str:
-    return base + """
-
-AUTOMATION BRAIN WORKFLOW IS ACTIVE.
-Interpret the user's request as recurring behavior, not an immediate device command. First resolve each required
-natural entity name with find_home_assistant_entities. Inspect the exact trigger and action entities with
-get_home_assistant_state so current state and supported attributes are known. A remembered mapping is a candidate,
-not permission to guess. If more than one plausible entity remains, present the short choices and ask which one.
-Infer safe defaults only for cooldown and suggestion wording; ask when action semantics, presence, or authority are
-materially ambiguous. Never generate executable code. Call prepare_autonomous_automation only with exact approved
-entity IDs and a deterministic Home Assistant service. The tool stores a disabled draft and a review preview.
-Explain that preview and ask the user to reply confirm or cancel. Activation happens only on that separate reply.
-""".strip()
-
-
-def home_assistant_priority_tools() -> list[dict[str, Any]]:
-    return [
-        tool for tool in WORKSHOP_TOOLS
-        if str(tool.get("name") or "") in HOME_ASSISTANT_PRIORITY_TOOL_NAMES
-    ]
-
-
-CALENDAR_INTENT_TERMS = (
-    "calendar", "appointment", "dentist", "doctor", "meeting", "reservation",
-    "schedule", "reschedule", "agenda", "remind me on", "remind me at",
-)
-
-
-def is_calendar_intent(message: str) -> bool:
-    normalized = " ".join(str(message or "").casefold().split())
-    if any(term in normalized for term in CALENDAR_INTENT_TERMS):
-        return True
-    has_date = bool(re.search(r"\b\d{1,2}[./-]\d{1,2}[./-]\d{4}\b", normalized))
-    has_time = bool(re.search(r"\b(?:[01]?\d|2[0-3])[:.]\d{2}\b", normalized))
-    return has_date and has_time
-
-
-def calendar_priority_tools() -> list[dict[str, Any]]:
-    names = {
-        "create_calendar_appointment", "list_calendar_appointments",
-        "update_calendar_reminders", "cancel_calendar_appointment",
-    }
-    return [tool for tool in WORKSHOP_TOOLS if str(tool.get("name") or "") in names]
-
-
-def calendar_system_instructions(base: str) -> str:
-    return base + """
-
-ZBRANO CALENDAR WORKFLOW.
-When the user gives an appointment or dated event, collect only missing essentials before creating it: title,
-calendar date, start time, and reminder preference. Treat DD.MM.YYYY as day-month-year and HH.MM as local
-24-hour time. Treat a terse title plus date and time as an explicit request to add that appointment. Do not invent
-a UTC offset when it is unknown; preserve the user's local wall-clock time. Duration defaults to 60 minutes and
-location is optional; mention those defaults instead of asking unnecessary questions. If reminder timing is absent,
-ask: same day (default two hours before), one day before,
-both, custom timing, or none. Use offsets 120, 1440, [1440, 120], a user-specified minute offset, or []. Once the
-user explicitly asks to add the appointment and the missing details are resolved, call create_calendar_appointment
-without another approval prompt. Never claim it was saved unless the tool succeeds. Use list_calendar_appointments
-for schedule questions and before cancelling an ambiguous event. When the user asks to change reminder timing,
-list the appointments if necessary, then call update_calendar_reminders with the complete replacement schedule. An empty
-offset list removes all reminders. Preserve delivered reminders at an unchanged offset so they are never resent accidentally.
-Calendar reminders are delivered through the Notification Center default channel, including Telegram when configured.
-""".strip()
-
-
-HOME_ASSISTANT_HISTORY_TOOL_NAMES = {
-    "find_home_assistant_entities", "get_home_assistant_state", "get_home_assistant_history",
-    "correlate_home_assistant_timeline", "search_home_assistant_logbook",
-}
-HOME_ASSISTANT_HISTORY_TERMS = (
-    "history", "historical", "timeline", "logbook", "trend", "anomaly", "correlate", "correlation",
-    "state changes", "changed over", "over time", "last hour", "last 24", "last day", "last week",
-    "past hour", "past day", "past week", "when did", "how often", "how many times",
-)
-
-
-def is_home_assistant_history_intent(message: str) -> bool:
-    normalized = " ".join(str(message or "").casefold().split())
-    return bool(normalized and any(term in normalized for term in HOME_ASSISTANT_HISTORY_TERMS))
-
-
-def home_assistant_history_tools() -> list[dict[str, Any]]:
-    return [tool for tool in WORKSHOP_TOOLS if str(tool.get("name") or "") in HOME_ASSISTANT_HISTORY_TOOL_NAMES]
-
-
 def priority_system_instructions(base: str, message: str) -> str:
     if not developer_mode_enabled() and is_home_assistant_history_intent(message):
-        return base + """
-
-HOME ASSISTANT HISTORY AND EVENT TIMELINE INTENT IS ACTIVE.
-Use only the provided read-only Home Assistant tools. Resolve natural device names with find_home_assistant_entities,
-then request bounded history for exact approved entity IDs. Use get_home_assistant_history for one or more trends,
-search_home_assistant_logbook for named events, and correlate_home_assistant_timeline when timing relationships matter.
-Default to 24 hours when the user gives no period. Never request more than seven days or eight entities in one call.
-Report the exact observed window and distinguish measurements from inferred correlations. A close-in-time correlation
-is not proof of causation. Do not inspect repositories, Workshop Memory, plugins, or the public web for this request.
-""".strip()
+        return home_assistant_history_system_instructions(base)
     if not developer_mode_enabled() and is_automation_intent(message):
         return automation_system_instructions(base)
     if not developer_mode_enabled():
@@ -7062,6 +6929,17 @@ async def frontend(path: str = "") -> FileResponse:
     )
 
 
+configure_automation_intents(
+    workshop_tools=WORKSHOP_TOOLS,
+    entity_memory_context_fn=automation_entity_memory_context,
+    brain_memory_context_fn=automation_brain_memory_context,
+)
+configure_home_assistant_intents(
+    workshop_tools=WORKSHOP_TOOLS,
+)
+configure_calendar_intents(
+    workshop_tools=WORKSHOP_TOOLS,
+)
 configure_workshop_approvals(
     tool_permission_fn=workshop_memory_tool_permission,
     gmail_write_calls_fn=gmail_direct_write_calls,

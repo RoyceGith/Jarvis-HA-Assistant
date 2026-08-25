@@ -43,6 +43,12 @@ Pure, low-coupling behavior is extracted under `jarvis/app/services/`:
   attribution, safe action summaries, pending state, and approval prompts.
 - `tool_progress.py` maps local, hosted, and remote tool events to safe activity,
   progress-phase, and completion messages for chat streaming.
+- `automation_intents.py` detects recurring Automation Brain requests, selects the
+  bounded tool subset, supplies learned memory context, and renders workflow guidance.
+- `home_assistant_intents.py` distinguishes immediate device commands and bounded
+  history/timeline requests, then selects their approved Home Assistant tools.
+- `calendar_intents.py` detects calendar requests, selects calendar tools, and renders
+  the established appointment and reminder workflow guidance.
 
 The API boundary models live in `jarvis/app/schemas.py`, keeping validation contracts
 separate from route orchestration without changing their names or fields.
