@@ -442,6 +442,31 @@ from .services.github_device_oauth import (
     github_oauth_client_id as _github_oauth_client_id,
     start_github_device_flow,
 )
+from .services.runtime_routing import (
+    configure_runtime_routing,
+    priority_system_instructions,
+    runtime_chat_tools,
+)
+from .services.developer_support import (
+    DEVELOPER_FEATURE_SPECS,
+    DEVELOPER_FRONTEND_PATH,
+    DEVELOPER_REPOSITORY,
+    _developer_check,
+    _developer_frontend_source,
+    _resolve_developer_feature,
+)
+from .services.wake_calibration import (
+    WAKE_CALIBRATION_DIR,
+    WAKE_NEGATIVE_DIR,
+    WAKE_POSITIVE_DIR,
+    WAKE_VERIFIER_ENABLED_PATH,
+    WAKE_VERIFIER_PATH,
+    WAKE_VERIFIER_TRAIN_LOCK,
+    _new_wake_shadow_model,
+    _train_personal_wake_verifier,
+    _wake_calibration_status,
+    _wake_clip_quality,
+)
 
 import httpx
 import websockets
@@ -623,7 +648,7 @@ ha_ws = HomeAssistantWebSocketClient(
 
 app = FastAPI(
     title="ZBRANO",
-    version="0.13.41",
+    version="0.13.42",
     docs_url="/api/docs",
     openapi_url="/api/openapi.json",
 )
@@ -2454,7 +2479,7 @@ async def health() -> dict[str, Any]:
     configured_speech_provider = SPEECH_PROVIDER if SPEECH_PROVIDER in {"openai", "elevenlabs"} else "openai"
     return {
         "status": "ok",
-        "version": "0.13.41",
+        "version": "0.13.42",
         "home_assistant_configured": bool(SUPERVISOR_TOKEN),
         "workshop_memory_configured": bool(WORKSHOP_MEMORY_URL),
         "openai_configured": bool(OPENAI_API_KEY),
@@ -3842,28 +3867,6 @@ async def delete_shared_files(r:SharedFilesDeleteRequest):
     return {"deleted":done,"count":len(done)}
 
 
-DEVELOPER_REPOSITORY = "RoyceGith/Jarvis-HA-Assistant"
-DEVELOPER_FRONTEND_PATH = Path(__file__).resolve().parent / "static/index.html"
-
-
-def _developer_frontend_source() -> str:
-    html = DEVELOPER_FRONTEND_PATH.read_text(encoding="utf-8")
-    static_root = DEVELOPER_FRONTEND_PATH.parent.resolve()
-    sources = [html]
-    for relative_path in re.findall(r'<script\b[^>]*\bsrc="([^"]+\.js)"', html, flags=re.I):
-        if "://" in relative_path:
-            continue
-        source_path = (static_root / relative_path).resolve()
-        if not source_path.is_relative_to(static_root):
-            raise OSError(f"Frontend script escapes static root: {relative_path}")
-        sources.append(source_path.read_text(encoding="utf-8"))
-    return "\n".join(sources)
-
-
-def _developer_check(name: str, ok: bool, detail: str = "") -> dict[str, object]:
-    return {"name": name, "ok": bool(ok), "detail": detail}
-
-
 async def developer_diagnostics() -> dict[str, object]:
     purge_internal_chat_sessions()
     checks: list[dict[str, object]] = []
@@ -4385,126 +4388,6 @@ async def developer_diagnostics() -> dict[str, object]:
     }
 
 
-DEVELOPER_FEATURE_SPECS = {
-    "web_search": {
-        "title": "Native Web Search",
-        "aliases": ("web search", "search web", "internet search", "citation", "sources"),
-        "terms": ("native web search", "ai chat", "application health"),
-        "layers": ("chat mode", "responses api tool", "stream events", "citations"),
-        "files": ("jarvis/app/main.py", "jarvis/app/static/index.html"),
-    },
-    "ha_history": {
-        "title": "Home Assistant History & Event Timeline",
-        "aliases": ("history", "timeline", "logbook", "entity trend", "state changes", "correlation"),
-        "terms": ("history API", "logbook API", "approved entities", "bounded query", "timeline interface"),
-        "layers": ("entity policy", "Recorder history", "Logbook", "trend summary", "timeline interface"),
-        "files": ("jarvis/app/main.py", "jarvis/app/static/index.html"),
-    },
-    "fast_memory": {
-        "title": "Fast Memory",
-        "aliases": ("fast memory", "personal profile", "session memory", "remember", "forget"),
-        "terms": ("fast memory", "frontend source", "persistent storage", "application health"),
-        "layers": ("SQLite storage", "deduplication", "retrieval", "background extraction", "interface"),
-        "files": ("jarvis/app/main.py", "jarvis/app/static/index.html"),
-    },
-    "attachments": {
-        "title": "Chat attachments",
-        "aliases": ("attach", "attachment", "upload", "file picker", "chip"),
-        "terms": ("attachment", "frontend source", "application health", "persistent storage"),
-        "layers": ("frontend", "api", "persistence", "chat send"),
-        "files": ("jarvis/app/main.py", "jarvis/app/static/index.html"),
-    },
-    "shared_files": {
-        "title": "Shared Files",
-        "aliases": ("shared file", "shared files", "delete selected", "attach selected"),
-        "terms": ("shared files", "frontend source", "persistent storage", "application health"),
-        "layers": ("frontend", "api", "persistence", "selection state"),
-        "files": ("jarvis/app/main.py", "jarvis/app/static/index.html"),
-    },
-    "new_chat": {
-        "title": "New Chat",
-        "aliases": ("new chat", "conversation", "chat reset", "chat sidebar"),
-        "terms": ("conversation", "new chat", "frontend source", "application health"),
-        "layers": ("frontend", "api", "persistence", "request cancellation"),
-        "files": ("jarvis/app/main.py", "jarvis/app/static/index.html"),
-    },
-    "plugin_catalog": {
-        "title": "Plugin Catalog",
-        "aliases": ("plugin catalog", "catalog", "registry", "plugin list"),
-        "terms": ("plugin catalog", "plugins api", "plugins frontend", "application health"),
-        "layers": ("frontend", "api", "cache", "remote registry"),
-        "files": ("jarvis/app/main.py", "jarvis/app/static/index.html"),
-    },
-    "plugins": {
-        "title": "Installed plugins",
-        "aliases": ("plugin", "plugins", "plugin settings", "mcp plugin"),
-        "terms": ("plugins api", "plugin registry", "plugins frontend", "github mcp"),
-        "layers": ("frontend", "registry", "tool exposure", "authentication"),
-        "files": ("jarvis/app/main.py", "jarvis/app/static/index.html"),
-    },
-    "automations": {
-        "title": "Autonomous Automations",
-        "aliases": ("automation", "automations", "autonomy", "suggestion", "proactive", "sensor monitoring"),
-        "terms": ("automation", "home assistant", "frontend source", "persistent storage", "application health"),
-        "layers": ("frontend", "api", "persistence", "entity context", "safety policy"),
-        "files": ("jarvis/app/main.py", "jarvis/app/static/index.html"),
-    },
-    "entities": {
-        "title": "Home Assistant entities",
-        "aliases": ("entity", "entities", "home assistant", "device control", "device state"),
-        "terms": ("entity", "home assistant", "application health"),
-        "layers": ("frontend", "api", "websocket", "entity policy"),
-        "files": (
-            "jarvis/app/main.py",
-            "jarvis/app/static/index.html",
-            "jarvis/app/intent_router.py",
-        ),
-    },
-    "settings": {
-        "title": "Settings and persistence",
-        "aliases": ("setting", "settings", "preference", "backup", "restore", "instruction"),
-        "terms": ("settings", "persistent storage", "frontend source", "application health"),
-        "layers": ("frontend", "api", "validation", "persistence"),
-        "files": ("jarvis/app/main.py", "jarvis/app/static/index.html"),
-    },
-    "voice": {
-        "title": "Voice",
-        "aliases": ("voice", "microphone", "speech", "transcription", "elevenlabs", "tts"),
-        "terms": ("voice", "frontend source", "application health"),
-        "layers": ("browser permission", "transcription api", "speech provider", "playback"),
-        "files": ("jarvis/app/main.py", "jarvis/app/static/index.html", "jarvis/config.yaml"),
-    },
-    "workshop_memory": {
-        "title": "Workshop Memory",
-        "aliases": ("workshop memory", "memory", "mcp memory", "project context"),
-        "terms": ("workshop memory", "connection status", "application health"),
-        "layers": ("configuration", "mcp transport", "tool response", "cache"),
-        "files": ("jarvis/app/main.py", "jarvis/config.yaml"),
-    },
-    "developer": {
-        "title": "Developer Mode",
-        "aliases": ("developer", "diagnostic", "self fix", "self-fix", "github"),
-        "terms": ("developer", "github mcp", "frontend source", "application health"),
-        "layers": ("mode state", "diagnostics", "github tools", "approval policy"),
-        "files": ("jarvis/app/main.py", "jarvis/app/static/index.html", "jarvis/Dockerfile"),
-    },
-}
-
-
-def _resolve_developer_feature(feature: str, symptom: str) -> str:
-    requested = feature.strip().lower().replace("-", "_").replace(" ", "_")
-    if requested in DEVELOPER_FEATURE_SPECS:
-        return requested
-    haystack = f"{feature} {symptom}".lower()
-    matches = []
-    for key, spec in DEVELOPER_FEATURE_SPECS.items():
-        for alias in spec["aliases"]:
-            if alias in haystack:
-                matches.append((len(alias), key))
-    matches.sort(reverse=True)
-    return matches[0][1] if matches else "developer"
-
-
 def developer_mcp_tools() -> list[dict[str, Any]]:
     """Expose only repository-capable GitHub MCP servers in Developer Mode."""
     return [
@@ -4514,46 +4397,6 @@ def developer_mcp_tools() -> list[dict[str, Any]]:
             str(tool.get("server_description") or tool.get("server_label") or ""),
         )
     ]
-
-
-def priority_system_instructions(base: str, message: str) -> str:
-    if not developer_mode_enabled() and is_home_assistant_history_intent(message):
-        return home_assistant_history_system_instructions(base)
-    if not developer_mode_enabled() and is_automation_intent(message):
-        return automation_system_instructions(base)
-    if not developer_mode_enabled():
-        base = calendar_system_instructions(base)
-    if not developer_mode_enabled() and is_grinder_diagnostic_intent(message):
-        return grinder_system_instructions(base)
-    if not is_home_assistant_priority_intent(message):
-        return developer_system_instructions(base)
-    return base + """
-
-HOME ASSISTANT DEVICE CONTROL INTENT IS ACTIVE.
-Resolve the requested device only with the provided Home Assistant entity tools. Do not inspect repositories,
-plugins, Workshop Memory, or the web. If the entity name is ambiguous, search approved Home Assistant entities
-and ask one concise clarification rather than selecting an unsafe device. Execute only the requested state change.
-""".strip()
-
-
-def runtime_chat_tools(search_mode: str = "auto", message: str = "") -> list[dict[str, Any]]:
-    if developer_mode_enabled():
-        return developer_runtime_tools() + developer_mcp_tools()
-    if is_grinder_diagnostic_intent(message):
-        return grinder_priority_tools()
-    if is_fast_memory_intent(message):
-        return fast_memory_priority_tools()
-    if is_automation_intent(message):
-        return automation_priority_tools()
-    if is_calendar_intent(message):
-        return calendar_priority_tools()
-    if is_home_assistant_history_intent(message):
-        return home_assistant_history_tools()
-    if is_home_assistant_priority_intent(message):
-        return home_assistant_priority_tools()
-    tools = WORKSHOP_TOOLS + GRINDER_MONITOR_TOOLS + workshop_memory_function_tools() + gmail_direct_function_tools() + active_mcp_tools()
-    search_tool = native_web_search_tool(search_mode)
-    return tools + ([search_tool] if search_tool else [])
 
 
 async def _targeted_developer_diagnostics(feature_key: str) -> dict[str, Any]:
@@ -5151,40 +4994,6 @@ async def transcribe_wake_voice(audio: UploadFile = File(...)) -> dict[str, str]
     return await _transcribe_voice_upload(audio, wake=True)
 
 
-WAKE_SHADOW_MODEL_PATH = Path(__file__).resolve().parent.parent / "models/wakeword/hey_zbrano.onnx"
-WAKE_SHADOW_MELSPEC_PATH = Path(__file__).resolve().parent.parent / "models/wakeword/melspectrogram.onnx"
-WAKE_SHADOW_EMBEDDING_PATH = Path(__file__).resolve().parent.parent / "models/wakeword/embedding_model.onnx"
-WAKE_CALIBRATION_DIR = DATA_DIR / "wakeword_calibration"
-WAKE_POSITIVE_DIR = WAKE_CALIBRATION_DIR / "positive"
-WAKE_NEGATIVE_DIR = WAKE_CALIBRATION_DIR / "negative"
-WAKE_VERIFIER_PATH = WAKE_CALIBRATION_DIR / "hey_zbrano_verifier.pkl"
-WAKE_VERIFIER_ENABLED_PATH = WAKE_CALIBRATION_DIR / "verifier_enabled"
-WAKE_VERIFIER_TRAIN_LOCK = asyncio.Lock()
-
-
-def _new_wake_shadow_model() -> tuple[Any, Any, bool]:
-    """Create an isolated streaming detector for one browser microphone."""
-    import numpy as np
-    from openwakeword.model import Model as OpenWakeWordModel
-
-    required_models = (WAKE_SHADOW_MODEL_PATH, WAKE_SHADOW_MELSPEC_PATH, WAKE_SHADOW_EMBEDDING_PATH)
-    missing_models = [path.name for path in required_models if not path.is_file()]
-    if missing_models:
-        raise RuntimeError(f"ZBRANO wake-word runtime model is missing: {', '.join(missing_models)}")
-    model_kwargs: dict[str, Any] = {
-        "wakeword_models": [str(WAKE_SHADOW_MODEL_PATH)],
-        "inference_framework": "onnx",
-        "melspec_model_path": str(WAKE_SHADOW_MELSPEC_PATH),
-        "embedding_model_path": str(WAKE_SHADOW_EMBEDDING_PATH),
-    }
-    verifier_enabled = WAKE_VERIFIER_PATH.is_file() and WAKE_VERIFIER_ENABLED_PATH.is_file()
-    if verifier_enabled:
-        model_kwargs["custom_verifier_models"] = {WAKE_SHADOW_MODEL_PATH.stem: str(WAKE_VERIFIER_PATH)}
-        model_kwargs["custom_verifier_threshold"] = 0.10
-    model = OpenWakeWordModel(**model_kwargs)
-    return model, np, verifier_enabled
-
-
 @app.websocket("/api/voice/wake-shadow")
 async def wake_shadow_websocket(websocket: WebSocket) -> None:
     """Score transient 16 kHz PCM frames locally; never retain audio; browser activation is explicitly optional."""
@@ -5209,59 +5018,6 @@ async def wake_shadow_websocket(websocket: WebSocket) -> None:
     finally:
         with contextlib.suppress(Exception):
             await websocket.close()
-
-
-def _wake_clip_quality(path: Path) -> dict[str, Any]:
-    import array
-    import math
-    import wave
-
-    try:
-        with wave.open(str(path), "rb") as clip:
-            frames = clip.readframes(clip.getnframes())
-            sample_rate = clip.getframerate()
-            sample_count = clip.getnframes()
-        samples = array.array("h")
-        samples.frombytes(frames)
-        if not samples:
-            raise ValueError("empty audio")
-        rms = math.sqrt(sum(sample * sample for sample in samples) / len(samples)) / 32768.0
-        peak = max(abs(sample) for sample in samples) / 32768.0
-        nonzero_fraction = sum(sample != 0 for sample in samples) / len(samples)
-        clipped_fraction = sum(abs(sample) >= 32700 for sample in samples) / len(samples)
-        valid = rms >= 0.003 and peak >= 0.03 and nonzero_fraction >= 0.08 and clipped_fraction <= 0.005
-        return {
-            "valid": valid,
-            "rms": round(rms, 4),
-            "peak": round(peak, 4),
-            "nonzero_fraction": round(nonzero_fraction, 4),
-            "clipped_fraction": round(clipped_fraction, 6),
-            "duration_seconds": round(sample_count / max(1, sample_rate), 2),
-        }
-    except Exception as exc:
-        return {"valid": False, "error": str(exc)}
-
-
-def _wake_calibration_status() -> dict[str, Any]:
-    paths = {
-        "positive": sorted(WAKE_POSITIVE_DIR.glob("*.wav")) if WAKE_POSITIVE_DIR.is_dir() else [],
-        "negative": sorted(WAKE_NEGATIVE_DIR.glob("*.wav")) if WAKE_NEGATIVE_DIR.is_dir() else [],
-    }
-    quality = {label: [_wake_clip_quality(path) for path in label_paths] for label, label_paths in paths.items()}
-    positive = sum(item.get("valid") is True for item in quality["positive"])
-    negative = sum(item.get("valid") is True for item in quality["negative"])
-    return {
-        "positive": positive,
-        "negative": negative,
-        "positive_total": len(paths["positive"]),
-        "negative_total": len(paths["negative"]),
-        "positive_invalid": len(paths["positive"]) - positive,
-        "negative_invalid": len(paths["negative"]) - negative,
-        "required_each": 20,
-        "ready_to_train": positive >= 20 and negative >= 20,
-        "verifier_trained": WAKE_VERIFIER_PATH.is_file(),
-        "verifier_enabled": WAKE_VERIFIER_PATH.is_file() and WAKE_VERIFIER_ENABLED_PATH.is_file(),
-    }
 
 
 @app.get("/api/voice/wake-calibration")
@@ -5307,50 +5063,6 @@ async def save_wake_calibration(label: str, audio: UploadFile = File(...)) -> di
             detail=f"Recording rejected: RMS {quality.get('rms', 0):.4f}, peak {quality.get('peak', 0):.4f}. Speak once after the recorder says it is armed.",
         )
     return {"saved": True, "quality": quality, **_wake_calibration_status()}
-
-
-def _train_personal_wake_verifier() -> None:
-    import pickle
-    import numpy as np
-    from openwakeword.custom_verifier_model import get_reference_clip_features, train_verifier_model
-    from openwakeword.model import Model as OpenWakeWordModel
-
-    positive_paths = [path for path in sorted(WAKE_POSITIVE_DIR.glob("*.wav")) if _wake_clip_quality(path).get("valid")]
-    negative_paths = [path for path in sorted(WAKE_NEGATIVE_DIR.glob("*.wav")) if _wake_clip_quality(path).get("valid")]
-    if len(positive_paths) < 20 or len(negative_paths) < 20:
-        raise ValueError("Collect at least 20 positive and 20 other-speech samples first")
-    model = OpenWakeWordModel(
-        wakeword_models=[str(WAKE_SHADOW_MODEL_PATH)],
-        inference_framework="onnx",
-        melspec_model_path=str(WAKE_SHADOW_MELSPEC_PATH),
-        embedding_model_path=str(WAKE_SHADOW_EMBEDDING_PATH),
-    )
-    model_name = next(iter(model.models.keys()))
-    positive_parts = [
-        get_reference_clip_features(str(path), model, model_name, threshold=0.20, N=5)
-        for path in positive_paths
-    ]
-    positive_parts = [part for part in positive_parts if part.shape[0]]
-    if not positive_parts:
-        raise ValueError("The base model could not find Hey ZBRANO in the positive recordings")
-    negative_parts = [
-        get_reference_clip_features(str(path), model, model_name, threshold=0.0, N=1)
-        for path in negative_paths
-    ]
-    negative_parts = [part for part in negative_parts if part.shape[0]]
-    if not negative_parts:
-        raise ValueError("No usable other-speech features were found")
-    positive_features = np.vstack(positive_parts)
-    negative_features = np.vstack(negative_parts)
-    verifier = train_verifier_model(
-        np.vstack((positive_features, negative_features)),
-        np.array([1] * positive_features.shape[0] + [0] * negative_features.shape[0]),
-    )
-    WAKE_CALIBRATION_DIR.mkdir(parents=True, exist_ok=True)
-    temporary = WAKE_VERIFIER_PATH.with_suffix(".tmp")
-    with temporary.open("wb") as output:
-        pickle.dump(verifier, output)
-    temporary.replace(WAKE_VERIFIER_PATH)
 
 
 @app.post("/api/voice/wake-calibration/train")
@@ -5637,6 +5349,30 @@ configure_fast_memory_intents(
 )
 configure_developer_tools(
     developer_mode_enabled_fn=developer_mode_enabled,
+)
+configure_runtime_routing(
+    developer_mode_enabled_fn=developer_mode_enabled,
+    developer_system_instructions_fn=developer_system_instructions,
+    is_ha_history_fn=is_home_assistant_history_intent,
+    ha_history_instructions_fn=home_assistant_history_system_instructions,
+    is_automation_fn=is_automation_intent,
+    automation_instructions_fn=automation_system_instructions,
+    calendar_instructions_fn=calendar_system_instructions,
+    is_grinder_fn=is_grinder_diagnostic_intent,
+    grinder_instructions_fn=grinder_system_instructions,
+    is_ha_priority_fn=is_home_assistant_priority_intent,
+    developer_tools_fn=developer_runtime_tools,
+    developer_mcp_tools_fn=developer_mcp_tools,
+    grinder_tools_fn=grinder_priority_tools,
+    is_fast_memory_fn=is_fast_memory_intent,
+    fast_memory_tools_fn=fast_memory_priority_tools,
+    automation_tools_fn=automation_priority_tools,
+    is_calendar_fn=is_calendar_intent,
+    calendar_tools_fn=calendar_priority_tools,
+    ha_history_tools_fn=home_assistant_history_tools,
+    ha_priority_tools_fn=home_assistant_priority_tools,
+    default_tools_fn=lambda: WORKSHOP_TOOLS + GRINDER_MONITOR_TOOLS + workshop_memory_function_tools() + gmail_direct_function_tools() + active_mcp_tools(),
+    native_web_search_tool_fn=native_web_search_tool,
 )
 configure_workshop_approvals(
     tool_permission_fn=workshop_memory_tool_permission,

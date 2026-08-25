@@ -9,13 +9,15 @@ ROOT = Path(__file__).resolve().parents[1]
 APP = ROOT / "jarvis/app"
 MAIN_PATH = APP / "main.py"
 MAIN = MAIN_PATH.read_text(encoding="utf-8")
+DEVELOPER_SUPPORT_PATH = APP / "services/developer_support.py"
+DEVELOPER_SUPPORT = DEVELOPER_SUPPORT_PATH.read_text(encoding="utf-8")
 CONFIG = (ROOT / "jarvis/config.yaml").read_text(encoding="utf-8")
 HTML = (APP / "static/index.html").read_text(encoding="utf-8")
 MANIFEST = json.loads((ROOT / "jarvis/release_manifest.json").read_text(encoding="utf-8"))
 
 
 def load_frontend_source_function():
-    tree = ast.parse(MAIN)
+    tree = ast.parse(DEVELOPER_SUPPORT)
     function = next(
         node for node in tree.body
         if isinstance(node, ast.FunctionDef) and node.name == "_developer_frontend_source"
@@ -25,16 +27,16 @@ def load_frontend_source_function():
         "re": re,
         "DEVELOPER_FRONTEND_PATH": APP / "static/index.html",
     }
-    exec(compile(ast.Module(body=[function], type_ignores=[]), str(MAIN_PATH), "exec"), namespace)
+    exec(compile(ast.Module(body=[function], type_ignores=[]), str(DEVELOPER_SUPPORT_PATH), "exec"), namespace)
     return namespace["_developer_frontend_source"]
 
 
 class ModularDiagnosticsRegressionTests(unittest.TestCase):
     def test_release_markers_are_aligned(self):
-        self.assertIn('version: "0.13.41"', CONFIG)
-        self.assertIn('version="0.13.41"', MAIN)
-        self.assertIn("HUD 0.13.41", HTML)
-        self.assertEqual(MANIFEST["version"], "0.13.41")
+        self.assertIn('version: "0.13.42"', CONFIG)
+        self.assertIn('version="0.13.42"', MAIN)
+        self.assertIn("HUD 0.13.42", HTML)
+        self.assertEqual(MANIFEST["version"], "0.13.42")
 
     def test_health_and_entity_routes_import_extracted_policy_constants(self):
         import_block = MAIN[MAIN.index("from .services.entity_policy import ("):]

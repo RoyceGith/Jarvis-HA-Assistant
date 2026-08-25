@@ -65,6 +65,12 @@ Pure, low-coupling behavior is extracted under `jarvis/app/services/`:
   the bounded remember, search, and forget tools.
 - `developer_tools.py` owns the mode-gated targeted diagnostics and local Playwright
   tool schemas exposed during Developer Mode.
+- `runtime_routing.py` owns system-instruction priority and exact runtime tool
+  selection across Developer, Grinder, memory, automation, calendar, and HA intents.
+- `developer_support.py` owns Developer feature metadata and alias resolution plus
+  safe aggregation of the complete split frontend source for wiring diagnostics.
+- `wake_calibration.py` owns wake model construction, calibration storage and quality,
+  status calculation, and personal verifier training.
 
 The API boundary models live in `jarvis/app/schemas.py`, keeping validation contracts
 separate from route orchestration without changing their names or fields.
@@ -102,6 +108,9 @@ Stateful engines live under `jarvis/app/domains/`:
 
 The composition root retains the FastAPI route wrappers and explicitly configures
 each domain with its runtime dependencies after all providers have been defined.
+It also retains the chat streaming state machine and HTTP/voice route orchestration;
+these coordinate extracted services and are intentional composition responsibilities,
+not independent persistence or policy domains.
 Notification watches intentionally remain in the automation store for data
 compatibility. Local Calendar and Google Calendar exchange storage operations through
 configured callbacks. Fast Memory retains `/data/zbrano_fast_memory.sqlite3`, and
@@ -110,6 +119,10 @@ shutdown explicitly delegate Grinder and Release Memory task ownership to their
 domains while retaining composition ownership for the other task objects.
 Future extractions must retain `app.main:app`, use
 dependency injection rather than circular imports, and preserve persisted schemas.
+
+The behavior-preserving canonical modularization phase completed in v0.13.42.
+Further structural changes should be driven by Step 4 automated integration and
+browser tests rather than file-size reduction alone.
 
 ## Frontend modules
 
