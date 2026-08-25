@@ -334,6 +334,37 @@ from .services.plugin_discovery import (
     configure_plugin_discovery,
     discover_plugin_tools,
 )
+from .services.workshop_approvals import (
+    PENDING_WORKSHOP_APPROVALS,
+    WORKSHOP_TASK_APPROVAL_GRANTS,
+    configure_workshop_approvals,
+    grant_workshop_memory_task_approval,
+    store_workshop_memory_approval,
+    summarize_workshop_memory_arguments,
+    workshop_memory_approval_decision,
+    workshop_memory_approval_prompt,
+    workshop_memory_task_approval_active,
+    workshop_memory_write_calls,
+    workshop_write_call_ids,
+)
+from .services.mcp_approvals import (
+    PENDING_MCP_APPROVALS,
+    configure_mcp_approvals,
+    mcp_approval_decision,
+    mcp_approval_plugin_id,
+    mcp_approval_prompt,
+    mcp_approval_provider,
+    mcp_approval_requests,
+    mcp_approval_summary,
+)
+from .services.tool_progress import (
+    _tool_completion_status,
+    _tool_progress_phases,
+    configure_tool_progress,
+    local_tool_activity,
+    openai_tool_activity,
+    remote_mcp_progress,
+)
 
 import httpx
 import websockets
@@ -515,7 +546,7 @@ ha_ws = HomeAssistantWebSocketClient(
 
 app = FastAPI(
     title="ZBRANO",
-    version="0.13.34",
+    version="0.13.35",
     docs_url="/api/docs",
     openapi_url="/api/openapi.json",
 )
@@ -2177,236 +2208,6 @@ async def stream_openai_response_with_progress(
             await stream.aclose()
 
 
-def openai_tool_activity(event: dict[str, Any]) -> dict[str, str] | None:
-    """Translate real Responses API tool events into safe UI activity metadata."""
-    event_type = str(event.get("type") or "")
-    item = event.get("item") if isinstance(event.get("item"), dict) else {}
-    item_type = str(item.get("type") or "")
-    if "web_search_call" in event_type or item_type == "web_search_call":
-        state = "completed" if event_type.endswith((".completed", ".done")) else "started"
-        return {
-            "id": "native-web-search",
-            "label": "Searching web",
-            "state": state,
-            "provider": "web",
-            "plugin_id": "",
-        }
-    if item_type == "mcp_approval_request":
-        label = mcp_approval_summary(item)
-        server_label = str(item.get("server_label") or "")
-        return {
-            "id": str(item.get("id") or f"approval-{server_label}-{label}")[:180],
-            "label": label,
-            "state": "waiting_approval",
-            "provider": "plugin",
-            "plugin_id": server_label.removeprefix("plugin_"),
-        }
-    if item_type != "mcp_call" or event_type not in {"response.output_item.added", "response.output_item.done"}:
-        return None
-    name = str(item.get("name") or "Plugin tool")[:120]
-    server_label = str(item.get("server_label") or "")
-    state = "completed" if event_type.endswith(".done") else "started"
-    return {
-        "id": str(item.get("id") or f"mcp-{server_label}-{name}")[:180],
-        "label": name.replace("_", " "),
-        "state": state,
-        "provider": "plugin",
-        "plugin_id": server_label.removeprefix("plugin_"),
-    }
-
-
-def local_tool_activity(tool_names: list[str], *, writing: bool = False) -> dict[str, str]:
-    history_tools = {
-        "get_home_assistant_history", "correlate_home_assistant_timeline", "search_home_assistant_logbook",
-    }
-    local_ha = {
-        "find_home_assistant_entities", "get_home_assistant_state",
-        "turn_on_home_assistant_entity", "turn_off_home_assistant_entity", *history_tools,
-    }
-    if "prepare_autonomous_automation" in tool_names:
-        return {"label": "Preparing automation preview", "provider": "home_assistant", "plugin_id": ""}
-    if tool_names and all(name.startswith("get_grinder_") or name == "list_grinder_incidents" for name in tool_names):
-        return {"label": "Reading grinder diagnostics", "provider": "grinder_monitor", "plugin_id": ""}
-    if tool_names and all(name in local_ha for name in tool_names):
-        label = "Reading Home Assistant History" if any(name in history_tools for name in tool_names) else "Reading Home Assistant"
-        return {"label": label, "provider": "home_assistant", "plugin_id": ""}
-    if tool_names and all(name in {"remember_fast_memory", "search_fast_memory", "forget_fast_memory"} for name in tool_names):
-        writing_memory = any(name != "search_fast_memory" for name in tool_names)
-        return {"label": "Updating Fast Memory" if writing_memory else "Reading Fast Memory", "provider": "fast_memory", "plugin_id": ""}
-    if tool_names and all(name in GMAIL_DIRECT_TOOL_NAMES for name in tool_names):
-        return {
-            "label": "Creating Gmail draft" if writing else "Reading Gmail",
-            "provider": "plugin", "plugin_id": _gmail_plugin_id(),
-        }
-    if "inspect_zbrano_ui_with_playwright" in tool_names:
-        return {"label": "Inspecting ZBRANO interface", "provider": "developer", "plugin_id": "builtin-playwright"}
-    if "investigate_zbrano_feature" in tool_names:
-        return {"label": "Investigating ZBRANO", "provider": "developer", "plugin_id": ""}
-    workshop_terms = ("project", "note", "memory", "handoff", "template", "reorganization", "progress")
-    if any(any(term in name.lower() for term in workshop_terms) for name in tool_names):
-        label = "Updating Workshop Memory" if writing else "Reading Workshop Memory"
-        return {"label": label, "provider": "workshop_memory", "plugin_id": ""}
-    readable = ", ".join(name.replace("_", " ") for name in tool_names[:3]) or "Tool work"
-    return {"label": readable, "provider": "tool", "plugin_id": ""}
-
-
-def remote_mcp_progress(event: dict[str, Any]) -> str | None:
-    event_type = str(event.get("type") or "")
-    if event_type not in {"response.output_item.added", "response.output_item.done"}:
-        return None
-    item = event.get("item") if isinstance(event.get("item"), dict) else {}
-    item_type = str(item.get("type") or "")
-    if item_type == "mcp_list_tools":
-        return "Loading Developer repository tools..."
-    if item_type != "mcp_call":
-        return None
-    name = str(item.get("name") or "repository tool")
-    if event_type.endswith(".done"):
-        return f"Developer tool completed: {name}. Reviewing its result..."
-    return f"Developer tool started: {name}..."
-
-
-PENDING_WORKSHOP_APPROVALS: dict[str, dict[str, Any]] = {}
-WORKSHOP_TASK_APPROVAL_GRANTS: dict[str, float] = {}
-WORKSHOP_TASK_APPROVAL_SECONDS = 15 * 60
-
-
-def workshop_memory_approval_decision(message: str) -> str | None:
-    normalized = " ".join(message.strip().lower().split())
-    if normalized in {
-        "approve task", "approve this task", "approve workflow",
-        "approve this workflow", "approve all for this task",
-    }:
-        return "task"
-    if normalized in {
-        "approve", "approved", "confirm", "yes", "yes approve", "proceed", "go ahead",
-    }:
-        return "once"
-    if normalized in {"cancel", "deny", "denied", "no", "reject", "do not", "don't"}:
-        return "deny"
-    return None
-
-
-def grant_workshop_memory_task_approval(session_id: str) -> None:
-    WORKSHOP_TASK_APPROVAL_GRANTS[session_id] = (
-        time.monotonic() + WORKSHOP_TASK_APPROVAL_SECONDS
-    )
-
-
-def workshop_memory_task_approval_active(session_id: str) -> bool:
-    expires_at = float(WORKSHOP_TASK_APPROVAL_GRANTS.get(session_id) or 0)
-    if expires_at <= time.monotonic():
-        WORKSHOP_TASK_APPROVAL_GRANTS.pop(session_id, None)
-        return False
-    return True
-
-
-def workshop_write_call_ids(calls: list[dict[str, Any]]) -> set[str]:
-    return {
-        str(call.get("call_id") or "")
-        for call in workshop_memory_write_calls(calls)
-    }
-
-
-def summarize_workshop_memory_arguments(raw_arguments: Any) -> str:
-    """Describe approval arguments without echoing large note bodies into chat."""
-    if isinstance(raw_arguments, str):
-        try:
-            arguments = json.loads(raw_arguments)
-        except json.JSONDecodeError:
-            arguments = {"arguments": raw_arguments}
-    else:
-        arguments = raw_arguments
-
-    content_keys = {
-        "content", "body", "note", "note_content", "markdown",
-        "template", "template_content", "text",
-    }
-
-    def summarize(value: Any, key: str = "", depth: int = 0) -> Any:
-        if depth > 3:
-            return "<nested value>"
-        if isinstance(value, str):
-            normalized_key = key.casefold()
-            if normalized_key in content_keys or len(value) > 400:
-                lines = value.count("\n") + (1 if value else 0)
-                title = next(
-                    (
-                        line.lstrip("# ").strip()[:120]
-                        for line in value.splitlines()
-                        if line.strip().startswith("#") and line.lstrip("# ").strip()
-                    ),
-                    "",
-                )
-                label = "note content" if normalized_key in content_keys else "large text"
-                description = f"<{label}: {len(value)} characters, {lines} lines"
-                if title:
-                    description += f"; title: {title}"
-                return description + ">"
-            return value
-        if isinstance(value, list):
-            if len(value) > 12:
-                return f"<list with {len(value)} items>"
-            return [summarize(item, key, depth + 1) for item in value]
-        if isinstance(value, dict):
-            items = list(value.items())
-            result = {
-                str(item_key): summarize(item_value, str(item_key), depth + 1)
-                for item_key, item_value in items[:16]
-            }
-            if len(items) > 16:
-                result["additional_fields"] = len(items) - 16
-            return result
-        return value
-
-    summary = summarize(arguments)
-    rendered = json.dumps(summary, ensure_ascii=False, separators=(",", ":"))
-    return rendered if len(rendered) <= 1000 else rendered[:1000] + "…"
-
-
-def workshop_memory_write_calls(calls: list[dict[str, Any]]) -> list[dict[str, Any]]:
-    return [
-        call for call in calls
-        if workshop_memory_tool_permission(str(call.get("name") or "")) == "write"
-    ]
-
-
-def workshop_memory_approval_prompt(calls: list[dict[str, Any]]) -> str:
-    writes = workshop_memory_write_calls(calls)
-    gmail_writes = gmail_direct_write_calls(calls)
-    lines = [
-        "Gmail Direct is requesting permission to create an unsent draft:"
-        if gmail_writes else
-        "Workshop Memory is requesting permission to change permanent project data:"
-    ]
-    for call in writes[:5]:
-        name = str(call.get("name") or "unknown tool")
-        arguments = summarize_workshop_memory_arguments(
-            call.get("arguments") or "{}"
-        )
-        lines.append(f"- `{name}` with `{arguments}`")
-    if len(writes) > 5:
-        lines.append(f"- …and {len(writes) - 5} more change(s)")
-    lines.append(
-        "The message will remain a draft and will not be sent. Reply **approve** to create it or **cancel** to deny."
-        if gmail_writes else
-        "Reply **approve** for this write, **approve task** to allow Workshop Memory writes in this chat for 15 minutes, or **cancel** to deny."
-    )
-    return "\n".join(lines)
-
-
-def store_workshop_memory_approval(
-    session_id: str,
-    response_id: str,
-    calls: list[dict[str, Any]],
-) -> str:
-    PENDING_WORKSHOP_APPROVALS[session_id] = {
-        "response_id": response_id,
-        "calls": calls,
-    }
-    return workshop_memory_approval_prompt(calls)
-
-
 async def continue_workshop_memory_approval(
     pending: dict[str, Any],
     approved: bool,
@@ -2470,119 +2271,6 @@ async def continue_workshop_memory_approval(
             "tool_choice": "auto",
         })
     raise OpenAIError("Workshop Memory approval continuation exceeded 6 tool rounds")
-
-
-PENDING_MCP_APPROVALS: dict[str, dict[str, Any]] = {}
-
-
-def mcp_approval_requests(response: dict[str, Any]) -> list[dict[str, Any]]:
-    return [
-        item for item in response.get("output", [])
-        if item.get("type") == "mcp_approval_request"
-    ]
-
-
-def mcp_approval_decision(message: str) -> bool | None:
-    normalized = " ".join(message.strip().lower().split())
-    if normalized in {"approve", "approved", "confirm", "yes", "yes approve", "proceed", "go ahead"}:
-        return True
-    if normalized in {"cancel", "deny", "denied", "no", "reject", "do not", "don't"}:
-        return False
-    return None
-
-
-def mcp_approval_plugin_id(request: dict[str, Any]) -> str:
-    server_label = str(request.get("server_label") or "")
-    return server_label.removeprefix("plugin_") if server_label.startswith("plugin_") else ""
-
-
-def mcp_approval_provider(request: dict[str, Any]) -> str:
-    server_label = str(request.get("server_label") or "").strip()
-    plugin_id = mcp_approval_plugin_id(request)
-    if plugin_id:
-        plugin = plugin_registry().get(plugin_id)
-        if isinstance(plugin, dict):
-            name = " ".join(str(plugin.get("name") or "").split())
-            if name:
-                return name[:80]
-    fallback = server_label.removeprefix("plugin_").replace("_", " ").strip()
-    return fallback.title()[:80] if fallback else "Plugin"
-
-
-def mcp_approval_summary(request: dict[str, Any]) -> str:
-    import re
-
-    provider = mcp_approval_provider(request)
-    name = " ".join(str(request.get("name") or "plugin action").replace("_", " ").split())[:100]
-    arguments = request.get("arguments")
-    if isinstance(arguments, str):
-        try:
-            parsed = json.loads(arguments)
-        except (TypeError, ValueError):
-            parsed = {}
-    else:
-        parsed = arguments if isinstance(arguments, dict) else {}
-    method = str(parsed.get("method") or "").upper()
-    path = str(parsed.get("path") or "")
-    code = str(parsed.get("code") or "")
-    if code:
-        method_match = re.search(r"\bmethod\s*:\s*[\"']([A-Za-z]+)[\"']", code)
-        path_match = re.search(r"\bpath\s*:\s*[\"']([^\"']+)[\"']", code)
-        method = method or (method_match.group(1).upper() if method_match else "")
-        path = path or (path_match.group(1) if path_match else "")
-    operation = " ".join(part for part in (method, path) if part)
-    return f"{provider} · {operation or name}"[:180]
-
-
-def mcp_approval_prompt(requests: list[dict[str, Any]]) -> str:
-    providers = []
-    for request in requests:
-        provider = mcp_approval_provider(request)
-        if provider not in providers:
-            providers.append(provider)
-    subject = providers[0] if len(providers) == 1 else "Installed plugins"
-    lines = [f"{subject} requests approval for an action its tools can use to change data:"]
-    for request in requests[:5]:
-        lines.append(f"- **{mcp_approval_summary(request)}**")
-    if len(requests) > 5:
-        lines.append(f"- …and {len(requests) - 5} more approval request(s)")
-    lines.append("No action has run. Reply **approve** to continue or **cancel** to deny it.")
-    return "\n".join(lines)
-
-
-def _tool_progress_phases(tool_names: list[str]) -> list[str]:
-    if "investigate_zbrano_feature" in tool_names:
-        return [
-            "Checking the affected runtime layers...",
-            "Reviewing targeted diagnostic evidence...",
-            "Locating the likely fault boundary...",
-        ]
-    if "inspect_zbrano_ui_with_playwright" in tool_names:
-        return [
-            "Opening the local interface...",
-            "Inspecting browser and network evidence...",
-            "Reviewing the interface result...",
-        ]
-    return [
-        "Waiting for the tool result...",
-        "Reviewing returned evidence...",
-        "The tool is taking longer than expected...",
-    ]
-
-
-def _tool_completion_status(tool_names: list[str], outputs: list[dict[str, Any]]) -> str:
-    if "investigate_zbrano_feature" not in tool_names:
-        return "Tool work complete. Reviewing the result..."
-    for output in outputs:
-        try:
-            result = json.loads(str(output.get("output") or "{}"))
-        except (TypeError, ValueError):
-            continue
-        if result.get("error"):
-            return "Investigation stopped with an error. Preparing the details..."
-        if result.get("status") in {"failed", "degraded"}:
-            return "Problem confirmed. Reviewing the fault boundary..."
-    return "Investigation complete. Reviewing the evidence..."
 
 
 async def _run_jarvis_stream_events(message: str, session_id: str = "default", search_mode: str = "auto") -> AsyncIterator[bytes]:
@@ -3101,7 +2789,7 @@ async def health() -> dict[str, Any]:
     configured_speech_provider = SPEECH_PROVIDER if SPEECH_PROVIDER in {"openai", "elevenlabs"} else "openai"
     return {
         "status": "ok",
-        "version": "0.13.34",
+        "version": "0.13.35",
         "home_assistant_configured": bool(SUPERVISOR_TOKEN),
         "workshop_memory_configured": bool(WORKSHOP_MEMORY_URL),
         "openai_configured": bool(OPENAI_API_KEY),
@@ -3868,7 +3556,7 @@ async def _oauth_discover(resource_url, allow_pre_registered=False):
         "jsonrpc": "2.0", "id": 1, "method": "initialize",
         "params": {
             "protocolVersion": "2025-06-18", "capabilities": {},
-            "clientInfo": {"name": "ZBRANO Plugin Manager", "version": "0.13.34"},
+            "clientInfo": {"name": "ZBRANO Plugin Manager", "version": "0.13.35"},
         },
     }
     async with httpx.AsyncClient(timeout=PLUGIN_TIMEOUT, follow_redirects=False) as client:
@@ -7374,6 +7062,17 @@ async def frontend(path: str = "") -> FileResponse:
     )
 
 
+configure_workshop_approvals(
+    tool_permission_fn=workshop_memory_tool_permission,
+    gmail_write_calls_fn=gmail_direct_write_calls,
+)
+configure_mcp_approvals(
+    plugin_registry_fn=plugin_registry,
+)
+configure_tool_progress(
+    gmail_direct_tool_names=GMAIL_DIRECT_TOOL_NAMES,
+    gmail_plugin_id_fn=_gmail_plugin_id,
+)
 configure_plugin_presentation(
     plugin_secrets_fn=plugin_secrets,
     plugin_oauth_records_fn=plugin_oauth_records,
