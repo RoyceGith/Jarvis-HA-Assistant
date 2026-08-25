@@ -18,10 +18,10 @@ MANIFEST = json.loads((ROOT / "jarvis/release_manifest.json").read_text(encoding
 
 class ApprovalAndToolProgressBoundaryTests(unittest.TestCase):
     def test_release_markers_are_aligned(self):
-        self.assertIn('version: "0.13.36"', CONFIG)
-        self.assertIn('version="0.13.36"', MAIN)
-        self.assertIn("HUD 0.13.36", HTML)
-        self.assertEqual(MANIFEST["version"], "0.13.36")
+        self.assertIn('version: "0.13.37"', CONFIG)
+        self.assertIn('version="0.13.37"', MAIN)
+        self.assertIn("HUD 0.13.37", HTML)
+        self.assertEqual(MANIFEST["version"], "0.13.37")
 
     def test_three_services_are_outside_composition_root_and_configured(self):
         self.assertNotIn("def workshop_memory_approval_decision(", MAIN)

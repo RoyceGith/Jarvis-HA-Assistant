@@ -1,9 +1,9 @@
 {
-  "version": "0.13.36",
+  "version": "0.13.37",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/Jarvis-HA-Assistant main",
-  "summary": "Separate Home Assistant, Automation Brain, and Calendar intent routing into explicit backend services while preserving detection, tool priority, learned context, and workflow guidance.",
+  "summary": "Separate Grinder diagnostics, Fast Memory intent routing, and Developer Mode tool definitions into explicit backend services while preserving detection, tool priority, safety guidance, and mode gating.",
   "history_backfill": [
     {
       "version": "0.13.0",
@@ -148,22 +148,27 @@
     {
       "version": "0.13.35",
       "summary": "Separated tool progress reporting, Workshop Memory approval policy/state, and native remote-MCP approval parsing into explicit backend services while preserving approval timing, prompts, redaction, provider attribution, and execution flow."
+    },
+    {
+      "version": "0.13.36",
+      "summary": "Separated Home Assistant, Automation Brain, and Calendar intent routing into explicit backend services while preserving detection, tool priority, learned context, and workflow guidance."
     }
   ],
   "release_entry": {
     "features": [
-      "Move immediate Home Assistant device-command and bounded history/timeline detection, tool selection, and history guidance into an explicit intent service.",
-      "Move recurring Automation Brain detection, approved tool selection, learned entity/brain context, and draft-confirmation guidance into an explicit intent service.",
-      "Move Calendar request detection, appointment/reminder tool selection, local-time defaults, and reminder workflow guidance into an explicit intent service."
+      "Move Grinder diagnostic detection, read-only tool selection, and evidence-first safety guidance into an explicit intent service.",
+      "Move Fast Memory request detection and its bounded remember, search, and forget tool selection into an explicit intent service.",
+      "Move Developer Mode's targeted diagnostic and local Playwright tool schemas into an explicit mode-gated service."
     ],
     "fixes": [
-      "Keep automation requests out of immediate device routing, retain history safety bounds, preserve Automation Brain confirmation rules, and keep Calendar local-time and reminder defaults unchanged across all three boundaries."
+      "Preserve Grinder read-only restrictions, exclude Workshop Memory phrases from Fast Memory routing, and retain Developer Mode gating across all three boundaries."
     ],
     "validation": [
-      "Home Assistant, automation, and calendar intent detection; exact tool subsets; learned context; workflow guidance; explicit dependency wiring; backend compilation; regression suite; and v0.13.36 release alignment coverage"
+      "Grinder and Fast Memory intent detection; exact tool subsets; diagnostic guidance; Developer Mode gating and schemas; explicit dependency wiring; backend compilation; regression suite; and v0.13.37 release alignment coverage"
     ]
   },
   "features": [
+    "Extract Grinder diagnostics, Fast Memory intent routing, and Developer Mode tool definitions into three explicit backend services.",
     "Extract Home Assistant, Automation Brain, and Calendar intent routing into three explicit backend services.",
     "Extract tool progress reporting, Workshop Memory approvals, and native remote-MCP approvals into three explicit backend services.",
     "Extract installed-plugin public payload rendering and remote MCP tool discovery into explicit backend services.",
@@ -509,6 +514,7 @@
     "Preserve task-scoped Workshop Memory approval and per-draft Gmail approval isolation."
   ],
   "validation": [
+    "Grinder and Fast Memory intent detection; exact tool subsets; diagnostic guidance; Developer Mode gating and schemas; explicit dependency wiring; backend compilation; regression suite; and v0.13.37 release alignment coverage",
     "Home Assistant, automation, and calendar intent detection; exact tool subsets; learned context; workflow guidance; explicit dependency wiring; backend compilation; regression suite; and v0.13.36 release alignment coverage",
     "Workshop and MCP approval decisions, redaction and prompt contracts, shared pending state, tool progress mappings, explicit dependency wiring, backend compilation, regression suite, and v0.13.35 release alignment coverage",
     "Plugin public payload contracts, JSON and SSE MCP decoding, discovery safety markers, explicit dependency wiring, backend compilation, regression suite, and v0.13.34 release alignment coverage",

@@ -386,6 +386,18 @@ from .services.calendar_intents import (
     configure_calendar_intents,
     is_calendar_intent,
 )
+from .services.grinder_intents import (
+    configure_grinder_intents,
+    grinder_priority_tools,
+    grinder_system_instructions,
+    is_grinder_diagnostic_intent,
+)
+from .services.fast_memory_intents import (
+    configure_fast_memory_intents,
+    fast_memory_priority_tools,
+    is_fast_memory_intent,
+)
+from .services.developer_tools import configure_developer_tools, developer_runtime_tools
 
 import httpx
 import websockets
@@ -567,7 +579,7 @@ ha_ws = HomeAssistantWebSocketClient(
 
 app = FastAPI(
     title="ZBRANO",
-    version="0.13.36",
+    version="0.13.37",
     docs_url="/api/docs",
     openapi_url="/api/openapi.json",
 )
@@ -2810,7 +2822,7 @@ async def health() -> dict[str, Any]:
     configured_speech_provider = SPEECH_PROVIDER if SPEECH_PROVIDER in {"openai", "elevenlabs"} else "openai"
     return {
         "status": "ok",
-        "version": "0.13.36",
+        "version": "0.13.37",
         "home_assistant_configured": bool(SUPERVISOR_TOKEN),
         "workshop_memory_configured": bool(WORKSHOP_MEMORY_URL),
         "openai_configured": bool(OPENAI_API_KEY),
@@ -3577,7 +3589,7 @@ async def _oauth_discover(resource_url, allow_pre_registered=False):
         "jsonrpc": "2.0", "id": 1, "method": "initialize",
         "params": {
             "protocolVersion": "2025-06-18", "capabilities": {},
-            "clientInfo": {"name": "ZBRANO Plugin Manager", "version": "0.13.36"},
+            "clientInfo": {"name": "ZBRANO Plugin Manager", "version": "0.13.37"},
         },
     }
     async with httpx.AsyncClient(timeout=PLUGIN_TIMEOUT, follow_redirects=False) as client:
@@ -5726,19 +5738,7 @@ def priority_system_instructions(base: str, message: str) -> str:
     if not developer_mode_enabled():
         base = calendar_system_instructions(base)
     if not developer_mode_enabled() and is_grinder_diagnostic_intent(message):
-        return base + """
-
-GRINDER DIAGNOSTIC INTENT IS ACTIVE.
-Use the provided local grinder diagnostic tools before answering. They are the authoritative runtime source and
-are not Workshop Memory tools. When an incident identifier is present, call get_grinder_incident with that exact
-identifier. Otherwise call list_grinder_incidents, select the incident matching the user's timing description,
-then call get_grinder_incident. Analyze the bounded pre_failure_window rather than asking the user for an export.
-If the user says they manually removed power after a freeze, treat the later POWER ON reset as operator-caused and
-exclude it from classification of the initiating failure. Compare telemetry sequence, weight, HX711 data age, loop
-timing, state age, heap, Wi-Fi/MQTT state, relay command, boot identifier, and reset evidence. Clearly separate
-measured evidence from inference. Never claim these tools are unavailable when they are present in this request.
-The grinder diagnostic tools are read-only and must never issue control commands.
-""".strip()
+        return grinder_system_instructions(base)
     if not is_home_assistant_priority_intent(message):
         return developer_system_instructions(base)
     return base + """
@@ -5748,45 +5748,6 @@ Resolve the requested device only with the provided Home Assistant entity tools.
 plugins, Workshop Memory, or the web. If the entity name is ambiguous, search approved Home Assistant entities
 and ask one concise clarification rather than selecting an unsafe device. Execute only the requested state change.
 """.strip()
-
-
-GRINDER_DIAGNOSTIC_INTENT_TERMS = (
-    "incident", "freeze", "freezes", "froze", "frozen", "stuck", "reboot",
-    "restarted", "reset reason", "telemetry", "heartbeat", "hx711",
-    "measuring", "measurement", "flight recorder", "pre-failure",
-    "pre failure", "boot id", "grinder status", "grinder monitor",
-)
-
-
-def is_grinder_diagnostic_intent(message: str) -> bool:
-    normalized = " ".join(str(message or "").casefold().split())
-    if "grinder" not in normalized and "espresso_grinder-" not in normalized:
-        return False
-    return any(term in normalized for term in GRINDER_DIAGNOSTIC_INTENT_TERMS)
-
-
-def grinder_priority_tools() -> list[dict[str, Any]]:
-    return list(GRINDER_MONITOR_TOOLS)
-
-
-FAST_MEMORY_INTENT_TERMS = (
-    "remember this", "remember that", "remember my", "remember i", "fast memory",
-    "what do you remember", "what do you know about me", "forget this", "forget that",
-    "forget what", "forget about", "remove this memory", "save this to memory",
-    "keep this in memory", "remember for later", "personal profile", "memory profile",
-)
-
-
-def is_fast_memory_intent(message: str) -> bool:
-    normalized = " ".join(str(message or "").casefold().split())
-    if "workshop memory" in normalized:
-        return False
-    return any(term in normalized for term in FAST_MEMORY_INTENT_TERMS)
-
-
-def fast_memory_priority_tools() -> list[dict[str, Any]]:
-    names = {"remember_fast_memory", "search_fast_memory", "forget_fast_memory"}
-    return [tool for tool in WORKSHOP_TOOLS if str(tool.get("name") or "") in names]
 
 
 def runtime_chat_tools(search_mode: str = "auto", message: str = "") -> list[dict[str, Any]]:
@@ -5807,68 +5768,6 @@ def runtime_chat_tools(search_mode: str = "auto", message: str = "") -> list[dic
     tools = WORKSHOP_TOOLS + GRINDER_MONITOR_TOOLS + workshop_memory_function_tools() + gmail_direct_function_tools() + active_mcp_tools()
     search_tool = native_web_search_tool(search_mode)
     return tools + ([search_tool] if search_tool else [])
-
-
-def developer_runtime_tools() -> list[dict[str, Any]]:
-    if not developer_mode_enabled():
-        return []
-    return [{
-        "type": "function",
-        "name": "investigate_zbrano_feature",
-        "description": (
-            "Run one targeted, read-only ZBRANO feature check. "
-            "Use this for check, audit, verify, health, version, or broken-feature requests, even when "
-            "general diagnostics are healthy. Return evidence and fault boundaries before proposing code changes."
-        ),
-        "parameters": {
-            "type": "object",
-            "properties": {
-                "feature": {
-                    "type": "string",
-                    "description": "Feature name such as shared_files, attachments, new_chat, plugin_catalog, plugins, entities, settings, voice, workshop_memory, or developer.",
-                },
-                "symptom": {
-                    "type": "string",
-                    "description": "Exact observed behavior, reproduction steps, and expected behavior supplied by the user.",
-                },
-            },
-            "required": ["feature", "symptom"],
-            "additionalProperties": False,
-        },
-        "strict": True,
-    }, {
-        "type": "function",
-        "name": "inspect_zbrano_ui_with_playwright",
-        "description": (
-            "Use only when the user reports a visible ZBRANO browser symptom involving DOM layout, "
-            "rendering, browser console errors, or browser network requests. Never call this tool for "
-            "backend APIs, MCP approval payloads, versions, repository source, or non-visual tool execution. "
-            "It inspects only ZBRANO's local UI and returns bounded browser evidence."
-        ),
-        "parameters": {
-            "type": "object",
-            "properties": {
-                "path": {
-                    "type": "string",
-                    "description": "A query-free ZBRANO-local path beginning with /, normally /.",
-                },
-                "surface": {
-                    "type": "string",
-                    "enum": ["chat", "shared_files", "plugins", "automations", "entities", "settings", "developer"],
-                    "description": "ZBRANO navigation surface to inspect after loading the local UI.",
-                },
-                "wait_ms": {
-                    "type": "integer",
-                    "minimum": 0,
-                    "maximum": 5000,
-                    "description": "Time to wait after navigation before collecting evidence.",
-                },
-            },
-            "required": ["path", "surface", "wait_ms"],
-            "additionalProperties": False,
-        },
-        "strict": True,
-    }]
 
 
 async def _targeted_developer_diagnostics(feature_key: str) -> dict[str, Any]:
@@ -6939,6 +6838,15 @@ configure_home_assistant_intents(
 )
 configure_calendar_intents(
     workshop_tools=WORKSHOP_TOOLS,
+)
+configure_grinder_intents(
+    grinder_monitor_tools=GRINDER_MONITOR_TOOLS,
+)
+configure_fast_memory_intents(
+    workshop_tools=WORKSHOP_TOOLS,
+)
+configure_developer_tools(
+    developer_mode_enabled_fn=developer_mode_enabled,
 )
 configure_workshop_approvals(
     tool_permission_fn=workshop_memory_tool_permission,

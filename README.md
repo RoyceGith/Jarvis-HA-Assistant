@@ -1,4 +1,4 @@
-ZBRANO v0.13.36 separates Home Assistant, Automation Brain, and Calendar intent routing into explicit backend services while preserving detection, tool priority, learned context, and workflow guidance.
+ZBRANO v0.13.37 separates Grinder diagnostics, Fast Memory intent routing, and Developer Mode tool definitions into explicit backend services while preserving detection, tool priority, safety guidance, and mode gating.
 
 ZBRANO v0.13.18 prevents Release Memory synchronization from remaining indefinitely in a non-terminal state by adding worker timeout recovery, note progress, task-health reporting, and automatic interface polling.
 

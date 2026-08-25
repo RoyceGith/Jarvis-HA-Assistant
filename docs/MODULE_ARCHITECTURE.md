@@ -49,6 +49,12 @@ Pure, low-coupling behavior is extracted under `jarvis/app/services/`:
   history/timeline requests, then selects their approved Home Assistant tools.
 - `calendar_intents.py` detects calendar requests, selects calendar tools, and renders
   the established appointment and reminder workflow guidance.
+- `grinder_intents.py` detects Grinder diagnostic requests, selects the read-only
+  monitor tools, and supplies the established evidence-first diagnostic guidance.
+- `fast_memory_intents.py` detects personal Fast Memory requests and selects only
+  the bounded remember, search, and forget tools.
+- `developer_tools.py` owns the mode-gated targeted diagnostics and local Playwright
+  tool schemas exposed during Developer Mode.
 
 The API boundary models live in `jarvis/app/schemas.py`, keeping validation contracts
 separate from route orchestration without changing their names or fields.
