@@ -1,4 +1,4 @@
-ZBRANO v0.13.33 separates plugin registry/secrets persistence and plugin endpoint/icon/GitHub safety policy into explicit backend services while preserving installed plugins, OAuth data, permissions, and storage paths.
+ZBRANO v0.13.34 separates installed-plugin public payload rendering and remote MCP tool discovery into explicit backend services while preserving OAuth visibility, permission summaries, protocol flow, bounds, and redirect safety.
 
 ZBRANO v0.13.18 prevents Release Memory synchronization from remaining indefinitely in a non-terminal state by adding worker timeout recovery, note progress, task-health reporting, and automatic interface polling.
 

@@ -1,9 +1,9 @@
 {
-  "version": "0.13.33",
+  "version": "0.13.34",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/Jarvis-HA-Assistant main",
-  "summary": "Separate plugin registry/secrets persistence and plugin endpoint/icon/GitHub safety policy into explicit backend services while preserving installed plugins, OAuth data, permissions, and storage paths.",
+  "summary": "Separate installed-plugin public payload rendering and remote MCP tool discovery into explicit backend services while preserving OAuth visibility, permission summaries, protocol flow, bounds, and redirect safety.",
   "history_backfill": [
     {
       "version": "0.13.0",
@@ -136,21 +136,26 @@
     {
       "version": "0.13.32",
       "summary": "Restored the modularized Home Assistant health/history APIs and made Developer diagnostics inspect the complete split frontend, eliminating false wiring failures while preserving runtime behavior."
+    },
+    {
+      "version": "0.13.33",
+      "summary": "Separated plugin registry/secrets persistence and plugin endpoint/icon/GitHub safety policy into explicit backend services while preserving installed plugins, OAuth data, permissions, and storage paths."
     }
   ],
   "release_entry": {
     "features": [
-      "Move atomic installed-plugin registry and secret JSON persistence into an explicit storage service with the existing /data paths and file permissions.",
-      "Move MCP endpoint validation, icon mapping, URL identity, and GitHub tool-permission migration into an explicit plugin policy service."
+      "Move installed-plugin public payload rendering, secret presence, OAuth state, scope display, and tool permission counts into an explicit presentation service.",
+      "Move remote MCP initialization, session negotiation, SSE/JSON decoding, bounded tool metadata, redirect rejection, and initial permission classification into an explicit discovery service."
     ],
     "fixes": [
-      "Keep installed-plugin records, bearer and OAuth secret handling, private-network endpoint blocking, and approval-required GitHub write tools unchanged across both module boundaries."
+      "Keep plugin list payload fields, OAuth visibility, 100-tool cap, name and description limits, GitHub default enablement, non-GitHub blocking, timeout, and protocol version unchanged across both module boundaries."
     ],
     "validation": [
-      "Plugin storage round trips and permissions, endpoint and icon policy, GitHub permission migration, backend compilation, regression suite, and v0.13.33 release alignment coverage"
+      "Plugin public payload contracts, JSON and SSE MCP decoding, discovery safety markers, explicit dependency wiring, backend compilation, regression suite, and v0.13.34 release alignment coverage"
     ]
   },
   "features": [
+    "Extract installed-plugin public payload rendering and remote MCP tool discovery into explicit backend services.",
     "Extract plugin registry/secrets persistence and plugin endpoint/icon/GitHub safety policy into explicit backend services.",
     "Restore modularized health/history diagnostics and validate wiring across the complete split frontend source.",
     "Extract agent runtime preference resolution and frontend tab-activity revision calculation into explicit backend services.",
@@ -493,6 +498,7 @@
     "Preserve task-scoped Workshop Memory approval and per-draft Gmail approval isolation."
   ],
   "validation": [
+    "Plugin public payload contracts, JSON and SSE MCP decoding, discovery safety markers, explicit dependency wiring, backend compilation, regression suite, and v0.13.34 release alignment coverage",
     "Plugin storage round trips and permissions, endpoint and icon policy, GitHub permission migration, backend compilation, regression suite, and v0.13.33 release alignment coverage",
     "Health/entity-policy composition imports, canonical frontend source aggregation, all diagnostic wiring markers, backend compilation, regression suite, and v0.13.32 release alignment coverage",
     "Agent preference and instruction contracts, stable semantic activity revisions, explicit dependency wiring, backend compilation, regression suite, and v0.13.31 release alignment coverage",

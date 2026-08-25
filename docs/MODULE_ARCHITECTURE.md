@@ -33,6 +33,10 @@ Pure, low-coupling behavior is extracted under `jarvis/app/services/`:
   installed-plugin registry and secrets while retaining their existing `/data` paths.
 - `plugin_policy.py` owns public-HTTPS endpoint validation, built-in icon matching,
   URL identity normalization, and the established GitHub tool permission migration.
+- `plugin_presentation.py` builds the existing public installed-plugin payload from
+  registry records, secrets, OAuth scopes, tool permissions, and icon policy.
+- `plugin_discovery.py` owns bounded remote MCP initialization, SSE/JSON tool-list
+  decoding, redirect rejection, metadata limits, and initial tool permissions.
 
 The API boundary models live in `jarvis/app/schemas.py`, keeping validation contracts
 separate from route orchestration without changing their names or fields.

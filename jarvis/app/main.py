@@ -325,6 +325,15 @@ from .services.plugin_policy import (
     plugin_icon_url,
     validate_plugin_url,
 )
+from .services.plugin_presentation import (
+    configure_plugin_presentation,
+    plugin_public,
+)
+from .services.plugin_discovery import (
+    _mcp_response_json,
+    configure_plugin_discovery,
+    discover_plugin_tools,
+)
 
 import httpx
 import websockets
@@ -506,7 +515,7 @@ ha_ws = HomeAssistantWebSocketClient(
 
 app = FastAPI(
     title="ZBRANO",
-    version="0.13.33",
+    version="0.13.34",
     docs_url="/api/docs",
     openapi_url="/api/openapi.json",
 )
@@ -3092,7 +3101,7 @@ async def health() -> dict[str, Any]:
     configured_speech_provider = SPEECH_PROVIDER if SPEECH_PROVIDER in {"openai", "elevenlabs"} else "openai"
     return {
         "status": "ok",
-        "version": "0.13.33",
+        "version": "0.13.34",
         "home_assistant_configured": bool(SUPERVISOR_TOKEN),
         "workshop_memory_configured": bool(WORKSHOP_MEMORY_URL),
         "openai_configured": bool(OPENAI_API_KEY),
@@ -3336,83 +3345,8 @@ async def update_agent_settings(request: AgentSettingsUpdate) -> dict[str, Any]:
 
 PLUGIN_TIMEOUT=httpx.Timeout(15.0,connect=4.0)
 
-def plugin_public(pid,p):
-    tools = list(p.get("tools") or [])
-    enabled_tools = [
-        tool for tool in tools
-        if tool.get("enabled") and tool.get("permission") in {"read_only", "write"}
-    ]
-    enabled_tool_count = len(enabled_tools)
-    approval_tool_count = sum(1 for tool in enabled_tools if tool.get("permission") == "write")
-    return {
-        "id": pid,
-        "name": p.get("name", pid),
-        "url": p.get("url", ""),
-        "icon_url": plugin_icon_url(str(p.get("name") or pid), str(p.get("url") or "")),
-        "enabled": bool(p.get("enabled")),
-        "healthy": bool(p.get("healthy")),
-        "last_error": p.get("last_error"),
-        "last_checked": p.get("last_checked"),
-        "has_secret": bool(plugin_secrets().get(pid)),
-        "auth_mode": str(p.get("auth_mode") or ("bearer" if plugin_secrets().get(pid) else "none")),
-        "oauth_connected": bool(p.get("auth_mode") == "oauth" and plugin_secrets().get(pid)),
-        "oauth_provider": str(p.get("oauth_provider") or ""),
-        "oauth_account": str(p.get("oauth_account") or ""),
-        "oauth_scopes": sorted(_oauth_scope_set((plugin_oauth_records().get(pid) or {}).get("scope"))),
-        "tools": tools,
-        "enabled_tool_count": enabled_tool_count,
-        "approval_tool_count": approval_tool_count,
-        "available_to_chat": bool(p.get("enabled") and enabled_tool_count),
-    }
-def _mcp_response_json(response):
-    content_type=str(response.headers.get("content-type") or "").lower()
-    if "text/event-stream" not in content_type:
-        return response.json()
-    for line in response.text.splitlines():
-        if not line.startswith("data:"):
-            continue
-        payload=line[5:].strip()
-        if not payload or payload=="[DONE]":
-            continue
-        return json.loads(payload)
-    raise ValueError("MCP server returned no JSON event data")
-
-
 GITHUB_MCP_URL="https://api.githubcopilot.com/mcp/"
 
-
-async def discover_plugin_tools(url,token=""):
-    headers={"Accept":"application/json, text/event-stream","Content-Type":"application/json"}
-    if token: headers["Authorization"]=f"Bearer {token}"
-    async with httpx.AsyncClient(timeout=PLUGIN_TIMEOUT,follow_redirects=False) as client:
-        r=await client.post(url,headers=headers,json={"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2025-06-18","capabilities":{},"clientInfo":{"name":"ZBRANO Plugin Manager","version":"0.10.1"}}})
-        if r.is_redirect: raise ValueError("MCP redirects are blocked")
-        if r.is_error: raise ValueError(f"MCP initialize returned HTTP {r.status_code}")
-        sid=r.headers.get("mcp-session-id")
-        if sid: headers["mcp-session-id"]=sid
-        await client.post(url,headers=headers,json={"jsonrpc":"2.0","method":"notifications/initialized"})
-        r=await client.post(url,headers=headers,json={"jsonrpc":"2.0","id":2,"method":"tools/list","params":{}})
-        if r.is_redirect: raise ValueError("MCP redirects are blocked")
-        if r.is_error: raise ValueError(f"MCP tools/list returned HTTP {r.status_code}")
-        try: tools=_mcp_response_json(r).get("result",{}).get("tools",[])
-        except (ValueError,TypeError): raise ValueError("MCP server did not return JSON tool metadata")
-    result=[]
-    for tool in tools[:100]:
-        name=str(tool.get("name") or "").strip()
-        if name:
-            is_github = _is_github_plugin(url=url)
-            permission = (
-                _github_discovered_permission(tool)
-                if is_github
-                else ("read_only" if (tool.get("annotations") or {}).get("readOnlyHint") is True else "blocked")
-            )
-            result.append({
-                "name": name[:128],
-                "description": str(tool.get("description") or "")[:1000],
-                "permission": permission,
-                "enabled": bool(is_github and permission in {"read_only", "write"}),
-            })
-    return result
 
 def active_mcp_tools():
     active = []
@@ -3934,7 +3868,7 @@ async def _oauth_discover(resource_url, allow_pre_registered=False):
         "jsonrpc": "2.0", "id": 1, "method": "initialize",
         "params": {
             "protocolVersion": "2025-06-18", "capabilities": {},
-            "clientInfo": {"name": "ZBRANO Plugin Manager", "version": "0.13.33"},
+            "clientInfo": {"name": "ZBRANO Plugin Manager", "version": "0.13.34"},
         },
     }
     async with httpx.AsyncClient(timeout=PLUGIN_TIMEOUT, follow_redirects=False) as client:
@@ -7440,6 +7374,14 @@ async def frontend(path: str = "") -> FileResponse:
     )
 
 
+configure_plugin_presentation(
+    plugin_secrets_fn=plugin_secrets,
+    plugin_oauth_records_fn=plugin_oauth_records,
+    oauth_scope_set_fn=_oauth_scope_set,
+)
+configure_plugin_discovery(
+    timeout=PLUGIN_TIMEOUT,
+)
 configure_agent_runtime(
     openai_model=OPENAI_MODEL,
     chat_context_max_messages=CHAT_CONTEXT_MAX_MESSAGES,
