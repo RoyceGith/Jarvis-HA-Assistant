@@ -412,6 +412,29 @@ from .services.plugin_catalog import (
     plugin_catalog_payload,
     verify_catalog_result_contract as _verify_catalog_result_contract,
 )
+from .services.plugin_oauth import (
+    PLUGIN_OAUTH_FLOWS,
+    PLUGIN_OAUTH_PATH,
+    configure_plugin_oauth_service,
+    oauth_discover as _oauth_discover,
+    oauth_exchange_token as _oauth_exchange_token,
+    oauth_pkce as _oauth_pkce,
+    oauth_popup_response as _oauth_popup_response,
+    oauth_register_client as _oauth_register_client,
+    oauth_safe_json as _oauth_safe_json,
+    oauth_scope_set as _oauth_scope_set,
+    oauth_token_request_auth as _oauth_token_request_auth,
+    oauth_validate_https_url as _oauth_validate_https_url,
+    oauth_validate_redirect_uri as _oauth_validate_redirect_uri,
+    plugin_oauth_records,
+)
+from .services.google_oauth import (
+    configure_google_oauth_service,
+    enforce_stored_gmail_scope_policy,
+    revoke_rejected_oauth_token as _revoke_rejected_oauth_token,
+    validate_gmail_oauth_grant as _validate_gmail_oauth_grant,
+    validate_google_calendar_oauth_grant as _validate_google_calendar_oauth_grant,
+)
 
 import httpx
 import websockets
@@ -593,7 +616,7 @@ ha_ws = HomeAssistantWebSocketClient(
 
 app = FastAPI(
     title="ZBRANO",
-    version="0.13.39",
+    version="0.13.40",
     docs_url="/api/docs",
     openapi_url="/api/openapi.json",
 )
@@ -2424,7 +2447,7 @@ async def health() -> dict[str, Any]:
     configured_speech_provider = SPEECH_PROVIDER if SPEECH_PROVIDER in {"openai", "elevenlabs"} else "openai"
     return {
         "status": "ok",
-        "version": "0.13.39",
+        "version": "0.13.40",
         "home_assistant_configured": bool(SUPERVISOR_TOKEN),
         "workshop_memory_configured": bool(WORKSHOP_MEMORY_URL),
         "openai_configured": bool(OPENAI_API_KEY),
@@ -2736,342 +2759,7 @@ async def install_catalog_plugin(catalog_id: str, request: CatalogInstallRequest
     return await install_plugin(install)
 
 
-PLUGIN_OAUTH_PATH = Path("/data/plugins/oauth.json")
-PLUGIN_OAUTH_FLOWS = {}
 PLUGIN_OAUTH_REFRESH_TASK = None
-
-
-def plugin_oauth_records():
-    return _plugin_load(PLUGIN_OAUTH_PATH)
-
-
-def _oauth_safe_json(response, label):
-    if len(response.content) > 131072:
-        raise ValueError(f"{label} response is too large")
-    try:
-        payload = response.json()
-    except (ValueError, TypeError) as exc:
-        raise ValueError(f"{label} did not return JSON") from exc
-    if not isinstance(payload, dict):
-        raise ValueError(f"{label} returned an invalid document")
-    return payload
-
-
-def _oauth_validate_https_url(raw, label):
-    try:
-        return validate_plugin_url(str(raw or ""))
-    except ValueError as exc:
-        raise ValueError(f"{label}: {exc}") from exc
-
-
-def _oauth_validate_redirect_uri(raw):
-    from urllib.parse import urlparse
-
-    value = str(raw or "").strip()
-    parsed = urlparse(value)
-    local_http = parsed.scheme == "http" and parsed.hostname in {"localhost", "127.0.0.1", "::1"}
-    if not (parsed.scheme == "https" or local_http):
-        raise ValueError("OAuth callback must use HTTPS, or HTTP on localhost")
-    if not parsed.hostname or parsed.username or parsed.password or parsed.fragment:
-        raise ValueError("OAuth callback URL is invalid")
-    if parsed.query or not parsed.path.endswith("/api/plugin-oauth/callback"):
-        raise ValueError("OAuth callback must end with /api/plugin-oauth/callback")
-    return value
-
-
-def _oauth_well_known_url(issuer, suffix):
-    from urllib.parse import urlparse, urlunparse
-
-    parsed = urlparse(issuer)
-    path = parsed.path.rstrip("/")
-    return urlunparse((parsed.scheme, parsed.netloc, f"/.well-known/{suffix}{path}", "", "", ""))
-
-
-def _oauth_pkce():
-    import base64
-    import hashlib
-    import secrets
-
-    verifier = secrets.token_urlsafe(64)
-    challenge = base64.urlsafe_b64encode(
-        hashlib.sha256(verifier.encode("ascii")).digest()
-    ).rstrip(b"=").decode("ascii")
-    return verifier, challenge
-
-
-async def _oauth_discover(resource_url, allow_pre_registered=False):
-    import re
-    from urllib.parse import urlparse, urlunparse
-
-    resource_url = _oauth_validate_https_url(resource_url, "MCP resource URL")
-    headers = {"Accept": "application/json, text/event-stream", "Content-Type": "application/json"}
-    initialize = {
-        "jsonrpc": "2.0", "id": 1, "method": "initialize",
-        "params": {
-            "protocolVersion": "2025-06-18", "capabilities": {},
-            "clientInfo": {"name": "ZBRANO Plugin Manager", "version": "0.13.39"},
-        },
-    }
-    async with httpx.AsyncClient(timeout=PLUGIN_TIMEOUT, follow_redirects=False) as client:
-        response = await client.post(resource_url, headers=headers, json=initialize)
-        authenticate = str(response.headers.get("www-authenticate") or "")
-        match = re.search(r'resource_metadata="([^"]+)"', authenticate, re.IGNORECASE)
-        metadata_urls = []
-        if match:
-            metadata_urls.append(match.group(1))
-        parsed = urlparse(resource_url)
-        metadata_urls.extend([
-            urlunparse((parsed.scheme, parsed.netloc, f"/.well-known/oauth-protected-resource{parsed.path}", "", "", "")),
-            urlunparse((parsed.scheme, parsed.netloc, "/.well-known/oauth-protected-resource", "", "", "")),
-        ])
-
-        resource_metadata = None
-        last_error = "OAuth protected-resource metadata was not advertised"
-        for metadata_url in dict.fromkeys(metadata_urls):
-            try:
-                metadata_url = _oauth_validate_https_url(metadata_url, "OAuth resource metadata URL")
-                metadata_response = await client.get(metadata_url)
-                if metadata_response.is_redirect:
-                    raise ValueError("OAuth resource metadata redirects are blocked")
-                if metadata_response.is_error:
-                    last_error = f"OAuth resource metadata returned HTTP {metadata_response.status_code}"
-                    continue
-                resource_metadata = _oauth_safe_json(metadata_response, "OAuth resource metadata")
-                break
-            except (httpx.HTTPError, ValueError) as exc:
-                last_error = str(exc)
-        if resource_metadata is None:
-            raise ValueError(last_error)
-
-        advertised_resource = str(resource_metadata.get("resource") or "").rstrip("/")
-        if advertised_resource and advertised_resource != resource_url.rstrip("/"):
-            raise ValueError("OAuth metadata resource does not match the selected MCP server")
-        authorization_servers = resource_metadata.get("authorization_servers") or []
-        if not isinstance(authorization_servers, list) or not authorization_servers:
-            raise ValueError("OAuth metadata did not advertise an authorization server")
-        issuer = _oauth_validate_https_url(authorization_servers[0], "OAuth authorization server")
-        auth_metadata_url = _oauth_validate_https_url(
-            _oauth_well_known_url(issuer, "oauth-authorization-server"),
-            "OAuth authorization metadata URL",
-        )
-        auth_response = await client.get(auth_metadata_url)
-        if auth_response.is_redirect:
-            raise ValueError("OAuth authorization metadata redirects are blocked")
-        if auth_response.is_error:
-            raise ValueError(f"OAuth authorization metadata returned HTTP {auth_response.status_code}")
-        auth_metadata = _oauth_safe_json(auth_response, "OAuth authorization metadata")
-
-    if str(auth_metadata.get("issuer") or "").rstrip("/") != issuer.rstrip("/"):
-        raise ValueError("OAuth authorization metadata issuer mismatch")
-    for field in ("authorization_endpoint", "token_endpoint"):
-        auth_metadata[field] = _oauth_validate_https_url(auth_metadata.get(field), f"OAuth {field}")
-    registration_endpoint = auth_metadata.get("registration_endpoint")
-    if registration_endpoint:
-        auth_metadata["registration_endpoint"] = _oauth_validate_https_url(
-            registration_endpoint, "OAuth registration endpoint"
-        )
-    elif not allow_pre_registered:
-        raise ValueError("This provider requires a pre-registered OAuth client")
-    methods = auth_metadata.get("code_challenge_methods_supported") or []
-    if "S256" not in methods:
-        raise ValueError("OAuth provider does not advertise required PKCE S256 support")
-    return resource_url, resource_metadata, auth_metadata
-
-
-async def _oauth_register_client(auth_metadata, redirect_uri):
-    registration = {
-        "client_name": "ZBRANO Home Assistant",
-        "redirect_uris": [redirect_uri],
-        "grant_types": ["authorization_code", "refresh_token"],
-        "response_types": ["code"],
-        "token_endpoint_auth_method": "none",
-    }
-    async with httpx.AsyncClient(timeout=PLUGIN_TIMEOUT, follow_redirects=False) as client:
-        response = await client.post(auth_metadata["registration_endpoint"], json=registration)
-    if response.is_redirect:
-        raise ValueError("OAuth client registration redirects are blocked")
-    if response.is_error:
-        detail = ""
-        with contextlib.suppress(ValueError, TypeError):
-            payload = response.json()
-            detail = str(payload.get("error_description") or payload.get("error") or "")[:300]
-        raise ValueError(detail or f"OAuth client registration returned HTTP {response.status_code}")
-    client_data = _oauth_safe_json(response, "OAuth client registration")
-    client_id = str(client_data.get("client_id") or "")
-    if not client_id:
-        raise ValueError("OAuth registration returned no client ID")
-    return {
-        "client_id": client_id,
-        "client_secret": str(client_data.get("client_secret") or ""),
-        "token_endpoint_auth_method": str(client_data.get("token_endpoint_auth_method") or "none"),
-    }
-
-
-def _oauth_token_request_auth(data, record):
-    method = str(record.get("token_endpoint_auth_method") or "none")
-    secret = str(record.get("client_secret") or "")
-    if method == "client_secret_basic" and secret:
-        return httpx.BasicAuth(str(record["client_id"]), secret)
-    data["client_id"] = str(record["client_id"])
-    if method == "client_secret_post" and secret:
-        data["client_secret"] = secret
-    return None
-
-
-async def _oauth_exchange_token(record, data):
-    data = {key: value for key, value in data.items() if value not in {"", None}}
-    auth = _oauth_token_request_auth(data, record)
-    async with httpx.AsyncClient(timeout=PLUGIN_TIMEOUT, follow_redirects=False) as client:
-        response = await client.post(record["token_endpoint"], data=data, auth=auth)
-    if response.is_redirect:
-        raise ValueError("OAuth token redirects are blocked")
-    payload = _oauth_safe_json(response, "OAuth token endpoint")
-    if response.is_error or payload.get("error"):
-        raise ValueError(str(payload.get("error_description") or payload.get("error") or f"HTTP {response.status_code}")[:500])
-    if str(payload.get("token_type") or "Bearer").lower() != "bearer":
-        raise ValueError("OAuth provider returned an unsupported token type")
-    if not payload.get("access_token"):
-        raise ValueError("OAuth provider returned no access token")
-    return payload
-
-
-def _oauth_popup_response(success, message, plugin_id=""):
-    payload = json.dumps({
-        "type": "zbrano-plugin-oauth", "success": bool(success),
-        "message": str(message)[:500], "plugin_id": str(plugin_id),
-    }).replace("</", "<\\/")
-    title = "Authorization complete" if success else "Authorization failed"
-    body = "You can close this window." if success else "Return to ZBRANO and try again."
-    html = f"""<!doctype html><html><head><meta charset="utf-8"><title>{title}</title></head>
-<body style="font:16px system-ui;background:#071015;color:#d9fbff;padding:2rem">
-<h1>{title}</h1><p>{body}</p><script>
-if(window.opener)window.opener.postMessage({payload}, window.location.origin);
-window.setTimeout(()=>window.close(),700);
-</script></body></html>"""
-    return Response(
-        content=html,
-        media_type="text/html",
-        headers={
-            "Cache-Control": "no-store",
-            "Content-Security-Policy": "default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'",
-            "X-Content-Type-Options": "nosniff",
-        },
-    )
-
-
-def _oauth_scope_set(raw: str) -> set[str]:
-    return {scope for scope in str(raw or "").split() if scope}
-
-
-async def _revoke_rejected_oauth_token(record: dict[str, Any], token: dict[str, Any]) -> None:
-    endpoint_raw = str(record.get("revocation_endpoint") or "")
-    candidate = str(token.get("refresh_token") or token.get("access_token") or "")
-    if not endpoint_raw or not candidate:
-        return
-    with contextlib.suppress(ValueError, httpx.HTTPError):
-        endpoint = _oauth_validate_https_url(endpoint_raw, "OAuth revocation endpoint")
-        async with httpx.AsyncClient(timeout=PLUGIN_TIMEOUT, follow_redirects=False) as client:
-            await client.post(endpoint, data={"token": candidate})
-
-
-async def _validate_gmail_oauth_grant(flow: dict[str, Any], token: dict[str, Any]) -> str:
-    if flow.get("google_service") != "gmail":
-        return ""
-    required = set(GMAIL_MCP_OAUTH_SCOPES)
-    granted = _oauth_scope_set(token.get("scope"))
-    if granted != required:
-        await _revoke_rejected_oauth_token(flow, token)
-        missing = sorted(required - granted)
-        unexpected = sorted(granted - required)
-        details = []
-        if missing:
-            details.append("missing " + ", ".join(missing))
-        if unexpected:
-            details.append("unexpected " + ", ".join(unexpected))
-        if not granted:
-            details.append("provider returned no granted-scope list")
-        raise ValueError(
-            "Gmail authorization was rejected by ZBRANO's least-privilege policy: "
-            + "; ".join(details)
-        )
-    access_token = str(token.get("access_token") or "")
-    async with httpx.AsyncClient(timeout=PLUGIN_TIMEOUT, follow_redirects=False) as client:
-        response = await client.get(
-            "https://gmail.googleapis.com/gmail/v1/users/me/profile",
-            headers={"Authorization": f"Bearer {access_token}"},
-        )
-    if response.is_error:
-        await _revoke_rejected_oauth_token(flow, token)
-        raise ValueError(f"Gmail profile verification returned HTTP {response.status_code}")
-    profile = _oauth_safe_json(response, "Gmail profile")
-    account = str(profile.get("emailAddress") or "").strip()
-    if not account or "@" not in account:
-        await _revoke_rejected_oauth_token(flow, token)
-        raise ValueError("Gmail profile verification returned no account identity")
-    return account[:320]
-
-
-async def _validate_google_calendar_oauth_grant(flow: dict[str, Any], token: dict[str, Any]) -> str:
-    if flow.get("google_service") != "calendar":
-        return ""
-    required = set(GOOGLE_CALENDAR_OAUTH_SCOPES)
-    granted = _oauth_scope_set(token.get("scope"))
-    if not required.issubset(granted):
-        await _revoke_rejected_oauth_token(flow, token)
-        raise ValueError("Google Calendar authorization is missing required event or calendar-list access")
-    access_token = str(token.get("access_token") or "")
-    async with httpx.AsyncClient(timeout=PLUGIN_TIMEOUT, follow_redirects=False) as client:
-        response = await client.get(
-            "https://www.googleapis.com/calendar/v3/users/me/calendarList/primary",
-            headers={"Authorization": f"Bearer {access_token}"},
-        )
-    if response.is_error:
-        await _revoke_rejected_oauth_token(flow, token)
-        raise ValueError(f"Google Calendar verification returned HTTP {response.status_code}")
-    profile = _oauth_safe_json(response, "Google Calendar profile")
-    return str(profile.get("summary") or profile.get("id") or "Google Calendar")[:320]
-
-
-async def enforce_stored_gmail_scope_policy() -> None:
-    plugin_id = _gmail_plugin_id()
-    records = plugin_oauth_records()
-    record = records.get(plugin_id)
-    if not isinstance(record, dict):
-        return
-    granted = _oauth_scope_set(record.get("scope"))
-    if granted == set(GMAIL_MCP_OAUTH_SCOPES):
-        registry = plugin_registry()
-        plugin = registry.get(plugin_id) or {}
-        plugin.update({
-            "name": "Gmail Direct", "url": "https://gmail.googleapis.com/gmail/v1",
-            "catalog_id": "gmail-official", "enabled": True, "healthy": True,
-            "last_error": None, "last_checked": time.time(), "tools": gmail_direct_tool_records(),
-            "auth_mode": "oauth",
-        })
-        registry[plugin_id] = plugin
-        _plugin_save(PLUGIN_REGISTRY_PATH, registry)
-        return
-    access_token = str(plugin_secrets().get(plugin_id) or "")
-    if access_token:
-        await _revoke_rejected_oauth_token(record, {"access_token": access_token})
-    secrets = plugin_secrets()
-    secrets.pop(plugin_id, None)
-    _plugin_save(PLUGIN_SECRETS_PATH, secrets)
-    records.pop(plugin_id, None)
-    _plugin_save(PLUGIN_OAUTH_PATH, records)
-    registry = plugin_registry()
-    plugin = registry.get(plugin_id)
-    if isinstance(plugin, dict):
-        plugin.update({
-            "enabled": False,
-            "healthy": False,
-            "last_error": "Gmail OAuth scope policy changed; reconnect required",
-            "last_checked": time.time(),
-            "oauth_account": "",
-        })
-        registry[plugin_id] = plugin
-        _plugin_save(PLUGIN_REGISTRY_PATH, registry)
-
 
 async def _oauth_start_for_target(name, resource_url, redirect_uri, catalog_id="", plugin_id=""):
     import secrets
@@ -6090,6 +5778,29 @@ configure_plugin_catalog_service(
     gmail_plugin_id_fn=_gmail_plugin_id,
     google_calendar_plugin_id_fn=_google_calendar_plugin_id,
     github_oauth_client_id_fn=_github_oauth_client_id,
+)
+configure_plugin_oauth_service(
+    plugin_load_fn=_plugin_load,
+    validate_plugin_url_fn=validate_plugin_url,
+    timeout=PLUGIN_TIMEOUT,
+    runtime_version=app.version,
+)
+configure_google_oauth_service(
+    timeout=PLUGIN_TIMEOUT,
+    gmail_scopes=GMAIL_MCP_OAUTH_SCOPES,
+    calendar_scopes=GOOGLE_CALENDAR_OAUTH_SCOPES,
+    gmail_plugin_id_fn=_gmail_plugin_id,
+    oauth_records_fn=plugin_oauth_records,
+    oauth_scope_set_fn=_oauth_scope_set,
+    oauth_safe_json_fn=_oauth_safe_json,
+    oauth_validate_url_fn=_oauth_validate_https_url,
+    plugin_registry_fn=plugin_registry,
+    plugin_secrets_fn=plugin_secrets,
+    plugin_save_fn=_plugin_save,
+    gmail_tool_records_fn=gmail_direct_tool_records,
+    registry_path=PLUGIN_REGISTRY_PATH,
+    secrets_path=PLUGIN_SECRETS_PATH,
+    oauth_path=PLUGIN_OAUTH_PATH,
 )
 configure_agent_runtime(
     openai_model=OPENAI_MODEL,

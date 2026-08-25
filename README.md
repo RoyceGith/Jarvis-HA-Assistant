@@ -1,4 +1,4 @@
-ZBRANO v0.13.39 consolidates the official MCP plugin catalog into an explicit backend service while preserving curated connectors, Registry caching and paging, package-only discovery, installed-state rendering, and OAuth availability metadata.
+ZBRANO v0.13.40 separates remote MCP OAuth protocol handling and Google connector scope enforcement into explicit backend services while preserving callback validation, discovery, PKCE, token exchange, credential paths, and least-privilege policy.
 
 ZBRANO v0.13.18 prevents Release Memory synchronization from remaining indefinitely in a non-terminal state by adding worker timeout recovery, note progress, task-health reporting, and automatic interface polling.
 

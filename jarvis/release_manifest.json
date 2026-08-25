@@ -1,9 +1,9 @@
 {
-  "version": "0.13.39",
+  "version": "0.13.40",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/Jarvis-HA-Assistant main",
-  "summary": "Consolidate the official MCP plugin catalog into an explicit backend service while preserving curated connectors, Registry caching and paging, package-only discovery, installed-state rendering, and OAuth availability metadata.",
+  "summary": "Separate remote MCP OAuth protocol handling and Google connector scope enforcement into explicit backend services while preserving callback validation, discovery, PKCE, token exchange, credential paths, and least-privilege policy.",
   "history_backfill": [
     {
       "version": "0.13.0",
@@ -160,22 +160,27 @@
     {
       "version": "0.13.38",
       "summary": "Consolidated Home Assistant Recorder history and live state-change handling into an explicit backend service while preserving policy enforcement, automation callbacks, event evidence, and timeline behavior."
+    },
+    {
+      "version": "0.13.39",
+      "summary": "Consolidated the official MCP plugin catalog into an explicit backend service while preserving curated connectors, Registry caching and paging, package-only discovery, installed-state rendering, and OAuth availability metadata."
     }
   ],
   "release_entry": {
     "features": [
-      "Move curated official connectors, Registry parsing, bounded paging, cache fallback, filtering, and installed-state presentation into an explicit plugin catalog service.",
-      "Keep package-only Registry entries discoverable while allowing installation only for validated remote HTTPS endpoints.",
-      "Remove the overridden legacy Registry parser so one canonical implementation owns catalog normalization."
+      "Move remote MCP protected-resource discovery, HTTPS validation, PKCE, dynamic client registration, token exchange, popup responses, and OAuth record reads into an explicit protocol service.",
+      "Move Gmail exact-scope enforcement, Google Calendar required-scope enforcement, account verification, rejected-token revocation, and stored Gmail credential quarantine into an explicit Google OAuth service.",
+      "Inject runtime version, transport limits, storage callbacks, connector identities, and credential paths explicitly at the composition boundary."
     ],
     "fixes": [
-      "Preserve Gmail, Google Calendar, GitHub, and generic remote connector setup metadata plus exact cache and Registry degradation behavior."
+      "Preserve callback URL restrictions, redirect blocking, issuer/resource matching, PKCE S256 requirements, OAuth response bounds, and Gmail least-privilege behavior."
     ],
     "validation": [
-      "Registry remote and package-only normalization, featured deduplication, result contract, installed and OAuth presentation, explicit dependency wiring, backend compilation, regression suite, and v0.13.39 release alignment coverage"
+      "Callback validation, well-known URL construction, PKCE, response bounds, scope parsing and enforcement, credential quarantine, explicit dependency wiring, backend compilation, regression suite, and v0.13.40 release alignment coverage"
     ]
   },
   "features": [
+    "Extract remote MCP OAuth protocol handling and Google connector least-privilege enforcement into explicit backend services.",
     "Extract curated and Registry-backed plugin catalog handling into an explicit backend service.",
     "Extract Home Assistant Recorder history, Logbook correlation, and live state-change handling into an explicit backend service.",
     "Extract Grinder diagnostics, Fast Memory intent routing, and Developer Mode tool definitions into three explicit backend services.",
@@ -524,6 +529,7 @@
     "Preserve task-scoped Workshop Memory approval and per-draft Gmail approval isolation."
   ],
   "validation": [
+    "Callback validation, well-known URL construction, PKCE, response bounds, scope parsing and enforcement, credential quarantine, explicit dependency wiring, backend compilation, regression suite, and v0.13.40 release alignment coverage",
     "Registry remote and package-only normalization, featured deduplication, result contract, installed and OAuth presentation, explicit dependency wiring, backend compilation, regression suite, and v0.13.39 release alignment coverage",
     "History normalization, summaries, bounds, correlation windows, live-event filtering and dispatch, explicit dependency wiring, backend compilation, regression suite, and v0.13.38 release alignment coverage",
     "Grinder and Fast Memory intent detection; exact tool subsets; diagnostic guidance; Developer Mode gating and schemas; explicit dependency wiring; backend compilation; regression suite; and v0.13.37 release alignment coverage",

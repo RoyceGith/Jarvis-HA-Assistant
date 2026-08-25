@@ -41,6 +41,10 @@ Pure, low-coupling behavior is extracted under `jarvis/app/services/`:
   decoding, redirect rejection, metadata limits, and initial tool permissions.
 - `plugin_catalog.py` owns curated official connectors, Registry normalization and
   paging, cache fallback, filtering, installed-state rendering, and setup metadata.
+- `plugin_oauth.py` owns OAuth record reads, callback validation, protected-resource
+  discovery, PKCE, dynamic registration, token exchange, and safe popup responses.
+- `google_oauth.py` owns Gmail and Google Calendar grant verification, rejected-token
+  revocation, exact Gmail scope policy, and incompatible stored-credential quarantine.
 - `workshop_approvals.py` owns Workshop Memory approval decisions, 15-minute task
   grants, pending state, bounded argument summaries, and approval prompts.
 - `mcp_approvals.py` owns native remote-MCP approval extraction, decisions, provider
