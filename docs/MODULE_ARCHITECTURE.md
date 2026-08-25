@@ -39,6 +39,8 @@ Pure, low-coupling behavior is extracted under `jarvis/app/services/`:
   registry records, secrets, OAuth scopes, tool permissions, and icon policy.
 - `plugin_discovery.py` owns bounded remote MCP initialization, SSE/JSON tool-list
   decoding, redirect rejection, metadata limits, and initial tool permissions.
+- `plugin_catalog.py` owns curated official connectors, Registry normalization and
+  paging, cache fallback, filtering, installed-state rendering, and setup metadata.
 - `workshop_approvals.py` owns Workshop Memory approval decisions, 15-minute task
   grants, pending state, bounded argument summaries, and approval prompts.
 - `mcp_approvals.py` owns native remote-MCP approval extraction, decisions, provider
