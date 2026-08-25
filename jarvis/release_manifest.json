@@ -1,9 +1,9 @@
 {
-  "version": "0.13.42",
+  "version": "0.13.43",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/Jarvis-HA-Assistant main",
-  "summary": "Complete canonical modularization by separating runtime intent routing, Developer diagnostic support, and wake calibration into explicit services while retaining streaming and route composition in main.py.",
+  "summary": "Establish the first Step 4 integration-test boundary by exercising the real FastAPI application inside the release image build with isolated persistence and no external service calls.",
   "history_backfill": [
     {
       "version": "0.13.0",
@@ -172,22 +172,26 @@
     {
       "version": "0.13.41",
       "summary": "Separated GitHub Device Flow into an explicit backend service while preserving catalog validation, repository scopes, polling and slowdown behavior, expiration handling, token handoff, and plugin installation semantics."
+    },
+    {
+      "version": "0.13.42",
+      "summary": "Completed canonical modularization by separating runtime intent routing, Developer diagnostic support, and wake calibration while retaining streaming and route composition in main.py."
     }
   ],
   "release_entry": {
     "features": [
-      "Move system-instruction priority and exact runtime tool selection into an explicit dependency-configured routing service.",
-      "Move Developer feature specifications, alias resolution, frontend source aggregation, and diagnostic constants into an explicit support service.",
-      "Move wake model construction, calibration paths and status, clip-quality analysis, and personal verifier training into an explicit voice service."
+      "Run real ASGI application integration tests inside the release image build after installing the exact runtime dependencies.",
+      "Cover application import, lifecycle registration, health and frontend delivery, Settings persistence, Chat persistence, and request validation."
     ],
     "fixes": [
-      "Preserve routing priority, Developer diagnostic source coverage, wake model paths, calibration storage, verifier thresholds, and existing FastAPI route contracts."
+      "Keep integration tests deterministic by redirecting persistence to temporary paths and replacing external-service boundaries with local fakes."
     ],
     "validation": [
-      "Intent and tool routing priority, Developer alias/source support, wake clip and calibration contracts, explicit dependency wiring, backend compilation, regression suite, and v0.13.42 release alignment coverage"
+      "ASGI health and frontend smoke coverage, Settings and Chat API persistence round trips, request validation, build-gated integration execution, regression suite, and v0.13.43 release alignment coverage"
     ]
   },
   "features": [
+    "Add build-gated ASGI integration tests for startup registration and critical API persistence boundaries.",
     "Complete canonical modularization with explicit runtime routing, Developer support, and wake calibration services.",
     "Extract GitHub Device Flow and its plugin-install handoff into an explicit backend service.",
     "Extract remote MCP OAuth protocol handling and Google connector least-privilege enforcement into explicit backend services.",
@@ -539,6 +543,7 @@
     "Preserve task-scoped Workshop Memory approval and per-draft Gmail approval isolation."
   ],
   "validation": [
+    "ASGI health and frontend smoke coverage, Settings and Chat API persistence round trips, request validation, build-gated integration execution, regression suite, and v0.13.43 release alignment coverage",
     "Intent and tool routing priority, Developer alias/source support, wake clip and calibration contracts, explicit dependency wiring, backend compilation, regression suite, and v0.13.42 release alignment coverage",
     "Catalog identity validation, missing configuration, pending and expired flows, error translation, installation handoff, explicit dependency wiring, backend compilation, regression suite, and v0.13.41 release alignment coverage",
     "Callback validation, well-known URL construction, PKCE, response bounds, scope parsing and enforcement, credential quarantine, explicit dependency wiring, backend compilation, regression suite, and v0.13.40 release alignment coverage",

@@ -1,4 +1,4 @@
-ZBRANO v0.13.42 completes canonical modularization by separating runtime intent routing, Developer diagnostic support, and wake calibration into explicit services while retaining streaming and route composition in main.py.
+ZBRANO v0.13.43 introduces build-gated ASGI integration tests for application import, lifecycle registration, health and frontend delivery, Settings persistence, Chat persistence, and request validation.
 
 ZBRANO v0.13.18 prevents Release Memory synchronization from remaining indefinitely in a non-terminal state by adding worker timeout recovery, note progress, task-health reporting, and automatic interface polling.
 

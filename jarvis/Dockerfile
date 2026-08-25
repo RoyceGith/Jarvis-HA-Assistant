@@ -34,11 +34,14 @@ COPY release_manifest.json ./release_manifest.json
 COPY validate_release_manifest.py ./validate_release_manifest.py
 COPY validate_inline_js.py ./validate_inline_js.py
 COPY validate_new_chat_wiring.py ./validate_new_chat_wiring.py
+COPY tests ./tests
 
 RUN python3 ./validate_release_manifest.py \
     && python3 ./validate_inline_js.py ./app/static/index.html \
     && python3 ./validate_new_chat_wiring.py ./app/static/index.html \
     && python3 -m compileall -q ./app \
+    && python3 -m unittest discover -s ./tests -p "test_*.py" \
+    && rm -r ./tests \
     && rm ./validate_release_manifest.py ./validate_inline_js.py ./validate_new_chat_wiring.py ./config.yaml
 
 COPY run.sh /run.sh
