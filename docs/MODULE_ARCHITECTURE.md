@@ -44,6 +44,10 @@ Stateful engines live under `jarvis/app/domains/`:
   retention, internal diagnostic cleanup, attachment views, and per-session entity context.
 - `files.py` owns chat uploads and Shared Files storage, metadata, bounded text
   extraction, attachment prompt context, listing, sorting, deletion, and chat-file cleanup.
+- `gmail_direct.py` owns least-privilege Gmail tools, bounded untrusted-content
+  decoding, unsent draft creation, OAuth scope checks, and write-audit redaction.
+- `telegram_inbound.py` owns Telegram pairing state, chat isolation, event
+  deduplication, Home Assistant event subscription, replies, and worker lifecycle.
 
 The composition root retains the FastAPI route wrappers and explicitly configures
 each domain with its runtime dependencies after all providers have been defined.

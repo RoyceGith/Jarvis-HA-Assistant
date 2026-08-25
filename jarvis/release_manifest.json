@@ -1,9 +1,9 @@
 {
-  "version": "0.13.26",
+  "version": "0.13.27",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/Jarvis-HA-Assistant main",
-  "summary": "Separate chat-upload and Shared Files persistence into an explicit backend domain while preserving storage paths, metadata, extraction limits, attachment context, API routes, diagnostics, and chat cleanup.",
+  "summary": "Separate Gmail Direct and Telegram inbound into explicit backend domains while preserving least-privilege mail tools, OAuth identity, Telegram pairing, remote approvals, event deduplication, routes, and workers.",
   "history_backfill": [
     {
       "version": "0.13.0",
@@ -108,21 +108,26 @@
     {
       "version": "0.13.25",
       "summary": "Separated conversation-session persistence into an explicit backend domain while preserving stored chats, retention, titles, attachments, internal-session cleanup, entity context, routes, and Fast Memory capture."
+    },
+    {
+      "version": "0.13.26",
+      "summary": "Separated chat-upload and Shared Files persistence into an explicit backend domain while preserving storage paths, metadata, extraction limits, attachment context, API routes, diagnostics, and chat cleanup."
     }
   ],
   "release_entry": {
     "features": [
-      "Move chat uploads, Shared Files, file metadata, bounded text extraction, attachment context, sorting, and deletion into an explicit backend domain.",
-      "Keep conversation cleanup explicit through composition-root dependency wiring."
+      "Move Gmail Direct tool definitions, bounded reads, unsent draft creation, OAuth scope enforcement, and audit redaction into an explicit backend domain.",
+      "Move Telegram inbound pairing, isolated sessions, remote approvals, event deduplication, replies, and worker lifecycle into an explicit backend domain."
     ],
     "fixes": [
-      "Keep /data/uploads, /data/shared_files, the 25 MB upload limit, 200000-character extraction limit, metadata fields, routes, and diagnostics unchanged across the module boundary."
+      "Keep Gmail's exact readonly/compose scope boundary and Telegram's /data/telegram_inbound.json format, Home Assistant-owned credential boundary, routes, and lifecycle unchanged across both module boundaries."
     ],
     "validation": [
-      "File upload/list/delete round trips, attachment context, conversation cleanup wiring, backend compilation, lean regression suite, and v0.13.26 release alignment coverage"
+      "Gmail tool safety and bounds, Telegram pairing parsing and deduplication, explicit dependency wiring, worker lifecycle, backend compilation, regression suite, and v0.13.27 release alignment coverage"
     ]
   },
   "features": [
+    "Extract Gmail Direct least-privilege tools and Telegram inbound pairing, chat isolation, event handling, and lifecycle into explicit backend domains.",
     "Extract chat-upload and Shared Files persistence, metadata, bounded text extraction, attachment context, sorting, deletion, and cleanup into an explicit backend domain.",
     "Extract conversation-session persistence, retention, attachment views, internal cleanup, and per-session entity context into an explicit backend domain.",
     "Extract Settings persistence, preference defaults, voice settings, general instructions, and pronunciation rules into an explicit backend domain.",
@@ -458,6 +463,7 @@
     "Preserve task-scoped Workshop Memory approval and per-draft Gmail approval isolation."
   ],
   "validation": [
+    "Gmail tool safety and bounds, Telegram pairing parsing and deduplication, explicit dependency wiring, worker lifecycle, backend compilation, regression suite, and v0.13.27 release alignment coverage",
     "File upload/list/delete round trips, attachment context, conversation cleanup wiring, backend compilation, lean regression suite, and v0.13.26 release alignment coverage",
     "Conversation function equivalence, JSON round trip and deletion, attachment parsing, shared state, backend compilation, regression suite, and v0.13.25 release alignment coverage",
     "Settings function equivalence, temporary-file persistence, defaults, validation, pronunciation behavior, backend compilation, regression suite, and v0.13.24 release alignment coverage",
