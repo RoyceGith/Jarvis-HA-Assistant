@@ -1,4 +1,4 @@
-ZBRANO v0.13.40 separates remote MCP OAuth protocol handling and Google connector scope enforcement into explicit backend services while preserving callback validation, discovery, PKCE, token exchange, credential paths, and least-privilege policy.
+ZBRANO v0.13.41 separates GitHub Device Flow into an explicit backend service while preserving catalog validation, repository scopes, polling and slowdown behavior, expiration handling, token handoff, and plugin installation semantics.
 
 ZBRANO v0.13.18 prevents Release Memory synchronization from remaining indefinitely in a non-terminal state by adding worker timeout recovery, note progress, task-health reporting, and automatic interface polling.
 

@@ -1,9 +1,9 @@
 {
-  "version": "0.13.40",
+  "version": "0.13.41",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/Jarvis-HA-Assistant main",
-  "summary": "Separate remote MCP OAuth protocol handling and Google connector scope enforcement into explicit backend services while preserving callback validation, discovery, PKCE, token exchange, credential paths, and least-privilege policy.",
+  "summary": "Separate GitHub Device Flow into an explicit backend service while preserving catalog validation, repository scopes, polling and slowdown behavior, expiration handling, token handoff, and plugin installation semantics.",
   "history_backfill": [
     {
       "version": "0.13.0",
@@ -164,22 +164,27 @@
     {
       "version": "0.13.39",
       "summary": "Consolidated the official MCP plugin catalog into an explicit backend service while preserving curated connectors, Registry caching and paging, package-only discovery, installed-state rendering, and OAuth availability metadata."
+    },
+    {
+      "version": "0.13.40",
+      "summary": "Separated remote MCP OAuth protocol handling and Google connector scope enforcement into explicit backend services while preserving callback validation, discovery, PKCE, token exchange, credential paths, and least-privilege policy."
     }
   ],
   "release_entry": {
     "features": [
-      "Move remote MCP protected-resource discovery, HTTPS validation, PKCE, dynamic client registration, token exchange, popup responses, and OAuth record reads into an explicit protocol service.",
-      "Move Gmail exact-scope enforcement, Google Calendar required-scope enforcement, account verification, rejected-token revocation, and stored Gmail credential quarantine into an explicit Google OAuth service.",
-      "Inject runtime version, transport limits, storage callbacks, connector identities, and credential paths explicitly at the composition boundary."
+      "Move GitHub OAuth client configuration, bounded pending-flow state, device-code issuance, token polling, and completion into an explicit service.",
+      "Inject catalog lookup and plugin installation callbacks so authorization remains separate from catalog and registry ownership.",
+      "Keep the existing FastAPI routes as thin compatibility wrappers that preserve HTTP status codes and response payloads."
     ],
     "fixes": [
-      "Preserve callback URL restrictions, redirect blocking, issuer/resource matching, PKCE S256 requirements, OAuth response bounds, and Gmail least-privilege behavior."
+      "Preserve the repo and read:org scope request, minimum polling interval, authorization_pending and slow_down handling, flow cleanup, and exact GitHub MCP endpoint."
     ],
     "validation": [
-      "Callback validation, well-known URL construction, PKCE, response bounds, scope parsing and enforcement, credential quarantine, explicit dependency wiring, backend compilation, regression suite, and v0.13.40 release alignment coverage"
+      "Catalog identity validation, missing configuration, pending and expired flows, error translation, installation handoff, explicit dependency wiring, backend compilation, regression suite, and v0.13.41 release alignment coverage"
     ]
   },
   "features": [
+    "Extract GitHub Device Flow and its plugin-install handoff into an explicit backend service.",
     "Extract remote MCP OAuth protocol handling and Google connector least-privilege enforcement into explicit backend services.",
     "Extract curated and Registry-backed plugin catalog handling into an explicit backend service.",
     "Extract Home Assistant Recorder history, Logbook correlation, and live state-change handling into an explicit backend service.",
@@ -529,6 +534,7 @@
     "Preserve task-scoped Workshop Memory approval and per-draft Gmail approval isolation."
   ],
   "validation": [
+    "Catalog identity validation, missing configuration, pending and expired flows, error translation, installation handoff, explicit dependency wiring, backend compilation, regression suite, and v0.13.41 release alignment coverage",
     "Callback validation, well-known URL construction, PKCE, response bounds, scope parsing and enforcement, credential quarantine, explicit dependency wiring, backend compilation, regression suite, and v0.13.40 release alignment coverage",
     "Registry remote and package-only normalization, featured deduplication, result contract, installed and OAuth presentation, explicit dependency wiring, backend compilation, regression suite, and v0.13.39 release alignment coverage",
     "History normalization, summaries, bounds, correlation windows, live-event filtering and dispatch, explicit dependency wiring, backend compilation, regression suite, and v0.13.38 release alignment coverage",

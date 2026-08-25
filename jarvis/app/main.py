@@ -435,6 +435,13 @@ from .services.google_oauth import (
     validate_gmail_oauth_grant as _validate_gmail_oauth_grant,
     validate_google_calendar_oauth_grant as _validate_google_calendar_oauth_grant,
 )
+from .services.github_device_oauth import (
+    GitHubDeviceFlowError,
+    complete_github_device_flow,
+    configure_github_device_oauth,
+    github_oauth_client_id as _github_oauth_client_id,
+    start_github_device_flow,
+)
 
 import httpx
 import websockets
@@ -616,7 +623,7 @@ ha_ws = HomeAssistantWebSocketClient(
 
 app = FastAPI(
     title="ZBRANO",
-    version="0.13.40",
+    version="0.13.41",
     docs_url="/api/docs",
     openapi_url="/api/openapi.json",
 )
@@ -2447,7 +2454,7 @@ async def health() -> dict[str, Any]:
     configured_speech_provider = SPEECH_PROVIDER if SPEECH_PROVIDER in {"openai", "elevenlabs"} else "openai"
     return {
         "status": "ok",
-        "version": "0.13.40",
+        "version": "0.13.41",
         "home_assistant_configured": bool(SUPERVISOR_TOKEN),
         "workshop_memory_configured": bool(WORKSHOP_MEMORY_URL),
         "openai_configured": bool(OPENAI_API_KEY),
@@ -2691,7 +2698,6 @@ async def update_agent_settings(request: AgentSettingsUpdate) -> dict[str, Any]:
 
 PLUGIN_TIMEOUT=httpx.Timeout(15.0,connect=4.0)
 
-GITHUB_MCP_URL="https://api.githubcopilot.com/mcp/"
 
 
 def active_mcp_tools():
@@ -3031,141 +3037,20 @@ async def disconnect_plugin_oauth(plugin_id: str):
     return {"disconnected": True, "plugin": plugin_public(plugin_id, plugin)}
 
 
-GITHUB_DEVICE_FLOWS = {}
-
-
-def _github_oauth_client_id():
-    try:
-        options = json.loads(Path("/data/options.json").read_text(encoding="utf-8"))
-    except (OSError, json.JSONDecodeError):
-        return ""
-    return str(options.get("github_oauth_client_id") or "").strip()
-
-
 @app.post("/api/plugin-catalog/{catalog_id}/github-device/start")
 async def github_device_start(catalog_id: str):
-    import secrets
-
-    entry = await _catalog_entry(catalog_id)
-    if not entry:
-        raise HTTPException(status_code=404, detail="Catalog plugin not found")
-    if "github" not in (
-        f"{entry.get('name', '')} {entry.get('title', '')} {entry.get('url', '')}"
-    ).lower():
-        raise HTTPException(
-            status_code=400,
-            detail="GitHub authorization is only available for GitHub plugins",
-        )
-
-    client_id = _github_oauth_client_id()
-    if not client_id:
-        raise HTTPException(
-            status_code=503,
-            detail=(
-                "GitHub OAuth is not configured. Add github_oauth_client_id to the "
-                "ZBRANO add-on configuration using a GitHub OAuth App or GitHub App "
-                "with Device Flow enabled, then reload the plugin catalog."
-            ),
-        )
-
-    async with httpx.AsyncClient(timeout=PLUGIN_TIMEOUT) as client:
-        response = await client.post(
-            "https://github.com/login/device/code",
-            headers={"Accept": "application/json"},
-            data={"client_id": client_id, "scope": "repo read:org"},
-        )
-        response.raise_for_status()
-        payload = response.json()
-
-    if payload.get("error"):
-        raise HTTPException(
-            status_code=400,
-            detail=payload.get("error_description") or payload["error"],
-        )
-
-    flow_id = secrets.token_urlsafe(24)
-    now = time.time()
-    interval = max(5, int(payload.get("interval") or 5))
-    GITHUB_DEVICE_FLOWS[flow_id] = {
-        "catalog_id": catalog_id,
-        "device_code": payload["device_code"],
-        "expires_at": now + int(payload.get("expires_in") or 900),
-        "interval": interval,
-        "next_poll": now + interval,
-    }
-    return {
-        "flow_id": flow_id,
-        "user_code": payload["user_code"],
-        "verification_uri": payload.get("verification_uri")
-        or "https://github.com/login/device",
-        "expires_in": int(payload.get("expires_in") or 900),
-        "interval": interval,
-    }
+    try:
+        return await start_github_device_flow(catalog_id)
+    except GitHubDeviceFlowError as exc:
+        raise HTTPException(status_code=exc.status_code, detail=exc.detail) from exc
 
 
 @app.post("/api/plugin-catalog/github-device/{flow_id}/complete")
 async def github_device_complete(flow_id: str):
-    flow = GITHUB_DEVICE_FLOWS.get(flow_id)
-    if not flow:
-        raise HTTPException(status_code=404, detail="GitHub authorization flow not found")
-
-    now = time.time()
-    if now >= flow["expires_at"]:
-        GITHUB_DEVICE_FLOWS.pop(flow_id, None)
-        raise HTTPException(status_code=410, detail="GitHub authorization expired")
-    if now < flow["next_poll"]:
-        return {
-            "pending": True,
-            "interval": max(1, int(flow["next_poll"] - now)),
-        }
-
-    client_id = _github_oauth_client_id()
-    async with httpx.AsyncClient(timeout=PLUGIN_TIMEOUT) as client:
-        response = await client.post(
-            "https://github.com/login/oauth/access_token",
-            headers={"Accept": "application/json"},
-            data={
-                "client_id": client_id,
-                "device_code": flow["device_code"],
-                "grant_type": "urn:ietf:params:oauth:grant-type:device_code",
-            },
-        )
-        response.raise_for_status()
-        payload = response.json()
-
-    error = payload.get("error")
-    if error == "authorization_pending":
-        flow["next_poll"] = time.time() + flow["interval"]
-        return {"pending": True, "interval": flow["interval"]}
-    if error == "slow_down":
-        flow["interval"] += 5
-        flow["next_poll"] = time.time() + flow["interval"]
-        return {"pending": True, "interval": flow["interval"]}
-    if error:
-        GITHUB_DEVICE_FLOWS.pop(flow_id, None)
-        raise HTTPException(
-            status_code=400,
-            detail=payload.get("error_description") or error,
-        )
-
-    access_token = str(payload.get("access_token") or "")
-    if not access_token:
-        raise HTTPException(status_code=502, detail="GitHub returned no access token")
-
-    entry = await _catalog_entry(flow["catalog_id"])
-    if not entry:
-        raise HTTPException(status_code=404, detail="Catalog plugin not found")
-
-    result = await install_plugin(
-        PluginInstallRequest(
-            name=str(entry.get("title") or entry.get("name") or "GitHub"),
-            url=GITHUB_MCP_URL,
-            bearer_token=access_token,
-        )
-    )
-    GITHUB_DEVICE_FLOWS.pop(flow_id, None)
-    return {"pending": False, **result}
-
+    try:
+        return await complete_github_device_flow(flow_id)
+    except GitHubDeviceFlowError as exc:
+        raise HTTPException(status_code=exc.status_code, detail=exc.detail) from exc
 
 @app.get("/api/plugins")
 async def list_plugins():
@@ -5729,6 +5614,10 @@ async def frontend(path: str = "") -> FileResponse:
     )
 
 
+async def _install_github_device_plugin(name: str, url: str, bearer_token: str) -> dict[str, Any]:
+    return await install_plugin(PluginInstallRequest(name=name, url=url, bearer_token=bearer_token))
+
+
 configure_automation_intents(
     workshop_tools=WORKSHOP_TOOLS,
     entity_memory_context_fn=automation_entity_memory_context,
@@ -5778,6 +5667,11 @@ configure_plugin_catalog_service(
     gmail_plugin_id_fn=_gmail_plugin_id,
     google_calendar_plugin_id_fn=_google_calendar_plugin_id,
     github_oauth_client_id_fn=_github_oauth_client_id,
+)
+configure_github_device_oauth(
+    timeout=PLUGIN_TIMEOUT,
+    catalog_entry_fn=_catalog_entry,
+    install_plugin_fn=_install_github_device_plugin,
 )
 configure_plugin_oauth_service(
     plugin_load_fn=_plugin_load,

@@ -45,6 +45,8 @@ Pure, low-coupling behavior is extracted under `jarvis/app/services/`:
   discovery, PKCE, dynamic registration, token exchange, and safe popup responses.
 - `google_oauth.py` owns Gmail and Google Calendar grant verification, rejected-token
   revocation, exact Gmail scope policy, and incompatible stored-credential quarantine.
+- `github_device_oauth.py` owns GitHub Device Flow configuration, bounded flow state,
+  polling and slowdown behavior, expiration, token completion, and install handoff.
 - `workshop_approvals.py` owns Workshop Memory approval decisions, 15-minute task
   grants, pending state, bounded argument summaries, and approval prompts.
 - `mcp_approvals.py` owns native remote-MCP approval extraction, decisions, provider
