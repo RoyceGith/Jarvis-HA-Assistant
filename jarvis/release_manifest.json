@@ -1,9 +1,9 @@
 {
-  "version": "0.13.30",
+  "version": "0.13.31",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/Jarvis-HA-Assistant main",
-  "summary": "Separate Home Assistant entity policy/search and state read/control operations into explicit backend services while preserving permissions, aliases, stored data, safety ceilings, transport fallback, and state verification.",
+  "summary": "Separate agent runtime preference resolution and frontend tab-activity revision calculation into explicit backend services while preserving prompts, settings, model selection, polling payloads, and refresh behavior.",
   "history_backfill": [
     {
       "version": "0.13.0",
@@ -124,21 +124,26 @@
     {
       "version": "0.13.29",
       "summary": "Separated the OpenAI response client/parsers and persistent Developer Mode state into explicit backend modules while preserving request/error contracts, response extraction, /data storage, diagnostics, and developer safety instructions."
+    },
+    {
+      "version": "0.13.30",
+      "summary": "Separated Home Assistant entity policy/search and state read/control operations into explicit backend services while preserving permissions, aliases, stored data, safety ceilings, transport fallback, and state verification."
     }
   ],
   "release_entry": {
     "features": [
-      "Move Home Assistant entity-policy persistence, v0.6.3 migration, configured allowlists, permission enforcement, and alias-aware approved-entity search into the entity-policy service.",
-      "Move permission-gated Home Assistant state reads and power controls into an explicit WebSocket-first service with the existing REST fallback."
+      "Move active model, reasoning effort, chat context limit, response preferences, saved instructions, and effective system-guidance resolution into an explicit agent-runtime service.",
+      "Move semantic tab revision hashing for chats, files, plugins, automations, notifications, calendar, settings, and Developer Mode into an explicit activity service."
     ],
     "fixes": [
-      "Keep entity aliases and access records under /data, preserve safe control-domain ceilings, and retain action verification and transport/error contracts across both module boundaries."
+      "Keep all prompt text, preference fallbacks, model payloads, revision exclusions, storage paths, and /api/tab-activity response fields unchanged across both module boundaries."
     ],
     "validation": [
-      "Entity-policy persistence, migration, permissions and search, Home Assistant state normalization and power-state matching, explicit dependency wiring, backend compilation, regression suite, and v0.13.30 release alignment coverage"
+      "Agent preference and instruction contracts, stable semantic activity revisions, explicit dependency wiring, backend compilation, regression suite, and v0.13.31 release alignment coverage"
     ]
   },
   "features": [
+    "Extract agent runtime preference resolution and frontend tab-activity revision calculation into explicit backend services.",
     "Extract Home Assistant entity policy/search and state read/control operations into explicit backend services.",
     "Extract the non-streaming OpenAI response client/parsers and persistent Developer Mode state into explicit backend modules.",
     "Extract the local Playwright developer bridge and native web-search source handling into explicit dependency-configured backend services.",
@@ -478,6 +483,7 @@
     "Preserve task-scoped Workshop Memory approval and per-draft Gmail approval isolation."
   ],
   "validation": [
+    "Agent preference and instruction contracts, stable semantic activity revisions, explicit dependency wiring, backend compilation, regression suite, and v0.13.31 release alignment coverage",
     "Entity-policy persistence, migration, permissions and search, Home Assistant state normalization and power-state matching, explicit dependency wiring, backend compilation, regression suite, and v0.13.30 release alignment coverage",
     "OpenAI response and error parsing, Developer Mode persistence and instruction contracts, explicit client configuration, backend compilation, regression suite, and v0.13.29 release alignment coverage",
     "Playwright local-path and redaction safety, web-source normalization and citation priority, explicit dependency wiring, backend compilation, regression suite, and v0.13.28 release alignment coverage",

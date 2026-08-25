@@ -25,6 +25,10 @@ Pure, low-coupling behavior is extracted under `jarvis/app/services/`:
   canonical source URLs, citation priority, and bounded source rendering.
 - `openai_responses.py` owns non-streaming Responses API requests, HTTP error
   normalization, assistant-text extraction, and function-call extraction.
+- `agent_runtime.py` resolves model, reasoning, context-window, response-preference,
+  and saved-instruction settings for each assistant request.
+- `tab_activity.py` calculates stable semantic revision markers used by the frontend
+  to refresh chats, files, plugins, automations, notifications, calendar, and settings.
 
 The API boundary models live in `jarvis/app/schemas.py`, keeping validation contracts
 separate from route orchestration without changing their names or fields.
