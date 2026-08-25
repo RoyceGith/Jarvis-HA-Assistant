@@ -1,4 +1,4 @@
-ZBRANO v0.13.27 separates Gmail Direct and Telegram inbound into explicit backend domains while preserving least-privilege mail tools, OAuth identity, Telegram pairing, remote approvals, event deduplication, routes, and workers.
+ZBRANO v0.13.28 separates the Playwright developer bridge and native web-search helpers into explicit backend services while preserving local-only browser scope, evidence redaction, diagnostics, search configuration, citations, and source normalization.
 
 ZBRANO v0.13.18 prevents Release Memory synchronization from remaining indefinitely in a non-terminal state by adding worker timeout recovery, note progress, task-health reporting, and automatic interface polling.
 

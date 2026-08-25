@@ -16,6 +16,10 @@ Pure, low-coupling behavior is extracted under `jarvis/app/services/`:
 - `entity_policy.py` classifies approved Home Assistant entity capabilities and risk.
 - `ha_client.py` owns the persistent Home Assistant WebSocket transport and state cache;
   the composition root supplies its state-change callback.
+- `playwright_bridge.py` owns the local-only Playwright MCP session, browser evidence,
+  output bounds, credential redaction, preflight diagnostics, and built-in plugin status.
+- `web_search.py` owns hosted-search configuration, search guidance, progress,
+  canonical source URLs, citation priority, and bounded source rendering.
 
 The API boundary models live in `jarvis/app/schemas.py`, keeping validation contracts
 separate from route orchestration without changing their names or fields.

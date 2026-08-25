@@ -240,6 +240,25 @@ from .services.release_notes import (
     render_release_history_backfill,
     upsert_marked_release_history_entry,
 )
+from .services.playwright_bridge import (
+    PLAYWRIGHT_REQUIRED_TOOLS,
+    configure_playwright_bridge,
+    inspect_zbrano_ui_with_playwright,
+    playwright_builtin_plugin,
+    playwright_mcp_inventory,
+    playwright_preflight_summary,
+)
+from .services.web_search import (
+    canonical_web_source_url,
+    configure_web_search_service,
+    native_web_search_tool,
+    response_web_sources,
+    web_search_include_options,
+    web_search_progress,
+    web_search_quality_instructions,
+    web_search_tool_choice,
+    web_sources_markdown,
+)
 
 import httpx
 import websockets
@@ -498,7 +517,7 @@ ha_ws = HomeAssistantWebSocketClient(
 
 app = FastAPI(
     title="ZBRANO",
-    version="0.13.27",
+    version="0.13.28",
     docs_url="/api/docs",
     openapi_url="/api/openapi.json",
 )
@@ -1815,355 +1834,6 @@ async def ha_set_power(entity_id: str, turn_on: bool) -> dict[str, Any]:
         "transport": transport,
     }
 
-
-PLAYWRIGHT_MCP_URL = os.getenv("PLAYWRIGHT_MCP_URL", "http://127.0.0.1:8931/mcp")
-PLAYWRIGHT_LOCAL_ORIGIN = "http://127.0.0.1:8099"
-PLAYWRIGHT_REQUIRED_TOOLS = {
-    "browser_navigate",
-    "browser_click",
-    "browser_snapshot",
-    "browser_console_messages",
-    "browser_network_requests",
-}
-PLAYWRIGHT_OUTPUT_LIMITS = {
-    "snapshot": 24000,
-    "console": 6000,
-    "network": 8000,
-}
-PLAYWRIGHT_SURFACE_SELECTORS = {
-    "chat": None,
-    "shared_files": "#shared-files-tab",
-    "plugins": "#plugins-tab",
-    "automations": "#automations-tab",
-    "entities": "#entities-tab",
-    "settings": "#settings-tab",
-    "developer": "#developer-tab",
-}
-
-
-def _playwright_local_url(raw_path: str) -> str:
-    """Resolve only ZBRANO-local paths; Playwright is not an arbitrary browser proxy."""
-    from urllib.parse import urlsplit
-
-    path = str(raw_path or "/").strip()
-    parsed = urlsplit(path)
-    segments = [segment for segment in parsed.path.split("/") if segment]
-    if (
-        not path.startswith("/")
-        or parsed.scheme
-        or parsed.netloc
-        or parsed.query
-        or parsed.fragment
-        or ".." in segments
-        or "\\" in path
-    ):
-        raise ValueError("Playwright can inspect only a query-free path on ZBRANO's local UI")
-    return f"{PLAYWRIGHT_LOCAL_ORIGIN}{parsed.path or '/'}"
-
-
-PLAYWRIGHT_MCP_LOG = Path("/tmp/zbrano-playwright-mcp.log")
-PLAYWRIGHT_CHROMIUM_CANDIDATES = (
-    Path("/usr/bin/chromium-browser"),
-    Path("/usr/bin/chromium"),
-)
-
-
-def playwright_redact_evidence(value: str, *, limit: int) -> str:
-    compact = " ".join(value.split())
-    compact = re.sub(r"(?i)\bBearer\s+\S+", "Bearer [redacted]", compact)
-    compact = re.sub(
-        r"(?i)\b(authorization|api[_-]?key|token|secret|cookie)\s*[:=]\s*\S+",
-        r"\1=[redacted]",
-        compact,
-    )
-    return compact[:limit]
-
-
-def playwright_chromium_executable() -> str:
-    return next(
-        (str(path) for path in PLAYWRIGHT_CHROMIUM_CANDIDATES if path.is_file()),
-        "not found",
-    )
-
-
-def playwright_process_available() -> bool:
-    proc = Path("/proc")
-    if not proc.is_dir():
-        return False
-    for entry in proc.iterdir():
-        if not entry.name.isdigit():
-            continue
-        try:
-            command = (entry / "cmdline").read_bytes().replace(b"\0", b" ").decode(
-                "utf-8", errors="replace"
-            )
-        except (OSError, PermissionError):
-            continue
-        if "playwright-mcp" in command and "8931" in command:
-            return True
-    return False
-
-
-def playwright_startup_log_tail(*, max_bytes: int = 4096, max_lines: int = 12) -> str:
-    try:
-        with PLAYWRIGHT_MCP_LOG.open("rb") as handle:
-            handle.seek(0, 2)
-            size = handle.tell()
-            handle.seek(max(0, size - max_bytes))
-            data = handle.read(max_bytes)
-    except OSError:
-        return "unavailable"
-    lines = data.decode("utf-8", errors="replace").splitlines()[-max_lines:]
-    evidence = " | ".join(line.strip() for line in lines if line.strip())
-    return playwright_redact_evidence(evidence, limit=240) or "empty"
-
-
-def playwright_preflight_summary(*, include_log: bool = False) -> str:
-    summary = (
-        f"chromium={playwright_chromium_executable()}; "
-        f"process={'available' if playwright_process_available() else 'not detected'}"
-    )
-    if include_log:
-        summary += f"; startup log tail={playwright_startup_log_tail()}"
-    return summary
-
-
-def playwright_http_error(operation: str, response: httpx.Response) -> RuntimeError:
-    response_detail = playwright_redact_evidence(response.text, limit=160) or "empty response"
-    return RuntimeError(
-        f"Playwright MCP {operation} returned HTTP {response.status_code}; "
-        f"response={response_detail}; {playwright_preflight_summary(include_log=True)}"
-    )
-
-
-async def _playwright_rpc(
-    client: httpx.AsyncClient,
-    headers: dict[str, str],
-    request_id: int,
-    method: str,
-    params: dict[str, Any] | None = None,
-) -> dict[str, Any]:
-    response = await client.post(
-        PLAYWRIGHT_MCP_URL,
-        headers=headers,
-        json={"jsonrpc": "2.0", "id": request_id, "method": method, "params": params or {}},
-    )
-    if response.is_redirect:
-        raise RuntimeError("Local Playwright MCP redirects are not allowed")
-    if response.is_error:
-        raise playwright_http_error(method, response)
-    payload = _mcp_response_json(response)
-    if not isinstance(payload, dict):
-        raise RuntimeError(f"Playwright MCP {method} returned invalid JSON")
-    if payload.get("error"):
-        error = payload["error"]
-        message = error.get("message") if isinstance(error, dict) else str(error)
-        raise RuntimeError(f"Playwright MCP {method} failed: {message}")
-    result = payload.get("result")
-    return result if isinstance(result, dict) else {}
-
-
-@contextlib.asynccontextmanager
-async def _playwright_session():
-    headers = {
-        "Accept": "application/json, text/event-stream",
-        "Content-Type": "application/json",
-    }
-    timeout = httpx.Timeout(30.0, connect=3.0)
-    async with httpx.AsyncClient(timeout=timeout, follow_redirects=False) as client:
-        response = await client.post(
-            PLAYWRIGHT_MCP_URL,
-            headers=headers,
-            json={
-                "jsonrpc": "2.0",
-                "id": 1,
-                "method": "initialize",
-                "params": {
-                    "protocolVersion": "2025-06-18",
-                    "capabilities": {},
-                    "clientInfo": {"name": "ZBRANO Developer Mode", "version": "0.13.27"},
-                },
-            },
-        )
-        if response.is_redirect:
-            raise RuntimeError("Local Playwright MCP initialize redirect is not allowed")
-        if response.is_error:
-            raise playwright_http_error("initialize", response)
-        payload = _mcp_response_json(response)
-        if not isinstance(payload, dict) or payload.get("error"):
-            raise RuntimeError("Playwright MCP initialization failed")
-        session_id = response.headers.get("mcp-session-id")
-        if session_id:
-            headers["mcp-session-id"] = session_id
-        initialized = await client.post(
-            PLAYWRIGHT_MCP_URL,
-            headers=headers,
-            json={"jsonrpc": "2.0", "method": "notifications/initialized"},
-        )
-        if initialized.is_error:
-            raise playwright_http_error("initialized notification", initialized)
-        try:
-            yield client, headers
-        finally:
-            if session_id:
-                with contextlib.suppress(httpx.HTTPError):
-                    await client.delete(PLAYWRIGHT_MCP_URL, headers=headers)
-
-
-def _playwright_text(result: dict[str, Any], limit: int) -> str:
-    content = result.get("content") or []
-    text_parts = [
-        str(item.get("text") or "")
-        for item in content
-        if isinstance(item, dict) and item.get("type") == "text"
-    ]
-    text = "\n".join(part for part in text_parts if part)
-    if result.get("isError"):
-        raise RuntimeError(text[:1000] or "Playwright MCP tool returned an error")
-    return text[:limit]
-
-
-async def playwright_mcp_inventory() -> set[str]:
-    async with _playwright_session() as (client, headers):
-        result = await _playwright_rpc(client, headers, 2, "tools/list")
-    return {
-        str(tool.get("name") or "")
-        for tool in result.get("tools") or []
-        if isinstance(tool, dict) and tool.get("name")
-    }
-
-
-async def inspect_zbrano_ui_with_playwright(
-    path: str = "/",
-    surface: str = "chat",
-    wait_ms: int = 750,
-) -> dict[str, Any]:
-    """Collect browser-only evidence with a 30-second end-to-end deadline."""
-    if not developer_mode_enabled():
-        raise RuntimeError("Developer Mode must be enabled before Playwright inspection")
-    url = _playwright_local_url(path)
-    inspection_url = f"{url}?zbrano_inspection=1"
-    normalized_surface = str(surface or "chat").strip().lower()
-    if normalized_surface not in PLAYWRIGHT_SURFACE_SELECTORS:
-        raise ValueError("Unknown ZBRANO surface requested for Playwright inspection")
-    bounded_wait_ms = max(0, min(int(wait_ms), 5000))
-    step = {"name": "session initialization"}
-
-    async def collect() -> dict[str, Any]:
-        async with _playwright_session() as (client, headers):
-            step["name"] = "tool inventory"
-            inventory = await _playwright_rpc(client, headers, 2, "tools/list")
-            names = {
-                str(tool.get("name") or "")
-                for tool in inventory.get("tools") or []
-                if isinstance(tool, dict)
-            }
-            missing = sorted(PLAYWRIGHT_REQUIRED_TOOLS - names)
-            if missing:
-                raise RuntimeError(f"Playwright MCP is missing required tools: {', '.join(missing)}")
-            step["name"] = "browser navigation"
-            navigation = await _playwright_rpc(
-                client,
-                headers,
-                3,
-                "tools/call",
-                {"name": "browser_navigate", "arguments": {"url": inspection_url}},
-            )
-            _playwright_text(navigation, 1000)
-            selector = PLAYWRIGHT_SURFACE_SELECTORS[normalized_surface]
-            if selector:
-                step["name"] = f"{normalized_surface} tab navigation"
-                tab_result = await _playwright_rpc(
-                    client,
-                    headers,
-                    4,
-                    "tools/call",
-                    {
-                        "name": "browser_click",
-                        "arguments": {
-                            "target": selector,
-                            "element": f"ZBRANO {normalized_surface.replace('_', ' ')} navigation tab",
-                        },
-                    },
-                )
-                _playwright_text(tab_result, 1000)
-            if bounded_wait_ms:
-                step["name"] = "post-navigation wait"
-                await asyncio.sleep(bounded_wait_ms / 1000)
-            step["name"] = "accessibility snapshot"
-            snapshot = await _playwright_rpc(
-                client, headers, 5, "tools/call", {"name": "browser_snapshot", "arguments": {}}
-            )
-            step["name"] = "console error collection"
-            console = await _playwright_rpc(
-                client,
-                headers,
-                6,
-                "tools/call",
-                {"name": "browser_console_messages", "arguments": {"level": "error"}},
-            )
-            step["name"] = "network request collection"
-            network = await _playwright_rpc(
-                client,
-                headers,
-                7,
-                "tools/call",
-                {"name": "browser_network_requests", "arguments": {"static": False}},
-            )
-        return {
-            "success": True,
-            "scope": "zbrano_local_ui",
-            "url": url,
-            "surface": normalized_surface,
-            "wait_ms": bounded_wait_ms,
-            "snapshot": _playwright_text(snapshot, PLAYWRIGHT_OUTPUT_LIMITS["snapshot"]),
-            "console_errors": _playwright_text(console, PLAYWRIGHT_OUTPUT_LIMITS["console"]),
-            "network_requests": _playwright_text(network, PLAYWRIGHT_OUTPUT_LIMITS["network"]),
-            "interaction_scope": "navigation_tab_only" if selector else "navigation_only",
-        }
-
-    try:
-        return await asyncio.wait_for(collect(), timeout=30.0)
-    except (asyncio.TimeoutError, httpx.TimeoutException) as exc:
-        raise RuntimeError(
-            f"Playwright inspection timed out during {step['name']}; "
-            f"{playwright_preflight_summary(include_log=True)}"
-        ) from exc
-
-
-async def playwright_builtin_plugin() -> dict[str, Any]:
-    try:
-        names = await asyncio.wait_for(playwright_mcp_inventory(), timeout=3.0)
-        missing = sorted(PLAYWRIGHT_REQUIRED_TOOLS - names)
-        healthy = not missing
-        last_error = None if healthy else f"Missing required tools: {', '.join(missing)}"
-    except Exception as exc:
-        healthy = False
-        last_error = str(exc)[:500]
-    return {
-        "id": "builtin-playwright",
-        "name": "Playwright MCP",
-        "url": "Local browser service · Developer Mode only",
-        "icon_url": "plugin-icons/playwright.svg",
-        "builtin": True,
-        "enabled": True,
-        "healthy": healthy,
-        "last_error": last_error,
-        "last_checked": time.time(),
-        "has_secret": False,
-        "auth_mode": "builtin",
-        "oauth_connected": False,
-        "oauth_provider": "",
-        "tools": [{
-            "name": "inspect_zbrano_ui_with_playwright",
-            "description": "Inspect a ZBRANO UI surface's DOM, console errors, and network requests.",
-            "permission": "read_only",
-            "enabled": True,
-        }],
-        "enabled_tool_count": 1,
-        "approval_tool_count": 0,
-        "available_to_chat": bool(developer_mode_enabled() and healthy),
-    }
 
 def workshop_result_error(result: Any) -> str | None:
     if not isinstance(result, dict):
@@ -3806,7 +3476,7 @@ async def health() -> dict[str, Any]:
     configured_speech_provider = SPEECH_PROVIDER if SPEECH_PROVIDER in {"openai", "elevenlabs"} else "openai"
     return {
         "status": "ok",
-        "version": "0.13.27",
+        "version": "0.13.28",
         "home_assistant_configured": bool(SUPERVISOR_TOKEN),
         "workshop_memory_configured": bool(WORKSHOP_MEMORY_URL),
         "openai_configured": bool(OPENAI_API_KEY),
@@ -4737,7 +4407,7 @@ async def _oauth_discover(resource_url, allow_pre_registered=False):
         "jsonrpc": "2.0", "id": 1, "method": "initialize",
         "params": {
             "protocolVersion": "2025-06-18", "capabilities": {},
-            "clientInfo": {"name": "ZBRANO Plugin Manager", "version": "0.13.27"},
+            "clientInfo": {"name": "ZBRANO Plugin Manager", "version": "0.13.28"},
         },
     }
     async with httpx.AsyncClient(timeout=PLUGIN_TIMEOUT, follow_redirects=False) as client:
@@ -6945,137 +6615,6 @@ def developer_mcp_tools() -> list[dict[str, Any]]:
     ]
 
 
-def native_web_search_tool(search_mode: str = "auto") -> dict[str, Any] | None:
-    if developer_mode_enabled() or search_mode == "off":
-        return None
-    preferences = load_preferences()
-    if preferences.get("web_search_enabled") is False:
-        return None
-    context_size = str(preferences.get("web_search_context_size") or "medium")
-    if context_size not in {"low", "medium", "high"}:
-        context_size = "medium"
-    return {
-        "type": "web_search",
-        "search_context_size": context_size,
-    }
-
-
-def web_search_quality_instructions(base: str, search_mode: str = "auto") -> str:
-    if developer_mode_enabled() or not native_web_search_tool(search_mode):
-        return base
-    return base + (
-        "\n\nWhen using web search, prefer current primary or official sources. "
-        "Use secondary reporting for context and community sources only for clearly labelled anecdotal evidence. "
-        "Cite factual claims inline, and cite only pages that directly support those claims. "
-        "Prefer direct articles or documentation over search, archive, category, or pagination pages. "
-        "Check both publication and event dates when recency matters. Keep the cited set concise, normally 3 to 8 sources."
-    )
-
-
-def web_search_tool_choice(search_mode: str = "auto") -> Any:
-    search_tool = native_web_search_tool(search_mode)
-    return {"type": "web_search"} if search_mode == "search" and search_tool else "auto"
-
-
-def web_search_include_options(search_mode: str = "auto") -> dict[str, Any]:
-    return (
-        {"include": ["web_search_call.action.sources"]}
-        if native_web_search_tool(search_mode)
-        else {}
-    )
-
-
-def canonical_web_source_url(value: Any) -> str:
-    from urllib.parse import parse_qsl, urlencode, urlsplit, urlunsplit
-
-    raw = str(value or "").strip()
-    if not raw.startswith(("https://", "http://")):
-        return ""
-    try:
-        parts = urlsplit(raw)
-    except ValueError:
-        return ""
-    hostname = str(parts.hostname or "").lower().rstrip(".")
-    if not hostname:
-        return ""
-    try:
-        port_number = parts.port
-    except ValueError:
-        return ""
-    port = f":{port_number}" if port_number and port_number not in {80, 443} else ""
-    tracking_names = {"fbclid", "gclid", "dclid", "msclkid", "mc_cid", "mc_eid", "ref_src"}
-    clean_query = [
-        (key, value)
-        for key, value in parse_qsl(parts.query, keep_blank_values=True)
-        if not key.lower().startswith("utm_") and key.lower() not in tracking_names
-    ]
-    path = parts.path or "/"
-    if path != "/":
-        path = path.rstrip("/")
-    return urlunsplit((parts.scheme.lower(), hostname + port, path, urlencode(clean_query), ""))
-
-
-def response_web_sources(response: dict[str, Any] | None) -> list[dict[str, str]]:
-    cited: list[dict[str, str]] = []
-    discovered: list[dict[str, str]] = []
-    cited_seen: set[str] = set()
-    discovered_seen: set[str] = set()
-
-    def add(bucket: list[dict[str, str]], seen: set[str], url: Any, title: Any = "") -> None:
-        normalized_url = canonical_web_source_url(url)
-        if not normalized_url or normalized_url in seen:
-            return
-        seen.add(normalized_url)
-        clean_title = " ".join(str(title or normalized_url).split())
-        bucket.append({"url": normalized_url[:2000], "title": clean_title[:300]})
-
-    output = (response or {}).get("output", [])
-    for item in output:
-        if not isinstance(item, dict):
-            continue
-        for content in item.get("content", []) if isinstance(item.get("content"), list) else []:
-            if not isinstance(content, dict):
-                continue
-            for annotation in content.get("annotations", []) if isinstance(content.get("annotations"), list) else []:
-                if isinstance(annotation, dict) and annotation.get("type") == "url_citation":
-                    add(cited, cited_seen, annotation.get("url"), annotation.get("title"))
-
-    # Search calls expose every candidate considered by the model. Use these
-    # only as a bounded fallback when the final answer contains no citations.
-    for item in output:
-        if not isinstance(item, dict):
-            continue
-        action = item.get("action") if isinstance(item.get("action"), dict) else {}
-        for source in action.get("sources", []) if isinstance(action.get("sources"), list) else []:
-            if isinstance(source, dict):
-                add(discovered, discovered_seen, source.get("url"), source.get("title"))
-
-    return (cited if cited else discovered)[:8]
-
-
-def web_sources_markdown(sources: list[dict[str, Any]]) -> str:
-    if not sources:
-        return ""
-    lines = ["", "", "### Sources"]
-    for source in sources[:8]:
-        title = str(source.get("title") or source.get("url") or "Source").replace("[", "").replace("]", "")
-        url = canonical_web_source_url(source.get("url"))
-        if url:
-            lines.append(f"- [{title}]({url})")
-    return "\n".join(lines) if len(lines) > 3 else ""
-
-
-def web_search_progress(event: dict[str, Any]) -> str | None:
-    event_type = str(event.get("type") or "")
-    item = event.get("item") if isinstance(event.get("item"), dict) else {}
-    item_type = str(item.get("type") or "")
-    if "web_search_call" not in event_type and item_type != "web_search_call":
-        return None
-    if event_type.endswith((".completed", ".done")):
-        return "Web search complete. Reviewing sources..."
-    return "Searching the web..."
-
-
 HOME_ASSISTANT_PRIORITY_TOOL_NAMES = {
     "find_home_assistant_entities",
     "get_home_assistant_state",
@@ -8446,6 +7985,15 @@ configure_conversations_domain(
     chat_context_limit_fn=chat_context_limit,
     schedule_fast_memory_extraction_fn=schedule_fast_memory_extraction,
     clear_chat_files_fn=clear_chat_files,
+)
+configure_playwright_bridge(
+    developer_mode_enabled_fn=developer_mode_enabled,
+    mcp_response_json_fn=_mcp_response_json,
+    runtime_version=app.version,
+)
+configure_web_search_service(
+    developer_mode_enabled_fn=developer_mode_enabled,
+    load_preferences_fn=load_preferences,
 )
 configure_gmail_direct_domain(
     plugin_registry_fn=plugin_registry,
