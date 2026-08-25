@@ -1,4 +1,4 @@
-ZBRANO v0.13.29 separates the OpenAI response client/parsers and persistent Developer Mode state into explicit backend modules while preserving request/error contracts, response extraction, `/data` storage, diagnostics, and developer safety instructions.
+ZBRANO v0.13.30 separates Home Assistant entity policy/search and state read/control operations into explicit backend services while preserving permissions, aliases, stored data, safety ceilings, transport fallback, and state verification.
 
 ZBRANO v0.13.18 prevents Release Memory synchronization from remaining indefinitely in a non-terminal state by adding worker timeout recovery, note progress, task-health reporting, and automatic interface polling.
 

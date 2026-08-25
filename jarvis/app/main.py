@@ -231,8 +231,31 @@ from .schemas import (
     DeveloperInvestigationRequest,
 )
 
-from .services.entity_policy import classify_entity_risk, should_auto_approve_entity
+from .services.entity_policy import (
+    ENTITY_POLICY_PATH,
+    V063_ENTITY_POLICY_PATH,
+    V063_MIGRATION_MARKER,
+    _search_tokens,
+    classify_entity_risk,
+    configure_entity_policy_service,
+    effective_entity_access,
+    ensure_control_allowed,
+    ensure_read_allowed,
+    entity_domain,
+    find_approved_entities,
+    load_entity_policy,
+    save_entity_policy,
+    should_auto_approve_entity,
+)
 from .services.ha_client import HomeAssistantWebSocketClient
+from .services.ha_control import (
+    _ha_power_state_matches,
+    configure_ha_control_service,
+    ha_get_state,
+    ha_get_state_rest,
+    ha_set_power,
+    normalize_ha_state,
+)
 from .services.mcp_protocol import (
     MCPError,
     _decode_sse,
@@ -413,28 +436,7 @@ PENDING_AUTOMATION_CONFIRMATIONS: dict[str, str] = {}
 
 
 
-HA_READ_ENTITIES_RAW = os.getenv("HA_READ_ENTITIES", "")
-HA_CONTROL_ENTITIES_RAW = os.getenv("HA_CONTROL_ENTITIES", "")
-
-SAFE_CONTROL_DOMAINS = {"light", "switch", "fan", "input_boolean", "climate"}
-
-
-def parse_entity_list(raw: str) -> set[str]:
-    return {
-        item.strip()
-        for item in raw.replace("\n", ",").split(",")
-        if item.strip()
-    }
-
-
-HA_READ_ENTITIES = parse_entity_list(HA_READ_ENTITIES_RAW)
-HA_CONTROL_ENTITIES = parse_entity_list(HA_CONTROL_ENTITIES_RAW)
-
-
 DATA_DIR = Path("/data")
-ENTITY_POLICY_PATH = DATA_DIR / "entity_policy.json"
-V063_ENTITY_POLICY_PATH = Path("/share/jarvis/entity_policy.json")
-V063_MIGRATION_MARKER = DATA_DIR / ".entity_policy_v063_migrated"
 
 
 # Grinder deep monitoring is intentionally one-way. ZBRANO subscribes to
@@ -467,62 +469,6 @@ V063_MIGRATION_MARKER = DATA_DIR / ".entity_policy_v063_migrated"
 
 
 
-def load_entity_policy() -> dict[str, dict[str, Any]]:
-    # Home Assistant preserves /data as the add-on's persistent storage. v0.6.3
-    # mistakenly used /share without declaring a share mount, so recover that
-    # policy once when it is still available. Merge it over any older /data
-    # policy because v0.6.3 aliases are the newest records.
-    if V063_ENTITY_POLICY_PATH.exists() and not V063_MIGRATION_MARKER.exists():
-        try:
-            v063_payload = json.loads(
-                V063_ENTITY_POLICY_PATH.read_text(encoding="utf-8")
-            )
-            v063_entities = v063_payload.get("entities", {})
-            current_entities: dict[str, dict[str, Any]] = {}
-            if ENTITY_POLICY_PATH.exists():
-                current_payload = json.loads(
-                    ENTITY_POLICY_PATH.read_text(encoding="utf-8")
-                )
-                candidate = current_payload.get("entities", {})
-                if isinstance(candidate, dict):
-                    current_entities = candidate
-            if isinstance(v063_entities, dict):
-                save_entity_policy({**current_entities, **v063_entities})
-                V063_MIGRATION_MARKER.write_text("migrated\n", encoding="utf-8")
-        except (OSError, json.JSONDecodeError):
-            pass
-
-    if not ENTITY_POLICY_PATH.exists():
-        return {}
-    try:
-        payload = json.loads(ENTITY_POLICY_PATH.read_text(encoding="utf-8"))
-    except (OSError, json.JSONDecodeError):
-        return {}
-    entities = payload.get("entities", {})
-    return entities if isinstance(entities, dict) else {}
-
-
-def save_entity_policy(policy: dict[str, dict[str, Any]]) -> None:
-    DATA_DIR.mkdir(parents=True, exist_ok=True)
-    temporary = ENTITY_POLICY_PATH.with_suffix(".tmp")
-    temporary.write_text(
-        json.dumps({"version": 1, "entities": policy}, indent=2, ensure_ascii=False),
-        encoding="utf-8",
-    )
-    temporary.replace(ENTITY_POLICY_PATH)
-
-
-def effective_entity_access(entity_id: str) -> str | None:
-    record = load_entity_policy().get(entity_id)
-    if record and record.get("enabled"):
-        return str(record.get("access") or "")
-    if entity_id in HA_CONTROL_ENTITIES:
-        return "low_risk_control_proposed"
-    if entity_id in HA_READ_ENTITIES:
-        return "read_only"
-    return None
-
-
 ha_ws = HomeAssistantWebSocketClient(
     HA_WS_URL,
     SUPERVISOR_TOKEN,
@@ -531,7 +477,7 @@ ha_ws = HomeAssistantWebSocketClient(
 
 app = FastAPI(
     title="ZBRANO",
-    version="0.13.29",
+    version="0.13.30",
     docs_url="/api/docs",
     openapi_url="/api/openapi.json",
 )
@@ -1120,116 +1066,6 @@ def chat_context_limit() -> int:
 
 
 
-def entity_domain(entity_id: str) -> str:
-    if "." not in entity_id:
-        raise ValueError("Invalid Home Assistant entity ID")
-    return entity_id.split(".", 1)[0]
-
-
-def ensure_read_allowed(entity_id: str) -> None:
-    access = effective_entity_access(entity_id)
-    if access not in {"read_only", "state_only", "low_risk_control_proposed"}:
-        raise PermissionError(f"Entity is not approved for ZBRANO access: {entity_id}")
-
-
-def ensure_control_allowed(entity_id: str) -> str:
-    access = effective_entity_access(entity_id)
-    if access != "low_risk_control_proposed":
-        raise PermissionError(f"Entity is not approved for ZBRANO control: {entity_id}")
-    domain = entity_domain(entity_id)
-    if domain not in SAFE_CONTROL_DOMAINS:
-        raise PermissionError(
-            f"Control blocked for domain '{domain}'. "
-            "Only light, switch, fan, input_boolean, and climate are allowed."
-        )
-    return domain
-
-
-def _search_tokens(value: str) -> set[str]:
-    stop_words = {
-        "the", "a", "an", "in", "on", "at", "of", "to", "my",
-        "workshop", "workstation", "device", "socket", "switch",
-        "light", "turn", "please",
-    }
-    tokens = {
-        token for token in re.findall(r"[a-z0-9]+", value.lower())
-        if len(token) >= 3 and token not in stop_words
-    }
-    return tokens
-
-
-def find_approved_entities(query: str) -> dict[str, Any]:
-    normalized = " ".join(query.lower().split())
-    query_tokens = _search_tokens(normalized)
-    policy = load_entity_policy()
-    matches: list[dict[str, Any]] = []
-    remembered_aliases: dict[str, list[str]] = {}
-    with contextlib.suppress(Exception):
-        for memory in automation_store().get("entity_memory", []):
-            remembered_aliases.setdefault(str(memory.get("entity_id") or ""), []).append(str(memory.get("alias") or ""))
-
-    # Include legacy config whitelist entries even if no UI policy exists.
-    all_ids = set(policy) | HA_READ_ENTITIES | HA_CONTROL_ENTITIES
-
-    for entity_id in sorted(all_ids):
-        record = policy.get(entity_id, {})
-        access = effective_entity_access(entity_id)
-        if not access:
-            continue
-
-        friendly_name = str(record.get("friendly_name") or entity_id)
-        aliases = [
-            str(alias) for alias in record.get("aliases", [])
-            if str(alias).strip()
-        ]
-        aliases = list(dict.fromkeys([*aliases, *remembered_aliases.get(entity_id, [])]))
-        haystacks = [entity_id.replace("_", " "), friendly_name, *aliases]
-        normalized_haystacks = [" ".join(value.lower().split()) for value in haystacks]
-
-        exact = normalized in normalized_haystacks
-        phrase_partial = any(normalized in value or value in normalized for value in normalized_haystacks)
-        candidate_tokens = set().union(*(_search_tokens(value) for value in normalized_haystacks))
-        overlap = query_tokens & candidate_tokens
-        token_score = len(overlap) / max(len(query_tokens), 1)
-
-        if not (exact or phrase_partial or overlap):
-            continue
-
-        score = 100 if exact else 80 if phrase_partial else int(token_score * 60)
-        matches.append(
-            {
-                "entity_id": entity_id,
-                "friendly_name": friendly_name,
-                "aliases": aliases,
-                "access": access,
-                "control_approved": access == "low_risk_control_proposed",
-                "domain": record.get("domain") or entity_domain(entity_id),
-                "match_quality": "exact" if exact else "partial" if phrase_partial else "word",
-                "matched_words": sorted(overlap),
-                "score": score,
-            }
-        )
-
-    matches.sort(key=lambda item: (-item["score"], item["friendly_name"].lower()))
-    limited = matches[:20]
-    recommended = None
-    if limited:
-        top_score = limited[0]["score"]
-        tied = [item for item in limited if item["score"] == top_score]
-        if len(tied) == 1:
-            recommended = tied[0]
-
-    return {
-        "query": query,
-        "count": len(matches),
-        "matches": limited,
-        "recommended_unique_match": recommended,
-        "instruction": (
-            "Use recommended_unique_match immediately when present; do not ask the user for search terms."
-        ),
-    }
-
-
 HA_HISTORY_MAX_ENTITIES = 8
 HA_HISTORY_MAX_HOURS = 168
 HA_HISTORY_MAX_POINTS = 240
@@ -1677,123 +1513,6 @@ async def api_home_assistant_live_events(limit: int = 100) -> dict[str, Any]:
         "journal_count": len(journal),
         "current_state_count": max(0, len(events) - min(len(journal), len(events))),
         "connected": ha_ws.connected,
-    }
-
-
-async def ha_get_state_rest(entity_id: str) -> dict[str, Any]:
-    headers = {
-        "Authorization": f"Bearer {SUPERVISOR_TOKEN}",
-        "Content-Type": "application/json",
-    }
-    async with httpx.AsyncClient(timeout=10.0) as client:
-        response = await client.get(
-            f"{HA_API_BASE}/states/{entity_id}",
-            headers=headers,
-        )
-    if response.status_code == 404:
-        raise RuntimeError(f"Home Assistant entity not found: {entity_id}")
-    if response.is_error:
-        raise RuntimeError(f"Home Assistant returned HTTP {response.status_code}")
-    return response.json()
-
-
-def normalize_ha_state(state: dict[str, Any]) -> dict[str, Any]:
-    attributes = state.get("attributes") or {}
-    return {
-        "entity_id": state.get("entity_id"),
-        "state": state.get("state"),
-        "friendly_name": attributes.get("friendly_name"),
-        "attributes": attributes,
-        "last_changed": state.get("last_changed"),
-        "last_updated": state.get("last_updated"),
-    }
-
-
-async def ha_get_state(entity_id: str) -> dict[str, Any]:
-    ensure_read_allowed(entity_id)
-    if not SUPERVISOR_TOKEN:
-        raise RuntimeError("Home Assistant API token unavailable")
-
-    try:
-        state = await ha_ws.get_state(entity_id)
-        if state is None:
-            raise RuntimeError(f"Home Assistant entity not found: {entity_id}")
-        return normalize_ha_state(state)
-    except RuntimeError:
-        # REST remains a resilience fallback if the persistent socket is unavailable.
-        return normalize_ha_state(await ha_get_state_rest(entity_id))
-
-
-def _ha_power_state_matches(domain: str, state: Any, turn_on: bool) -> bool:
-    value = str(state or "").strip().lower()
-    if not turn_on:
-        return value == "off"
-    if domain == "climate":
-        return value not in {"", "off", "unknown", "unavailable"}
-    return value == "on"
-
-
-async def _wait_for_ha_power_state(
-    entity_id: str,
-    domain: str,
-    turn_on: bool,
-    timeout: float = 5.0,
-) -> dict[str, Any] | None:
-    deadline = asyncio.get_running_loop().time() + timeout
-    latest: dict[str, Any] | None = None
-    while asyncio.get_running_loop().time() < deadline:
-        latest = ha_ws.state_cache.get(entity_id)
-        if latest and _ha_power_state_matches(domain, latest.get("state"), turn_on):
-            return latest
-        await asyncio.sleep(0.05)
-    return latest
-
-
-async def ha_set_power(entity_id: str, turn_on: bool) -> dict[str, Any]:
-    domain = ensure_control_allowed(entity_id)
-    if not SUPERVISOR_TOKEN:
-        raise RuntimeError("Home Assistant API token unavailable")
-
-    service = "turn_on" if turn_on else "turn_off"
-    expected = "on" if turn_on else "off"
-    transport = "websocket"
-
-    try:
-        await ha_ws.call_service(
-            domain,
-            service,
-            {"entity_id": entity_id},
-        )
-        verified_raw = await _wait_for_ha_power_state(entity_id, domain, turn_on, timeout=5.0)
-        if verified_raw is None:
-            raise RuntimeError(f"No state received for {entity_id}")
-        verified = normalize_ha_state(verified_raw)
-    except RuntimeError:
-        transport = "rest_fallback"
-        headers = {
-            "Authorization": f"Bearer {SUPERVISOR_TOKEN}",
-            "Content-Type": "application/json",
-        }
-        async with httpx.AsyncClient(timeout=15.0) as client:
-            response = await client.post(
-                f"{HA_API_BASE}/services/{domain}/{service}",
-                headers=headers,
-                json={"entity_id": entity_id},
-            )
-        if response.is_error:
-            raise RuntimeError(
-                f"Home Assistant action failed with HTTP {response.status_code}: "
-                f"{response.text[:500]}"
-            )
-        verified = normalize_ha_state(await ha_get_state_rest(entity_id))
-
-    return {
-        "success": _ha_power_state_matches(domain, verified.get("state"), turn_on),
-        "requested_action": f"{domain}.{service}",
-        "entity_id": entity_id,
-        "verified_state": verified.get("state"),
-        "friendly_name": verified.get("friendly_name"),
-        "transport": transport,
     }
 
 
@@ -3438,7 +3157,7 @@ async def health() -> dict[str, Any]:
     configured_speech_provider = SPEECH_PROVIDER if SPEECH_PROVIDER in {"openai", "elevenlabs"} else "openai"
     return {
         "status": "ok",
-        "version": "0.13.29",
+        "version": "0.13.30",
         "home_assistant_configured": bool(SUPERVISOR_TOKEN),
         "workshop_memory_configured": bool(WORKSHOP_MEMORY_URL),
         "openai_configured": bool(OPENAI_API_KEY),
@@ -4369,7 +4088,7 @@ async def _oauth_discover(resource_url, allow_pre_registered=False):
         "jsonrpc": "2.0", "id": 1, "method": "initialize",
         "params": {
             "protocolVersion": "2025-06-18", "capabilities": {},
-            "clientInfo": {"name": "ZBRANO Plugin Manager", "version": "0.13.29"},
+            "clientInfo": {"name": "ZBRANO Plugin Manager", "version": "0.13.30"},
         },
     }
     async with httpx.AsyncClient(timeout=PLUGIN_TIMEOUT, follow_redirects=False) as client:
@@ -7997,6 +7716,16 @@ configure_notification_domain(
     automation_save_fn=_automation_save,
     notification_test_fn=test_notification_channel,
     supervisor_token=SUPERVISOR_TOKEN,
+)
+configure_entity_policy_service(
+    automation_store_fn=automation_store,
+)
+configure_ha_control_service(
+    ha_client=ha_ws,
+    supervisor_token=SUPERVISOR_TOKEN,
+    ha_api_base=HA_API_BASE,
+    ensure_read_allowed_fn=ensure_read_allowed,
+    ensure_control_allowed_fn=ensure_control_allowed,
 )
 configure_automation_domain(
     plugin_load=_plugin_load,

@@ -26,8 +26,8 @@ class InterfaceTests(unittest.TestCase):
     def test_hud_graph_and_versions(self):
         self.assertIn('id="brain-network"', INDEX)
         self.assertIn("prefers-reduced-motion: reduce", INDEX)
-        self.assertIn('version: "0.13.29"', CONFIG)
-        self.assertIn('version="0.13.29"', MAIN)
+        self.assertIn('version: "0.13.30"', CONFIG)
+        self.assertIn('version="0.13.30"', MAIN)
 
     def test_public_defaults_and_saved_app_options(self):
         self.assertNotIn("192.168.178.49", CONFIG)
@@ -112,9 +112,10 @@ class InterfaceTests(unittest.TestCase):
         self.assertNotIn('if (review.selected) queuePolicySave(entity, review, 600);', INDEX)
 
     def test_entity_aliases_use_addon_storage_and_restore_for_disabled_entities(self):
-        self.assertIn('ENTITY_POLICY_PATH = DATA_DIR / "entity_policy.json"', MAIN)
-        self.assertIn('V063_ENTITY_POLICY_PATH = Path("/share/jarvis/entity_policy.json")', MAIN)
-        self.assertIn('V063_MIGRATION_MARKER = DATA_DIR / ".entity_policy_v063_migrated"', MAIN)
+        entity_policy = (ROOT / "jarvis/app/services/entity_policy.py").read_text(encoding="utf-8")
+        self.assertIn('ENTITY_POLICY_PATH = DATA_DIR / "entity_policy.json"', entity_policy)
+        self.assertIn('V063_ENTITY_POLICY_PATH = Path("/share/jarvis/entity_policy.json")', entity_policy)
+        self.assertIn('V063_MIGRATION_MARKER = DATA_DIR / ".entity_policy_v063_migrated"', entity_policy)
         self.assertIn('"policy": policy,', MAIN)
         self.assertNotIn('"policy": enabled,', MAIN)
 

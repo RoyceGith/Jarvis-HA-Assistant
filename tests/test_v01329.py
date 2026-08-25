@@ -31,10 +31,10 @@ def load_openai_functions(*names: str) -> dict[str, Any]:
 
 class OpenAIAndDeveloperStateBoundaryTests(unittest.TestCase):
     def test_release_markers_are_aligned(self):
-        self.assertIn('version: "0.13.29"', CONFIG)
-        self.assertIn('version="0.13.29"', MAIN)
-        self.assertIn("HUD 0.13.29", HTML)
-        self.assertEqual(MANIFEST["version"], "0.13.29")
+        self.assertIn('version: "0.13.30"', CONFIG)
+        self.assertIn('version="0.13.30"', MAIN)
+        self.assertIn("HUD 0.13.30", HTML)
+        self.assertEqual(MANIFEST["version"], "0.13.30")
 
     def test_both_modules_are_outside_composition_root(self):
         self.assertNotIn("async def create_openai_response(", MAIN)

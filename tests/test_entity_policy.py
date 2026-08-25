@@ -7,7 +7,7 @@ from typing import Any
 
 
 ROOT = Path(__file__).resolve().parents[1]
-MAIN_PATH = ROOT / "jarvis/app/main.py"
+MAIN_PATH = ROOT / "jarvis/app/services/entity_policy.py"
 
 
 def load_policy_functions(data_dir: Path, v063_path: Path):

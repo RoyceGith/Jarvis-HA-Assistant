@@ -13,9 +13,12 @@ Pure, low-coupling behavior is extracted under `jarvis/app/services/`:
 
 - `mcp_protocol.py` decodes JSON, SSE, structured MCP tool results, and MCP errors.
 - `release_notes.py` renders, compacts, and reconciles canonical release records.
-- `entity_policy.py` classifies approved Home Assistant entity capabilities and risk.
+- `entity_policy.py` owns entity-policy persistence and migration, configured
+  allowlists, access enforcement, alias-aware search, and entity risk classification.
 - `ha_client.py` owns the persistent Home Assistant WebSocket transport and state cache;
   the composition root supplies its state-change callback.
+- `ha_control.py` owns permission-gated Home Assistant state reads and power controls,
+  including WebSocket-first verification and the existing REST resilience fallback.
 - `playwright_bridge.py` owns the local-only Playwright MCP session, browser evidence,
   output bounds, credential redaction, preflight diagnostics, and built-in plugin status.
 - `web_search.py` owns hosted-search configuration, search guidance, progress,

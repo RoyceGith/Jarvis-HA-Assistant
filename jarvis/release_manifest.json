@@ -1,9 +1,9 @@
 {
-  "version": "0.13.29",
+  "version": "0.13.30",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/Jarvis-HA-Assistant main",
-  "summary": "Separate the OpenAI response client/parsers and persistent Developer Mode state into explicit backend modules while preserving request/error contracts, response extraction, /data storage, diagnostics, and developer safety instructions.",
+  "summary": "Separate Home Assistant entity policy/search and state read/control operations into explicit backend services while preserving permissions, aliases, stored data, safety ceilings, transport fallback, and state verification.",
   "history_backfill": [
     {
       "version": "0.13.0",
@@ -120,21 +120,26 @@
     {
       "version": "0.13.28",
       "summary": "Separated the Playwright developer bridge and native web-search helpers into explicit backend services while preserving local-only browser scope, evidence redaction, diagnostics, search configuration, citations, and source normalization."
+    },
+    {
+      "version": "0.13.29",
+      "summary": "Separated the OpenAI response client/parsers and persistent Developer Mode state into explicit backend modules while preserving request/error contracts, response extraction, /data storage, diagnostics, and developer safety instructions."
     }
   ],
   "release_entry": {
     "features": [
-      "Move non-streaming OpenAI Responses API requests, error normalization, assistant-text parsing, and function-call parsing into an explicit backend service.",
-      "Move Developer Mode persistence, update timestamps, enablement checks, and established safety instructions into an explicit backend domain."
+      "Move Home Assistant entity-policy persistence, v0.6.3 migration, configured allowlists, permission enforcement, and alias-aware approved-entity search into the entity-policy service.",
+      "Move permission-gated Home Assistant state reads and power controls into an explicit WebSocket-first service with the existing REST fallback."
     ],
     "fixes": [
-      "Keep the 90-second OpenAI request contract, API-key boundary, /data/zbrano_developer_mode.json payload, diagnostics revision tracking, and Developer Mode permission isolation unchanged across both module boundaries."
+      "Keep entity aliases and access records under /data, preserve safe control-domain ceilings, and retain action verification and transport/error contracts across both module boundaries."
     ],
     "validation": [
-      "OpenAI response and error parsing, Developer Mode persistence and instruction contracts, explicit client configuration, backend compilation, regression suite, and v0.13.29 release alignment coverage"
+      "Entity-policy persistence, migration, permissions and search, Home Assistant state normalization and power-state matching, explicit dependency wiring, backend compilation, regression suite, and v0.13.30 release alignment coverage"
     ]
   },
   "features": [
+    "Extract Home Assistant entity policy/search and state read/control operations into explicit backend services.",
     "Extract the non-streaming OpenAI response client/parsers and persistent Developer Mode state into explicit backend modules.",
     "Extract the local Playwright developer bridge and native web-search source handling into explicit dependency-configured backend services.",
     "Extract Gmail Direct least-privilege tools and Telegram inbound pairing, chat isolation, event handling, and lifecycle into explicit backend domains.",
@@ -473,6 +478,7 @@
     "Preserve task-scoped Workshop Memory approval and per-draft Gmail approval isolation."
   ],
   "validation": [
+    "Entity-policy persistence, migration, permissions and search, Home Assistant state normalization and power-state matching, explicit dependency wiring, backend compilation, regression suite, and v0.13.30 release alignment coverage",
     "OpenAI response and error parsing, Developer Mode persistence and instruction contracts, explicit client configuration, backend compilation, regression suite, and v0.13.29 release alignment coverage",
     "Playwright local-path and redaction safety, web-source normalization and citation priority, explicit dependency wiring, backend compilation, regression suite, and v0.13.28 release alignment coverage",
     "Gmail tool safety and bounds, Telegram pairing parsing and deduplication, explicit dependency wiring, worker lifecycle, backend compilation, regression suite, and v0.13.27 release alignment coverage",
