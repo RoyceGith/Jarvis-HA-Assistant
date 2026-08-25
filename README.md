@@ -1,4 +1,4 @@
-ZBRANO v0.13.25 separates conversation-session persistence into an explicit backend domain while preserving stored chats, retention, titles, attachments, internal-session cleanup, entity context, routes, and Fast Memory capture.
+ZBRANO v0.13.26 separates chat-upload and Shared Files persistence into an explicit backend domain while preserving storage paths, metadata, extraction limits, attachment context, API routes, diagnostics, and chat cleanup.
 
 ZBRANO v0.13.18 prevents Release Memory synchronization from remaining indefinitely in a non-terminal state by adding worker timeout recovery, note progress, task-health reporting, and automatic interface polling.
 

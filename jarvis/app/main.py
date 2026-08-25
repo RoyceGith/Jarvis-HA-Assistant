@@ -139,7 +139,6 @@ from .domains.conversations import (
     CHAT_SESSION_META,
     CHAT_SESSION_ORDER,
     CHAT_STORAGE_PATH,
-    CHAT_UPLOAD_ROOT,
     append_chat_message,
     chat_title,
     clear_chat_history,
@@ -155,6 +154,17 @@ from .domains.conversations import (
     public_chat_message,
     purge_internal_chat_sessions,
     remember_session_entity,
+)
+from .domains.files import (
+    FILE_ID_RE,
+    SHARED_FILE_ROOT,
+    attachment_context,
+    chat_upload_path,
+    clear_chat_files,
+    delete_shared_files as delete_shared_file_ids,
+    list_files,
+    list_shared_files as shared_file_records,
+    store_upload,
 )
 
 from .schemas import (
@@ -252,15 +262,6 @@ TTS_VOICES = {
     "alloy", "ash", "ballad", "coral", "echo", "fable", "nova", "onyx",
     "sage", "shimmer", "verse", "marin", "cedar",
 }
-
-SHARED_FILE_ROOT=Path("/data/shared_files")
-FILE_UPLOAD_MAX_BYTES=25*1024*1024
-FILE_TEXT_MAX_CHARS=200000
-FILE_ID_RE=re.compile(r"^[a-f0-9]{24}$")
-
-
-
-
 
 PENDING_LOW_RISK_ACTIONS: dict[str, dict[str, Any]] = {}
 PENDING_AUTOMATION_CONFIRMATIONS: dict[str, str] = {}
@@ -475,7 +476,7 @@ ha_ws = HomeAssistantWebSocketClient(
 
 app = FastAPI(
     title="ZBRANO",
-    version="0.13.25",
+    version="0.13.26",
     docs_url="/api/docs",
     openapi_url="/api/openapi.json",
 )
@@ -1958,7 +1959,7 @@ async def _playwright_session():
                 "params": {
                     "protocolVersion": "2025-06-18",
                     "capabilities": {},
-                    "clientInfo": {"name": "ZBRANO Developer Mode", "version": "0.13.25"},
+                    "clientInfo": {"name": "ZBRANO Developer Mode", "version": "0.13.26"},
                 },
             },
         )
@@ -4091,7 +4092,7 @@ async def health() -> dict[str, Any]:
     configured_speech_provider = SPEECH_PROVIDER if SPEECH_PROVIDER in {"openai", "elevenlabs"} else "openai"
     return {
         "status": "ok",
-        "version": "0.13.25",
+        "version": "0.13.26",
         "home_assistant_configured": bool(SUPERVISOR_TOKEN),
         "workshop_memory_configured": bool(WORKSHOP_MEMORY_URL),
         "openai_configured": bool(OPENAI_API_KEY),
@@ -5022,7 +5023,7 @@ async def _oauth_discover(resource_url, allow_pre_registered=False):
         "jsonrpc": "2.0", "id": 1, "method": "initialize",
         "params": {
             "protocolVersion": "2025-06-18", "capabilities": {},
-            "clientInfo": {"name": "ZBRANO Plugin Manager", "version": "0.13.25"},
+            "clientInfo": {"name": "ZBRANO Plugin Manager", "version": "0.13.26"},
         },
     }
     async with httpx.AsyncClient(timeout=PLUGIN_TIMEOUT, follow_redirects=False) as client:
@@ -6118,7 +6119,7 @@ async def read_tab_activity() -> dict[str, Any]:
                     key: item.get(key)
                     for key in ("file_id", "name", "mime_type", "size", "sha256", "created_at")
                 }
-                for item in sorted(_list(SHARED_FILE_ROOT), key=lambda item: str(item.get("file_id") or ""))
+                for item in sorted(list_files(SHARED_FILE_ROOT), key=lambda item: str(item.get("file_id") or ""))
             ]),
             "plugins": ":".join((
                 _tab_activity_revision(PLUGIN_REGISTRY_PATH),
@@ -6762,7 +6763,7 @@ async def clear_all_chats() -> dict[str, Any]:
     CHAT_SESSIONS.clear()
     CHAT_SESSION_ORDER.clear()
     CHAT_SESSION_META.clear()
-    shutil.rmtree(CHAT_UPLOAD_ROOT, ignore_errors=True)
+    clear_chat_files()
     persist_chat_sessions()
     return {"deleted": count}
 
@@ -6792,56 +6793,18 @@ async def delete_chat_history(session_id: str) -> dict[str, Any]:
     return {"cleared": True, "session_id": session_id}
 
 
-TEXT_FILE_EXTENSIONS={".txt",".md",".json",".csv",".tsv",".yaml",".yml",".xml",".log",".py",".js",".ts",".css",".html",".ini",".cfg"}
-def _sid(s): return re.sub(r"[^A-Za-z0-9_.-]","_",s)[:128] or "default"
-def _fid(): return hashlib.sha256(f"{time.time_ns()}:{os.urandom(16).hex()}".encode()).hexdigest()[:24]
-def _meta(p):
-    try:
-        x=json.loads((p/"metadata.json").read_text()); return x if isinstance(x,dict) else None
-    except (OSError,json.JSONDecodeError): return None
-async def _store(u,root,scope,session_id=""):
-    root.mkdir(parents=True,exist_ok=True); name=Path(u.filename or "upload.bin").name[:240] or "upload.bin"; ext=Path(name).suffix.lower()[:20]; fid=_fid(); d=root/fid; d.mkdir(); dst=d/("original"+ext); size=0; h=hashlib.sha256()
-    try:
-        with dst.open("wb") as f:
-            while True:
-                c=await u.read(1024*1024)
-                if not c: break
-                size+=len(c)
-                if size>FILE_UPLOAD_MAX_BYTES: raise HTTPException(413,"File exceeds 25 MB upload limit")
-                h.update(c); f.write(c)
-    except Exception: shutil.rmtree(d,ignore_errors=True); raise
-    finally: await u.close()
-    if not size: shutil.rmtree(d,ignore_errors=True); raise HTTPException(400,"Uploaded file is empty")
-    mime=(u.content_type or "application/octet-stream").lower()[:160]; text=False
-    if mime.startswith("text/") or ext in TEXT_FILE_EXTENSIONS:
-        try: (d/"extracted.txt").write_text(dst.read_text(errors="replace")[:FILE_TEXT_MAX_CHARS]); text=True
-        except OSError: pass
-    m={"file_id":fid,"name":name,"scope":scope,"session_id":session_id if scope=="chat" else None,"mime_type":mime,"size":size,"sha256":h.hexdigest(),"created_at":time.time(),"stored_name":dst.name,"text_available":text}; (d/"metadata.json").write_text(json.dumps(m,indent=2)); return m
-def _list(root):
-    return [m for p in root.iterdir() if p.is_dir() and (m:=_meta(p))] if root.exists() else []
-def attachment_context(session_id,ids):
-    out=[]
-    for fid in ids[:20]:
-        if not FILE_ID_RE.fullmatch(fid): continue
-        d=next((p for p in (SHARED_FILE_ROOT/fid,CHAT_UPLOAD_ROOT/_sid(session_id)/fid) if p.is_dir()),None)
-        if not d or not (m:=_meta(d)): continue
-        head=f"File: {m.get('name')} (id={fid}, scope={m.get('scope')}, type={m.get('mime_type')}, bytes={m.get('size')})"; x=d/"extracted.txt"
-        out.append(head+"\n"+(x.read_text(errors="replace")[:FILE_TEXT_MAX_CHARS] if x.exists() else "[Stored safely; text extraction is not available for this file type yet.]"))
-    return "\n\n--- Attached file context ---\n"+"\n\n".join(out) if out else ""
 @app.post("/api/files/chat/{session_id}")
-async def upload_chat_file(session_id:str,file:UploadFile=File(...)): return await _store(file,CHAT_UPLOAD_ROOT/_sid(session_id),"chat",session_id)
+async def upload_chat_file(session_id:str,file:UploadFile=File(...)): return await store_upload(file,chat_upload_path(session_id),"chat",session_id)
 @app.get("/api/files/chat/{session_id}")
-async def list_chat_files(session_id:str): return {"files":_list(CHAT_UPLOAD_ROOT/_sid(session_id))}
+async def list_chat_files(session_id:str): return {"files":list_files(chat_upload_path(session_id))}
 @app.post("/api/files/shared")
-async def upload_shared_file(file:UploadFile=File(...)): return await _store(file,SHARED_FILE_ROOT,"shared")
+async def upload_shared_file(file:UploadFile=File(...)): return await store_upload(file,SHARED_FILE_ROOT,"shared")
 @app.get("/api/files/shared")
 async def list_shared_files(sort:str="date",order:str="desc"):
-    x=_list(SHARED_FILE_ROOT); rev=order.lower()!="asc"; x.sort(key=(lambda a:str(a.get("name") or "").lower()) if sort.lower()=="name" else (lambda a:float(a.get("created_at") or 0)),reverse=rev); return {"files":x}
+    return {"files":shared_file_records(sort,order)}
 @app.delete("/api/files/shared")
 async def delete_shared_files(r:SharedFilesDeleteRequest):
-    done=[]
-    for fid in r.file_ids:
-        if FILE_ID_RE.fullmatch(fid) and (p:=SHARED_FILE_ROOT/fid).is_dir(): shutil.rmtree(p,ignore_errors=True); done.append(fid)
+    done=delete_shared_file_ids(r.file_ids)
     return {"deleted":done,"count":len(done)}
 
 
@@ -7232,7 +7195,7 @@ async def developer_diagnostics() -> dict[str, object]:
             clear_chat_history(chat_session)
 
         attachment_session = f"zbrano-attachment-{time.time_ns():x}"[-80:]
-        attachment_dir = CHAT_UPLOAD_ROOT / _sid(attachment_session)
+        attachment_dir = chat_upload_path(attachment_session)
         try:
             response, payload = await request_json(
                 f"/api/files/chat/{attachment_session}",
@@ -9038,6 +9001,7 @@ configure_conversations_domain(
     load_preferences_fn=load_preferences,
     chat_context_limit_fn=chat_context_limit,
     schedule_fast_memory_extraction_fn=schedule_fast_memory_extraction,
+    clear_chat_files_fn=clear_chat_files,
 )
 configure_release_sync_domain(
     runtime_version=app.version,

@@ -1,9 +1,9 @@
 {
-  "version": "0.13.25",
+  "version": "0.13.26",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/Jarvis-HA-Assistant main",
-  "summary": "Separate conversation-session persistence into an explicit backend domain while preserving stored chats, retention, titles, attachments, internal-session cleanup, entity context, routes, and Fast Memory capture.",
+  "summary": "Separate chat-upload and Shared Files persistence into an explicit backend domain while preserving storage paths, metadata, extraction limits, attachment context, API routes, diagnostics, and chat cleanup.",
   "history_backfill": [
     {
       "version": "0.13.0",
@@ -104,21 +104,26 @@
     {
       "version": "0.13.24",
       "summary": "Separated persistent Settings and preference handling into an explicit backend domain while preserving stored JSON, defaults, validation, pronunciation, voice settings, routes, and backup compatibility."
+    },
+    {
+      "version": "0.13.25",
+      "summary": "Separated conversation-session persistence into an explicit backend domain while preserving stored chats, retention, titles, attachments, internal-session cleanup, entity context, routes, and Fast Memory capture."
     }
   ],
   "release_entry": {
     "features": [
-      "Move bounded chat-session state, JSON persistence, titles, retention, internal-session cleanup, attachment views, and per-session entity context into an explicit backend domain.",
-      "Keep assistant-message Fast Memory scheduling explicit through composition-root dependency wiring."
+      "Move chat uploads, Shared Files, file metadata, bounded text extraction, attachment context, sorting, and deletion into an explicit backend domain.",
+      "Keep conversation cleanup explicit through composition-root dependency wiring."
     ],
     "fixes": [
-      "Keep /data/chat_sessions.json, payload version 1, message limits, session ordering, upload cleanup, routes, and backup/restore behavior unchanged across the module boundary."
+      "Keep /data/uploads, /data/shared_files, the 25 MB upload limit, 200000-character extraction limit, metadata fields, routes, and diagnostics unchanged across the module boundary."
     ],
     "validation": [
-      "Conversation function equivalence, chat round trip/delete, attachment contract, state-sharing boundary, module-global audit, backend compilation, regression suite, and v0.13.25 release alignment coverage"
+      "File upload/list/delete round trips, attachment context, conversation cleanup wiring, backend compilation, lean regression suite, and v0.13.26 release alignment coverage"
     ]
   },
   "features": [
+    "Extract chat-upload and Shared Files persistence, metadata, bounded text extraction, attachment context, sorting, deletion, and cleanup into an explicit backend domain.",
     "Extract conversation-session persistence, retention, attachment views, internal cleanup, and per-session entity context into an explicit backend domain.",
     "Extract Settings persistence, preference defaults, voice settings, general instructions, and pronunciation rules into an explicit backend domain.",
     "Extract Release Memory reconciliation, exact verification, persisted progress, retry state, and task lifecycle into an explicit backend domain.",
@@ -453,6 +458,7 @@
     "Preserve task-scoped Workshop Memory approval and per-draft Gmail approval isolation."
   ],
   "validation": [
+    "File upload/list/delete round trips, attachment context, conversation cleanup wiring, backend compilation, lean regression suite, and v0.13.26 release alignment coverage",
     "Conversation function equivalence, JSON round trip and deletion, attachment parsing, shared state, backend compilation, regression suite, and v0.13.25 release alignment coverage",
     "Settings function equivalence, temporary-file persistence, defaults, validation, pronunciation behavior, backend compilation, regression suite, and v0.13.24 release alignment coverage",
     "Release Memory function equivalence, 11-note contract, persistence path, lifecycle delegation, backend compilation, regression suite, and v0.13.23 release alignment coverage",

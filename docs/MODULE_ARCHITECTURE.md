@@ -42,6 +42,8 @@ Stateful engines live under `jarvis/app/domains/`:
   defaults, ElevenLabs voice settings, and pronunciation-dictionary transformation.
 - `conversations.py` owns `/data/chat_sessions.json`, bounded session state, titles,
   retention, internal diagnostic cleanup, attachment views, and per-session entity context.
+- `files.py` owns chat uploads and Shared Files storage, metadata, bounded text
+  extraction, attachment prompt context, listing, sorting, deletion, and chat-file cleanup.
 
 The composition root retains the FastAPI route wrappers and explicitly configures
 each domain with its runtime dependencies after all providers have been defined.

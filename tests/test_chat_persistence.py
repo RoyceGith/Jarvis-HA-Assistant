@@ -45,7 +45,10 @@ def load_chat_functions(storage_path: Path):
         "CHAT_SESSION_META": {},
         "LAST_ENTITY_BY_SESSION": {},
         "CHAT_STORAGE_PATH": storage_path,
-        "CHAT_UPLOAD_ROOT": storage_path.parent / "uploads",
+        "clear_chat_files": lambda session_id: shutil.rmtree(
+            storage_path.parent / "uploads" / session_id,
+            ignore_errors=True,
+        ),
         "_attachment_message_parts": lambda content: (content, []),
         "schedule_fast_memory_extraction": lambda *args: None,
         "re": re,

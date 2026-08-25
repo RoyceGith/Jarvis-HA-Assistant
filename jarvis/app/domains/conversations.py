@@ -5,7 +5,6 @@ import contextlib
 import json
 from pathlib import Path
 import re
-import shutil
 import time
 from typing import Any
 
@@ -13,15 +12,18 @@ from typing import Any
 load_preferences = None
 chat_context_limit = None
 schedule_fast_memory_extraction = None
+clear_chat_files = None
 
 
 def configure_conversations_domain(
     *, load_preferences_fn, chat_context_limit_fn, schedule_fast_memory_extraction_fn,
+    clear_chat_files_fn,
 ) -> None:
-    global load_preferences, chat_context_limit, schedule_fast_memory_extraction
+    global load_preferences, chat_context_limit, schedule_fast_memory_extraction, clear_chat_files
     load_preferences = load_preferences_fn
     chat_context_limit = chat_context_limit_fn
     schedule_fast_memory_extraction = schedule_fast_memory_extraction_fn
+    clear_chat_files = clear_chat_files_fn
 
 CHAT_HISTORY_MAX_MESSAGES = 200
 
@@ -36,8 +38,6 @@ CHAT_SESSION_ORDER: deque[str] = deque(maxlen=CHAT_SESSIONS_MAX)
 CHAT_SESSION_META: dict[str, dict[str, Any]] = {}
 
 CHAT_STORAGE_PATH = Path("/data/chat_sessions.json")
-
-CHAT_UPLOAD_ROOT=Path("/data/uploads")
 
 LAST_ENTITY_BY_SESSION: dict[str, dict[str, Any]] = {}
 
@@ -273,5 +273,5 @@ def clear_chat_history(session_id: str) -> None:
         CHAT_SESSION_ORDER.remove(session_id)
     except ValueError:
         pass
-    shutil.rmtree(CHAT_UPLOAD_ROOT / re.sub(r"[^A-Za-z0-9_.-]", "_", session_id)[:128], ignore_errors=True)
+    clear_chat_files(session_id)
     persist_chat_sessions()
