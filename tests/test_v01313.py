@@ -32,10 +32,10 @@ def load_functions(*names):
 
 class ReleaseMemoryWriteVerificationTests(unittest.TestCase):
     def test_release_markers_are_aligned(self):
-        self.assertIn('version: "0.13.37"', CONFIG)
-        self.assertIn('version="0.13.37"', MAIN)
-        self.assertIn("HUD 0.13.37", INDEX)
-        self.assertEqual(MANIFEST["version"], "0.13.37")
+        self.assertIn('version: "0.13.38"', CONFIG)
+        self.assertIn('version="0.13.38"', MAIN)
+        self.assertIn("HUD 0.13.38", INDEX)
+        self.assertEqual(MANIFEST["version"], "0.13.38")
 
     def test_plain_and_structured_statuses_are_recognized(self):
         status = load_functions("release_sync_write_status")["release_sync_write_status"]
@@ -78,13 +78,13 @@ class ReleaseMemoryWriteVerificationTests(unittest.TestCase):
 
     def test_prior_canonical_release_descriptions_are_backfilled_in_order(self):
         records = MANIFEST["history_backfill"]
-        self.assertEqual([item["version"] for item in records], [f"0.13.{index}" for index in range(37)])
+        self.assertEqual([item["version"] for item in records], [f"0.13.{index}" for index in range(38)])
         self.assertTrue(all(item["summary"] for item in records))
         functions = load_functions("release_marker", "render_release_history_backfill")
         entries = functions["render_release_history_backfill"](MANIFEST)
-        self.assertEqual(len(entries), 37)
+        self.assertEqual(len(entries), 38)
         self.assertIn("zbrano-release:0.13.0", entries[0])
-        self.assertIn("zbrano-release:0.13.36", entries[-1])
+        self.assertIn("zbrano-release:0.13.37", entries[-1])
         self.assertIn("reconcile_release_history_backfill(updated, manifest)", MAIN)
 
 

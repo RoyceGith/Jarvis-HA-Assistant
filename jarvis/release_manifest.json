@@ -1,9 +1,9 @@
 {
-  "version": "0.13.37",
+  "version": "0.13.38",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/Jarvis-HA-Assistant main",
-  "summary": "Separate Grinder diagnostics, Fast Memory intent routing, and Developer Mode tool definitions into explicit backend services while preserving detection, tool priority, safety guidance, and mode gating.",
+  "summary": "Consolidate Home Assistant Recorder history and live state-change handling into an explicit backend service while preserving policy enforcement, automation callbacks, event evidence, and timeline behavior.",
   "history_backfill": [
     {
       "version": "0.13.0",
@@ -152,22 +152,27 @@
     {
       "version": "0.13.36",
       "summary": "Separated Home Assistant, Automation Brain, and Calendar intent routing into explicit backend services while preserving detection, tool priority, learned context, and workflow guidance."
+    },
+    {
+      "version": "0.13.37",
+      "summary": "Separated Grinder diagnostics, Fast Memory intent routing, and Developer Mode tool definitions into explicit backend services while preserving detection, tool priority, safety guidance, and mode gating."
     }
   ],
   "release_entry": {
     "features": [
-      "Move Grinder diagnostic detection, read-only tool selection, and evidence-first safety guidance into an explicit intent service.",
-      "Move Fast Memory request detection and its bounded remember, search, and forget tool selection into an explicit intent service.",
-      "Move Developer Mode's targeted diagnostic and local Playwright tool schemas into an explicit mode-gated service."
+      "Move bounded Home Assistant Recorder history, Logbook search, correlation analysis, and live-event evidence into an explicit service.",
+      "Move approved state-change journaling and Automation Brain evaluation and learning task dispatch behind explicit injected dependencies.",
+      "Remove the overridden legacy history implementations left by the historical patch chain so one canonical implementation owns the behavior."
     ],
     "fixes": [
-      "Preserve Grinder read-only restrictions, exclude Workshop Memory phrases from Fast Memory routing, and retain Developer Mode gating across all three boundaries."
+      "Preserve approved-entity enforcement, read-only limits, live-event augmentation, Logbook degradation warnings, state-change deduplication, and automation callback ordering."
     ],
     "validation": [
-      "Grinder and Fast Memory intent detection; exact tool subsets; diagnostic guidance; Developer Mode gating and schemas; explicit dependency wiring; backend compilation; regression suite; and v0.13.37 release alignment coverage"
+      "History normalization, summaries, bounds, correlation windows, live-event filtering and dispatch, explicit dependency wiring, backend compilation, regression suite, and v0.13.38 release alignment coverage"
     ]
   },
   "features": [
+    "Extract Home Assistant Recorder history, Logbook correlation, and live state-change handling into an explicit backend service.",
     "Extract Grinder diagnostics, Fast Memory intent routing, and Developer Mode tool definitions into three explicit backend services.",
     "Extract Home Assistant, Automation Brain, and Calendar intent routing into three explicit backend services.",
     "Extract tool progress reporting, Workshop Memory approvals, and native remote-MCP approvals into three explicit backend services.",
@@ -514,6 +519,7 @@
     "Preserve task-scoped Workshop Memory approval and per-draft Gmail approval isolation."
   ],
   "validation": [
+    "History normalization, summaries, bounds, correlation windows, live-event filtering and dispatch, explicit dependency wiring, backend compilation, regression suite, and v0.13.38 release alignment coverage",
     "Grinder and Fast Memory intent detection; exact tool subsets; diagnostic guidance; Developer Mode gating and schemas; explicit dependency wiring; backend compilation; regression suite; and v0.13.37 release alignment coverage",
     "Home Assistant, automation, and calendar intent detection; exact tool subsets; learned context; workflow guidance; explicit dependency wiring; backend compilation; regression suite; and v0.13.36 release alignment coverage",
     "Workshop and MCP approval decisions, redaction and prompt contracts, shared pending state, tool progress mappings, explicit dependency wiring, backend compilation, regression suite, and v0.13.35 release alignment coverage",

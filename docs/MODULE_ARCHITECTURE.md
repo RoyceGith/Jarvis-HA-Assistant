@@ -19,6 +19,8 @@ Pure, low-coupling behavior is extracted under `jarvis/app/services/`:
   the composition root supplies its state-change callback.
 - `ha_control.py` owns permission-gated Home Assistant state reads and power controls,
   including WebSocket-first verification and the existing REST resilience fallback.
+- `ha_history.py` owns approved Recorder history, Logbook search, correlation
+  analysis, the bounded live-event journal, and Automation Brain event dispatch.
 - `playwright_bridge.py` owns the local-only Playwright MCP session, browser evidence,
   output bounds, credential redaction, preflight diagnostics, and built-in plugin status.
 - `web_search.py` owns hosted-search configuration, search guidance, progress,

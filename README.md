@@ -1,4 +1,4 @@
-ZBRANO v0.13.37 separates Grinder diagnostics, Fast Memory intent routing, and Developer Mode tool definitions into explicit backend services while preserving detection, tool priority, safety guidance, and mode gating.
+ZBRANO v0.13.38 consolidates Home Assistant Recorder history and live state-change handling into an explicit backend service while preserving policy enforcement, automation callbacks, event evidence, and timeline behavior.
 
 ZBRANO v0.13.18 prevents Release Memory synchronization from remaining indefinitely in a non-terminal state by adding worker timeout recovery, note progress, task-health reporting, and automatic interface polling.
 
