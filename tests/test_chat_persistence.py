@@ -12,10 +12,11 @@ import shutil
 
 ROOT = Path(__file__).resolve().parents[1]
 MAIN_PATH = ROOT / "jarvis/app/main.py"
+CONVERSATIONS_PATH = ROOT / "jarvis/app/domains/conversations.py"
 
 
 def load_chat_functions(storage_path: Path):
-    source = MAIN_PATH.read_text(encoding="utf-8")
+    source = CONVERSATIONS_PATH.read_text(encoding="utf-8")
     tree = ast.parse(source)
     names = {
         "chat_title",
@@ -50,7 +51,7 @@ def load_chat_functions(storage_path: Path):
         "re": re,
         "shutil": shutil,
     }
-    exec(compile(ast.Module(body=selected, type_ignores=[]), str(MAIN_PATH), "exec"), namespace)
+    exec(compile(ast.Module(body=selected, type_ignores=[]), str(CONVERSATIONS_PATH), "exec"), namespace)
     return namespace
 
 

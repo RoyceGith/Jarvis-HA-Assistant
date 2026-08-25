@@ -18,10 +18,10 @@ WORKSHOP_MEMORY = (ROOT / "jarvis/app/domains/workshop_memory.py").read_text(enc
 
 class MemoryDomainBoundaryTests(unittest.TestCase):
     def test_release_markers_are_aligned(self):
-        self.assertIn('version: "0.13.24"', CONFIG)
-        self.assertIn('version="0.13.24"', MAIN)
-        self.assertIn("HUD 0.13.24", HTML)
-        self.assertEqual(MANIFEST["version"], "0.13.24")
+        self.assertIn('version: "0.13.25"', CONFIG)
+        self.assertIn('version="0.13.25"', MAIN)
+        self.assertIn("HUD 0.13.25", HTML)
+        self.assertEqual(MANIFEST["version"], "0.13.25")
 
     def test_memory_engines_are_outside_composition_root(self):
         self.assertNotIn("def _fast_memory_connect(", MAIN)

@@ -1,9 +1,9 @@
 {
-  "version": "0.13.24",
+  "version": "0.13.25",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/Jarvis-HA-Assistant main",
-  "summary": "Separate persistent Settings and preference handling into an explicit backend domain while preserving stored JSON, defaults, validation, pronunciation, voice settings, routes, and backup compatibility.",
+  "summary": "Separate conversation-session persistence into an explicit backend domain while preserving stored chats, retention, titles, attachments, internal-session cleanup, entity context, routes, and Fast Memory capture.",
   "history_backfill": [
     {
       "version": "0.13.0",
@@ -100,20 +100,26 @@
     {
       "version": "0.13.23",
       "summary": "Separated Release Memory synchronization into an explicit backend domain while preserving 11-note reconciliation, persisted status, retries, exact verification, routes, and lifecycle behavior."
+    },
+    {
+      "version": "0.13.24",
+      "summary": "Separated persistent Settings and preference handling into an explicit backend domain while preserving stored JSON, defaults, validation, pronunciation, voice settings, routes, and backup compatibility."
     }
   ],
   "release_entry": {
     "features": [
-      "Move Settings JSON persistence, general instructions, preferences, ElevenLabs voice settings, and pronunciation transformation into an explicit backend domain."
+      "Move bounded chat-session state, JSON persistence, titles, retention, internal-session cleanup, attachment views, and per-session entity context into an explicit backend domain.",
+      "Keep assistant-message Fast Memory scheduling explicit through composition-root dependency wiring."
     ],
     "fixes": [
-      "Keep /data/jarvis_settings.json, payload versions, default values, validation limits, settings routes, and backup/restore behavior unchanged across the module boundary."
+      "Keep /data/chat_sessions.json, payload version 1, message limits, session ordering, upload cleanup, routes, and backup/restore behavior unchanged across the module boundary."
     ],
     "validation": [
-      "Settings function equivalence, isolated JSON round trip, defaults and validation contract, module-global audit, backend compilation, regression suite, and v0.13.24 release alignment coverage"
+      "Conversation function equivalence, chat round trip/delete, attachment contract, state-sharing boundary, module-global audit, backend compilation, regression suite, and v0.13.25 release alignment coverage"
     ]
   },
   "features": [
+    "Extract conversation-session persistence, retention, attachment views, internal cleanup, and per-session entity context into an explicit backend domain.",
     "Extract Settings persistence, preference defaults, voice settings, general instructions, and pronunciation rules into an explicit backend domain.",
     "Extract Release Memory reconciliation, exact verification, persisted progress, retry state, and task lifecycle into an explicit backend domain.",
     "Extract read-only Grinder MQTT monitoring, incident persistence, diagnostic tools, and task lifecycle into an explicit backend domain.",
@@ -447,6 +453,7 @@
     "Preserve task-scoped Workshop Memory approval and per-draft Gmail approval isolation."
   ],
   "validation": [
+    "Conversation function equivalence, JSON round trip and deletion, attachment parsing, shared state, backend compilation, regression suite, and v0.13.25 release alignment coverage",
     "Settings function equivalence, temporary-file persistence, defaults, validation, pronunciation behavior, backend compilation, regression suite, and v0.13.24 release alignment coverage",
     "Release Memory function equivalence, 11-note contract, persistence path, lifecycle delegation, backend compilation, regression suite, and v0.13.23 release alignment coverage",
     "Grinder function equivalence, isolated domain globals, lifecycle delegation, backend compilation, regression suite, and v0.13.22 release alignment coverage",

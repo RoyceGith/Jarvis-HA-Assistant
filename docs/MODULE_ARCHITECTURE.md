@@ -40,6 +40,8 @@ Stateful engines live under `jarvis/app/domains/`:
   exact write verification, persisted progress, bounded retries, and worker lifecycle.
 - `settings.py` owns `/data/jarvis_settings.json`, general instructions, preference
   defaults, ElevenLabs voice settings, and pronunciation-dictionary transformation.
+- `conversations.py` owns `/data/chat_sessions.json`, bounded session state, titles,
+  retention, internal diagnostic cleanup, attachment views, and per-session entity context.
 
 The composition root retains the FastAPI route wrappers and explicitly configures
 each domain with its runtime dependencies after all providers have been defined.
