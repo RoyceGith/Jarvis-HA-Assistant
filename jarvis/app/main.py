@@ -233,6 +233,9 @@ from .schemas import (
 
 from .services.entity_policy import (
     ENTITY_POLICY_PATH,
+    HA_CONTROL_ENTITIES,
+    HA_READ_ENTITIES,
+    SAFE_CONTROL_DOMAINS,
     V063_ENTITY_POLICY_PATH,
     V063_MIGRATION_MARKER,
     _search_tokens,
@@ -489,7 +492,7 @@ ha_ws = HomeAssistantWebSocketClient(
 
 app = FastAPI(
     title="ZBRANO",
-    version="0.13.31",
+    version="0.13.32",
     docs_url="/api/docs",
     openapi_url="/api/openapi.json",
 )
@@ -3075,7 +3078,7 @@ async def health() -> dict[str, Any]:
     configured_speech_provider = SPEECH_PROVIDER if SPEECH_PROVIDER in {"openai", "elevenlabs"} else "openai"
     return {
         "status": "ok",
-        "version": "0.13.31",
+        "version": "0.13.32",
         "home_assistant_configured": bool(SUPERVISOR_TOKEN),
         "workshop_memory_configured": bool(WORKSHOP_MEMORY_URL),
         "openai_configured": bool(OPENAI_API_KEY),
@@ -4006,7 +4009,7 @@ async def _oauth_discover(resource_url, allow_pre_registered=False):
         "jsonrpc": "2.0", "id": 1, "method": "initialize",
         "params": {
             "protocolVersion": "2025-06-18", "capabilities": {},
-            "clientInfo": {"name": "ZBRANO Plugin Manager", "version": "0.13.31"},
+            "clientInfo": {"name": "ZBRANO Plugin Manager", "version": "0.13.32"},
         },
     }
     async with httpx.AsyncClient(timeout=PLUGIN_TIMEOUT, follow_redirects=False) as client:
@@ -5477,6 +5480,20 @@ DEVELOPER_REPOSITORY = "RoyceGith/Jarvis-HA-Assistant"
 DEVELOPER_FRONTEND_PATH = Path(__file__).resolve().parent / "static/index.html"
 
 
+def _developer_frontend_source() -> str:
+    html = DEVELOPER_FRONTEND_PATH.read_text(encoding="utf-8")
+    static_root = DEVELOPER_FRONTEND_PATH.parent.resolve()
+    sources = [html]
+    for relative_path in re.findall(r'<script\b[^>]*\bsrc="([^"]+\.js)"', html, flags=re.I):
+        if "://" in relative_path:
+            continue
+        source_path = (static_root / relative_path).resolve()
+        if not source_path.is_relative_to(static_root):
+            raise OSError(f"Frontend script escapes static root: {relative_path}")
+        sources.append(source_path.read_text(encoding="utf-8"))
+    return "\n".join(sources)
+
+
 def _developer_check(name: str, ok: bool, detail: str = "") -> dict[str, object]:
     return {"name": name, "ok": bool(ok), "detail": detail}
 
@@ -5918,7 +5935,7 @@ async def developer_diagnostics() -> dict[str, object]:
 
     frontend_text = ""
     try:
-        frontend_text = DEVELOPER_FRONTEND_PATH.read_text(encoding="utf-8")
+        frontend_text = _developer_frontend_source()
     except OSError as exc:
         add("Frontend source readable", "failed", str(exc), "frontend")
     else:

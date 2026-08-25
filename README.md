@@ -1,4 +1,4 @@
-ZBRANO v0.13.31 separates agent runtime preference resolution and frontend tab-activity revision calculation into explicit backend services while preserving prompts, settings, model selection, polling payloads, and refresh behavior.
+ZBRANO v0.13.32 restores the modularized Home Assistant health/history APIs and makes Developer diagnostics inspect the complete split frontend, eliminating false wiring failures while preserving runtime behavior.
 
 ZBRANO v0.13.18 prevents Release Memory synchronization from remaining indefinitely in a non-terminal state by adding worker timeout recovery, note progress, task-health reporting, and automatic interface polling.
 

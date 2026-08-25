@@ -1,9 +1,9 @@
 {
-  "version": "0.13.31",
+  "version": "0.13.32",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/Jarvis-HA-Assistant main",
-  "summary": "Separate agent runtime preference resolution and frontend tab-activity revision calculation into explicit backend services while preserving prompts, settings, model selection, polling payloads, and refresh behavior.",
+  "summary": "Restore the modularized Home Assistant health/history APIs and make Developer diagnostics inspect the complete split frontend, eliminating false wiring failures while preserving runtime behavior.",
   "history_backfill": [
     {
       "version": "0.13.0",
@@ -128,21 +128,26 @@
     {
       "version": "0.13.30",
       "summary": "Separated Home Assistant entity policy/search and state read/control operations into explicit backend services while preserving permissions, aliases, stored data, safety ceilings, transport fallback, and state verification."
+    },
+    {
+      "version": "0.13.31",
+      "summary": "Separated agent runtime preference resolution and frontend tab-activity revision calculation into explicit backend services while preserving prompts, settings, model selection, polling payloads, and refresh behavior."
     }
   ],
   "release_entry": {
     "features": [
-      "Move active model, reasoning effort, chat context limit, response preferences, saved instructions, and effective system-guidance resolution into an explicit agent-runtime service.",
-      "Move semantic tab revision hashing for chats, files, plugins, automations, notifications, calendar, settings, and Developer Mode into an explicit activity service."
+      "Load every locally referenced canonical JavaScript controller when Developer diagnostics verifies frontend wiring.",
+      "Restore entity allowlist and safe-control constants at the composition boundary used by health, History, and entity-policy routes."
     ],
     "fixes": [
-      "Keep all prompt text, preference fallbacks, model payloads, revision exclusions, storage paths, and /api/tab-activity response fields unchanged across both module boundaries."
+      "Prevent /api/health and Home Assistant History diagnostics from failing after entity-policy extraction, and stop reporting split frontend controllers as missing merely because they are no longer inline in index.html."
     ],
     "validation": [
-      "Agent preference and instruction contracts, stable semantic activity revisions, explicit dependency wiring, backend compilation, regression suite, and v0.13.31 release alignment coverage"
+      "Health/entity-policy composition imports, canonical frontend source aggregation, all diagnostic wiring markers, backend compilation, regression suite, and v0.13.32 release alignment coverage"
     ]
   },
   "features": [
+    "Restore modularized health/history diagnostics and validate wiring across the complete split frontend source.",
     "Extract agent runtime preference resolution and frontend tab-activity revision calculation into explicit backend services.",
     "Extract Home Assistant entity policy/search and state read/control operations into explicit backend services.",
     "Extract the non-streaming OpenAI response client/parsers and persistent Developer Mode state into explicit backend modules.",
@@ -483,6 +488,7 @@
     "Preserve task-scoped Workshop Memory approval and per-draft Gmail approval isolation."
   ],
   "validation": [
+    "Health/entity-policy composition imports, canonical frontend source aggregation, all diagnostic wiring markers, backend compilation, regression suite, and v0.13.32 release alignment coverage",
     "Agent preference and instruction contracts, stable semantic activity revisions, explicit dependency wiring, backend compilation, regression suite, and v0.13.31 release alignment coverage",
     "Entity-policy persistence, migration, permissions and search, Home Assistant state normalization and power-state matching, explicit dependency wiring, backend compilation, regression suite, and v0.13.30 release alignment coverage",
     "OpenAI response and error parsing, Developer Mode persistence and instruction contracts, explicit client configuration, backend compilation, regression suite, and v0.13.29 release alignment coverage",

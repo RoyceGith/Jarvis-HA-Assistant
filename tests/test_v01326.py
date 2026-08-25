@@ -42,10 +42,10 @@ class FakeUpload:
 
 class FilesDomainBoundaryTests(unittest.TestCase):
     def test_release_markers_are_aligned(self):
-        self.assertIn('version: "0.13.31"', CONFIG)
-        self.assertIn('version="0.13.31"', MAIN)
-        self.assertIn("HUD 0.13.31", HTML)
-        self.assertEqual(MANIFEST["version"], "0.13.31")
+        self.assertIn('version: "0.13.32"', CONFIG)
+        self.assertIn('version="0.13.32"', MAIN)
+        self.assertIn("HUD 0.13.32", HTML)
+        self.assertEqual(MANIFEST["version"], "0.13.32")
 
     def test_file_storage_is_outside_composition_root(self):
         self.assertNotIn("async def _store(", MAIN)
