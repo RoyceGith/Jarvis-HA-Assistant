@@ -29,6 +29,10 @@ Pure, low-coupling behavior is extracted under `jarvis/app/services/`:
   and saved-instruction settings for each assistant request.
 - `tab_activity.py` calculates stable semantic revision markers used by the frontend
   to refresh chats, files, plugins, automations, notifications, calendar, and settings.
+- `plugin_storage.py` owns atomic, permission-restricted JSON persistence for the
+  installed-plugin registry and secrets while retaining their existing `/data` paths.
+- `plugin_policy.py` owns public-HTTPS endpoint validation, built-in icon matching,
+  URL identity normalization, and the established GitHub tool permission migration.
 
 The API boundary models live in `jarvis/app/schemas.py`, keeping validation contracts
 separate from route orchestration without changing their names or fields.

@@ -4,9 +4,7 @@ import asyncio
 from collections import deque
 import contextlib
 import hashlib
-import ipaddress
 import json
-import socket
 import os
 import re
 import shutil
@@ -311,6 +309,22 @@ from .services.tab_activity import (
     configure_tab_activity_service,
     tab_activity_revisions,
 )
+from .services.plugin_storage import (
+    PLUGIN_REGISTRY_PATH,
+    PLUGIN_SECRETS_PATH,
+    _plugin_load,
+    _plugin_save,
+    plugin_registry,
+    plugin_secrets,
+)
+from .services.plugin_policy import (
+    _apply_github_tool_policy,
+    _github_discovered_permission,
+    _is_github_plugin,
+    _plugin_url_key,
+    plugin_icon_url,
+    validate_plugin_url,
+)
 
 import httpx
 import websockets
@@ -492,7 +506,7 @@ ha_ws = HomeAssistantWebSocketClient(
 
 app = FastAPI(
     title="ZBRANO",
-    version="0.13.32",
+    version="0.13.33",
     docs_url="/api/docs",
     openapi_url="/api/openapi.json",
 )
@@ -3078,7 +3092,7 @@ async def health() -> dict[str, Any]:
     configured_speech_provider = SPEECH_PROVIDER if SPEECH_PROVIDER in {"openai", "elevenlabs"} else "openai"
     return {
         "status": "ok",
-        "version": "0.13.32",
+        "version": "0.13.33",
         "home_assistant_configured": bool(SUPERVISOR_TOKEN),
         "workshop_memory_configured": bool(WORKSHOP_MEMORY_URL),
         "openai_configured": bool(OPENAI_API_KEY),
@@ -3320,54 +3334,7 @@ async def update_agent_settings(request: AgentSettingsUpdate) -> dict[str, Any]:
     return {"saved": True, "preferences": save_preferences(preferences)}
 
 
-PLUGIN_REGISTRY_PATH=Path("/data/plugins/registry.json")
-PLUGIN_SECRETS_PATH=Path("/data/plugins/secrets.json")
 PLUGIN_TIMEOUT=httpx.Timeout(15.0,connect=4.0)
-
-def _plugin_load(path):
-    if not path.exists(): return {}
-    try: value=json.loads(path.read_text(encoding="utf-8"))
-    except (OSError,json.JSONDecodeError): return {}
-    return value if isinstance(value,dict) else {}
-
-def _plugin_save(path,value):
-    path.parent.mkdir(parents=True,exist_ok=True);tmp=path.with_suffix(".tmp");tmp.write_text(json.dumps(value,ensure_ascii=False,indent=2),encoding="utf-8");tmp.chmod(0o600);tmp.replace(path);path.chmod(0o600)
-
-def plugin_registry(): return _plugin_load(PLUGIN_REGISTRY_PATH)
-def plugin_secrets(): return _plugin_load(PLUGIN_SECRETS_PATH)
-
-def validate_plugin_url(raw):
-    from urllib.parse import urlparse
-    url=raw.strip();p=urlparse(url)
-    if p.scheme!="https" or not p.hostname or p.username or p.password: raise ValueError("Only credential-free public HTTPS URLs are accepted")
-    host=p.hostname.rstrip(".").lower()
-    if host in {"localhost","localhost.localdomain"} or host.endswith(".local"): raise ValueError("Local MCP endpoints are blocked")
-    try: addresses=socket.getaddrinfo(host,p.port or 443,type=socket.SOCK_STREAM)
-    except socket.gaierror as exc: raise ValueError("MCP hostname could not be resolved") from exc
-    if any(not ipaddress.ip_address(a[4][0]).is_global for a in addresses): raise ValueError("MCP endpoint resolves to a private, loopback, reserved, or link-local address")
-    return url
-
-PLUGIN_ICON_RULES = (
-    (("gmail", "gmailmcp.googleapis.com"), "plugin-icons/gmail.svg"),
-    (("google drive", "drivemcp.googleapis.com"), "plugin-icons/googledrive.svg"),
-    (("google calendar", "calendarmcp.googleapis.com"), "plugin-icons/googlecalendar.svg"),
-    (("google chat", "chatmcp.googleapis.com"), "plugin-icons/googlechat.svg"),
-    (("google people", "people.googleapis.com/mcp"), ""),
-    (("google workspace", "workspacemcp.googleapis.com"), ""),
-    (("github", "githubcopilot.com/mcp"), "plugin-icons/github.svg"),
-    (("canva", "mcp.canva.com"), ""),
-    (("cloudflare", "mcp.cloudflare.com"), "plugin-icons/cloudflare.svg"),
-    (("adobe", "aa-mcp.adobe.io"), ""),
-)
-
-
-def plugin_icon_url(name: str = "", url: str = "") -> str:
-    identity = f"{name} {url}".lower()
-    for terms, icon_url in PLUGIN_ICON_RULES:
-        if any(term in identity for term in terms):
-            return icon_url
-    return ""
-
 
 def plugin_public(pid,p):
     tools = list(p.get("tools") or [])
@@ -3412,48 +3379,6 @@ def _mcp_response_json(response):
 
 
 GITHUB_MCP_URL="https://api.githubcopilot.com/mcp/"
-
-
-def _plugin_url_key(url):
-    return str(url or "").strip().rstrip("/").lower()
-
-
-def _is_github_plugin(url: str = "", name: str = "") -> bool:
-    value = f"{url} {name}".lower()
-    return "github" in value or "githubcopilot.com/mcp" in value
-
-
-def _github_discovered_permission(tool: dict[str, Any]) -> str:
-    annotations = tool.get("annotations") or {}
-    return "read_only" if annotations.get("readOnlyHint") is True else "write"
-
-
-def _apply_github_tool_policy(registry: dict[str, Any]) -> bool:
-    """Migrate installed GitHub plugins to the v0.11.29 approval policy."""
-    changed = False
-    for plugin in registry.values():
-        if not isinstance(plugin, dict) or not _is_github_plugin(
-            str(plugin.get("url") or ""), str(plugin.get("name") or "")
-        ):
-            continue
-        if not plugin.get("enabled"):
-            plugin["enabled"] = True
-            changed = True
-        for tool in plugin.get("tools") or []:
-            if not isinstance(tool, dict):
-                continue
-            permission = str(tool.get("permission") or "blocked")
-            # Existing installations do not retain MCP annotations. Preserve
-            # known read-only classifications; migrate every other discovered
-            # GitHub tool to approval-required instead of blocking it.
-            desired = "read_only" if permission == "read_only" else "write"
-            if tool.get("permission") != desired:
-                tool["permission"] = desired
-                changed = True
-            if not tool.get("enabled"):
-                tool["enabled"] = True
-                changed = True
-    return changed
 
 
 async def discover_plugin_tools(url,token=""):
@@ -4009,7 +3934,7 @@ async def _oauth_discover(resource_url, allow_pre_registered=False):
         "jsonrpc": "2.0", "id": 1, "method": "initialize",
         "params": {
             "protocolVersion": "2025-06-18", "capabilities": {},
-            "clientInfo": {"name": "ZBRANO Plugin Manager", "version": "0.13.32"},
+            "clientInfo": {"name": "ZBRANO Plugin Manager", "version": "0.13.33"},
         },
     }
     async with httpx.AsyncClient(timeout=PLUGIN_TIMEOUT, follow_redirects=False) as client:

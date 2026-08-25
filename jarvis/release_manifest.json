@@ -1,9 +1,9 @@
 {
-  "version": "0.13.32",
+  "version": "0.13.33",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/Jarvis-HA-Assistant main",
-  "summary": "Restore the modularized Home Assistant health/history APIs and make Developer diagnostics inspect the complete split frontend, eliminating false wiring failures while preserving runtime behavior.",
+  "summary": "Separate plugin registry/secrets persistence and plugin endpoint/icon/GitHub safety policy into explicit backend services while preserving installed plugins, OAuth data, permissions, and storage paths.",
   "history_backfill": [
     {
       "version": "0.13.0",
@@ -132,21 +132,26 @@
     {
       "version": "0.13.31",
       "summary": "Separated agent runtime preference resolution and frontend tab-activity revision calculation into explicit backend services while preserving prompts, settings, model selection, polling payloads, and refresh behavior."
+    },
+    {
+      "version": "0.13.32",
+      "summary": "Restored the modularized Home Assistant health/history APIs and made Developer diagnostics inspect the complete split frontend, eliminating false wiring failures while preserving runtime behavior."
     }
   ],
   "release_entry": {
     "features": [
-      "Load every locally referenced canonical JavaScript controller when Developer diagnostics verifies frontend wiring.",
-      "Restore entity allowlist and safe-control constants at the composition boundary used by health, History, and entity-policy routes."
+      "Move atomic installed-plugin registry and secret JSON persistence into an explicit storage service with the existing /data paths and file permissions.",
+      "Move MCP endpoint validation, icon mapping, URL identity, and GitHub tool-permission migration into an explicit plugin policy service."
     ],
     "fixes": [
-      "Prevent /api/health and Home Assistant History diagnostics from failing after entity-policy extraction, and stop reporting split frontend controllers as missing merely because they are no longer inline in index.html."
+      "Keep installed-plugin records, bearer and OAuth secret handling, private-network endpoint blocking, and approval-required GitHub write tools unchanged across both module boundaries."
     ],
     "validation": [
-      "Health/entity-policy composition imports, canonical frontend source aggregation, all diagnostic wiring markers, backend compilation, regression suite, and v0.13.32 release alignment coverage"
+      "Plugin storage round trips and permissions, endpoint and icon policy, GitHub permission migration, backend compilation, regression suite, and v0.13.33 release alignment coverage"
     ]
   },
   "features": [
+    "Extract plugin registry/secrets persistence and plugin endpoint/icon/GitHub safety policy into explicit backend services.",
     "Restore modularized health/history diagnostics and validate wiring across the complete split frontend source.",
     "Extract agent runtime preference resolution and frontend tab-activity revision calculation into explicit backend services.",
     "Extract Home Assistant entity policy/search and state read/control operations into explicit backend services.",
@@ -488,6 +493,7 @@
     "Preserve task-scoped Workshop Memory approval and per-draft Gmail approval isolation."
   ],
   "validation": [
+    "Plugin storage round trips and permissions, endpoint and icon policy, GitHub permission migration, backend compilation, regression suite, and v0.13.33 release alignment coverage",
     "Health/entity-policy composition imports, canonical frontend source aggregation, all diagnostic wiring markers, backend compilation, regression suite, and v0.13.32 release alignment coverage",
     "Agent preference and instruction contracts, stable semantic activity revisions, explicit dependency wiring, backend compilation, regression suite, and v0.13.31 release alignment coverage",
     "Entity-policy persistence, migration, permissions and search, Home Assistant state normalization and power-state matching, explicit dependency wiring, backend compilation, regression suite, and v0.13.30 release alignment coverage",
