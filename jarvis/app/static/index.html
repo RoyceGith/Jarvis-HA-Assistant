@@ -31,7 +31,7 @@
   <header>
     <div class="brand-line">
       <h1>ZBRANO</h1>
-      <div class="status hud-version-label">Workshop Intelligence Interface · HUD 0.13.61</div>
+      <div class="status hud-version-label">Workshop Intelligence Interface · HUD 0.13.62</div>
     </div>
     <div class="runtime-status-stack">
       <button id="calendar-quick-open" class="calendar-quick-open" type="button" aria-label="Open ZBRANO Calendar" title="Open Calendar">
@@ -257,6 +257,12 @@
       </div>
       <div class="onboarding-progress" role="progressbar" aria-label="Setup progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><span id="onboarding-progress-bar"></span></div>
       <div id="onboarding-step-list" class="onboarding-step-list" aria-live="polite"></div>
+      <div class="onboarding-guide-actions" aria-label="Setup guide navigation">
+        <button id="onboarding-previous" type="button">Back</button>
+        <button id="onboarding-skip" type="button">Skip optional</button>
+        <button id="onboarding-next" type="button">Continue</button>
+      </div>
+      <div id="onboarding-summary" class="onboarding-summary" aria-live="polite"></div>
       <p id="onboarding-message" class="setting-note">Loading installation readiness…</p>
       <div class="settings-actions">
         <button id="onboarding-check-required" type="button">Run required checks</button>

@@ -8,13 +8,14 @@ from jarvis.app.domains import settings
 
 ROOT = Path(__file__).resolve().parents[1]
 MAIN = (ROOT / "jarvis/app/main.py").read_text(encoding="utf-8")
+SCHEMAS = (ROOT / "jarvis/app/schemas.py").read_text(encoding="utf-8")
 CONFIG = (ROOT / "jarvis/config.yaml").read_text(encoding="utf-8")
 HTML = (ROOT / "jarvis/app/static/index.html").read_text(encoding="utf-8")
 ONBOARDING_JS = (ROOT / "jarvis/app/static/js/onboarding.js").read_text(encoding="utf-8")
 MANIFEST = json.loads((ROOT / "jarvis/release_manifest.json").read_text(encoding="utf-8"))
 
 
-class VerifiedOnboardingReleaseTests(unittest.TestCase):
+class GuidedOnboardingReleaseTests(unittest.TestCase):
     def setUp(self):
         self.temporary = tempfile.TemporaryDirectory()
         self.original_path = settings.SETTINGS_STORAGE_PATH
@@ -30,38 +31,34 @@ class VerifiedOnboardingReleaseTests(unittest.TestCase):
         self.assertIn("HUD 0.13.62", HTML)
         self.assertEqual(MANIFEST["version"], "0.13.62")
 
-    def test_check_results_are_bounded_and_persisted(self):
-        settings.save_onboarding_check(
-            "home_assistant", ready=True, detail="connected" * 100, checked_at=123.0
-        )
-        state = settings.load_onboarding_state()
-        check = state["checks"]["home_assistant"]
-        self.assertTrue(check["ready"])
-        self.assertEqual(check["checked_at"], 123.0)
-        self.assertLessEqual(len(check["detail"]), settings.ONBOARDING_CHECK_DETAIL_MAX_CHARS)
-
-    def test_legacy_install_remains_complete_when_a_check_is_saved(self):
+    def test_progress_and_optional_skip_are_persisted_non_destructively(self):
         settings.save_settings_payload({"version": 3, "preferences": {"theme": "gray"}})
-        settings.save_onboarding_check("model", ready=False, detail="not ready")
+        settings.save_onboarding_progress("voice", skipped_step="entities")
         state = settings.load_onboarding_state()
-        payload = settings.load_settings_payload()
+        self.assertEqual(state["current_step"], "voice")
+        self.assertEqual(state["skipped_steps"], ["entities"])
         self.assertTrue(state["completed"])
-        self.assertFalse(state["show_on_startup"])
-        self.assertEqual(payload["preferences"], {"theme": "gray"})
+        self.assertEqual(settings.load_settings_payload()["preferences"], {"theme": "gray"})
 
-    def test_unknown_check_is_rejected(self):
+    def test_successful_check_removes_a_previous_skip(self):
+        settings.save_onboarding_progress("entities", skipped_step="entities")
+        settings.save_onboarding_check("entities", ready=True, detail="ready")
+        self.assertEqual(settings.load_onboarding_state()["skipped_steps"], [])
+
+    def test_required_steps_cannot_be_skipped(self):
         with self.assertRaises(ValueError):
-            settings.save_onboarding_check("grinder", ready=True, detail="excluded")
+            settings.save_onboarding_progress("model", skipped_step="home_assistant")
 
-    def test_required_verification_gate_and_ui_are_wired(self):
-        self.assertIn('"required_verified": required_verified', MAIN)
-        self.assertIn('status["required_verified"]', MAIN)
-        self.assertIn('id="onboarding-check-required"', HTML)
-        self.assertIn("async function runRequiredChecks", ONBOARDING_JS)
-        self.assertIn("step.last_check", ONBOARDING_JS)
+    def test_guided_api_and_controls_are_wired(self):
+        self.assertIn("class OnboardingProgressUpdate", SCHEMAS)
+        self.assertIn('@app.put("/api/onboarding/progress")', MAIN)
+        for control in ("onboarding-previous", "onboarding-skip", "onboarding-next", "onboarding-summary"):
+            self.assertIn(f'id="{control}"', HTML)
+        self.assertIn("async function saveProgress", ONBOARDING_JS)
+        self.assertIn("async function moveGuide", ONBOARDING_JS)
         self.assertNotIn("grinder", ONBOARDING_JS.lower())
 
-    def test_release_history_includes_v01360(self):
+    def test_release_history_includes_v01361(self):
         self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.61")
 
 

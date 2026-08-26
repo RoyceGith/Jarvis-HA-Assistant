@@ -1,5 +1,12 @@
 # Change log
 
+## 0.13.62
+
+- Added a resumable guided Setup sequence with Back, Continue, and optional-step
+  skipping.
+- Added required-step progression gates, focused remediation guidance, and a
+  concise setup summary without changing existing installations.
+
 ## 0.13.61
 
 - Stored bounded verification results and timestamps for each setup check.

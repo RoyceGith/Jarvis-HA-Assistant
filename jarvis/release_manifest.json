@@ -1,9 +1,9 @@
 {
-  "version": "0.13.61",
+  "version": "0.13.62",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/ZBRANO_Core main",
-  "summary": "Persist onboarding verification results and require explicit successful core checks before a new installation can finish setup.",
+  "summary": "Turn Setup into a resumable guided sequence with required-step gates, optional skipping, remediation guidance, and a completion summary.",
   "history_backfill": [
     {
       "version": "0.13.0",
@@ -248,22 +248,27 @@
     {
       "version": "0.13.60",
       "summary": "Made onboarding actionable with explicit per-step checks and guided configuration paths while keeping paid services idle until the user requests a test."
+    },
+    {
+      "version": "0.13.61",
+      "summary": "Persisted onboarding verification results and required explicit successful core checks before a new installation could finish setup."
     }
   ],
   "release_entry": {
     "features": [
-      "Persist bounded verification status and timestamps for every onboarding check.",
-      "Show the last verification outcome directly beside each setup item."
+      "Add Back, Continue, and Skip optional controls to a resumable guided setup sequence.",
+      "Add an always-current summary of required verification, optional readiness, and deferred capabilities."
     ],
     "fixes": [
-      "Require explicit successful Home Assistant and AI model checks before a new installation can finish setup.",
-      "Keep existing installations grandfathered as complete and preserve their settings while verification records are added."
+      "Prevent guided progression past a required step until its explicit check succeeds.",
+      "Persist guide position and optional skips without altering existing settings, stored data, or completed legacy installations."
     ],
     "validation": [
-      "Onboarding verification persistence, required-check completion gate, legacy-install preservation, Grinder exclusion, release contract, regression suite, and v0.13.61 release alignment coverage"
+      "Guided onboarding progress persistence, required-step navigation gate, optional-skip safety, legacy-install preservation, Grinder exclusion, release contract, regression suite, and v0.13.62 release alignment coverage"
     ]
   },
   "features": [
+    "Guide onboarding through a resumable sequence with required-step gates, optional skipping, remediation guidance, and a completion summary.",
     "Persist onboarding verification outcomes and require explicit successful core checks before a new installation can finish setup.",
     "Run onboarding connectivity and configuration checks only after an explicit user request and return focused remediation details.",
     "Guide new installations through core and optional setup without interrupting or rewriting existing installations.",
@@ -642,6 +647,7 @@
     "Preserve task-scoped Workshop Memory approval and per-draft Gmail approval isolation."
   ],
   "validation": [
+    "Guided onboarding progress persistence, required-step navigation gate, optional-skip safety, legacy-install preservation, owner-only Grinder exclusion, release contract, regression suite, and v0.13.62 release alignment coverage",
     "Onboarding verification persistence, required-check completion gate, legacy-install preservation, owner-only Grinder exclusion, release contract, regression suite, and v0.13.61 release alignment coverage",
     "Onboarding check allowlist, explicit external-call boundary, guided action labels, owner-only Grinder exclusion, release contract, regression suite, and v0.13.60 release alignment coverage",
     "Onboarding state migration, non-destructive persistence, UI source wiring, owner-only Grinder exclusion, release contract, regression suite, and v0.13.59 release alignment coverage",

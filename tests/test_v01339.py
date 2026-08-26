@@ -34,10 +34,10 @@ class PluginCatalogBoundaryTests(unittest.TestCase):
         )
 
     def test_release_markers_are_aligned(self):
-        self.assertIn('version: "0.13.61"', CONFIG)
-        self.assertIn('version="0.13.61"', MAIN)
-        self.assertIn("HUD 0.13.61", HTML)
-        self.assertEqual(MANIFEST["version"], "0.13.61")
+        self.assertIn('version: "0.13.62"', CONFIG)
+        self.assertIn('version="0.13.62"', MAIN)
+        self.assertIn("HUD 0.13.62", HTML)
+        self.assertEqual(MANIFEST["version"], "0.13.62")
 
     def test_catalog_implementation_is_outside_main(self):
         self.assertNotIn("FEATURED_REMOTE_PLUGINS = [", MAIN)

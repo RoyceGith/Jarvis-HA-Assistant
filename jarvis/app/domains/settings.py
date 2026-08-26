@@ -80,6 +80,16 @@ ONBOARDING_STEP_IDS = frozenset({
     "plugins",
     "notifications",
 })
+ONBOARDING_STEP_ORDER = (
+    "home_assistant",
+    "model",
+    "entities",
+    "voice",
+    "memory",
+    "plugins",
+    "notifications",
+)
+ONBOARDING_OPTIONAL_STEP_IDS = frozenset(ONBOARDING_STEP_ORDER[2:])
 ONBOARDING_CHECK_DETAIL_MAX_CHARS = 500
 
 def _onboarding_checks(stored: dict[str, Any]) -> dict[str, dict[str, Any]]:
@@ -97,6 +107,13 @@ def _onboarding_checks(stored: dict[str, Any]) -> dict[str, dict[str, Any]]:
             "checked_at": float(item.get("checked_at") or 0),
         }
     return checks
+
+def _onboarding_skipped_steps(stored: dict[str, Any]) -> list[str]:
+    raw = stored.get("skipped_steps")
+    if not isinstance(raw, list):
+        return []
+    selected = {str(item) for item in raw} & ONBOARDING_OPTIONAL_STEP_IDS
+    return [step_id for step_id in ONBOARDING_STEP_ORDER if step_id in selected]
 
 def load_settings_payload() -> dict[str, Any]:
     if not SETTINGS_STORAGE_PATH.exists():
@@ -124,6 +141,9 @@ def load_onboarding_state() -> dict[str, Any]:
     stored = stored if explicit else {}
     completed = bool(stored.get("completed")) if explicit else legacy_installation
     dismissed = bool(stored.get("dismissed")) if explicit else False
+    current_step = str(stored.get("current_step") or ONBOARDING_STEP_ORDER[0])
+    if current_step not in ONBOARDING_STEP_IDS:
+        current_step = ONBOARDING_STEP_ORDER[0]
     return {
         "version": ONBOARDING_VERSION,
         "completed": completed,
@@ -132,17 +152,21 @@ def load_onboarding_state() -> dict[str, Any]:
         "show_on_startup": not legacy_installation and not completed and not dismissed,
         "updated_at": float(stored.get("updated_at") or 0),
         "checks": _onboarding_checks(stored),
+        "current_step": current_step,
+        "skipped_steps": _onboarding_skipped_steps(stored),
     }
 
 def save_onboarding_state(*, completed: bool, dismissed: bool) -> dict[str, Any]:
     payload = load_settings_payload()
-    checks = load_onboarding_state()["checks"]
+    current = load_onboarding_state()
     state = {
         "version": ONBOARDING_VERSION,
         "completed": bool(completed),
         "dismissed": bool(dismissed) and not bool(completed),
         "updated_at": time.time(),
-        "checks": checks,
+        "checks": current["checks"],
+        "current_step": current["current_step"],
+        "skipped_steps": current["skipped_steps"],
     }
     payload.setdefault("version", 3)
     payload["onboarding"] = state
@@ -166,6 +190,7 @@ def save_onboarding_check(
         "detail": str(detail)[:ONBOARDING_CHECK_DETAIL_MAX_CHARS],
         "checked_at": float(checked_at or time.time()),
     }
+    skipped_steps = [item for item in current["skipped_steps"] if item != step_id or not ready]
     payload.setdefault("version", 3)
     payload["onboarding"] = {
         "version": ONBOARDING_VERSION,
@@ -173,6 +198,37 @@ def save_onboarding_check(
         "dismissed": bool(current["dismissed"]) and not bool(current["completed"]),
         "updated_at": time.time(),
         "checks": checks,
+        "current_step": current["current_step"],
+        "skipped_steps": skipped_steps,
+    }
+    save_settings_payload(payload)
+    return load_onboarding_state()
+
+def save_onboarding_progress(
+    current_step: str,
+    *,
+    skipped_step: str | None = None,
+) -> dict[str, Any]:
+    if current_step not in ONBOARDING_STEP_IDS:
+        raise ValueError("Unknown onboarding step")
+    if skipped_step is not None and skipped_step not in ONBOARDING_OPTIONAL_STEP_IDS:
+        raise ValueError("Only optional onboarding steps can be skipped")
+    payload = load_settings_payload()
+    current = load_onboarding_state()
+    skipped_steps = set(current["skipped_steps"])
+    if skipped_step:
+        skipped_steps.add(skipped_step)
+    payload.setdefault("version", 3)
+    payload["onboarding"] = {
+        "version": ONBOARDING_VERSION,
+        "completed": bool(current["completed"]),
+        "dismissed": bool(current["dismissed"]) and not bool(current["completed"]),
+        "updated_at": time.time(),
+        "checks": current["checks"],
+        "current_step": current_step,
+        "skipped_steps": [
+            step_id for step_id in ONBOARDING_STEP_ORDER if step_id in skipped_steps
+        ],
     }
     save_settings_payload(payload)
     return load_onboarding_state()

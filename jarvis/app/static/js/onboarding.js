@@ -7,11 +7,16 @@
   const progressBar = document.getElementById("onboarding-progress-bar");
   const progressLabel = document.getElementById("onboarding-progress-label");
   const message = document.getElementById("onboarding-message");
+  const previous = document.getElementById("onboarding-previous");
+  const skip = document.getElementById("onboarding-skip");
+  const next = document.getElementById("onboarding-next");
+  const summary = document.getElementById("onboarding-summary");
   const checkRequired = document.getElementById("onboarding-check-required");
   const recheck = document.getElementById("onboarding-recheck");
   const complete = document.getElementById("onboarding-complete");
   const dismiss = document.getElementById("onboarding-dismiss");
-  if (!setupTab || !list || !progress || !progressBar || !progressLabel || !checkRequired || !recheck || !complete || !dismiss) return;
+  if (!setupTab || !list || !progress || !progressBar || !progressLabel || !message || !previous || !skip || !next || !summary || !checkRequired || !recheck || !complete || !dismiss) return;
+  let latestData = null;
 
   function openTarget(target) {
     if (target === "entities") return document.getElementById("entities-tab")?.click();
@@ -66,8 +71,11 @@
       description.textContent = data.detail || step.description || "";
       verification.textContent = `${data.ready ? "Verified" : "Checked"} just now`;
       message.textContent = data.ready ? `${step.title} check passed.` : `${step.title}: ${data.detail || "needs attention"}`;
+      await load();
+      message.textContent = data.ready ? `${step.title} check passed.` : `${step.title}: ${data.detail || "needs attention"}`;
     } catch (error) {
-      message.textContent = `${step.title || step.id} check failed: ${error.message || error}`;
+      await load().catch(() => {});
+      message.textContent = `${step.title || step.id} check failed: ${error.message || error}. Open its configuration action, correct the setting, then check again.`;
     } finally {
       button.disabled = false;
       button.textContent = checkLabels[step.id] || "Check";
@@ -75,15 +83,18 @@
   }
 
   function render(data) {
+    latestData = data;
     const steps = Array.isArray(data.steps) ? data.steps : [];
+    const activeIndex = Math.max(0, steps.findIndex(step => step.id === data.current_step));
     const percentage = steps.length ? Math.round((Number(data.ready_count || 0) / steps.length) * 100) : 0;
     progressBar.style.width = `${percentage}%`;
     progress.setAttribute("aria-valuenow", String(percentage));
     progressLabel.textContent = `${data.ready_count || 0} of ${data.total_count || steps.length} ready`;
     list.replaceChildren();
-    for (const step of steps) {
+    for (const [index, step] of steps.entries()) {
       const row = document.createElement("article");
-      row.className = `onboarding-step${step.ready ? " is-ready" : ""}`;
+      row.className = `onboarding-step${step.ready ? " is-ready" : ""}${index === activeIndex ? " is-active" : ""}${step.skipped ? " is-skipped" : ""}`;
+      if (index === activeIndex) row.setAttribute("aria-current", "step");
       const state = document.createElement("span");
       state.className = "onboarding-step-state";
       state.textContent = step.ready ? "✓" : "•";
@@ -97,6 +108,11 @@
         required.className = "onboarding-required";
         required.textContent = "REQUIRED";
         title.append(required);
+      } else if (step.skipped) {
+        const skipped = document.createElement("span");
+        skipped.className = "onboarding-skipped";
+        skipped.textContent = "SKIPPED";
+        title.append(skipped);
       }
       const description = document.createElement("small");
       description.textContent = step.description || "";
@@ -107,7 +123,7 @@
         const checked = new Date(Number(lastCheck.checked_at) * 1000);
         verification.textContent = `${lastCheck.ready ? "Verified" : "Last check failed"} ${checked.toLocaleString()}`;
       } else {
-        verification.textContent = "Not verified yet";
+        verification.textContent = step.skipped ? "Skipped for now; you can configure this later" : "Not verified yet";
       }
       copy.append(title, description, verification);
       const actions = document.createElement("div");
@@ -124,6 +140,17 @@
       row.append(state, copy, actions);
       list.append(row);
     }
+    const activeStep = steps[activeIndex] || null;
+    previous.disabled = activeIndex <= 0;
+    next.disabled = !activeStep || (Boolean(activeStep.required) && !Boolean(activeStep.last_check?.ready));
+    next.textContent = activeIndex >= steps.length - 1 ? "Review summary" : "Continue";
+    skip.hidden = !activeStep || Boolean(activeStep.required) || Boolean(activeStep.ready);
+    const requiredSteps = steps.filter(step => step.required);
+    const optionalSteps = steps.filter(step => !step.required);
+    const requiredVerified = requiredSteps.filter(step => step.last_check?.ready).length;
+    const optionalReady = optionalSteps.filter(step => step.ready).length;
+    const skippedCount = optionalSteps.filter(step => step.skipped).length;
+    summary.textContent = `Setup summary: ${requiredVerified}/${requiredSteps.length} required checks passed; ${optionalReady}/${optionalSteps.length} optional capabilities ready${skippedCount ? `; ${skippedCount} skipped for now` : ""}.`;
     complete.disabled = Boolean(data.completed) || !data.core_ready || !data.required_verified;
     complete.textContent = data.completed ? "Setup complete" : "Finish setup";
     dismiss.hidden = Boolean(data.completed || data.dismissed || data.legacy_installation);
@@ -138,6 +165,34 @@
             : data.core_ready
               ? "Required services look configured. Run the required checks before finishing setup."
             : "Complete the required steps before finishing setup.";
+  }
+
+  async function saveProgress(stepId, skippedStep = null) {
+    const response = await fetch("api/onboarding/progress", {
+      method: "PUT",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({step_id: stepId, skipped_step: skippedStep}),
+    });
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.detail || `HTTP ${response.status}`);
+    render(data);
+    return data;
+  }
+
+  async function moveGuide(direction, skipCurrent = false) {
+    const steps = Array.isArray(latestData?.steps) ? latestData.steps : [];
+    const index = Math.max(0, steps.findIndex(step => step.id === latestData?.current_step));
+    const current = steps[index];
+    const targetIndex = Math.max(0, Math.min(steps.length - 1, index + direction));
+    if (!current || targetIndex === index) {
+      summary.scrollIntoView({behavior: "smooth", block: "nearest"});
+      return;
+    }
+    try {
+      await saveProgress(steps[targetIndex].id, skipCurrent ? current.id : null);
+    } catch (error) {
+      message.textContent = `Setup navigation failed: ${error.message || error}`;
+    }
   }
 
   async function runRequiredChecks() {
@@ -184,6 +239,9 @@
   }
 
   setupTab.addEventListener("click", () => load().catch(error => { message.textContent = `Setup unavailable: ${error.message || error}`; }));
+  previous.addEventListener("click", () => moveGuide(-1));
+  next.addEventListener("click", () => moveGuide(1));
+  skip.addEventListener("click", () => moveGuide(1, true));
   checkRequired.addEventListener("click", runRequiredChecks);
   recheck.addEventListener("click", () => load().catch(error => { message.textContent = `Recheck failed: ${error.message || error}`; }));
   complete.addEventListener("click", () => update("complete").catch(error => { message.textContent = error.message || String(error); }));

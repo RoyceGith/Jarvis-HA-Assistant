@@ -129,6 +129,7 @@ from .domains.settings import (
     save_elevenlabs_voice_settings,
     save_general_instructions,
     save_onboarding_check,
+    save_onboarding_progress,
     save_onboarding_state,
     save_preferences,
     save_settings_payload,
@@ -200,6 +201,7 @@ from .schemas import (
     ChatSessionCreate,
     ChatRenameRequest,
     JarvisSettingsUpdate,
+    OnboardingProgressUpdate,
     OnboardingStateUpdate,
     AgentSettingsUpdate,
     CatalogInstallRequest,
@@ -668,7 +670,7 @@ ha_ws = HomeAssistantWebSocketClient(
 
 app = FastAPI(
     title="ZBRANO",
-    version="0.13.61",
+    version="0.13.62",
     docs_url="/api/docs",
     openapi_url="/api/openapi.json",
 )
@@ -2647,7 +2649,7 @@ async def health() -> dict[str, Any]:
     configured_speech_provider = SPEECH_PROVIDER if SPEECH_PROVIDER in {"openai", "elevenlabs"} else "openai"
     return {
         "status": "ok",
-        "version": "0.13.61",
+        "version": "0.13.62",
         "home_assistant_configured": bool(SUPERVISOR_TOKEN),
         "workshop_memory_configured": bool(WORKSHOP_MEMORY_URL),
         "workshop_memory_cost_guard": workshop_cost_guard_status(),
@@ -3877,6 +3879,7 @@ async def onboarding_status_payload() -> dict[str, Any]:
     checks = state.get("checks", {})
     for step in steps:
         step["last_check"] = checks.get(step["id"])
+        step["skipped"] = step["id"] in state.get("skipped_steps", [])
     required_verified = all(
         bool(checks.get(step["id"], {}).get("ready"))
         for step in steps
@@ -3907,6 +3910,15 @@ async def update_onboarding(request: OnboardingStateUpdate) -> dict[str, Any]:
         completed=request.action == "complete",
         dismissed=request.action == "dismiss",
     )
+    return await onboarding_status_payload()
+
+
+@app.put("/api/onboarding/progress")
+async def update_onboarding_progress(request: OnboardingProgressUpdate) -> dict[str, Any]:
+    try:
+        save_onboarding_progress(request.step_id, skipped_step=request.skipped_step)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
     return await onboarding_status_payload()
 
 

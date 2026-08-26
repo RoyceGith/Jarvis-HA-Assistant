@@ -45,6 +45,13 @@
   background: color-mix(in srgb, var(--surface) 72%, transparent);
 }
 
+.onboarding-step.is-active {
+  border-color: color-mix(in srgb, var(--cyan) 72%, var(--line));
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--cyan) 22%, transparent);
+}
+
+.onboarding-step.is-skipped:not(.is-ready) { opacity: .72; }
+
 .onboarding-step-state {
   display: grid;
   place-items: center;
@@ -66,8 +73,11 @@
 .onboarding-step-copy small { display: block; margin-top: .15rem; color: var(--text-muted); }
 .onboarding-step-copy .onboarding-verification { color: color-mix(in srgb, var(--cyan) 72%, var(--text-muted)); font-size: .72rem; }
 .onboarding-required { margin-left: .35rem; color: var(--cyan); font-size: .68rem; letter-spacing: .04em; }
+.onboarding-skipped { margin-left: .35rem; color: var(--text-muted); font-size: .68rem; letter-spacing: .04em; }
 .onboarding-step-actions { display: flex; justify-content: flex-end; gap: .4rem; }
 .onboarding-step-actions button:first-child { color: var(--cyan); }
+.onboarding-guide-actions { display: flex; justify-content: space-between; gap: .5rem; margin-top: .8rem; }
+.onboarding-summary { margin-top: .8rem; padding: .7rem .8rem; border: 1px solid color-mix(in srgb, var(--line) 60%, transparent); border-radius: 10px; color: var(--text-muted); }
 
 @media (max-width: 640px) {
   .onboarding-heading { display: block; }

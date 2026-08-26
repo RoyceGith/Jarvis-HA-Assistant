@@ -65,6 +65,13 @@ class JarvisSettingsUpdate(BaseModel):
 class OnboardingStateUpdate(BaseModel):
     action: str = Field(pattern="^(complete|dismiss)$")
 
+class OnboardingProgressUpdate(BaseModel):
+    step_id: str = Field(pattern="^(home_assistant|model|entities|voice|memory|plugins|notifications)$")
+    skipped_step: str | None = Field(
+        default=None,
+        pattern="^(entities|voice|memory|plugins|notifications)$",
+    )
+
 class AgentSettingsUpdate(BaseModel):
     agent_model: str = Field(min_length=1, max_length=120)
     reasoning_effort: str = Field(default="medium", pattern="^(none|minimal|low|medium|high|xhigh)$")
