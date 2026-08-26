@@ -25,6 +25,8 @@ _calendar_tools: Callable[[], list[dict[str, Any]]] = lambda: []
 _ha_history_tools: Callable[[], list[dict[str, Any]]] = lambda: []
 _ha_priority_tools: Callable[[], list[dict[str, Any]]] = lambda: []
 _default_tools: Callable[[], list[dict[str, Any]]] = lambda: []
+_is_workshop_memory: Callable[[str], bool] = lambda message: False
+_workshop_memory_tools: Callable[[], list[dict[str, Any]]] = lambda: []
 _native_web_search_tool: Callable[[str], dict[str, Any] | None] = lambda mode: None
 
 
@@ -52,6 +54,8 @@ def configure_runtime_routing(
     ha_priority_tools_fn: Callable[[], list[dict[str, Any]]],
     default_tools_fn: Callable[[], list[dict[str, Any]]],
     native_web_search_tool_fn: Callable[[str], dict[str, Any] | None],
+    is_workshop_memory_fn: Callable[[str], bool] | None = None,
+    workshop_memory_tools_fn: Callable[[], list[dict[str, Any]]] | None = None,
 ) -> None:
     global _developer_mode_enabled, _developer_system_instructions, _is_ha_history
     global _ha_history_instructions, _is_automation, _automation_instructions
@@ -59,6 +63,7 @@ def configure_runtime_routing(
     global _developer_tools, _developer_mcp_tools, _grinder_tools, _is_fast_memory
     global _fast_memory_tools, _automation_tools, _is_calendar, _calendar_tools
     global _ha_history_tools, _ha_priority_tools, _default_tools, _native_web_search_tool
+    global _is_workshop_memory, _workshop_memory_tools
     _developer_mode_enabled = developer_mode_enabled_fn
     _developer_system_instructions = developer_system_instructions_fn
     _is_ha_history = is_ha_history_fn
@@ -81,6 +86,8 @@ def configure_runtime_routing(
     _ha_priority_tools = ha_priority_tools_fn
     _default_tools = default_tools_fn
     _native_web_search_tool = native_web_search_tool_fn
+    _is_workshop_memory = is_workshop_memory_fn or (lambda message: False)
+    _workshop_memory_tools = workshop_memory_tools_fn or (lambda: [])
 
 
 def priority_system_instructions(base: str, message: str) -> str:
@@ -118,6 +125,8 @@ def runtime_chat_tools(search_mode: str = "auto", message: str = "") -> list[dic
         return _ha_history_tools()
     if _is_ha_priority(message):
         return _ha_priority_tools()
+    if _is_workshop_memory(message):
+        return _workshop_memory_tools()
     tools = _default_tools()
     search_tool = _native_web_search_tool(search_mode)
     return tools + ([search_tool] if search_tool else [])

@@ -150,9 +150,14 @@ def store_workshop_memory_approval(
     session_id: str,
     response_id: str,
     calls: list[dict[str, Any]],
+    *,
+    request_message: str = "",
+    cost_budget: dict[str, Any] | None = None,
 ) -> str:
     PENDING_WORKSHOP_APPROVALS[session_id] = {
         "response_id": response_id,
         "calls": calls,
+        "request_message": request_message,
+        "cost_budget": cost_budget,
     }
     return workshop_memory_approval_prompt(calls)

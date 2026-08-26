@@ -18,10 +18,10 @@ MANIFEST = json.loads((ROOT / "jarvis/release_manifest.json").read_text(encoding
 
 class AgentRuntimeAndTabActivityBoundaryTests(unittest.TestCase):
     def test_release_markers_are_aligned(self):
-        self.assertIn('version: "0.13.46"', CONFIG)
-        self.assertIn('version="0.13.46"', MAIN)
-        self.assertIn("HUD 0.13.46", HTML)
-        self.assertEqual(MANIFEST["version"], "0.13.46")
+        self.assertIn('version: "0.13.47"', CONFIG)
+        self.assertIn('version="0.13.47"', MAIN)
+        self.assertIn("HUD 0.13.47", HTML)
+        self.assertEqual(MANIFEST["version"], "0.13.47")
 
     def test_both_services_are_outside_composition_root_and_configured(self):
         self.assertNotIn("def effective_system_instructions(", MAIN)

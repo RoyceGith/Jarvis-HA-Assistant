@@ -346,6 +346,22 @@ from .services.workshop_approvals import (
     workshop_memory_write_calls,
     workshop_write_call_ids,
 )
+from .services.workshop_cost_guard import (
+    MAX_MODEL_RESPONSES as WORKSHOP_MAX_MODEL_RESPONSES,
+    bound_workshop_result,
+    has_workshop_tool_calls,
+    is_workshop_memory_intent,
+    new_workshop_budget,
+    note_workshop_write_completed,
+    record_workshop_response_usage,
+    reject_oversized_workshop_batch,
+    reserve_workshop_call,
+    workshop_budget_reason,
+    workshop_budget_stop_reply,
+    workshop_cost_guard_status,
+    workshop_response_controls,
+    workshop_tools,
+)
 from .services.mcp_approvals import (
     PENDING_MCP_APPROVALS,
     configure_mcp_approvals,
@@ -648,7 +664,7 @@ ha_ws = HomeAssistantWebSocketClient(
 
 app = FastAPI(
     title="ZBRANO",
-    version="0.13.46",
+    version="0.13.47",
     docs_url="/api/docs",
     openapi_url="/api/openapi.json",
 )
@@ -1399,6 +1415,7 @@ async def execute_tool_calls(
     session_id: str = "default",
     approved_workshop_call_ids: set[str] | None = None,
     denied_workshop_call_ids: set[str] | None = None,
+    workshop_budget: dict[str, Any] | None = None,
 ) -> list[dict[str, Any]]:
     tool_outputs: list[dict[str, Any]] = []
     approved_workshop_call_ids = approved_workshop_call_ids or set()
@@ -1412,16 +1429,25 @@ async def execute_tool_calls(
     if developer_mode_enabled():
         allowed_names.update(HOME_ASSISTANT_PRIORITY_TOOL_NAMES)
 
-    for call in calls:
+    reject_oversized_workshop_batch(workshop_budget, calls)
+
+    for call_index, call in enumerate(calls):
         name = call.get("name", "")
         call_id = call.get("call_id", "")
+        budget_rejection = reserve_workshop_call(
+            workshop_budget,
+            call,
+            call_index,
+        )
         try:
             arguments = json.loads(call.get("arguments", "{}"))
         except json.JSONDecodeError as exc:
             raise OpenAIError(f"Invalid tool arguments for {name}") from exc
 
         permission = workshop_memory_tool_permission(name)
-        if name not in allowed_names:
+        if budget_rejection:
+            result: dict[str, Any] = {"error": budget_rejection}
+        elif name not in allowed_names:
             result: dict[str, Any] = {"error": f"Tool is not allowed: {name}"}
         elif permission == "write" and call_id in denied_workshop_call_ids:
             result = {"error": "User denied this Workshop Memory change."}
@@ -1539,11 +1565,22 @@ async def execute_tool_calls(
                 result = {"error": str(exc)}
 
         if (
+            not budget_rejection
+            and
             permission == "write"
             and call_id in approved_workshop_call_ids
             and workshop_result_error(result)
         ):
             result = await reconcile_workshop_memory_write(name, arguments, result)
+
+        if permission == "write" and not workshop_result_error(result):
+            note_workshop_write_completed(workshop_budget)
+
+        result = bound_workshop_result(
+            workshop_budget,
+            result,
+            permission=permission,
+        )
 
         audit.append(
             {
@@ -1656,13 +1693,23 @@ async def try_local_ha_route(
     }
 
 
-def runtime_tool_round_limit(session_id: str) -> int:
-    """Bound tool loops while giving approved multi-note tasks enough capacity."""
+def runtime_tool_round_limit(session_id: str, workshop_scope: bool = False) -> int:
+    """Bound tool loops; Workshop Memory has a strict cost-safety ceiling."""
+    if workshop_scope:
+        return WORKSHOP_MAX_MODEL_RESPONSES - 1
     if developer_mode_enabled():
         return 12
-    if workshop_memory_task_approval_active(session_id):
-        return 24
     return 12
+
+
+def cost_scoped_runtime_tools(
+    search_mode: str = "auto",
+    message: str = "",
+    workshop_scope: bool = False,
+) -> list[dict[str, Any]]:
+    if workshop_scope and not developer_mode_enabled():
+        return workshop_tools(WORKSHOP_TOOLS, workshop_memory_function_tools())
+    return runtime_chat_tools(search_mode, message)
 
 async def run_jarvis(message: str, session_id: str = "default") -> dict[str, Any]:
     if not developer_mode_enabled():
@@ -1694,6 +1741,8 @@ async def run_jarvis(message: str, session_id: str = "default") -> dict[str, Any
         append_chat_message(session_id, "assistant", local_result["reply"])
         return local_result
 
+    workshop_scope = not developer_mode_enabled() and is_workshop_memory_intent(message)
+    workshop_budget = new_workshop_budget(message) if workshop_scope else None
     response = await create_openai_response(
         {
             "model": active_agent_model(),
@@ -1717,16 +1766,34 @@ async def run_jarvis(message: str, session_id: str = "default") -> dict[str, Any
                 )
                 + [{"role": "user", "content": message}]
             ),
-            "tools": runtime_chat_tools(message=message),
+            "tools": cost_scoped_runtime_tools(message=message, workshop_scope=workshop_scope),
             "tool_choice": "auto",
+            **workshop_response_controls(workshop_scope),
         }
     )
+    budget_reason = record_workshop_response_usage(workshop_budget, response)
 
     audit: list[dict[str, Any]] = []
-    max_tool_rounds = runtime_tool_round_limit(session_id)
+    max_tool_rounds = runtime_tool_round_limit(session_id, workshop_scope)
 
     for _round in range(max_tool_rounds + 1):
         calls = function_calls(response)
+
+        if workshop_budget is None and has_workshop_tool_calls(
+            calls,
+            workshop_memory_tool_permission,
+            GMAIL_DIRECT_TOOL_NAMES,
+        ):
+            workshop_scope = True
+            workshop_budget = new_workshop_budget(message)
+            budget_reason = record_workshop_response_usage(workshop_budget, response)
+            max_tool_rounds = runtime_tool_round_limit(session_id, True)
+
+        if calls and budget_reason:
+            reply = workshop_budget_stop_reply(budget_reason)
+            append_chat_message(session_id, "user", message)
+            append_chat_message(session_id, "assistant", reply)
+            return {"reply": reply, "tool_calls": audit}
 
         if not calls:
             text = response_text(response)
@@ -1743,7 +1810,13 @@ async def run_jarvis(message: str, session_id: str = "default") -> dict[str, Any
 
         write_calls = workshop_memory_write_calls(calls)
         if write_calls and (gmail_direct_write_calls(calls) or not workshop_memory_task_approval_active(session_id)):
-            prompt = store_workshop_memory_approval(session_id, response["id"], calls)
+            prompt = store_workshop_memory_approval(
+                session_id,
+                response["id"],
+                calls,
+                request_message=message,
+                cost_budget=workshop_budget,
+            )
             append_chat_message(session_id, "user", message)
             append_chat_message(session_id, "assistant", prompt)
             return {"reply": prompt, "tool_calls": audit}
@@ -1755,7 +1828,15 @@ async def run_jarvis(message: str, session_id: str = "default") -> dict[str, Any
             approved_workshop_call_ids=(
                 workshop_write_call_ids(calls) if write_calls else set()
             ),
+            workshop_budget=workshop_budget,
         )
+
+        budget_reason = workshop_budget_reason(workshop_budget)
+        if budget_reason:
+            reply = workshop_budget_stop_reply(budget_reason)
+            append_chat_message(session_id, "user", message)
+            append_chat_message(session_id, "assistant", reply)
+            return {"reply": reply, "tool_calls": audit}
 
         response = await create_openai_response(
             {
@@ -1764,10 +1845,12 @@ async def run_jarvis(message: str, session_id: str = "default") -> dict[str, Any
                 "instructions": priority_system_instructions(effective_system_instructions(), message),
                 "previous_response_id": response["id"],
                 "input": tool_outputs,
-                "tools": runtime_chat_tools(message=message),
+                "tools": cost_scoped_runtime_tools(message=message, workshop_scope=workshop_scope),
                 "tool_choice": "auto",
+                **workshop_response_controls(workshop_scope),
             }
         )
+        budget_reason = record_workshop_response_usage(workshop_budget, response)
 
     raise OpenAIError("ZBRANO tool loop ended unexpectedly")
 
@@ -1905,6 +1988,15 @@ async def continue_workshop_memory_approval(
     approval_message: str,
 ) -> dict[str, Any]:
     audit: list[dict[str, Any]] = []
+    request_message = str(pending.get("request_message") or approval_message)
+    workshop_scope = is_workshop_memory_intent(request_message) or has_workshop_tool_calls(
+        list(pending.get("calls") or []),
+        workshop_memory_tool_permission,
+        GMAIL_DIRECT_TOOL_NAMES,
+    )
+    workshop_budget = pending.get("cost_budget")
+    if workshop_scope and not isinstance(workshop_budget, dict):
+        workshop_budget = new_workshop_budget(request_message)
     write_ids = {
         str(call.get("call_id") or "")
         for call in workshop_memory_write_calls(pending["calls"])
@@ -1915,17 +2007,26 @@ async def continue_workshop_memory_approval(
         session_id,
         approved_workshop_call_ids=write_ids if approved else set(),
         denied_workshop_call_ids=set() if approved else write_ids,
+        workshop_budget=workshop_budget,
     )
+    budget_reason = workshop_budget_reason(workshop_budget)
+    if budget_reason:
+        return {
+            "reply": workshop_budget_stop_reply(budget_reason),
+            "tool_calls": audit,
+        }
     response = await create_workshop_continuation_response({
         "model": active_agent_model(),
         **agent_reasoning_payload(),
-        "instructions": priority_system_instructions(effective_system_instructions(), approval_message),
+        "instructions": priority_system_instructions(effective_system_instructions(), request_message),
         "previous_response_id": pending["response_id"],
         "input": tool_outputs,
-        "tools": runtime_chat_tools(message=approval_message),
+        "tools": cost_scoped_runtime_tools(message=request_message, workshop_scope=workshop_scope),
         "tool_choice": "auto",
+        **workshop_response_controls(workshop_scope),
     })
-    for _round in range(6):
+    budget_reason = record_workshop_response_usage(workshop_budget, response)
+    for _round in range(WORKSHOP_MAX_MODEL_RESPONSES):
         native_approvals = mcp_approval_requests(response)
         if native_approvals:
             PENDING_MCP_APPROVALS[session_id] = {
@@ -1934,6 +2035,11 @@ async def continue_workshop_memory_approval(
             }
             return {"reply": mcp_approval_prompt(native_approvals), "tool_calls": audit}
         calls = function_calls(response)
+        if calls and budget_reason:
+            return {
+                "reply": workshop_budget_stop_reply(budget_reason),
+                "tool_calls": audit,
+            }
         if not calls:
             reply = response_text(response)
             if not reply:
@@ -1941,7 +2047,13 @@ async def continue_workshop_memory_approval(
             return {"reply": reply, "tool_calls": audit}
         write_calls = workshop_memory_write_calls(calls)
         if write_calls and (gmail_direct_write_calls(calls) or not workshop_memory_task_approval_active(session_id)):
-            prompt = store_workshop_memory_approval(session_id, response["id"], calls)
+            prompt = store_workshop_memory_approval(
+                session_id,
+                response["id"],
+                calls,
+                request_message=request_message,
+                cost_budget=workshop_budget,
+            )
             return {"reply": prompt, "tool_calls": audit}
         tool_outputs = await execute_tool_calls(
             calls,
@@ -1950,17 +2062,29 @@ async def continue_workshop_memory_approval(
             approved_workshop_call_ids=(
                 workshop_write_call_ids(calls) if write_calls else set()
             ),
+            workshop_budget=workshop_budget,
         )
+        budget_reason = workshop_budget_reason(workshop_budget)
+        if budget_reason:
+            return {
+                "reply": workshop_budget_stop_reply(budget_reason),
+                "tool_calls": audit,
+            }
         response = await create_workshop_continuation_response({
             "model": active_agent_model(),
             **agent_reasoning_payload(),
-            "instructions": priority_system_instructions(effective_system_instructions(), approval_message),
+            "instructions": priority_system_instructions(effective_system_instructions(), request_message),
             "previous_response_id": response["id"],
             "input": tool_outputs,
-            "tools": runtime_chat_tools(message=approval_message),
+            "tools": cost_scoped_runtime_tools(message=request_message, workshop_scope=workshop_scope),
             "tool_choice": "auto",
+            **workshop_response_controls(workshop_scope),
         })
-    raise OpenAIError("Workshop Memory approval continuation exceeded 6 tool rounds")
+        budget_reason = record_workshop_response_usage(workshop_budget, response)
+    return {
+        "reply": workshop_budget_stop_reply("the model-response limit was reached"),
+        "tool_calls": audit,
+    }
 
 
 async def _run_jarvis_stream_events(message: str, session_id: str = "default", search_mode: str = "auto") -> AsyncIterator[bytes]:
@@ -2097,8 +2221,10 @@ async def _run_jarvis_stream_events(message: str, session_id: str = "default", s
         yield stream_event("done", tool_calls=local_result["tool_calls"])
         return
 
+    workshop_scope = not developer_mode_enabled() and is_workshop_memory_intent(message)
+    workshop_budget = new_workshop_budget(message) if workshop_scope else None
     audit: list[dict[str, Any]] = []
-    max_tool_rounds = runtime_tool_round_limit(session_id)
+    max_tool_rounds = runtime_tool_round_limit(session_id, workshop_scope)
     response: dict[str, Any] | None = None
     emitted_initial_text = False
     request_deadline = time.monotonic() + (300.0 if developer_mode_enabled() else 180.0)
@@ -2139,9 +2265,10 @@ async def _run_jarvis_stream_events(message: str, session_id: str = "default", s
                 )
                 + [{"role": "user", "content": message}]
             ),
-            "tools": runtime_chat_tools(search_mode, message),
+            "tools": cost_scoped_runtime_tools(search_mode, message, workshop_scope),
             "tool_choice": web_search_tool_choice(search_mode),
-                **web_search_include_options(search_mode),
+            **web_search_include_options(search_mode),
+            **workshop_response_controls(workshop_scope),
         }
     ):
         event_type = event.get("type")
@@ -2176,6 +2303,8 @@ async def _run_jarvis_stream_events(message: str, session_id: str = "default", s
     if response is None:
         raise OpenAIError("OpenAI stream ended without response.completed")
 
+    budget_reason = record_workshop_response_usage(workshop_budget, response)
+
     approval_requests = mcp_approval_requests(response)
     if approval_requests:
         PENDING_MCP_APPROVALS[session_id] = {
@@ -2197,6 +2326,23 @@ async def _run_jarvis_stream_events(message: str, session_id: str = "default", s
 
     for round_index in range(max_tool_rounds + 1):
         calls = function_calls(response)
+
+        if workshop_budget is None and has_workshop_tool_calls(
+            calls,
+            workshop_memory_tool_permission,
+            GMAIL_DIRECT_TOOL_NAMES,
+        ):
+            workshop_scope = True
+            workshop_budget = new_workshop_budget(message)
+            budget_reason = record_workshop_response_usage(workshop_budget, response)
+            max_tool_rounds = runtime_tool_round_limit(session_id, True)
+
+        if calls and budget_reason:
+            reply = workshop_budget_stop_reply(budget_reason)
+            yield stream_event("status", message="Workshop Memory cost limit reached.")
+            yield stream_event("delta", text=reply)
+            yield stream_event("done", tool_calls=audit)
+            return
 
         if not calls:
             # The first response already contains the final text. Emit it in
@@ -2250,7 +2396,13 @@ async def _run_jarvis_stream_events(message: str, session_id: str = "default", s
 
         if write_calls and (gmail_direct_write_calls(calls) or not workshop_memory_task_approval_active(session_id)):
             yield stream_event("activity", id=activity_id, state="waiting_approval", **activity_meta)
-            prompt = store_workshop_memory_approval(session_id, response["id"], calls)
+            prompt = store_workshop_memory_approval(
+                session_id,
+                response["id"],
+                calls,
+                request_message=message,
+                cost_budget=workshop_budget,
+            )
             yield stream_event("status", message="Permission required…")
             yield stream_event("delta", text=prompt)
             yield stream_event("done", tool_calls=audit)
@@ -2264,6 +2416,7 @@ async def _run_jarvis_stream_events(message: str, session_id: str = "default", s
                 approved_workshop_call_ids=(
                     workshop_write_call_ids(calls) if write_calls else set()
                 ),
+                workshop_budget=workshop_budget,
             )
         )
         progress_started = time.monotonic()
@@ -2293,6 +2446,14 @@ async def _run_jarvis_stream_events(message: str, session_id: str = "default", s
                 yield stream_event("status", message=f"{phase} · {elapsed_seconds}s")
                 progress_index += 1
         tool_outputs = await tool_task
+        budget_reason = workshop_budget_reason(workshop_budget)
+        if budget_reason:
+            reply = workshop_budget_stop_reply(budget_reason)
+            yield stream_event("activity", id=activity_id, state="failed", **activity_meta)
+            yield stream_event("status", message="Workshop Memory cost limit reached.")
+            yield stream_event("delta", text=reply)
+            yield stream_event("done", tool_calls=audit)
+            return
         failed = any('"error"' in str(output.get("output") or "") for output in tool_outputs)
         yield stream_event("activity", id=activity_id, state="failed" if failed else "completed", **activity_meta)
         yield stream_event(
@@ -2313,9 +2474,10 @@ async def _run_jarvis_stream_events(message: str, session_id: str = "default", s
                 "instructions": web_search_quality_instructions(priority_system_instructions(effective_system_instructions(), message), search_mode),
                 "previous_response_id": response["id"],
                 "input": tool_outputs,
-                "tools": runtime_chat_tools(search_mode, message),
+                "tools": cost_scoped_runtime_tools(search_mode, message, workshop_scope),
                 "tool_choice": web_search_tool_choice(search_mode),
                 **web_search_include_options(search_mode),
+                **workshop_response_controls(workshop_scope),
             }
         ):
             event_type = event.get("type")
@@ -2353,6 +2515,8 @@ async def _run_jarvis_stream_events(message: str, session_id: str = "default", s
 
         if streamed_response is None:
             raise OpenAIError("OpenAI stream ended without response.completed")
+
+        budget_reason = record_workshop_response_usage(workshop_budget, streamed_response)
 
         approval_requests = mcp_approval_requests(streamed_response)
         if approval_requests:
@@ -2479,9 +2643,10 @@ async def health() -> dict[str, Any]:
     configured_speech_provider = SPEECH_PROVIDER if SPEECH_PROVIDER in {"openai", "elevenlabs"} else "openai"
     return {
         "status": "ok",
-        "version": "0.13.46",
+        "version": "0.13.47",
         "home_assistant_configured": bool(SUPERVISOR_TOKEN),
         "workshop_memory_configured": bool(WORKSHOP_MEMORY_URL),
+        "workshop_memory_cost_guard": workshop_cost_guard_status(),
         "openai_configured": bool(OPENAI_API_KEY),
         "openai_model": OPENAI_MODEL,
         "voice_configured": bool(OPENAI_API_KEY) or bool(ELEVENLABS_API_KEY and ELEVENLABS_VOICE_ID),
@@ -5373,6 +5538,11 @@ configure_runtime_routing(
     ha_priority_tools_fn=home_assistant_priority_tools,
     default_tools_fn=lambda: WORKSHOP_TOOLS + GRINDER_MONITOR_TOOLS + workshop_memory_function_tools() + gmail_direct_function_tools() + active_mcp_tools(),
     native_web_search_tool_fn=native_web_search_tool,
+    is_workshop_memory_fn=is_workshop_memory_intent,
+    workshop_memory_tools_fn=lambda: workshop_tools(
+        WORKSHOP_TOOLS,
+        workshop_memory_function_tools(),
+    ),
 )
 configure_workshop_approvals(
     tool_permission_fn=workshop_memory_tool_permission,
