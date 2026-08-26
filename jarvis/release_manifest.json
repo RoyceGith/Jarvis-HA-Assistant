@@ -1,9 +1,9 @@
 {
-  "version": "0.13.76",
+  "version": "0.13.77",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/ZBRANO_Core main",
-  "summary": "Pause approval and autonomous execution after repeated action failures with an auditable, explicitly resettable per-automation circuit breaker.",
+  "summary": "Verify live entity permissions and Home Assistant safety labels before automation approval or autonomous execution, with clear Studio remediation.",
   "history_backfill": [
     {
       "version": "0.13.0",
@@ -308,22 +308,28 @@
     {
       "version": "0.13.75",
       "summary": "Recovered stale automation suggestion lifecycles and exposed bounded outcome health for unanswered, successful, failed, and interrupted decisions."
+    },
+    {
+      "version": "0.13.76",
+      "summary": "Paused approval and autonomous execution after repeated action failures with an auditable, explicitly resettable per-automation circuit breaker."
     }
   ],
   "release_entry": {
     "features": [
-      "Configure a per-automation action-failure limit and rolling failure window from Automation Studio.",
-      "Expose circuit state and an explicit Reset recovery control while preserving the complete failure audit history."
+      "Show live per-automation readiness and exact entity permission or safety-label issues in Automation Studio.",
+      "Automatically resume eligibility when required read and control permissions are restored."
     ],
     "fixes": [
-      "Pause approval-required and autonomous execution after repeated failures instead of repeatedly attempting a broken action.",
-      "Block stale approvals while the failure circuit is open without disabling observe or suggestion-only evaluation."
+      "Block approval-required and autonomous paths when trigger, condition, wait, presence, or action access has drifted.",
+      "Re-check permissions at approval time so a stale suggestion cannot bypass current Home Assistant safety labels."
     ],
     "validation": [
-      "Rolling failure windows, circuit opening, audit-preserving recovery acknowledgment, approval blocking, authority isolation, Studio recovery wiring, compatibility, README alignment, and v0.13.76 release coverage"
+      "Live read and control access, label blocking, approval-time enforcement, execution-policy isolation, Studio readiness rendering, compatibility, README alignment, and v0.13.77 release coverage"
     ]
   },
   "features": [
+    "Verify live entity access and Home Assistant safety labels before approval or autonomous automation execution.",
+    "Expose exact readiness issues in Automation Studio and recover automatically after permissions are restored.",
     "Pause approval and autonomous automation execution behind an auditable per-rule failure circuit breaker.",
     "Reset failure recovery explicitly without erasing historical failures or changing permissions and authority.",
     "Recover stale unanswered and interrupted automation suggestion lifecycles without granting additional authority.",

@@ -945,6 +945,58 @@ def _automation_actions(item: dict[str, Any]) -> list[dict[str, Any]]:
 def _automation_branches(item: dict[str, Any]) -> list[dict[str, Any]]:
     return [value for value in item.get("branches") or [] if isinstance(value, dict) and value.get("name")][:10]
 
+def _automation_readiness(
+    item: dict[str, Any], data: dict[str, Any], actions_override: list[dict[str, Any]] | None = None,
+) -> dict[str, Any]:
+    issues: list[dict[str, str]] = []
+    seen: set[tuple[str, str]] = set()
+
+    def issue(kind: str, entity_id: str, detail: str) -> None:
+        key = (kind, entity_id)
+        if key in seen:
+            return
+        seen.add(key)
+        issues.append({"kind": kind, "entity_id": entity_id, "detail": detail})
+
+    def require_read(entity_id: str, kind: str) -> None:
+        if entity_id and not effective_entity_access(entity_id):
+            issue(kind, entity_id, f"{entity_id} is not enabled for reading")
+
+    for trigger in _automation_triggers(item):
+        if str(trigger.get("kind") or "entity") == "entity":
+            require_read(str(trigger.get("entity_id") or ""), "trigger_read")
+    for condition in [*_automation_conditions(item), *(
+        value for branch in _automation_branches(item) for value in _automation_conditions(branch)
+    )]:
+        if str(condition.get("kind") or "entity") == "entity":
+            require_read(str(condition.get("entity_id") or ""), "condition_read")
+    require_read(str(item.get("presence_entity") or ""), "presence_read")
+
+    actions = actions_override
+    if actions is None:
+        actions = [*_automation_actions(item), *(
+            value for branch in _automation_branches(item) for value in _automation_actions(branch)
+        )]
+    for action in actions:
+        kind = str(action.get("kind") or "service")
+        entity_id = str(action.get("entity_id") or "")
+        if kind == "wait_state":
+            require_read(entity_id, "wait_read")
+            continue
+        if kind != "service" or not entity_id:
+            continue
+        access = effective_entity_access(entity_id)
+        if not access:
+            issue("action_control", entity_id, f"{entity_id} is not enabled in entity policy")
+        elif access == "read_only":
+            issue("action_control", entity_id, f"{entity_id} is read-only")
+        elif _automation_label_blocks_control(data, entity_id):
+            issue("safety_label", entity_id, f"{entity_id} control is blocked by a Home Assistant safety label")
+
+    ready = not issues
+    summary = "All referenced entities have the required live access" if ready else f"{len(issues)} live permission issue{'s' if len(issues) != 1 else ''}: " + "; ".join(value["detail"] for value in issues[:3])
+    return {"ready": ready, "summary": summary, "issues": issues}
+
 def _automation_condition_matches(item: dict[str, Any], old_state: Any, new_state: Any) -> bool:
     operator = str(item.get("operator") or item.get("trigger_operator") or "changes_to")
     expected = str(item.get("value") if "value" in item else item.get("trigger_value") or "")
@@ -1639,6 +1691,19 @@ async def _automation_commit_match(automation_id: str, evidence: dict[str, Any])
             _automation_save(data)
             return
         policy, policy_detail = _automation_effective_policy(item, data["settings"])
+        readiness = _automation_readiness(item, data, selected_actions)
+        if not readiness["ready"] and policy in {"approval_required", "autonomous"}:
+            item["status"] = "blocked_permission"
+            item["last_deferred_reason"] = readiness["summary"]
+            signature = "|".join(
+                f"{value['kind']}:{value['entity_id']}" for value in readiness["issues"]
+            )
+            if item.get("last_readiness_signature") != signature:
+                item["last_readiness_signature"] = signature
+                _automation_event(data, "permission_blocked", f"Automation permission changed: {item.get('name')}", readiness["summary"])
+            _automation_save(data)
+            return
+        item.pop("last_readiness_signature", None)
         circuit_open, circuit_detail, _ = _automation_failure_circuit(item, now)
         if circuit_open and policy in {"approval_required", "autonomous"}:
             item["status"] = "paused_failure"

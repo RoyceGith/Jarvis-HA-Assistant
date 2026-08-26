@@ -1,5 +1,14 @@
 # Change log
 
+## 0.13.77
+
+- Added live readiness checks for trigger, condition, presence, wait, and action
+  entity permissions plus Home Assistant control-blocking safety labels.
+- Blocked stale approvals and autonomous execution when current access is unsafe,
+  while preserving observe and suggestion-only behavior.
+- Added exact readiness explanations in Automation Studio with automatic recovery
+  when permissions or labels are restored.
+
 ## 0.13.76
 
 - Added configurable per-automation failure limits and rolling failure windows.

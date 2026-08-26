@@ -27,6 +27,7 @@ from .domains.automations import (
     _automation_failure_circuit,
     _automation_execute_action,
     _automation_label_blocks_control,
+    _automation_readiness,
     _automation_payload_http,
     _automation_refresh_area_context,
     _automation_record_suggestion_dismissal,
@@ -676,7 +677,7 @@ ha_ws = HomeAssistantWebSocketClient(
 
 app = FastAPI(
     title="ZBRANO",
-    version="0.13.76",
+    version="0.13.77",
     docs_url="/api/docs",
     openapi_url="/api/openapi.json",
 )
@@ -2655,7 +2656,7 @@ async def health() -> dict[str, Any]:
     configured_speech_provider = SPEECH_PROVIDER if SPEECH_PROVIDER in {"openai", "elevenlabs"} else "openai"
     return {
         "status": "ok",
-        "version": "0.13.76",
+        "version": "0.13.77",
         "home_assistant_configured": bool(SUPERVISOR_TOKEN),
         "workshop_memory_configured": bool(WORKSHOP_MEMORY_URL),
         "workshop_memory_cost_guard": workshop_cost_guard_status(),
@@ -3342,6 +3343,7 @@ async def read_autonomous_automations():
         expired = sum(_automation_expire_stale_suggestions(data, item, now) for item in data.get("automations", []))
         for item in data.get("automations", []):
             _automation_failure_circuit(item, now)
+            item["readiness"] = _automation_readiness(item, data)
         if expired:
             _automation_save(data)
     return {
@@ -3523,6 +3525,12 @@ async def approve_automation_suggestion(suggestion_id: str) -> dict[str, Any]:
         automation = next((item for item in data["automations"] if item.get("id") == suggestion.get("automation_id")), None)
         if not automation:
             raise HTTPException(status_code=404, detail="Automation definition not found")
+        readiness = _automation_readiness(automation, data, suggestion.get("actions"))
+        if not readiness["ready"]:
+            automation["status"] = "blocked_permission"
+            automation["last_deferred_reason"] = readiness["summary"]
+            _automation_save(data)
+            raise HTTPException(status_code=403, detail=f"Automation execution blocked: {readiness['summary']}")
         circuit_open, circuit_detail, _ = _automation_failure_circuit(automation, time.time())
         if circuit_open:
             _automation_save(data)

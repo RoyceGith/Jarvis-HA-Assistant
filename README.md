@@ -1,15 +1,15 @@
-## ZBRANO v0.13.76
+## ZBRANO v0.13.77
 
 ZBRANO combines Home Assistant chat, voice, entity control, memory, notifications,
 calendar tools, plugins, and evidence-based automations. Automation Studio now uses
 a visual building-block toolbox, interactive node canvas, and contextual inspector;
 the established automation engine and stored definitions remain compatible.
 
-Version 0.13.76 adds a per-automation action-failure circuit breaker. Repeated
-failures inside a configurable rolling window pause approval and autonomous
-execution rather than repeatedly attempting a broken action. Automation Studio
-explains the circuit and provides an explicit recovery reset while preserving the
-failure audit history and existing permissions.
+Version 0.13.77 verifies every automation's live entity permissions and Home
+Assistant safety labels before approval or autonomous execution. Automation Studio
+shows exact readiness issues, blocks stale approvals safely, and becomes eligible
+again automatically when access is restored. Observe and suggestion-only behavior
+remains available without gaining control authority.
 
 The application source and post-split build history are maintained in the private
 core repository. Public Home Assistant repositories contain only the five-file
