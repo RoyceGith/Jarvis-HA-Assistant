@@ -2411,6 +2411,7 @@ startBrainNetwork();
     const selected = tabs.some(tab => tab.dataset.settingsTarget === target) ? target : "appearance";
     for (const tab of tabs) {
       const active = tab.dataset.settingsTarget === selected;
+      if (active) tab.closest("details")?.setAttribute("open", "");
       tab.classList.toggle("active", active);
       tab.setAttribute("aria-selected", String(active));
       tab.tabIndex = active ? 0 : -1;
@@ -2421,11 +2422,11 @@ startBrainNetwork();
   for (const tab of tabs) {
     tab.addEventListener("click", () => activate(tab.dataset.settingsTarget));
     tab.addEventListener("keydown", event => {
-      if (!['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) return;
+      if (!['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Home', 'End'].includes(event.key)) return;
       event.preventDefault();
       const current = tabs.indexOf(tab);
       const next = event.key === 'Home' ? 0 : event.key === 'End' ? tabs.length - 1
-        : (current + (event.key === 'ArrowRight' ? 1 : -1) + tabs.length) % tabs.length;
+        : (current + (['ArrowRight', 'ArrowDown'].includes(event.key) ? 1 : -1) + tabs.length) % tabs.length;
       activate(tabs[next].dataset.settingsTarget);
       tabs[next].focus();
     });

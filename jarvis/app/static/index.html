@@ -26,13 +26,14 @@
 <link id="zbrano-v01312-interface-refresh-style" rel="stylesheet" href="css/interface-refresh.css">
 <link id="zbrano-v01359-onboarding-style" rel="stylesheet" href="css/onboarding.css">
 <link id="zbrano-v01363-automation-studio-style" rel="stylesheet" href="css/automation-studio.css">
+<link id="zbrano-v01379-workspace-modern-style" rel="stylesheet" href="css/workspace-modern.css">
 </head>
 <body>
 <main>
   <header>
     <div class="brand-line">
       <h1>ZBRANO</h1>
-      <div class="status hud-version-label">Workshop Intelligence Interface · HUD 0.13.78</div>
+      <div class="status hud-version-label">Workshop Intelligence Interface · HUD 0.13.79</div>
     </div>
     <div class="runtime-status-stack">
       <button id="calendar-quick-open" class="calendar-quick-open" type="button" aria-label="Open ZBRANO Calendar" title="Open Calendar">
@@ -54,8 +55,8 @@
     <button id="automations-tab">Automations</button>
     <button id="entities-tab">Entities</button>
     <button id="plugins-tab">Plugins</button>
-    <button id="calendar-tab" class="primary-icon-tab" aria-label="Calendar" title="Calendar"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 2v3M17 2v3M3.5 9h17M5.5 4h13a2 2 0 0 1 2 2v13a2 2 0 0 1-2 2h-13a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2Z"/><path d="M8 13h3v3H8z"/></svg></button>
-    <button id="settings-tab" class="primary-icon-tab" aria-label="Settings" title="Settings"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 15.4a3.4 3.4 0 1 0 0-6.8 3.4 3.4 0 0 0 0 6.8Z"/><path d="m19.4 15 .1.1 1.4 2.4-2.4 2.4-2.4-1.4-.1-.1a8.4 8.4 0 0 1-2 .8V22H9.6v-2.8a8.4 8.4 0 0 1-2-.8l-.1.1-2.4 1.4-2.4-2.4 1.4-2.4.1-.1a8.4 8.4 0 0 1-.8-2H.6V9.6h2.8a8.4 8.4 0 0 1 .8-2l-.1-.1-1.4-2.4 2.4-2.4 2.4 1.4.1.1a8.4 8.4 0 0 1 2-.8V.6H13v2.8a8.4 8.4 0 0 1 2 .8l.1-.1 2.4-1.4 2.4 2.4-1.4 2.4-.1.1a8.4 8.4 0 0 1 .8 2H22V13h-2.8a8.4 8.4 0 0 1-.8 2Z"/></svg></button>
+    <button id="calendar-tab" class="primary-icon-tab primary-labeled-tab" aria-label="Calendar" title="Calendar"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 2v3M17 2v3M3.5 9h17M5.5 4h13a2 2 0 0 1 2 2v13a2 2 0 0 1-2 2h-13a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2Z"/><path d="M8 13h3v3H8z"/></svg><span>Calendar</span></button>
+    <button id="settings-tab" class="primary-icon-tab primary-labeled-tab" aria-label="Settings" title="Settings"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 15.4a3.4 3.4 0 1 0 0-6.8 3.4 3.4 0 0 0 0 6.8Z"/><path d="m19.4 15 .1.1 1.4 2.4-2.4 2.4-2.4-1.4-.1-.1a8.4 8.4 0 0 1-2 .8V22H9.6v-2.8a8.4 8.4 0 0 1-2-.8l-.1.1-2.4 1.4-2.4-2.4 1.4-2.4.1-.1a8.4 8.4 0 0 1-.8-2H.6V9.6h2.8a8.4 8.4 0 0 1 .8-2l-.1-.1-1.4-2.4 2.4-2.4 2.4 1.4.1.1a8.4 8.4 0 0 1 2-.8V.6H13v2.8a8.4 8.4 0 0 1 2 .8l.1-.1 2.4-1.4 2.4 2.4-1.4 2.4-.1.1a8.4 8.4 0 0 1 .8 2H22V13h-2.8a8.4 8.4 0 0 1-.8 2Z"/></svg><span>Settings</span></button>
     <button id="developer-tab">Developer</button>
   </nav>
 
@@ -241,15 +242,28 @@
   <section id="settings-panel" class="panel hidden">
     <div class="settings-stack">
     <div class="settings-category-tabs" role="tablist" aria-label="Settings categories">
-      <button type="button" class="settings-category-tab" role="tab" aria-selected="false" data-settings-target="setup">Setup</button>
-      <button type="button" class="settings-category-tab active" role="tab" aria-selected="true" data-settings-target="appearance">Appearance</button>
-      <button type="button" class="settings-category-tab" role="tab" aria-selected="false" data-settings-target="voice">Voice</button>
-      <button type="button" class="settings-category-tab" role="tab" aria-selected="false" data-settings-target="responses">Responses</button>
-      <button type="button" class="settings-category-tab" role="tab" aria-selected="false" data-settings-target="search">Search</button>
-      <button type="button" class="settings-category-tab" role="tab" aria-selected="false" data-settings-target="instructions">Instructions</button>
-      <button type="button" class="settings-category-tab" role="tab" aria-selected="false" data-settings-target="playback">Playback</button>
-      <button type="button" class="settings-category-tab" role="tab" aria-selected="false" data-settings-target="memory">Memory</button>
-      <button type="button" class="settings-category-tab" role="tab" aria-selected="false" data-settings-target="updates">Updates</button>
+      <div class="settings-nav-title"><span class="settings-nav-icon" aria-hidden="true">⚙</span><div><strong>Settings</strong><small>Configure ZBRANO</small></div></div>
+      <details class="settings-nav-group" open>
+        <summary>General</summary>
+        <button type="button" class="settings-category-tab" role="tab" aria-selected="false" data-settings-target="setup"><span class="settings-nav-icon" aria-hidden="true">✓</span><span>Setup</span></button>
+        <button type="button" class="settings-category-tab active" role="tab" aria-selected="true" data-settings-target="appearance"><span class="settings-nav-icon" aria-hidden="true">◈</span><span>Appearance</span></button>
+      </details>
+      <details class="settings-nav-group" open>
+        <summary>Assistant</summary>
+        <button type="button" class="settings-category-tab" role="tab" aria-selected="false" data-settings-target="voice"><span class="settings-nav-icon" aria-hidden="true">◉</span><span>Voice</span></button>
+        <button type="button" class="settings-category-tab" role="tab" aria-selected="false" data-settings-target="responses"><span class="settings-nav-icon" aria-hidden="true">✦</span><span>Responses</span></button>
+        <button type="button" class="settings-category-tab" role="tab" aria-selected="false" data-settings-target="playback"><span class="settings-nav-icon" aria-hidden="true">▷</span><span>Playback</span></button>
+        <button type="button" class="settings-category-tab" role="tab" aria-selected="false" data-settings-target="instructions"><span class="settings-nav-icon" aria-hidden="true">≡</span><span>Instructions</span></button>
+      </details>
+      <details class="settings-nav-group" open>
+        <summary>Connections &amp; data</summary>
+        <button type="button" class="settings-category-tab" role="tab" aria-selected="false" data-settings-target="search"><span class="settings-nav-icon" aria-hidden="true">⌕</span><span>Search</span></button>
+        <button type="button" class="settings-category-tab" role="tab" aria-selected="false" data-settings-target="memory"><span class="settings-nav-icon" aria-hidden="true">⬡</span><span>Memory</span></button>
+      </details>
+      <details class="settings-nav-group" open>
+        <summary>System</summary>
+        <button type="button" class="settings-category-tab" role="tab" aria-selected="false" data-settings-target="updates"><span class="settings-nav-icon" aria-hidden="true">↻</span><span>Updates</span></button>
+      </details>
     </div>
     <div class="settings-card onboarding-card" data-settings-category="setup" hidden>
       <div class="onboarding-heading">
@@ -663,13 +677,6 @@
           <button type="button" data-automation-library-view="saved" role="tab" aria-selected="false">My Automations</button>
         </div>
         <div data-automation-library-panel="create">
-        <article class="autonomy-card automation-chat-builder">
-          <div><h3>Create with ZBRANO</h3><p>Describe the behavior naturally. ZBRANO will find approved entities, ask about ambiguity, remember confirmed mappings, and prepare a disabled preview before activation.</p></div>
-          <form id="automation-chat-builder-form" class="automation-chat-builder">
-            <textarea id="automation-chat-request" maxlength="2000" required placeholder="If the living-room temperature stays above 25 degrees for two minutes, start cooling and notify me."></textarea>
-            <div class="autonomy-form-actions"><button type="submit">Build in Chat</button><span id="automation-chat-builder-status" role="status"></span></div>
-          </form>
-        </article>
         <article class="autonomy-card automation-studio-preview">
           <div class="autonomy-card-head automation-studio-toolbar">
             <div><h3>Automation Studio</h3><p>Build visually, configure one block at a time, and save through the existing safe automation engine.</p></div>
@@ -697,6 +704,13 @@
               <div id="automation-studio-inspector-fields" class="automation-studio-inspector-fields"></div>
             </aside>
           </div>
+        </article>
+        <article class="autonomy-card automation-chat-builder">
+          <div><h3>Create with ZBRANO</h3><p>Describe the behavior naturally. ZBRANO will find approved entities, ask about ambiguity, remember confirmed mappings, and prepare a disabled preview before activation.</p></div>
+          <form id="automation-chat-builder-form" class="automation-chat-builder">
+            <textarea id="automation-chat-request" maxlength="2000" required placeholder="If the living-room temperature stays above 25 degrees for two minutes, start cooling and notify me."></textarea>
+            <div class="autonomy-form-actions"><button type="submit">Build in Chat</button><span id="automation-chat-builder-status" role="status"></span></div>
+          </form>
         </article>
         <details class="automation-advanced">
           <summary>Advanced manual editor and templates</summary>

@@ -19,13 +19,15 @@ storage, and `ghcr.io/roycegith/jarvis-ha-assistant` update image.
 
 ## Current experience
 
-Version 0.13.78 includes a full-window Automation Studio with a building-block
+Version 0.13.79 includes a full-window Automation Studio with a building-block
 toolbox, interactive flow canvas, and focused settings inspector. Existing
 automation definitions and Home Assistant data remain compatible across updates.
 Studio now reports live entity-permission and Home Assistant safety-label readiness,
 blocking unsafe approval or autonomous execution until access is restored.
 Each automation also exposes a bounded decision journal explaining its latest
 observations, suppressions, deferrals, suggestions, and action outcomes.
+The graphical Studio now appears first, Settings uses a collapsible icon-led left
+navigation with color accents, and the primary top bar uses quiet hover targets.
 Visual workflows can use OR triggers, grouped conditions, ordered actions, and
 first-match IF/ELSE branches, Delay steps, and bounded Wait Until steps. Every
 automation can independently observe, suggest, ask approval, or act automatically

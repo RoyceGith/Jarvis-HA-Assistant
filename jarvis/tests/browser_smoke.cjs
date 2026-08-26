@@ -93,7 +93,7 @@ function apiFixture(url) {
   if (pathname === "/api/health") {
     return {
       status: "ok",
-      version: "0.13.78",
+      version: "0.13.79",
       speech_provider: "openai",
       speech_providers: {openai: {configured: true}, elevenlabs: {configured: false}},
     };
@@ -132,7 +132,7 @@ function apiFixture(url) {
   if (pathname === "/api/plugins") return {plugins: []};
   if (pathname === "/api/files/shared") return {files: [], count: 0};
   if (pathname === "/api/release-memory-sync") {
-    return {enabled: false, state: "disabled", version: "0.13.78", task_active: false};
+    return {enabled: false, state: "disabled", version: "0.13.79", task_active: false};
   }
   if (pathname === "/api/tab-activity") return {revisions: {}};
   if (pathname === "/api/grinder-monitor/status") return {enabled: false, connected: false};
@@ -239,6 +239,11 @@ async function main() {
     assert.equal(await page.locator("#automation-library .automation-flow-node").count(), 4);
     await page.locator('[data-automation-library-view="create"]').click();
     await page.locator('[data-automation-library-panel="create"]:not(.hidden)').waitFor();
+    const studioOrder = await page.evaluate(() => ({
+      studio: document.querySelector(".automation-studio-preview").getBoundingClientRect().top,
+      chat: document.querySelector(".automation-chat-builder").getBoundingClientRect().top,
+    }));
+    assert.ok(studioOrder.studio < studioOrder.chat, "Automation Studio must appear before Create with ZBRANO");
     await page.locator(".automation-advanced summary").click();
     await page.locator("#automation-entity-options option").nth(47).waitFor({state: "attached"});
     await page.locator('[data-auto-template="comfort"]').click();
@@ -292,7 +297,21 @@ async function main() {
     await page.locator('[data-branch-collection="actions"][data-item-index="1"][data-action-field="wait_value"]').fill("25");
     assert.match(await page.locator("#automation-flow-preview").innerText(), /1 first-match branch/i);
 
-    console.log("Browser smoke passed: New Chat, navigation, Entity scrolling, branching Automation Studio workflows, and installation-derived templates");
+    await page.locator("#settings-tab").click();
+    await page.locator("#settings-panel:not(.hidden)").waitFor();
+    const settingsLayout = await page.locator("#settings-panel .settings-stack").evaluate(element => ({
+      display: getComputedStyle(element).display,
+      columns: getComputedStyle(element).gridTemplateColumns,
+      cursor: getComputedStyle(document.querySelector("#settings-tab")).cursor,
+    }));
+    assert.equal(settingsLayout.display, "grid");
+    assert.match(settingsLayout.columns, /px .*px/);
+    assert.equal(settingsLayout.cursor, "pointer");
+    await page.locator('[data-settings-target="voice"]').click();
+    await page.locator('[data-settings-category="voice"]:visible').waitFor();
+    assert.equal(await page.locator('[data-settings-target="voice"]').evaluate(element => element.closest("details").open), true);
+
+    console.log("Browser smoke passed: New Chat, navigation, Entity scrolling, modern Settings, Studio ordering, branching workflows, and installation-derived templates");
   } finally {
     await browser.close();
     await new Promise(resolve => server.close(resolve));

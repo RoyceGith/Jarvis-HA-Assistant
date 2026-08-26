@@ -6,7 +6,7 @@ connections.
 
 ## Automation Studio
 
-Version 0.13.78 provides a full-window visual automation builder with Trigger, Context,
+Version 0.13.79 provides a full-window visual automation builder with Trigger, Context,
 Decision, and Action blocks, a node canvas, and block-specific settings. The full
 Advanced editor remains available, existing stored automations are preserved, and
 repeatable OR triggers, grouped conditions, ordered actions, and IF/ELSE branches
@@ -17,6 +17,8 @@ Studio also checks live read and control permissions plus Home Assistant safety
 labels before approval or autonomous execution and explains any blocked entity.
 Its bounded per-automation decision journal shows why recent evaluations observed,
 suppressed, deferred, suggested, blocked, or executed.
+The visual Studio is presented before conversational creation, with a modern
+collapsible Settings sidebar and a quiet hover-driven primary top bar.
 The Test Flow control checks an unsaved draft against current Home Assistant state,
 renders a four-stage trace, and performs no service calls.
 Graphical triggers now include selected local times and weekdays, sunrise or sunset

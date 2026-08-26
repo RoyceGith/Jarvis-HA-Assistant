@@ -1,9 +1,9 @@
 {
-  "version": "0.13.78",
+  "version": "0.13.79",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/ZBRANO_Core main",
-  "summary": "Add a bounded per-automation decision journal that explains recent observations, suppressions, deferrals, blocks, suggestions, and action outcomes.",
+  "summary": "Modernize Automation Studio ordering, Settings navigation, and the primary top bar with a clean responsive GitHub-inspired workspace.",
   "history_backfill": [
     {
       "version": "0.13.0",
@@ -316,22 +316,28 @@
     {
       "version": "0.13.77",
       "summary": "Verified live entity permissions and Home Assistant safety labels before automation approval or autonomous execution, with clear Studio remediation."
+    },
+    {
+      "version": "0.13.78",
+      "summary": "Added a bounded per-automation decision journal that explains recent observations, suppressions, deferrals, blocks, suggestions, and action outcomes."
     }
   ],
   "release_entry": {
     "features": [
-      "Keep the latest 30 decision records inside each automation with outcome, reason, evidence, authority, branch, and timestamp.",
-      "Show the five latest evaluations in an expandable Decision journal inside Automation Studio."
+      "Put the graphical Automation Studio before Create with ZBRANO in the creation workspace.",
+      "Replace the horizontal Settings category strip with a colored, icon-led, collapsible left navigation on desktop."
     ],
     "fixes": [
-      "Record previously invisible Not now, learned-feedback, and rate-limit deferrals alongside suppressions and action results.",
-      "Keep decision history bounded so long-running event monitoring cannot grow stored automation data without limit."
+      "Restyle the primary top bar as borderless hover targets with pointer feedback and a clean active underline.",
+      "Retain a compact horizontal Settings navigator on mobile while preserving every existing control and category."
     ],
     "validation": [
-      "Bounded decision history, outcome coverage, action success and failure recording, Studio journal rendering, compatibility, README alignment, and v0.13.78 release coverage"
+      "Studio ordering, Settings group navigation and keyboard behavior, top-bar hover semantics, desktop and mobile responsive CSS, browser smoke, compatibility, README alignment, and v0.13.79 release coverage"
     ]
   },
   "features": [
+    "Use a modern GitHub-inspired Settings workspace with collapsible categories, icons, and per-section color accents.",
+    "Present Automation Studio before conversational creation and use a quiet hover-driven primary navigation bar.",
     "Explain each automation's recent decisions with a bounded per-rule evidence and outcome journal.",
     "Expose suppressions, deferrals, permission blocks, suggestions, observations, and executions together in Automation Studio.",
     "Verify live entity access and Home Assistant safety labels before approval or autonomous automation execution.",
