@@ -1,5 +1,12 @@
 # Change log
 
+## 0.13.64
+
+- Rebuilt Automation Studio as a three-panel visual editor with a building-block
+  toolbox, dotted node canvas, and contextual settings inspector.
+- Added click, keyboard, and drag-to-canvas block selection while retaining the
+  compatible Advanced editor and existing automation definitions.
+
 ## 0.13.63
 
 - Added responsive graphical WHEN, IF, DECIDE, and THEN flows for saved
