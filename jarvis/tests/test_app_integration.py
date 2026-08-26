@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 import tempfile
 import unittest
@@ -9,7 +10,18 @@ from unittest.mock import AsyncMock, patch
 import httpx
 
 from app import main
-from app.domains import conversations, settings
+from app.domains import automations, calendar, conversations, notifications, settings
+
+
+class FakeHomeAssistant:
+    connected = True
+
+    async def get_state(self, entity_id: str):
+        return {
+            "entity_id": entity_id,
+            "state": "off",
+            "attributes": {"friendly_name": "Workshop Door"},
+        }
 
 
 class ApplicationIntegrationTests(unittest.IsolatedAsyncioTestCase):
@@ -18,9 +30,15 @@ class ApplicationIntegrationTests(unittest.IsolatedAsyncioTestCase):
         temporary_root = Path(self.temporary.name)
         self.original_settings_path = settings.SETTINGS_STORAGE_PATH
         self.original_chat_path = conversations.CHAT_STORAGE_PATH
+        self.original_automation_path = automations.AUTOMATION_STORAGE_PATH
+        self.original_calendar_path = calendar.CALENDAR_STORAGE_PATH
+        self.original_notification_path = notifications.NOTIFICATION_STORAGE_PATH
         self.original_clear_chat_files = conversations.clear_chat_files
         settings.SETTINGS_STORAGE_PATH = temporary_root / "jarvis_settings.json"
         conversations.CHAT_STORAGE_PATH = temporary_root / "chat_sessions.json"
+        automations.AUTOMATION_STORAGE_PATH = temporary_root / "autonomous_automations.json"
+        calendar.CALENDAR_STORAGE_PATH = temporary_root / "zbrano_calendar.json"
+        notifications.NOTIFICATION_STORAGE_PATH = temporary_root / "notification_center.json"
         conversations.clear_chat_files = lambda session_id=None: None
         conversations.CHAT_SESSIONS.clear()
         conversations.CHAT_SESSION_ORDER.clear()
@@ -35,6 +53,9 @@ class ApplicationIntegrationTests(unittest.IsolatedAsyncioTestCase):
         await self.client.aclose()
         settings.SETTINGS_STORAGE_PATH = self.original_settings_path
         conversations.CHAT_STORAGE_PATH = self.original_chat_path
+        automations.AUTOMATION_STORAGE_PATH = self.original_automation_path
+        calendar.CALENDAR_STORAGE_PATH = self.original_calendar_path
+        notifications.NOTIFICATION_STORAGE_PATH = self.original_notification_path
         conversations.clear_chat_files = self.original_clear_chat_files
         conversations.CHAT_SESSIONS.clear()
         conversations.CHAT_SESSION_ORDER.clear()
@@ -53,13 +74,13 @@ class ApplicationIntegrationTests(unittest.IsolatedAsyncioTestCase):
             response = await self.client.get("/api/health")
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json()["status"], "ok")
-        self.assertEqual(response.json()["version"], "0.13.43")
+        self.assertEqual(response.json()["version"], "0.13.44")
         self.assertEqual(response.json()["ha_read_entity_count"], 1)
         self.assertEqual(response.json()["ha_control_entity_count"], 1)
 
         frontend = await self.client.get("/")
         self.assertEqual(frontend.status_code, 200)
-        self.assertIn("HUD 0.13.43", frontend.text)
+        self.assertIn("HUD 0.13.44", frontend.text)
         self.assertEqual(
             frontend.headers.get("cache-control"),
             "no-store, no-cache, must-revalidate, max-age=0",
@@ -113,6 +134,104 @@ class ApplicationIntegrationTests(unittest.IsolatedAsyncioTestCase):
         response = await self.client.post("/api/chats", json={"session_id": ""})
         self.assertEqual(response.status_code, 422)
         self.assertFalse(conversations.CHAT_STORAGE_PATH.exists())
+
+    async def test_automation_api_create_read_and_delete_round_trip(self) -> None:
+        created = await self.client.post(
+            "/api/automations",
+            json={
+                "name": "Workshop temperature suggestion",
+                "objective": "Suggest cooling when the workshop becomes too warm.",
+                "trigger_entity": "sensor.workshop_temperature",
+                "trigger_operator": "above",
+                "trigger_value": "27",
+                "proposal_template": "The workshop is warm. Would you like cooling?",
+            },
+        )
+        self.assertEqual(created.status_code, 200)
+        automation_id = created.json()["automation"]["id"]
+        self.assertTrue(automations.AUTOMATION_STORAGE_PATH.is_file())
+
+        with patch.object(main, "_automation_refresh_area_context", AsyncMock(return_value={})):
+            listed = await self.client.get("/api/automations")
+        self.assertEqual(listed.status_code, 200)
+        self.assertEqual(listed.json()["automations"][0]["id"], automation_id)
+
+        deleted = await self.client.delete(f"/api/automations/{automation_id}")
+        self.assertEqual(deleted.status_code, 200)
+        self.assertEqual(automations.automation_store()["automations"], [])
+
+    async def test_calendar_api_create_list_and_cancel_round_trip(self) -> None:
+        start_at = (datetime.now(timezone.utc) + timedelta(hours=2)).isoformat()
+        with patch.object(calendar, "google_calendar_sync_store", return_value={"enabled": False}):
+            created = await self.client.post(
+                "/api/calendar",
+                json={
+                    "title": "Integration appointment",
+                    "start_at": start_at,
+                    "duration_minutes": 30,
+                },
+            )
+            self.assertEqual(created.status_code, 200)
+            appointment_id = created.json()["appointment"]["id"]
+            self.assertTrue(calendar.CALENDAR_STORAGE_PATH.is_file())
+
+            listed = await self.client.get("/api/calendar")
+            self.assertEqual(listed.status_code, 200)
+            self.assertEqual(listed.json()["appointments"][0]["id"], appointment_id)
+
+            cancelled = await self.client.delete(f"/api/calendar/{appointment_id}")
+            self.assertEqual(cancelled.status_code, 200)
+            self.assertEqual((await self.client.get("/api/calendar")).json()["count"], 0)
+
+    async def test_notification_settings_and_watch_round_trip(self) -> None:
+        saved = await self.client.put(
+            "/api/notifications/settings",
+            json={"quiet_hours_enabled": True, "quiet_hours_start": "23:00", "quiet_hours_end": "06:00"},
+        )
+        self.assertEqual(saved.status_code, 200)
+        self.assertTrue(notifications.NOTIFICATION_STORAGE_PATH.is_file())
+
+        channels = [{
+            "entity_id": "notify.mobile_app_phone",
+            "friendly_name": "Phone",
+            "platform": "home_assistant",
+            "integration": "mobile_app",
+            "available": True,
+            "state": "unknown",
+            "icon": None,
+        }]
+        with (
+            patch.object(notifications, "ha_ws", FakeHomeAssistant()),
+            patch.object(notifications, "notification_channels", AsyncMock(return_value=channels)),
+        ):
+            created = await self.client.post(
+                "/api/notifications/watches",
+                json={
+                    "name": "Workshop door",
+                    "entity_id": "binary_sensor.workshop_door",
+                    "trigger_state": "on",
+                    "destination": "notify.mobile_app_phone",
+                    "message": "The workshop door opened.",
+                },
+            )
+        self.assertEqual(created.status_code, 200)
+        watch_id = created.json()["watch"]["id"]
+
+        paused = await self.client.put(
+            f"/api/notifications/watches/{watch_id}/state",
+            json={"enabled": False},
+        )
+        self.assertEqual(paused.status_code, 200)
+        self.assertEqual(paused.json()["watch"]["status"], "paused")
+
+        with patch.object(main, "notification_channels", AsyncMock(return_value=channels)):
+            listed = await self.client.get("/api/notifications")
+        self.assertEqual(listed.status_code, 200)
+        self.assertEqual(listed.json()["watches"][0]["id"], watch_id)
+
+        deleted = await self.client.delete(f"/api/notifications/watches/{watch_id}")
+        self.assertEqual(deleted.status_code, 200)
+        self.assertEqual(notifications.notification_watches(), [])
 
 
 if __name__ == "__main__":

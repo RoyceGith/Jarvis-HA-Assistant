@@ -27,7 +27,10 @@ before publishing an image. Initial coverage verifies:
 - application import plus startup and shutdown handler registration;
 - `/api/health` and frontend delivery;
 - Settings API validation and persisted round trips;
-- Chat API creation, rename, listing, deletion, and persisted round trips.
+- Chat API creation, rename, listing, deletion, and persisted round trips;
+- Automation Brain draft creation, listing, deletion, and persisted round trips;
+- Calendar appointment creation, listing, cancellation, and persisted round trips;
+- Notification settings and watch lifecycle round trips with isolated Home Assistant fakes.
 
 Inside an environment with `jarvis/requirements.txt` installed, run:
 

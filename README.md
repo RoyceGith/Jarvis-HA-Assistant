@@ -1,4 +1,4 @@
-ZBRANO v0.13.43 introduces build-gated ASGI integration tests for application import, lifecycle registration, health and frontend delivery, Settings persistence, Chat persistence, and request validation.
+ZBRANO v0.13.44 expands build-gated ASGI integration tests across Automation Brain, Calendar, and Notification Center API and persistence boundaries.
 
 ZBRANO v0.13.18 prevents Release Memory synchronization from remaining indefinitely in a non-terminal state by adding worker timeout recovery, note progress, task-health reporting, and automatic interface polling.
 
