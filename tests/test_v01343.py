@@ -16,10 +16,10 @@ MANIFEST = json.loads((ROOT / "jarvis/release_manifest.json").read_text(encoding
 
 class IntegrationTestFoundationTests(unittest.TestCase):
     def test_release_markers_are_aligned(self):
-        self.assertIn('version: "0.13.72"', CONFIG)
-        self.assertIn('version="0.13.72"', MAIN)
-        self.assertIn("HUD 0.13.72", HTML)
-        self.assertEqual(MANIFEST["version"], "0.13.72")
+        self.assertIn('version: "0.13.73"', CONFIG)
+        self.assertIn('version="0.13.73"', MAIN)
+        self.assertIn("HUD 0.13.73", HTML)
+        self.assertEqual(MANIFEST["version"], "0.13.73")
 
     def test_image_build_runs_real_application_integration_suite(self):
         self.assertIn("COPY tests ./tests", DOCKERFILE)

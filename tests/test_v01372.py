@@ -25,10 +25,10 @@ def load_functions(names, states=None):
 
 class ContextAwareAutomationFeedbackReleaseTests(unittest.TestCase):
     def test_release_markers_are_aligned(self):
-        self.assertIn('version: "0.13.72"', CONFIG)
-        self.assertIn('version="0.13.72"', MAIN)
-        self.assertIn("HUD 0.13.72", HTML)
-        self.assertEqual(MANIFEST["version"], "0.13.72")
+        self.assertIn('version: "0.13.73"', CONFIG)
+        self.assertIn('version="0.13.73"', MAIN)
+        self.assertIn("HUD 0.13.73", HTML)
+        self.assertEqual(MANIFEST["version"], "0.13.73")
 
     def test_declined_above_threshold_suggestion_respects_trend(self):
         suppress = load_functions({"_automation_dismissal_suppression"})["_automation_dismissal_suppression"]
@@ -44,7 +44,7 @@ class ContextAwareAutomationFeedbackReleaseTests(unittest.TestCase):
         self.assertIn("dismissal_context", worsened, "context remains until a replacement suggestion actually passes cooldown and policy")
 
     def test_condition_reset_rearms_the_automation(self):
-        functions = load_functions({"_automation_trigger_active", "_automation_clear_dismissal_if_reset"})
+        functions = load_functions({"_automation_trigger_active", "_automation_trigger_reset", "_automation_clear_dismissal_if_reset"})
         trigger = {"entity_id": "sensor.room_temperature", "operator": "above", "value": "25"}
         item = {"status": "deferred", "dismissal_context": {"trigger_entity": trigger["entity_id"], "trigger_operator": "above"}}
         self.assertTrue(functions["_automation_clear_dismissal_if_reset"](item, trigger, "24.9"))
@@ -72,7 +72,7 @@ class ContextAwareAutomationFeedbackReleaseTests(unittest.TestCase):
         self.assertIn("Why ${esc(item.status)}", WORKSPACE)
 
     def test_release_history_includes_v01371(self):
-        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.71")
+        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.72")
 
 
 if __name__ == "__main__":

@@ -1,9 +1,9 @@
 {
-  "version": "0.13.72",
+  "version": "0.13.73",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/ZBRANO_Core main",
-  "summary": "Make automation suggestions context-aware after Not now and suppress actions already satisfied in Home Assistant.",
+  "summary": "Track numeric automation episodes, expose their trend, and make reconsideration and reset behavior configurable per rule.",
   "history_backfill": [
     {
       "version": "0.13.0",
@@ -292,22 +292,28 @@
     {
       "version": "0.13.71",
       "summary": "Added graphical time and schedule triggers plus time-aware conditions to Automation Studio."
+    },
+    {
+      "version": "0.13.72",
+      "summary": "Made automation suggestions context-aware after Not now and suppressed actions already satisfied in Home Assistant."
     }
   ],
   "release_entry": {
     "features": [
-      "Remember the trigger value and direction when an automation suggestion is dismissed with Not now.",
-      "Check current Home Assistant device state before suggesting an action that is already satisfied."
+      "Track each numeric threshold episode with its current direction, best and worst values, sample count, and bounded history.",
+      "Configure per-automation worsening and reset margins from Automation Studio while retaining safe automatic defaults."
     ],
     "fixes": [
-      "Suppress repeated numeric suggestions while the condition is improving or has not worsened meaningfully since dismissal.",
-      "Re-arm a dismissed rule after its trigger clears, and prevent duplicate pending suggestions for the same automation."
+      "Keep dismissed conditions inside a reset deadband instead of re-arming on insignificant threshold movement.",
+      "Recognize manual device resolution before dismissal suppression and remember approvals, dismissals, and manual resolutions."
     ],
     "validation": [
-      "Numeric trend suppression, meaningful-worsening re-offer, threshold reset, action-state satisfaction, pending deduplication, dismissal locking, compatibility, README alignment, and v0.13.72 release coverage"
+      "Episode direction and bounds, configurable worsening, reset deadband, feedback memory, action satisfaction ordering, Automation Studio wiring, compatibility, README alignment, and v0.13.73 release coverage"
     ]
   },
   "features": [
+    "Track bounded numeric automation episodes and make their worsening and reset margins configurable per rule.",
+    "Remember automation feedback outcomes and expose live episode reasoning in Automation Studio.",
     "Treat Not now as context-aware feedback: suppress improving or unchanged episodes, re-arm after reset, and reconsider only after meaningful worsening.",
     "Avoid proposing Home Assistant actions already reflected by the target device's current state.",
     "Schedule graphical automations by local time, selected weekdays, sunrise or sunset offsets, intervals, or a one-time date and time.",

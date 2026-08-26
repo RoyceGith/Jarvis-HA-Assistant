@@ -1,5 +1,13 @@
 # Change log
 
+## 0.13.73
+
+- Tracked numeric threshold conditions as bounded episodes with direction,
+  current and worst values, sample count, and retained episode history.
+- Added per-automation worsening and reset margins with compatible automatic defaults.
+- Remembered dismissal, approval, and manual-resolution outcomes and surfaced live
+  episode reasoning in Automation Studio.
+
 ## 0.13.72
 
 - Made Not now persist the declined trigger value and direction for each rule.

@@ -1,16 +1,15 @@
-## ZBRANO v0.13.72
+## ZBRANO v0.13.73
 
 ZBRANO combines Home Assistant chat, voice, entity control, memory, notifications,
 calendar tools, plugins, and evidence-based automations. Automation Studio now uses
 a visual building-block toolbox, interactive node canvas, and contextual inspector;
 the established automation engine and stored definitions remain compatible.
 
-Version 0.13.72 makes automation feedback context-aware. When a numeric suggestion
-is dismissed with Not now, ZBRANO remembers the observed value and direction,
-suppresses repeats while the condition improves or changes insignificantly, and
-reconsiders after meaningful worsening or after the trigger clears and returns.
-Configured device actions are also checked against live Home Assistant state so an
-already-satisfied action is not proposed again.
+Version 0.13.73 treats numeric conditions as bounded episodes instead of isolated
+sensor updates. ZBRANO tracks direction, current and worst values, sample count,
+and episode history; each automation can optionally tune its worsening and reset
+margins. It also remembers dismissals, approvals, and manual device resolution,
+with live reasoning visible in Automation Studio.
 
 The application source and post-split build history are maintained in the private
 core repository. Public Home Assistant repositories contain only the five-file

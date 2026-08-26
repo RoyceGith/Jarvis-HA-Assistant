@@ -6,7 +6,7 @@ connections.
 
 ## Automation Studio
 
-Version 0.13.72 provides a full-window visual automation builder with Trigger, Context,
+Version 0.13.73 provides a full-window visual automation builder with Trigger, Context,
 Decision, and Action blocks, a node canvas, and block-specific settings. The full
 Advanced editor remains available, existing stored automations are preserved, and
 repeatable OR triggers, grouped conditions, ordered actions, and IF/ELSE branches
@@ -21,6 +21,9 @@ weekdays, sun state, and sustained entity states without breaking older rules.
 Dismissed suggestions retain their trigger value and direction, preventing repeated
 prompts while a numeric condition improves. The engine re-arms after reset and
 checks whether configured Home Assistant actions are already satisfied.
+Numeric conditions are now tracked as bounded episodes with live improving or
+worsening direction, and each rule can optionally tune its reconsideration and
+reset margins while retaining backward-compatible defaults.
 
 After installation, configure your own service credentials and explicitly approve
 the Home Assistant entities ZBRANO may read or control. Personal data and runtime

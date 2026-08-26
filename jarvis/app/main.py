@@ -674,7 +674,7 @@ ha_ws = HomeAssistantWebSocketClient(
 
 app = FastAPI(
     title="ZBRANO",
-    version="0.13.72",
+    version="0.13.73",
     docs_url="/api/docs",
     openapi_url="/api/openapi.json",
 )
@@ -2653,7 +2653,7 @@ async def health() -> dict[str, Any]:
     configured_speech_provider = SPEECH_PROVIDER if SPEECH_PROVIDER in {"openai", "elevenlabs"} else "openai"
     return {
         "status": "ok",
-        "version": "0.13.72",
+        "version": "0.13.73",
         "home_assistant_configured": bool(SUPERVISOR_TOKEN),
         "workshop_memory_configured": bool(WORKSHOP_MEMORY_URL),
         "workshop_memory_cost_guard": workshop_cost_guard_status(),
@@ -3420,6 +3420,7 @@ async def update_autonomous_automation(automation_id: str, request: AutonomousAu
         raise HTTPException(status_code=404, detail="Automation draft not found")
     automation.update(_automation_payload_http(request))
     automation.pop("dismissal_context", None)
+    automation.pop("active_episode", None)
     automation["updated_at"] = time.time()
     automation["status"] = "armed" if automation.get("enabled") else "draft"
     if automation.get("enabled"):

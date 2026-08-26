@@ -1194,6 +1194,66 @@ def _automation_trigger_active(trigger: dict[str, Any], current: Any) -> bool:
         return current_number > expected_number if operator == "above" else current_number < expected_number
     return False
 
+def _automation_trigger_reset(item: dict[str, Any], trigger: dict[str, Any], current: Any) -> bool:
+    operator = str(trigger.get("operator") or "changes_to")
+    if operator not in {"above", "below"}:
+        return not _automation_trigger_active(trigger, current)
+    try:
+        current_number = float(current)
+        threshold = float(trigger.get("value") or 0)
+        reset_delta = max(0.0, float(item.get("reset_delta") or 0))
+    except (TypeError, ValueError):
+        return False
+    return current_number <= threshold - reset_delta if operator == "above" else current_number >= threshold + reset_delta
+
+def _automation_numeric_episode_update(item: dict[str, Any], trigger: dict[str, Any], current: Any, now: float) -> bool:
+    operator = str(trigger.get("operator") or "")
+    if operator not in {"above", "below"}:
+        return False
+    try:
+        current_number = float(current)
+        threshold = float(trigger.get("value") or 0)
+    except (TypeError, ValueError):
+        return False
+    entity_id = str(trigger.get("entity_id") or "")
+    episode = item.get("active_episode")
+    try:
+        episode_threshold = float(episode.get("threshold") or 0) if isinstance(episode, dict) else None
+    except (TypeError, ValueError):
+        episode_threshold = None
+    compatible = isinstance(episode, dict) and episode.get("trigger_entity") == entity_id and episode.get("operator") == operator and episode_threshold == threshold
+    if _automation_trigger_active(trigger, current):
+        if not compatible:
+            item["active_episode"] = {
+                "trigger_entity": entity_id, "operator": operator, "threshold": threshold,
+                "started_at": now, "start_value": current_number, "current_value": current_number,
+                "worst_value": current_number, "best_value": current_number, "sample_count": 1,
+                "trend": "started", "updated_at": now,
+            }
+            return True
+        previous = float(episode.get("current_value", current_number))
+        if current_number == previous:
+            trend = "steady"
+        elif (operator == "above" and current_number > previous) or (operator == "below" and current_number < previous):
+            trend = "worsening"
+        else:
+            trend = "improving"
+        episode["current_value"] = current_number
+        episode["worst_value"] = max(float(episode.get("worst_value", current_number)), current_number) if operator == "above" else min(float(episode.get("worst_value", current_number)), current_number)
+        episode["best_value"] = min(float(episode.get("best_value", current_number)), current_number) if operator == "above" else max(float(episode.get("best_value", current_number)), current_number)
+        episode["sample_count"] = int(episode.get("sample_count") or 0) + 1
+        episode["trend"] = trend
+        episode["updated_at"] = now
+        return True
+    if compatible and _automation_trigger_reset(item, trigger, current):
+        episode["ended_at"] = now
+        episode["reset_value"] = current_number
+        episode["trend"] = "reset"
+        item["episode_history"] = [dict(episode), *list(item.get("episode_history") or [])][:20]
+        item.pop("active_episode", None)
+        return True
+    return False
+
 def _automation_clear_dismissal_if_reset(item: dict[str, Any], trigger: dict[str, Any], current: Any) -> bool:
     context = item.get("dismissal_context")
     if not isinstance(context, dict):
@@ -1202,7 +1262,7 @@ def _automation_clear_dismissal_if_reset(item: dict[str, Any], trigger: dict[str
         return False
     if str(context.get("trigger_operator") or "") != str(trigger.get("operator") or ""):
         return False
-    if _automation_trigger_active(trigger, current):
+    if not _automation_trigger_reset(item, trigger, current):
         return False
     item.pop("dismissal_context", None)
     item["status"] = "armed"
@@ -1226,7 +1286,8 @@ def _automation_dismissal_suppression(item: dict[str, Any], trigger: dict[str, A
             threshold = float(trigger.get("value") or context.get("trigger_value") or 0)
         except (TypeError, ValueError):
             return False, "numeric dismissal context is unavailable"
-        reoffer_delta = max(0.5, abs(threshold) * 0.02)
+        configured_delta = max(0.0, float(item.get("reoffer_delta") or 0))
+        reoffer_delta = configured_delta or max(0.5, abs(threshold) * 0.02)
         improvement = current_number <= dismissed_number if operator == "above" else current_number >= dismissed_number
         meaningful_worsening = current_number >= dismissed_number + reoffer_delta if operator == "above" else current_number <= dismissed_number - reoffer_delta
         if improvement:
@@ -1296,6 +1357,21 @@ def _automation_record_suggestion_dismissal(data: dict[str, Any], suggestion: di
     }
     automation["status"] = "deferred"
     automation["last_deferred_at"] = now
+    feedback = automation.setdefault("feedback_memory", {})
+    feedback["dismissals"] = int(feedback.get("dismissals") or 0) + 1
+    feedback["consecutive_dismissals"] = int(feedback.get("consecutive_dismissals") or 0) + 1
+    feedback["last_feedback"] = "not_now"
+    feedback["last_feedback_at"] = now
+
+def _automation_record_feedback(item: dict[str, Any], outcome: str, now: float) -> None:
+    feedback = item.setdefault("feedback_memory", {})
+    key = {"approved": "approvals", "manual_resolution": "manual_resolutions"}.get(outcome)
+    if key:
+        feedback[key] = int(feedback.get(key) or 0) + 1
+    if outcome in {"approved", "manual_resolution"}:
+        feedback["consecutive_dismissals"] = 0
+    feedback["last_feedback"] = outcome
+    feedback["last_feedback_at"] = now
 
 def _automation_autonomous_allowed(item: dict[str, Any], settings: dict[str, Any], actions: list[dict[str, Any]] | None = None) -> tuple[bool, str]:
     effective_policy, policy_detail = _automation_effective_policy(item, settings)
@@ -1338,6 +1414,8 @@ async def _automation_execute_action(data: dict[str, Any], item: dict[str, Any],
     if not actions:
         raise RuntimeError("Automation has no complete Home Assistant action")
     now = time.time()
+    if source == "explicit_approval":
+        _automation_record_feedback(item, "approved", now)
     item["last_matched_at"] = now
     item.pop("dismissal_context", None)
     item["last_triggered_at"] = now
@@ -1422,17 +1500,11 @@ async def _automation_commit_match(automation_id: str, evidence: dict[str, Any])
             if not trigger or not _automation_condition_matches(trigger, evidence.get("old_state"), current):
                 return
         now = time.time()
+        if _automation_numeric_episode_update(item, trigger, current, now):
+            _automation_save(data)
         if any(value.get("automation_id") == automation_id and value.get("status") in {"pending", "approval_required", "executing"} for value in data.get("suggestions", [])):
             return
-        dismissed, dismissal_detail = _automation_dismissal_suppression(item, trigger, current)
-        if dismissed:
-            item["status"] = "deferred"
-            item["last_deferred_reason"] = dismissal_detail
-            _automation_save(data)
-            return
-        rate_ok, rate_detail = _automation_rate_available(item, now)
-        if not rate_ok:
-            return
+        dismissal_detail = "no active dismissal context"
         presence_ok, presence_detail = _automation_presence_confirmed(item, data["settings"], _automation_expected_zone(data, item))
         if not presence_ok:
             item["last_suppressed_at"] = now
@@ -1460,9 +1532,22 @@ async def _automation_commit_match(automation_id: str, evidence: dict[str, Any])
             item["status"] = "satisfied"
             item["last_satisfied_at"] = now
             item["last_satisfied_reason"] = action_detail
+            if isinstance(item.get("dismissal_context"), dict):
+                _automation_record_feedback(item, "manual_resolution", now)
+                item.pop("dismissal_context", None)
             if item.get("last_satisfied_signature") != signature:
                 item["last_satisfied_signature"] = signature
                 _automation_event(data, "satisfied", f"Automation action already satisfied: {item.get('name')}", action_detail)
+            _automation_save(data)
+            return
+        dismissed, dismissal_detail = _automation_dismissal_suppression(item, trigger, current)
+        if dismissed:
+            item["status"] = "deferred"
+            item["last_deferred_reason"] = dismissal_detail
+            _automation_save(data)
+            return
+        rate_ok, rate_detail = _automation_rate_available(item, now)
+        if not rate_ok:
             _automation_save(data)
             return
         if dismissal_detail.startswith(("condition worsened meaningfully", "trigger context changed")):
@@ -1525,9 +1610,17 @@ async def _automation_evaluate_state_change(event: dict[str, Any]) -> None:
         pending_key = f"{item.get('id')}:{entity_id}"
         existing = AUTOMATION_PENDING_TASKS.get(pending_key)
         if not matches:
-            if _automation_clear_dismissal_if_reset(item, trigger, event.get("state")):
-                _automation_event(data, "rearmed", f"Automation re-armed: {item.get('name')}", "The declined trigger condition cleared.")
-                _automation_save(data)
+            async with AUTOMATION_ENGINE_LOCK:
+                current_data = automation_store()
+                current_item = next((value for value in current_data["automations"] if value.get("id") == item.get("id")), None)
+                if current_item:
+                    current_trigger = next((value for value in _automation_triggers(current_item) if str(value.get("kind") or "entity") == "entity" and str(value.get("entity_id") or "") == entity_id), trigger)
+                    episode_changed = _automation_numeric_episode_update(current_item, current_trigger, event.get("state"), time.time())
+                    rearmed = _automation_clear_dismissal_if_reset(current_item, current_trigger, event.get("state"))
+                    if rearmed:
+                        _automation_event(current_data, "rearmed", f"Automation re-armed: {current_item.get('name')}", "The declined trigger condition crossed its configured reset boundary.")
+                    if episode_changed or rearmed:
+                        _automation_save(current_data)
             if existing and not existing.done():
                 existing.cancel()
             continue

@@ -32,7 +32,7 @@
   <header>
     <div class="brand-line">
       <h1>ZBRANO</h1>
-      <div class="status hud-version-label">Workshop Intelligence Interface · HUD 0.13.72</div>
+      <div class="status hud-version-label">Workshop Intelligence Interface · HUD 0.13.73</div>
     </div>
     <div class="runtime-status-stack">
       <button id="calendar-quick-open" class="calendar-quick-open" type="button" aria-label="Open ZBRANO Calendar" title="Open Calendar">
@@ -737,6 +737,8 @@
                 <label>Proposed HA service<input id="automation-action-service" maxlength="120" placeholder="climate.set_hvac_mode"></label>
                 <label class="wide">Action service data (JSON)<textarea id="automation-action-data" rows="2" maxlength="4000" placeholder='{"hvac_mode":"cool"}'>{}</textarea></label>
                 <label>Cooldown (minutes)<input id="automation-cooldown" type="number" min="1" max="1440" value="30"></label>
+                <label>Reconsider after worsening by<input id="automation-reoffer-delta" type="number" min="0" max="100000" step="0.1" value="0" title="0 uses ZBRANO's automatic margin"></label>
+                <label>Reset margin<input id="automation-reset-delta" type="number" min="0" max="100000" step="0.1" value="0" title="How far back past the threshold ends the episode; 0 resets at the threshold"></label>
                 <label>Minimum confidence<input id="automation-confidence" type="number" min="0.5" max="0.99" step="0.01" value="0.75"></label>
                 <label>Risk class<select id="automation-risk"><option value="informational">Informational only</option><option value="low">Low risk</option><option value="controlled" selected>Controlled device</option><option value="high">High risk</option></select></label>
                 <label>Operating mode<select id="automation-execution-policy"><option value="inherit" selected>Use global default</option><option value="observe">Observe only</option><option value="suggest">Suggest only</option><option value="approval_required">Ask for approval</option><option value="autonomous">Automatic</option></select></label>
