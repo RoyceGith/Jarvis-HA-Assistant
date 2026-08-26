@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import asyncio
 import contextlib
+from datetime import datetime
 import json
 from pathlib import Path
 import re
@@ -390,6 +391,34 @@ def _automation_event(data, event_type, title, detail=""):
         "created_at": time.time(),
     })
 
+def _automation_normalize_trigger(item: dict[str, Any]) -> dict[str, Any]:
+    return {
+        "kind": str(item.get("kind") or "entity"),
+        "entity_id": str(item.get("entity_id") or "").strip().lower(),
+        "operator": str(item.get("operator") or "changes_to"),
+        "value": str(item.get("value") or "").strip(),
+        "for_seconds": max(0, int(item.get("for_seconds") or 0)),
+        "at": str(item.get("at") or ""),
+        "weekdays": sorted(set(int(value) for value in item.get("weekdays") or [] if 0 <= int(value) <= 6)),
+        "sun_event": str(item.get("sun_event") or "sunrise"),
+        "offset_minutes": max(-180, min(180, int(item.get("offset_minutes") or 0))),
+        "interval_minutes": max(1, min(10080, int(item.get("interval_minutes") or 5))),
+        "one_time_at": str(item.get("one_time_at") or "").strip(),
+    }
+
+def _automation_normalize_condition(item: dict[str, Any]) -> dict[str, Any]:
+    return {
+        "kind": str(item.get("kind") or "entity"),
+        "entity_id": str(item.get("entity_id") or "").strip().lower(),
+        "operator": str(item.get("operator") or "equals"),
+        "value": str(item.get("value") or "").strip(),
+        "for_seconds": max(0, int(item.get("for_seconds") or 0)),
+        "start_time": str(item.get("start_time") or ""),
+        "end_time": str(item.get("end_time") or ""),
+        "weekdays": sorted(set(int(value) for value in item.get("weekdays") or [] if 0 <= int(value) <= 6)),
+        "sun_state": str(item.get("sun_state") or "below_horizon"),
+    }
+
 def _automation_payload(request):
     payload = request.model_dump()
     payload["name"] = " ".join(payload["name"].split())
@@ -405,22 +434,13 @@ def _automation_payload(request):
     payload["trigger_entity"] = payload["trigger_entity"].strip().lower()
     payload["trigger_value"] = payload["trigger_value"].strip()
     payload["action_service_data"] = dict(payload.get("action_service_data") or {})
-    payload["triggers"] = [{
-        "entity_id": str(item.get("entity_id") or "").strip().lower(),
-        "operator": str(item.get("operator") or "changes_to"),
-        "value": str(item.get("value") or "").strip(),
-        "for_seconds": max(0, int(item.get("for_seconds") or 0)),
-    } for item in payload.get("triggers") or []]
+    payload["triggers"] = [_automation_normalize_trigger(item) for item in payload.get("triggers") or []]
     if not payload["triggers"] and payload["trigger_entity"]:
         payload["triggers"] = [{
-            "entity_id": payload["trigger_entity"], "operator": payload["trigger_operator"],
+            "kind": "entity", "entity_id": payload["trigger_entity"], "operator": payload["trigger_operator"],
             "value": payload["trigger_value"], "for_seconds": payload["trigger_for_seconds"],
         }]
-    payload["conditions"] = [{
-        "entity_id": str(item.get("entity_id") or "").strip().lower(),
-        "operator": str(item.get("operator") or "equals"),
-        "value": str(item.get("value") or "").strip(),
-    } for item in payload.get("conditions") or []]
+    payload["conditions"] = [_automation_normalize_condition(item) for item in payload.get("conditions") or []]
     payload["actions"] = [{
         "kind": str(item.get("kind") or "service"),
         "entity_id": str(item.get("entity_id") or "").strip().lower(),
@@ -434,11 +454,7 @@ def _automation_payload(request):
     payload["branches"] = [{
         "name": " ".join(str(branch.get("name") or "Branch").split())[:80],
         "condition_mode": str(branch.get("condition_mode") or "all"),
-        "conditions": [{
-            "entity_id": str(item.get("entity_id") or "").strip().lower(),
-            "operator": str(item.get("operator") or "equals"),
-            "value": str(item.get("value") or "").strip(),
-        } for item in branch.get("conditions") or []],
+        "conditions": [_automation_normalize_condition(item) for item in branch.get("conditions") or []],
         "actions": [{
             "kind": str(item.get("kind") or "service"),
             "entity_id": str(item.get("entity_id") or "").strip().lower(),
@@ -465,13 +481,29 @@ def _automation_payload(request):
         payload.update(action_entity=first["entity_id"], action_service=first["service"],
                        action_service_data=first["service_data"])
     if payload["enabled"] and not payload["triggers"]:
-        raise HTTPException(status_code=400, detail="An enabled automation requires a trigger entity")
+        raise HTTPException(status_code=400, detail="An enabled automation requires a trigger")
     for trigger in payload["triggers"]:
-        ensure_read_allowed(trigger["entity_id"])
+        kind = trigger["kind"]
+        if kind == "entity":
+            if not trigger["entity_id"]:
+                raise HTTPException(status_code=400, detail="An entity trigger requires an entity")
+            ensure_read_allowed(trigger["entity_id"])
+        elif kind == "time" and not trigger["at"]:
+            raise HTTPException(status_code=400, detail="A time trigger requires a local time")
+        elif kind == "one_time":
+            try:
+                datetime.fromisoformat(trigger["one_time_at"])
+            except ValueError as exc:
+                raise HTTPException(status_code=400, detail="A one-time trigger requires a valid local date and time") from exc
     all_conditions = [*payload["conditions"], *(item for branch in payload["branches"] for item in branch["conditions"])]
     all_actions = [*payload["actions"], *(item for branch in payload["branches"] for item in branch["actions"])]
     for condition in all_conditions:
-        ensure_read_allowed(condition["entity_id"])
+        if condition["kind"] == "entity":
+            if not condition["entity_id"]:
+                raise HTTPException(status_code=400, detail="An entity condition requires an entity")
+            ensure_read_allowed(condition["entity_id"])
+        elif condition["kind"] == "time_window" and (not condition["start_time"] or not condition["end_time"]):
+            raise HTTPException(status_code=400, detail="A time-window condition requires start and end times")
     if payload["presence_entity"]:
         ensure_read_allowed(payload["presence_entity"])
     for entity_id in payload["signal_entities"]:
@@ -509,11 +541,23 @@ def _automation_payload_http(request: AutonomousAutomationRequest) -> dict[str, 
         raise HTTPException(status_code=403, detail=str(exc)) from exc
 
 def _automation_preview(item: dict[str, Any]) -> dict[str, Any]:
-    trigger = f"{item.get('trigger_entity')} {str(item.get('trigger_operator') or '').replace('_', ' ')}"
-    if str(item.get("trigger_value") or ""):
-        trigger += f" {item.get('trigger_value')}"
-    if int(item.get("trigger_for_seconds") or 0):
-        trigger += f" for {int(item.get('trigger_for_seconds') or 0)} seconds"
+    primary = (_automation_triggers(item) or [{}])[0]
+    kind = str(primary.get("kind") or "entity")
+    if kind == "time":
+        trigger = f"At {primary.get('at') or 'a local time'}"
+    elif kind == "sun":
+        offset = int(primary.get("offset_minutes") or 0)
+        trigger = f"{str(primary.get('sun_event') or 'sunrise').title()} {offset:+d} minutes"
+    elif kind == "interval":
+        trigger = f"Every {int(primary.get('interval_minutes') or 5)} minutes"
+    elif kind == "one_time":
+        trigger = f"Once at {primary.get('one_time_at') or 'an unset time'}"
+    else:
+        trigger = f"{primary.get('entity_id') or item.get('trigger_entity')} {str(primary.get('operator') or item.get('trigger_operator') or '').replace('_', ' ')}"
+        if str(primary.get("value") or item.get("trigger_value") or ""):
+            trigger += f" {primary.get('value') or item.get('trigger_value')}"
+        if int(primary.get("for_seconds") or item.get("trigger_for_seconds") or 0):
+            trigger += f" for {int(primary.get('for_seconds') or item.get('trigger_for_seconds') or 0)} seconds"
     action = "No device action"
     if item.get("branches"):
         action = f"{len(item.get('branches') or [])} first-match branches"
@@ -613,9 +657,11 @@ def _activate_automation(automation_id: str, source: str) -> dict[str, Any]:
         raise HTTPException(status_code=404, detail="Automation draft not found")
     try:
         for trigger in _automation_triggers(automation):
-            ensure_read_allowed(trigger["entity_id"])
+            if str(trigger.get("kind") or "entity") == "entity":
+                ensure_read_allowed(trigger["entity_id"])
         for condition in _automation_conditions(automation):
-            ensure_read_allowed(condition["entity_id"])
+            if str(condition.get("kind") or "entity") == "entity":
+                ensure_read_allowed(condition["entity_id"])
         if automation.get("presence_entity"):
             ensure_read_allowed(str(automation.get("presence_entity")))
         for entity_id in automation.get("signal_entities") or []:
@@ -869,7 +915,7 @@ async def _automation_brain_state_change(record: dict[str, Any]) -> None:
         await _automation_discover_area(discover_now)
 
 def _automation_triggers(item: dict[str, Any]) -> list[dict[str, Any]]:
-    configured = [value for value in item.get("triggers") or [] if isinstance(value, dict) and value.get("entity_id")]
+    configured = [value for value in item.get("triggers") or [] if isinstance(value, dict) and (value.get("entity_id") or str(value.get("kind") or "entity") != "entity")]
     if configured:
         return configured[:10]
     entity_id = str(item.get("trigger_entity") or "")
@@ -877,7 +923,7 @@ def _automation_triggers(item: dict[str, Any]) -> list[dict[str, Any]]:
              "value": item.get("trigger_value") or "", "for_seconds": int(item.get("trigger_for_seconds") or 0)}] if entity_id else []
 
 def _automation_conditions(item: dict[str, Any]) -> list[dict[str, Any]]:
-    return [value for value in item.get("conditions") or [] if isinstance(value, dict) and value.get("entity_id")][:20]
+    return [value for value in item.get("conditions") or [] if isinstance(value, dict) and (value.get("entity_id") or str(value.get("kind") or "entity") != "entity")][:20]
 
 def _automation_actions(item: dict[str, Any]) -> list[dict[str, Any]]:
     configured = []
@@ -924,11 +970,40 @@ def _automation_condition_group_matches(conditions: list[dict[str, Any]], mode: 
     results = []
     details = []
     for condition in conditions:
+        kind = str(condition.get("kind") or "entity")
+        if kind == "weekday":
+            local = time.localtime()
+            weekdays = {int(value) for value in condition.get("weekdays") or []}
+            matched = not weekdays or local.tm_wday in weekdays
+            results.append(matched);details.append(f"weekday={local.tm_wday}")
+            continue
+        if kind == "time_window":
+            local = time.localtime()
+            current = local.tm_hour * 60 + local.tm_min
+            start_parts = [int(value) for value in str(condition.get("start_time") or "00:00").split(":")]
+            end_parts = [int(value) for value in str(condition.get("end_time") or "23:59").split(":")]
+            start, end = start_parts[0] * 60 + start_parts[1], end_parts[0] * 60 + end_parts[1]
+            matched = start <= current <= end if start <= end else current >= start or current <= end
+            results.append(matched);details.append(f"local time={local.tm_hour:02d}:{local.tm_min:02d} in {condition.get('start_time')}–{condition.get('end_time')}")
+            continue
+        if kind == "sun":
+            current = str((ha_ws.state_cache.get("sun.sun") or {}).get("state") or "unavailable")
+            matched = current == str(condition.get("sun_state") or "below_horizon")
+            results.append(matched);details.append(f"sun.sun={current}")
+            continue
         entity_id = str(condition.get("entity_id") or "")
-        current = (ha_ws.state_cache.get(entity_id) or {}).get("state")
+        state_record = ha_ws.state_cache.get(entity_id) or {}
+        current = state_record.get("state")
         matched = _automation_condition_matches(condition, current, current)
+        duration = max(0, int(condition.get("for_seconds") or 0))
+        if matched and duration:
+            try:
+                changed_at = datetime.fromisoformat(str(state_record.get("last_changed") or "").replace("Z", "+00:00")).timestamp()
+                matched = time.time() - changed_at >= duration
+            except ValueError:
+                matched = False
         results.append(matched)
-        details.append(f"{entity_id}={current if current is not None else 'unavailable'}")
+        details.append(f"{entity_id}={current if current is not None else 'unavailable'}{f' for {duration}s' if duration else ''}")
     return (any(results) if mode == "any" else all(results)), f"{mode.upper()} conditions: " + ", ".join(details)
 
 def _automation_context_conditions_match(item: dict[str, Any]) -> tuple[bool, str]:
@@ -977,9 +1052,14 @@ def _automation_expected_zone(data: dict[str, Any], item: dict[str, Any]) -> str
 
 def _automation_test_flow(item: dict[str, Any], settings: dict[str, Any], data: dict[str, Any]) -> dict[str, Any]:
     trigger_results = []
-    for trigger in _automation_triggers(item):
+    for index, trigger in enumerate(_automation_triggers(item)):
         entity_id = str(trigger.get("entity_id") or "")
         current = (ha_ws.state_cache.get(entity_id) or {}).get("state")
+        kind = str(trigger.get("kind") or "entity")
+        if kind != "entity":
+            due, _, detail = _automation_schedule_due(trigger, item, index, time.time())
+            trigger_results.append({"status": "pass" if due else "waiting", "detail": detail})
+            continue
         operator = str(trigger.get("operator") or "changes_to")
         if operator in {"any_change", "changes_to"}:
             status = "waiting"
@@ -1017,6 +1097,76 @@ def _automation_test_flow(item: dict[str, Any], settings: dict[str, Any], data: 
             {"kind": "action", "status": "info", "title": "Planned actions", "detail": " → ".join(action_details) or "No Home Assistant service action"},
         ],
     }
+
+def _automation_schedule_due(trigger: dict[str, Any], item: dict[str, Any], index: int, now: float) -> tuple[bool, str, str]:
+    kind = str(trigger.get("kind") or "entity")
+    local = datetime.fromtimestamp(now).astimezone()
+    weekdays = {int(value) for value in trigger.get("weekdays") or []}
+    if weekdays and local.weekday() not in weekdays:
+        return False, "", f"local weekday {local.weekday()} is not selected"
+    marker_key = f"{index}:{kind}"
+    markers = item.get("schedule_markers") if isinstance(item.get("schedule_markers"), dict) else {}
+    if kind == "time":
+        key = f"{local.date().isoformat()}T{trigger.get('at')}"
+        due = local.strftime("%H:%M") == str(trigger.get("at") or "") and markers.get(marker_key) != key
+        return due, key, f"local time {local.strftime('%H:%M')}"
+    if kind == "interval":
+        last = float(markers.get(marker_key) or item.get("created_at") or now)
+        due = now - last >= max(1, int(trigger.get("interval_minutes") or 5)) * 60
+        return due, str(now), f"{int(trigger.get('interval_minutes') or 5)} minute interval"
+    if kind == "one_time":
+        try:
+            target = datetime.fromisoformat(str(trigger.get("one_time_at") or ""))
+            target = target if target.tzinfo else target.replace(tzinfo=local.tzinfo)
+            key = target.isoformat()
+            return now >= target.timestamp() and markers.get(marker_key) != key, key, f"one-time schedule {key}"
+        except ValueError:
+            return False, "", "invalid one-time schedule"
+    if kind == "sun":
+        attributes = (ha_ws.state_cache.get("sun.sun") or {}).get("attributes") or {}
+        attribute = "next_rising" if trigger.get("sun_event") == "sunrise" else "next_setting"
+        try:
+            computed = datetime.fromisoformat(str(attributes.get(attribute) or "").replace("Z", "+00:00")).timestamp() + int(trigger.get("offset_minutes") or 0) * 60
+            targets = item.setdefault("schedule_targets", {})
+            target = float(targets.get(marker_key) or 0)
+            if not target or target < now - 60:
+                target = computed
+                targets[marker_key] = target
+            key = str(int(target))
+            return abs(now - target) < 20 and markers.get(marker_key) != key, key, f"{trigger.get('sun_event')} offset {int(trigger.get('offset_minutes') or 0)} minutes"
+        except (TypeError, ValueError):
+            return False, "", f"sun.sun {attribute} unavailable"
+    return False, "", "entity event trigger"
+
+async def automation_schedule_worker() -> None:
+    while True:
+        try:
+            now = time.time()
+            data = automation_store()
+            due_items = []
+            schedule_state_changed = False
+            for item in data.get("automations", []):
+                if item.get("kind") == "notification_watch" or not item.get("enabled"):
+                    continue
+                for index, trigger in enumerate(_automation_triggers(item)):
+                    if str(trigger.get("kind") or "entity") == "entity":
+                        continue
+                    before_targets = json.dumps(item.get("schedule_targets") or {}, sort_keys=True)
+                    due, marker, detail = _automation_schedule_due(trigger, item, index, now)
+                    schedule_state_changed = schedule_state_changed or before_targets != json.dumps(item.get("schedule_targets") or {}, sort_keys=True)
+                    if not due:
+                        continue
+                    item.setdefault("schedule_markers", {})[f"{index}:{trigger.get('kind')}"] = marker
+                    due_items.append((str(item.get("id") or ""), index, str(trigger.get("kind")), detail))
+            if due_items or schedule_state_changed:
+                _automation_save(data)
+                for automation_id, index, kind, detail in due_items:
+                    await _automation_commit_match(automation_id, {"trigger_kind": kind, "trigger_index": index, "state": detail, "old_state": "waiting"})
+        except asyncio.CancelledError:
+            raise
+        except (OSError, TypeError, ValueError, RuntimeError):
+            pass
+        await asyncio.sleep(15)
 
 def _automation_rate_available(item: dict[str, Any], now: float) -> tuple[bool, str]:
     cooldown = max(1, int(item.get("cooldown_minutes") or 30)) * 60
@@ -1136,11 +1286,21 @@ async def _automation_commit_match(automation_id: str, evidence: dict[str, Any])
         item = next((value for value in data["automations"] if value.get("id") == automation_id), None)
         if not item or not item.get("enabled"):
             return
-        trigger_entity = str(evidence.get("entity_id") or item.get("trigger_entity") or "")
-        trigger = next((value for value in _automation_triggers(item) if value.get("entity_id") == trigger_entity), None)
-        current = (ha_ws.state_cache.get(trigger_entity) or {}).get("state")
-        if not trigger or not _automation_condition_matches(trigger, evidence.get("old_state"), current):
-            return
+        trigger_kind = str(evidence.get("trigger_kind") or "entity")
+        triggers = _automation_triggers(item)
+        if trigger_kind != "entity":
+            index = int(evidence.get("trigger_index") or 0)
+            trigger = triggers[index] if 0 <= index < len(triggers) and str(triggers[index].get("kind") or "entity") == trigger_kind else None
+            trigger_entity = f"schedule.{trigger_kind}"
+            current = evidence.get("state")
+            if not trigger:
+                return
+        else:
+            trigger_entity = str(evidence.get("entity_id") or item.get("trigger_entity") or "")
+            trigger = next((value for value in triggers if str(value.get("kind") or "entity") == "entity" and value.get("entity_id") == trigger_entity), None)
+            current = (ha_ws.state_cache.get(trigger_entity) or {}).get("state")
+            if not trigger or not _automation_condition_matches(trigger, evidence.get("old_state"), current):
+                return
         now = time.time()
         rate_ok, rate_detail = _automation_rate_available(item, now)
         if not rate_ok:
@@ -1169,7 +1329,8 @@ async def _automation_commit_match(automation_id: str, evidence: dict[str, Any])
         item["last_matched_at"] = now
         confidence = 1.0
         detail = str(item.get("proposal_template") or item.get("objective") or "Automation condition matched.")
-        evidence_text = f"{trigger_entity} changed from {evidence.get('old_state')} to {current}; {conditions_detail}; {branch_detail}; {presence_detail}; {rate_detail}"
+        trigger_detail = "fired" if trigger_kind != "entity" else f"changed from {evidence.get('old_state')} to {current}"
+        evidence_text = f"{trigger_entity} {trigger_detail}; {conditions_detail}; {branch_detail}; {presence_detail}; {rate_detail}"
         policy, policy_detail = _automation_effective_policy(item, data["settings"])
         if policy == "observe":
             item["status"] = "observed"
@@ -1213,7 +1374,7 @@ async def _automation_evaluate_state_change(event: dict[str, Any]) -> None:
     for item in data["automations"]:
         if item.get("kind") == "notification_watch" or not item.get("enabled"):
             continue
-        trigger = next((value for value in _automation_triggers(item) if str(value.get("entity_id") or "") == entity_id), None)
+        trigger = next((value for value in _automation_triggers(item) if str(value.get("kind") or "entity") == "entity" and str(value.get("entity_id") or "") == entity_id), None)
         if not trigger:
             continue
         matches = _automation_condition_matches(trigger, event.get("old_state"), event.get("state"))

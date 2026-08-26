@@ -32,6 +32,7 @@ from .domains.automations import (
     _prepare_chat_automation,
     automation_brain_memory_context,
     automation_entity_memory_context,
+    automation_schedule_worker,
     automation_store,
 )
 from .domains.notifications import (
@@ -672,7 +673,7 @@ ha_ws = HomeAssistantWebSocketClient(
 
 app = FastAPI(
     title="ZBRANO",
-    version="0.13.70",
+    version="0.13.71",
     docs_url="/api/docs",
     openapi_url="/api/openapi.json",
 )
@@ -2651,7 +2652,7 @@ async def health() -> dict[str, Any]:
     configured_speech_provider = SPEECH_PROVIDER if SPEECH_PROVIDER in {"openai", "elevenlabs"} else "openai"
     return {
         "status": "ok",
-        "version": "0.13.70",
+        "version": "0.13.71",
         "home_assistant_configured": bool(SUPERVISOR_TOKEN),
         "workshop_memory_configured": bool(WORKSHOP_MEMORY_URL),
         "workshop_memory_cost_guard": workshop_cost_guard_status(),
@@ -2772,7 +2773,7 @@ async def get_grinder_monitor_incident(incident_id: str) -> dict[str, Any]:
 
 @app.on_event("startup")
 async def start_ha_websocket() -> None:
-    global PLUGIN_OAUTH_REFRESH_TASK, NOTIFICATION_WATCH_TASK, CALENDAR_REMINDER_TASK, GOOGLE_CALENDAR_SYNC_TASK
+    global PLUGIN_OAUTH_REFRESH_TASK, NOTIFICATION_WATCH_TASK, AUTOMATION_SCHEDULE_TASK, CALENDAR_REMINDER_TASK, GOOGLE_CALENDAR_SYNC_TASK
     load_chat_sessions()
     prune_expired_chats()
     await enforce_stored_gmail_scope_policy()
@@ -2805,11 +2806,13 @@ async def start_ha_websocket() -> None:
         await list_ha_entities()
     if NOTIFICATION_WATCH_TASK is None or NOTIFICATION_WATCH_TASK.done():
         NOTIFICATION_WATCH_TASK = asyncio.create_task(notification_watch_worker(), name="zbrano-notification-watchlist")
+    if AUTOMATION_SCHEDULE_TASK is None or AUTOMATION_SCHEDULE_TASK.done():
+        AUTOMATION_SCHEDULE_TASK = asyncio.create_task(automation_schedule_worker(), name="zbrano-automation-schedules")
 
 
 @app.on_event("shutdown")
 async def stop_ha_websocket() -> None:
-    global PLUGIN_OAUTH_REFRESH_TASK, NOTIFICATION_WATCH_TASK, CALENDAR_REMINDER_TASK, GOOGLE_CALENDAR_SYNC_TASK
+    global PLUGIN_OAUTH_REFRESH_TASK, NOTIFICATION_WATCH_TASK, AUTOMATION_SCHEDULE_TASK, CALENDAR_REMINDER_TASK, GOOGLE_CALENDAR_SYNC_TASK
     if GOOGLE_CALENDAR_SYNC_TASK is not None:
         GOOGLE_CALENDAR_SYNC_TASK.cancel()
         with contextlib.suppress(asyncio.CancelledError):
@@ -2826,6 +2829,11 @@ async def stop_ha_websocket() -> None:
         with contextlib.suppress(asyncio.CancelledError):
             await NOTIFICATION_WATCH_TASK
         NOTIFICATION_WATCH_TASK = None
+    if AUTOMATION_SCHEDULE_TASK is not None:
+        AUTOMATION_SCHEDULE_TASK.cancel()
+        with contextlib.suppress(asyncio.CancelledError):
+            await AUTOMATION_SCHEDULE_TASK
+        AUTOMATION_SCHEDULE_TASK = None
     await stop_release_sync()
     if PLUGIN_OAUTH_REFRESH_TASK is not None:
         PLUGIN_OAUTH_REFRESH_TASK.cancel()
@@ -3590,6 +3598,7 @@ async def cancel_calendar_appointment(appointment_id: str) -> dict[str, Any]:
 
 
 NOTIFICATION_WATCH_TASK: asyncio.Task[Any] | None = None
+AUTOMATION_SCHEDULE_TASK: asyncio.Task[Any] | None = None
 
 
 @app.post("/api/notifications/watches")

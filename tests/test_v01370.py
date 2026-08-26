@@ -1,6 +1,8 @@
 import ast
+from datetime import datetime
 import json
 from pathlib import Path
+import time
 from types import SimpleNamespace
 from typing import Any
 import unittest
@@ -21,6 +23,7 @@ def load_test_flow(states):
         "_automation_triggers", "_automation_conditions", "_automation_actions", "_automation_branches",
         "_automation_condition_matches", "_automation_condition_group_matches", "_automation_context_conditions_match",
         "_automation_select_branch", "_automation_presence_confirmed", "_automation_effective_policy", "_automation_test_flow",
+        "_automation_schedule_due",
     }
     constants = {"AUTOMATION_POLICY_ORDER", "AUTOMATION_GLOBAL_POLICIES"}
     tree = ast.parse(AUTOMATIONS)
@@ -33,6 +36,8 @@ def load_test_flow(states):
     namespace = {
         "Any": Any,
         "ha_ws": SimpleNamespace(state_cache=states),
+        "datetime": datetime,
+        "time": time,
         "_automation_expected_zone": lambda data, item: "",
         "_automation_context_key": lambda value: str(value or "").casefold(),
     }
@@ -42,10 +47,10 @@ def load_test_flow(states):
 
 class AutomationTestFlowReleaseTests(unittest.TestCase):
     def test_release_markers_are_aligned(self):
-        self.assertIn('version: "0.13.70"', CONFIG)
-        self.assertIn('version="0.13.70"', MAIN)
-        self.assertIn("HUD 0.13.70", HTML)
-        self.assertEqual(MANIFEST["version"], "0.13.70")
+        self.assertIn('version: "0.13.71"', CONFIG)
+        self.assertIn('version="0.13.71"', MAIN)
+        self.assertIn("HUD 0.13.71", HTML)
+        self.assertEqual(MANIFEST["version"], "0.13.71")
 
     def test_dry_run_uses_live_state_without_executing_actions(self):
         test_flow = load_test_flow({
@@ -85,7 +90,7 @@ class AutomationTestFlowReleaseTests(unittest.TestCase):
         self.assertIn(".automation-studio-test-step", STUDIO_CSS)
 
     def test_release_history_includes_v01369(self):
-        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.69")
+        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.70")
 
 
 if __name__ == "__main__":

@@ -47,17 +47,21 @@
     flow.setAttribute("role", "group");
     flow.setAttribute("aria-label", `${text(automation.name, "Automation")} visual flow`);
 
-    const triggerEntity = text(automation.trigger_entity, "Choose a trigger entity");
-    const triggerValue = text(automation.trigger_value, "any value");
-    const operator = operatorLabels[automation.trigger_operator] || text(automation.trigger_operator, "changes to");
-    const duration = Number(automation.trigger_for_seconds || 0);
-    const triggers = Array.isArray(automation.triggers) ? automation.triggers.filter(item => item?.entity_id) : [];
-    const triggerDetail = `${operator} ${triggerValue}${duration > 0 ? ` for ${duration} seconds` : ""}${triggers.length > 1 ? ` · ${triggers.length} OR triggers` : ""}`;
+    const primaryTrigger = Array.isArray(automation.triggers) && automation.triggers.length ? automation.triggers[0] : {kind:"entity",entity_id:automation.trigger_entity,operator:automation.trigger_operator,value:automation.trigger_value,for_seconds:automation.trigger_for_seconds};
+    const triggerKind = primaryTrigger.kind || "entity";
+    const scheduleTitle = triggerKind === "time" ? `At ${primaryTrigger.at || "a local time"}` : triggerKind === "sun" ? `${primaryTrigger.sun_event || "sunrise"} ${Number(primaryTrigger.offset_minutes||0) >= 0 ? "+" : ""}${Number(primaryTrigger.offset_minutes||0)} min` : triggerKind === "interval" ? `Every ${Number(primaryTrigger.interval_minutes||5)} min` : triggerKind === "one_time" ? text(primaryTrigger.one_time_at,"Choose a date and time") : "";
+    const triggerEntity = triggerKind === "entity" ? text(primaryTrigger.entity_id || automation.trigger_entity, "Choose a trigger entity") : scheduleTitle;
+    const triggerValue = text(primaryTrigger.value || automation.trigger_value, "any value");
+    const operator = operatorLabels[primaryTrigger.operator || automation.trigger_operator] || text(primaryTrigger.operator || automation.trigger_operator, "changes to");
+    const duration = Number(primaryTrigger.for_seconds || automation.trigger_for_seconds || 0);
+    const triggers = Array.isArray(automation.triggers) ? automation.triggers.filter(item => item?.entity_id || (item?.kind && item.kind !== "entity")) : [];
+    const scheduleDays = Array.isArray(primaryTrigger.weekdays)&&primaryTrigger.weekdays.length ? ` · ${primaryTrigger.weekdays.length} selected day${primaryTrigger.weekdays.length===1?"":"s"}` : "";
+    const triggerDetail = triggerKind === "entity" ? `${operator} ${triggerValue}${duration > 0 ? ` for ${duration} seconds` : ""}${triggers.length > 1 ? ` · ${triggers.length} OR triggers` : ""}` : `Local Home Assistant schedule${scheduleDays}${triggers.length > 1 ? ` · ${triggers.length} OR triggers` : ""}`;
 
     const presence = text(automation.presence_entity, "");
     const signals = Array.isArray(automation.signal_entities) ? automation.signal_entities.filter(Boolean) : [];
     const contextTitle = presence ? entityName(presence) : signals.length ? `${signals.length} context signal${signals.length === 1 ? "" : "s"}` : "No presence requirement";
-    const conditions = Array.isArray(automation.conditions) ? automation.conditions.filter(item => item?.entity_id) : [];
+    const conditions = Array.isArray(automation.conditions) ? automation.conditions.filter(item => item?.entity_id || (item?.kind && item.kind !== "entity")) : [];
     const conditionDetail = conditions.length ? `${conditions.length} ${String(automation.condition_mode || "all").toUpperCase()} condition${conditions.length === 1 ? "" : "s"}` : "";
     const contextDetail = presence
       ? `Presence confirmed${signals.length ? ` · ${signals.length} supporting signal${signals.length === 1 ? "" : "s"}` : ""}`

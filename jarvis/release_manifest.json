@@ -1,9 +1,9 @@
 {
-  "version": "0.13.70",
+  "version": "0.13.71",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/ZBRANO_Core main",
-  "summary": "Add a zero-action Automation Studio Test Flow trace against current Home Assistant state and safety policy.",
+  "summary": "Add graphical time and schedule triggers plus time-aware conditions to Automation Studio.",
   "history_backfill": [
     {
       "version": "0.13.0",
@@ -284,22 +284,28 @@
     {
       "version": "0.13.69",
       "summary": "Made operating mode and delivery automation-specific under a global safety ceiling, and promoted Automation Studio to a full-window workspace."
+    },
+    {
+      "version": "0.13.70",
+      "summary": "Added a zero-action Automation Studio Test Flow trace against current Home Assistant state and safety policy."
     }
   ],
   "release_entry": {
     "features": [
-      "Test an unsaved Automation Studio flow against current Home Assistant states before enabling it.",
-      "Display a four-stage Trigger, Context, Decision, and Planned Actions trace directly above the flow canvas."
+      "Create graphical schedules for a local time and selected weekdays, sunrise or sunset with an offset, repeating intervals, or a one-time date and time.",
+      "Gate workflows with time windows, weekdays, sun state, and sustained entity-state conditions."
     ],
     "fixes": [
-      "Guarantee that Test Flow performs zero Home Assistant service calls and reports zero actions executed.",
-      "Treat event-based state changes as waiting rather than falsely passing a test from current state alone."
+      "Persist schedule firing markers so restarts and repeated worker scans do not execute the same schedule twice.",
+      "Keep the schedule worker alive after bounded malformed-data or persistence errors while preserving existing entity-event automations."
     ],
     "validation": [
-      "Zero-action test evaluator, live-state trace, event-wait semantics, graphical trace rendering, browser smoke, compatibility, README alignment, and v0.13.70 release coverage"
+      "Time, weekday, sun, interval, one-time, sustained-state, persisted-marker, Test Flow, browser smoke, compatibility, README alignment, and v0.13.71 release coverage"
     ]
   },
   "features": [
+    "Schedule graphical automations by local time, selected weekdays, sunrise or sunset offsets, intervals, or a one-time date and time.",
+    "Use time windows, weekday selection, sun position, and sustained entity state as graphical workflow conditions.",
     "Dry-run unsaved Automation Studio flows against live Home Assistant context with a graphical four-stage trace and no service execution.",
     "Choose each automation's operating mode and delivery channels independently while the global policy remains a hard safety ceiling.",
     "Use Automation Studio as a full-window workspace with Create New and My Automations views.",

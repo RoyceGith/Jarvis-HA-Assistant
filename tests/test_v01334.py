@@ -30,10 +30,10 @@ def load_mcp_response_decoder():
 
 class PluginPresentationAndDiscoveryBoundaryTests(unittest.TestCase):
     def test_release_markers_are_aligned(self):
-        self.assertIn('version: "0.13.70"', CONFIG)
-        self.assertIn('version="0.13.70"', MAIN)
-        self.assertIn("HUD 0.13.70", HTML)
-        self.assertEqual(MANIFEST["version"], "0.13.70")
+        self.assertIn('version: "0.13.71"', CONFIG)
+        self.assertIn('version="0.13.71"', MAIN)
+        self.assertIn("HUD 0.13.71", HTML)
+        self.assertEqual(MANIFEST["version"], "0.13.71")
 
     def test_both_services_are_outside_composition_root_and_configured(self):
         self.assertNotIn("def plugin_public(", MAIN)

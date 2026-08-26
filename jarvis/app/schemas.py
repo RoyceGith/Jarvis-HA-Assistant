@@ -103,15 +103,28 @@ class AutonomySettingsRequest(BaseModel):
     passive_learning_enabled: bool = True
 
 class AutomationTriggerRequest(BaseModel):
-    entity_id: str = Field(min_length=3, max_length=255, pattern=r"^[a-z0-9_]+\.[a-z0-9_]+$")
+    kind: str = Field(default="entity", pattern="^(entity|time|sun|interval|one_time)$")
+    entity_id: str = Field(default="", max_length=255, pattern=r"^(|[a-z0-9_]+\.[a-z0-9_]+)$")
     operator: str = Field(default="changes_to", pattern="^(any_change|changes_to|equals|not_equals|above|below)$")
     value: str = Field(default="", max_length=255)
     for_seconds: int = Field(default=0, ge=0, le=86400)
+    at: str = Field(default="", pattern=r"^(|([01]\d|2[0-3]):[0-5]\d)$")
+    weekdays: list[int] = Field(default_factory=list, max_length=7)
+    sun_event: str = Field(default="sunrise", pattern="^(sunrise|sunset)$")
+    offset_minutes: int = Field(default=0, ge=-180, le=180)
+    interval_minutes: int = Field(default=5, ge=1, le=10080)
+    one_time_at: str = Field(default="", max_length=64)
 
 class AutomationConditionRequest(BaseModel):
-    entity_id: str = Field(min_length=3, max_length=255, pattern=r"^[a-z0-9_]+\.[a-z0-9_]+$")
+    kind: str = Field(default="entity", pattern="^(entity|time_window|weekday|sun)$")
+    entity_id: str = Field(default="", max_length=255, pattern=r"^(|[a-z0-9_]+\.[a-z0-9_]+)$")
     operator: str = Field(default="equals", pattern="^(equals|not_equals|above|below)$")
     value: str = Field(default="", max_length=255)
+    for_seconds: int = Field(default=0, ge=0, le=86400)
+    start_time: str = Field(default="", pattern=r"^(|([01]\d|2[0-3]):[0-5]\d)$")
+    end_time: str = Field(default="", pattern=r"^(|([01]\d|2[0-3]):[0-5]\d)$")
+    weekdays: list[int] = Field(default_factory=list, max_length=7)
+    sun_state: str = Field(default="below_horizon", pattern="^(above_horizon|below_horizon)$")
 
 class AutomationActionRequest(BaseModel):
     kind: str = Field(default="service", pattern="^(service|delay|wait_state)$")

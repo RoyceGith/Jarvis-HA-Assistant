@@ -1,13 +1,15 @@
-## ZBRANO v0.13.70
+## ZBRANO v0.13.71
 
 ZBRANO combines Home Assistant chat, voice, entity control, memory, notifications,
 calendar tools, plugins, and evidence-based automations. Automation Studio now uses
 a visual building-block toolbox, interactive node canvas, and contextual inspector;
 the established automation engine and stored definitions remain compatible.
 
-Version 0.13.70 adds Test Flow to Automation Studio. It evaluates an unsaved draft
-against current Home Assistant state and shows a Trigger, Context, Decision, and
-Planned Actions trace while guaranteeing that no service action is executed.
+Version 0.13.71 adds graphical schedules for selected local times and weekdays,
+sunrise or sunset offsets, repeating intervals, and one-time events. Workflows can
+also check time windows, weekdays, sun state, and how long an entity has remained
+in a state. Persisted firing markers prevent duplicate scheduled runs after scans
+or restarts, while existing entity-event automations remain compatible.
 
 The application source and post-split build history are maintained in the private
 core repository. Public Home Assistant repositories contain only the five-file
