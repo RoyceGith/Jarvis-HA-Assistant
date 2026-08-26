@@ -141,7 +141,10 @@ class AutonomousAutomationRequest(BaseModel):
     cooldown_minutes: int = Field(default=30, ge=1, le=1440)
     confidence_threshold: float = Field(default=0.75, ge=0.5, le=0.99)
     risk_level: str = Field(default="controlled", pattern="^(informational|low|controlled|high)$")
-    execution_policy: str = Field(default="suggest", pattern="^(observe|suggest|approval_required|autonomous)$")
+    execution_policy: str = Field(default="inherit", pattern="^(inherit|observe|suggest|approval_required|autonomous)$")
+    delivery_voice: bool = True
+    delivery_notification_center: bool = True
+    delivery_ha_push: bool = True
     notify_on_action: bool = True
     reversible_only: bool = True
     max_actions_per_hour: int = Field(default=2, ge=1, le=60)

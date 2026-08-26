@@ -20,6 +20,7 @@ from .domains.automations import (
     _activate_automation,
     _automation_brain_state_change,
     _automation_entity_role,
+    _automation_effective_policy,
     _automation_evaluate_state_change,
     _automation_event,
     _automation_execute_action,
@@ -670,7 +671,7 @@ ha_ws = HomeAssistantWebSocketClient(
 
 app = FastAPI(
     title="ZBRANO",
-    version="0.13.68",
+    version="0.13.69",
     docs_url="/api/docs",
     openapi_url="/api/openapi.json",
 )
@@ -2649,7 +2650,7 @@ async def health() -> dict[str, Any]:
     configured_speech_provider = SPEECH_PROVIDER if SPEECH_PROVIDER in {"openai", "elevenlabs"} else "openai"
     return {
         "status": "ok",
-        "version": "0.13.68",
+        "version": "0.13.69",
         "home_assistant_configured": bool(SUPERVISOR_TOKEN),
         "workshop_memory_configured": bool(WORKSHOP_MEMORY_URL),
         "workshop_memory_cost_guard": workshop_cost_guard_status(),
@@ -3454,9 +3455,14 @@ async def approve_automation_suggestion(suggestion_id: str) -> dict[str, Any]:
             _automation_event(data, "feedback", f"Automation Brain suggestion approved: {suggestion.get('title')}", entity_id)
             _automation_save(data)
             return {"executed": True, "service": service, "entity_id": entity_id, "suggestion": suggestion}
+        if suggestion.get("execution_policy") != "approval_required":
+            raise HTTPException(status_code=403, detail="This automation is suggestion-only and cannot execute from approval")
         automation = next((item for item in data["automations"] if item.get("id") == suggestion.get("automation_id")), None)
         if not automation:
             raise HTTPException(status_code=404, detail="Automation definition not found")
+        current_policy, _ = _automation_effective_policy(automation, data["settings"])
+        if current_policy not in {"approval_required", "autonomous"}:
+            raise HTTPException(status_code=403, detail="The current global safety ceiling no longer permits this approval")
         try:
             result = await _automation_execute_action(data, automation, suggestion, "explicit_approval", suggestion.get("actions"))
         except Exception as exc:

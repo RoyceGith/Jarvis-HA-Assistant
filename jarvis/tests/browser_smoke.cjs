@@ -93,7 +93,7 @@ function apiFixture(url) {
   if (pathname === "/api/health") {
     return {
       status: "ok",
-      version: "0.13.68",
+      version: "0.13.69",
       speech_provider: "openai",
       speech_providers: {openai: {configured: true}, elevenlabs: {configured: false}},
     };
@@ -121,7 +121,7 @@ function apiFixture(url) {
   if (pathname === "/api/plugins") return {plugins: []};
   if (pathname === "/api/files/shared") return {files: [], count: 0};
   if (pathname === "/api/release-memory-sync") {
-    return {enabled: false, state: "disabled", version: "0.13.68", task_active: false};
+    return {enabled: false, state: "disabled", version: "0.13.69", task_active: false};
   }
   if (pathname === "/api/tab-activity") return {revisions: {}};
   if (pathname === "/api/grinder-monitor/status") return {enabled: false, connected: false};
@@ -220,8 +220,9 @@ async function main() {
 
     await page.locator("#automations-tab").click();
     await page.locator("#automations-panel:not(.hidden)").waitFor();
-    await page.locator('[data-auto-view="library"]').click();
-    await page.locator('[data-auto-panel="library"]:not(.hidden)').waitFor();
+    await page.locator('[data-auto-view="studio"]').click();
+    await page.locator('[data-auto-panel="studio"]:not(.hidden)').waitFor();
+    assert.equal(await page.locator("#automations-panel").evaluate(element => element.classList.contains("studio-active")), true);
     await page.locator('[data-automation-library-view="saved"]').click();
     await page.locator('[data-automation-library-panel="saved"]:not(.hidden)').waitFor();
     assert.equal(await page.locator("#automation-library .automation-flow-node").count(), 4);
@@ -258,6 +259,10 @@ async function main() {
     await page.locator('[data-workflow-index="0"][data-action-field="delay_seconds"]').fill("2");
     assert.match(await page.locator("#automation-flow-preview").innerText(), /Delay 2s/i);
     await page.locator('#automation-flow-preview [data-flow-kind="decision"]').click();
+    await page.locator("#studio-automation-execution-policy").selectOption("inherit");
+    assert.equal(await page.locator("#automation-execution-policy").inputValue(), "inherit");
+    await page.locator("#studio-automation-delivery-voice").uncheck();
+    assert.equal(await page.locator("#automation-delivery-voice").isChecked(), false);
     await page.locator("[data-branch-add]").click();
     await page.locator('[data-branch-add-item="conditions"]').click();
     await page.locator('[data-branch-collection="conditions"][data-branch-field="entity_id"]').fill("sensor.browser_fixture_4");

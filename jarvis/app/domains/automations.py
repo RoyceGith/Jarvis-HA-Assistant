@@ -622,7 +622,7 @@ def _activate_automation(automation_id: str, source: str) -> dict[str, Any]:
             ensure_read_allowed(str(entity_id))
     except PermissionError as exc:
         raise HTTPException(status_code=403, detail=str(exc)) from exc
-    policy = str(automation.get("execution_policy") or "suggest")
+    policy, _ = _automation_effective_policy(automation, data["settings"])
     branch_actions = [action for branch in _automation_branches(automation) for action in branch.get("actions") or []]
     flow_actions = [*_automation_actions(automation), *branch_actions]
     if policy in {"approval_required", "autonomous"} and not any(str(action.get("kind") or "service") == "service" for action in flow_actions):
@@ -642,7 +642,28 @@ AUTOMATION_PENDING_TASKS: dict[str, asyncio.Task[Any]] = {}
 
 AUTOMATION_RISK_ORDER = {"informational": 0, "low": 1, "controlled": 2, "high": 3}
 
+AUTOMATION_POLICY_ORDER = {"observe": 0, "suggest": 1, "approval_required": 2, "autonomous": 3}
+
+AUTOMATION_GLOBAL_POLICIES = {
+    "observe_only": "observe",
+    "suggest_only": "suggest",
+    "approval_gated": "approval_required",
+    "selective_autonomy": "autonomous",
+}
+
 AUTOMATION_AUTONOMOUS_DOMAINS = {"light", "switch", "fan", "media_player", "climate", "input_boolean"}
+
+def _automation_effective_policy(item: dict[str, Any], settings: dict[str, Any]) -> tuple[str, str]:
+    global_policy = AUTOMATION_GLOBAL_POLICIES.get(str(settings.get("operating_mode") or "suggest_only"), "suggest")
+    requested = str(item.get("execution_policy") or "inherit")
+    desired = global_policy if requested == "inherit" else requested
+    if desired not in AUTOMATION_POLICY_ORDER:
+        desired = "suggest"
+    if AUTOMATION_POLICY_ORDER[desired] > AUTOMATION_POLICY_ORDER[global_policy]:
+        return global_policy, f"global safety ceiling reduced {desired} to {global_policy}"
+    if requested == "inherit":
+        return desired, f"using global default {desired}"
+    return desired, f"per-automation mode {desired}"
 
 def _automation_state_positive(value: Any) -> bool:
     return str(value or "").casefold() in {"on", "home", "present", "occupied", "true", "1"}
@@ -965,10 +986,9 @@ def _automation_rate_available(item: dict[str, Any], now: float) -> tuple[bool, 
     return True, "rate limits clear"
 
 def _automation_autonomous_allowed(item: dict[str, Any], settings: dict[str, Any], actions: list[dict[str, Any]] | None = None) -> tuple[bool, str]:
-    if settings.get("operating_mode") != "selective_autonomy":
-        return False, "global mode does not allow autonomous execution"
-    if item.get("execution_policy") != "autonomous":
-        return False, "automation is not marked autonomous"
+    effective_policy, policy_detail = _automation_effective_policy(item, settings)
+    if effective_policy != "autonomous":
+        return False, policy_detail
     risk = str(item.get("risk_level") or "controlled")
     ceiling = str(settings.get("autonomous_risk_ceiling") or "low")
     if risk == "high" or AUTOMATION_RISK_ORDER.get(risk, 3) > AUTOMATION_RISK_ORDER.get(ceiling, 1):
@@ -987,7 +1007,7 @@ def _automation_autonomous_allowed(item: dict[str, Any], settings: dict[str, Any
         domain = service.split(".", 1)[0] if "." in service else ""
         if domain not in AUTOMATION_AUTONOMOUS_DOMAINS:
             return False, "an action service domain is not allowed for autonomous execution"
-    return True, "within autonomous authority"
+    return True, f"{policy_detail}; within autonomous authority"
 
 async def _automation_notify(title: str, message: str, *, action: bool = False) -> None:
     notification = notification_store()
@@ -1107,11 +1127,10 @@ async def _automation_commit_match(automation_id: str, evidence: dict[str, Any])
         confidence = 1.0
         detail = str(item.get("proposal_template") or item.get("objective") or "Automation condition matched.")
         evidence_text = f"{trigger_entity} changed from {evidence.get('old_state')} to {current}; {conditions_detail}; {branch_detail}; {presence_detail}; {rate_detail}"
-        mode = str(data["settings"].get("operating_mode") or "suggest_only")
-        policy = str(item.get("execution_policy") or "suggest")
-        if mode == "observe_only" or policy == "observe":
+        policy, policy_detail = _automation_effective_policy(item, data["settings"])
+        if policy == "observe":
             item["status"] = "observed"
-            _automation_event(data, "observation", f"Condition observed: {item.get('name')}", evidence_text)
+            _automation_event(data, "observation", f"Condition observed: {item.get('name')}", f"{evidence_text}; {policy_detail}")
             _automation_save(data)
             return
         autonomous, authority_detail = _automation_autonomous_allowed(item, data["settings"], selected_actions)
@@ -1120,9 +1139,13 @@ async def _automation_commit_match(automation_id: str, evidence: dict[str, Any])
             "id": secrets.token_hex(10), "automation_id": automation_id,
             "title": str(item.get("name") or "ZBRANO suggestion")[:160], "detail": detail[:1000],
             "evidence": evidence_text[:1000], "confidence": confidence,
-            "status": "executing" if autonomous else "approval_required" if mode == "approval_gated" or policy == "approval_required" else "pending",
+            "status": "executing" if autonomous else "approval_required" if policy in {"approval_required", "autonomous"} else "pending",
             "action_entity": str(first_action.get("entity_id") or ""), "action_service": str(first_action.get("service") or ""),
             "actions": selected_actions, "branch": branch_name,
+            "execution_policy": "autonomous" if autonomous else "approval_required" if policy in {"approval_required", "autonomous"} else "suggest",
+            "delivery_voice": item.get("delivery_voice", True),
+            "delivery_notification_center": item.get("delivery_notification_center", True),
+            "delivery_ha_push": item.get("delivery_ha_push", True),
             "created_at": now,
         }
         data["suggestions"].insert(0, suggestion)
@@ -1131,7 +1154,7 @@ async def _automation_commit_match(automation_id: str, evidence: dict[str, Any])
         _automation_save(data)
         if autonomous:
             await _automation_execute_action(data, item, suggestion, "selective_autonomy", selected_actions)
-        else:
+        elif item.get("delivery_ha_push", True):
             await _automation_notify(suggestion["title"], f"{detail}\n\nEvidence: {evidence_text}")
 
 async def _automation_delayed_match(automation_id: str, evidence: dict[str, Any], delay: int, pending_key: str) -> None:

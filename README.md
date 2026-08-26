@@ -1,13 +1,13 @@
-## ZBRANO v0.13.68
+## ZBRANO v0.13.69
 
 ZBRANO combines Home Assistant chat, voice, entity control, memory, notifications,
 calendar tools, plugins, and evidence-based automations. Automation Studio now uses
 a visual building-block toolbox, interactive node canvas, and contextual inspector;
 the established automation engine and stored definitions remain compatible.
 
-Version 0.13.68 adds dedicated Delay and Wait Until steps to linear and branch
-action sequences. Waits use Home Assistant state operators with explicit bounded
-timeouts, while existing service actions remain compatible.
+Version 0.13.69 makes operating mode and delivery automation-specific while the
+global policy remains a hard safety ceiling. Automation Studio is now a full-window
+workspace with Create New and My Automations views.
 
 The application source and post-split build history are maintained in the private
 core repository. Public Home Assistant repositories contain only the five-file

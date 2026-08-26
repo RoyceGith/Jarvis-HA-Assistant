@@ -1,4 +1,4 @@
-# ZBRANO v0.13.68
+# ZBRANO v0.13.69
 
 Automation Studio provides a graphical building-block workflow for Home Assistant
 automations. Use the toolbox to select or drag Trigger, Context, Decision, and
@@ -6,9 +6,10 @@ Action blocks onto the canvas, then edit only that block in the settings inspect
 Natural-language creation, templates, saved automation compatibility, and the full
 Advanced editor remain available.
 
-Version 0.13.68 adds typed Service, Delay, and Wait Until sequence steps. Delays
-and wait timeouts are limited to five minutes, Wait Until reads live Home Assistant
-state, and existing service-action definitions remain unchanged.
+Version 0.13.69 lets each automation inherit the global operating mode or explicitly
+observe, suggest, ask for approval, or act automatically beneath that safety ceiling.
+Voice, Studio inbox, and Home Assistant push delivery are independently selectable.
+Automation Studio now expands into a full-window workspace.
 
 The visual editor supports linear and branching workflows without silently changing
 the behavior of existing stored rules.

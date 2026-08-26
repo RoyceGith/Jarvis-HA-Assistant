@@ -1,4 +1,12 @@
 .automation-studio-preview { overflow: hidden; margin-bottom: .75rem; padding: 0 !important; }
+#automations-panel.studio-active { overflow: hidden; padding: .65rem; }
+#automations-panel.studio-active .autonomy-shell { height: 100%; min-height: 0; padding-bottom: 0; grid-template-rows: auto minmax(0,1fr); }
+#automations-panel.studio-active .autonomy-header,
+#automations-panel.studio-active .autonomy-boundary { display: none; }
+#automations-panel.studio-active [data-auto-panel="studio"] { min-height: 0; overflow: auto; padding-right: .2rem; }
+#automations-panel.studio-active [data-automation-library-panel="create"] { min-height: 0; }
+#automations-panel.studio-active .automation-studio-preview { min-height: calc(100dvh - 205px); margin-bottom: 0; }
+#automations-panel.studio-active .automation-studio-layout { min-height: calc(100dvh - 285px); }
 .automation-studio-toolbar { padding: .9rem 1rem; border-bottom: 1px solid var(--line); }
 .automation-studio-toolbar-actions { display: grid; justify-items: end; gap: .3rem; }
 .automation-studio-toolbar-actions > span { color: var(--text-muted); font-size: .72rem; }
@@ -54,6 +62,9 @@
   .automation-studio-inspector-fields { grid-template-columns: repeat(2,minmax(0,1fr)); }
 }
 @media (max-width:720px) {
+  #automations-panel.studio-active { overflow-y: auto; }
+  #automations-panel.studio-active .automation-studio-preview,
+  #automations-panel.studio-active .automation-studio-layout { min-height: 0; }
   .automation-studio-toolbar { display: grid; }
   .automation-studio-layout { grid-template-columns: 1fr; }
   .automation-studio-toolbox { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); border-right: 0; border-bottom: 1px solid var(--line); }

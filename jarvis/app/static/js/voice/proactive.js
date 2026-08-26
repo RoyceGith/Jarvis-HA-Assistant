@@ -359,14 +359,14 @@
     if(!proactive.checked||document.hidden||isQuietHours())return;
     pendingSuggestion=item;stopWake();const prompt=String(item.detail||"").trim();
     status("Speaking an autonomous suggestion…");await speakText(prompt,true);
-    if(pendingSuggestion===item)listenForSuggestionDecision(item);
+    if(pendingSuggestion===item){if(item.execution_policy==="approval_required")listenForSuggestionDecision(item);else{pendingSuggestion=null;scheduleWake()}}
   }
 
   async function pollSuggestions(){
     if(pollActive||document.hidden)return;pollActive=true;
     try{
       const response=await fetch("api/automations",{cache:"no-store"});const data=await response.json().catch(()=>({}));if(!response.ok)throw new Error(data.detail||`HTTP ${response.status}`);
-      const actionable=(data.suggestions||[]).filter(item=>["pending","approval_required"].includes(item.status)&&item.id);
+      const actionable=(data.suggestions||[]).filter(item=>["pending","approval_required"].includes(item.status)&&item.id&&item.delivery_voice!==false);
       if(!suggestionBaseline){actionable.forEach(item=>seen.add(item.id));saveSeen();suggestionBaseline=true;return}
       const fresh=actionable.filter(item=>!seen.has(item.id)).sort((a,b)=>Number(a.created_at||0)-Number(b.created_at||0));
       for(const item of fresh){seen.add(item.id)}saveSeen();if(fresh.length&&!pendingSuggestion)await announceSuggestion(fresh[0]);

@@ -76,7 +76,7 @@
         if (path.includes("/api/plugins")) markIfUnseen(document.getElementById("plugins-tab"));
         if (path.includes("/api/automations")) {
           markIfUnseen(document.getElementById("automations-tab"));
-          markIfUnseen(document.querySelector('[data-auto-view="library"]'));
+          markIfUnseen(document.querySelector('[data-auto-view="studio"]'));
         }
         if (path.includes("/api/calendar")) markIfUnseen(document.getElementById("calendar-tab"));
         if (path.includes("/api/notifications")) {
@@ -100,7 +100,7 @@
     chat: ["#chat-tab"],
     files: ["#files-tab"],
     plugins: ["#plugins-tab"],
-    automations: ["#automations-tab", '[data-auto-view="library"]'],
+    automations: ["#automations-tab", '[data-auto-view="studio"]'],
     notifications: ["#automations-tab", '[data-auto-view="notifications"]', '[data-notification-view="logs"]'],
     calendar: ["#calendar-tab"],
     settings: ["#settings-tab"],
