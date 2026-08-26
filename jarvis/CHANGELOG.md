@@ -1,5 +1,13 @@
 # Change log
 
+## 0.13.78
+
+- Added a bounded 30-record decision journal to each automation with outcome,
+  reason, evidence, authority, branch, and timestamp.
+- Recorded context suppressions, Not now and learned deferrals, rate limits,
+  permission blocks, suggestions, observations, and action results.
+- Added an expandable Automation Studio journal showing the latest five decisions.
+
 ## 0.13.77
 
 - Added live readiness checks for trigger, condition, presence, wait, and action
