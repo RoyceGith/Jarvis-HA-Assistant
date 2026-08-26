@@ -14,10 +14,10 @@ MANIFEST = json.loads((ROOT / "jarvis/release_manifest.json").read_text(encoding
 
 class ProductDefaultSeparationReleaseTests(unittest.TestCase):
     def test_release_markers_are_aligned(self):
-        self.assertIn('version: "0.13.65"', CONFIG)
-        self.assertIn('version="0.13.65"', MAIN)
-        self.assertIn("HUD 0.13.65", HTML)
-        self.assertEqual(MANIFEST["version"], "0.13.65")
+        self.assertIn('version: "0.13.66"', CONFIG)
+        self.assertIn('version="0.13.66"', MAIN)
+        self.assertIn("HUD 0.13.66", HTML)
+        self.assertEqual(MANIFEST["version"], "0.13.66")
 
     def test_automation_templates_are_installation_derived_and_browser_checked(self):
         self.assertIn("function inventoryMatches", WORKSPACE)
@@ -28,7 +28,7 @@ class ProductDefaultSeparationReleaseTests(unittest.TestCase):
         self.assertIn("sensor.browser_fixture_", BROWSER)
 
     def test_release_history_includes_previous_release(self):
-        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.64")
+        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.65")
 
 
 if __name__ == "__main__":

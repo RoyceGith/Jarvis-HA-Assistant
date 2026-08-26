@@ -24,6 +24,12 @@
 .automation-studio-inspector-fields label.is-check { display: flex; align-items: center; gap: .45rem; }
 .automation-studio-inspector-fields :is(input,select,textarea) { width: 100%; }
 .automation-studio-inspector-fields label.is-check input { width: auto; }
+.automation-workflow-steps { display: grid; gap: .55rem; margin-top: .8rem; padding-top: .75rem; border-top: 1px solid var(--line); }
+.automation-workflow-head { display: flex; align-items: center; justify-content: space-between; gap: .5rem; }
+.automation-workflow-head button,.automation-workflow-step button { padding: .4rem .55rem; }
+.automation-workflow-step { display: grid; gap: .4rem; padding: .55rem; border: 1px solid var(--line); border-radius: 10px; background: color-mix(in srgb,var(--surface-strong) 82%,transparent); }
+.automation-workflow-step :is(input,select) { width: 100%; }
+.automation-workflow-empty { color: var(--text-muted); }
 .automation-flow { display: grid; grid-template-columns: minmax(150px,1fr) auto minmax(150px,1fr) auto minmax(180px,1.15fr) auto minmax(150px,1fr); align-items: stretch; gap: .45rem; margin-top: .7rem; overflow-x: auto; padding: .15rem 0 .35rem; }
 .automation-studio-canvas .automation-flow { grid-template-columns: minmax(230px,330px); justify-content: center; overflow: visible; padding: .8rem 0; }
 .automation-flow-node { position: relative; z-index: 1; min-width: 0; padding: .72rem .75rem; border: 1px solid color-mix(in srgb,var(--line) 78%,transparent); border-radius: 12px; background: color-mix(in srgb,var(--surface-strong) 90%,transparent); box-shadow: inset 3px 0 color-mix(in srgb,var(--cyan) 55%,transparent),0 8px 24px rgba(0,0,0,.12); cursor: pointer; transition: border-color .16s ease,transform .16s ease,box-shadow .16s ease; }

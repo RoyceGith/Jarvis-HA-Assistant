@@ -93,7 +93,7 @@ function apiFixture(url) {
   if (pathname === "/api/health") {
     return {
       status: "ok",
-      version: "0.13.65",
+      version: "0.13.66",
       speech_provider: "openai",
       speech_providers: {openai: {configured: true}, elevenlabs: {configured: false}},
     };
@@ -121,7 +121,7 @@ function apiFixture(url) {
   if (pathname === "/api/plugins") return {plugins: []};
   if (pathname === "/api/files/shared") return {files: [], count: 0};
   if (pathname === "/api/release-memory-sync") {
-    return {enabled: false, state: "disabled", version: "0.13.65", task_active: false};
+    return {enabled: false, state: "disabled", version: "0.13.66", task_active: false};
   }
   if (pathname === "/api/tab-activity") return {revisions: {}};
   if (pathname === "/api/grinder-monitor/status") return {enabled: false, connected: false};
@@ -242,10 +242,20 @@ async function main() {
     assert.equal(await page.locator("#automation-studio-inspector-title").innerText(), "Trigger");
     await page.locator("#studio-automation-trigger-value").fill("27");
     assert.equal(await page.locator("#automation-trigger-value").inputValue(), "27");
+    await page.locator('[data-workflow-add="triggers"]').click();
+    await page.locator('[data-workflow-field="entity_id"]').fill("sensor.browser_fixture_2");
+    assert.match(await page.locator("#automation-flow-preview").innerText(), /2 OR triggers/i);
     await page.locator('#automation-flow-preview [data-flow-kind="context"]').click();
     assert.equal(await page.locator("#automation-studio-inspector-title").innerText(), "Context");
+    await page.locator('[data-workflow-add="conditions"]').click();
+    await page.locator('[data-workflow-field="entity_id"]').fill("sensor.browser_fixture_3");
+    await page.locator("[data-workflow-mode]").selectOption("any");
+    assert.match(await page.locator("#automation-flow-preview").innerText(), /1 ANY condition/i);
+    await page.locator('#automation-flow-preview [data-flow-kind="action"]').click();
+    await page.locator('[data-workflow-add="actions"]').click();
+    assert.equal(await page.locator(".automation-workflow-step").count(), 1);
 
-    console.log("Browser smoke passed: New Chat, navigation, Entity scrolling, Automation Studio builder, and installation-derived templates");
+    console.log("Browser smoke passed: New Chat, navigation, Entity scrolling, advanced Automation Studio workflows, and installation-derived templates");
   } finally {
     await browser.close();
     await new Promise(resolve => server.close(resolve));

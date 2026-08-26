@@ -51,11 +51,14 @@
     const triggerValue = text(automation.trigger_value, "any value");
     const operator = operatorLabels[automation.trigger_operator] || text(automation.trigger_operator, "changes to");
     const duration = Number(automation.trigger_for_seconds || 0);
-    const triggerDetail = `${operator} ${triggerValue}${duration > 0 ? ` for ${duration} seconds` : ""}`;
+    const triggers = Array.isArray(automation.triggers) ? automation.triggers.filter(item => item?.entity_id) : [];
+    const triggerDetail = `${operator} ${triggerValue}${duration > 0 ? ` for ${duration} seconds` : ""}${triggers.length > 1 ? ` · ${triggers.length} OR triggers` : ""}`;
 
     const presence = text(automation.presence_entity, "");
     const signals = Array.isArray(automation.signal_entities) ? automation.signal_entities.filter(Boolean) : [];
     const contextTitle = presence ? entityName(presence) : signals.length ? `${signals.length} context signal${signals.length === 1 ? "" : "s"}` : "No presence requirement";
+    const conditions = Array.isArray(automation.conditions) ? automation.conditions.filter(item => item?.entity_id) : [];
+    const conditionDetail = conditions.length ? `${conditions.length} ${String(automation.condition_mode || "all").toUpperCase()} condition${conditions.length === 1 ? "" : "s"}` : "";
     const contextDetail = presence
       ? `Presence confirmed${signals.length ? ` · ${signals.length} supporting signal${signals.length === 1 ? "" : "s"}` : ""}`
       : signals.length ? signals.slice(0, 2).map(entityName).join(" · ") : "Evaluate from the trigger alone";
@@ -67,12 +70,13 @@
 
     const actionEntity = text(automation.action_entity, "");
     const actionService = text(automation.action_service, "");
-    const actionTitle = actionEntity ? entityName(actionEntity) : "Suggestion only";
-    const actionDetail = actionEntity && actionService ? actionService : "No Home Assistant service call";
+    const actions = Array.isArray(automation.actions) ? automation.actions.filter(item => item?.entity_id && item?.service) : [];
+    const actionTitle = actions.length > 1 ? `${actions.length} ordered actions` : actionEntity ? entityName(actionEntity) : "Suggestion only";
+    const actionDetail = actions.length > 1 ? actions.map(item => item.service).slice(0, 2).join(" → ") : actionEntity && actionService ? actionService : "No Home Assistant service call";
 
     const nodes = [
       node("trigger", "WHEN", entityName(triggerEntity), triggerDetail),
-      node("context", "IF", contextTitle, contextDetail),
+      node("context", "IF", conditionDetail || contextTitle, conditionDetail ? `${contextDetail} · ${conditionDetail}` : contextDetail),
       node("decision", "DECIDE", decisionTitle, decisionDetail),
       node("action", "THEN", actionTitle, actionDetail),
     ];

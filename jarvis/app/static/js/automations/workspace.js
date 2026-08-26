@@ -7,6 +7,7 @@
   let state={settings:{},automations:[],suggestions:[],timeline:[],entity_memory:[],area_context:{areas:[],entities:[]},patterns:[],discoveries:[],engine:{}};
   let entityMap=new Map();
   let selectedStudioNode="trigger";
+  let workflowDraft={triggers:[],conditions:[],condition_mode:"all",actions:[]};
   const studioPanels={
     details:{title:"Automation",help:"Name the behavior and decide whether live evaluation starts after saving.",fields:[["automation-name","Name"],["automation-objective","Objective"],["automation-enabled","Enable after saving"]]},
     trigger:{title:"Trigger",help:"Choose the Home Assistant event that starts evaluation.",fields:[["automation-trigger-entity","Trigger entity"],["automation-trigger-operator","Condition"],["automation-trigger-value","Value"],["automation-trigger-for","Sustain for seconds"]]},
@@ -55,6 +56,24 @@
       const synchronize=()=>{if(source.type==="checkbox")source.checked=control.checked;else source.value=control.value;source.dispatchEvent(new Event("input",{bubbles:true}))};
       control.addEventListener("input",synchronize);control.addEventListener("change",synchronize);root.append(label);
     }
+    renderWorkflowInspector(root);
+  }
+
+  function workflowOperatorOptions(selected,trigger=false){return (trigger?["any_change","changes_to","equals","not_equals","above","below"]:["equals","not_equals","above","below"]).map(value=>`<option value="${value}"${value===selected?" selected":""}>${value.replaceAll("_"," ")}</option>`).join("")}
+  function renderWorkflowInspector(root){
+    const specs=selectedStudioNode==="trigger"?["triggers","Additional OR triggers"]:selectedStudioNode==="context"?["conditions","State conditions"]:selectedStudioNode==="action"?["actions","Following actions"]:null;
+    if(!specs)return;
+    const [collection,title]=specs,items=workflowDraft[collection];
+    const section=document.createElement("section");section.className="automation-workflow-steps";
+    const mode=collection==="conditions"?`<label>Match conditions<select data-workflow-mode><option value="all"${workflowDraft.condition_mode==="all"?" selected":""}>All conditions</option><option value="any"${workflowDraft.condition_mode==="any"?" selected":""}>Any condition</option></select></label>`:"";
+    const rows=items.map((item,index)=>{
+      if(collection==="actions")return `<div class="automation-workflow-step"><input data-workflow-field="entity_id" data-workflow-index="${index}" list="automation-entity-options" value="${esc(item.entity_id||"")}" placeholder="light.room"><input data-workflow-field="service" data-workflow-index="${index}" value="${esc(item.service||"")}" placeholder="light.turn_on"><input data-workflow-field="delay_seconds" data-workflow-index="${index}" type="number" min="0" max="300" value="${Number(item.delay_seconds||0)}" aria-label="Delay seconds"><button type="button" data-workflow-remove="${index}">Remove</button></div>`;
+      return `<div class="automation-workflow-step"><input data-workflow-field="entity_id" data-workflow-index="${index}" list="automation-entity-options" value="${esc(item.entity_id||"")}" placeholder="sensor.entity"><select data-workflow-field="operator" data-workflow-index="${index}">${workflowOperatorOptions(item.operator,collection==="triggers")}</select><input data-workflow-field="value" data-workflow-index="${index}" value="${esc(item.value||"")}" placeholder="value">${collection==="triggers"?`<input data-workflow-field="for_seconds" data-workflow-index="${index}" type="number" min="0" max="86400" value="${Number(item.for_seconds||0)}" aria-label="Sustain seconds">`:""}<button type="button" data-workflow-remove="${index}">Remove</button></div>`;
+    }).join("");
+    section.innerHTML=`<div class="automation-workflow-head"><strong>${title}</strong><button type="button" data-workflow-add="${collection}">+ Add</button></div>${mode}${rows||'<small class="automation-workflow-empty">None added. The primary block above remains active.</small>'}`;root.append(section);
+    section.addEventListener("input",event=>{const field=event.target.dataset.workflowField,index=Number(event.target.dataset.workflowIndex);if(!field||!items[index])return;items[index][field]=field.endsWith("seconds")?Number(event.target.value||0):event.target.value;renderEditorFlow()});
+    section.addEventListener("change",event=>{if(event.target.hasAttribute("data-workflow-mode")){workflowDraft.condition_mode=event.target.value;renderEditorFlow()}});
+    section.addEventListener("click",event=>{const add=event.target.closest("[data-workflow-add]"),remove=event.target.closest("[data-workflow-remove]");if(add){items.push(collection==="actions"?{entity_id:"",service:"",service_data:{},delay_seconds:0}:{entity_id:"",operator:collection==="triggers"?"changes_to":"equals",value:"",...(collection==="triggers"?{for_seconds:0}:{})});renderStudioInspector();renderEditorFlow()}else if(remove){items.splice(Number(remove.dataset.workflowRemove),1);renderStudioInspector();renderEditorFlow()}});
   }
 
   function selectStudioNode(kind){
@@ -155,6 +174,8 @@
   async function loadWorkspace(){state=await api("api/automations");renderAll();await loadEntityContext()}
 
   function editorSnapshot(){
+    const trigger={entity_id:$("automation-trigger-entity").value.trim(),operator:$("automation-trigger-operator").value,value:$("automation-trigger-value").value.trim(),for_seconds:Number($("automation-trigger-for").value||0)};
+    const action={entity_id:$("automation-action-entity").value.trim(),service:$("automation-action-service").value.trim(),service_data:{},delay_seconds:0};
     return {
       name:$("automation-name").value.trim()||"New automation",
       objective:$("automation-objective").value.trim(),
@@ -170,6 +191,10 @@
       cooldown_minutes:Number($("automation-cooldown").value||30),
       confidence_threshold:Number($("automation-confidence").value||0.75),
       execution_policy:$("automation-execution-policy").value,
+      triggers:[...(trigger.entity_id?[trigger]:[]),...workflowDraft.triggers].filter(item=>item.entity_id),
+      conditions:workflowDraft.conditions.filter(item=>item.entity_id),
+      condition_mode:workflowDraft.condition_mode,
+      actions:[...(action.entity_id&&action.service?[action]:[]),...workflowDraft.actions].filter(item=>item.entity_id&&item.service),
     };
   }
 
@@ -183,11 +208,12 @@
 
   function clearEditor(){
     $("automation-draft-form").reset();$("automation-edit-id").value="";$("automation-editor-title").textContent="New automation draft";$("automation-cancel-edit").hidden=true;$("automation-cooldown").value=String(state.settings?.default_cooldown_minutes||30);$("automation-confidence").value=String(state.settings?.minimum_confidence||0.75);$("automation-risk").value="controlled";$("automation-execution-policy").value="suggest";$("automation-max-actions").value="2";$("automation-trigger-operator").value="changes_to";$("automation-trigger-for").value="0";$("automation-action-data").value="{}";$("automation-enabled").checked=false;$("automation-notify-action").checked=true;$("automation-reversible-only").checked=true;$("automation-draft-state").textContent="";
-    selectedStudioNode="trigger";renderEditorFlow();renderStudioInspector();
+    workflowDraft={triggers:[],conditions:[],condition_mode:"all",actions:[]};selectedStudioNode="trigger";renderEditorFlow();renderStudioInspector();
   }
 
   function fillEditor(item){
     $("automation-edit-id").value=item.id||"";$("automation-name").value=item.name||"";$("automation-objective").value=item.objective||"";$("automation-presence").value=item.presence_entity||"";$("automation-signals").value=(item.signal_entities||[]).join(", ");$("automation-trigger-entity").value=item.trigger_entity||(item.signal_entities||[])[0]||"";$("automation-trigger-operator").value=item.trigger_operator||"changes_to";$("automation-trigger-value").value=item.trigger_value||"";$("automation-trigger-for").value=String(item.trigger_for_seconds||0);$("automation-enabled").checked=Boolean(item.enabled);$("automation-context-notes").value=item.context_notes||"";$("automation-proposal").value=item.proposal_template||"";$("automation-action-entity").value=item.action_entity||"";$("automation-action-service").value=item.action_service||"";$("automation-action-data").value=JSON.stringify(item.action_service_data||{},null,2);$("automation-cooldown").value=String(item.cooldown_minutes||30);$("automation-confidence").value=String(item.confidence_threshold||0.75);$("automation-risk").value=item.risk_level||"controlled";$("automation-execution-policy").value=item.execution_policy||"suggest";$("automation-max-actions").value=String(item.max_actions_per_hour||2);$("automation-notify-action").checked=item.notify_on_action!==false;$("automation-reversible-only").checked=item.reversible_only!==false;$("automation-editor-title").textContent=item.id?"Edit automation":"New automation";$("automation-cancel-edit").hidden=!item.id;showView("library");showLibraryView("create");document.querySelector(".automation-advanced")?.removeAttribute("open");selectedStudioNode="details";
+    const triggers=Array.isArray(item.triggers)?item.triggers:[],actions=Array.isArray(item.actions)?item.actions:[];workflowDraft={triggers:triggers.slice(1),conditions:Array.isArray(item.conditions)?item.conditions:[],condition_mode:item.condition_mode||"all",actions:actions.slice(1)};
     renderEditorFlow();renderStudioInspector();
   }
 
@@ -250,6 +276,7 @@
     event.preventDefault();const id=$("automation-edit-id").value;const status=$("automation-draft-state"),studioStatus=$("automation-studio-state");status.textContent="Saving…";studioStatus.textContent="Saving…";
     let actionData={};try{actionData=JSON.parse($("automation-action-data").value||"{}");if(!actionData||Array.isArray(actionData)||typeof actionData!=="object")throw new Error("must be an object")}catch(error){status.textContent=`Action data must be valid JSON: ${error.message||error}`;studioStatus.textContent=status.textContent;return}
     const body={name:$("automation-name").value.trim(),objective:$("automation-objective").value.trim(),presence_entity:$("automation-presence").value.trim(),signal_entities:$("automation-signals").value.split(/[,\n]/).map(v=>v.trim()).filter(Boolean),trigger_entity:$("automation-trigger-entity").value.trim(),trigger_operator:$("automation-trigger-operator").value,trigger_value:$("automation-trigger-value").value.trim(),trigger_for_seconds:Number($("automation-trigger-for").value||0),enabled:$("automation-enabled").checked,context_notes:$("automation-context-notes").value.trim(),proposal_template:$("automation-proposal").value.trim(),action_entity:$("automation-action-entity").value.trim(),action_service:$("automation-action-service").value.trim(),action_service_data:actionData,cooldown_minutes:Number($("automation-cooldown").value),confidence_threshold:Number($("automation-confidence").value),risk_level:$("automation-risk").value,execution_policy:$("automation-execution-policy").value,notify_on_action:$("automation-notify-action").checked,reversible_only:$("automation-reversible-only").checked,max_actions_per_hour:Number($("automation-max-actions").value)};
+    const workflow=editorSnapshot();if(workflow.actions.length&&workflow.actions[0].entity_id===body.action_entity)workflow.actions[0].service_data=actionData;Object.assign(body,{triggers:workflow.triggers,conditions:workflow.conditions,condition_mode:workflow.condition_mode,actions:workflow.actions});
     try{await api(id?`api/automations/${encodeURIComponent(id)}`:"api/automations",{method:id?"PUT":"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)});clearEditor();studioStatus.textContent="Draft saved.";await loadWorkspace();showLibraryView("saved")}catch(error){status.textContent=`Save failed: ${error.message||error}`;studioStatus.textContent=status.textContent}
   });
   $("automation-cancel-edit").addEventListener("click",clearEditor);

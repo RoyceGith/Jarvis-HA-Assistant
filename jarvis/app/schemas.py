@@ -102,6 +102,23 @@ class AutonomySettingsRequest(BaseModel):
     notify_after_autonomous_action: bool = True
     passive_learning_enabled: bool = True
 
+class AutomationTriggerRequest(BaseModel):
+    entity_id: str = Field(min_length=3, max_length=255, pattern=r"^[a-z0-9_]+\.[a-z0-9_]+$")
+    operator: str = Field(default="changes_to", pattern="^(any_change|changes_to|equals|not_equals|above|below)$")
+    value: str = Field(default="", max_length=255)
+    for_seconds: int = Field(default=0, ge=0, le=86400)
+
+class AutomationConditionRequest(BaseModel):
+    entity_id: str = Field(min_length=3, max_length=255, pattern=r"^[a-z0-9_]+\.[a-z0-9_]+$")
+    operator: str = Field(default="equals", pattern="^(equals|not_equals|above|below)$")
+    value: str = Field(default="", max_length=255)
+
+class AutomationActionRequest(BaseModel):
+    entity_id: str = Field(min_length=3, max_length=255, pattern=r"^[a-z0-9_]+\.[a-z0-9_]+$")
+    service: str = Field(min_length=3, max_length=120, pattern=r"^[a-z0-9_]+\.[a-z0-9_]+$")
+    service_data: dict[str, Any] = Field(default_factory=dict)
+    delay_seconds: int = Field(default=0, ge=0, le=300)
+
 class AutonomousAutomationRequest(BaseModel):
     name: str = Field(min_length=2, max_length=100)
     objective: str = Field(min_length=3, max_length=1000)
@@ -124,6 +141,10 @@ class AutonomousAutomationRequest(BaseModel):
     trigger_value: str = Field(default="", max_length=255)
     trigger_for_seconds: int = Field(default=0, ge=0, le=86400)
     action_service_data: dict[str, Any] = Field(default_factory=dict)
+    triggers: list[AutomationTriggerRequest] = Field(default_factory=list, max_length=10)
+    conditions: list[AutomationConditionRequest] = Field(default_factory=list, max_length=20)
+    condition_mode: str = Field(default="all", pattern="^(all|any)$")
+    actions: list[AutomationActionRequest] = Field(default_factory=list, max_length=20)
 
 class AutomationChatDraftRequest(BaseModel):
     name: str = Field(min_length=2, max_length=100)
