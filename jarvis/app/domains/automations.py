@@ -1178,6 +1178,125 @@ def _automation_rate_available(item: dict[str, Any], now: float) -> tuple[bool, 
         return False, "hourly action limit reached"
     return True, "rate limits clear"
 
+def _automation_trigger_active(trigger: dict[str, Any], current: Any) -> bool:
+    operator = str(trigger.get("operator") or "changes_to")
+    expected = str(trigger.get("value") or "")
+    current_text = "" if current is None else str(current)
+    if operator in {"equals", "changes_to"}:
+        return current_text.casefold() == expected.casefold()
+    if operator == "not_equals":
+        return current_text.casefold() != expected.casefold()
+    if operator in {"above", "below"}:
+        try:
+            current_number, expected_number = float(current_text), float(expected)
+        except (TypeError, ValueError):
+            return False
+        return current_number > expected_number if operator == "above" else current_number < expected_number
+    return False
+
+def _automation_clear_dismissal_if_reset(item: dict[str, Any], trigger: dict[str, Any], current: Any) -> bool:
+    context = item.get("dismissal_context")
+    if not isinstance(context, dict):
+        return False
+    if str(context.get("trigger_entity") or "") != str(trigger.get("entity_id") or ""):
+        return False
+    if str(context.get("trigger_operator") or "") != str(trigger.get("operator") or ""):
+        return False
+    if _automation_trigger_active(trigger, current):
+        return False
+    item.pop("dismissal_context", None)
+    item["status"] = "armed"
+    return True
+
+def _automation_dismissal_suppression(item: dict[str, Any], trigger: dict[str, Any], current: Any) -> tuple[bool, str]:
+    context = item.get("dismissal_context")
+    if not isinstance(context, dict) or str(context.get("trigger_kind") or "entity") != "entity":
+        return False, "no active dismissal context"
+    if str(context.get("trigger_entity") or "") != str(trigger.get("entity_id") or ""):
+        return False, "dismissal belongs to another trigger"
+    operator = str(trigger.get("operator") or "changes_to")
+    if str(context.get("trigger_operator") or "") != operator:
+        return False, "dismissal belongs to another trigger condition"
+    current_text = "" if current is None else str(current)
+    dismissed_text = str(context.get("observed_value") or "")
+    if operator in {"above", "below"}:
+        try:
+            current_number = float(current_text)
+            dismissed_number = float(dismissed_text)
+            threshold = float(trigger.get("value") or context.get("trigger_value") or 0)
+        except (TypeError, ValueError):
+            return False, "numeric dismissal context is unavailable"
+        reoffer_delta = max(0.5, abs(threshold) * 0.02)
+        improvement = current_number <= dismissed_number if operator == "above" else current_number >= dismissed_number
+        meaningful_worsening = current_number >= dismissed_number + reoffer_delta if operator == "above" else current_number <= dismissed_number - reoffer_delta
+        if improvement:
+            return True, f"condition is improving ({dismissed_text} to {current_text}) after Not now"
+        if not meaningful_worsening:
+            return True, f"condition has not worsened enough since Not now ({dismissed_text} to {current_text})"
+        return False, f"condition worsened meaningfully since Not now ({dismissed_text} to {current_text})"
+    if operator in {"equals", "changes_to", "not_equals"} and current_text.casefold() == dismissed_text.casefold():
+        return True, f"trigger remains at the state declined with Not now ({current_text})"
+    return False, "trigger context changed since Not now"
+
+def _automation_action_satisfaction(actions: list[dict[str, Any]]) -> tuple[bool, str]:
+    service_actions = [action for action in actions if str(action.get("kind") or "service") == "service"]
+    if not service_actions:
+        return False, "no device action to verify"
+    satisfied_details = []
+    for action in service_actions:
+        entity_id = str(action.get("entity_id") or "")
+        service = str(action.get("service") or "")
+        record = ha_ws.state_cache.get(entity_id) or {}
+        state = str(record.get("state") or "").casefold()
+        attributes = record.get("attributes") if isinstance(record.get("attributes"), dict) else {}
+        service_data = action.get("service_data") if isinstance(action.get("service_data"), dict) else {}
+        satisfied = None
+        if service.endswith(".turn_on"):
+            satisfied = state not in {"", "off", "unavailable", "unknown"} if entity_id.startswith("climate.") else state == "on"
+        elif service.endswith(".turn_off"):
+            satisfied = state == "off"
+        elif service.endswith(".open_cover"):
+            satisfied = state in {"open", "opening"}
+        elif service.endswith(".close_cover"):
+            satisfied = state in {"closed", "closing"}
+        elif service.endswith(".lock"):
+            satisfied = state in {"locked", "locking"}
+        elif service.endswith(".unlock"):
+            satisfied = state in {"unlocked", "unlocking"}
+        elif service == "climate.set_hvac_mode" and service_data.get("hvac_mode"):
+            satisfied = state == str(service_data["hvac_mode"]).casefold()
+        elif service == "climate.set_temperature" and service_data.get("temperature") is not None:
+            try:
+                satisfied = abs(float(attributes.get("temperature")) - float(service_data["temperature"])) < 0.1
+            except (TypeError, ValueError):
+                satisfied = False
+        if satisfied is not True:
+            return False, f"{entity_id}={state or 'unavailable'} does not already satisfy {service}"
+        satisfied_details.append(f"{entity_id}={state}")
+    return True, "proposed action already satisfied: " + ", ".join(satisfied_details)
+
+def _automation_record_suggestion_dismissal(data: dict[str, Any], suggestion: dict[str, Any], now: float) -> None:
+    automation = next((item for item in data.get("automations", []) if item.get("id") == suggestion.get("automation_id")), None)
+    if not automation:
+        return
+    primary_trigger = (_automation_triggers(automation) or [{}])[0]
+    trigger_entity = str(suggestion.get("trigger_entity") or primary_trigger.get("entity_id") or "")
+    observed_value = suggestion.get("observed_value")
+    if observed_value in {None, ""} and trigger_entity:
+        observed_value = (ha_ws.state_cache.get(trigger_entity) or {}).get("state")
+    automation["dismissal_context"] = {
+        "dismissed_at": now,
+        "trigger_kind": str(suggestion.get("trigger_kind") or primary_trigger.get("kind") or "entity"),
+        "trigger_entity": trigger_entity,
+        "trigger_operator": str(suggestion.get("trigger_operator") or primary_trigger.get("operator") or ""),
+        "trigger_value": str(suggestion.get("trigger_value") or primary_trigger.get("value") or ""),
+        "observed_value": str(observed_value if observed_value is not None else ""),
+        "action_entity": str(suggestion.get("action_entity") or ""),
+        "action_service": str(suggestion.get("action_service") or ""),
+    }
+    automation["status"] = "deferred"
+    automation["last_deferred_at"] = now
+
 def _automation_autonomous_allowed(item: dict[str, Any], settings: dict[str, Any], actions: list[dict[str, Any]] | None = None) -> tuple[bool, str]:
     effective_policy, policy_detail = _automation_effective_policy(item, settings)
     if effective_policy != "autonomous":
@@ -1220,6 +1339,7 @@ async def _automation_execute_action(data: dict[str, Any], item: dict[str, Any],
         raise RuntimeError("Automation has no complete Home Assistant action")
     now = time.time()
     item["last_matched_at"] = now
+    item.pop("dismissal_context", None)
     item["last_triggered_at"] = now
     item["action_history"] = [*item.get("action_history", []), now][-60:]
     item["status"] = "executing"
@@ -1302,6 +1422,14 @@ async def _automation_commit_match(automation_id: str, evidence: dict[str, Any])
             if not trigger or not _automation_condition_matches(trigger, evidence.get("old_state"), current):
                 return
         now = time.time()
+        if any(value.get("automation_id") == automation_id and value.get("status") in {"pending", "approval_required", "executing"} for value in data.get("suggestions", [])):
+            return
+        dismissed, dismissal_detail = _automation_dismissal_suppression(item, trigger, current)
+        if dismissed:
+            item["status"] = "deferred"
+            item["last_deferred_reason"] = dismissal_detail
+            _automation_save(data)
+            return
         rate_ok, rate_detail = _automation_rate_available(item, now)
         if not rate_ok:
             return
@@ -1326,6 +1454,19 @@ async def _automation_commit_match(automation_id: str, evidence: dict[str, Any])
             _automation_event(data, "suppressed", f"No automation branch matched: {item.get('name')}", branch_detail)
             _automation_save(data)
             return
+        action_satisfied, action_detail = _automation_action_satisfaction(selected_actions)
+        if action_satisfied:
+            signature = f"{trigger_entity}:{action_detail}"
+            item["status"] = "satisfied"
+            item["last_satisfied_at"] = now
+            item["last_satisfied_reason"] = action_detail
+            if item.get("last_satisfied_signature") != signature:
+                item["last_satisfied_signature"] = signature
+                _automation_event(data, "satisfied", f"Automation action already satisfied: {item.get('name')}", action_detail)
+            _automation_save(data)
+            return
+        if dismissal_detail.startswith(("condition worsened meaningfully", "trigger context changed")):
+            item.pop("dismissal_context", None)
         item["last_matched_at"] = now
         confidence = 1.0
         detail = str(item.get("proposal_template") or item.get("objective") or "Automation condition matched.")
@@ -1346,6 +1487,9 @@ async def _automation_commit_match(automation_id: str, evidence: dict[str, Any])
             "status": "executing" if autonomous else "approval_required" if policy in {"approval_required", "autonomous"} else "pending",
             "action_entity": str(first_action.get("entity_id") or ""), "action_service": str(first_action.get("service") or ""),
             "actions": selected_actions, "branch": branch_name,
+            "trigger_kind": trigger_kind, "trigger_entity": trigger_entity,
+            "trigger_operator": str(trigger.get("operator") or ""), "trigger_value": str(trigger.get("value") or ""),
+            "observed_value": str(current if current is not None else ""),
             "execution_policy": "autonomous" if autonomous else "approval_required" if policy in {"approval_required", "autonomous"} else "suggest",
             "delivery_voice": item.get("delivery_voice", True),
             "delivery_notification_center": item.get("delivery_notification_center", True),
@@ -1381,6 +1525,9 @@ async def _automation_evaluate_state_change(event: dict[str, Any]) -> None:
         pending_key = f"{item.get('id')}:{entity_id}"
         existing = AUTOMATION_PENDING_TASKS.get(pending_key)
         if not matches:
+            if _automation_clear_dismissal_if_reset(item, trigger, event.get("state")):
+                _automation_event(data, "rearmed", f"Automation re-armed: {item.get('name')}", "The declined trigger condition cleared.")
+                _automation_save(data)
             if existing and not existing.done():
                 existing.cancel()
             continue

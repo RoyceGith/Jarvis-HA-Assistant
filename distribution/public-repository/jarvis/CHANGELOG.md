@@ -1,5 +1,13 @@
 # Change log
 
+## 0.13.72
+
+- Made Not now persist the declined trigger value and direction for each rule.
+- Suppressed repeated numeric suggestions while conditions improve or have not
+  worsened meaningfully, and re-armed rules after their trigger clears.
+- Prevented duplicate pending suggestions and proposals for configured actions
+  already satisfied by current Home Assistant device state.
+
 ## 0.13.71
 
 - Added graphical local-time, weekday, sunrise/sunset-offset, interval, and

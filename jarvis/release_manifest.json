@@ -1,9 +1,9 @@
 {
-  "version": "0.13.71",
+  "version": "0.13.72",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/ZBRANO_Core main",
-  "summary": "Add graphical time and schedule triggers plus time-aware conditions to Automation Studio.",
+  "summary": "Make automation suggestions context-aware after Not now and suppress actions already satisfied in Home Assistant.",
   "history_backfill": [
     {
       "version": "0.13.0",
@@ -288,22 +288,28 @@
     {
       "version": "0.13.70",
       "summary": "Added a zero-action Automation Studio Test Flow trace against current Home Assistant state and safety policy."
+    },
+    {
+      "version": "0.13.71",
+      "summary": "Added graphical time and schedule triggers plus time-aware conditions to Automation Studio."
     }
   ],
   "release_entry": {
     "features": [
-      "Create graphical schedules for a local time and selected weekdays, sunrise or sunset with an offset, repeating intervals, or a one-time date and time.",
-      "Gate workflows with time windows, weekdays, sun state, and sustained entity-state conditions."
+      "Remember the trigger value and direction when an automation suggestion is dismissed with Not now.",
+      "Check current Home Assistant device state before suggesting an action that is already satisfied."
     ],
     "fixes": [
-      "Persist schedule firing markers so restarts and repeated worker scans do not execute the same schedule twice.",
-      "Keep the schedule worker alive after bounded malformed-data or persistence errors while preserving existing entity-event automations."
+      "Suppress repeated numeric suggestions while the condition is improving or has not worsened meaningfully since dismissal.",
+      "Re-arm a dismissed rule after its trigger clears, and prevent duplicate pending suggestions for the same automation."
     ],
     "validation": [
-      "Time, weekday, sun, interval, one-time, sustained-state, persisted-marker, Test Flow, browser smoke, compatibility, README alignment, and v0.13.71 release coverage"
+      "Numeric trend suppression, meaningful-worsening re-offer, threshold reset, action-state satisfaction, pending deduplication, dismissal locking, compatibility, README alignment, and v0.13.72 release coverage"
     ]
   },
   "features": [
+    "Treat Not now as context-aware feedback: suppress improving or unchanged episodes, re-arm after reset, and reconsider only after meaningful worsening.",
+    "Avoid proposing Home Assistant actions already reflected by the target device's current state.",
     "Schedule graphical automations by local time, selected weekdays, sunrise or sunset offsets, intervals, or a one-time date and time.",
     "Use time windows, weekday selection, sun position, and sustained entity state as graphical workflow conditions.",
     "Dry-run unsaved Automation Studio flows against live Home Assistant context with a graphical four-stage trace and no service execution.",

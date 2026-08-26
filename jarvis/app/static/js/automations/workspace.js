@@ -149,6 +149,7 @@
       row.innerHTML=`<div class="autonomy-draft-head"><div><strong>${esc(item.name)}</strong><div>${esc(item.objective)}</div></div><div class="autonomy-draft-actions">${primaryAction}<button type="button" data-auto-delete="${esc(item.id)}">Delete</button></div></div><div class="autonomy-tags">${tags.map(tag=>`<span>${esc(tag)}</span>`).join("")}</div>`;
       const flow=flowElement(item);
       if(flow)row.append(flow);else row.insertAdjacentHTML("beforeend",`<small><strong>When:</strong> ${esc(triggerSummary)}<br><strong>Then:</strong> ${esc(item.proposal_template||"Record the match")}<br><strong>Action:</strong> ${esc(actionSummary)}<br><strong>Presence:</strong> ${esc(item.presence_entity||"not required by this rule")}</small>`);
+      const reasoning=item.status==="deferred"?item.last_deferred_reason:item.status==="satisfied"?item.last_satisfied_reason:"";if(reasoning)row.insertAdjacentHTML("beforeend",`<small><strong>Why ${esc(item.status)}:</strong> ${esc(reasoning)}</small>`);
       root.appendChild(row);
     }
   }

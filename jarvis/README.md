@@ -1,4 +1,4 @@
-# ZBRANO v0.13.71
+# ZBRANO v0.13.72
 
 Automation Studio provides a graphical building-block workflow for Home Assistant
 automations. Use the toolbox to select or drag Trigger, Context, Decision, and
@@ -6,11 +6,11 @@ Action blocks onto the canvas, then edit only that block in the settings inspect
 Natural-language creation, templates, saved automation compatibility, and the full
 Advanced editor remain available.
 
-Version 0.13.71 adds visual schedule blocks for selected local times and weekdays,
-sunrise or sunset offsets, repeating intervals, and one-time events. Context blocks
-can now check time windows, weekdays, sun state, and sustained entity states.
-Schedules keep persistent firing markers to avoid duplicate runs after repeated
-scans or restarts. Test Flow continues to evaluate drafts without service calls.
+Version 0.13.72 remembers the observed trigger context when Not now is selected.
+Numeric suggestions remain deferred while conditions improve or have not worsened
+meaningfully, and re-arm when the condition clears. Before a new suggestion, the
+engine also checks whether its configured device action is already satisfied in
+Home Assistant and avoids duplicate pending suggestions.
 
 The visual editor supports linear and branching workflows without silently changing
 the behavior of existing stored rules.

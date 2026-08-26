@@ -27,6 +27,7 @@ from .domains.automations import (
     _automation_label_blocks_control,
     _automation_payload_http,
     _automation_refresh_area_context,
+    _automation_record_suggestion_dismissal,
     _automation_save,
     _automation_test_flow,
     _prepare_chat_automation,
@@ -673,7 +674,7 @@ ha_ws = HomeAssistantWebSocketClient(
 
 app = FastAPI(
     title="ZBRANO",
-    version="0.13.71",
+    version="0.13.72",
     docs_url="/api/docs",
     openapi_url="/api/openapi.json",
 )
@@ -2652,7 +2653,7 @@ async def health() -> dict[str, Any]:
     configured_speech_provider = SPEECH_PROVIDER if SPEECH_PROVIDER in {"openai", "elevenlabs"} else "openai"
     return {
         "status": "ok",
-        "version": "0.13.71",
+        "version": "0.13.72",
         "home_assistant_configured": bool(SUPERVISOR_TOKEN),
         "workshop_memory_configured": bool(WORKSHOP_MEMORY_URL),
         "workshop_memory_cost_guard": workshop_cost_guard_status(),
@@ -3418,6 +3419,7 @@ async def update_autonomous_automation(automation_id: str, request: AutonomousAu
     if not automation:
         raise HTTPException(status_code=404, detail="Automation draft not found")
     automation.update(_automation_payload_http(request))
+    automation.pop("dismissal_context", None)
     automation["updated_at"] = time.time()
     automation["status"] = "armed" if automation.get("enabled") else "draft"
     if automation.get("enabled"):
@@ -3488,20 +3490,24 @@ async def approve_automation_suggestion(suggestion_id: str) -> dict[str, Any]:
 
 @app.post("/api/automations/suggestions/{suggestion_id}/dismiss")
 async def dismiss_automation_suggestion(suggestion_id: str) -> dict[str, Any]:
-    data = automation_store()
-    suggestion = next((item for item in data["suggestions"] if item.get("id") == suggestion_id), None)
-    if not suggestion or suggestion.get("status") not in {"pending", "approval_required"}:
-        raise HTTPException(status_code=404, detail="Pending automation suggestion not found")
-    suggestion["status"] = "dismissed"
-    suggestion["resolved_at"] = time.time()
-    if suggestion.get("source") == "automation_brain":
-        discovery = next((item for item in data.get("discoveries", []) if item.get("id") == suggestion.get("discovery_id")), None)
-        if discovery:
-            discovery["negative_feedback"] = int(discovery.get("negative_feedback") or 0) + 1
-            discovery["last_feedback"] = "not_helpful"
-    _automation_event(data, "dismissed", f"Suggestion dismissed: {suggestion.get('title')}")
-    _automation_save(data)
-    return {"dismissed": True, "suggestion": suggestion}
+    async with AUTOMATION_ENGINE_LOCK:
+        data = automation_store()
+        suggestion = next((item for item in data["suggestions"] if item.get("id") == suggestion_id), None)
+        if not suggestion or suggestion.get("status") not in {"pending", "approval_required"}:
+            raise HTTPException(status_code=404, detail="Pending automation suggestion not found")
+        now = time.time()
+        suggestion["status"] = "dismissed"
+        suggestion["resolved_at"] = now
+        if suggestion.get("source") == "automation_brain":
+            discovery = next((item for item in data.get("discoveries", []) if item.get("id") == suggestion.get("discovery_id")), None)
+            if discovery:
+                discovery["negative_feedback"] = int(discovery.get("negative_feedback") or 0) + 1
+                discovery["last_feedback"] = "not_helpful"
+        else:
+            _automation_record_suggestion_dismissal(data, suggestion, now)
+        _automation_event(data, "dismissed", f"Suggestion dismissed: {suggestion.get('title')}", "Not now context saved; improving or unchanged conditions will not repeat the suggestion.")
+        _automation_save(data)
+        return {"dismissed": True, "suggestion": suggestion}
 
 
 @app.post("/api/automations/discoveries/{discovery_id}/feedback")
