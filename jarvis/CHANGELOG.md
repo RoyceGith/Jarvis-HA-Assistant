@@ -1,5 +1,10 @@
 # Change log
 
+## 0.13.58
+
+- Aligned the Docker-only ASGI and browser build fixtures with the release version
+  so the compatibility release can publish successfully.
+
 ## 0.13.57
 
 - Joined both public repository transition histories so Home Assistant Supervisor
