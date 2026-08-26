@@ -33,6 +33,8 @@ Source commits made after the split exist only in `ZBRANO_Core`; historical sour
 that was already public remains reachable and cannot be retroactively revoked.
 The v0.13.57 bridge commit joins both public transition histories while retaining
 only the five allowlisted distribution files in its current tree.
+The v0.13.58 release preserves that bridge and aligns the container-only release
+fixtures with the published runtime version.
 
 ## Private platform services
 

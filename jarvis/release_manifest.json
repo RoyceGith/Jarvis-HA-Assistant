@@ -1,9 +1,9 @@
 {
-  "version": "0.13.57",
+  "version": "0.13.58",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/ZBRANO_Core main",
-  "summary": "Bridge both public repository transition histories so Home Assistant Supervisor can fast-forward from either cached branch and discover updates without uninstalling.",
+  "summary": "Restore image publication by aligning the Docker-only ASGI and browser build fixtures with the compatibility release version.",
   "history_backfill": [
     {
       "version": "0.13.0",
@@ -232,21 +232,26 @@
     {
       "version": "0.13.56",
       "summary": "Reconnected the thin public installer branch to the last previously public source commit so cached Home Assistant Supervisor repositories can fast-forward and detect updates without uninstalling."
+    },
+    {
+      "version": "0.13.57",
+      "summary": "Bridged both public repository transition histories so Home Assistant Supervisor can fast-forward from either cached branch and discover updates without uninstalling."
     }
   ],
   "release_entry": {
     "features": [
-      "Join the legacy public source branch and the initial thin-distribution branch in one compatibility merge."
+      "Preserve the two-parent public compatibility bridge created in v0.13.57."
     ],
     "fixes": [
-      "Allow Supervisor to fast-forward whether it cached v0.13.53 or the first post-split public head.",
-      "Keep the bridge commit tree limited to five installer files while all post-split source remains private."
+      "Update the Docker-only ASGI integration assertions to the current runtime version.",
+      "Update browser smoke API fixtures to the current runtime version so the image build gate completes."
     ],
     "validation": [
-      "Both public parent SHAs, merge ancestry, thin HEAD tree, jarvis folder, add-on slug, GHCR path, release contract, focused regression suite, and v0.13.57 release alignment coverage"
+      "Release manifest, release contract, Docker-only ASGI integration, browser smoke fixture alignment, focused regression suite, and v0.13.58 release alignment coverage"
     ]
   },
   "features": [
+    "Keep Docker-only integration and browser release fixtures aligned with the canonical runtime version.",
     "Bridge both cached public transition histories while keeping the current public tree limited to installer metadata.",
     "Preserve fast-forward ancestry from the last previously public commit while keeping the public repository HEAD limited to installer metadata.",
     "Treat the original public jarvis add-on folder as a stable Home Assistant update-discovery contract.",
@@ -621,6 +626,7 @@
     "Preserve task-scoped Workshop Memory approval and per-draft Gmail approval isolation."
   ],
   "validation": [
+    "Docker-only ASGI and browser fixture version alignment, release contract, focused regression suite, and v0.13.58 release alignment coverage",
     "Both public transition heads, compatibility merge ancestry, five-file public tree, release contract, focused regression suite, and v0.13.57 release alignment coverage",
     "Public compatibility-base SHA, first-parent ancestry, thin HEAD tree, jarvis folder, add-on slug, GHCR path, release contract, regression suite, and v0.13.56 release alignment coverage",
     "Original-folder export allowlist, add-on slug, GHCR compatibility path, public metadata layout, release contract, regression suite, and v0.13.55 release alignment coverage",
