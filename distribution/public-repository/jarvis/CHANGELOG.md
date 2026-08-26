@@ -1,5 +1,14 @@
 # Change log
 
+## 0.13.74
+
+- Applied repeated Not now feedback to gradually postpone future suggestions for
+  the same automation until its condition becomes more significant.
+- Cleared learned restraint after approval or matching manual action and retained
+  a bounded 20-outcome evidence history.
+- Added visible feedback reasoning and a per-rule Reset learning control without
+  changing permissions, autonomy, or episode history.
+
 ## 0.13.73
 
 - Tracked numeric threshold conditions as bounded episodes with direction,

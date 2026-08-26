@@ -1,4 +1,4 @@
-# ZBRANO v0.13.73
+# ZBRANO v0.13.74
 
 Automation Studio provides a graphical building-block workflow for Home Assistant
 automations. Use the toolbox to select or drag Trigger, Context, Decision, and
@@ -6,11 +6,11 @@ Action blocks onto the canvas, then edit only that block in the settings inspect
 Natural-language creation, templates, saved automation compatibility, and the full
 Advanced editor remain available.
 
-Version 0.13.73 tracks each numeric trigger as an episode, including whether it is
-improving or worsening, its current and worst readings, sample count, and bounded
-history. Automation Studio offers optional per-rule worsening and reset margins;
-zero retains ZBRANO's automatic behavior. Dismissals, approvals, and manual device
-resolution are remembered for future decision learning.
+Version 0.13.74 uses remembered feedback to tune suggestion timing per automation.
+Repeated Not now responses progressively require a more significant condition;
+an approval or matching manual action clears that added restraint. Automation
+Studio shows the compact feedback summary and provides a Reset learning control.
+Learning never changes entity permissions or increases automation authority.
 
 The visual editor supports linear and branching workflows without silently changing
 the behavior of existing stored rules.

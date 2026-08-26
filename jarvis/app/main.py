@@ -674,7 +674,7 @@ ha_ws = HomeAssistantWebSocketClient(
 
 app = FastAPI(
     title="ZBRANO",
-    version="0.13.73",
+    version="0.13.74",
     docs_url="/api/docs",
     openapi_url="/api/openapi.json",
 )
@@ -2653,7 +2653,7 @@ async def health() -> dict[str, Any]:
     configured_speech_provider = SPEECH_PROVIDER if SPEECH_PROVIDER in {"openai", "elevenlabs"} else "openai"
     return {
         "status": "ok",
-        "version": "0.13.73",
+        "version": "0.13.74",
         "home_assistant_configured": bool(SUPERVISOR_TOKEN),
         "workshop_memory_configured": bool(WORKSHOP_MEMORY_URL),
         "workshop_memory_cost_guard": workshop_cost_guard_status(),
@@ -3441,6 +3441,22 @@ async def delete_autonomous_automation(automation_id: str):
     _automation_event(data, "draft", f"Draft deleted: {automation.get('name') or automation_id}")
     _automation_save(data)
     return {"removed": True}
+
+
+@app.delete("/api/automations/{automation_id}/feedback")
+async def reset_automation_feedback(automation_id: str) -> dict[str, Any]:
+    async with AUTOMATION_ENGINE_LOCK:
+        data = automation_store()
+        automation = next((item for item in data["automations"] if item.get("id") == automation_id), None)
+        if not automation:
+            raise HTTPException(status_code=404, detail="Automation definition not found")
+        automation.pop("feedback_memory", None)
+        automation.pop("dismissal_context", None)
+        automation["status"] = "armed" if automation.get("enabled") else "draft"
+        automation["updated_at"] = time.time()
+        _automation_event(data, "feedback", f"Automation learning reset: {automation.get('name')}", "Suggestion timing returned to this rule's configured defaults.")
+        _automation_save(data)
+        return {"reset": True, "automation": automation}
 
 
 @app.post("/api/automations/suggestions/{suggestion_id}/approve")

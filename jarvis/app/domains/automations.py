@@ -1299,6 +1299,27 @@ def _automation_dismissal_suppression(item: dict[str, Any], trigger: dict[str, A
         return True, f"trigger remains at the state declined with Not now ({current_text})"
     return False, "trigger context changed since Not now"
 
+def _automation_learned_suppression(item: dict[str, Any], trigger: dict[str, Any], current: Any) -> tuple[bool, str]:
+    feedback = item.get("feedback_memory")
+    consecutive = int(feedback.get("consecutive_dismissals") or 0) if isinstance(feedback, dict) else 0
+    operator = str(trigger.get("operator") or "")
+    if consecutive <= 0 or operator not in {"above", "below"} or isinstance(item.get("dismissal_context"), dict):
+        return False, "no learned suggestion restraint"
+    try:
+        current_number = float(current)
+        threshold = float(trigger.get("value") or 0)
+        configured_delta = max(0.0, float(item.get("reoffer_delta") or 0))
+    except (TypeError, ValueError):
+        return False, "learned numeric context is unavailable"
+    base_delta = configured_delta or max(0.5, abs(threshold) * 0.02)
+    learned_delta = base_delta * min(consecutive, 4)
+    boundary = threshold + learned_delta if operator == "above" else threshold - learned_delta
+    ready = current_number >= boundary if operator == "above" else current_number <= boundary
+    if ready:
+        return False, f"learned reconsideration boundary reached after {consecutive} Not now response(s)"
+    comparison = "at least" if operator == "above" else "at most"
+    return True, f"learned preference is waiting for {comparison} {boundary:g} after {consecutive} consecutive Not now response(s)"
+
 def _automation_action_satisfaction(actions: list[dict[str, Any]]) -> tuple[bool, str]:
     service_actions = [action for action in actions if str(action.get("kind") or "service") == "service"]
     if not service_actions:
@@ -1357,21 +1378,28 @@ def _automation_record_suggestion_dismissal(data: dict[str, Any], suggestion: di
     }
     automation["status"] = "deferred"
     automation["last_deferred_at"] = now
-    feedback = automation.setdefault("feedback_memory", {})
-    feedback["dismissals"] = int(feedback.get("dismissals") or 0) + 1
-    feedback["consecutive_dismissals"] = int(feedback.get("consecutive_dismissals") or 0) + 1
-    feedback["last_feedback"] = "not_now"
-    feedback["last_feedback_at"] = now
+    _automation_record_feedback(automation, "not_now", now, suggestion)
 
-def _automation_record_feedback(item: dict[str, Any], outcome: str, now: float) -> None:
+def _automation_record_feedback(item: dict[str, Any], outcome: str, now: float, context: dict[str, Any] | None = None) -> None:
     feedback = item.setdefault("feedback_memory", {})
-    key = {"approved": "approvals", "manual_resolution": "manual_resolutions"}.get(outcome)
+    key = {"not_now": "dismissals", "approved": "approvals", "manual_resolution": "manual_resolutions"}.get(outcome)
     if key:
         feedback[key] = int(feedback.get(key) or 0) + 1
+    if outcome == "not_now":
+        feedback["consecutive_dismissals"] = int(feedback.get("consecutive_dismissals") or 0) + 1
     if outcome in {"approved", "manual_resolution"}:
         feedback["consecutive_dismissals"] = 0
     feedback["last_feedback"] = outcome
     feedback["last_feedback_at"] = now
+    source = context if isinstance(context, dict) else {}
+    feedback["history"] = [{
+        "outcome": outcome,
+        "created_at": now,
+        "observed_value": str(source.get("observed_value") or ""),
+        "trigger_entity": str(source.get("trigger_entity") or ""),
+        "action_entity": str(source.get("action_entity") or ""),
+        "action_service": str(source.get("action_service") or ""),
+    }, *list(feedback.get("history") or [])][:20]
 
 def _automation_autonomous_allowed(item: dict[str, Any], settings: dict[str, Any], actions: list[dict[str, Any]] | None = None) -> tuple[bool, str]:
     effective_policy, policy_detail = _automation_effective_policy(item, settings)
@@ -1415,7 +1443,7 @@ async def _automation_execute_action(data: dict[str, Any], item: dict[str, Any],
         raise RuntimeError("Automation has no complete Home Assistant action")
     now = time.time()
     if source == "explicit_approval":
-        _automation_record_feedback(item, "approved", now)
+        _automation_record_feedback(item, "approved", now, suggestion)
     item["last_matched_at"] = now
     item.pop("dismissal_context", None)
     item["last_triggered_at"] = now
@@ -1533,7 +1561,7 @@ async def _automation_commit_match(automation_id: str, evidence: dict[str, Any])
             item["last_satisfied_at"] = now
             item["last_satisfied_reason"] = action_detail
             if isinstance(item.get("dismissal_context"), dict):
-                _automation_record_feedback(item, "manual_resolution", now)
+                _automation_record_feedback(item, "manual_resolution", now, item.get("dismissal_context"))
                 item.pop("dismissal_context", None)
             if item.get("last_satisfied_signature") != signature:
                 item["last_satisfied_signature"] = signature
@@ -1544,6 +1572,13 @@ async def _automation_commit_match(automation_id: str, evidence: dict[str, Any])
         if dismissed:
             item["status"] = "deferred"
             item["last_deferred_reason"] = dismissal_detail
+            _automation_save(data)
+            return
+        policy, policy_detail = _automation_effective_policy(item, data["settings"])
+        learned, learned_detail = _automation_learned_suppression(item, trigger, current)
+        if learned and policy in {"suggest", "approval_required"}:
+            item["status"] = "deferred"
+            item["last_deferred_reason"] = learned_detail
             _automation_save(data)
             return
         rate_ok, rate_detail = _automation_rate_available(item, now)
@@ -1557,7 +1592,6 @@ async def _automation_commit_match(automation_id: str, evidence: dict[str, Any])
         detail = str(item.get("proposal_template") or item.get("objective") or "Automation condition matched.")
         trigger_detail = "fired" if trigger_kind != "entity" else f"changed from {evidence.get('old_state')} to {current}"
         evidence_text = f"{trigger_entity} {trigger_detail}; {conditions_detail}; {branch_detail}; {presence_detail}; {rate_detail}"
-        policy, policy_detail = _automation_effective_policy(item, data["settings"])
         if policy == "observe":
             item["status"] = "observed"
             _automation_event(data, "observation", f"Condition observed: {item.get('name')}", f"{evidence_text}; {policy_detail}")
