@@ -1,9 +1,9 @@
 {
-  "version": "0.13.77",
+  "version": "0.13.78",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/ZBRANO_Core main",
-  "summary": "Verify live entity permissions and Home Assistant safety labels before automation approval or autonomous execution, with clear Studio remediation.",
+  "summary": "Add a bounded per-automation decision journal that explains recent observations, suppressions, deferrals, blocks, suggestions, and action outcomes.",
   "history_backfill": [
     {
       "version": "0.13.0",
@@ -312,22 +312,28 @@
     {
       "version": "0.13.76",
       "summary": "Paused approval and autonomous execution after repeated action failures with an auditable, explicitly resettable per-automation circuit breaker."
+    },
+    {
+      "version": "0.13.77",
+      "summary": "Verified live entity permissions and Home Assistant safety labels before automation approval or autonomous execution, with clear Studio remediation."
     }
   ],
   "release_entry": {
     "features": [
-      "Show live per-automation readiness and exact entity permission or safety-label issues in Automation Studio.",
-      "Automatically resume eligibility when required read and control permissions are restored."
+      "Keep the latest 30 decision records inside each automation with outcome, reason, evidence, authority, branch, and timestamp.",
+      "Show the five latest evaluations in an expandable Decision journal inside Automation Studio."
     ],
     "fixes": [
-      "Block approval-required and autonomous paths when trigger, condition, wait, presence, or action access has drifted.",
-      "Re-check permissions at approval time so a stale suggestion cannot bypass current Home Assistant safety labels."
+      "Record previously invisible Not now, learned-feedback, and rate-limit deferrals alongside suppressions and action results.",
+      "Keep decision history bounded so long-running event monitoring cannot grow stored automation data without limit."
     ],
     "validation": [
-      "Live read and control access, label blocking, approval-time enforcement, execution-policy isolation, Studio readiness rendering, compatibility, README alignment, and v0.13.77 release coverage"
+      "Bounded decision history, outcome coverage, action success and failure recording, Studio journal rendering, compatibility, README alignment, and v0.13.78 release coverage"
     ]
   },
   "features": [
+    "Explain each automation's recent decisions with a bounded per-rule evidence and outcome journal.",
+    "Expose suppressions, deferrals, permission blocks, suggestions, observations, and executions together in Automation Studio.",
     "Verify live entity access and Home Assistant safety labels before approval or autonomous automation execution.",
     "Expose exact readiness issues in Automation Studio and recover automatically after permissions are restored.",
     "Pause approval and autonomous automation execution behind an auditable per-rule failure circuit breaker.",

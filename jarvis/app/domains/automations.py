@@ -391,6 +391,22 @@ def _automation_event(data, event_type, title, detail=""):
         "created_at": time.time(),
     })
 
+def _automation_record_decision(
+    item: dict[str, Any], outcome: str, detail: str, *, evidence: str = "", policy: str = "", branch: str = "",
+) -> dict[str, Any]:
+    import secrets
+
+    record = {
+        "id": secrets.token_hex(8), "outcome": str(outcome)[:40],
+        "detail": str(detail)[:500], "evidence": str(evidence)[:500],
+        "policy": str(policy)[:40], "branch": str(branch)[:80],
+        "created_at": time.time(),
+    }
+    history = item.get("decision_history") if isinstance(item.get("decision_history"), list) else []
+    item["decision_history"] = [record, *history][:30]
+    item["last_decision"] = record
+    return record
+
 def _automation_normalize_trigger(item: dict[str, Any]) -> dict[str, Any]:
     return {
         "kind": str(item.get("kind") or "entity"),
@@ -1595,13 +1611,18 @@ async def _automation_execute_action(data: dict[str, Any], item: dict[str, Any],
             service_data["entity_id"] = entity_id
             await ha_ws.call_service(domain, action, service_data)
             completed.append({"kind": "service", "service": service, "entity_id": entity_id})
-    except Exception:
+    except Exception as exc:
         item["status"] = "failed"
         _automation_record_feedback(item, "action_failure", time.time(), suggestion)
         circuit_open, circuit_detail, _ = _automation_failure_circuit(item, time.time())
         if circuit_open:
             item["status"] = "paused_failure"
             item["last_deferred_reason"] = circuit_detail
+        _automation_record_decision(
+            item, item["status"], f"Action sequence failed after {len(completed)}/{len(actions)} steps: {exc}",
+            evidence=str((suggestion or {}).get("evidence") or ""), policy=str((suggestion or {}).get("execution_policy") or source),
+            branch=str((suggestion or {}).get("branch") or ""),
+        )
         _automation_event(data, "action_failed", f"Action sequence failed: {item.get('name')}", f"completed={len(completed)}/{len(actions)}")
         _automation_save(data)
         raise
@@ -1612,6 +1633,11 @@ async def _automation_execute_action(data: dict[str, Any], item: dict[str, Any],
         suggestion["resolved_at"] = time.time()
     if source == "selective_autonomy":
         _automation_record_feedback(item, "autonomous_success", time.time(), suggestion)
+    _automation_record_decision(
+        item, "executed", f"Completed {len(completed)} action step{'s' if len(completed) != 1 else ''}",
+        evidence=str((suggestion or {}).get("evidence") or ""), policy=str((suggestion or {}).get("execution_policy") or source),
+        branch=str((suggestion or {}).get("branch") or ""),
+    )
     _automation_event(data, "action", f"Automation action sequence executed: {item.get('name')}", f"steps={len(completed)}; source={source}")
     _automation_save(data)
     if item.get("notify_on_action", True):
@@ -1653,6 +1679,7 @@ async def _automation_commit_match(automation_id: str, evidence: dict[str, Any])
         if not presence_ok:
             item["last_suppressed_at"] = now
             item["status"] = "suppressed"
+            _automation_record_decision(item, "suppressed_presence", presence_detail, evidence=trigger_entity)
             _automation_event(data, "suppressed", f"Automation suppressed: {item.get('name')}", presence_detail)
             _automation_save(data)
             return
@@ -1660,6 +1687,7 @@ async def _automation_commit_match(automation_id: str, evidence: dict[str, Any])
         if not conditions_ok:
             item["last_suppressed_at"] = now
             item["status"] = "suppressed"
+            _automation_record_decision(item, "suppressed_context", conditions_detail, evidence=trigger_entity)
             _automation_event(data, "suppressed", f"Automation conditions not met: {item.get('name')}", conditions_detail)
             _automation_save(data)
             return
@@ -1667,6 +1695,7 @@ async def _automation_commit_match(automation_id: str, evidence: dict[str, Any])
         if not branch_ok:
             item["last_suppressed_at"] = now
             item["status"] = "suppressed"
+            _automation_record_decision(item, "suppressed_branch", branch_detail, evidence=trigger_entity)
             _automation_event(data, "suppressed", f"No automation branch matched: {item.get('name')}", branch_detail)
             _automation_save(data)
             return
@@ -1676,6 +1705,7 @@ async def _automation_commit_match(automation_id: str, evidence: dict[str, Any])
             item["status"] = "satisfied"
             item["last_satisfied_at"] = now
             item["last_satisfied_reason"] = action_detail
+            _automation_record_decision(item, "already_satisfied", action_detail, evidence=trigger_entity, branch=branch_name)
             if isinstance(item.get("dismissal_context"), dict):
                 _automation_record_feedback(item, "manual_resolution", now, item.get("dismissal_context"))
                 item.pop("dismissal_context", None)
@@ -1688,6 +1718,7 @@ async def _automation_commit_match(automation_id: str, evidence: dict[str, Any])
         if dismissed:
             item["status"] = "deferred"
             item["last_deferred_reason"] = dismissal_detail
+            _automation_record_decision(item, "deferred_not_now", dismissal_detail, evidence=trigger_entity, branch=branch_name)
             _automation_save(data)
             return
         policy, policy_detail = _automation_effective_policy(item, data["settings"])
@@ -1695,6 +1726,7 @@ async def _automation_commit_match(automation_id: str, evidence: dict[str, Any])
         if not readiness["ready"] and policy in {"approval_required", "autonomous"}:
             item["status"] = "blocked_permission"
             item["last_deferred_reason"] = readiness["summary"]
+            _automation_record_decision(item, "blocked_permission", readiness["summary"], evidence=trigger_entity, policy=policy, branch=branch_name)
             signature = "|".join(
                 f"{value['kind']}:{value['entity_id']}" for value in readiness["issues"]
             )
@@ -1708,6 +1740,7 @@ async def _automation_commit_match(automation_id: str, evidence: dict[str, Any])
         if circuit_open and policy in {"approval_required", "autonomous"}:
             item["status"] = "paused_failure"
             item["last_deferred_reason"] = circuit_detail
+            _automation_record_decision(item, "paused_failure", circuit_detail, evidence=trigger_entity, policy=policy, branch=branch_name)
             signature = f"{int((item.get('feedback_memory') or {}).get('failure_acknowledged_at') or 0)}:{circuit_detail}"
             if item.get("last_circuit_signature") != signature:
                 item["last_circuit_signature"] = signature
@@ -1718,10 +1751,14 @@ async def _automation_commit_match(automation_id: str, evidence: dict[str, Any])
         if learned and policy in {"suggest", "approval_required"}:
             item["status"] = "deferred"
             item["last_deferred_reason"] = learned_detail
+            _automation_record_decision(item, "deferred_learning", learned_detail, evidence=trigger_entity, policy=policy, branch=branch_name)
             _automation_save(data)
             return
         rate_ok, rate_detail = _automation_rate_available(item, now)
         if not rate_ok:
+            item["status"] = "rate_limited"
+            item["last_deferred_reason"] = rate_detail
+            _automation_record_decision(item, "rate_limited", rate_detail, evidence=trigger_entity, policy=policy, branch=branch_name)
             _automation_save(data)
             return
         if dismissal_detail.startswith(("condition worsened meaningfully", "trigger context changed")):
@@ -1733,6 +1770,7 @@ async def _automation_commit_match(automation_id: str, evidence: dict[str, Any])
         evidence_text = f"{trigger_entity} {trigger_detail}; {conditions_detail}; {branch_detail}; {presence_detail}; {rate_detail}"
         if policy == "observe":
             item["status"] = "observed"
+            _automation_record_decision(item, "observed", policy_detail, evidence=evidence_text, policy=policy, branch=branch_name)
             _automation_event(data, "observation", f"Condition observed: {item.get('name')}", f"{evidence_text}; {policy_detail}")
             _automation_save(data)
             return
@@ -1757,6 +1795,7 @@ async def _automation_commit_match(automation_id: str, evidence: dict[str, Any])
         }
         data["suggestions"].insert(0, suggestion)
         item["status"] = suggestion["status"]
+        _automation_record_decision(item, suggestion["status"], authority_detail, evidence=evidence_text, policy=policy, branch=branch_name)
         _automation_event(data, "decision", f"Automation matched: {item.get('name')}", f"{evidence_text}; {authority_detail}")
         _automation_save(data)
         if autonomous:

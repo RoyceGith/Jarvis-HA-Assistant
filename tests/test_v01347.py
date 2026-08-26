@@ -13,10 +13,10 @@ MANIFEST = json.loads((ROOT / "jarvis/release_manifest.json").read_text(encoding
 
 class WorkshopCostSafetyReleaseTests(unittest.TestCase):
     def test_release_markers_are_aligned(self):
-        self.assertIn('version: "0.13.77"', CONFIG)
-        self.assertIn('version="0.13.77"', MAIN)
-        self.assertIn("HUD 0.13.77", HTML)
-        self.assertEqual(MANIFEST["version"], "0.13.77")
+        self.assertIn('version: "0.13.78"', CONFIG)
+        self.assertIn('version="0.13.78"', MAIN)
+        self.assertIn("HUD 0.13.78", HTML)
+        self.assertEqual(MANIFEST["version"], "0.13.78")
 
     def test_runtime_enforces_workshop_cost_controls(self):
         for marker in (
@@ -35,7 +35,7 @@ class WorkshopCostSafetyReleaseTests(unittest.TestCase):
         self.assertIn("cost_budget=workshop_budget", MAIN)
 
     def test_release_history_includes_previous_release(self):
-        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.76")
+        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.77")
 
 
 if __name__ == "__main__":

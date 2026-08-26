@@ -1,15 +1,15 @@
-## ZBRANO v0.13.77
+## ZBRANO v0.13.78
 
 ZBRANO combines Home Assistant chat, voice, entity control, memory, notifications,
 calendar tools, plugins, and evidence-based automations. Automation Studio now uses
 a visual building-block toolbox, interactive node canvas, and contextual inspector;
 the established automation engine and stored definitions remain compatible.
 
-Version 0.13.77 verifies every automation's live entity permissions and Home
-Assistant safety labels before approval or autonomous execution. Automation Studio
-shows exact readiness issues, blocks stale approvals safely, and becomes eligible
-again automatically when access is restored. Observe and suggestion-only behavior
-remains available without gaining control authority.
+Version 0.13.78 adds a bounded decision journal to every automation. Automation
+Studio now explains recent observations, context suppressions, Not now and learned
+deferrals, rate limits, permission blocks, suggestions, and action results together
+with their evidence and authority. Only the latest 30 evaluations are retained per
+rule so continuous monitoring remains storage-safe.
 
 The application source and post-split build history are maintained in the private
 core repository. Public Home Assistant repositories contain only the five-file
