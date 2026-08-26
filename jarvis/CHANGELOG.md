@@ -1,5 +1,13 @@
 # Change log
 
+## 0.13.79
+
+- Moved the graphical Automation Studio above Create with ZBRANO.
+- Added a GitHub-inspired Settings sidebar with expandable groups, icons, keyboard
+  navigation, and colored section accents.
+- Replaced visible primary-navigation button chrome with hover targets and an active
+  underline, retaining a compact responsive mobile layout.
+
 ## 0.13.78
 
 - Added a bounded 30-record decision journal to each automation with outcome,
