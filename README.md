@@ -19,7 +19,7 @@ storage, and `ghcr.io/roycegith/jarvis-ha-assistant` update image.
 
 ## Current experience
 
-Version 0.13.73 includes a full-window Automation Studio with a building-block
+Version 0.13.74 includes a full-window Automation Studio with a building-block
 toolbox, interactive flow canvas, and focused settings inspector. Existing
 automation definitions and Home Assistant data remain compatible across updates.
 Visual workflows can use OR triggers, grouped conditions, ordered actions, and
@@ -37,3 +37,7 @@ configured reset boundary, while active episodes show their direction, current
 and worst readings, and sample count. Optional per-rule worsening and reset margins
 allow tuning without changing existing automation defaults.
 Configured actions already satisfied in Home Assistant are not proposed again.
+Repeated Not now feedback now gradually postpones future suggestions for that
+specific automation. Approvals and matching manual actions clear the added
+restraint, and Automation Studio explains or resets the learned feedback without
+changing permissions, authority, or episode history.
