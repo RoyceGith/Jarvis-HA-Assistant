@@ -41,6 +41,7 @@ RUN python3 ./validate_release_manifest.py \
     && python3 ./validate_new_chat_wiring.py ./app/static/index.html \
     && python3 -m compileall -q ./app \
     && python3 -m unittest discover -s ./tests -p "test_*.py" \
+    && node ./tests/browser_smoke.cjs \
     && rm -r ./tests \
     && rm ./validate_release_manifest.py ./validate_inline_js.py ./validate_new_chat_wiring.py ./config.yaml
 

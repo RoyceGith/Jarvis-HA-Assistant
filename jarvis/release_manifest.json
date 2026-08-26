@@ -1,9 +1,9 @@
 {
-  "version": "0.13.45",
+  "version": "0.13.46",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/Jarvis-HA-Assistant main",
-  "summary": "Restore the build-gated integration suite by isolating its synthetic Automation entity from the production entity-permission policy.",
+  "summary": "Add build-gated real-browser smoke coverage for navigation, New Chat, Entity Inventory scrolling, and Automation Library views.",
   "history_backfill": [
     {
       "version": "0.13.0",
@@ -184,20 +184,26 @@
     {
       "version": "0.13.44",
       "summary": "Expanded the Step 4 build-gated ASGI integration suite across Automation Brain, Calendar, and Notification Center API and persistence lifecycles."
+    },
+    {
+      "version": "0.13.45",
+      "summary": "Restored the build-gated integration suite by isolating its synthetic Automation entity from the production entity-permission policy."
     }
   ],
   "release_entry": {
     "features": [
-      "Retain real-ASGI Automation lifecycle coverage while supplying its synthetic entity permission deterministically inside the build test."
+      "Run deterministic browser smoke checks against the real modular frontend using the Chromium and pinned Playwright packages already included in the image.",
+      "Exercise New Chat, main navigation, Entity Inventory scrolling, and Automation Library view switching through real browser interactions."
     ],
     "fixes": [
-      "Isolate the synthetic Automation trigger entity from the production entity-permission policy so the aarch64 image test gate can complete without weakening runtime access controls."
+      "Keep browser checks isolated from live Home Assistant data and external services through a loopback-only static fixture and deterministic API interception."
     ],
     "validation": [
-      "Automation API permission-boundary isolation, source validators, backend compilation, regression suite, and v0.13.45 release alignment coverage"
+      "Headless Chromium navigation, New Chat reset, Entity Inventory horizontal and vertical scrolling, Automation Library tabs, source validators, regression suite, and v0.13.46 release alignment coverage"
     ]
   },
   "features": [
+    "Add build-gated real-browser smoke coverage for critical frontend navigation and interaction boundaries.",
     "Expand build-gated ASGI integration coverage across Automation Brain, Calendar, and Notification Center.",
     "Add build-gated ASGI integration tests for startup registration and critical API persistence boundaries.",
     "Complete canonical modularization with explicit runtime routing, Developer support, and wake calibration services.",
@@ -552,6 +558,7 @@
     "Preserve task-scoped Workshop Memory approval and per-draft Gmail approval isolation."
   ],
   "validation": [
+    "Headless Chromium navigation, New Chat reset, Entity Inventory horizontal and vertical scrolling, Automation Library tabs, source validators, regression suite, and v0.13.46 release alignment coverage",
     "Automation API permission-boundary isolation, source validators, backend compilation, regression suite, and v0.13.45 release alignment coverage",
     "Automation, Calendar, and Notification API lifecycle coverage; isolated JSON persistence; Home Assistant fakes; build-gated integration execution; regression suite; and v0.13.44 release alignment coverage",
     "ASGI health and frontend smoke coverage, Settings and Chat API persistence round trips, request validation, build-gated integration execution, regression suite, and v0.13.43 release alignment coverage",

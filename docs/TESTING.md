@@ -32,6 +32,14 @@ before publishing an image. Initial coverage verifies:
 - Calendar appointment creation, listing, cancellation, and persisted round trips;
 - Notification settings and watch lifecycle round trips with isolated Home Assistant fakes.
 
+The same image-build gate then launches the image's pinned Playwright library against
+its native Chromium package. A local fixture serves the real frontend source and
+deterministic API responses while the browser verifies:
+
+- primary navigation and New Chat reset behavior;
+- Entity Inventory rendering plus horizontal and vertical scrolling;
+- Automation workspace navigation plus Create New and Library switching.
+
 Inside an environment with `jarvis/requirements.txt` installed, run:
 
 ```text

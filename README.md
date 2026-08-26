@@ -1,4 +1,4 @@
-ZBRANO v0.13.45 restores the image-build test gate by isolating its synthetic Automation entity from the production entity-permission policy.
+ZBRANO v0.13.46 adds build-gated real-browser smoke coverage for navigation, New Chat, Entity Inventory scrolling, and Automation Library views.
 
 ZBRANO v0.13.18 prevents Release Memory synchronization from remaining indefinitely in a non-terminal state by adding worker timeout recovery, note progress, task-health reporting, and automatic interface polling.
 
