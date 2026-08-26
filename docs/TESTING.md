@@ -40,6 +40,11 @@ deterministic API responses while the browser verifies:
 - Entity Inventory rendering plus horizontal and vertical scrolling;
 - Automation workspace navigation plus Create New and Library switching.
 
+The real-ASGI gate also restores a minimal legacy `jarvis-backup-v1` created before
+Automation Brain, Notification Center, Calendar, and Fast Memory backup sections
+existed. It verifies Settings, Chat, and entity-policy preservation, and confirms a
+malformed optional section is rejected before any persistent file is overwritten.
+
 Inside an environment with `jarvis/requirements.txt` installed, run:
 
 ```text
@@ -47,5 +52,5 @@ cd jarvis
 python -m unittest discover -s tests -p "test_*.py"
 ```
 
-Future browser, migration, and release tests should build on this boundary while
+Future browser and release tests should build on this boundary while
 keeping all external integrations deterministic and opt-in.

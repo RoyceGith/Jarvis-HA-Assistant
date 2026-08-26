@@ -14,10 +14,10 @@ MANIFEST = json.loads((ROOT / "jarvis/release_manifest.json").read_text(encoding
 
 class EntitiesScrollingTests(unittest.TestCase):
     def test_release_markers_are_aligned(self):
-        self.assertIn('version: "0.13.47"', CONFIG)
-        self.assertIn('version="0.13.47"', MAIN)
-        self.assertIn("HUD 0.13.47", INDEX)
-        self.assertEqual(MANIFEST["version"], "0.13.47")
+        self.assertIn('version: "0.13.48"', CONFIG)
+        self.assertIn('version="0.13.48"', MAIN)
+        self.assertIn("HUD 0.13.48", INDEX)
+        self.assertEqual(MANIFEST["version"], "0.13.48")
 
     def test_entity_views_are_independent_siblings(self):
         inventory_start = INDEX.index('<div data-entity-view-panel="inventory">')

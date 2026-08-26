@@ -11,6 +11,7 @@ import httpx
 
 from app import main
 from app.domains import automations, calendar, conversations, notifications, settings
+from app.services import entity_policy
 
 
 class FakeHomeAssistant:
@@ -33,12 +34,24 @@ class ApplicationIntegrationTests(unittest.IsolatedAsyncioTestCase):
         self.original_automation_path = automations.AUTOMATION_STORAGE_PATH
         self.original_calendar_path = calendar.CALENDAR_STORAGE_PATH
         self.original_notification_path = notifications.NOTIFICATION_STORAGE_PATH
+        self.original_main_chat_path = main.CHAT_STORAGE_PATH
+        self.original_main_entity_policy_path = main.ENTITY_POLICY_PATH
+        self.original_entity_data_dir = entity_policy.DATA_DIR
+        self.original_entity_policy_path = entity_policy.ENTITY_POLICY_PATH
+        self.original_v063_policy_path = entity_policy.V063_ENTITY_POLICY_PATH
+        self.original_v063_marker = entity_policy.V063_MIGRATION_MARKER
         self.original_clear_chat_files = conversations.clear_chat_files
         settings.SETTINGS_STORAGE_PATH = temporary_root / "jarvis_settings.json"
         conversations.CHAT_STORAGE_PATH = temporary_root / "chat_sessions.json"
         automations.AUTOMATION_STORAGE_PATH = temporary_root / "autonomous_automations.json"
         calendar.CALENDAR_STORAGE_PATH = temporary_root / "zbrano_calendar.json"
         notifications.NOTIFICATION_STORAGE_PATH = temporary_root / "notification_center.json"
+        main.CHAT_STORAGE_PATH = conversations.CHAT_STORAGE_PATH
+        main.ENTITY_POLICY_PATH = temporary_root / "entity_policy.json"
+        entity_policy.DATA_DIR = temporary_root
+        entity_policy.ENTITY_POLICY_PATH = main.ENTITY_POLICY_PATH
+        entity_policy.V063_ENTITY_POLICY_PATH = temporary_root / "legacy-share-policy.json"
+        entity_policy.V063_MIGRATION_MARKER = temporary_root / ".entity_policy_v063_migrated"
         conversations.clear_chat_files = lambda session_id=None: None
         conversations.CHAT_SESSIONS.clear()
         conversations.CHAT_SESSION_ORDER.clear()
@@ -56,6 +69,12 @@ class ApplicationIntegrationTests(unittest.IsolatedAsyncioTestCase):
         automations.AUTOMATION_STORAGE_PATH = self.original_automation_path
         calendar.CALENDAR_STORAGE_PATH = self.original_calendar_path
         notifications.NOTIFICATION_STORAGE_PATH = self.original_notification_path
+        main.CHAT_STORAGE_PATH = self.original_main_chat_path
+        main.ENTITY_POLICY_PATH = self.original_main_entity_policy_path
+        entity_policy.DATA_DIR = self.original_entity_data_dir
+        entity_policy.ENTITY_POLICY_PATH = self.original_entity_policy_path
+        entity_policy.V063_ENTITY_POLICY_PATH = self.original_v063_policy_path
+        entity_policy.V063_MIGRATION_MARKER = self.original_v063_marker
         conversations.clear_chat_files = self.original_clear_chat_files
         conversations.CHAT_SESSIONS.clear()
         conversations.CHAT_SESSION_ORDER.clear()
@@ -74,13 +93,13 @@ class ApplicationIntegrationTests(unittest.IsolatedAsyncioTestCase):
             response = await self.client.get("/api/health")
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json()["status"], "ok")
-        self.assertEqual(response.json()["version"], "0.13.47")
+        self.assertEqual(response.json()["version"], "0.13.48")
         self.assertEqual(response.json()["ha_read_entity_count"], 1)
         self.assertEqual(response.json()["ha_control_entity_count"], 1)
 
         frontend = await self.client.get("/")
         self.assertEqual(frontend.status_code, 200)
-        self.assertIn("HUD 0.13.47", frontend.text)
+        self.assertIn("HUD 0.13.48", frontend.text)
         self.assertEqual(
             frontend.headers.get("cache-control"),
             "no-store, no-cache, must-revalidate, max-age=0",
@@ -108,6 +127,77 @@ class ApplicationIntegrationTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(stored["general_instructions"], "Keep integration checks concise.")
         reread = await self.client.get("/api/settings")
         self.assertEqual(reread.json()["preferences"]["theme"], "gray")
+
+    async def test_legacy_minimal_backup_restores_without_newer_optional_sections(self) -> None:
+        legacy_backup = {
+            "format": "jarvis-backup-v1",
+            "created_at": 1_700_000_000,
+            "settings": {
+                "version": 1,
+                "general_instructions": "Preserve this legacy instruction.",
+                "preferences": {"theme": "gray"},
+            },
+            "chats": {
+                "version": 1,
+                "sessions": {
+                    "legacy-chat": {
+                        "title": "Legacy chat",
+                        "updated_at": 1_700_000_000,
+                        "messages": [
+                            {"role": "user", "content": "Remember the old setup."},
+                            {"role": "assistant", "content": "Preserved."},
+                        ],
+                    }
+                },
+            },
+            "entity_policy": {
+                "version": 1,
+                "entities": {
+                    "sensor.legacy_temperature": {
+                        "entity_id": "sensor.legacy_temperature",
+                        "friendly_name": "Legacy temperature",
+                        "enabled": True,
+                        "access": "read_only",
+                        "aliases": ["old temperature"],
+                    }
+                },
+            },
+        }
+
+        response = await self.client.post(
+            "/api/settings/restore",
+            json={"backup": legacy_backup},
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(response.json()["restored"])
+        self.assertEqual(response.json()["chat_count"], 1)
+        self.assertEqual(settings.load_general_instructions(), "Preserve this legacy instruction.")
+        self.assertEqual(conversations.CHAT_SESSION_META["legacy-chat"]["title"], "Legacy chat")
+        self.assertEqual(
+            entity_policy.load_entity_policy()["sensor.legacy_temperature"]["aliases"],
+            ["old temperature"],
+        )
+
+    async def test_malformed_migration_backup_is_rejected_before_any_write(self) -> None:
+        settings.save_settings_payload({"version": 3, "general_instructions": "Keep me."})
+        original_settings = settings.SETTINGS_STORAGE_PATH.read_text(encoding="utf-8")
+        malformed_backup = {
+            "format": "jarvis-backup-v1",
+            "settings": {"version": 1, "general_instructions": "Do not write me."},
+            "chats": {"version": 1, "sessions": {}},
+            "entity_policy": {"version": 1, "entities": {}},
+            "automations": {"settings": {}, "automations": "not-a-list"},
+        }
+
+        response = await self.client.post(
+            "/api/settings/restore",
+            json={"backup": malformed_backup},
+        )
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(
+            settings.SETTINGS_STORAGE_PATH.read_text(encoding="utf-8"),
+            original_settings,
+        )
 
     async def test_chat_api_create_rename_list_and_delete_round_trip(self) -> None:
         created = await self.client.post("/api/chats", json={"session_id": "integration-chat"})

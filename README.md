@@ -1,4 +1,4 @@
-ZBRANO v0.13.47 prevents runaway Workshop Memory API usage with scoped tools, serial execution, hard task budgets, duplicate suppression, and bounded tool results.
+ZBRANO v0.13.48 adds build-gated migration coverage for legacy backups, preserved chats and entity policy, and rejection-before-write safety for malformed restores.
 
 ZBRANO v0.13.18 prevents Release Memory synchronization from remaining indefinitely in a non-terminal state by adding worker timeout recovery, note progress, task-health reporting, and automatic interface polling.
 
