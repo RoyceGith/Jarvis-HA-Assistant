@@ -1,9 +1,9 @@
 {
-  "version": "0.13.56",
+  "version": "0.13.57",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/ZBRANO_Core main",
-  "summary": "Reconnect the thin public installer branch to the last previously public source commit so cached Home Assistant Supervisor repositories can fast-forward and detect updates without uninstalling.",
+  "summary": "Bridge both public repository transition histories so Home Assistant Supervisor can fast-forward from either cached branch and discover updates without uninstalling.",
   "history_backfill": [
     {
       "version": "0.13.0",
@@ -228,21 +228,26 @@
     {
       "version": "0.13.55",
       "summary": "Restored the original public jarvis add-on directory so existing Home Assistant installations can recognize the distribution metadata without changing their slug or stored data."
+    },
+    {
+      "version": "0.13.56",
+      "summary": "Reconnected the thin public installer branch to the last previously public source commit so cached Home Assistant Supervisor repositories can fast-forward and detect updates without uninstalling."
     }
   ],
   "release_entry": {
     "features": [
-      "Anchor the thin public installer tree to v0.13.53, the last commit previously fetched by Home Assistant installations."
+      "Join the legacy public source branch and the initial thin-distribution branch in one compatibility merge."
     ],
     "fixes": [
-      "Replace the unrelated public root history that prevented Supervisor's cached Git checkout from fast-forwarding.",
-      "Keep all post-split source commits private while retaining already-public ancestry solely for update compatibility."
+      "Allow Supervisor to fast-forward whether it cached v0.13.53 or the first post-split public head.",
+      "Keep the bridge commit tree limited to five installer files while all post-split source remains private."
     ],
     "validation": [
-      "Public compatibility-base SHA, first-parent ancestry, thin HEAD tree, jarvis folder, add-on slug, GHCR path, release contract, regression suite, and v0.13.56 release alignment coverage"
+      "Both public parent SHAs, merge ancestry, thin HEAD tree, jarvis folder, add-on slug, GHCR path, release contract, focused regression suite, and v0.13.57 release alignment coverage"
     ]
   },
   "features": [
+    "Bridge both cached public transition histories while keeping the current public tree limited to installer metadata.",
     "Preserve fast-forward ancestry from the last previously public commit while keeping the public repository HEAD limited to installer metadata.",
     "Treat the original public jarvis add-on folder as a stable Home Assistant update-discovery contract.",
     "Split post-v0.13.53 source and build history into RoyceGith/ZBRANO_Core while exposing only a thin Home Assistant update tree publicly.",
@@ -616,6 +621,7 @@
     "Preserve task-scoped Workshop Memory approval and per-draft Gmail approval isolation."
   ],
   "validation": [
+    "Both public transition heads, compatibility merge ancestry, five-file public tree, release contract, focused regression suite, and v0.13.57 release alignment coverage",
     "Public compatibility-base SHA, first-parent ancestry, thin HEAD tree, jarvis folder, add-on slug, GHCR path, release contract, regression suite, and v0.13.56 release alignment coverage",
     "Original-folder export allowlist, add-on slug, GHCR compatibility path, public metadata layout, release contract, regression suite, and v0.13.55 release alignment coverage",
     "Private-core identity, public-distribution identity, clean-history packaging allowlist, GHCR compatibility path, release contract, regression suite, and v0.13.54 release alignment coverage",

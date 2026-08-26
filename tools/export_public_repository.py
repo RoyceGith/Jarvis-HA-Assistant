@@ -11,6 +11,7 @@ import sys
 ROOT = Path(__file__).resolve().parents[1]
 TEMPLATE = ROOT / "distribution" / "public-repository"
 PUBLIC_HISTORY_BASE = "7036f4f0d89929b1db9f7ab5a64aabee2244908b"
+PUBLIC_TRANSITION_HEAD = "ab43e37032bf59318005dadf5c33f18ef1c59aaf"
 ALLOWED_FILES = {
     "README.md",
     "repository.yaml",

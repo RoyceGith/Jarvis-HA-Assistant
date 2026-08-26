@@ -16,7 +16,8 @@ The private canonical source repository is
 `https://github.com/RoyceGith/ZBRANO_Core`. The public distribution repository is
 `https://github.com/RoyceGith/ZBRANO_HA_Assistant`; its current tree contains only
 Home Assistant installation metadata and documentation. It retains the last
-previously public source commit as ancestry so existing Supervisor clones can
+previously public source commit and the initial thin-distribution head as merge
+ancestry so Supervisor clones cached on either side of the transition can
 fast-forward across the split. The published container
 retains the compatibility image path `ghcr.io/roycegith/jarvis-ha-assistant`; moving
 source code must not strand installed Home Assistant apps on a different package
@@ -30,6 +31,8 @@ documentation, and non-secret presentation assets. It points Supervisor at the
 published GHCR image and contains no current application source or build workflow.
 Source commits made after the split exist only in `ZBRANO_Core`; historical source
 that was already public remains reachable and cannot be retroactively revoked.
+The v0.13.57 bridge commit joins both public transition histories while retaining
+only the five allowlisted distribution files in its current tree.
 
 ## Private platform services
 

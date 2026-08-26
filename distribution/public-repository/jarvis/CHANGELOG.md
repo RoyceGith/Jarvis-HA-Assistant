@@ -1,5 +1,11 @@
 # Change log
 
+## 0.13.57
+
+- Joined both public repository transition histories so Home Assistant Supervisor
+  can update whether it cached the legacy source branch or the first thin branch.
+- Kept the current public tree limited to the five installer files.
+
 ## 0.13.56
 
 - Connected the thin installer tree to the last previously public commit so cached

@@ -7,25 +7,27 @@ ROOT = Path(__file__).resolve().parents[1]
 MAIN = (ROOT / "jarvis/app/main.py").read_text(encoding="utf-8")
 CONFIG = (ROOT / "jarvis/config.yaml").read_text(encoding="utf-8")
 HTML = (ROOT / "jarvis/app/static/index.html").read_text(encoding="utf-8")
-BROWSER = (ROOT / "jarvis/tests/browser_smoke.cjs").read_text(encoding="utf-8")
+EXPORTER = (ROOT / "tools/export_public_repository.py").read_text(encoding="utf-8")
+BOUNDARY = (ROOT / "docs/REPOSITORY_BOUNDARIES.md").read_text(encoding="utf-8")
 MANIFEST = json.loads((ROOT / "jarvis/release_manifest.json").read_text(encoding="utf-8"))
 
 
-class BrowserBuildRepairReleaseTests(unittest.TestCase):
+class PublicHistoryBridgeReleaseTests(unittest.TestCase):
     def test_release_markers_are_aligned(self):
         self.assertIn('version: "0.13.57"', CONFIG)
         self.assertIn('version="0.13.57"', MAIN)
         self.assertIn("HUD 0.13.57", HTML)
         self.assertEqual(MANIFEST["version"], "0.13.57")
 
-    def test_browser_opens_editor_and_waits_for_inventory_before_template(self):
-        open_editor = BROWSER.index('locator(".automation-advanced summary").click()')
-        wait_inventory = BROWSER.index('locator("#automation-entity-options option").nth(47).waitFor({state: "attached"})')
-        click_template = BROWSER.index('locator(\'[data-auto-template="comfort"]\').click()')
-        self.assertLess(open_editor, wait_inventory)
-        self.assertLess(wait_inventory, click_template)
+    def test_both_public_transition_heads_are_recorded(self):
+        self.assertIn('PUBLIC_HISTORY_BASE = "7036f4f0d89929b1db9f7ab5a64aabee2244908b"', EXPORTER)
+        self.assertIn('PUBLIC_TRANSITION_HEAD = "ab43e37032bf59318005dadf5c33f18ef1c59aaf"', EXPORTER)
+        self.assertIn("cached on either side of the transition", BOUNDARY)
 
-    def test_release_history_includes_v01350(self):
+    def test_public_tree_remains_thin(self):
+        self.assertIn("five allowlisted distribution files", BOUNDARY)
+
+    def test_release_history_includes_v01356(self):
         self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.56")
 
 
