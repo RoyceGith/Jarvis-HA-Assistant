@@ -26,10 +26,10 @@ class GuidedOnboardingReleaseTests(unittest.TestCase):
         self.temporary.cleanup()
 
     def test_release_markers_are_aligned(self):
-        self.assertIn('version: "0.13.64"', CONFIG)
-        self.assertIn('version="0.13.64"', MAIN)
-        self.assertIn("HUD 0.13.64", HTML)
-        self.assertEqual(MANIFEST["version"], "0.13.64")
+        self.assertIn('version: "0.13.65"', CONFIG)
+        self.assertIn('version="0.13.65"', MAIN)
+        self.assertIn("HUD 0.13.65", HTML)
+        self.assertEqual(MANIFEST["version"], "0.13.65")
 
     def test_progress_and_optional_skip_are_persisted_non_destructively(self):
         settings.save_settings_payload({"version": 3, "preferences": {"theme": "gray"}})
@@ -59,7 +59,7 @@ class GuidedOnboardingReleaseTests(unittest.TestCase):
         self.assertNotIn("grinder", ONBOARDING_JS.lower())
 
     def test_release_history_includes_v01361(self):
-        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.63")
+        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.64")
 
 
 if __name__ == "__main__":

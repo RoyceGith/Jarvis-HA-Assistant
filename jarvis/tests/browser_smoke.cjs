@@ -7,7 +7,9 @@ const http = require("node:http");
 const path = require("node:path");
 
 function loadPlaywright() {
-  const npmRoot = childProcess.execFileSync("npm", ["root", "-g"], {encoding: "utf8"}).trim();
+  const npmRoot = process.platform === "win32"
+    ? childProcess.execFileSync("cmd.exe", ["/d", "/s", "/c", "npm root -g"], {encoding: "utf8"}).trim()
+    : childProcess.execFileSync("npm", ["root", "-g"], {encoding: "utf8"}).trim();
   const candidates = [
     path.join(npmRoot, "playwright"),
     path.join(npmRoot, "playwright-core"),
@@ -91,7 +93,7 @@ function apiFixture(url) {
   if (pathname === "/api/health") {
     return {
       status: "ok",
-      version: "0.13.64",
+      version: "0.13.65",
       speech_provider: "openai",
       speech_providers: {openai: {configured: true}, elevenlabs: {configured: false}},
     };
@@ -119,7 +121,7 @@ function apiFixture(url) {
   if (pathname === "/api/plugins") return {plugins: []};
   if (pathname === "/api/files/shared") return {files: [], count: 0};
   if (pathname === "/api/release-memory-sync") {
-    return {enabled: false, state: "disabled", version: "0.13.64", task_active: false};
+    return {enabled: false, state: "disabled", version: "0.13.65", task_active: false};
   }
   if (pathname === "/api/tab-activity") return {revisions: {}};
   if (pathname === "/api/grinder-monitor/status") return {enabled: false, connected: false};
@@ -163,7 +165,13 @@ async function main() {
   const staticRoot = path.resolve(__dirname, "..", "app", "static");
   const server = await startStaticServer(staticRoot);
   const address = server.address();
-  const executablePath = ["/usr/bin/chromium-browser", "/usr/bin/chromium"].find(fs.existsSync);
+  const executablePath = [
+    process.env.CHROMIUM_PATH,
+    "/usr/bin/chromium-browser",
+    "/usr/bin/chromium",
+    "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
+    "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe",
+  ].filter(Boolean).find(fs.existsSync);
   assert.ok(executablePath, "The image must provide Chromium for browser smoke tests");
 
   const {chromium} = loadPlaywright();

@@ -1,9 +1,9 @@
 {
-  "version": "0.13.64",
+  "version": "0.13.65",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/ZBRANO_Core main",
-  "summary": "Transform Automation Studio into a user-friendly three-panel visual builder with draggable blocks, an interactive canvas, and contextual settings.",
+  "summary": "Repair the Automation Studio release build by preventing decorative flow connectors from intercepting block interaction.",
   "history_backfill": [
     {
       "version": "0.13.0",
@@ -260,22 +260,26 @@
     {
       "version": "0.13.63",
       "summary": "Introduced Automation Studio with safe graphical flows for live drafts and saved automations while preserving the existing engine and storage schema."
+    },
+    {
+      "version": "0.13.64",
+      "summary": "Transformed Automation Studio into a three-panel visual builder with draggable blocks, an interactive canvas, contextual settings, and an Advanced fallback."
     }
   ],
   "release_entry": {
     "features": [
-      "Replace the main automation creation surface with a building-block toolbox, dotted flow canvas, and contextual settings inspector.",
-      "Support mouse, keyboard, and drag-to-canvas block selection while keeping the complete manual editor available under Advanced."
+      "Preserve the full Automation Studio visual builder and its mouse, keyboard, drag, and Advanced editing paths."
     ],
     "fixes": [
-      "Synchronize visual inspector controls with the canonical automation form so templates, edits, saves, and existing definitions remain compatible.",
-      "Update private and public product README files with the current Automation Studio experience and repository boundaries."
+      "Make graphical flow connectors ignore pointer input so they cannot cover or block Context and other workflow nodes.",
+      "Allow the Docker browser release gate to exercise every visual block without timing out on decorative arrows."
     ],
     "validation": [
-      "Visual builder toolbox, interactive canvas, inspector synchronization, keyboard and drag wiring, Advanced fallback, README alignment, Docker browser smoke, Grinder exclusion, release contract, regression suite, and v0.13.64 release alignment coverage"
+      "Flow-node hit testing, complete local browser smoke, README alignment, release contract, regression suite, and v0.13.65 release alignment coverage"
     ]
   },
   "features": [
+    "Preserve reliable pointer interaction across every Automation Studio flow block by keeping decorative connectors outside hit testing.",
     "Transform Automation Studio into a three-panel visual builder with draggable blocks, an interactive node canvas, and focused settings inspectors.",
     "Present live drafts and saved automations as responsive WHEN, IF, DECIDE, and THEN graphical flows without changing automation behavior.",
     "Guide onboarding through a resumable sequence with required-step gates, optional skipping, remediation guidance, and a completion summary.",
@@ -518,6 +522,7 @@
     "Preserve multi-round Workshop Memory tasks after an approved write in both streaming and non-streaming chat."
   ],
   "fixes": [
+    "Prevent Automation Studio connector arrows from intercepting clicks and failing the Docker browser release gate.",
     "Reconnect the public installer branch to existing Supervisor clones so post-split updates are discoverable without uninstalling.",
     "Restore the public jarvis directory so installed Home Assistant apps can discover post-split updates without uninstalling.",
     "Keep the existing GHCR image, add-on slug, and stored data contract stable across the public/private repository split.",
@@ -657,6 +662,7 @@
     "Preserve task-scoped Workshop Memory approval and per-draft Gmail approval isolation."
   ],
   "validation": [
+    "Flow-node pointer interaction, complete local browser smoke, README alignment, release contract, regression suite, and v0.13.65 release alignment coverage",
     "Visual builder toolbox, interactive canvas, inspector synchronization, keyboard and drag wiring, Advanced fallback, README alignment, Docker browser smoke, owner-only Grinder exclusion, release contract, regression suite, and v0.13.64 release alignment coverage",
     "Automation flow renderer safety, live draft wiring, saved-library rendering, responsive layout, Docker browser smoke, owner-only Grinder exclusion, release contract, regression suite, and v0.13.63 release alignment coverage",
     "Guided onboarding progress persistence, required-step navigation gate, optional-skip safety, legacy-install preservation, owner-only Grinder exclusion, release contract, regression suite, and v0.13.62 release alignment coverage",
