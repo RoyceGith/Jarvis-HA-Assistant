@@ -1,5 +1,12 @@
 # Change log
 
+## 0.13.60
+
+- Added explicit setup checks for Home Assistant, model credentials, entity
+  permissions, voice configuration, memory, plugins, and notification channels.
+- Added direct guided actions from each setup item without running paid checks
+  automatically.
+
 ## 0.13.59
 
 - Added a backward-compatible first-run setup checklist with readiness detection,
