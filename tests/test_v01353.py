@@ -15,17 +15,18 @@ MANIFEST = json.loads((ROOT / "jarvis/release_manifest.json").read_text(encoding
 
 class RepositoryRenameReleaseTests(unittest.TestCase):
     def test_release_markers_are_aligned(self):
-        self.assertIn('version: "0.13.53"', CONFIG)
-        self.assertIn('version="0.13.53"', MAIN)
-        self.assertIn("HUD 0.13.53", HTML)
-        self.assertEqual(MANIFEST["version"], "0.13.53")
+        self.assertIn('version: "0.13.54"', CONFIG)
+        self.assertIn('version="0.13.54"', MAIN)
+        self.assertIn("HUD 0.13.54", HTML)
+        self.assertEqual(MANIFEST["version"], "0.13.54")
 
-    def test_canonical_source_uses_renamed_repository(self):
-        canonical = "RoyceGith/ZBRANO_HA_Assistant"
+    def test_source_and_distribution_repositories_are_separate(self):
+        canonical = "RoyceGith/ZBRANO_Core"
+        distribution = "RoyceGith/ZBRANO_HA_Assistant"
         self.assertIn(canonical, MANIFEST["source"])
-        self.assertIn(canonical, REPOSITORY)
         self.assertIn(canonical, DOCKERFILE)
         self.assertIn(canonical, DEVELOPER)
+        self.assertIn(distribution, REPOSITORY)
 
     def test_existing_home_assistant_image_path_is_preserved(self):
         image = "ghcr.io/roycegith/jarvis-ha-assistant"
@@ -33,7 +34,7 @@ class RepositoryRenameReleaseTests(unittest.TestCase):
         self.assertNotIn("ghcr.io/roycegith/zbrano_ha_assistant", CONFIG.lower())
 
     def test_release_history_includes_v01352(self):
-        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.52")
+        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.53")
 
 
 if __name__ == "__main__":

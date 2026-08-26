@@ -1,9 +1,9 @@
 {
-  "version": "0.13.53",
+  "version": "0.13.54",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
-  "source": "RoyceGith/ZBRANO_HA_Assistant main",
-  "summary": "Migrate the canonical public source identity to RoyceGith/ZBRANO_HA_Assistant while preserving the established GHCR image path for Home Assistant upgrade continuity.",
+  "source": "RoyceGith/ZBRANO_Core main",
+  "summary": "Complete the repository split by moving full source and build history to private RoyceGith/ZBRANO_Core and creating a clean-history public Home Assistant update repository for the unchanged GHCR image path.",
   "history_backfill": [
     {
       "version": "0.13.0",
@@ -216,23 +216,27 @@
     {
       "version": "0.13.52",
       "summary": "Established an enforced public Home Assistant core boundary while reserving hosted accounts, subscriptions, billing, community services, infrastructure, and secrets for a separate private repository."
+    },
+    {
+      "version": "0.13.53",
+      "summary": "Migrated the public repository identity to RoyceGith/ZBRANO_HA_Assistant while preserving the established GHCR image path for Home Assistant upgrade continuity."
     }
   ],
   "release_entry": {
     "features": [
-      "Move canonical source metadata, Developer repository targeting, container source labels, and public-boundary validation to RoyceGith/ZBRANO_HA_Assistant.",
-      "Document the intentional separation between the renamed source repository and the compatibility GHCR package path."
+      "Move the complete source tree, tests, build workflow, and historical commits into private RoyceGith/ZBRANO_Core.",
+      "Publish a clean-history public RoyceGith/ZBRANO_HA_Assistant repository containing only Home Assistant installation metadata and documentation."
     ],
     "fixes": [
-      "Prevent repository redirects from remaining a permanent dependency in release metadata and Developer Mode.",
-      "Keep ghcr.io/roycegith/jarvis-ha-assistant unchanged so installed Home Assistant apps are not stranded by the source rename."
+      "Separate private source identity from public distribution metadata without changing the add-on slug, stored data, or image package.",
+      "Keep ghcr.io/roycegith/jarvis-ha-assistant unchanged so existing Home Assistant installations continue upgrading."
     ],
     "validation": [
-      "Renamed repository reachability, canonical source references, legacy-reference absence, GHCR compatibility path, release contract, regression suite, and v0.13.53 release alignment coverage"
+      "Private-core identity, public-distribution identity, clean-history packaging allowlist, GHCR compatibility path, release contract, regression suite, and v0.13.54 release alignment coverage"
     ]
   },
   "features": [
-    "Use RoyceGith/ZBRANO_HA_Assistant as the canonical public source identity without changing the established Home Assistant image package.",
+    "Split private source and build history into RoyceGith/ZBRANO_Core while exposing only a clean-history Home Assistant update repository publicly.",
     "Enforce a public Home Assistant core boundary while reserving hosted commercial and community services for a separate private repository.",
     "Derive Automation Library starter drafts from each installation's Home Assistant entity inventory instead of owner-specific placeholders.",
     "Add a pre-build release contract covering Home Assistant metadata, Docker packaging, and GitHub image publication.",
@@ -464,6 +468,7 @@
     "Preserve multi-round Workshop Memory tasks after an approved write in both streaming and non-streaming chat."
   ],
   "fixes": [
+    "Keep the existing GHCR image, add-on slug, and stored data contract stable across the public/private repository split.",
     "Update repository metadata and Developer tooling after the GitHub source rename while retaining the compatibility GHCR path.",
     "Block private service trees, local operator material, and common secret-bearing files from accidental public-core commits.",
     "Make build-gated Automation Library browser coverage wait for visible editor controls and loaded Home Assistant inventory.",
@@ -600,6 +605,7 @@
     "Preserve task-scoped Workshop Memory approval and per-draft Gmail approval isolation."
   ],
   "validation": [
+    "Private-core identity, public-distribution identity, clean-history packaging allowlist, GHCR compatibility path, release contract, regression suite, and v0.13.54 release alignment coverage",
     "Renamed repository reachability, canonical source references, legacy-reference absence, GHCR compatibility path, release contract, regression suite, and v0.13.53 release alignment coverage",
     "Tracked-path rejection, secret-filename rejection, required ignore rules, repository metadata, personal-default absence, workflow gate ordering, regression suite, and v0.13.52 release alignment coverage",
     "Advanced-editor visibility, entity-inventory readiness, template population, release manifest, inline JavaScript, New Chat wiring, regression suite, and v0.13.51 release alignment coverage",
