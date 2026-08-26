@@ -27,6 +27,46 @@
     document.querySelector(`[data-settings-target="${CSS.escape(target)}"]`)?.click();
   }
 
+  const actionLabels = {
+    entities: "Choose entities",
+    model: "Configuration help",
+    voice: "Open voice test",
+    memory: "Open memory",
+    plugins: "Open plugins",
+    notifications: "Open notification test",
+  };
+
+  const checkLabels = {
+    home_assistant: "Test connection",
+    model: "Verify key",
+    entities: "Recheck",
+    voice: "Check provider",
+    memory: "Check memory",
+    plugins: "Check plugins",
+    notifications: "Validate channels",
+  };
+
+  async function checkStep(step, row, state, description, button) {
+    button.disabled = true;
+    button.textContent = "Checking…";
+    message.textContent = `Checking ${step.title || step.id}…`;
+    try {
+      const response = await fetch(`api/onboarding/check/${encodeURIComponent(step.id)}`, {method: "POST"});
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.detail || `HTTP ${response.status}`);
+      row.classList.toggle("is-ready", Boolean(data.ready));
+      state.textContent = data.ready ? "✓" : "•";
+      state.setAttribute("aria-label", data.ready ? "Ready" : "Needs attention");
+      description.textContent = data.detail || step.description || "";
+      message.textContent = data.ready ? `${step.title} check passed.` : `${step.title}: ${data.detail || "needs attention"}`;
+    } catch (error) {
+      message.textContent = `${step.title || step.id} check failed: ${error.message || error}`;
+    } finally {
+      button.disabled = false;
+      button.textContent = checkLabels[step.id] || "Check";
+    }
+  }
+
   function render(data) {
     const steps = Array.isArray(data.steps) ? data.steps : [];
     const percentage = steps.length ? Math.round((Number(data.ready_count || 0) / steps.length) * 100) : 0;
@@ -54,11 +94,18 @@
       const description = document.createElement("small");
       description.textContent = step.description || "";
       copy.append(title, description);
+      const actions = document.createElement("div");
+      actions.className = "onboarding-step-actions";
+      const check = document.createElement("button");
+      check.type = "button";
+      check.textContent = checkLabels[step.id] || "Check";
+      check.addEventListener("click", () => checkStep(step, row, state, description, check));
       const action = document.createElement("button");
       action.type = "button";
-      action.textContent = step.ready ? "Review" : "Configure";
+      action.textContent = actionLabels[step.target] || (step.ready ? "Review" : "Configure");
       action.addEventListener("click", () => openTarget(String(step.target || "setup")));
-      row.append(state, copy, action);
+      actions.append(check, action);
+      row.append(state, copy, actions);
       list.append(row);
     }
     complete.disabled = Boolean(data.completed) || !data.core_ready;

@@ -1,9 +1,9 @@
 {
-  "version": "0.13.59",
+  "version": "0.13.60",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/ZBRANO_Core main",
-  "summary": "Add the first backward-compatible onboarding foundation with readiness detection while preserving existing installations and excluding owner-only Grinder monitoring.",
+  "summary": "Make onboarding actionable with explicit per-step checks and guided configuration paths while keeping paid services idle until the user requests a test.",
   "history_backfill": [
     {
       "version": "0.13.0",
@@ -240,22 +240,27 @@
     {
       "version": "0.13.58",
       "summary": "Restored image publication by aligning the Docker-only ASGI and browser build fixtures with the compatibility release version."
+    },
+    {
+      "version": "0.13.59",
+      "summary": "Added the first backward-compatible onboarding foundation with readiness detection while preserving existing installations and excluding owner-only Grinder monitoring."
     }
   ],
   "release_entry": {
     "features": [
-      "Add a Settings setup guide with live Home Assistant, model, entity, voice, memory, plugin, and notification readiness.",
-      "Automatically open the guide only for genuinely new installations while recognizing existing configuration without writing or resetting it."
+      "Add explicit checks for Home Assistant connectivity, OpenAI credentials, entity permissions, speech configuration, Fast Memory, plugins, and notification channels.",
+      "Add guided actions that open the relevant configuration workspace from every setup step."
     ],
     "fixes": [
-      "Persist only explicit setup completion or dismissal while preserving every existing settings key.",
-      "Classify Grinder monitoring as an owner-only private extension excluded from onboarding and general product scope."
+      "Keep external model verification and any voice testing behind deliberate user actions instead of automatic onboarding requests.",
+      "Report step-specific success and failure details without changing existing settings or permissions."
     ],
     "validation": [
-      "Onboarding state migration and persistence, existing-installation suppression, UI wiring, Grinder exclusion, release contract, regression suite, and v0.13.59 release alignment coverage"
+      "Onboarding check allowlist, explicit-request boundary, guided action wiring, Grinder exclusion, release contract, regression suite, and v0.13.60 release alignment coverage"
     ]
   },
   "features": [
+    "Run onboarding connectivity and configuration checks only after an explicit user request and return focused remediation details.",
     "Guide new installations through core and optional setup without interrupting or rewriting existing installations.",
     "Keep Docker-only integration and browser release fixtures aligned with the canonical runtime version.",
     "Bridge both cached public transition histories while keeping the current public tree limited to installer metadata.",
@@ -632,6 +637,7 @@
     "Preserve task-scoped Workshop Memory approval and per-draft Gmail approval isolation."
   ],
   "validation": [
+    "Onboarding check allowlist, explicit external-call boundary, guided action labels, owner-only Grinder exclusion, release contract, regression suite, and v0.13.60 release alignment coverage",
     "Onboarding state migration, non-destructive persistence, UI source wiring, owner-only Grinder exclusion, release contract, regression suite, and v0.13.59 release alignment coverage",
     "Docker-only ASGI and browser fixture version alignment, release contract, focused regression suite, and v0.13.58 release alignment coverage",
     "Both public transition heads, compatibility merge ancestry, five-file public tree, release contract, focused regression suite, and v0.13.57 release alignment coverage",

@@ -65,12 +65,15 @@
 .onboarding-step-copy strong { display: block; }
 .onboarding-step-copy small { display: block; margin-top: .15rem; color: var(--text-muted); }
 .onboarding-required { margin-left: .35rem; color: var(--cyan); font-size: .68rem; letter-spacing: .04em; }
+.onboarding-step-actions { display: flex; justify-content: flex-end; gap: .4rem; }
+.onboarding-step-actions button:first-child { color: var(--cyan); }
 
 @media (max-width: 640px) {
   .onboarding-heading { display: block; }
   .onboarding-heading > strong { display: block; margin-top: .65rem; }
   .onboarding-step { grid-template-columns: auto minmax(0, 1fr); }
-  .onboarding-step > button { grid-column: 1 / -1; width: 100%; }
+  .onboarding-step-actions { grid-column: 1 / -1; display: grid; grid-template-columns: 1fr 1fr; }
+  .onboarding-step-actions button { width: 100%; }
 }
 
 @media (prefers-reduced-motion: reduce) {

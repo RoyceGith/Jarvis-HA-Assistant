@@ -667,7 +667,7 @@ ha_ws = HomeAssistantWebSocketClient(
 
 app = FastAPI(
     title="ZBRANO",
-    version="0.13.59",
+    version="0.13.60",
     docs_url="/api/docs",
     openapi_url="/api/openapi.json",
 )
@@ -2646,7 +2646,7 @@ async def health() -> dict[str, Any]:
     configured_speech_provider = SPEECH_PROVIDER if SPEECH_PROVIDER in {"openai", "elevenlabs"} else "openai"
     return {
         "status": "ok",
-        "version": "0.13.59",
+        "version": "0.13.60",
         "home_assistant_configured": bool(SUPERVISOR_TOKEN),
         "workshop_memory_configured": bool(WORKSHOP_MEMORY_URL),
         "workshop_memory_cost_guard": workshop_cost_guard_status(),
@@ -3897,6 +3897,63 @@ async def update_onboarding(request: OnboardingStateUpdate) -> dict[str, Any]:
         dismissed=request.action == "dismiss",
     )
     return await onboarding_status_payload()
+
+
+@app.post("/api/onboarding/check/{step_id}")
+async def check_onboarding_step(step_id: str) -> dict[str, Any]:
+    checked_at = time.time()
+    if step_id == "home_assistant":
+        status = ha_ws.status()
+        if not status.get("connected") and SUPERVISOR_TOKEN:
+            try:
+                await ha_ws.connect()
+            except (RuntimeError, OSError, asyncio.TimeoutError):
+                pass
+            status = ha_ws.status()
+        ready = bool(SUPERVISOR_TOKEN) and bool(status.get("connected"))
+        detail = "Home Assistant WebSocket connected" if ready else str(status.get("last_error") or "Home Assistant is not connected")
+    elif step_id == "model":
+        if not OPENAI_API_KEY:
+            raise HTTPException(status_code=503, detail="Add an OpenAI API key in the ZBRANO app configuration first")
+        try:
+            async with httpx.AsyncClient(timeout=10.0) as client:
+                response = await client.get(
+                    "https://api.openai.com/v1/models",
+                    headers={"Authorization": f"Bearer {OPENAI_API_KEY}"},
+                )
+            if response.is_error:
+                raise HTTPException(status_code=502, detail=f"OpenAI rejected the configured key (HTTP {response.status_code})")
+        except httpx.HTTPError as exc:
+            raise HTTPException(status_code=502, detail=f"OpenAI connection failed: {exc}") from exc
+        ready = True
+        detail = f"OpenAI key accepted; {active_agent_model()} selected"
+    elif step_id == "entities":
+        approved = await approved_ha_entities()
+        read_count = len(approved["read_entities"])
+        control_count = len(approved["control_entities"])
+        ready = bool(read_count or control_count)
+        detail = f"{read_count} readable and {control_count} controllable entities approved" if ready else "No entity permissions are approved yet"
+    elif step_id == "voice":
+        configured = SPEECH_PROVIDER if SPEECH_PROVIDER in {"openai", "elevenlabs"} else "openai"
+        ready = bool(OPENAI_API_KEY) if configured == "openai" else bool(ELEVENLABS_API_KEY and ELEVENLABS_VOICE_ID)
+        detail = f"{configured.title()} speech configuration is ready" if ready else f"{configured.title()} speech credentials are incomplete"
+    elif step_id == "memory":
+        status = fast_memory_status()
+        ready = bool(status.get("operational"))
+        detail = f"Fast Memory is ready with {status.get('total', 0)} records" if ready else str(status.get("error") or "Fast Memory is unavailable")
+    elif step_id == "plugins":
+        plugins = plugin_registry()
+        ready = bool(plugins)
+        detail = f"{len(plugins)} plugin connections installed" if ready else "No plugins installed; this step is optional"
+    elif step_id == "notifications":
+        settings = notification_store()["settings"]
+        channels = await notification_channels()
+        target = str(settings.get("default_channel") or "")
+        ready = bool(target) and any(item["entity_id"] == target for item in channels)
+        detail = f"Default channel {target} is available" if ready else f"{len(channels)} channels available; select a default channel to finish notification setup"
+    else:
+        raise HTTPException(status_code=404, detail="Unknown onboarding step")
+    return {"id": step_id, "ready": ready, "detail": detail, "checked_at": checked_at}
 
 
 @app.put("/api/settings")
