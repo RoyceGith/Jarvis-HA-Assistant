@@ -1,5 +1,13 @@
 # Change log
 
+## 0.13.69
+
+- Added per-automation operating modes and delivery channels under the global
+  safety ceiling.
+- Promoted Automation Studio into a full-window workspace and renamed the saved
+  rule view to My Automations.
+- Prevented suggestion-only rules from being executed through approval controls.
+
 ## 0.13.68
 
 - Added dedicated Delay and Wait Until steps to linear and branching action

@@ -19,8 +19,10 @@ storage, and `ghcr.io/roycegith/jarvis-ha-assistant` update image.
 
 ## Current experience
 
-Version 0.13.68 includes a graphical Automation Studio with a building-block
+Version 0.13.69 includes a full-window Automation Studio with a building-block
 toolbox, interactive flow canvas, and focused settings inspector. Existing
 automation definitions and Home Assistant data remain compatible across updates.
 Visual workflows can use OR triggers, grouped conditions, ordered actions, and
-first-match IF/ELSE branches, Delay steps, and bounded Wait Until steps.
+first-match IF/ELSE branches, Delay steps, and bounded Wait Until steps. Every
+automation can independently observe, suggest, ask approval, or act automatically
+beneath the global safety ceiling, with per-rule delivery choices.
