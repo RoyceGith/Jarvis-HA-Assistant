@@ -1,5 +1,12 @@
 # Change log
 
+## 0.13.63
+
+- Added responsive graphical WHEN, IF, DECIDE, and THEN flows for saved
+  automations.
+- Added a live visual preview for templates and manual drafts while preserving
+  the existing automation engine and stored definitions.
+
 ## 0.13.62
 
 - Added a resumable guided Setup sequence with Back, Continue, and optional-step
