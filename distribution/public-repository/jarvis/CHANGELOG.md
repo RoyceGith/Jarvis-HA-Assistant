@@ -1,5 +1,14 @@
 # Change log
 
+## 0.13.80
+
+- Capped wide Settings and Automation controls and sliders at practical reading
+  widths with responsive single-column fallbacks.
+- Added a Settings-style icon-led sidebar and independently scrolling content views
+  to Automations.
+- Restored verified vertical scrolling for Voice Settings and other full-height
+  workspaces.
+
 ## 0.13.79
 
 - Moved the graphical Automation Studio above Create with ZBRANO.

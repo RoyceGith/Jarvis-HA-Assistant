@@ -93,7 +93,7 @@ function apiFixture(url) {
   if (pathname === "/api/health") {
     return {
       status: "ok",
-      version: "0.13.79",
+      version: "0.13.80",
       speech_provider: "openai",
       speech_providers: {openai: {configured: true}, elevenlabs: {configured: false}},
     };
@@ -132,7 +132,7 @@ function apiFixture(url) {
   if (pathname === "/api/plugins") return {plugins: []};
   if (pathname === "/api/files/shared") return {files: [], count: 0};
   if (pathname === "/api/release-memory-sync") {
-    return {enabled: false, state: "disabled", version: "0.13.79", task_active: false};
+    return {enabled: false, state: "disabled", version: "0.13.80", task_active: false};
   }
   if (pathname === "/api/tab-activity") return {revisions: {}};
   if (pathname === "/api/grinder-monitor/status") return {enabled: false, connected: false};
@@ -234,6 +234,14 @@ async function main() {
     await page.locator('[data-auto-view="studio"]').click();
     await page.locator('[data-auto-panel="studio"]:not(.hidden)').waitFor();
     assert.equal(await page.locator("#automations-panel").evaluate(element => element.classList.contains("studio-active")), true);
+    const automationLayout = await page.locator("#automations-panel .autonomy-shell").evaluate(element => ({
+      display: getComputedStyle(element).display,
+      columns: getComputedStyle(element).gridTemplateColumns,
+      navCursor: getComputedStyle(document.querySelector('[data-auto-view="studio"]')).cursor,
+    }));
+    assert.equal(automationLayout.display, "grid");
+    assert.match(automationLayout.columns, /px .*px/);
+    assert.equal(automationLayout.navCursor, "pointer");
     await page.locator('[data-automation-library-view="saved"]').click();
     await page.locator('[data-automation-library-panel="saved"]:not(.hidden)').waitFor();
     assert.equal(await page.locator("#automation-library .automation-flow-node").count(), 4);
@@ -310,6 +318,13 @@ async function main() {
     await page.locator('[data-settings-target="voice"]').click();
     await page.locator('[data-settings-category="voice"]:visible').waitFor();
     assert.equal(await page.locator('[data-settings-target="voice"]').evaluate(element => element.closest("details").open), true);
+    const voiceScroll = await page.locator("#settings-panel").evaluate(element => {
+      element.scrollTop = element.scrollHeight;
+      return {overflowY: getComputedStyle(element).overflowY, scrollable: element.scrollHeight > element.clientHeight, moved: element.scrollTop > 0};
+    });
+    assert.ok(["auto", "scroll"].includes(voiceScroll.overflowY));
+    assert.equal(voiceScroll.scrollable, true, "Voice settings must exceed and scroll within the panel at compact viewport heights");
+    assert.equal(voiceScroll.moved, true, "Voice settings panel must accept vertical scrolling");
 
     console.log("Browser smoke passed: New Chat, navigation, Entity scrolling, modern Settings, Studio ordering, branching workflows, and installation-derived templates");
   } finally {

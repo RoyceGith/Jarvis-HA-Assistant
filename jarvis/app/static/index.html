@@ -33,7 +33,7 @@
   <header>
     <div class="brand-line">
       <h1>ZBRANO</h1>
-      <div class="status hud-version-label">Workshop Intelligence Interface · HUD 0.13.79</div>
+      <div class="status hud-version-label">Workshop Intelligence Interface · HUD 0.13.80</div>
     </div>
     <div class="runtime-status-stack">
       <button id="calendar-quick-open" class="calendar-quick-open" type="button" aria-label="Open ZBRANO Calendar" title="Open Calendar">
@@ -641,11 +641,12 @@
       </div>
       <div class="autonomy-boundary"><strong>Automation Brain:</strong> ZBRANO learns locally from approved Home Assistant events and Areas, proposes evidence-backed low-risk help, and requires your permission before a discovered action. Existing manual drafts remain disabled until explicitly enabled.</div>
       <div class="autonomy-tabs" role="tablist" aria-label="Automation workspace views">
-        <button class="active" type="button" data-auto-view="overview" role="tab" aria-selected="true">Overview</button>
-        <button type="button" data-auto-view="studio" role="tab" aria-selected="false">Automation Studio</button>
-        <button type="button" data-auto-view="safety" role="tab" aria-selected="false">Safety &amp; Authority</button>
-        <button type="button" data-auto-view="notifications" role="tab" aria-selected="false">Notifications</button>
-        <button type="button" data-auto-view="activity" role="tab" aria-selected="false">Activity</button>
+        <div class="automation-nav-title"><span class="automation-nav-icon" aria-hidden="true">⌁</span><div><strong>Automations</strong><small>Design and monitor</small></div></div>
+        <button class="active" type="button" data-auto-view="overview" role="tab" aria-selected="true"><span class="automation-nav-icon" aria-hidden="true">◫</span><span>Overview</span></button>
+        <button type="button" data-auto-view="studio" role="tab" aria-selected="false"><span class="automation-nav-icon" aria-hidden="true">◇</span><span>Automation Studio</span></button>
+        <button type="button" data-auto-view="safety" role="tab" aria-selected="false"><span class="automation-nav-icon" aria-hidden="true">◉</span><span>Safety &amp; Authority</span></button>
+        <button type="button" data-auto-view="notifications" role="tab" aria-selected="false"><span class="automation-nav-icon" aria-hidden="true">◌</span><span>Notifications</span></button>
+        <button type="button" data-auto-view="activity" role="tab" aria-selected="false"><span class="automation-nav-icon" aria-hidden="true">≋</span><span>Activity</span></button>
       </div>
 
       <section class="autonomy-view" data-auto-panel="overview">

@@ -1,9 +1,9 @@
 {
-  "version": "0.13.79",
+  "version": "0.13.80",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/ZBRANO_Core main",
-  "summary": "Modernize Automation Studio ordering, Settings navigation, and the primary top bar with a clean responsive GitHub-inspired workspace.",
+  "summary": "Compact wide form controls, give Automations a Settings-style sidebar, and restore reliable scrolling across full-height workspaces.",
   "history_backfill": [
     {
       "version": "0.13.0",
@@ -320,22 +320,28 @@
     {
       "version": "0.13.78",
       "summary": "Added a bounded per-automation decision journal that explains recent observations, suppressions, deferrals, blocks, suggestions, and action outcomes."
+    },
+    {
+      "version": "0.13.79",
+      "summary": "Modernized Automation Studio ordering, Settings navigation, and the primary top bar with a clean responsive GitHub-inspired workspace."
     }
   ],
   "release_entry": {
     "features": [
-      "Put the graphical Automation Studio before Create with ZBRANO in the creation workspace.",
-      "Replace the horizontal Settings category strip with a colored, icon-led, collapsible left navigation on desktop."
+      "Give Automations the same icon-led desktop sidebar and independently scrolling content layout as Settings.",
+      "Cap text, select, textarea, and range controls at practical reading widths instead of stretching across the workspace."
     ],
     "fixes": [
-      "Restyle the primary top bar as borderless hover targets with pointer feedback and a clean active underline.",
-      "Retain a compact horizontal Settings navigator on mobile while preserving every existing control and category."
+      "Restore actual vertical scrolling in the long Voice settings page and other full-height workspaces.",
+      "Collapse compact controls and navigation into responsive single-column or horizontal layouts on smaller screens."
     ],
     "validation": [
-      "Studio ordering, Settings group navigation and keyboard behavior, top-bar hover semantics, desktop and mobile responsive CSS, browser smoke, compatibility, README alignment, and v0.13.79 release coverage"
+      "Compact form sizing, Automation sidebar layout, independent view scrolling, real Voice scroll movement, responsive fallbacks, browser smoke, compatibility, README alignment, and v0.13.80 release coverage"
     ]
   },
   "features": [
+    "Use a Settings-style navigation sidebar and independently scrolling content views throughout Automations.",
+    "Keep form controls compact and restore reliable scrolling across long full-screen workspaces.",
     "Use a modern GitHub-inspired Settings workspace with collapsible categories, icons, and per-section color accents.",
     "Present Automation Studio before conversational creation and use a quiet hover-driven primary navigation bar.",
     "Explain each automation's recent decisions with a bounded per-rule evidence and outcome journal.",

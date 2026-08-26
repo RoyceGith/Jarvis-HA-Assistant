@@ -1,15 +1,15 @@
-## ZBRANO v0.13.79
+## ZBRANO v0.13.80
 
 ZBRANO combines Home Assistant chat, voice, entity control, memory, notifications,
 calendar tools, plugins, and evidence-based automations. Automation Studio now uses
 a visual building-block toolbox, interactive node canvas, and contextual inspector;
 the established automation engine and stored definitions remain compatible.
 
-Version 0.13.79 modernizes the application workspace. The graphical Automation
-Studio now appears before Create with ZBRANO. Settings uses a GitHub-inspired left
-navigation with expandable groups, icons, and colored section accents, while the
-primary top bar uses quiet borderless hover targets and a clean active underline.
-All existing controls remain available with a compact mobile layout.
+Version 0.13.80 keeps text fields, selectors, text areas, and sliders at practical
+reading widths instead of stretching across large screens. Automations now uses the
+same icon-led sidebar pattern as Settings with independently scrolling content.
+Voice Settings and the other full-height workspaces reliably scroll, with compact
+single-column and horizontal navigation fallbacks on smaller screens.
 
 The application source and post-split build history are maintained in the private
 core repository. Public Home Assistant repositories contain only the five-file
