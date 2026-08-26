@@ -31,6 +31,8 @@
 
   function modeLabel(value){return ({observe_only:"Observe only",suggest_only:"Suggest only",approval_gated:"Approval-gated",selective_autonomy:"Selective autonomy"})[value]||"Suggest only"}
   function authorityLabel(value){return ({observe:"Observe only",suggest:"Suggest only",approval_required:"Approval required",autonomous:"Fully autonomous"})[value]||"Suggest only"}
+  function entityLabel(id){const entity=entityMap.get(id);return entity?.friendly_name||id}
+  function flowElement(item){return window.zbranoAutomationFlow?.create(item,entityLabel)||null}
   function renderSummary(){
     $("autonomy-engine-status").textContent=state.engine?.status==="active"?"Live":state.engine?.status==="waiting_for_home_assistant"?"Waiting for HA":"Unavailable";
     $("autonomy-mode-summary").textContent=modeLabel(state.settings?.operating_mode);
@@ -69,7 +71,9 @@
       const primaryAction=isWatch?`<button type="button" data-auto-watch="${esc(item.id)}">Notifications</button>`:item.review_required?`<button type="button" data-auto-edit="${esc(item.id)}">Review</button><button type="button" data-auto-activate="${esc(item.id)}">Enable</button>`:`<button type="button" data-auto-edit="${esc(item.id)}">Edit</button>`;
       const triggerSummary=`${item.trigger_entity||"no trigger"} ${(item.trigger_operator||"").replaceAll("_"," ")}${item.trigger_value?` ${item.trigger_value}`:""}${item.trigger_for_seconds?` for ${item.trigger_for_seconds}s`:""}`;
       const actionSummary=item.action_service&&item.action_entity?`${item.action_service} → ${item.action_entity}`:"No device action";
-      row.innerHTML=`<div class="autonomy-draft-head"><div><strong>${esc(item.name)}</strong><div>${esc(item.objective)}</div></div><div class="autonomy-draft-actions">${primaryAction}<button type="button" data-auto-delete="${esc(item.id)}">Delete</button></div></div><div class="autonomy-tags">${tags.map(tag=>`<span>${esc(tag)}</span>`).join("")}</div><small><strong>When:</strong> ${esc(triggerSummary)}<br><strong>Then:</strong> ${esc(item.proposal_template||"Record the match")}<br><strong>Action:</strong> ${esc(actionSummary)}<br><strong>Presence:</strong> ${esc(item.presence_entity||"not required by this rule")}</small>`;
+      row.innerHTML=`<div class="autonomy-draft-head"><div><strong>${esc(item.name)}</strong><div>${esc(item.objective)}</div></div><div class="autonomy-draft-actions">${primaryAction}<button type="button" data-auto-delete="${esc(item.id)}">Delete</button></div></div><div class="autonomy-tags">${tags.map(tag=>`<span>${esc(tag)}</span>`).join("")}</div>`;
+      const flow=flowElement(item);
+      if(flow)row.append(flow);else row.insertAdjacentHTML("beforeend",`<small><strong>When:</strong> ${esc(triggerSummary)}<br><strong>Then:</strong> ${esc(item.proposal_template||"Record the match")}<br><strong>Action:</strong> ${esc(actionSummary)}<br><strong>Presence:</strong> ${esc(item.presence_entity||"not required by this rule")}</small>`);
       root.appendChild(row);
     }
   }
@@ -116,18 +120,41 @@
       const data=await api("api/ha/entities");entityMap=new Map((data.entities||[]).map(item=>[item.entity_id,item]));
       const options=$("automation-entity-options");options.replaceChildren();
       for(const entity of data.entities||[]){const option=document.createElement("option");option.value=entity.entity_id;option.label=entity.friendly_name||entity.entity_id;options.appendChild(option)}
-      renderContext();
+      renderContext();renderLibrary();renderEditorFlow();
     }catch(error){root.innerHTML=`<div class="autonomy-empty">Context unavailable: ${esc(error.message||error)}</div>`}
   }
 
   async function loadWorkspace(){state=await api("api/automations");renderAll();await loadEntityContext()}
 
+  function editorSnapshot(){
+    return {
+      name:$("automation-name").value.trim()||"New automation",
+      objective:$("automation-objective").value.trim(),
+      presence_entity:$("automation-presence").value.trim(),
+      signal_entities:$("automation-signals").value.split(/[,\n]/).map(value=>value.trim()).filter(Boolean),
+      trigger_entity:$("automation-trigger-entity").value.trim(),
+      trigger_operator:$("automation-trigger-operator").value,
+      trigger_value:$("automation-trigger-value").value.trim(),
+      trigger_for_seconds:Number($("automation-trigger-for").value||0),
+      proposal_template:$("automation-proposal").value.trim(),
+      action_entity:$("automation-action-entity").value.trim(),
+      action_service:$("automation-action-service").value.trim(),
+      cooldown_minutes:Number($("automation-cooldown").value||30),
+      confidence_threshold:Number($("automation-confidence").value||0.75),
+      execution_policy:$("automation-execution-policy").value,
+    };
+  }
+
+  function renderEditorFlow(){window.zbranoAutomationFlow?.render($("automation-flow-preview"),editorSnapshot(),entityLabel)}
+
   function clearEditor(){
     $("automation-draft-form").reset();$("automation-edit-id").value="";$("automation-editor-title").textContent="New automation draft";$("automation-cancel-edit").hidden=true;$("automation-cooldown").value=String(state.settings?.default_cooldown_minutes||30);$("automation-confidence").value=String(state.settings?.minimum_confidence||0.75);$("automation-risk").value="controlled";$("automation-execution-policy").value="suggest";$("automation-max-actions").value="2";$("automation-trigger-operator").value="changes_to";$("automation-trigger-for").value="0";$("automation-action-data").value="{}";$("automation-enabled").checked=false;$("automation-notify-action").checked=true;$("automation-reversible-only").checked=true;$("automation-draft-state").textContent="";
+    renderEditorFlow();
   }
 
   function fillEditor(item){
     $("automation-edit-id").value=item.id||"";$("automation-name").value=item.name||"";$("automation-objective").value=item.objective||"";$("automation-presence").value=item.presence_entity||"";$("automation-signals").value=(item.signal_entities||[]).join(", ");$("automation-trigger-entity").value=item.trigger_entity||(item.signal_entities||[])[0]||"";$("automation-trigger-operator").value=item.trigger_operator||"changes_to";$("automation-trigger-value").value=item.trigger_value||"";$("automation-trigger-for").value=String(item.trigger_for_seconds||0);$("automation-enabled").checked=Boolean(item.enabled);$("automation-context-notes").value=item.context_notes||"";$("automation-proposal").value=item.proposal_template||"";$("automation-action-entity").value=item.action_entity||"";$("automation-action-service").value=item.action_service||"";$("automation-action-data").value=JSON.stringify(item.action_service_data||{},null,2);$("automation-cooldown").value=String(item.cooldown_minutes||30);$("automation-confidence").value=String(item.confidence_threshold||0.75);$("automation-risk").value=item.risk_level||"controlled";$("automation-execution-policy").value=item.execution_policy||"suggest";$("automation-max-actions").value=String(item.max_actions_per_hour||2);$("automation-notify-action").checked=item.notify_on_action!==false;$("automation-reversible-only").checked=item.reversible_only!==false;$("automation-editor-title").textContent=item.id?"Edit automation":"New automation";$("automation-cancel-edit").hidden=!item.id;showView("library");showLibraryView("create");document.querySelector(".automation-advanced")?.setAttribute("open","");$("automation-name").focus();
+    renderEditorFlow();
   }
 
   function inventoryMatches({domains=[],deviceClasses=[],keywords=[],limit=3}){
@@ -190,6 +217,8 @@
     try{await api(id?`api/automations/${encodeURIComponent(id)}`:"api/automations",{method:id?"PUT":"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)});clearEditor();await loadWorkspace();showLibraryView("saved")}catch(error){status.textContent=`Save failed: ${error.message||error}`}
   });
   $("automation-cancel-edit").addEventListener("click",clearEditor);
+  $("automation-draft-form").addEventListener("input",renderEditorFlow);
+  $("automation-draft-form").addEventListener("change",renderEditorFlow);
   $("autonomy-settings-form").addEventListener("submit",async event=>{
     event.preventDefault();const status=$("autonomy-settings-state");status.textContent="Saving…";const mode=panel.querySelector('input[name="autonomy-mode"]:checked')?.value||"suggest_only";
     const body={operating_mode:mode,presence_entity:$("autonomy-presence-entity").value.trim(),require_presence:$("autonomy-require-presence").checked,respect_quiet_hours:$("autonomy-respect-quiet").checked,minimum_confidence:Number($("autonomy-min-confidence").value),default_cooldown_minutes:Number($("autonomy-default-cooldown").value),autonomous_risk_ceiling:$("autonomy-risk-ceiling").value,notify_after_autonomous_action:$("autonomy-notify-autonomous").checked,passive_learning_enabled:$("autonomy-passive-learning").checked};

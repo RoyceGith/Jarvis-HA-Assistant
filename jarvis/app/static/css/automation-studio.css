@@ -1,0 +1,46 @@
+.automation-studio-preview {
+  overflow: hidden;
+  margin-bottom: .75rem;
+}
+
+.automation-flow {
+  display: grid;
+  grid-template-columns: minmax(150px, 1fr) auto minmax(150px, 1fr) auto minmax(180px, 1.15fr) auto minmax(150px, 1fr);
+  align-items: stretch;
+  gap: .45rem;
+  margin-top: .7rem;
+  overflow-x: auto;
+  padding: .15rem 0 .35rem;
+}
+
+.automation-flow-node {
+  min-width: 0;
+  padding: .72rem .75rem;
+  border: 1px solid color-mix(in srgb, var(--line) 78%, transparent);
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--surface-strong) 82%, transparent);
+  box-shadow: inset 3px 0 color-mix(in srgb, var(--cyan) 55%, transparent);
+}
+
+.automation-flow-node strong,
+.automation-flow-node small { display: block; }
+.automation-flow-node strong { margin: .28rem 0; overflow-wrap: anywhere; }
+.automation-flow-node small { color: var(--text-muted); line-height: 1.35; }
+.automation-flow-kicker { color: var(--cyan); font-size: .66rem; letter-spacing: .1em; }
+.automation-flow-node.is-context { box-shadow: inset 3px 0 color-mix(in srgb, #a7d46f 62%, transparent); }
+.automation-flow-node.is-decision { box-shadow: inset 3px 0 color-mix(in srgb, #c29cff 62%, transparent); }
+.automation-flow-node.is-action { box-shadow: inset 3px 0 color-mix(in srgb, #f0b35b 66%, transparent); }
+.automation-flow-connector { display: grid; place-items: center; color: var(--cyan); font-size: 1.15rem; }
+.autonomy-draft > .automation-flow { margin-top: .35rem; }
+
+@media (max-width: 820px) {
+  .automation-flow {
+    grid-template-columns: 1fr;
+    overflow: visible;
+  }
+  .automation-flow-connector { transform: rotate(90deg); min-height: 1.1rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .automation-flow { scroll-behavior: auto; }
+}

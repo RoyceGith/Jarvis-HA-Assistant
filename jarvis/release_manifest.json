@@ -1,9 +1,9 @@
 {
-  "version": "0.13.62",
+  "version": "0.13.63",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/ZBRANO_Core main",
-  "summary": "Turn Setup into a resumable guided sequence with required-step gates, optional skipping, remediation guidance, and a completion summary.",
+  "summary": "Introduce Automation Studio with safe graphical flows for live drafts and saved automations while preserving the existing engine and storage schema.",
   "history_backfill": [
     {
       "version": "0.13.0",
@@ -252,22 +252,27 @@
     {
       "version": "0.13.61",
       "summary": "Persisted onboarding verification results and required explicit successful core checks before a new installation could finish setup."
+    },
+    {
+      "version": "0.13.62",
+      "summary": "Turned Setup into a resumable guided sequence with required-step gates, optional skipping, remediation guidance, and a completion summary."
     }
   ],
   "release_entry": {
     "features": [
-      "Add Back, Continue, and Skip optional controls to a resumable guided setup sequence.",
-      "Add an always-current summary of required verification, optional readiness, and deferred capabilities."
+      "Add responsive four-stage WHEN, IF, DECIDE, and THEN flow diagrams to saved automations.",
+      "Add a live graphical preview that follows templates and manual draft changes in Automation Studio."
     ],
     "fixes": [
-      "Prevent guided progression past a required step until its explicit check succeeds.",
-      "Persist guide position and optional skips without altering existing settings, stored data, or completed legacy installations."
+      "Resolve approved entity identifiers to friendly Home Assistant names in the visual flow without rewriting stored rules.",
+      "Keep the current automation API, persistence schema, activation behavior, and owner-only extensions unchanged."
     ],
     "validation": [
-      "Guided onboarding progress persistence, required-step navigation gate, optional-skip safety, legacy-install preservation, Grinder exclusion, release contract, regression suite, and v0.13.62 release alignment coverage"
+      "Automation flow renderer safety, live draft wiring, saved-library rendering, responsive layout, Docker browser smoke, Grinder exclusion, release contract, regression suite, and v0.13.63 release alignment coverage"
     ]
   },
   "features": [
+    "Present live drafts and saved automations as responsive WHEN, IF, DECIDE, and THEN graphical flows without changing automation behavior.",
     "Guide onboarding through a resumable sequence with required-step gates, optional skipping, remediation guidance, and a completion summary.",
     "Persist onboarding verification outcomes and require explicit successful core checks before a new installation can finish setup.",
     "Run onboarding connectivity and configuration checks only after an explicit user request and return focused remediation details.",
@@ -647,6 +652,7 @@
     "Preserve task-scoped Workshop Memory approval and per-draft Gmail approval isolation."
   ],
   "validation": [
+    "Automation flow renderer safety, live draft wiring, saved-library rendering, responsive layout, Docker browser smoke, owner-only Grinder exclusion, release contract, regression suite, and v0.13.63 release alignment coverage",
     "Guided onboarding progress persistence, required-step navigation gate, optional-skip safety, legacy-install preservation, owner-only Grinder exclusion, release contract, regression suite, and v0.13.62 release alignment coverage",
     "Onboarding verification persistence, required-check completion gate, legacy-install preservation, owner-only Grinder exclusion, release contract, regression suite, and v0.13.61 release alignment coverage",
     "Onboarding check allowlist, explicit external-call boundary, guided action labels, owner-only Grinder exclusion, release contract, regression suite, and v0.13.60 release alignment coverage",

@@ -25,13 +25,14 @@
 
 <link id="zbrano-v01312-interface-refresh-style" rel="stylesheet" href="css/interface-refresh.css">
 <link id="zbrano-v01359-onboarding-style" rel="stylesheet" href="css/onboarding.css">
+<link id="zbrano-v01363-automation-studio-style" rel="stylesheet" href="css/automation-studio.css">
 </head>
 <body>
 <main>
   <header>
     <div class="brand-line">
       <h1>ZBRANO</h1>
-      <div class="status hud-version-label">Workshop Intelligence Interface · HUD 0.13.62</div>
+      <div class="status hud-version-label">Workshop Intelligence Interface · HUD 0.13.63</div>
     </div>
     <div class="runtime-status-stack">
       <button id="calendar-quick-open" class="calendar-quick-open" type="button" aria-label="Open ZBRANO Calendar" title="Open Calendar">
@@ -669,6 +670,10 @@
             <div class="autonomy-form-actions"><button type="submit">Build in Chat</button><span id="automation-chat-builder-status" role="status"></span></div>
           </form>
         </article>
+        <article class="autonomy-card automation-studio-preview">
+          <div class="autonomy-card-head"><div><h3>Visual flow preview</h3><p>The diagram follows the current draft. Use the editor below or ask ZBRANO in Chat to prepare it.</p></div><span class="automation-state">PREVIEW</span></div>
+          <div id="automation-flow-preview"></div>
+        </article>
         <details class="automation-advanced">
           <summary>Advanced manual editor and templates</summary>
         <div class="autonomy-library-grid">
@@ -876,6 +881,7 @@
 
 <script id="zbrano-v0129-plugin-oauth" src="js/plugins/oauth.js"></script>
 
+<script id="zbrano-v01363-automation-flow" src="js/automations/flow.js"></script>
 <script id="zbrano-v01210-autonomous-automations" src="js/automations/workspace.js"></script>
 <script id="zbrano-v01228-composer-context" src="js/chat/composer-context.js"></script>
 

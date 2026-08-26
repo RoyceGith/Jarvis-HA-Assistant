@@ -57,7 +57,26 @@ const automationFixture = {
     notify_after_autonomous_action: true,
     passive_learning_enabled: true,
   },
-  automations: [],
+  automations: [{
+    id: "browser-flow",
+    name: "Browser flow",
+    objective: "Verify graphical automation rendering",
+    trigger_entity: "sensor.browser_fixture_1",
+    trigger_operator: "above",
+    trigger_value: "26",
+    trigger_for_seconds: 60,
+    presence_entity: "",
+    signal_entities: ["sensor.browser_fixture_2"],
+    proposal_template: "Suggest cooling",
+    action_entity: "",
+    action_service: "",
+    cooldown_minutes: 30,
+    confidence_threshold: 0.8,
+    execution_policy: "suggest",
+    risk_level: "controlled",
+    enabled: false,
+    review_required: false,
+  }],
   suggestions: [],
   timeline: [],
   entity_memory: [],
@@ -72,7 +91,7 @@ function apiFixture(url) {
   if (pathname === "/api/health") {
     return {
       status: "ok",
-      version: "0.13.62",
+      version: "0.13.63",
       speech_provider: "openai",
       speech_providers: {openai: {configured: true}, elevenlabs: {configured: false}},
     };
@@ -100,7 +119,7 @@ function apiFixture(url) {
   if (pathname === "/api/plugins") return {plugins: []};
   if (pathname === "/api/files/shared") return {files: [], count: 0};
   if (pathname === "/api/release-memory-sync") {
-    return {enabled: false, state: "disabled", version: "0.13.62", task_active: false};
+    return {enabled: false, state: "disabled", version: "0.13.63", task_active: false};
   }
   if (pathname === "/api/tab-activity") return {revisions: {}};
   if (pathname === "/api/grinder-monitor/status") return {enabled: false, connected: false};
@@ -197,6 +216,7 @@ async function main() {
     await page.locator('[data-auto-panel="library"]:not(.hidden)').waitFor();
     await page.locator('[data-automation-library-view="saved"]').click();
     await page.locator('[data-automation-library-panel="saved"]:not(.hidden)').waitFor();
+    assert.equal(await page.locator("#automation-library .automation-flow-node").count(), 4);
     await page.locator('[data-automation-library-view="create"]').click();
     await page.locator('[data-automation-library-panel="create"]:not(.hidden)').waitFor();
     await page.locator(".automation-advanced summary").click();
@@ -208,8 +228,10 @@ async function main() {
     assert.doesNotMatch(templateSignals, /workshop_/);
     assert.equal(await page.locator("#automation-presence").inputValue(), "");
     assert.equal(await page.locator("#automation-action-entity").inputValue(), "");
+    assert.equal(await page.locator("#automation-flow-preview .automation-flow-node").count(), 4);
+    assert.match(await page.locator("#automation-flow-preview").innerText(), /Comfort advisor|Record the match|room is becoming uncomfortable/i);
 
-    console.log("Browser smoke passed: New Chat, navigation, Entity scrolling, Automation Library tabs, and installation-derived templates");
+    console.log("Browser smoke passed: New Chat, navigation, Entity scrolling, Automation Studio flows, and installation-derived templates");
   } finally {
     await browser.close();
     await new Promise(resolve => server.close(resolve));

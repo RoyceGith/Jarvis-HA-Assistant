@@ -16,10 +16,10 @@ MANIFEST = json.loads((ROOT / "jarvis/release_manifest.json").read_text(encoding
 
 class ConversationsDomainBoundaryTests(unittest.TestCase):
     def test_release_markers_are_aligned(self):
-        self.assertIn('version: "0.13.62"', CONFIG)
-        self.assertIn('version="0.13.62"', MAIN)
-        self.assertIn("HUD 0.13.62", HTML)
-        self.assertEqual(MANIFEST["version"], "0.13.62")
+        self.assertIn('version: "0.13.63"', CONFIG)
+        self.assertIn('version="0.13.63"', MAIN)
+        self.assertIn("HUD 0.13.63", HTML)
+        self.assertEqual(MANIFEST["version"], "0.13.63")
 
     def test_conversation_store_is_outside_composition_root(self):
         self.assertNotIn("def persist_chat_sessions(", MAIN)
