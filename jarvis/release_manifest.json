@@ -1,9 +1,9 @@
 {
-  "version": "0.13.44",
+  "version": "0.13.45",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/Jarvis-HA-Assistant main",
-  "summary": "Expand the Step 4 build-gated ASGI integration suite across Automation Brain, Calendar, and Notification Center API and persistence lifecycles.",
+  "summary": "Restore the build-gated integration suite by isolating its synthetic Automation entity from the production entity-permission policy.",
   "history_backfill": [
     {
       "version": "0.13.0",
@@ -180,19 +180,21 @@
     {
       "version": "0.13.43",
       "summary": "Established build-gated real-ASGI integration coverage for application import, lifecycle registration, health and frontend delivery, Settings persistence, Chat persistence, and request validation."
+    },
+    {
+      "version": "0.13.44",
+      "summary": "Expanded the Step 4 build-gated ASGI integration suite across Automation Brain, Calendar, and Notification Center API and persistence lifecycles."
     }
   ],
   "release_entry": {
     "features": [
-      "Exercise Automation Brain draft creation, listing, deletion, and JSON persistence through the real ASGI application.",
-      "Exercise Calendar appointment creation, listing, cancellation, and JSON persistence through the real ASGI application.",
-      "Exercise Notification Center settings and watch lifecycle routes with deterministic Home Assistant fakes."
+      "Retain real-ASGI Automation lifecycle coverage while supplying its synthetic entity permission deterministically inside the build test."
     ],
     "fixes": [
-      "Keep all expanded integration tests isolated from production /data paths, live Home Assistant entities, notification delivery, and external services."
+      "Isolate the synthetic Automation trigger entity from the production entity-permission policy so the aarch64 image test gate can complete without weakening runtime access controls."
     ],
     "validation": [
-      "Automation, Calendar, and Notification API lifecycle coverage; isolated JSON persistence; Home Assistant fakes; build-gated integration execution; regression suite; and v0.13.44 release alignment coverage"
+      "Automation API permission-boundary isolation, source validators, backend compilation, regression suite, and v0.13.45 release alignment coverage"
     ]
   },
   "features": [
@@ -421,6 +423,7 @@
     "Preserve multi-round Workshop Memory tasks after an approved write in both streaming and non-streaming chat."
   ],
   "fixes": [
+    "Isolate the build-only synthetic Automation entity from runtime entity permissions while retaining the real ASGI route and persistence test.",
     "Restore Release Memory reconciliation by moving version labels and managed-block constants into the extracted release-note service that uses them.",
     "Prevent Release Memory synchronization from remaining indefinitely in pending, synchronizing, or retrying after a stopped or hung worker.",
     "Preserve Calendar routes, appointment and reminder storage, Google OAuth and sync state, notification delivery, and worker lifecycle across domain extraction.",
@@ -549,6 +552,7 @@
     "Preserve task-scoped Workshop Memory approval and per-draft Gmail approval isolation."
   ],
   "validation": [
+    "Automation API permission-boundary isolation, source validators, backend compilation, regression suite, and v0.13.45 release alignment coverage",
     "Automation, Calendar, and Notification API lifecycle coverage; isolated JSON persistence; Home Assistant fakes; build-gated integration execution; regression suite; and v0.13.44 release alignment coverage",
     "ASGI health and frontend smoke coverage, Settings and Chat API persistence round trips, request validation, build-gated integration execution, regression suite, and v0.13.43 release alignment coverage",
     "Intent and tool routing priority, Developer alias/source support, wake clip and calibration contracts, explicit dependency wiring, backend compilation, regression suite, and v0.13.42 release alignment coverage",

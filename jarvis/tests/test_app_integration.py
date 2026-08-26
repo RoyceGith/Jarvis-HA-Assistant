@@ -74,13 +74,13 @@ class ApplicationIntegrationTests(unittest.IsolatedAsyncioTestCase):
             response = await self.client.get("/api/health")
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json()["status"], "ok")
-        self.assertEqual(response.json()["version"], "0.13.44")
+        self.assertEqual(response.json()["version"], "0.13.45")
         self.assertEqual(response.json()["ha_read_entity_count"], 1)
         self.assertEqual(response.json()["ha_control_entity_count"], 1)
 
         frontend = await self.client.get("/")
         self.assertEqual(frontend.status_code, 200)
-        self.assertIn("HUD 0.13.44", frontend.text)
+        self.assertIn("HUD 0.13.45", frontend.text)
         self.assertEqual(
             frontend.headers.get("cache-control"),
             "no-store, no-cache, must-revalidate, max-age=0",
@@ -136,17 +136,18 @@ class ApplicationIntegrationTests(unittest.IsolatedAsyncioTestCase):
         self.assertFalse(conversations.CHAT_STORAGE_PATH.exists())
 
     async def test_automation_api_create_read_and_delete_round_trip(self) -> None:
-        created = await self.client.post(
-            "/api/automations",
-            json={
-                "name": "Workshop temperature suggestion",
-                "objective": "Suggest cooling when the workshop becomes too warm.",
-                "trigger_entity": "sensor.workshop_temperature",
-                "trigger_operator": "above",
-                "trigger_value": "27",
-                "proposal_template": "The workshop is warm. Would you like cooling?",
-            },
-        )
+        with patch.object(automations, "ensure_read_allowed"):
+            created = await self.client.post(
+                "/api/automations",
+                json={
+                    "name": "Workshop temperature suggestion",
+                    "objective": "Suggest cooling when the workshop becomes too warm.",
+                    "trigger_entity": "sensor.workshop_temperature",
+                    "trigger_operator": "above",
+                    "trigger_value": "27",
+                    "proposal_template": "The workshop is warm. Would you like cooling?",
+                },
+            )
         self.assertEqual(created.status_code, 200)
         automation_id = created.json()["automation"]["id"]
         self.assertTrue(automations.AUTOMATION_STORAGE_PATH.is_file())
