@@ -25,10 +25,10 @@ def load_functions(names):
 
 class EpisodeAwareAutomationReleaseTests(unittest.TestCase):
     def test_release_markers_are_aligned(self):
-        self.assertIn('version: "0.13.75"', CONFIG)
-        self.assertIn('version="0.13.75"', MAIN)
-        self.assertIn("HUD 0.13.75", HTML)
-        self.assertEqual(MANIFEST["version"], "0.13.75")
+        self.assertIn('version: "0.13.76"', CONFIG)
+        self.assertIn('version="0.13.76"', MAIN)
+        self.assertIn("HUD 0.13.76", HTML)
+        self.assertEqual(MANIFEST["version"], "0.13.76")
 
     def test_numeric_episode_tracks_direction_and_extremes(self):
         functions = load_functions({"_automation_trigger_active", "_automation_trigger_reset", "_automation_numeric_episode_update"})
@@ -74,7 +74,7 @@ class EpisodeAwareAutomationReleaseTests(unittest.TestCase):
         self.assertIn("auto reconsider", FLOW)
 
     def test_release_history_includes_v01372(self):
-        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.74")
+        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.75")
 
 
 if __name__ == "__main__":

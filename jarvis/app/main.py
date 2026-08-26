@@ -24,6 +24,7 @@ from .domains.automations import (
     _automation_evaluate_state_change,
     _automation_event,
     _automation_expire_stale_suggestions,
+    _automation_failure_circuit,
     _automation_execute_action,
     _automation_label_blocks_control,
     _automation_payload_http,
@@ -675,7 +676,7 @@ ha_ws = HomeAssistantWebSocketClient(
 
 app = FastAPI(
     title="ZBRANO",
-    version="0.13.75",
+    version="0.13.76",
     docs_url="/api/docs",
     openapi_url="/api/openapi.json",
 )
@@ -2654,7 +2655,7 @@ async def health() -> dict[str, Any]:
     configured_speech_provider = SPEECH_PROVIDER if SPEECH_PROVIDER in {"openai", "elevenlabs"} else "openai"
     return {
         "status": "ok",
-        "version": "0.13.75",
+        "version": "0.13.76",
         "home_assistant_configured": bool(SUPERVISOR_TOKEN),
         "workshop_memory_configured": bool(WORKSHOP_MEMORY_URL),
         "workshop_memory_cost_guard": workshop_cost_guard_status(),
@@ -3339,6 +3340,8 @@ async def read_autonomous_automations():
         data = automation_store()
         now = time.time()
         expired = sum(_automation_expire_stale_suggestions(data, item, now) for item in data.get("automations", []))
+        for item in data.get("automations", []):
+            _automation_failure_circuit(item, now)
         if expired:
             _automation_save(data)
     return {
@@ -3465,6 +3468,25 @@ async def reset_automation_feedback(automation_id: str) -> dict[str, Any]:
         return {"reset": True, "automation": automation}
 
 
+@app.post("/api/automations/{automation_id}/recover")
+async def recover_automation_failures(automation_id: str) -> dict[str, Any]:
+    async with AUTOMATION_ENGINE_LOCK:
+        data = automation_store()
+        automation = next((item for item in data["automations"] if item.get("id") == automation_id), None)
+        if not automation:
+            raise HTTPException(status_code=404, detail="Automation definition not found")
+        now = time.time()
+        feedback = automation.setdefault("feedback_memory", {})
+        feedback["failure_acknowledged_at"] = now
+        feedback["recovery_resets"] = int(feedback.get("recovery_resets") or 0) + 1
+        automation["status"] = "armed" if automation.get("enabled") else "draft"
+        automation.pop("last_circuit_signature", None)
+        _automation_failure_circuit(automation, now)
+        _automation_event(data, "recovery", f"Automation failure circuit reset: {automation.get('name')}", "Previous failures remain in the audit history; new execution may be attempted only under existing authority.")
+        _automation_save(data)
+        return {"recovered": True, "automation": automation}
+
+
 @app.post("/api/automations/suggestions/{suggestion_id}/approve")
 async def approve_automation_suggestion(suggestion_id: str) -> dict[str, Any]:
     async with AUTOMATION_ENGINE_LOCK:
@@ -3501,6 +3523,10 @@ async def approve_automation_suggestion(suggestion_id: str) -> dict[str, Any]:
         automation = next((item for item in data["automations"] if item.get("id") == suggestion.get("automation_id")), None)
         if not automation:
             raise HTTPException(status_code=404, detail="Automation definition not found")
+        circuit_open, circuit_detail, _ = _automation_failure_circuit(automation, time.time())
+        if circuit_open:
+            _automation_save(data)
+            raise HTTPException(status_code=409, detail=f"Automation execution paused: {circuit_detail}. Reset recovery in Automation Studio before retrying.")
         current_policy, _ = _automation_effective_policy(automation, data["settings"])
         if current_policy not in {"approval_required", "autonomous"}:
             raise HTTPException(status_code=403, detail="The current global safety ceiling no longer permits this approval")

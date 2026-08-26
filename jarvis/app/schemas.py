@@ -164,6 +164,8 @@ class AutonomousAutomationRequest(BaseModel):
     notify_on_action: bool = True
     reversible_only: bool = True
     max_actions_per_hour: int = Field(default=2, ge=1, le=60)
+    failure_limit: int = Field(default=3, ge=1, le=10)
+    failure_window_minutes: int = Field(default=60, ge=5, le=1440)
     enabled: bool = False
     trigger_entity: str = Field(default="", max_length=255, pattern=r"^(|[a-z0-9_]+\.[a-z0-9_]+)$")
     trigger_operator: str = Field(default="changes_to", pattern="^(any_change|changes_to|equals|not_equals|above|below)$")

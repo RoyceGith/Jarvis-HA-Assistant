@@ -1391,6 +1391,8 @@ def _automation_record_feedback(item: dict[str, Any], outcome: str, now: float, 
         feedback[key] = int(feedback.get(key) or 0) + 1
     if outcome == "not_now":
         feedback["consecutive_dismissals"] = int(feedback.get("consecutive_dismissals") or 0) + 1
+    if outcome == "action_failure":
+        feedback["failure_timestamps"] = [now, *list(feedback.get("failure_timestamps") or [])][:20]
     if outcome in {"approved", "manual_resolution"}:
         feedback["consecutive_dismissals"] = 0
     feedback["last_feedback"] = outcome
@@ -1431,6 +1433,28 @@ def _automation_expire_stale_suggestions(data: dict[str, Any], item: dict[str, A
         item["last_expired_at"] = now
         _automation_event(data, "recovery" if interrupted else "expired", f"Suggestion lifecycle recovered: {item.get('name')}", f"{expired} unanswered suggestion(s) expired; {interrupted} interrupted execution(s) marked failed.")
     return expired + interrupted
+
+def _automation_failure_circuit(item: dict[str, Any], now: float) -> tuple[bool, str, int]:
+    feedback = item.get("feedback_memory") if isinstance(item.get("feedback_memory"), dict) else {}
+    limit = max(1, min(10, int(item.get("failure_limit") or 3)))
+    window_minutes = max(5, min(1440, int(item.get("failure_window_minutes") or 60)))
+    acknowledged_at = float(feedback.get("failure_acknowledged_at") or 0)
+    cutoff = max(now - window_minutes * 60, acknowledged_at)
+    failure_timestamps = feedback.get("failure_timestamps")
+    if isinstance(failure_timestamps, list):
+        count = sum(float(value or 0) > cutoff for value in failure_timestamps)
+    else:
+        count = sum(
+            isinstance(entry, dict) and entry.get("outcome") == "action_failure" and float(entry.get("created_at") or 0) > cutoff
+            for entry in feedback.get("history", [])
+        )
+    is_open = count >= limit
+    detail = f"failure circuit {'open' if is_open else 'closed'}: {count}/{limit} action failures within {window_minutes} minutes"
+    item["recovery_state"] = {
+        "circuit_open": is_open, "recent_failures": count, "failure_limit": limit,
+        "window_minutes": window_minutes, "detail": detail,
+    }
+    return is_open, detail, count
 
 def _automation_autonomous_allowed(item: dict[str, Any], settings: dict[str, Any], actions: list[dict[str, Any]] | None = None) -> tuple[bool, str]:
     effective_policy, policy_detail = _automation_effective_policy(item, settings)
@@ -1522,6 +1546,10 @@ async def _automation_execute_action(data: dict[str, Any], item: dict[str, Any],
     except Exception:
         item["status"] = "failed"
         _automation_record_feedback(item, "action_failure", time.time(), suggestion)
+        circuit_open, circuit_detail, _ = _automation_failure_circuit(item, time.time())
+        if circuit_open:
+            item["status"] = "paused_failure"
+            item["last_deferred_reason"] = circuit_detail
         _automation_event(data, "action_failed", f"Action sequence failed: {item.get('name')}", f"completed={len(completed)}/{len(actions)}")
         _automation_save(data)
         raise
@@ -1611,6 +1639,16 @@ async def _automation_commit_match(automation_id: str, evidence: dict[str, Any])
             _automation_save(data)
             return
         policy, policy_detail = _automation_effective_policy(item, data["settings"])
+        circuit_open, circuit_detail, _ = _automation_failure_circuit(item, now)
+        if circuit_open and policy in {"approval_required", "autonomous"}:
+            item["status"] = "paused_failure"
+            item["last_deferred_reason"] = circuit_detail
+            signature = f"{int((item.get('feedback_memory') or {}).get('failure_acknowledged_at') or 0)}:{circuit_detail}"
+            if item.get("last_circuit_signature") != signature:
+                item["last_circuit_signature"] = signature
+                _automation_event(data, "circuit_open", f"Automation paused after repeated failures: {item.get('name')}", circuit_detail)
+            _automation_save(data)
+            return
         learned, learned_detail = _automation_learned_suppression(item, trigger, current)
         if learned and policy in {"suggest", "approval_required"}:
             item["status"] = "deferred"

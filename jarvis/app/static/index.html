@@ -32,7 +32,7 @@
   <header>
     <div class="brand-line">
       <h1>ZBRANO</h1>
-      <div class="status hud-version-label">Workshop Intelligence Interface · HUD 0.13.75</div>
+      <div class="status hud-version-label">Workshop Intelligence Interface · HUD 0.13.76</div>
     </div>
     <div class="runtime-status-stack">
       <button id="calendar-quick-open" class="calendar-quick-open" type="button" aria-label="Open ZBRANO Calendar" title="Open Calendar">
@@ -747,6 +747,8 @@
                 <label class="check"><input id="automation-delivery-center" type="checkbox" checked> Show in Studio inbox</label>
                 <label class="check"><input id="automation-delivery-push" type="checkbox" checked> Send Home Assistant notification</label>
                 <label>Maximum actions per hour<input id="automation-max-actions" type="number" min="1" max="60" value="2"></label>
+                <label>Failure limit<input id="automation-failure-limit" type="number" min="1" max="10" value="3"></label>
+                <label>Failure window (minutes)<input id="automation-failure-window" type="number" min="5" max="1440" value="60"></label>
                 <label class="check"><input id="automation-notify-action" type="checkbox" checked> Notify after an action</label>
                 <label class="check"><input id="automation-reversible-only" type="checkbox" checked> Autonomous actions must be reversible</label>
               </div>
