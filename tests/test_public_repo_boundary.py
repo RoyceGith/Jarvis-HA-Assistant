@@ -26,7 +26,7 @@ class PublicRepositoryBoundaryTests(unittest.TestCase):
 
     def test_documented_boundary_keeps_public_core_independent(self):
         text = (ROOT / "docs/REPOSITORY_BOUNDARIES.md").read_text(encoding="utf-8")
-        self.assertIn("does not contain the private application source or build", text)
+        self.assertIn("contains no current application source or build workflow", text)
         self.assertIn("must not import private source code", text)
 
 

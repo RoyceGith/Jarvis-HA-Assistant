@@ -1,9 +1,9 @@
 {
-  "version": "0.13.55",
+  "version": "0.13.56",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/ZBRANO_Core main",
-  "summary": "Restore the original public jarvis add-on directory so existing Home Assistant installations recognize the clean distribution repository without uninstalling or changing stored data.",
+  "summary": "Reconnect the thin public installer branch to the last previously public source commit so cached Home Assistant Supervisor repositories can fast-forward and detect updates without uninstalling.",
   "history_backfill": [
     {
       "version": "0.13.0",
@@ -223,24 +223,29 @@
     },
     {
       "version": "0.13.54",
-      "summary": "Completed the repository split by moving full source and build history to private RoyceGith/ZBRANO_Core and publishing a five-file clean-history Home Assistant distribution repository."
+      "summary": "Completed the repository split by moving post-split source and build history to private RoyceGith/ZBRANO_Core and publishing a five-file Home Assistant distribution tree."
+    },
+    {
+      "version": "0.13.55",
+      "summary": "Restored the original public jarvis add-on directory so existing Home Assistant installations can recognize the distribution metadata without changing their slug or stored data."
     }
   ],
   "release_entry": {
     "features": [
-      "Preserve the original jarvis add-on directory as part of the public distribution compatibility contract."
+      "Anchor the thin public installer tree to v0.13.53, the last commit previously fetched by Home Assistant installations."
     ],
     "fixes": [
-      "Replace the temporary zbrano distribution folder with the original jarvis folder expected by existing Home Assistant repository records.",
-      "Keep the add-on slug, configuration schema, GHCR image, and persistent data contract unchanged so no uninstall is required."
+      "Replace the unrelated public root history that prevented Supervisor's cached Git checkout from fast-forwarding.",
+      "Keep all post-split source commits private while retaining already-public ancestry solely for update compatibility."
     ],
     "validation": [
-      "Original-folder export allowlist, add-on slug, GHCR compatibility path, public metadata layout, release contract, regression suite, and v0.13.55 release alignment coverage"
+      "Public compatibility-base SHA, first-parent ancestry, thin HEAD tree, jarvis folder, add-on slug, GHCR path, release contract, regression suite, and v0.13.56 release alignment coverage"
     ]
   },
   "features": [
+    "Preserve fast-forward ancestry from the last previously public commit while keeping the public repository HEAD limited to installer metadata.",
     "Treat the original public jarvis add-on folder as a stable Home Assistant update-discovery contract.",
-    "Split private source and build history into RoyceGith/ZBRANO_Core while exposing only a clean-history Home Assistant update repository publicly.",
+    "Split post-v0.13.53 source and build history into RoyceGith/ZBRANO_Core while exposing only a thin Home Assistant update tree publicly.",
     "Enforce a public Home Assistant core boundary while reserving hosted commercial and community services for a separate private repository.",
     "Derive Automation Library starter drafts from each installation's Home Assistant entity inventory instead of owner-specific placeholders.",
     "Add a pre-build release contract covering Home Assistant metadata, Docker packaging, and GitHub image publication.",
@@ -472,6 +477,7 @@
     "Preserve multi-round Workshop Memory tasks after an approved write in both streaming and non-streaming chat."
   ],
   "fixes": [
+    "Reconnect the public installer branch to existing Supervisor clones so post-split updates are discoverable without uninstalling.",
     "Restore the public jarvis directory so installed Home Assistant apps can discover post-split updates without uninstalling.",
     "Keep the existing GHCR image, add-on slug, and stored data contract stable across the public/private repository split.",
     "Update repository metadata and Developer tooling after the GitHub source rename while retaining the compatibility GHCR path.",
@@ -610,6 +616,7 @@
     "Preserve task-scoped Workshop Memory approval and per-draft Gmail approval isolation."
   ],
   "validation": [
+    "Public compatibility-base SHA, first-parent ancestry, thin HEAD tree, jarvis folder, add-on slug, GHCR path, release contract, regression suite, and v0.13.56 release alignment coverage",
     "Original-folder export allowlist, add-on slug, GHCR compatibility path, public metadata layout, release contract, regression suite, and v0.13.55 release alignment coverage",
     "Private-core identity, public-distribution identity, clean-history packaging allowlist, GHCR compatibility path, release contract, regression suite, and v0.13.54 release alignment coverage",
     "Renamed repository reachability, canonical source references, legacy-reference absence, GHCR compatibility path, release contract, regression suite, and v0.13.53 release alignment coverage",

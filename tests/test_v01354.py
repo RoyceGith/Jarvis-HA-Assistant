@@ -18,16 +18,16 @@ MANIFEST = json.loads((ROOT / "jarvis/release_manifest.json").read_text(encoding
 
 class RepositorySplitReleaseTests(unittest.TestCase):
     def test_release_markers_are_aligned(self):
-        self.assertIn('version: "0.13.55"', CONFIG)
-        self.assertIn('version="0.13.55"', MAIN)
-        self.assertIn("HUD 0.13.55", HTML)
-        self.assertEqual(MANIFEST["version"], "0.13.55")
+        self.assertIn('version: "0.13.56"', CONFIG)
+        self.assertIn('version="0.13.56"', MAIN)
+        self.assertIn("HUD 0.13.56", HTML)
+        self.assertEqual(MANIFEST["version"], "0.13.56")
 
     def test_private_core_and_public_distribution_are_distinct(self):
         self.assertIn("RoyceGith/ZBRANO_Core", MANIFEST["source"])
         self.assertIn("github.com/RoyceGith/ZBRANO_Core", DOCKERFILE)
         self.assertIn("github.com/RoyceGith/ZBRANO_HA_Assistant", REPOSITORY)
-        self.assertIn("clean-history public update repository", BOUNDARY)
+        self.assertIn("thin public update repository", BOUNDARY)
 
     def test_home_assistant_compatibility_image_is_unchanged(self):
         self.assertIn("ghcr.io/roycegith/jarvis-ha-assistant", CONFIG)
@@ -54,7 +54,7 @@ class RepositorySplitReleaseTests(unittest.TestCase):
         })
 
     def test_release_history_includes_v01353(self):
-        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.54")
+        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.55")
 
 
 if __name__ == "__main__":

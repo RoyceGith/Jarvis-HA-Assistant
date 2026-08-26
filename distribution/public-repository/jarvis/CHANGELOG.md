@@ -1,5 +1,11 @@
 # Change log
 
+## 0.13.56
+
+- Connected the thin installer tree to the last previously public commit so cached
+  Home Assistant repository clones can fast-forward and discover updates.
+- Kept all post-split source and build commits private.
+
 ## 0.13.55
 
 - Restored the original public `jarvis/` add-on folder so existing Home Assistant

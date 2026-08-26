@@ -1,4 +1,4 @@
-ZBRANO v0.13.55 restores the original public `jarvis/` add-on directory so existing Home Assistant installations recognize the clean distribution repository and receive updates without uninstalling or changing stored data.
+ZBRANO v0.13.56 reconnects the thin public installer branch to the last previously public source commit so Home Assistant Supervisor can fast-forward its cached repository checkout and detect updates without uninstalling.
 
 ZBRANO v0.13.18 prevents Release Memory synchronization from remaining indefinitely in a non-terminal state by adding worker timeout recovery, note progress, task-health reporting, and automatic interface polling.
 

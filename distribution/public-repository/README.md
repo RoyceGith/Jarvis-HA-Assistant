@@ -1,8 +1,10 @@
 # ZBRANO for Home Assistant
 
 This is the public Home Assistant installation and update repository for ZBRANO.
-The application is delivered as a prebuilt container image; private application
-source and build history are not stored in this repository.
+The application is delivered as a prebuilt container image. The current repository
+tree contains no application source. Legacy commits that were already public remain
+as ancestry for Home Assistant update compatibility; post-split source and build
+history remain private.
 
 ## Installation
 
