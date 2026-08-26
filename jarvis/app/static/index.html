@@ -32,7 +32,7 @@
   <header>
     <div class="brand-line">
       <h1>ZBRANO</h1>
-      <div class="status hud-version-label">Workshop Intelligence Interface · HUD 0.13.63</div>
+      <div class="status hud-version-label">Workshop Intelligence Interface · HUD 0.13.64</div>
     </div>
     <div class="runtime-status-stack">
       <button id="calendar-quick-open" class="calendar-quick-open" type="button" aria-label="Open ZBRANO Calendar" title="Open Calendar">
@@ -671,8 +671,31 @@
           </form>
         </article>
         <article class="autonomy-card automation-studio-preview">
-          <div class="autonomy-card-head"><div><h3>Visual flow preview</h3><p>The diagram follows the current draft. Use the editor below or ask ZBRANO in Chat to prepare it.</p></div><span class="automation-state">PREVIEW</span></div>
-          <div id="automation-flow-preview"></div>
+          <div class="autonomy-card-head automation-studio-toolbar">
+            <div><h3>Automation Studio</h3><p>Build visually, configure one block at a time, and save through the existing safe automation engine.</p></div>
+            <div class="automation-studio-toolbar-actions"><span id="automation-studio-state" role="status"></span><div class="autonomy-draft-actions"><button id="automation-studio-new" type="button">New flow</button><button id="automation-studio-save" type="button">Save draft</button></div></div>
+          </div>
+          <div class="automation-studio-layout">
+            <aside class="automation-studio-toolbox" aria-label="Automation building blocks">
+              <span class="automation-studio-label">BUILDING BLOCKS</span>
+              <button type="button" draggable="true" data-studio-node="details"><strong>Automation</strong><small>Name, objective and status</small></button>
+              <button type="button" draggable="true" data-studio-node="trigger"><strong>Trigger</strong><small>Entity, state and duration</small></button>
+              <button type="button" draggable="true" data-studio-node="context"><strong>Context</strong><small>Presence and evidence</small></button>
+              <button type="button" draggable="true" data-studio-node="decision"><strong>Decision</strong><small>Suggestion and authority</small></button>
+              <button type="button" draggable="true" data-studio-node="action"><strong>Action</strong><small>Home Assistant service</small></button>
+            </aside>
+            <section id="automation-studio-canvas" class="automation-studio-canvas" aria-label="Automation flow canvas">
+              <div class="automation-studio-canvas-head"><span>FLOW CANVAS</span><strong id="automation-studio-flow-name">New automation</strong></div>
+              <div id="automation-flow-preview"></div>
+              <small class="automation-studio-canvas-hint">Select a block to configure it. Toolbox blocks can also be dragged onto the canvas.</small>
+            </section>
+            <aside class="automation-studio-inspector" aria-label="Selected block settings">
+              <div class="automation-studio-inspector-head"><span class="automation-studio-label">BLOCK SETTINGS</span><button id="automation-studio-advanced" type="button">Advanced</button></div>
+              <h4 id="automation-studio-inspector-title">Trigger</h4>
+              <p id="automation-studio-inspector-help">Choose what starts this automation.</p>
+              <div id="automation-studio-inspector-fields" class="automation-studio-inspector-fields"></div>
+            </aside>
+          </div>
         </article>
         <details class="automation-advanced">
           <summary>Advanced manual editor and templates</summary>

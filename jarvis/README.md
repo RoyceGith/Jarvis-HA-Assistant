@@ -1,4 +1,17 @@
-# ZBRANO v0.12.14
+# ZBRANO v0.13.64
+
+Automation Studio provides a graphical building-block workflow for Home Assistant
+automations. Use the toolbox to select or drag Trigger, Context, Decision, and
+Action blocks onto the canvas, then edit only that block in the settings inspector.
+Natural-language creation, templates, saved automation compatibility, and the full
+Advanced editor remain available.
+
+The visual editor currently represents the established linear automation schema.
+It does not silently add branches or change the behavior of existing stored rules.
+
+## Earlier releases
+
+### v0.12.14
 
 Version 0.8.5 added clean Markdown rendering for ZBRANO chat replies and guides
 assistant responses toward readable sections, spacing, bullets, and concise

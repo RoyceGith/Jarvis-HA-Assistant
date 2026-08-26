@@ -91,7 +91,7 @@ function apiFixture(url) {
   if (pathname === "/api/health") {
     return {
       status: "ok",
-      version: "0.13.63",
+      version: "0.13.64",
       speech_provider: "openai",
       speech_providers: {openai: {configured: true}, elevenlabs: {configured: false}},
     };
@@ -119,7 +119,7 @@ function apiFixture(url) {
   if (pathname === "/api/plugins") return {plugins: []};
   if (pathname === "/api/files/shared") return {files: [], count: 0};
   if (pathname === "/api/release-memory-sync") {
-    return {enabled: false, state: "disabled", version: "0.13.63", task_active: false};
+    return {enabled: false, state: "disabled", version: "0.13.64", task_active: false};
   }
   if (pathname === "/api/tab-activity") return {revisions: {}};
   if (pathname === "/api/grinder-monitor/status") return {enabled: false, connected: false};
@@ -230,8 +230,14 @@ async function main() {
     assert.equal(await page.locator("#automation-action-entity").inputValue(), "");
     assert.equal(await page.locator("#automation-flow-preview .automation-flow-node").count(), 4);
     assert.match(await page.locator("#automation-flow-preview").innerText(), /Comfort advisor|Record the match|room is becoming uncomfortable/i);
+    await page.locator('[data-studio-node="trigger"]').click();
+    assert.equal(await page.locator("#automation-studio-inspector-title").innerText(), "Trigger");
+    await page.locator("#studio-automation-trigger-value").fill("27");
+    assert.equal(await page.locator("#automation-trigger-value").inputValue(), "27");
+    await page.locator('#automation-flow-preview [data-flow-kind="context"]').click();
+    assert.equal(await page.locator("#automation-studio-inspector-title").innerText(), "Context");
 
-    console.log("Browser smoke passed: New Chat, navigation, Entity scrolling, Automation Studio flows, and installation-derived templates");
+    console.log("Browser smoke passed: New Chat, navigation, Entity scrolling, Automation Studio builder, and installation-derived templates");
   } finally {
     await browser.close();
     await new Promise(resolve => server.close(resolve));

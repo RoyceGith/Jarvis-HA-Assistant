@@ -1,9 +1,9 @@
 {
-  "version": "0.13.63",
+  "version": "0.13.64",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/ZBRANO_Core main",
-  "summary": "Introduce Automation Studio with safe graphical flows for live drafts and saved automations while preserving the existing engine and storage schema.",
+  "summary": "Transform Automation Studio into a user-friendly three-panel visual builder with draggable blocks, an interactive canvas, and contextual settings.",
   "history_backfill": [
     {
       "version": "0.13.0",
@@ -256,22 +256,27 @@
     {
       "version": "0.13.62",
       "summary": "Turned Setup into a resumable guided sequence with required-step gates, optional skipping, remediation guidance, and a completion summary."
+    },
+    {
+      "version": "0.13.63",
+      "summary": "Introduced Automation Studio with safe graphical flows for live drafts and saved automations while preserving the existing engine and storage schema."
     }
   ],
   "release_entry": {
     "features": [
-      "Add responsive four-stage WHEN, IF, DECIDE, and THEN flow diagrams to saved automations.",
-      "Add a live graphical preview that follows templates and manual draft changes in Automation Studio."
+      "Replace the main automation creation surface with a building-block toolbox, dotted flow canvas, and contextual settings inspector.",
+      "Support mouse, keyboard, and drag-to-canvas block selection while keeping the complete manual editor available under Advanced."
     ],
     "fixes": [
-      "Resolve approved entity identifiers to friendly Home Assistant names in the visual flow without rewriting stored rules.",
-      "Keep the current automation API, persistence schema, activation behavior, and owner-only extensions unchanged."
+      "Synchronize visual inspector controls with the canonical automation form so templates, edits, saves, and existing definitions remain compatible.",
+      "Update private and public product README files with the current Automation Studio experience and repository boundaries."
     ],
     "validation": [
-      "Automation flow renderer safety, live draft wiring, saved-library rendering, responsive layout, Docker browser smoke, Grinder exclusion, release contract, regression suite, and v0.13.63 release alignment coverage"
+      "Visual builder toolbox, interactive canvas, inspector synchronization, keyboard and drag wiring, Advanced fallback, README alignment, Docker browser smoke, Grinder exclusion, release contract, regression suite, and v0.13.64 release alignment coverage"
     ]
   },
   "features": [
+    "Transform Automation Studio into a three-panel visual builder with draggable blocks, an interactive node canvas, and focused settings inspectors.",
     "Present live drafts and saved automations as responsive WHEN, IF, DECIDE, and THEN graphical flows without changing automation behavior.",
     "Guide onboarding through a resumable sequence with required-step gates, optional skipping, remediation guidance, and a completion summary.",
     "Persist onboarding verification outcomes and require explicit successful core checks before a new installation can finish setup.",
@@ -652,6 +657,7 @@
     "Preserve task-scoped Workshop Memory approval and per-draft Gmail approval isolation."
   ],
   "validation": [
+    "Visual builder toolbox, interactive canvas, inspector synchronization, keyboard and drag wiring, Advanced fallback, README alignment, Docker browser smoke, owner-only Grinder exclusion, release contract, regression suite, and v0.13.64 release alignment coverage",
     "Automation flow renderer safety, live draft wiring, saved-library rendering, responsive layout, Docker browser smoke, owner-only Grinder exclusion, release contract, regression suite, and v0.13.63 release alignment coverage",
     "Guided onboarding progress persistence, required-step navigation gate, optional-skip safety, legacy-install preservation, owner-only Grinder exclusion, release contract, regression suite, and v0.13.62 release alignment coverage",
     "Onboarding verification persistence, required-check completion gate, legacy-install preservation, owner-only Grinder exclusion, release contract, regression suite, and v0.13.61 release alignment coverage",

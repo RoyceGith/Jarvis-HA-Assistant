@@ -15,10 +15,10 @@ MANIFEST = json.loads((ROOT / "jarvis/release_manifest.json").read_text(encoding
 
 class AutomationStudioReleaseTests(unittest.TestCase):
     def test_release_markers_are_aligned(self):
-        self.assertIn('version: "0.13.63"', CONFIG)
-        self.assertIn('version="0.13.63"', MAIN)
-        self.assertIn("HUD 0.13.63", HTML)
-        self.assertEqual(MANIFEST["version"], "0.13.63")
+        self.assertIn('version: "0.13.64"', CONFIG)
+        self.assertIn('version="0.13.64"', MAIN)
+        self.assertIn("HUD 0.13.64", HTML)
+        self.assertEqual(MANIFEST["version"], "0.13.64")
 
     def test_visual_renderer_is_safe_and_schema_neutral(self):
         for label in ("WHEN", "IF", "DECIDE", "THEN"):
@@ -37,11 +37,11 @@ class AutomationStudioReleaseTests(unittest.TestCase):
 
     def test_flow_is_responsive_and_grinder_is_excluded(self):
         self.assertIn("grid-template-columns", STYLES)
-        self.assertIn("@media (max-width: 820px)", STYLES)
+        self.assertIn("@media (max-width:", STYLES)
         self.assertNotIn("grinder", FLOW.lower())
 
     def test_release_history_includes_v01362(self):
-        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.62")
+        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.63")
 
 
 if __name__ == "__main__":

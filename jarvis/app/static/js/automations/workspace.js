@@ -6,6 +6,14 @@
   const esc=value=>String(value??"").replace(/[&<>"']/g,char=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"})[char]);
   let state={settings:{},automations:[],suggestions:[],timeline:[],entity_memory:[],area_context:{areas:[],entities:[]},patterns:[],discoveries:[],engine:{}};
   let entityMap=new Map();
+  let selectedStudioNode="trigger";
+  const studioPanels={
+    details:{title:"Automation",help:"Name the behavior and decide whether live evaluation starts after saving.",fields:[["automation-name","Name"],["automation-objective","Objective"],["automation-enabled","Enable after saving"]]},
+    trigger:{title:"Trigger",help:"Choose the Home Assistant event that starts evaluation.",fields:[["automation-trigger-entity","Trigger entity"],["automation-trigger-operator","Condition"],["automation-trigger-value","Value"],["automation-trigger-for","Sustain for seconds"]]},
+    context:{title:"Context",help:"Add presence and supporting evidence before ZBRANO proposes anything.",fields:[["automation-presence","Presence entity"],["automation-signals","Signal entities"],["automation-context-notes","Context strategy"]]},
+    decision:{title:"Decision",help:"Control the spoken suggestion, confidence, cooldown, risk and authority.",fields:[["automation-proposal","Suggestion wording"],["automation-confidence","Minimum confidence"],["automation-cooldown","Cooldown minutes"],["automation-risk","Risk class"],["automation-execution-policy","Execution authority"]]},
+    action:{title:"Action",help:"Choose the Home Assistant service that may be proposed or executed under authority limits.",fields:[["automation-action-entity","Action entity"],["automation-action-service","HA service"],["automation-action-data","Service data"],["automation-max-actions","Maximum actions per hour"],["automation-notify-action","Notify after action"],["automation-reversible-only","Require reversible actions"]]},
+  };
 
   async function api(path,options={}){
     const response=await fetch(path,{cache:"no-store",...options});
@@ -33,6 +41,26 @@
   function authorityLabel(value){return ({observe:"Observe only",suggest:"Suggest only",approval_required:"Approval required",autonomous:"Fully autonomous"})[value]||"Suggest only"}
   function entityLabel(id){const entity=entityMap.get(id);return entity?.friendly_name||id}
   function flowElement(item){return window.zbranoAutomationFlow?.create(item,entityLabel)||null}
+  function renderStudioInspector(){
+    const panelConfig=studioPanels[selectedStudioNode]||studioPanels.trigger;
+    $("automation-studio-inspector-title").textContent=panelConfig.title;
+    $("automation-studio-inspector-help").textContent=panelConfig.help;
+    const root=$("automation-studio-inspector-fields");root.replaceChildren();
+    for(const [id,labelText] of panelConfig.fields){
+      const source=$(id);if(!source)continue;
+      const label=document.createElement("label"),control=source.cloneNode(true);
+      control.id=`studio-${id}`;control.removeAttribute("required");
+      if(source.type==="checkbox"){control.checked=source.checked;label.className="is-check";label.append(control,document.createTextNode(labelText))}
+      else{control.value=source.value;const caption=document.createElement("span");caption.textContent=labelText;label.append(caption,control)}
+      const synchronize=()=>{if(source.type==="checkbox")source.checked=control.checked;else source.value=control.value;source.dispatchEvent(new Event("input",{bubbles:true}))};
+      control.addEventListener("input",synchronize);control.addEventListener("change",synchronize);root.append(label);
+    }
+  }
+
+  function selectStudioNode(kind){
+    if(!studioPanels[kind])return;
+    selectedStudioNode=kind;renderEditorFlow();renderStudioInspector();
+  }
   function renderSummary(){
     $("autonomy-engine-status").textContent=state.engine?.status==="active"?"Live":state.engine?.status==="waiting_for_home_assistant"?"Waiting for HA":"Unavailable";
     $("autonomy-mode-summary").textContent=modeLabel(state.settings?.operating_mode);
@@ -145,16 +173,22 @@
     };
   }
 
-  function renderEditorFlow(){window.zbranoAutomationFlow?.render($("automation-flow-preview"),editorSnapshot(),entityLabel)}
+  function renderEditorFlow(){
+    const snapshot=editorSnapshot(),root=$("automation-flow-preview");
+    window.zbranoAutomationFlow?.render(root,snapshot,entityLabel);
+    root?.querySelector(`[data-flow-kind="${selectedStudioNode}"]`)?.classList.add("is-selected");
+    $("automation-studio-flow-name").textContent=snapshot.name;
+    for(const button of panel.querySelectorAll("[data-studio-node]"))button.classList.toggle("active",button.dataset.studioNode===selectedStudioNode);
+  }
 
   function clearEditor(){
     $("automation-draft-form").reset();$("automation-edit-id").value="";$("automation-editor-title").textContent="New automation draft";$("automation-cancel-edit").hidden=true;$("automation-cooldown").value=String(state.settings?.default_cooldown_minutes||30);$("automation-confidence").value=String(state.settings?.minimum_confidence||0.75);$("automation-risk").value="controlled";$("automation-execution-policy").value="suggest";$("automation-max-actions").value="2";$("automation-trigger-operator").value="changes_to";$("automation-trigger-for").value="0";$("automation-action-data").value="{}";$("automation-enabled").checked=false;$("automation-notify-action").checked=true;$("automation-reversible-only").checked=true;$("automation-draft-state").textContent="";
-    renderEditorFlow();
+    selectedStudioNode="trigger";renderEditorFlow();renderStudioInspector();
   }
 
   function fillEditor(item){
-    $("automation-edit-id").value=item.id||"";$("automation-name").value=item.name||"";$("automation-objective").value=item.objective||"";$("automation-presence").value=item.presence_entity||"";$("automation-signals").value=(item.signal_entities||[]).join(", ");$("automation-trigger-entity").value=item.trigger_entity||(item.signal_entities||[])[0]||"";$("automation-trigger-operator").value=item.trigger_operator||"changes_to";$("automation-trigger-value").value=item.trigger_value||"";$("automation-trigger-for").value=String(item.trigger_for_seconds||0);$("automation-enabled").checked=Boolean(item.enabled);$("automation-context-notes").value=item.context_notes||"";$("automation-proposal").value=item.proposal_template||"";$("automation-action-entity").value=item.action_entity||"";$("automation-action-service").value=item.action_service||"";$("automation-action-data").value=JSON.stringify(item.action_service_data||{},null,2);$("automation-cooldown").value=String(item.cooldown_minutes||30);$("automation-confidence").value=String(item.confidence_threshold||0.75);$("automation-risk").value=item.risk_level||"controlled";$("automation-execution-policy").value=item.execution_policy||"suggest";$("automation-max-actions").value=String(item.max_actions_per_hour||2);$("automation-notify-action").checked=item.notify_on_action!==false;$("automation-reversible-only").checked=item.reversible_only!==false;$("automation-editor-title").textContent=item.id?"Edit automation":"New automation";$("automation-cancel-edit").hidden=!item.id;showView("library");showLibraryView("create");document.querySelector(".automation-advanced")?.setAttribute("open","");$("automation-name").focus();
-    renderEditorFlow();
+    $("automation-edit-id").value=item.id||"";$("automation-name").value=item.name||"";$("automation-objective").value=item.objective||"";$("automation-presence").value=item.presence_entity||"";$("automation-signals").value=(item.signal_entities||[]).join(", ");$("automation-trigger-entity").value=item.trigger_entity||(item.signal_entities||[])[0]||"";$("automation-trigger-operator").value=item.trigger_operator||"changes_to";$("automation-trigger-value").value=item.trigger_value||"";$("automation-trigger-for").value=String(item.trigger_for_seconds||0);$("automation-enabled").checked=Boolean(item.enabled);$("automation-context-notes").value=item.context_notes||"";$("automation-proposal").value=item.proposal_template||"";$("automation-action-entity").value=item.action_entity||"";$("automation-action-service").value=item.action_service||"";$("automation-action-data").value=JSON.stringify(item.action_service_data||{},null,2);$("automation-cooldown").value=String(item.cooldown_minutes||30);$("automation-confidence").value=String(item.confidence_threshold||0.75);$("automation-risk").value=item.risk_level||"controlled";$("automation-execution-policy").value=item.execution_policy||"suggest";$("automation-max-actions").value=String(item.max_actions_per_hour||2);$("automation-notify-action").checked=item.notify_on_action!==false;$("automation-reversible-only").checked=item.reversible_only!==false;$("automation-editor-title").textContent=item.id?"Edit automation":"New automation";$("automation-cancel-edit").hidden=!item.id;showView("library");showLibraryView("create");document.querySelector(".automation-advanced")?.removeAttribute("open");selectedStudioNode="details";
+    renderEditorFlow();renderStudioInspector();
   }
 
   function inventoryMatches({domains=[],deviceClasses=[],keywords=[],limit=3}){
@@ -192,6 +226,7 @@
   panel.querySelector(".autonomy-tabs")?.addEventListener("click",event=>{const button=event.target.closest("[data-auto-view]");if(button)showView(button.dataset.autoView)});
   panel.querySelector(".automation-library-tabs")?.addEventListener("click",event=>{const button=event.target.closest("[data-automation-library-view]");if(button)showLibraryView(button.dataset.automationLibraryView)});
   panel.addEventListener("click",async event=>{
+    const studioBlock=event.target.closest(".automation-studio-preview [data-studio-node],.automation-studio-preview [data-flow-kind]");if(studioBlock){selectStudioNode(studioBlock.dataset.studioNode||studioBlock.dataset.flowKind);return}
     const templateButton=event.target.closest("[data-auto-template]");if(templateButton){template(templateButton.dataset.autoTemplate);return}
     const notificationWatch=event.target.closest("[data-auto-watch]");if(notificationWatch){showView("notifications");window.zbranoNotificationCenter?.showView("watchlist");window.zbranoNotificationCenter?.load();return}
     const approve=event.target.closest("[data-suggestion-approve]");if(approve){approve.disabled=true;try{await api(`api/automations/suggestions/${encodeURIComponent(approve.dataset.suggestionApprove)}/approve`,{method:"POST"});await loadWorkspace()}catch(error){alert(`Action failed: ${error.message||error}`);approve.disabled=false}return}
@@ -211,14 +246,22 @@
   });
 
   $("automation-draft-form").addEventListener("submit",async event=>{
-    event.preventDefault();const id=$("automation-edit-id").value;const status=$("automation-draft-state");status.textContent="Saving…";
-    let actionData={};try{actionData=JSON.parse($("automation-action-data").value||"{}");if(!actionData||Array.isArray(actionData)||typeof actionData!=="object")throw new Error("must be an object")}catch(error){status.textContent=`Action data must be valid JSON: ${error.message||error}`;return}
+    event.preventDefault();const id=$("automation-edit-id").value;const status=$("automation-draft-state"),studioStatus=$("automation-studio-state");status.textContent="Saving…";studioStatus.textContent="Saving…";
+    let actionData={};try{actionData=JSON.parse($("automation-action-data").value||"{}");if(!actionData||Array.isArray(actionData)||typeof actionData!=="object")throw new Error("must be an object")}catch(error){status.textContent=`Action data must be valid JSON: ${error.message||error}`;studioStatus.textContent=status.textContent;return}
     const body={name:$("automation-name").value.trim(),objective:$("automation-objective").value.trim(),presence_entity:$("automation-presence").value.trim(),signal_entities:$("automation-signals").value.split(/[,\n]/).map(v=>v.trim()).filter(Boolean),trigger_entity:$("automation-trigger-entity").value.trim(),trigger_operator:$("automation-trigger-operator").value,trigger_value:$("automation-trigger-value").value.trim(),trigger_for_seconds:Number($("automation-trigger-for").value||0),enabled:$("automation-enabled").checked,context_notes:$("automation-context-notes").value.trim(),proposal_template:$("automation-proposal").value.trim(),action_entity:$("automation-action-entity").value.trim(),action_service:$("automation-action-service").value.trim(),action_service_data:actionData,cooldown_minutes:Number($("automation-cooldown").value),confidence_threshold:Number($("automation-confidence").value),risk_level:$("automation-risk").value,execution_policy:$("automation-execution-policy").value,notify_on_action:$("automation-notify-action").checked,reversible_only:$("automation-reversible-only").checked,max_actions_per_hour:Number($("automation-max-actions").value)};
-    try{await api(id?`api/automations/${encodeURIComponent(id)}`:"api/automations",{method:id?"PUT":"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)});clearEditor();await loadWorkspace();showLibraryView("saved")}catch(error){status.textContent=`Save failed: ${error.message||error}`}
+    try{await api(id?`api/automations/${encodeURIComponent(id)}`:"api/automations",{method:id?"PUT":"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)});clearEditor();studioStatus.textContent="Draft saved.";await loadWorkspace();showLibraryView("saved")}catch(error){status.textContent=`Save failed: ${error.message||error}`;studioStatus.textContent=status.textContent}
   });
   $("automation-cancel-edit").addEventListener("click",clearEditor);
   $("automation-draft-form").addEventListener("input",renderEditorFlow);
   $("automation-draft-form").addEventListener("change",renderEditorFlow);
+  $("automation-studio-new").addEventListener("click",()=>{$("automation-studio-state").textContent="";clearEditor()});
+  $("automation-studio-save").addEventListener("click",()=>{if(!$("automation-name").value.trim()||!$("automation-objective").value.trim()){selectStudioNode("details");$("automation-draft-state").textContent="Add a name and objective before saving.";$("automation-studio-state").textContent="Add a name and objective before saving.";$("studio-automation-name")?.focus();return}$("automation-draft-form").requestSubmit()});
+  $("automation-studio-advanced").addEventListener("click",()=>{const advanced=document.querySelector(".automation-advanced");advanced?.setAttribute("open","");advanced?.scrollIntoView({behavior:"smooth",block:"start"})});
+  $("automation-studio-canvas").addEventListener("dragover",event=>{event.preventDefault();event.currentTarget.classList.add("is-drop-target")});
+  $("automation-studio-canvas").addEventListener("dragleave",event=>event.currentTarget.classList.remove("is-drop-target"));
+  $("automation-studio-canvas").addEventListener("drop",event=>{event.preventDefault();event.currentTarget.classList.remove("is-drop-target");selectStudioNode(event.dataTransfer?.getData("text/studio-node"))});
+  panel.querySelector(".automation-studio-toolbox")?.addEventListener("dragstart",event=>{const block=event.target.closest("[data-studio-node]");if(block)event.dataTransfer?.setData("text/studio-node",block.dataset.studioNode)});
+  $("automation-flow-preview").addEventListener("keydown",event=>{if(!["Enter"," "].includes(event.key))return;const block=event.target.closest("[data-flow-kind]");if(block){event.preventDefault();selectStudioNode(block.dataset.flowKind)}});
   $("autonomy-settings-form").addEventListener("submit",async event=>{
     event.preventDefault();const status=$("autonomy-settings-state");status.textContent="Saving…";const mode=panel.querySelector('input[name="autonomy-mode"]:checked')?.value||"suggest_only";
     const body={operating_mode:mode,presence_entity:$("autonomy-presence-entity").value.trim(),require_presence:$("autonomy-require-presence").checked,respect_quiet_hours:$("autonomy-respect-quiet").checked,minimum_confidence:Number($("autonomy-min-confidence").value),default_cooldown_minutes:Number($("autonomy-default-cooldown").value),autonomous_risk_ceiling:$("autonomy-risk-ceiling").value,notify_after_autonomous_action:$("autonomy-notify-autonomous").checked,passive_learning_enabled:$("autonomy-passive-learning").checked};

@@ -18,6 +18,10 @@
   function node(kind, label, title, detail) {
     const element = document.createElement("section");
     element.className = `automation-flow-node is-${kind}`;
+    element.dataset.flowKind = kind;
+    element.tabIndex = 0;
+    element.setAttribute("role", "button");
+    element.setAttribute("aria-label", `Configure ${label.toLowerCase()} block`);
     const kicker = document.createElement("span");
     kicker.className = "automation-flow-kicker";
     kicker.textContent = label;

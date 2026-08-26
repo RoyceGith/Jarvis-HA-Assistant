@@ -14,19 +14,19 @@ MANIFEST = json.loads((ROOT / "jarvis/release_manifest.json").read_text(encoding
 
 class ContainerBuildFixtureReleaseTests(unittest.TestCase):
     def test_release_markers_are_aligned(self):
-        self.assertIn('version: "0.13.63"', CONFIG)
-        self.assertIn('version="0.13.63"', MAIN)
-        self.assertIn("HUD 0.13.63", HTML)
-        self.assertEqual(MANIFEST["version"], "0.13.63")
+        self.assertIn('version: "0.13.64"', CONFIG)
+        self.assertIn('version="0.13.64"', MAIN)
+        self.assertIn("HUD 0.13.64", HTML)
+        self.assertEqual(MANIFEST["version"], "0.13.64")
 
     def test_docker_only_fixtures_match_runtime(self):
         self.assertNotIn("0.13.56", ASGI_TEST)
         self.assertNotIn("0.13.56", BROWSER_TEST)
-        self.assertIn('"version"], "0.13.63"', ASGI_TEST)
-        self.assertIn('version: "0.13.63"', BROWSER_TEST)
+        self.assertIn('"version"], "0.13.64"', ASGI_TEST)
+        self.assertIn('version: "0.13.64"', BROWSER_TEST)
 
     def test_release_history_includes_v01357(self):
-        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.62")
+        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.63")
 
 
 if __name__ == "__main__":

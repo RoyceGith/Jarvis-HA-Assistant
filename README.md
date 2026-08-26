@@ -1,3 +1,14 @@
+## ZBRANO v0.13.64
+
+ZBRANO combines Home Assistant chat, voice, entity control, memory, notifications,
+calendar tools, plugins, and evidence-based automations. Automation Studio now uses
+a visual building-block toolbox, interactive node canvas, and contextual inspector;
+the established automation engine and stored definitions remain compatible.
+
+The application source and post-split build history are maintained in the private
+core repository. Public Home Assistant repositories contain only the five-file
+installer and update metadata needed to deliver the prebuilt image.
+
 ZBRANO v0.13.56 reconnects the thin public installer branch to the last previously public source commit so Home Assistant Supervisor can fast-forward its cached repository checkout and detect updates without uninstalling.
 
 ZBRANO v0.13.18 prevents Release Memory synchronization from remaining indefinitely in a non-terminal state by adding worker timeout recovery, note progress, task-health reporting, and automatic interface polling.

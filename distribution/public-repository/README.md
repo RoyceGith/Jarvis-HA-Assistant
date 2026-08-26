@@ -16,3 +16,9 @@ update compatibility; post-split source and build history remain private.
 
 Existing ZBRANO installations retain the same add-on slug, configuration, `/data`
 storage, and `ghcr.io/roycegith/jarvis-ha-assistant` update image.
+
+## Current experience
+
+Version 0.13.64 includes a graphical Automation Studio with a building-block
+toolbox, interactive flow canvas, and focused settings inspector. Existing
+automation definitions and Home Assistant data remain compatible across updates.
