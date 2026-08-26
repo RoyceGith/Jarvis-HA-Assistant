@@ -65,8 +65,9 @@
 
     const confidence = Math.round(Number(automation.confidence_threshold ?? 0.75) * 100);
     const authority = text(automation.execution_policy, "suggest").replaceAll("_", " ");
-    const decisionTitle = text(automation.proposal_template, text(automation.objective, "Record the match"));
-    const decisionDetail = `${confidence}% confidence · ${authority} · ${Number(automation.cooldown_minutes || 30)} min cooldown`;
+    const branches = Array.isArray(automation.branches) ? automation.branches.filter(item => item?.name) : [];
+    const decisionTitle = branches.length ? `${branches.length} first-match branch${branches.length === 1 ? "" : "es"}` : text(automation.proposal_template, text(automation.objective, "Record the match"));
+    const decisionDetail = `${confidence}% confidence · ${authority} · ${Number(automation.cooldown_minutes || 30)} min cooldown${branches.length ? " · IF / ELSE" : ""}`;
 
     const actionEntity = text(automation.action_entity, "");
     const actionService = text(automation.action_service, "");

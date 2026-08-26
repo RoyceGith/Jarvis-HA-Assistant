@@ -670,7 +670,7 @@ ha_ws = HomeAssistantWebSocketClient(
 
 app = FastAPI(
     title="ZBRANO",
-    version="0.13.66",
+    version="0.13.67",
     docs_url="/api/docs",
     openapi_url="/api/openapi.json",
 )
@@ -2649,7 +2649,7 @@ async def health() -> dict[str, Any]:
     configured_speech_provider = SPEECH_PROVIDER if SPEECH_PROVIDER in {"openai", "elevenlabs"} else "openai"
     return {
         "status": "ok",
-        "version": "0.13.66",
+        "version": "0.13.67",
         "home_assistant_configured": bool(SUPERVISOR_TOKEN),
         "workshop_memory_configured": bool(WORKSHOP_MEMORY_URL),
         "workshop_memory_cost_guard": workshop_cost_guard_status(),
@@ -3458,7 +3458,7 @@ async def approve_automation_suggestion(suggestion_id: str) -> dict[str, Any]:
         if not automation:
             raise HTTPException(status_code=404, detail="Automation definition not found")
         try:
-            result = await _automation_execute_action(data, automation, suggestion, "explicit_approval")
+            result = await _automation_execute_action(data, automation, suggestion, "explicit_approval", suggestion.get("actions"))
         except Exception as exc:
             raise HTTPException(status_code=502, detail=f"Automation action failed: {exc}") from exc
         return {**result, "suggestion": suggestion}

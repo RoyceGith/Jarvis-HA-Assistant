@@ -1,5 +1,12 @@
 # Change log
 
+## 0.13.67
+
+- Added first-match IF/ELSE branches with per-branch ALL/ANY conditions and
+  ordered action sequences.
+- Preserved the selected branch actions through suggestion, approval, autonomous
+  execution, and audit history.
+
 ## 0.13.66
 
 - Added repeatable OR triggers and grouped ALL/ANY state conditions to Automation

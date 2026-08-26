@@ -427,6 +427,21 @@ def _automation_payload(request):
         "service_data": dict(item.get("service_data") or {}),
         "delay_seconds": max(0, int(item.get("delay_seconds") or 0)),
     } for item in payload.get("actions") or []]
+    payload["branches"] = [{
+        "name": " ".join(str(branch.get("name") or "Branch").split())[:80],
+        "condition_mode": str(branch.get("condition_mode") or "all"),
+        "conditions": [{
+            "entity_id": str(item.get("entity_id") or "").strip().lower(),
+            "operator": str(item.get("operator") or "equals"),
+            "value": str(item.get("value") or "").strip(),
+        } for item in branch.get("conditions") or []],
+        "actions": [{
+            "entity_id": str(item.get("entity_id") or "").strip().lower(),
+            "service": str(item.get("service") or "").strip().lower(),
+            "service_data": dict(item.get("service_data") or {}),
+            "delay_seconds": max(0, int(item.get("delay_seconds") or 0)),
+        } for item in branch.get("actions") or []],
+    } for branch in payload.get("branches") or []]
     if not payload["actions"] and payload["action_entity"] and payload["action_service"]:
         payload["actions"] = [{
             "entity_id": payload["action_entity"], "service": payload["action_service"],
@@ -444,7 +459,9 @@ def _automation_payload(request):
         raise HTTPException(status_code=400, detail="An enabled automation requires a trigger entity")
     for trigger in payload["triggers"]:
         ensure_read_allowed(trigger["entity_id"])
-    for condition in payload["conditions"]:
+    all_conditions = [*payload["conditions"], *(item for branch in payload["branches"] for item in branch["conditions"])]
+    all_actions = [*payload["actions"], *(item for branch in payload["branches"] for item in branch["actions"])]
+    for condition in all_conditions:
         ensure_read_allowed(condition["entity_id"])
     if payload["presence_entity"]:
         ensure_read_allowed(payload["presence_entity"])
@@ -456,7 +473,7 @@ def _automation_payload(request):
         raise HTTPException(status_code=400, detail="Action service must use domain.service format")
     if len(json.dumps(payload["action_service_data"], ensure_ascii=False)) > 4000:
         raise HTTPException(status_code=400, detail="Action service data is too large")
-    for action in payload["actions"]:
+    for action in all_actions:
         if not effective_entity_access(action["entity_id"]):
             raise HTTPException(status_code=403, detail="An action entity is not enabled in ZBRANO entity policy")
         if action["service"].split(".", 1)[0] != action["entity_id"].split(".", 1)[0]:
@@ -478,7 +495,9 @@ def _automation_preview(item: dict[str, Any]) -> dict[str, Any]:
     if int(item.get("trigger_for_seconds") or 0):
         trigger += f" for {int(item.get('trigger_for_seconds') or 0)} seconds"
     action = "No device action"
-    if item.get("action_service") and item.get("action_entity"):
+    if item.get("branches"):
+        action = f"{len(item.get('branches') or [])} first-match branches"
+    elif item.get("action_service") and item.get("action_entity"):
         action = f"{item.get('action_service')} → {item.get('action_entity')}"
     return {
         "name": item.get("name"),
@@ -584,7 +603,8 @@ def _activate_automation(automation_id: str, source: str) -> dict[str, Any]:
     except PermissionError as exc:
         raise HTTPException(status_code=403, detail=str(exc)) from exc
     policy = str(automation.get("execution_policy") or "suggest")
-    if policy in {"approval_required", "autonomous"} and not _automation_actions(automation):
+    branch_actions = [action for branch in _automation_branches(automation) for action in branch.get("actions") or []]
+    if policy in {"approval_required", "autonomous"} and not [*_automation_actions(automation), *branch_actions]:
         raise HTTPException(status_code=400, detail="This authority requires a complete proposed action")
     automation["enabled"] = True
     automation["status"] = "armed"
@@ -824,6 +844,9 @@ def _automation_actions(item: dict[str, Any]) -> list[dict[str, Any]]:
     entity_id, service = str(item.get("action_entity") or ""), str(item.get("action_service") or "")
     return [{"entity_id": entity_id, "service": service, "service_data": dict(item.get("action_service_data") or {}), "delay_seconds": 0}] if entity_id and service else []
 
+def _automation_branches(item: dict[str, Any]) -> list[dict[str, Any]]:
+    return [value for value in item.get("branches") or [] if isinstance(value, dict) and value.get("name")][:10]
+
 def _automation_condition_matches(item: dict[str, Any], old_state: Any, new_state: Any) -> bool:
     operator = str(item.get("operator") or item.get("trigger_operator") or "changes_to")
     expected = str(item.get("value") if "value" in item else item.get("trigger_value") or "")
@@ -843,10 +866,9 @@ def _automation_condition_matches(item: dict[str, Any], old_state: Any, new_stat
         return False
     return current_number > expected_number if operator == "above" else current_number < expected_number
 
-def _automation_context_conditions_match(item: dict[str, Any]) -> tuple[bool, str]:
-    conditions = _automation_conditions(item)
+def _automation_condition_group_matches(conditions: list[dict[str, Any]], mode: str = "all") -> tuple[bool, str]:
     if not conditions:
-        return True, "no additional conditions"
+        return True, "no conditions"
     results = []
     details = []
     for condition in conditions:
@@ -855,8 +877,24 @@ def _automation_context_conditions_match(item: dict[str, Any]) -> tuple[bool, st
         matched = _automation_condition_matches(condition, current, current)
         results.append(matched)
         details.append(f"{entity_id}={current if current is not None else 'unavailable'}")
-    mode = str(item.get("condition_mode") or "all")
     return (any(results) if mode == "any" else all(results)), f"{mode.upper()} conditions: " + ", ".join(details)
+
+def _automation_context_conditions_match(item: dict[str, Any]) -> tuple[bool, str]:
+    return _automation_condition_group_matches(_automation_conditions(item), str(item.get("condition_mode") or "all"))
+
+def _automation_select_branch(item: dict[str, Any]) -> tuple[bool, str, list[dict[str, Any]], str]:
+    branches = _automation_branches(item)
+    if not branches:
+        return True, "linear path", _automation_actions(item), ""
+    evaluations = []
+    for branch in branches:
+        matched, detail = _automation_condition_group_matches(
+            _automation_conditions(branch), str(branch.get("condition_mode") or "all"),
+        )
+        evaluations.append(f"{branch.get('name')}: {detail}")
+        if matched:
+            return True, f"branch {branch.get('name')}: {detail}", _automation_actions(branch), str(branch.get("name") or "")
+    return False, "no branch matched; " + "; ".join(evaluations), [], ""
 
 def _automation_presence_confirmed(item: dict[str, Any], settings: dict[str, Any], expected_zone: str = "") -> tuple[bool, str]:
     if not settings.get("require_presence"):
@@ -877,7 +915,8 @@ def _automation_presence_confirmed(item: dict[str, Any], settings: dict[str, Any
     return present, f"{entity_id}={value or 'unavailable'}"
 
 def _automation_expected_zone(data: dict[str, Any], item: dict[str, Any]) -> str:
-    workflow_entities = [value.get("entity_id") for value in [*_automation_actions(item), *_automation_triggers(item), *_automation_conditions(item)]]
+    branch_parts = [value for branch in _automation_branches(item) for value in [*_automation_actions(branch), *_automation_conditions(branch)]]
+    workflow_entities = [value.get("entity_id") for value in [*_automation_actions(item), *_automation_triggers(item), *_automation_conditions(item), *branch_parts]]
     for entity_id in (*workflow_entities, *(item.get("signal_entities") or [])):
         mapping = _automation_area_entity(data, str(entity_id or ""))
         if mapping.get("zone_entity_id"):
@@ -894,7 +933,7 @@ def _automation_rate_available(item: dict[str, Any], now: float) -> tuple[bool, 
         return False, "hourly action limit reached"
     return True, "rate limits clear"
 
-def _automation_autonomous_allowed(item: dict[str, Any], settings: dict[str, Any]) -> tuple[bool, str]:
+def _automation_autonomous_allowed(item: dict[str, Any], settings: dict[str, Any], actions: list[dict[str, Any]] | None = None) -> tuple[bool, str]:
     if settings.get("operating_mode") != "selective_autonomy":
         return False, "global mode does not allow autonomous execution"
     if item.get("execution_policy") != "autonomous":
@@ -905,7 +944,10 @@ def _automation_autonomous_allowed(item: dict[str, Any], settings: dict[str, Any
         return False, "risk exceeds autonomous ceiling"
     if not item.get("reversible_only", True):
         return False, "autonomous action is not declared reversible"
-    for action in _automation_actions(item):
+    selected_actions = _automation_actions(item) if actions is None else actions
+    if not selected_actions:
+        return False, "selected path has no autonomous action"
+    for action in selected_actions:
         service = str(action.get("service") or "")
         domain = service.split(".", 1)[0] if "." in service else ""
         if domain not in AUTOMATION_AUTONOMOUS_DOMAINS:
@@ -924,8 +966,8 @@ async def _automation_notify(title: str, message: str, *, action: bool = False) 
             target=target, severity="suggestion", title=title, message=message,
         ))
 
-async def _automation_execute_action(data: dict[str, Any], item: dict[str, Any], suggestion: dict[str, Any] | None, source: str) -> dict[str, Any]:
-    actions = _automation_actions(item)
+async def _automation_execute_action(data: dict[str, Any], item: dict[str, Any], suggestion: dict[str, Any] | None, source: str, actions_override: list[dict[str, Any]] | None = None) -> dict[str, Any]:
+    actions = _automation_actions(item) if actions_override is None else actions_override
     if not actions:
         raise RuntimeError("Automation has no complete Home Assistant action")
     now = time.time()
@@ -999,10 +1041,17 @@ async def _automation_commit_match(automation_id: str, evidence: dict[str, Any])
             _automation_event(data, "suppressed", f"Automation conditions not met: {item.get('name')}", conditions_detail)
             _automation_save(data)
             return
+        branch_ok, branch_detail, selected_actions, branch_name = _automation_select_branch(item)
+        if not branch_ok:
+            item["last_suppressed_at"] = now
+            item["status"] = "suppressed"
+            _automation_event(data, "suppressed", f"No automation branch matched: {item.get('name')}", branch_detail)
+            _automation_save(data)
+            return
         item["last_matched_at"] = now
         confidence = 1.0
         detail = str(item.get("proposal_template") or item.get("objective") or "Automation condition matched.")
-        evidence_text = f"{trigger_entity} changed from {evidence.get('old_state')} to {current}; {conditions_detail}; {presence_detail}; {rate_detail}"
+        evidence_text = f"{trigger_entity} changed from {evidence.get('old_state')} to {current}; {conditions_detail}; {branch_detail}; {presence_detail}; {rate_detail}"
         mode = str(data["settings"].get("operating_mode") or "suggest_only")
         policy = str(item.get("execution_policy") or "suggest")
         if mode == "observe_only" or policy == "observe":
@@ -1010,14 +1059,15 @@ async def _automation_commit_match(automation_id: str, evidence: dict[str, Any])
             _automation_event(data, "observation", f"Condition observed: {item.get('name')}", evidence_text)
             _automation_save(data)
             return
-        autonomous, authority_detail = _automation_autonomous_allowed(item, data["settings"])
+        autonomous, authority_detail = _automation_autonomous_allowed(item, data["settings"], selected_actions)
+        first_action = selected_actions[0] if selected_actions else {}
         suggestion = {
             "id": secrets.token_hex(10), "automation_id": automation_id,
             "title": str(item.get("name") or "ZBRANO suggestion")[:160], "detail": detail[:1000],
             "evidence": evidence_text[:1000], "confidence": confidence,
             "status": "executing" if autonomous else "approval_required" if mode == "approval_gated" or policy == "approval_required" else "pending",
-            "action_entity": str(item.get("action_entity") or ""), "action_service": str(item.get("action_service") or ""),
-            "actions": _automation_actions(item),
+            "action_entity": str(first_action.get("entity_id") or ""), "action_service": str(first_action.get("service") or ""),
+            "actions": selected_actions, "branch": branch_name,
             "created_at": now,
         }
         data["suggestions"].insert(0, suggestion)
@@ -1025,7 +1075,7 @@ async def _automation_commit_match(automation_id: str, evidence: dict[str, Any])
         _automation_event(data, "decision", f"Automation matched: {item.get('name')}", f"{evidence_text}; {authority_detail}")
         _automation_save(data)
         if autonomous:
-            await _automation_execute_action(data, item, suggestion, "selective_autonomy")
+            await _automation_execute_action(data, item, suggestion, "selective_autonomy", selected_actions)
         else:
             await _automation_notify(suggestion["title"], f"{detail}\n\nEvidence: {evidence_text}")
 

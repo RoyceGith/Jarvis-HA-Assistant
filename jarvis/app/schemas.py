@@ -119,6 +119,12 @@ class AutomationActionRequest(BaseModel):
     service_data: dict[str, Any] = Field(default_factory=dict)
     delay_seconds: int = Field(default=0, ge=0, le=300)
 
+class AutomationBranchRequest(BaseModel):
+    name: str = Field(min_length=1, max_length=80)
+    conditions: list[AutomationConditionRequest] = Field(default_factory=list, max_length=20)
+    condition_mode: str = Field(default="all", pattern="^(all|any)$")
+    actions: list[AutomationActionRequest] = Field(default_factory=list, max_length=20)
+
 class AutonomousAutomationRequest(BaseModel):
     name: str = Field(min_length=2, max_length=100)
     objective: str = Field(min_length=3, max_length=1000)
@@ -145,6 +151,7 @@ class AutonomousAutomationRequest(BaseModel):
     conditions: list[AutomationConditionRequest] = Field(default_factory=list, max_length=20)
     condition_mode: str = Field(default="all", pattern="^(all|any)$")
     actions: list[AutomationActionRequest] = Field(default_factory=list, max_length=20)
+    branches: list[AutomationBranchRequest] = Field(default_factory=list, max_length=10)
 
 class AutomationChatDraftRequest(BaseModel):
     name: str = Field(min_length=2, max_length=100)

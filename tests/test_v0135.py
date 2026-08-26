@@ -14,10 +14,10 @@ MANIFEST = json.loads((ROOT / "jarvis/release_manifest.json").read_text(encoding
 
 class AdaptiveSpeechBufferTests(unittest.TestCase):
     def test_release_markers_are_aligned(self):
-        self.assertIn('version: "0.13.66"', CONFIG)
-        self.assertIn('version="0.13.66"', MAIN)
-        self.assertIn("HUD 0.13.66", INDEX)
-        self.assertEqual(MANIFEST["version"], "0.13.66")
+        self.assertIn('version: "0.13.67"', CONFIG)
+        self.assertIn('version="0.13.67"', MAIN)
+        self.assertIn("HUD 0.13.67", INDEX)
+        self.assertEqual(MANIFEST["version"], "0.13.67")
 
     def test_adjusted_speed_can_use_progressive_playback(self):
         playback = INDEX[INDEX.index("const canStreamMp3") : INDEX.index("if (!canStreamMp3)")]

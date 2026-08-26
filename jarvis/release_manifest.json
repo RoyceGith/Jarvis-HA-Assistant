@@ -1,9 +1,9 @@
 {
-  "version": "0.13.66",
+  "version": "0.13.67",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/ZBRANO_Core main",
-  "summary": "Add backward-compatible advanced workflows with OR triggers, grouped state conditions, and ordered Home Assistant action sequences.",
+  "summary": "Add first-match IF/ELSE branching with per-branch condition groups and ordered action sequences to Automation Studio.",
   "history_backfill": [
     {
       "version": "0.13.0",
@@ -268,22 +268,27 @@
     {
       "version": "0.13.65",
       "summary": "Repaired Automation Studio node interaction and the container browser gate by separating decorative connectors from pointer handling."
+    },
+    {
+      "version": "0.13.66",
+      "summary": "Added backward-compatible OR triggers, grouped ALL/ANY state conditions, and ordered Home Assistant action sequences."
     }
   ],
   "release_entry": {
     "features": [
-      "Support up to ten OR triggers, twenty ALL or ANY state conditions, and twenty ordered Home Assistant actions per automation.",
-      "Add repeatable Trigger, Context, and Action rows directly to the visual block inspector."
+      "Add up to ten ordered first-match branches with independent ALL/ANY state conditions and action sequences.",
+      "Support an explicit ELSE fallback by placing an empty-condition branch last in the Decision inspector."
     ],
     "fixes": [
-      "Migrate existing single-trigger and single-action definitions in memory without rewriting or discarding stored automation data.",
-      "Apply permission, domain, rate, presence, risk, and audit boundaries to every step in an advanced workflow."
+      "Bind approval and autonomous execution to the action sequence selected when the branch matched.",
+      "Preserve linear v0.13.66 workflows whenever an automation has no branches."
     ],
     "validation": [
-      "Advanced workflow schema, compatibility aliases, multi-trigger evaluation, condition grouping, ordered actions, visual repeaters, browser smoke, README alignment, and v0.13.66 release coverage"
+      "Branch schema, first-match selection, ELSE fallback, selected-action approval, visual nested editors, browser smoke, compatibility, README alignment, and v0.13.67 release coverage"
     ]
   },
   "features": [
+    "Choose the first matching IF/ELSE branch and carry its bounded action sequence safely through suggestion, approval, or autonomous execution.",
     "Build advanced automations from bounded OR triggers, ALL or ANY context conditions, and ordered action sequences while preserving the original schema aliases.",
     "Preserve reliable pointer interaction across every Automation Studio flow block by keeping decorative connectors outside hit testing.",
     "Transform Automation Studio into a three-panel visual builder with draggable blocks, an interactive node canvas, and focused settings inspectors.",
@@ -528,6 +533,7 @@
     "Preserve multi-round Workshop Memory tasks after an approved write in both streaming and non-streaming chat."
   ],
   "fixes": [
+    "Keep branch decisions auditable and stable between the original match and later explicit approval.",
     "Evaluate and permission-check every advanced workflow entity and service without rewriting existing stored automations.",
     "Prevent Automation Studio connector arrows from intercepting clicks and failing the Docker browser release gate.",
     "Reconnect the public installer branch to existing Supervisor clones so post-split updates are discoverable without uninstalling.",
@@ -669,6 +675,7 @@
     "Preserve task-scoped Workshop Memory approval and per-draft Gmail approval isolation."
   ],
   "validation": [
+    "Branch schema, first-match selection, ELSE fallback, selected-action approval, visual nested editors, browser smoke, compatibility, README alignment, and v0.13.67 release coverage",
     "Advanced workflow schema, compatibility aliases, multi-trigger evaluation, condition grouping, ordered actions, visual repeaters, browser smoke, README alignment, and v0.13.66 release coverage",
     "Flow-node pointer interaction, complete local browser smoke, README alignment, release contract, regression suite, and v0.13.65 release alignment coverage",
     "Visual builder toolbox, interactive canvas, inspector synchronization, keyboard and drag wiring, Advanced fallback, README alignment, Docker browser smoke, owner-only Grinder exclusion, release contract, regression suite, and v0.13.64 release alignment coverage",
