@@ -1,4 +1,4 @@
-ZBRANO v0.13.54 completes the repository split: full source and build history move to private `RoyceGith/ZBRANO_Core`, while clean-history public `RoyceGith/ZBRANO_HA_Assistant` carries only Home Assistant installation metadata for the unchanged GHCR image path.
+ZBRANO v0.13.55 restores the original public `jarvis/` add-on directory so existing Home Assistant installations recognize the clean distribution repository and receive updates without uninstalling or changing stored data.
 
 ZBRANO v0.13.18 prevents Release Memory synchronization from remaining indefinitely in a non-terminal state by adding worker timeout recovery, note progress, task-health reporting, and automatic interface polling.
 

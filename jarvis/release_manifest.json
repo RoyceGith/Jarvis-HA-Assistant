@@ -1,9 +1,9 @@
 {
-  "version": "0.13.54",
+  "version": "0.13.55",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/ZBRANO_Core main",
-  "summary": "Complete the repository split by moving full source and build history to private RoyceGith/ZBRANO_Core and creating a clean-history public Home Assistant update repository for the unchanged GHCR image path.",
+  "summary": "Restore the original public jarvis add-on directory so existing Home Assistant installations recognize the clean distribution repository without uninstalling or changing stored data.",
   "history_backfill": [
     {
       "version": "0.13.0",
@@ -220,22 +220,26 @@
     {
       "version": "0.13.53",
       "summary": "Migrated the public repository identity to RoyceGith/ZBRANO_HA_Assistant while preserving the established GHCR image path for Home Assistant upgrade continuity."
+    },
+    {
+      "version": "0.13.54",
+      "summary": "Completed the repository split by moving full source and build history to private RoyceGith/ZBRANO_Core and publishing a five-file clean-history Home Assistant distribution repository."
     }
   ],
   "release_entry": {
     "features": [
-      "Move the complete source tree, tests, build workflow, and historical commits into private RoyceGith/ZBRANO_Core.",
-      "Publish a clean-history public RoyceGith/ZBRANO_HA_Assistant repository containing only Home Assistant installation metadata and documentation."
+      "Preserve the original jarvis add-on directory as part of the public distribution compatibility contract."
     ],
     "fixes": [
-      "Separate private source identity from public distribution metadata without changing the add-on slug, stored data, or image package.",
-      "Keep ghcr.io/roycegith/jarvis-ha-assistant unchanged so existing Home Assistant installations continue upgrading."
+      "Replace the temporary zbrano distribution folder with the original jarvis folder expected by existing Home Assistant repository records.",
+      "Keep the add-on slug, configuration schema, GHCR image, and persistent data contract unchanged so no uninstall is required."
     ],
     "validation": [
-      "Private-core identity, public-distribution identity, clean-history packaging allowlist, GHCR compatibility path, release contract, regression suite, and v0.13.54 release alignment coverage"
+      "Original-folder export allowlist, add-on slug, GHCR compatibility path, public metadata layout, release contract, regression suite, and v0.13.55 release alignment coverage"
     ]
   },
   "features": [
+    "Treat the original public jarvis add-on folder as a stable Home Assistant update-discovery contract.",
     "Split private source and build history into RoyceGith/ZBRANO_Core while exposing only a clean-history Home Assistant update repository publicly.",
     "Enforce a public Home Assistant core boundary while reserving hosted commercial and community services for a separate private repository.",
     "Derive Automation Library starter drafts from each installation's Home Assistant entity inventory instead of owner-specific placeholders.",
@@ -468,6 +472,7 @@
     "Preserve multi-round Workshop Memory tasks after an approved write in both streaming and non-streaming chat."
   ],
   "fixes": [
+    "Restore the public jarvis directory so installed Home Assistant apps can discover post-split updates without uninstalling.",
     "Keep the existing GHCR image, add-on slug, and stored data contract stable across the public/private repository split.",
     "Update repository metadata and Developer tooling after the GitHub source rename while retaining the compatibility GHCR path.",
     "Block private service trees, local operator material, and common secret-bearing files from accidental public-core commits.",
@@ -605,6 +610,7 @@
     "Preserve task-scoped Workshop Memory approval and per-draft Gmail approval isolation."
   ],
   "validation": [
+    "Original-folder export allowlist, add-on slug, GHCR compatibility path, public metadata layout, release contract, regression suite, and v0.13.55 release alignment coverage",
     "Private-core identity, public-distribution identity, clean-history packaging allowlist, GHCR compatibility path, release contract, regression suite, and v0.13.54 release alignment coverage",
     "Renamed repository reachability, canonical source references, legacy-reference absence, GHCR compatibility path, release contract, regression suite, and v0.13.53 release alignment coverage",
     "Tracked-path rejection, secret-filename rejection, required ignore rules, repository metadata, personal-default absence, workflow gate ordering, regression suite, and v0.13.52 release alignment coverage",

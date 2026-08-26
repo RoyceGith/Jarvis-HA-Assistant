@@ -18,10 +18,10 @@ MANIFEST = json.loads((ROOT / "jarvis/release_manifest.json").read_text(encoding
 
 class RepositorySplitReleaseTests(unittest.TestCase):
     def test_release_markers_are_aligned(self):
-        self.assertIn('version: "0.13.54"', CONFIG)
-        self.assertIn('version="0.13.54"', MAIN)
-        self.assertIn("HUD 0.13.54", HTML)
-        self.assertEqual(MANIFEST["version"], "0.13.54")
+        self.assertIn('version: "0.13.55"', CONFIG)
+        self.assertIn('version="0.13.55"', MAIN)
+        self.assertIn("HUD 0.13.55", HTML)
+        self.assertEqual(MANIFEST["version"], "0.13.55")
 
     def test_private_core_and_public_distribution_are_distinct(self):
         self.assertIn("RoyceGith/ZBRANO_Core", MANIFEST["source"])
@@ -48,13 +48,13 @@ class RepositorySplitReleaseTests(unittest.TestCase):
         self.assertEqual(exported, {
             "README.md",
             "repository.yaml",
-            "zbrano/CHANGELOG.md",
-            "zbrano/README.md",
-            "zbrano/config.yaml",
+            "jarvis/CHANGELOG.md",
+            "jarvis/README.md",
+            "jarvis/config.yaml",
         })
 
     def test_release_history_includes_v01353(self):
-        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.53")
+        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.54")
 
 
 if __name__ == "__main__":
