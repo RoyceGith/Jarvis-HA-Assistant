@@ -1,4 +1,4 @@
-ZBRANO v0.13.51 repairs the build-gated browser validation for installation-aware automation templates by opening the advanced editor and waiting for Home Assistant inventory before exercising a quick design.
+ZBRANO v0.13.52 establishes an enforced repository boundary: this public repository remains the independently buildable Home Assistant core, while future accounts, subscriptions, billing, hosted community services, private infrastructure, and secrets stay in a separate private repository.
 
 ZBRANO v0.13.18 prevents Release Memory synchronization from remaining indefinitely in a non-terminal state by adding worker timeout recovery, note progress, task-health reporting, and automatic interface polling.
 

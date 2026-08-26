@@ -1,0 +1,19 @@
+# Local development and operator-only material
+.local-*/
+*.local.*
+.env
+.env.*
+!.env.example
+secrets.yaml
+*.pem
+*.key
+*.p12
+*.pfx
+__pycache__/
+*.py[cod]
+/*HANDOFF*.txt
+
+# Separate private repositories; never publish them from the public core
+/private-services/
+/commercial-services/
+/Workshop-Memory-HA-App/

@@ -1,9 +1,9 @@
 {
-  "version": "0.13.51",
+  "version": "0.13.52",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/Jarvis-HA-Assistant main",
-  "summary": "Repair build-gated browser validation for installation-aware automation templates by opening the advanced editor and waiting for entity inventory before exercising a quick design.",
+  "summary": "Establish and enforce the public Home Assistant core boundary while reserving accounts, subscriptions, billing, hosted community services, infrastructure, and secrets for a separate private repository.",
   "history_backfill": [
     {
       "version": "0.13.0",
@@ -208,21 +208,27 @@
     {
       "version": "0.13.50",
       "summary": "Separated owner-specific automation examples from product defaults by deriving safe starter drafts from each installation's Home Assistant inventory."
+    },
+    {
+      "version": "0.13.51",
+      "summary": "Repaired build-gated browser validation by opening the advanced automation editor and waiting for Home Assistant inventory before exercising a quick design."
     }
   ],
   "release_entry": {
     "features": [
-      "Harden build-gated Automation Library browser coverage with explicit editor visibility and entity-inventory readiness checks."
+      "Define the current repository as the public, independently buildable Home Assistant core and document the separate private hosted-platform boundary.",
+      "Add a build-gated public-repository validator covering private trees, secret-bearing filenames, ignore rules, canonical metadata, and personal product defaults."
     ],
     "fixes": [
-      "Open the collapsed advanced automation editor before the real-browser smoke test clicks a quick-design template.",
-      "Wait for the mocked Home Assistant inventory to populate before validating installation-derived template candidates."
+      "Prevent local setup trees, handoff notes, Workshop Memory service source, credentials, certificates, and future commercial-service trees from being accidentally added to the public core.",
+      "Replace stale repository metadata and the remaining owner-name Fast Memory placeholder with canonical product-facing values."
     ],
     "validation": [
-      "Advanced-editor visibility, entity-inventory readiness, template population, release manifest, inline JavaScript, New Chat wiring, regression suite, and v0.13.51 release alignment coverage"
+      "Tracked-path rejection, secret-filename rejection, required ignore rules, repository metadata, personal-default absence, workflow gate ordering, regression suite, and v0.13.52 release alignment coverage"
     ]
   },
   "features": [
+    "Enforce a public Home Assistant core boundary while reserving hosted commercial and community services for a separate private repository.",
     "Derive Automation Library starter drafts from each installation's Home Assistant entity inventory instead of owner-specific placeholders.",
     "Add a pre-build release contract covering Home Assistant metadata, Docker packaging, and GitHub image publication.",
     "Add build-gated real-ASGI migration coverage for legacy backup restoration.",
@@ -453,6 +459,7 @@
     "Preserve multi-round Workshop Memory tasks after an approved write in both streaming and non-streaming chat."
   ],
   "fixes": [
+    "Block private service trees, local operator material, and common secret-bearing files from accidental public-core commits.",
     "Make build-gated Automation Library browser coverage wait for visible editor controls and loaded Home Assistant inventory.",
     "Remove hard-coded workshop entity IDs and autonomous lighting authority from product starter templates while preserving stored automations.",
     "Fail releases before image construction when metadata, runtime ports, option schemas, architecture, or image publication wiring drift.",
@@ -587,6 +594,7 @@
     "Preserve task-scoped Workshop Memory approval and per-draft Gmail approval isolation."
   ],
   "validation": [
+    "Tracked-path rejection, secret-filename rejection, required ignore rules, repository metadata, personal-default absence, workflow gate ordering, regression suite, and v0.13.52 release alignment coverage",
     "Advanced-editor visibility, entity-inventory readiness, template population, release manifest, inline JavaScript, New Chat wiring, regression suite, and v0.13.51 release alignment coverage",
     "Owner-entity absence, inventory-derived template candidates, blank presence fallback, approval-gated actions, browser template population, stored automation compatibility, regression suite, and v0.13.50 release alignment coverage",
     "Release-contract validator execution, workflow gate ordering, metadata and schema consistency, Docker/runtime alignment, publication tags and manifest wiring, regression suite, and v0.13.49 release alignment coverage",

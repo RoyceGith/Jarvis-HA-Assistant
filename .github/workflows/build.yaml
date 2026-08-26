@@ -6,13 +6,21 @@ on:
       - main
     paths:
       - ".github/workflows/build.yaml"
+      - ".gitignore"
+      - "docs/REPOSITORY_BOUNDARIES.md"
       - "jarvis/**"
+      - "repository.yaml"
+      - "validate_public_repo.py"
   push:
     branches:
       - main
     paths:
       - ".github/workflows/build.yaml"
+      - ".gitignore"
+      - "docs/REPOSITORY_BOUNDARIES.md"
       - "jarvis/**"
+      - "repository.yaml"
+      - "validate_public_repo.py"
   workflow_dispatch:
 
 permissions:
@@ -34,6 +42,8 @@ jobs:
     steps:
       - name: Check out repository
         uses: actions/checkout@v7.0.0
+      - name: Validate public repository boundary
+        run: python3 validate_public_repo.py
       - name: Validate release contract
         run: python3 jarvis/validate_release_contract.py
       - name: Read app metadata
