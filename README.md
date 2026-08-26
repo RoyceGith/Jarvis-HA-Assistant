@@ -19,7 +19,7 @@ storage, and `ghcr.io/roycegith/jarvis-ha-assistant` update image.
 
 ## Current experience
 
-Version 0.13.75 includes a full-window Automation Studio with a building-block
+Version 0.13.76 includes a full-window Automation Studio with a building-block
 toolbox, interactive flow canvas, and focused settings inspector. Existing
 automation definitions and Home Assistant data remain compatible across updates.
 Visual workflows can use OR triggers, grouped conditions, ordered actions, and
@@ -45,3 +45,7 @@ Each rule also has a response window so unanswered suggestions expire rather tha
 blocking future evaluation. Interrupted executions recover as visible failures,
 and Studio reports expirations, automatic successes, and action failures without
 automatically retrying actions.
+Repeated action failures now open a configurable per-rule circuit that pauses
+approval and autonomous execution. Studio explains the circuit and requires an
+explicit recovery reset while retaining historical failures and existing safety
+boundaries.

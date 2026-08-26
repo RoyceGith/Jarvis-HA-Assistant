@@ -1,5 +1,13 @@
 # Change log
 
+## 0.13.76
+
+- Added configurable per-automation failure limits and rolling failure windows.
+- Paused approval-required and autonomous execution when the failure circuit opens,
+  while preserving observe and suggestion-only evaluation.
+- Added visible circuit reasoning and an explicit Reset recovery control that
+  acknowledges recovery without erasing failure history or changing authority.
+
 ## 0.13.75
 
 - Added configurable per-automation response windows so unanswered suggestions
