@@ -19,7 +19,7 @@ storage, and `ghcr.io/roycegith/jarvis-ha-assistant` update image.
 
 ## Current experience
 
-Version 0.13.70 includes a full-window Automation Studio with a building-block
+Version 0.13.71 includes a full-window Automation Studio with a building-block
 toolbox, interactive flow canvas, and focused settings inspector. Existing
 automation definitions and Home Assistant data remain compatible across updates.
 Visual workflows can use OR triggers, grouped conditions, ordered actions, and
@@ -28,3 +28,6 @@ automation can independently observe, suggest, ask approval, or act automaticall
 beneath the global safety ceiling, with per-rule delivery choices.
 Test Flow evaluates an unsaved draft against current Home Assistant context and
 shows a four-stage trace without executing any action.
+Visual workflows can run at selected local times and weekdays, sunrise or sunset
+offsets, repeating intervals, or a one-time date and time. Time windows, weekdays,
+sun state, and sustained entity states are available as graphical conditions.

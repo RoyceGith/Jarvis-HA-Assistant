@@ -1,5 +1,13 @@
 # Change log
 
+## 0.13.71
+
+- Added graphical local-time, weekday, sunrise/sunset-offset, interval, and
+  one-time schedule triggers to Automation Studio.
+- Added time-window, weekday, sun-state, and sustained entity-state conditions.
+- Added persistent schedule markers and a resilient background evaluator to
+  prevent duplicate scheduled runs while preserving entity-event automations.
+
 ## 0.13.70
 
 - Added a zero-action Test Flow evaluator for unsaved Automation Studio drafts.

@@ -6,7 +6,7 @@ connections.
 
 ## Automation Studio
 
-Version 0.13.70 provides a full-window visual automation builder with Trigger, Context,
+Version 0.13.71 provides a full-window visual automation builder with Trigger, Context,
 Decision, and Action blocks, a node canvas, and block-specific settings. The full
 Advanced editor remains available, existing stored automations are preserved, and
 repeatable OR triggers, grouped conditions, ordered actions, and IF/ELSE branches
@@ -15,6 +15,9 @@ automation can use the global operating default or select its own lower authorit
 plus voice, Studio inbox, and Home Assistant push delivery.
 The Test Flow control checks an unsaved draft against current Home Assistant state,
 renders a four-stage trace, and performs no service calls.
+Graphical triggers now include selected local times and weekdays, sunrise or sunset
+offsets, intervals, and one-time events. Context blocks can check time windows,
+weekdays, sun state, and sustained entity states without breaking older rules.
 
 After installation, configure your own service credentials and explicitly approve
 the Home Assistant entities ZBRANO may read or control. Personal data and runtime
