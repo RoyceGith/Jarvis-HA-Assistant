@@ -19,7 +19,7 @@ storage, and `ghcr.io/roycegith/jarvis-ha-assistant` update image.
 
 ## Current experience
 
-Version 0.13.71 includes a full-window Automation Studio with a building-block
+Version 0.13.72 includes a full-window Automation Studio with a building-block
 toolbox, interactive flow canvas, and focused settings inspector. Existing
 automation definitions and Home Assistant data remain compatible across updates.
 Visual workflows can use OR triggers, grouped conditions, ordered actions, and
@@ -31,3 +31,7 @@ shows a four-stage trace without executing any action.
 Visual workflows can run at selected local times and weekdays, sunrise or sunset
 offsets, repeating intervals, or a one-time date and time. Time windows, weekdays,
 sun state, and sustained entity states are available as graphical conditions.
+Selecting Not now remembers the observed trigger context: improving or nearly unchanged
+numeric conditions do not repeat the same suggestion. Rules re-arm after the
+condition clears, and configured actions already satisfied in Home Assistant are
+not proposed again.
