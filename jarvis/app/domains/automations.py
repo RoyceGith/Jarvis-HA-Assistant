@@ -422,10 +422,14 @@ def _automation_payload(request):
         "value": str(item.get("value") or "").strip(),
     } for item in payload.get("conditions") or []]
     payload["actions"] = [{
+        "kind": str(item.get("kind") or "service"),
         "entity_id": str(item.get("entity_id") or "").strip().lower(),
         "service": str(item.get("service") or "").strip().lower(),
         "service_data": dict(item.get("service_data") or {}),
         "delay_seconds": max(0, int(item.get("delay_seconds") or 0)),
+        "wait_operator": str(item.get("wait_operator") or "equals"),
+        "wait_value": str(item.get("wait_value") or "").strip(),
+        "timeout_seconds": max(1, int(item.get("timeout_seconds") or 30)),
     } for item in payload.get("actions") or []]
     payload["branches"] = [{
         "name": " ".join(str(branch.get("name") or "Branch").split())[:80],
@@ -436,23 +440,28 @@ def _automation_payload(request):
             "value": str(item.get("value") or "").strip(),
         } for item in branch.get("conditions") or []],
         "actions": [{
+            "kind": str(item.get("kind") or "service"),
             "entity_id": str(item.get("entity_id") or "").strip().lower(),
             "service": str(item.get("service") or "").strip().lower(),
             "service_data": dict(item.get("service_data") or {}),
             "delay_seconds": max(0, int(item.get("delay_seconds") or 0)),
+            "wait_operator": str(item.get("wait_operator") or "equals"),
+            "wait_value": str(item.get("wait_value") or "").strip(),
+            "timeout_seconds": max(1, int(item.get("timeout_seconds") or 30)),
         } for item in branch.get("actions") or []],
     } for branch in payload.get("branches") or []]
     if not payload["actions"] and payload["action_entity"] and payload["action_service"]:
         payload["actions"] = [{
-            "entity_id": payload["action_entity"], "service": payload["action_service"],
+            "kind": "service", "entity_id": payload["action_entity"], "service": payload["action_service"],
             "service_data": payload["action_service_data"], "delay_seconds": 0,
+            "wait_operator": "equals", "wait_value": "", "timeout_seconds": 30,
         }]
     if payload["triggers"]:
         first = payload["triggers"][0]
         payload.update(trigger_entity=first["entity_id"], trigger_operator=first["operator"],
                        trigger_value=first["value"], trigger_for_seconds=first["for_seconds"])
     if payload["actions"]:
-        first = payload["actions"][0]
+        first = next((item for item in payload["actions"] if item["kind"] == "service"), payload["actions"][0])
         payload.update(action_entity=first["entity_id"], action_service=first["service"],
                        action_service_data=first["service_data"])
     if payload["enabled"] and not payload["triggers"]:
@@ -474,10 +483,21 @@ def _automation_payload(request):
     if len(json.dumps(payload["action_service_data"], ensure_ascii=False)) > 4000:
         raise HTTPException(status_code=400, detail="Action service data is too large")
     for action in all_actions:
-        if not effective_entity_access(action["entity_id"]):
-            raise HTTPException(status_code=403, detail="An action entity is not enabled in ZBRANO entity policy")
-        if action["service"].split(".", 1)[0] != action["entity_id"].split(".", 1)[0]:
-            raise HTTPException(status_code=400, detail="Each action service must match its target entity domain")
+        kind = action["kind"]
+        if kind == "delay":
+            if not action["delay_seconds"]:
+                raise HTTPException(status_code=400, detail="A delay step requires a duration")
+        elif kind == "wait_state":
+            if not action["entity_id"]:
+                raise HTTPException(status_code=400, detail="A Wait Until step requires an entity")
+            ensure_read_allowed(action["entity_id"])
+        else:
+            if not action["entity_id"] or not action["service"]:
+                raise HTTPException(status_code=400, detail="A service action requires an entity and service")
+            if not effective_entity_access(action["entity_id"]):
+                raise HTTPException(status_code=403, detail="An action entity is not enabled in ZBRANO entity policy")
+            if action["service"].split(".", 1)[0] != action["entity_id"].split(".", 1)[0]:
+                raise HTTPException(status_code=400, detail="Each action service must match its target entity domain")
         if len(json.dumps(action["service_data"], ensure_ascii=False)) > 4000:
             raise HTTPException(status_code=400, detail="An action service data object is too large")
     return payload
@@ -604,7 +624,8 @@ def _activate_automation(automation_id: str, source: str) -> dict[str, Any]:
         raise HTTPException(status_code=403, detail=str(exc)) from exc
     policy = str(automation.get("execution_policy") or "suggest")
     branch_actions = [action for branch in _automation_branches(automation) for action in branch.get("actions") or []]
-    if policy in {"approval_required", "autonomous"} and not [*_automation_actions(automation), *branch_actions]:
+    flow_actions = [*_automation_actions(automation), *branch_actions]
+    if policy in {"approval_required", "autonomous"} and not any(str(action.get("kind") or "service") == "service" for action in flow_actions):
         raise HTTPException(status_code=400, detail="This authority requires a complete proposed action")
     automation["enabled"] = True
     automation["status"] = "armed"
@@ -838,11 +859,21 @@ def _automation_conditions(item: dict[str, Any]) -> list[dict[str, Any]]:
     return [value for value in item.get("conditions") or [] if isinstance(value, dict) and value.get("entity_id")][:20]
 
 def _automation_actions(item: dict[str, Any]) -> list[dict[str, Any]]:
-    configured = [value for value in item.get("actions") or [] if isinstance(value, dict) and value.get("entity_id") and value.get("service")]
+    configured = []
+    for value in item.get("actions") or []:
+        if not isinstance(value, dict):
+            continue
+        kind = str(value.get("kind") or "service")
+        if kind == "delay" and int(value.get("delay_seconds") or 0) > 0:
+            configured.append(value)
+        elif kind == "wait_state" and value.get("entity_id"):
+            configured.append(value)
+        elif kind == "service" and value.get("entity_id") and value.get("service"):
+            configured.append(value)
     if configured:
         return configured[:20]
     entity_id, service = str(item.get("action_entity") or ""), str(item.get("action_service") or "")
-    return [{"entity_id": entity_id, "service": service, "service_data": dict(item.get("action_service_data") or {}), "delay_seconds": 0}] if entity_id and service else []
+    return [{"kind": "service", "entity_id": entity_id, "service": service, "service_data": dict(item.get("action_service_data") or {}), "delay_seconds": 0, "wait_operator": "equals", "wait_value": "", "timeout_seconds": 30}] if entity_id and service else []
 
 def _automation_branches(item: dict[str, Any]) -> list[dict[str, Any]]:
     return [value for value in item.get("branches") or [] if isinstance(value, dict) and value.get("name")][:10]
@@ -947,7 +978,11 @@ def _automation_autonomous_allowed(item: dict[str, Any], settings: dict[str, Any
     selected_actions = _automation_actions(item) if actions is None else actions
     if not selected_actions:
         return False, "selected path has no autonomous action"
+    if not any(str(action.get("kind") or "service") == "service" for action in selected_actions):
+        return False, "selected path has no Home Assistant service action"
     for action in selected_actions:
+        if str(action.get("kind") or "service") != "service":
+            continue
         service = str(action.get("service") or "")
         domain = service.split(".", 1)[0] if "." in service else ""
         if domain not in AUTOMATION_AUTONOMOUS_DOMAINS:
@@ -979,6 +1014,26 @@ async def _automation_execute_action(data: dict[str, Any], item: dict[str, Any],
     completed = []
     try:
         for step in actions:
+            kind = str(step.get("kind") or "service")
+            if kind == "delay":
+                delay = max(1, min(300, int(step.get("delay_seconds") or 0)))
+                await asyncio.sleep(delay)
+                completed.append({"kind": "delay", "seconds": delay, "service": "", "entity_id": ""})
+                continue
+            if kind == "wait_state":
+                entity_id = str(step.get("entity_id") or "")
+                timeout = max(1, min(300, int(step.get("timeout_seconds") or 30)))
+                deadline = time.monotonic() + timeout
+                condition = {"operator": step.get("wait_operator") or "equals", "value": step.get("wait_value") or ""}
+                while True:
+                    current = (ha_ws.state_cache.get(entity_id) or {}).get("state")
+                    if _automation_condition_matches(condition, current, current):
+                        break
+                    if time.monotonic() >= deadline:
+                        raise RuntimeError(f"Wait Until timed out for {entity_id}")
+                    await asyncio.sleep(0.5)
+                completed.append({"kind": "wait_state", "entity_id": entity_id, "service": "", "state": current})
+                continue
             service = str(step.get("service") or "")
             entity_id = str(step.get("entity_id") or "")
             if "." not in service:
@@ -993,7 +1048,7 @@ async def _automation_execute_action(data: dict[str, Any], item: dict[str, Any],
             service_data = dict(step.get("service_data") or {})
             service_data["entity_id"] = entity_id
             await ha_ws.call_service(domain, action, service_data)
-            completed.append({"service": service, "entity_id": entity_id})
+            completed.append({"kind": "service", "service": service, "entity_id": entity_id})
     except Exception:
         item["status"] = "failed"
         _automation_event(data, "action_failed", f"Action sequence failed: {item.get('name')}", f"completed={len(completed)}/{len(actions)}")
@@ -1008,7 +1063,7 @@ async def _automation_execute_action(data: dict[str, Any], item: dict[str, Any],
     _automation_save(data)
     if item.get("notify_on_action", True):
         await _automation_notify(str(item.get("name") or "ZBRANO automation"), str(item.get("proposal_template") or f"Executed {len(completed)} automation action(s)."), action=True)
-    first = completed[0]
+    first = next((step for step in completed if step.get("kind") == "service"), {"service": "", "entity_id": ""})
     return {"executed": True, "service": first["service"], "entity_id": first["entity_id"], "actions": completed}
 
 async def _automation_commit_match(automation_id: str, evidence: dict[str, Any]) -> None:
@@ -1060,7 +1115,7 @@ async def _automation_commit_match(automation_id: str, evidence: dict[str, Any])
             _automation_save(data)
             return
         autonomous, authority_detail = _automation_autonomous_allowed(item, data["settings"], selected_actions)
-        first_action = selected_actions[0] if selected_actions else {}
+        first_action = next((action for action in selected_actions if str(action.get("kind") or "service") == "service"), {})
         suggestion = {
             "id": secrets.token_hex(10), "automation_id": automation_id,
             "title": str(item.get("name") or "ZBRANO suggestion")[:160], "detail": detail[:1000],

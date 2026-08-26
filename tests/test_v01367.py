@@ -28,10 +28,10 @@ def load_branch_functions(states):
 
 class BranchingAutomationReleaseTests(unittest.TestCase):
     def test_release_markers_are_aligned(self):
-        self.assertIn('version: "0.13.67"', CONFIG)
-        self.assertIn('version="0.13.67"', MAIN)
-        self.assertIn("HUD 0.13.67", HTML)
-        self.assertEqual(MANIFEST["version"], "0.13.67")
+        self.assertIn('version: "0.13.68"', CONFIG)
+        self.assertIn('version="0.13.68"', MAIN)
+        self.assertIn("HUD 0.13.68", HTML)
+        self.assertEqual(MANIFEST["version"], "0.13.68")
 
     def test_bounded_branch_schema_is_present(self):
         self.assertIn("class AutomationBranchRequest", SCHEMAS)
@@ -40,7 +40,11 @@ class BranchingAutomationReleaseTests(unittest.TestCase):
 
     def test_engine_selects_and_preserves_branch_actions(self):
         self.assertIn("def _automation_select_branch", AUTOMATIONS)
-        self.assertIn("first-match", MANIFEST["summary"].lower())
+        self.assertTrue(any(
+            "first-match" in entry.get("summary", "").lower()
+            for entry in MANIFEST["history_backfill"]
+            if entry.get("version") == "0.13.67"
+        ))
         self.assertIn('"actions": selected_actions, "branch": branch_name', AUTOMATIONS)
         self.assertIn('suggestion.get("actions")', MAIN)
 
@@ -68,7 +72,7 @@ class BranchingAutomationReleaseTests(unittest.TestCase):
         self.assertIn("first-match branch", FLOW)
 
     def test_release_history_includes_v01366(self):
-        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.66")
+        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.67")
 
 
 if __name__ == "__main__":

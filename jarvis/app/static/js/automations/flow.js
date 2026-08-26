@@ -71,9 +71,10 @@
 
     const actionEntity = text(automation.action_entity, "");
     const actionService = text(automation.action_service, "");
-    const actions = Array.isArray(automation.actions) ? automation.actions.filter(item => item?.entity_id && item?.service) : [];
+    const actions = Array.isArray(automation.actions) ? automation.actions.filter(item => (item?.kind === "delay" && item?.delay_seconds) || (item?.kind === "wait_state" && item?.entity_id) || ((!item?.kind || item.kind === "service") && item?.entity_id && item?.service)) : [];
+    const actionLabel = item => item.kind === "delay" ? `Delay ${item.delay_seconds}s` : item.kind === "wait_state" ? `Wait for ${entityName(item.entity_id)}` : item.service;
     const actionTitle = actions.length > 1 ? `${actions.length} ordered actions` : actionEntity ? entityName(actionEntity) : "Suggestion only";
-    const actionDetail = actions.length > 1 ? actions.map(item => item.service).slice(0, 2).join(" → ") : actionEntity && actionService ? actionService : "No Home Assistant service call";
+    const actionDetail = actions.length > 1 ? actions.map(actionLabel).slice(0, 2).join(" → ") : actions.length === 1 ? actionLabel(actions[0]) : actionEntity && actionService ? actionService : "No Home Assistant service call";
 
     const nodes = [
       node("trigger", "WHEN", entityName(triggerEntity), triggerDetail),

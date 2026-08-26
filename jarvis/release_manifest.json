@@ -1,9 +1,9 @@
 {
-  "version": "0.13.67",
+  "version": "0.13.68",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/ZBRANO_Core main",
-  "summary": "Add first-match IF/ELSE branching with per-branch condition groups and ordered action sequences to Automation Studio.",
+  "summary": "Add dedicated bounded Delay and Wait Until flow-control steps to linear and branching automation action sequences.",
   "history_backfill": [
     {
       "version": "0.13.0",
@@ -272,22 +272,27 @@
     {
       "version": "0.13.66",
       "summary": "Added backward-compatible OR triggers, grouped ALL/ANY state conditions, and ordered Home Assistant action sequences."
+    },
+    {
+      "version": "0.13.67",
+      "summary": "Added first-match IF/ELSE branching with independent condition groups, action sequences, and a stable approval handoff."
     }
   ],
   "release_entry": {
     "features": [
-      "Add up to ten ordered first-match branches with independent ALL/ANY state conditions and action sequences.",
-      "Support an explicit ELSE fallback by placing an empty-condition branch last in the Decision inspector."
+      "Add dedicated Delay steps of up to five minutes to linear and branch action sequences.",
+      "Add Wait Until steps with entity state operators and explicit one-to-300-second timeouts."
     ],
     "fixes": [
-      "Bind approval and autonomous execution to the action sequence selected when the branch matched.",
-      "Preserve linear v0.13.66 workflows whenever an automation has no branches."
+      "Preserve existing service actions and their optional pre-action delays through the expanded typed-step schema.",
+      "Apply read permissions to Wait Until entities and control permissions only to service steps."
     ],
     "validation": [
-      "Branch schema, first-match selection, ELSE fallback, selected-action approval, visual nested editors, browser smoke, compatibility, README alignment, and v0.13.67 release coverage"
+      "Typed action-step schema, Delay bounds, Wait Until operators and timeouts, visual step switching, browser smoke, compatibility, README alignment, and v0.13.68 release coverage"
     ]
   },
   "features": [
+    "Pause action sequences with explicit bounded Delay and Wait Until steps in both linear workflows and selected branches.",
     "Choose the first matching IF/ELSE branch and carry its bounded action sequence safely through suggestion, approval, or autonomous execution.",
     "Build advanced automations from bounded OR triggers, ALL or ANY context conditions, and ordered action sequences while preserving the original schema aliases.",
     "Preserve reliable pointer interaction across every Automation Studio flow block by keeping decorative connectors outside hit testing.",
@@ -533,6 +538,7 @@
     "Preserve multi-round Workshop Memory tasks after an approved write in both streaming and non-streaming chat."
   ],
   "fixes": [
+    "Validate and execute flow-control steps according to their type without requiring false service credentials for delays or waits.",
     "Keep branch decisions auditable and stable between the original match and later explicit approval.",
     "Evaluate and permission-check every advanced workflow entity and service without rewriting existing stored automations.",
     "Prevent Automation Studio connector arrows from intercepting clicks and failing the Docker browser release gate.",
@@ -675,6 +681,7 @@
     "Preserve task-scoped Workshop Memory approval and per-draft Gmail approval isolation."
   ],
   "validation": [
+    "Typed action-step schema, Delay bounds, Wait Until operators and timeouts, visual step switching, browser smoke, compatibility, README alignment, and v0.13.68 release coverage",
     "Branch schema, first-match selection, ELSE fallback, selected-action approval, visual nested editors, browser smoke, compatibility, README alignment, and v0.13.67 release coverage",
     "Advanced workflow schema, compatibility aliases, multi-trigger evaluation, condition grouping, ordered actions, visual repeaters, browser smoke, README alignment, and v0.13.66 release coverage",
     "Flow-node pointer interaction, complete local browser smoke, README alignment, release contract, regression suite, and v0.13.65 release alignment coverage",

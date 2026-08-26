@@ -1,5 +1,12 @@
 # Change log
 
+## 0.13.68
+
+- Added dedicated Delay and Wait Until steps to linear and branching action
+  sequences.
+- Added bounded wait timeouts, state operators, typed validation, and preserved
+  compatibility for existing service actions.
+
 ## 0.13.67
 
 - Added first-match IF/ELSE branches with per-branch ALL/ANY conditions and

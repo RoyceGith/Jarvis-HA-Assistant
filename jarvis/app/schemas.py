@@ -114,10 +114,14 @@ class AutomationConditionRequest(BaseModel):
     value: str = Field(default="", max_length=255)
 
 class AutomationActionRequest(BaseModel):
-    entity_id: str = Field(min_length=3, max_length=255, pattern=r"^[a-z0-9_]+\.[a-z0-9_]+$")
-    service: str = Field(min_length=3, max_length=120, pattern=r"^[a-z0-9_]+\.[a-z0-9_]+$")
+    kind: str = Field(default="service", pattern="^(service|delay|wait_state)$")
+    entity_id: str = Field(default="", max_length=255, pattern=r"^(|[a-z0-9_]+\.[a-z0-9_]+)$")
+    service: str = Field(default="", max_length=120, pattern=r"^(|[a-z0-9_]+\.[a-z0-9_]+)$")
     service_data: dict[str, Any] = Field(default_factory=dict)
     delay_seconds: int = Field(default=0, ge=0, le=300)
+    wait_operator: str = Field(default="equals", pattern="^(equals|not_equals|above|below)$")
+    wait_value: str = Field(default="", max_length=255)
+    timeout_seconds: int = Field(default=30, ge=1, le=300)
 
 class AutomationBranchRequest(BaseModel):
     name: str = Field(min_length=1, max_length=80)

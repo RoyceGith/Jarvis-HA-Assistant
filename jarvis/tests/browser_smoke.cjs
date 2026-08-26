@@ -93,7 +93,7 @@ function apiFixture(url) {
   if (pathname === "/api/health") {
     return {
       status: "ok",
-      version: "0.13.67",
+      version: "0.13.68",
       speech_provider: "openai",
       speech_providers: {openai: {configured: true}, elevenlabs: {configured: false}},
     };
@@ -121,7 +121,7 @@ function apiFixture(url) {
   if (pathname === "/api/plugins") return {plugins: []};
   if (pathname === "/api/files/shared") return {files: [], count: 0};
   if (pathname === "/api/release-memory-sync") {
-    return {enabled: false, state: "disabled", version: "0.13.67", task_active: false};
+    return {enabled: false, state: "disabled", version: "0.13.68", task_active: false};
   }
   if (pathname === "/api/tab-activity") return {revisions: {}};
   if (pathname === "/api/grinder-monitor/status") return {enabled: false, connected: false};
@@ -254,13 +254,20 @@ async function main() {
     await page.locator('#automation-flow-preview [data-flow-kind="action"]').click();
     await page.locator('[data-workflow-add="actions"]').click();
     assert.equal(await page.locator(".automation-workflow-step").count(), 1);
+    await page.locator('[data-workflow-index="0"][data-action-field="kind"]').selectOption("delay");
+    await page.locator('[data-workflow-index="0"][data-action-field="delay_seconds"]').fill("2");
+    assert.match(await page.locator("#automation-flow-preview").innerText(), /Delay 2s/i);
     await page.locator('#automation-flow-preview [data-flow-kind="decision"]').click();
     await page.locator("[data-branch-add]").click();
     await page.locator('[data-branch-add-item="conditions"]').click();
     await page.locator('[data-branch-collection="conditions"][data-branch-field="entity_id"]').fill("sensor.browser_fixture_4");
     await page.locator('[data-branch-add-item="actions"]').click();
-    await page.locator('[data-branch-collection="actions"][data-branch-field="entity_id"]').fill("light.browser_fixture");
-    await page.locator('[data-branch-collection="actions"][data-branch-field="service"]').fill("light.turn_on");
+    await page.locator('[data-branch-collection="actions"][data-action-field="entity_id"]').fill("light.browser_fixture");
+    await page.locator('[data-branch-collection="actions"][data-action-field="service"]').fill("light.turn_on");
+    await page.locator('[data-branch-add-item="actions"]').click();
+    await page.locator('[data-branch-collection="actions"][data-item-index="1"][data-action-field="kind"]').selectOption("wait_state");
+    await page.locator('[data-branch-collection="actions"][data-item-index="1"][data-action-field="entity_id"]').fill("sensor.browser_fixture_5");
+    await page.locator('[data-branch-collection="actions"][data-item-index="1"][data-action-field="wait_value"]').fill("25");
     assert.match(await page.locator("#automation-flow-preview").innerText(), /1 first-match branch/i);
 
     console.log("Browser smoke passed: New Chat, navigation, Entity scrolling, branching Automation Studio workflows, and installation-derived templates");
