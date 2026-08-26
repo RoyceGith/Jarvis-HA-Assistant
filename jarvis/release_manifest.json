@@ -1,9 +1,9 @@
 {
-  "version": "0.13.74",
+  "version": "0.13.75",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/ZBRANO_Core main",
-  "summary": "Apply bounded per-automation feedback learning to suggestion timing with visible explanations and an explicit reset control.",
+  "summary": "Recover stale automation suggestion lifecycles and expose bounded outcome health for unanswered, successful, failed, and interrupted decisions.",
   "history_backfill": [
     {
       "version": "0.13.0",
@@ -300,22 +300,28 @@
     {
       "version": "0.13.73",
       "summary": "Tracked numeric automation episodes, exposed their trend, and made reconsideration and reset behavior configurable per rule."
+    },
+    {
+      "version": "0.13.74",
+      "summary": "Applied bounded per-automation feedback learning to suggestion timing with visible explanations and an explicit reset control."
     }
   ],
   "release_entry": {
     "features": [
-      "Use repeated Not now feedback to gradually postpone future suggestions for that automation until its condition becomes more significant.",
-      "Show approvals, dismissals, manual resolutions, and learned restraint in Automation Studio with an explicit per-rule reset control."
+      "Configure a per-automation response window so unanswered suggestions expire and stop blocking future evaluation.",
+      "Show unanswered expirations, automatic successes, and action failures as compact outcome health in Automation Studio."
     ],
     "fixes": [
-      "Bound feedback evidence to 20 recent outcomes while retaining compact lifetime counters.",
-      "Limit learned restraint to suggestion and approval modes so feedback cannot grant permissions or alter observe and autonomous authority."
+      "Recover persisted executing suggestions that never completed by marking them interrupted and the automation failed instead of leaving it permanently blocked.",
+      "Hide expired suggestions from the active inbox while retaining their auditable outcome evidence."
     ],
     "validation": [
-      "Adaptive suggestion boundaries, bounded feedback history, positive-feedback reset, authority isolation, learning reset, Automation Studio explanations, compatibility, README alignment, and v0.13.74 release coverage"
+      "Response-window expiry, pending-rule recovery, interrupted execution recovery, success and failure outcomes, read-route locking, Studio health rendering, compatibility, README alignment, and v0.13.75 release coverage"
     ]
   },
   "features": [
+    "Recover stale unanswered and interrupted automation suggestion lifecycles without granting additional authority.",
+    "Expose compact automation outcome health for expirations, automatic successes, and action failures.",
     "Apply bounded per-automation feedback learning to suggestion timing without changing permissions or authority.",
     "Explain learned outcomes in Automation Studio and allow the user to reset learning independently from the automation and episode history.",
     "Track bounded numeric automation episodes and make their worsening and reset margins configurable per rule.",

@@ -1382,7 +1382,11 @@ def _automation_record_suggestion_dismissal(data: dict[str, Any], suggestion: di
 
 def _automation_record_feedback(item: dict[str, Any], outcome: str, now: float, context: dict[str, Any] | None = None) -> None:
     feedback = item.setdefault("feedback_memory", {})
-    key = {"not_now": "dismissals", "approved": "approvals", "manual_resolution": "manual_resolutions"}.get(outcome)
+    key = {
+        "not_now": "dismissals", "approved": "approvals", "manual_resolution": "manual_resolutions",
+        "expired": "expired_suggestions", "action_failure": "action_failures",
+        "autonomous_success": "autonomous_successes",
+    }.get(outcome)
     if key:
         feedback[key] = int(feedback.get(key) or 0) + 1
     if outcome == "not_now":
@@ -1400,6 +1404,33 @@ def _automation_record_feedback(item: dict[str, Any], outcome: str, now: float, 
         "action_entity": str(source.get("action_entity") or ""),
         "action_service": str(source.get("action_service") or ""),
     }, *list(feedback.get("history") or [])][:20]
+
+def _automation_expire_stale_suggestions(data: dict[str, Any], item: dict[str, Any], now: float) -> int:
+    timeout = max(1, min(1440, int(item.get("suggestion_timeout_minutes") or 30))) * 60
+    expired = 0
+    interrupted = 0
+    for suggestion in data.get("suggestions", []):
+        if suggestion.get("automation_id") != item.get("id") or suggestion.get("status") not in {"pending", "approval_required", "executing"}:
+            continue
+        created_at = float(suggestion.get("created_at") or 0)
+        expires_at = float(suggestion.get("expires_at") or created_at + timeout)
+        if now < expires_at:
+            continue
+        was_executing = suggestion.get("status") == "executing"
+        suggestion["status"] = "interrupted" if was_executing else "expired"
+        suggestion["resolved_at"] = now
+        suggestion["resolution_reason"] = "Execution did not complete before lifecycle recovery" if was_executing else "Suggestion response window elapsed"
+        _automation_record_feedback(item, "action_failure" if was_executing else "expired", now, suggestion)
+        interrupted += int(was_executing)
+        expired += int(not was_executing)
+    if expired or interrupted:
+        if interrupted:
+            item["status"] = "failed"
+        elif item.get("status") in {"pending", "approval_required"}:
+            item["status"] = "armed" if item.get("enabled") else "draft"
+        item["last_expired_at"] = now
+        _automation_event(data, "recovery" if interrupted else "expired", f"Suggestion lifecycle recovered: {item.get('name')}", f"{expired} unanswered suggestion(s) expired; {interrupted} interrupted execution(s) marked failed.")
+    return expired + interrupted
 
 def _automation_autonomous_allowed(item: dict[str, Any], settings: dict[str, Any], actions: list[dict[str, Any]] | None = None) -> tuple[bool, str]:
     effective_policy, policy_detail = _automation_effective_policy(item, settings)
@@ -1490,6 +1521,7 @@ async def _automation_execute_action(data: dict[str, Any], item: dict[str, Any],
             completed.append({"kind": "service", "service": service, "entity_id": entity_id})
     except Exception:
         item["status"] = "failed"
+        _automation_record_feedback(item, "action_failure", time.time(), suggestion)
         _automation_event(data, "action_failed", f"Action sequence failed: {item.get('name')}", f"completed={len(completed)}/{len(actions)}")
         _automation_save(data)
         raise
@@ -1498,6 +1530,8 @@ async def _automation_execute_action(data: dict[str, Any], item: dict[str, Any],
     if suggestion is not None:
         suggestion["status"] = "executed"
         suggestion["resolved_at"] = time.time()
+    if source == "selective_autonomy":
+        _automation_record_feedback(item, "autonomous_success", time.time(), suggestion)
     _automation_event(data, "action", f"Automation action sequence executed: {item.get('name')}", f"steps={len(completed)}; source={source}")
     _automation_save(data)
     if item.get("notify_on_action", True):
@@ -1529,6 +1563,8 @@ async def _automation_commit_match(automation_id: str, evidence: dict[str, Any])
                 return
         now = time.time()
         if _automation_numeric_episode_update(item, trigger, current, now):
+            _automation_save(data)
+        if _automation_expire_stale_suggestions(data, item, now):
             _automation_save(data)
         if any(value.get("automation_id") == automation_id and value.get("status") in {"pending", "approval_required", "executing"} for value in data.get("suggestions", [])):
             return
@@ -1614,6 +1650,7 @@ async def _automation_commit_match(automation_id: str, evidence: dict[str, Any])
             "delivery_notification_center": item.get("delivery_notification_center", True),
             "delivery_ha_push": item.get("delivery_ha_push", True),
             "created_at": now,
+            "expires_at": now + max(1, min(1440, int(item.get("suggestion_timeout_minutes") or 30))) * 60,
         }
         data["suggestions"].insert(0, suggestion)
         item["status"] = suggestion["status"]

@@ -1,5 +1,14 @@
 # Change log
 
+## 0.13.75
+
+- Added configurable per-automation response windows so unanswered suggestions
+  expire instead of blocking future evaluation indefinitely.
+- Recovered persisted interrupted executions as visible failures without retrying
+  actions or changing authority.
+- Added Automation Studio outcome health for expirations, automatic successes,
+  and action failures while keeping expired items out of the active inbox.
+
 ## 0.13.74
 
 - Applied repeated Not now feedback to gradually postpone future suggestions for

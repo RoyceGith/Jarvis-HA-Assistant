@@ -152,6 +152,7 @@ class AutonomousAutomationRequest(BaseModel):
     action_entity: str = Field(default="", max_length=255)
     action_service: str = Field(default="", max_length=120)
     cooldown_minutes: int = Field(default=30, ge=1, le=1440)
+    suggestion_timeout_minutes: int = Field(default=30, ge=1, le=1440)
     reoffer_delta: float = Field(default=0, ge=0, le=100000)
     reset_delta: float = Field(default=0, ge=0, le=100000)
     confidence_threshold: float = Field(default=0.75, ge=0.5, le=0.99)

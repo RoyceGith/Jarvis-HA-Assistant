@@ -23,6 +23,7 @@ from .domains.automations import (
     _automation_effective_policy,
     _automation_evaluate_state_change,
     _automation_event,
+    _automation_expire_stale_suggestions,
     _automation_execute_action,
     _automation_label_blocks_control,
     _automation_payload_http,
@@ -674,7 +675,7 @@ ha_ws = HomeAssistantWebSocketClient(
 
 app = FastAPI(
     title="ZBRANO",
-    version="0.13.74",
+    version="0.13.75",
     docs_url="/api/docs",
     openapi_url="/api/openapi.json",
 )
@@ -2653,7 +2654,7 @@ async def health() -> dict[str, Any]:
     configured_speech_provider = SPEECH_PROVIDER if SPEECH_PROVIDER in {"openai", "elevenlabs"} else "openai"
     return {
         "status": "ok",
-        "version": "0.13.74",
+        "version": "0.13.75",
         "home_assistant_configured": bool(SUPERVISOR_TOKEN),
         "workshop_memory_configured": bool(WORKSHOP_MEMORY_URL),
         "workshop_memory_cost_guard": workshop_cost_guard_status(),
@@ -3334,7 +3335,12 @@ async def remove_plugin(plugin_id:str):
 async def read_autonomous_automations():
     with contextlib.suppress(RuntimeError, OSError, asyncio.TimeoutError):
         await _automation_refresh_area_context()
-    data = automation_store()
+    async with AUTOMATION_ENGINE_LOCK:
+        data = automation_store()
+        now = time.time()
+        expired = sum(_automation_expire_stale_suggestions(data, item, now) for item in data.get("automations", []))
+        if expired:
+            _automation_save(data)
     return {
         **data,
         "engine": {
