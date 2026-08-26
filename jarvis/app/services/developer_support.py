@@ -4,7 +4,7 @@ import re
 from pathlib import Path
 
 
-DEVELOPER_REPOSITORY = "RoyceGith/Jarvis-HA-Assistant"
+DEVELOPER_REPOSITORY = "RoyceGith/ZBRANO_HA_Assistant"
 DEVELOPER_FRONTEND_PATH = Path(__file__).resolve().parent.parent / "static/index.html"
 
 

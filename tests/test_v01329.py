@@ -31,10 +31,10 @@ def load_openai_functions(*names: str) -> dict[str, Any]:
 
 class OpenAIAndDeveloperStateBoundaryTests(unittest.TestCase):
     def test_release_markers_are_aligned(self):
-        self.assertIn('version: "0.13.52"', CONFIG)
-        self.assertIn('version="0.13.52"', MAIN)
-        self.assertIn("HUD 0.13.52", HTML)
-        self.assertEqual(MANIFEST["version"], "0.13.52")
+        self.assertIn('version: "0.13.53"', CONFIG)
+        self.assertIn('version="0.13.53"', MAIN)
+        self.assertIn("HUD 0.13.53", HTML)
+        self.assertEqual(MANIFEST["version"], "0.13.53")
 
     def test_both_modules_are_outside_composition_root(self):
         self.assertNotIn("async def create_openai_response(", MAIN)
@@ -82,7 +82,7 @@ class OpenAIAndDeveloperStateBoundaryTests(unittest.TestCase):
                 self.assertGreater(payload["updated_at"], 0)
                 self.assertTrue(developer_state.developer_mode_enabled())
                 instructions = developer_state.developer_system_instructions("base")
-                self.assertIn("RoyceGith/Jarvis-HA-Assistant", instructions)
+                self.assertIn("RoyceGith/ZBRANO_HA_Assistant", instructions)
                 self.assertIn("approval-gated", instructions)
                 self.assertIn("investigate_zbrano_feature exactly once", instructions)
             finally:

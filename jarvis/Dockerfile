@@ -9,7 +9,7 @@ LABEL \
   io.hass.version="${BUILD_VERSION}" \
   io.hass.type="app" \
   io.hass.arch="${BUILD_ARCH}" \
-  org.opencontainers.image.source="https://github.com/RoyceGith/Jarvis-HA-Assistant"
+  org.opencontainers.image.source="https://github.com/RoyceGith/ZBRANO_HA_Assistant"
 
 RUN apk add --no-cache python3 py3-pip py3-numpy py3-scipy py3-scikit-learn py3-tqdm py3-onnxruntime nodejs npm chromium nss freetype harfbuzz ca-certificates font-noto
 

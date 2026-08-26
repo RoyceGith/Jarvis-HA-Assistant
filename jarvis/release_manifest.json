@@ -1,9 +1,9 @@
 {
-  "version": "0.13.52",
+  "version": "0.13.53",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
-  "source": "RoyceGith/Jarvis-HA-Assistant main",
-  "summary": "Establish and enforce the public Home Assistant core boundary while reserving accounts, subscriptions, billing, hosted community services, infrastructure, and secrets for a separate private repository.",
+  "source": "RoyceGith/ZBRANO_HA_Assistant main",
+  "summary": "Migrate the canonical public source identity to RoyceGith/ZBRANO_HA_Assistant while preserving the established GHCR image path for Home Assistant upgrade continuity.",
   "history_backfill": [
     {
       "version": "0.13.0",
@@ -212,22 +212,27 @@
     {
       "version": "0.13.51",
       "summary": "Repaired build-gated browser validation by opening the advanced automation editor and waiting for Home Assistant inventory before exercising a quick design."
+    },
+    {
+      "version": "0.13.52",
+      "summary": "Established an enforced public Home Assistant core boundary while reserving hosted accounts, subscriptions, billing, community services, infrastructure, and secrets for a separate private repository."
     }
   ],
   "release_entry": {
     "features": [
-      "Define the current repository as the public, independently buildable Home Assistant core and document the separate private hosted-platform boundary.",
-      "Add a build-gated public-repository validator covering private trees, secret-bearing filenames, ignore rules, canonical metadata, and personal product defaults."
+      "Move canonical source metadata, Developer repository targeting, container source labels, and public-boundary validation to RoyceGith/ZBRANO_HA_Assistant.",
+      "Document the intentional separation between the renamed source repository and the compatibility GHCR package path."
     ],
     "fixes": [
-      "Prevent local setup trees, handoff notes, Workshop Memory service source, credentials, certificates, and future commercial-service trees from being accidentally added to the public core.",
-      "Replace stale repository metadata and the remaining owner-name Fast Memory placeholder with canonical product-facing values."
+      "Prevent repository redirects from remaining a permanent dependency in release metadata and Developer Mode.",
+      "Keep ghcr.io/roycegith/jarvis-ha-assistant unchanged so installed Home Assistant apps are not stranded by the source rename."
     ],
     "validation": [
-      "Tracked-path rejection, secret-filename rejection, required ignore rules, repository metadata, personal-default absence, workflow gate ordering, regression suite, and v0.13.52 release alignment coverage"
+      "Renamed repository reachability, canonical source references, legacy-reference absence, GHCR compatibility path, release contract, regression suite, and v0.13.53 release alignment coverage"
     ]
   },
   "features": [
+    "Use RoyceGith/ZBRANO_HA_Assistant as the canonical public source identity without changing the established Home Assistant image package.",
     "Enforce a public Home Assistant core boundary while reserving hosted commercial and community services for a separate private repository.",
     "Derive Automation Library starter drafts from each installation's Home Assistant entity inventory instead of owner-specific placeholders.",
     "Add a pre-build release contract covering Home Assistant metadata, Docker packaging, and GitHub image publication.",
@@ -459,6 +464,7 @@
     "Preserve multi-round Workshop Memory tasks after an approved write in both streaming and non-streaming chat."
   ],
   "fixes": [
+    "Update repository metadata and Developer tooling after the GitHub source rename while retaining the compatibility GHCR path.",
     "Block private service trees, local operator material, and common secret-bearing files from accidental public-core commits.",
     "Make build-gated Automation Library browser coverage wait for visible editor controls and loaded Home Assistant inventory.",
     "Remove hard-coded workshop entity IDs and autonomous lighting authority from product starter templates while preserving stored automations.",
@@ -594,6 +600,7 @@
     "Preserve task-scoped Workshop Memory approval and per-draft Gmail approval isolation."
   ],
   "validation": [
+    "Renamed repository reachability, canonical source references, legacy-reference absence, GHCR compatibility path, release contract, regression suite, and v0.13.53 release alignment coverage",
     "Tracked-path rejection, secret-filename rejection, required ignore rules, repository metadata, personal-default absence, workflow gate ordering, regression suite, and v0.13.52 release alignment coverage",
     "Advanced-editor visibility, entity-inventory readiness, template population, release manifest, inline JavaScript, New Chat wiring, regression suite, and v0.13.51 release alignment coverage",
     "Owner-entity absence, inventory-derived template candidates, blank presence fallback, approval-gated actions, browser template population, stored automation compatibility, regression suite, and v0.13.50 release alignment coverage",

@@ -13,6 +13,12 @@ and `/data`. Personal entity IDs, locations, credentials, calibration recordings
 memory databases, local setup directories, and operator handoff notes must not be
 committed.
 
+The canonical source repository is
+`https://github.com/RoyceGith/ZBRANO_HA_Assistant`. The published container retains
+the compatibility image path `ghcr.io/roycegith/jarvis-ha-assistant`; changing a
+source repository name must not silently strand installed Home Assistant apps on a
+different package path.
+
 ## Private platform services
 
 Future hosted capabilities belong in a separate private repository. This includes:

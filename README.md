@@ -1,4 +1,4 @@
-ZBRANO v0.13.52 establishes an enforced repository boundary: this public repository remains the independently buildable Home Assistant core, while future accounts, subscriptions, billing, hosted community services, private infrastructure, and secrets stay in a separate private repository.
+ZBRANO v0.13.53 migrates the canonical public source identity to `RoyceGith/ZBRANO_HA_Assistant` while preserving the established `ghcr.io/roycegith/jarvis-ha-assistant` image path so existing Home Assistant installations continue receiving upgrades.
 
 ZBRANO v0.13.18 prevents Release Memory synchronization from remaining indefinitely in a non-terminal state by adding worker timeout recovery, note progress, task-health reporting, and automatic interface polling.
 

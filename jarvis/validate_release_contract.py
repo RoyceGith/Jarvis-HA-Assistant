@@ -99,7 +99,7 @@ def main() -> None:
         "ARG BUILD_ARCH",
         'io.hass.version="${BUILD_VERSION}"',
         'io.hass.arch="${BUILD_ARCH}"',
-        "org.opencontainers.image.source=\"https://github.com/RoyceGith/Jarvis-HA-Assistant\"",
+        "org.opencontainers.image.source=\"https://github.com/RoyceGith/ZBRANO_HA_Assistant\"",
         'CMD ["/run.sh"]',
     ):
         if marker not in dockerfile:

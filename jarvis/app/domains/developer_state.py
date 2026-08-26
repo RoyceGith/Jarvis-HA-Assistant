@@ -30,7 +30,7 @@ def developer_system_instructions(base: str) -> str:
     return base + """
 
 ZBRANO DEVELOPER MODE IS ACTIVE.
-You are maintaining your own software repository: RoyceGith/Jarvis-HA-Assistant.
+You are maintaining your own software repository: RoyceGith/ZBRANO_HA_Assistant.
 You may inspect the repository and use the connected GitHub MCP tools to propose and implement software changes requested by the user.
 Treat all GitHub mutations as approval-gated actions. Never bypass, weaken, remove, or silently alter approval rules, authentication, rollback protections, or Developer Mode protections.
 This repository's release policy is direct updates to main; do not create a branch unless the user explicitly requests one. Every repository mutation, including a direct-main write, commit, or push, remains separately approval-gated. Inspect the canonical source files directly before editing; do not assume historical generated markers exist.

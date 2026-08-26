@@ -18,10 +18,10 @@ MANIFEST = json.loads((ROOT / "jarvis/release_manifest.json").read_text(encoding
 
 class PluginOAuthBoundaryTests(unittest.TestCase):
     def test_release_markers_are_aligned(self):
-        self.assertIn('version: "0.13.52"', CONFIG)
-        self.assertIn('version="0.13.52"', MAIN)
-        self.assertIn("HUD 0.13.52", HTML)
-        self.assertEqual(MANIFEST["version"], "0.13.52")
+        self.assertIn('version: "0.13.53"', CONFIG)
+        self.assertIn('version="0.13.53"', MAIN)
+        self.assertIn("HUD 0.13.53", HTML)
+        self.assertEqual(MANIFEST["version"], "0.13.53")
 
     def test_protocol_and_google_policy_are_outside_main(self):
         for marker in (
@@ -43,7 +43,7 @@ class PluginOAuthBoundaryTests(unittest.TestCase):
             plugin_load_fn=lambda path: {"connected": {"scope": "read write"}},
             validate_plugin_url_fn=lambda url: url if url.startswith("https://") else (_ for _ in ()).throw(ValueError("HTTPS required")),
             timeout=15,
-            runtime_version="0.13.52",
+            runtime_version="0.13.53",
         )
         self.assertEqual(
             plugin_oauth.oauth_validate_redirect_uri("https://example.com/api/plugin-oauth/callback"),
