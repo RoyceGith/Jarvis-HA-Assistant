@@ -1,0 +1,79 @@
+name: "ZBRANO"
+description: "Local ZBRANO intelligence core assistant for Workshop Memory and Home Assistant"
+version: "0.13.54"
+slug: "jarvis_workshop_assistant"
+image: "ghcr.io/roycegith/jarvis-ha-assistant"
+init: false
+startup: application
+stage: experimental
+arch:
+  - aarch64
+
+homeassistant_api: true
+ingress: true
+ingress_port: 8099
+ingress_stream: true
+panel_icon: "mdi:robot"
+panel_title: "ZBRANO"
+panel_admin: true
+
+ports:
+  8099/tcp: 8099
+ports_description:
+  8099/tcp: "Direct ZBRANO web interface"
+
+options:
+  log_level: "info"
+  workshop_memory_url: "http://workshop-memory.local:3001/mcp"
+  workshop_memory_internal_url: "http://workshop_memory:3001/mcp"
+  openai_api_key: ""
+  github_oauth_client_id: ""
+  google_oauth_client_id: ""
+  google_oauth_client_secret: ""
+  openai_model: "gpt-5-mini"
+  openai_transcription_model: "gpt-4o-transcribe"
+  openai_tts_model: "gpt-4o-mini-tts"
+  speech_provider: "openai"
+  elevenlabs_api_key: ""
+  elevenlabs_voice_id: ""
+  elevenlabs_voice_name: "ZBRANO"
+  elevenlabs_model_id: "eleven_flash_v2_5"
+  speech_fallback_to_openai: true
+  ha_read_entities: ""
+  ha_control_entities: ""
+  enable_direct_port: true
+  grinder_monitor_enabled: false
+  grinder_mqtt_host: "core-mosquitto"
+  grinder_mqtt_port: 1883
+  grinder_mqtt_username: ""
+  grinder_mqtt_password: ""
+  grinder_mqtt_topic_prefix: "zbrano/grinder"
+
+schema:
+  log_level: "list(trace|debug|info|warning|error)"
+  workshop_memory_url: "str"
+  workshop_memory_internal_url: "str?"
+  openai_api_key: "password"
+  github_oauth_client_id: "str?"
+  google_oauth_client_id: "str?"
+  google_oauth_client_secret: "password"
+  openai_model: "str"
+  openai_transcription_model: "str"
+  openai_tts_model: "str"
+  speech_provider: "list(openai|elevenlabs)"
+  elevenlabs_api_key: "password"
+  elevenlabs_voice_id: "str?"
+  elevenlabs_voice_name: "str"
+  elevenlabs_model_id: "str"
+  speech_fallback_to_openai: "bool"
+  ha_read_entities: "str?"
+  ha_control_entities: "str?"
+  enable_direct_port: "bool"
+  grinder_monitor_enabled: "bool"
+  grinder_mqtt_host: "str"
+  grinder_mqtt_port: "port"
+  grinder_mqtt_username: "str?"
+  grinder_mqtt_password: "password"
+  grinder_mqtt_topic_prefix: "str"
+
+backup: hot
