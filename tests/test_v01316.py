@@ -19,10 +19,10 @@ MANIFEST = json.loads((ROOT / "jarvis/release_manifest.json").read_text(encoding
 
 class StatefulDomainExtractionTests(unittest.TestCase):
     def test_release_markers_are_aligned(self):
-        self.assertIn('version: "0.13.60"', CONFIG)
-        self.assertIn('version="0.13.60"', MAIN)
-        self.assertIn("HUD 0.13.60", HTML)
-        self.assertEqual(MANIFEST["version"], "0.13.60")
+        self.assertIn('version: "0.13.61"', CONFIG)
+        self.assertIn('version="0.13.61"', MAIN)
+        self.assertIn("HUD 0.13.61", HTML)
+        self.assertEqual(MANIFEST["version"], "0.13.61")
         current_patch = int(MANIFEST["version"].rsplit(".", 1)[1])
         self.assertEqual(MANIFEST["history_backfill"][-1]["version"], f"0.13.{current_patch - 1}")
 

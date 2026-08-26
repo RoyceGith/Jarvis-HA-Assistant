@@ -128,6 +128,7 @@ from .domains.settings import (
     load_settings_payload,
     save_elevenlabs_voice_settings,
     save_general_instructions,
+    save_onboarding_check,
     save_onboarding_state,
     save_preferences,
     save_settings_payload,
@@ -667,7 +668,7 @@ ha_ws = HomeAssistantWebSocketClient(
 
 app = FastAPI(
     title="ZBRANO",
-    version="0.13.60",
+    version="0.13.61",
     docs_url="/api/docs",
     openapi_url="/api/openapi.json",
 )
@@ -2646,7 +2647,7 @@ async def health() -> dict[str, Any]:
     configured_speech_provider = SPEECH_PROVIDER if SPEECH_PROVIDER in {"openai", "elevenlabs"} else "openai"
     return {
         "status": "ok",
-        "version": "0.13.60",
+        "version": "0.13.61",
         "home_assistant_configured": bool(SUPERVISOR_TOKEN),
         "workshop_memory_configured": bool(WORKSHOP_MEMORY_URL),
         "workshop_memory_cost_guard": workshop_cost_guard_status(),
@@ -3873,9 +3874,19 @@ async def onboarding_status_payload() -> dict[str, Any]:
         },
     ]
     required_ready = all(step["ready"] for step in steps if step["required"])
+    checks = state.get("checks", {})
+    for step in steps:
+        step["last_check"] = checks.get(step["id"])
+    required_verified = all(
+        bool(checks.get(step["id"], {}).get("ready"))
+        for step in steps
+        if step["required"]
+    )
     return {
         **state,
         "core_ready": required_ready,
+        "required_verified": required_verified,
+        "verified_count": sum(1 for item in checks.values() if item.get("ready")),
         "ready_count": sum(1 for step in steps if step["ready"]),
         "total_count": len(steps),
         "steps": steps,
@@ -3890,8 +3901,8 @@ async def read_onboarding() -> dict[str, Any]:
 @app.put("/api/onboarding")
 async def update_onboarding(request: OnboardingStateUpdate) -> dict[str, Any]:
     status = await onboarding_status_payload()
-    if request.action == "complete" and not status["core_ready"]:
-        raise HTTPException(status_code=409, detail="Complete the required Home Assistant and AI model steps first")
+    if request.action == "complete" and not (status["core_ready"] and status["required_verified"]):
+        raise HTTPException(status_code=409, detail="Run and pass the required Home Assistant and AI model checks first")
     save_onboarding_state(
         completed=request.action == "complete",
         dismissed=request.action == "dismiss",
@@ -3914,6 +3925,7 @@ async def check_onboarding_step(step_id: str) -> dict[str, Any]:
         detail = "Home Assistant WebSocket connected" if ready else str(status.get("last_error") or "Home Assistant is not connected")
     elif step_id == "model":
         if not OPENAI_API_KEY:
+            save_onboarding_check(step_id, ready=False, detail="OpenAI API key is not configured", checked_at=checked_at)
             raise HTTPException(status_code=503, detail="Add an OpenAI API key in the ZBRANO app configuration first")
         try:
             async with httpx.AsyncClient(timeout=10.0) as client:
@@ -3922,8 +3934,10 @@ async def check_onboarding_step(step_id: str) -> dict[str, Any]:
                     headers={"Authorization": f"Bearer {OPENAI_API_KEY}"},
                 )
             if response.is_error:
+                save_onboarding_check(step_id, ready=False, detail=f"OpenAI rejected the configured key (HTTP {response.status_code})", checked_at=checked_at)
                 raise HTTPException(status_code=502, detail=f"OpenAI rejected the configured key (HTTP {response.status_code})")
         except httpx.HTTPError as exc:
+            save_onboarding_check(step_id, ready=False, detail=f"OpenAI connection failed: {exc}", checked_at=checked_at)
             raise HTTPException(status_code=502, detail=f"OpenAI connection failed: {exc}") from exc
         ready = True
         detail = f"OpenAI key accepted; {active_agent_model()} selected"
@@ -3953,6 +3967,7 @@ async def check_onboarding_step(step_id: str) -> dict[str, Any]:
         detail = f"Default channel {target} is available" if ready else f"{len(channels)} channels available; select a default channel to finish notification setup"
     else:
         raise HTTPException(status_code=404, detail="Unknown onboarding step")
+    save_onboarding_check(step_id, ready=ready, detail=detail, checked_at=checked_at)
     return {"id": step_id, "ready": ready, "detail": detail, "checked_at": checked_at}
 
 

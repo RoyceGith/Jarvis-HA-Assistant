@@ -71,6 +71,32 @@ ELEVENLABS_MODELS = {
 }
 
 ONBOARDING_VERSION = 1
+ONBOARDING_STEP_IDS = frozenset({
+    "home_assistant",
+    "model",
+    "entities",
+    "voice",
+    "memory",
+    "plugins",
+    "notifications",
+})
+ONBOARDING_CHECK_DETAIL_MAX_CHARS = 500
+
+def _onboarding_checks(stored: dict[str, Any]) -> dict[str, dict[str, Any]]:
+    raw_checks = stored.get("checks")
+    if not isinstance(raw_checks, dict):
+        return {}
+    checks: dict[str, dict[str, Any]] = {}
+    for step_id in ONBOARDING_STEP_IDS:
+        item = raw_checks.get(step_id)
+        if not isinstance(item, dict):
+            continue
+        checks[step_id] = {
+            "ready": bool(item.get("ready")),
+            "detail": str(item.get("detail") or "")[:ONBOARDING_CHECK_DETAIL_MAX_CHARS],
+            "checked_at": float(item.get("checked_at") or 0),
+        }
+    return checks
 
 def load_settings_payload() -> dict[str, Any]:
     if not SETTINGS_STORAGE_PATH.exists():
@@ -105,18 +131,49 @@ def load_onboarding_state() -> dict[str, Any]:
         "legacy_installation": legacy_installation,
         "show_on_startup": not legacy_installation and not completed and not dismissed,
         "updated_at": float(stored.get("updated_at") or 0),
+        "checks": _onboarding_checks(stored),
     }
 
 def save_onboarding_state(*, completed: bool, dismissed: bool) -> dict[str, Any]:
     payload = load_settings_payload()
+    checks = load_onboarding_state()["checks"]
     state = {
         "version": ONBOARDING_VERSION,
         "completed": bool(completed),
         "dismissed": bool(dismissed) and not bool(completed),
         "updated_at": time.time(),
+        "checks": checks,
     }
     payload.setdefault("version", 3)
     payload["onboarding"] = state
+    save_settings_payload(payload)
+    return load_onboarding_state()
+
+def save_onboarding_check(
+    step_id: str,
+    *,
+    ready: bool,
+    detail: str,
+    checked_at: float | None = None,
+) -> dict[str, Any]:
+    if step_id not in ONBOARDING_STEP_IDS:
+        raise ValueError("Unknown onboarding step")
+    payload = load_settings_payload()
+    current = load_onboarding_state()
+    checks = dict(current["checks"])
+    checks[step_id] = {
+        "ready": bool(ready),
+        "detail": str(detail)[:ONBOARDING_CHECK_DETAIL_MAX_CHARS],
+        "checked_at": float(checked_at or time.time()),
+    }
+    payload.setdefault("version", 3)
+    payload["onboarding"] = {
+        "version": ONBOARDING_VERSION,
+        "completed": bool(current["completed"]),
+        "dismissed": bool(current["dismissed"]) and not bool(current["completed"]),
+        "updated_at": time.time(),
+        "checks": checks,
+    }
     save_settings_payload(payload)
     return load_onboarding_state()
 

@@ -7,10 +7,11 @@
   const progressBar = document.getElementById("onboarding-progress-bar");
   const progressLabel = document.getElementById("onboarding-progress-label");
   const message = document.getElementById("onboarding-message");
+  const checkRequired = document.getElementById("onboarding-check-required");
   const recheck = document.getElementById("onboarding-recheck");
   const complete = document.getElementById("onboarding-complete");
   const dismiss = document.getElementById("onboarding-dismiss");
-  if (!setupTab || !list || !progress || !progressBar || !progressLabel || !message || !recheck || !complete || !dismiss) return;
+  if (!setupTab || !list || !progress || !progressBar || !progressLabel || !checkRequired || !recheck || !complete || !dismiss) return;
 
   function openTarget(target) {
     if (target === "entities") return document.getElementById("entities-tab")?.click();
@@ -46,18 +47,24 @@
     notifications: "Validate channels",
   };
 
-  async function checkStep(step, row, state, description, button) {
+  async function requestCheck(stepId) {
+    const response = await fetch(`api/onboarding/check/${encodeURIComponent(stepId)}`, {method: "POST"});
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.detail || `HTTP ${response.status}`);
+    return data;
+  }
+
+  async function checkStep(step, row, state, description, verification, button) {
     button.disabled = true;
     button.textContent = "Checking…";
     message.textContent = `Checking ${step.title || step.id}…`;
     try {
-      const response = await fetch(`api/onboarding/check/${encodeURIComponent(step.id)}`, {method: "POST"});
-      const data = await response.json();
-      if (!response.ok) throw new Error(data.detail || `HTTP ${response.status}`);
+      const data = await requestCheck(step.id);
       row.classList.toggle("is-ready", Boolean(data.ready));
       state.textContent = data.ready ? "✓" : "•";
       state.setAttribute("aria-label", data.ready ? "Ready" : "Needs attention");
       description.textContent = data.detail || step.description || "";
+      verification.textContent = `${data.ready ? "Verified" : "Checked"} just now`;
       message.textContent = data.ready ? `${step.title} check passed.` : `${step.title}: ${data.detail || "needs attention"}`;
     } catch (error) {
       message.textContent = `${step.title || step.id} check failed: ${error.message || error}`;
@@ -93,13 +100,22 @@
       }
       const description = document.createElement("small");
       description.textContent = step.description || "";
-      copy.append(title, description);
+      const verification = document.createElement("small");
+      verification.className = "onboarding-verification";
+      const lastCheck = step.last_check;
+      if (lastCheck && Number(lastCheck.checked_at || 0) > 0) {
+        const checked = new Date(Number(lastCheck.checked_at) * 1000);
+        verification.textContent = `${lastCheck.ready ? "Verified" : "Last check failed"} ${checked.toLocaleString()}`;
+      } else {
+        verification.textContent = "Not verified yet";
+      }
+      copy.append(title, description, verification);
       const actions = document.createElement("div");
       actions.className = "onboarding-step-actions";
       const check = document.createElement("button");
       check.type = "button";
       check.textContent = checkLabels[step.id] || "Check";
-      check.addEventListener("click", () => checkStep(step, row, state, description, check));
+      check.addEventListener("click", () => checkStep(step, row, state, description, verification, check));
       const action = document.createElement("button");
       action.type = "button";
       action.textContent = actionLabels[step.target] || (step.ready ? "Review" : "Configure");
@@ -108,7 +124,7 @@
       row.append(state, copy, actions);
       list.append(row);
     }
-    complete.disabled = Boolean(data.completed) || !data.core_ready;
+    complete.disabled = Boolean(data.completed) || !data.core_ready || !data.required_verified;
     complete.textContent = data.completed ? "Setup complete" : "Finish setup";
     dismiss.hidden = Boolean(data.completed || data.dismissed || data.legacy_installation);
     message.textContent = data.legacy_installation
@@ -117,9 +133,31 @@
         ? "Core setup is complete. Optional connections can be added at any time."
         : data.dismissed
           ? "Automatic setup is disabled. This guide remains available in Settings."
-          : data.core_ready
-            ? "Required services are ready. Finish setup now or continue with optional connections."
+          : data.core_ready && data.required_verified
+            ? "Required services are configured and verified. Finish setup now or continue with optional connections."
+            : data.core_ready
+              ? "Required services look configured. Run the required checks before finishing setup."
             : "Complete the required steps before finishing setup.";
+  }
+
+  async function runRequiredChecks() {
+    checkRequired.disabled = true;
+    checkRequired.textContent = "Checking…";
+    try {
+      for (const stepId of ["home_assistant", "model"]) {
+        message.textContent = `Checking ${stepId === "home_assistant" ? "Home Assistant" : "AI model"}…`;
+        const result = await requestCheck(stepId);
+        if (!result.ready) throw new Error(result.detail || `${stepId} is not ready`);
+      }
+      await load();
+      message.textContent = "Required checks passed. You can finish setup.";
+    } catch (error) {
+      await load().catch(() => {});
+      message.textContent = `Required check failed: ${error.message || error}`;
+    } finally {
+      checkRequired.disabled = false;
+      checkRequired.textContent = "Run required checks";
+    }
   }
 
   async function load({openIfNeeded = false} = {}) {
@@ -146,6 +184,7 @@
   }
 
   setupTab.addEventListener("click", () => load().catch(error => { message.textContent = `Setup unavailable: ${error.message || error}`; }));
+  checkRequired.addEventListener("click", runRequiredChecks);
   recheck.addEventListener("click", () => load().catch(error => { message.textContent = `Recheck failed: ${error.message || error}`; }));
   complete.addEventListener("click", () => update("complete").catch(error => { message.textContent = error.message || String(error); }));
   dismiss.addEventListener("click", () => update("dismiss").catch(error => { message.textContent = error.message || String(error); }));

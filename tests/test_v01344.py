@@ -15,10 +15,10 @@ MANIFEST = json.loads((ROOT / "jarvis/release_manifest.json").read_text(encoding
 
 class DomainIntegrationExpansionTests(unittest.TestCase):
     def test_release_markers_are_aligned(self):
-        self.assertIn('version: "0.13.60"', CONFIG)
-        self.assertIn('version="0.13.60"', MAIN)
-        self.assertIn("HUD 0.13.60", HTML)
-        self.assertEqual(MANIFEST["version"], "0.13.60")
+        self.assertIn('version: "0.13.61"', CONFIG)
+        self.assertIn('version="0.13.61"', MAIN)
+        self.assertIn("HUD 0.13.61", HTML)
+        self.assertEqual(MANIFEST["version"], "0.13.61")
 
     def test_three_domain_lifecycles_use_real_asgi_routes(self):
         for marker in (

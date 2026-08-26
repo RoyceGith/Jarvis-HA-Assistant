@@ -64,6 +64,7 @@
 .onboarding-step-copy { min-width: 0; }
 .onboarding-step-copy strong { display: block; }
 .onboarding-step-copy small { display: block; margin-top: .15rem; color: var(--text-muted); }
+.onboarding-step-copy .onboarding-verification { color: color-mix(in srgb, var(--cyan) 72%, var(--text-muted)); font-size: .72rem; }
 .onboarding-required { margin-left: .35rem; color: var(--cyan); font-size: .68rem; letter-spacing: .04em; }
 .onboarding-step-actions { display: flex; justify-content: flex-end; gap: .4rem; }
 .onboarding-step-actions button:first-child { color: var(--cyan); }

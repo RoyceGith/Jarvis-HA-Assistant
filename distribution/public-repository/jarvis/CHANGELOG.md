@@ -1,5 +1,11 @@
 # Change log
 
+## 0.13.61
+
+- Stored bounded verification results and timestamps for each setup check.
+- Required new installations to explicitly verify Home Assistant and the AI model
+  before finishing setup, while preserving existing installations unchanged.
+
 ## 0.13.60
 
 - Added explicit setup checks for Home Assistant, model credentials, entity

@@ -13,10 +13,10 @@ MANIFEST = json.loads((ROOT / "jarvis/release_manifest.json").read_text(encoding
 
 class ActionableOnboardingReleaseTests(unittest.TestCase):
     def test_release_markers_are_aligned(self):
-        self.assertIn('version: "0.13.60"', CONFIG)
-        self.assertIn('version="0.13.60"', MAIN)
-        self.assertIn("HUD 0.13.60", HTML)
-        self.assertEqual(MANIFEST["version"], "0.13.60")
+        self.assertIn('version: "0.13.61"', CONFIG)
+        self.assertIn('version="0.13.61"', MAIN)
+        self.assertIn("HUD 0.13.61", HTML)
+        self.assertEqual(MANIFEST["version"], "0.13.61")
 
     def test_backend_check_route_has_a_closed_step_allowlist(self):
         section = MAIN[MAIN.index('@app.post("/api/onboarding/check/{step_id}")'):MAIN.index('@app.put("/api/settings")')]
@@ -25,7 +25,7 @@ class ActionableOnboardingReleaseTests(unittest.TestCase):
         self.assertIn('raise HTTPException(status_code=404, detail="Unknown onboarding step")', section)
 
     def test_external_model_check_is_explicit_only(self):
-        check_section = ONBOARDING_JS[ONBOARDING_JS.index("async function checkStep"):ONBOARDING_JS.index("function render")]
+        check_section = ONBOARDING_JS[ONBOARDING_JS.index("async function requestCheck"):ONBOARDING_JS.index("function render")]
         load_section = ONBOARDING_JS[ONBOARDING_JS.index("async function load"):ONBOARDING_JS.index("async function update")]
         self.assertIn('api/onboarding/check/', check_section)
         self.assertNotIn('api/onboarding/check/', load_section)
@@ -37,7 +37,7 @@ class ActionableOnboardingReleaseTests(unittest.TestCase):
         self.assertNotIn("grinder", ONBOARDING_JS.lower())
 
     def test_release_history_includes_v01359(self):
-        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.59")
+        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.60")
 
 
 if __name__ == "__main__":
