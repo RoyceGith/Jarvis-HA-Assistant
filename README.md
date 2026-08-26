@@ -19,7 +19,7 @@ storage, and `ghcr.io/roycegith/jarvis-ha-assistant` update image.
 
 ## Current experience
 
-Version 0.13.65 includes a graphical Automation Studio with a building-block
+Version 0.13.66 includes a graphical Automation Studio with a building-block
 toolbox, interactive flow canvas, and focused settings inspector. Existing
 automation definitions and Home Assistant data remain compatible across updates.
-Decorative connectors no longer obstruct selection of visual workflow blocks.
+Visual workflows can now use OR triggers, ALL/ANY conditions, and ordered actions.

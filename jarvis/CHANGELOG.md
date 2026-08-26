@@ -1,5 +1,17 @@
 # Change log
 
+## 0.13.66
+
+- Added repeatable OR triggers and grouped ALL/ANY state conditions to Automation
+  Studio while preserving existing single-trigger rules.
+- Added ordered Home Assistant action sequences with per-step permission and
+  safety checks.
+
+## 0.13.65
+
+- Repaired visual block selection and the container browser release gate by
+  separating decorative connector arrows from workflow pointer handling.
+
 ## 0.13.64
 
 - Rebuilt Automation Studio as a three-panel visual editor with a building-block
