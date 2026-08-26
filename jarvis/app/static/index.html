@@ -30,7 +30,7 @@
   <header>
     <div class="brand-line">
       <h1>ZBRANO</h1>
-      <div class="status hud-version-label">Workshop Intelligence Interface · HUD 0.13.49</div>
+      <div class="status hud-version-label">Workshop Intelligence Interface · HUD 0.13.50</div>
     </div>
     <div class="runtime-status-stack">
       <button id="calendar-quick-open" class="calendar-quick-open" type="button" aria-label="Open ZBRANO Calendar" title="Open Calendar">
@@ -222,7 +222,7 @@
       <div class="ha-history-shell">
         <div class="ha-history-heading"><div><h2>HOME ASSISTANT HISTORY &amp; EVENT TIMELINE</h2><p>Read-only, bounded Recorder and Logbook evidence for approved entities.</p></div><span class="ha-history-readonly">READ ONLY</span></div>
         <form id="ha-history-form" class="ha-history-controls">
-          <label class="wide">Entity IDs<input id="ha-history-entities" required placeholder="sensor.workshop_temperature, binary_sensor.workshop_door"><small>Up to eight entities enabled for reading in ZBRANO policy.</small></label>
+          <label class="wide">Entity IDs<input id="ha-history-entities" required placeholder="sensor.room_temperature, binary_sensor.entry_door"><small>Up to eight entities enabled for reading in ZBRANO policy.</small></label>
           <label>Period<select id="ha-history-hours"><option value="1">Last hour</option><option value="6">Last 6 hours</option><option value="24" selected>Last 24 hours</option><option value="72">Last 3 days</option><option value="168">Last 7 days</option></select></label>
           <label>Logbook filter<input id="ha-history-query" placeholder="Optional event text"></label>
           <button id="ha-history-use-approved" type="button">Use approved entities</button>
@@ -652,10 +652,10 @@
           <article class="autonomy-card">
             <h3>Quick-start designs</h3><p>Templates prefill a disabled rule. Review its entities, trigger, action, and authority before enabling it.</p>
             <div class="autonomy-template-grid">
-              <button type="button" data-auto-template="comfort"><strong>Workshop comfort</strong><small>Presence + temperature + seasonal context → suggest HVAC</small></button>
+              <button type="button" data-auto-template="comfort"><strong>Comfort advisor</strong><small>Matches available presence, temperature, humidity, and climate entities</small></button>
               <button type="button" data-auto-template="air"><strong>Air quality &amp; ventilation</strong><small>Presence + CO₂/VOC/PM → suggest extraction or ventilation</small></button>
-              <button type="button" data-auto-template="security"><strong>Workshop left open</strong><small>Absence + doors/windows/equipment → suggest a safety check</small></button>
-              <button type="button" data-auto-template="lighting"><strong>Presence lighting</strong><small>Presence + low light → autonomous reversible lighting</small></button>
+              <button type="button" data-auto-template="security"><strong>Departure safety</strong><small>Matches available presence and opening sensors for a safety suggestion</small></button>
+              <button type="button" data-auto-template="lighting"><strong>Presence lighting</strong><small>Matches available presence, illuminance, and light entities for approval</small></button>
             </div>
           </article>
           <article class="autonomy-card autonomy-editor">
@@ -663,18 +663,18 @@
             <form id="automation-draft-form">
               <input id="automation-edit-id" type="hidden">
               <div class="autonomy-form-grid">
-                <label>Name<input id="automation-name" maxlength="100" required placeholder="Workshop comfort advisor"></label>
+                <label>Name<input id="automation-name" maxlength="100" required placeholder="Room comfort advisor"></label>
                 <label>Objective<input id="automation-objective" maxlength="1000" required placeholder="Notice uncomfortable workshop conditions while I am present"></label>
-                <label>Presence entity<input id="automation-presence" list="automation-entity-options" maxlength="255" placeholder="binary_sensor.workshop_presence"></label>
-                <label>Signal entities<input id="automation-signals" maxlength="1500" placeholder="sensor.workshop_temperature, sensor.outdoor_temperature"></label>
-                <label>Trigger entity<input id="automation-trigger-entity" list="automation-entity-options" maxlength="255" placeholder="sensor.workshop_temperature"></label>
+                <label>Presence entity<input id="automation-presence" list="automation-entity-options" maxlength="255" placeholder="person.resident"></label>
+                <label>Signal entities<input id="automation-signals" maxlength="1500" placeholder="sensor.room_temperature, sensor.outdoor_temperature"></label>
+                <label>Trigger entity<input id="automation-trigger-entity" list="automation-entity-options" maxlength="255" placeholder="sensor.room_temperature"></label>
                 <label>Trigger condition<select id="automation-trigger-operator"><option value="any_change">Any state change</option><option value="changes_to" selected>Changes to</option><option value="equals">Equals</option><option value="not_equals">Does not equal</option><option value="above">Above</option><option value="below">Below</option></select></label>
                 <label>Trigger value<input id="automation-trigger-value" maxlength="255" placeholder="on or 28"></label>
                 <label>Sustain condition (seconds)<input id="automation-trigger-for" type="number" min="0" max="86400" value="0"></label>
                 <label class="check wide"><input id="automation-enabled" type="checkbox"> Enable live evaluation after saving</label>
                 <label class="wide">Context and baseline strategy<textarea id="automation-context-notes" rows="3" maxlength="3000" placeholder="Compare indoor temperature with seasonal outdoor norms, recent trend, time of day, and whether HVAC is already running."></textarea></label>
                 <label class="wide">Suggestion wording<textarea id="automation-proposal" rows="2" maxlength="1000" placeholder="It is getting a little hot in the workshop. Would you like me to turn on the air conditioner?"></textarea></label>
-                <label>Proposed action entity<input id="automation-action-entity" list="automation-entity-options" maxlength="255" placeholder="climate.workshop"></label>
+                <label>Proposed action entity<input id="automation-action-entity" list="automation-entity-options" maxlength="255" placeholder="climate.room"></label>
                 <label>Proposed HA service<input id="automation-action-service" maxlength="120" placeholder="climate.set_hvac_mode"></label>
                 <label class="wide">Action service data (JSON)<textarea id="automation-action-data" rows="2" maxlength="4000" placeholder='{"hvac_mode":"cool"}'>{}</textarea></label>
                 <label>Cooldown (minutes)<input id="automation-cooldown" type="number" min="1" max="1440" value="30"></label>
@@ -708,7 +708,7 @@
               <label class="autonomy-mode"><input type="radio" name="autonomy-mode" value="approval_gated"><span><strong>Approval-gated</strong><small>Automations may act only after explicit approval.</small></span></label>
               <label class="autonomy-mode"><input type="radio" name="autonomy-mode" value="selective_autonomy"><span><strong>Selective autonomy</strong><small>Eligible low-risk automations may act without approval under their configured limits.</small></span></label>
               <div class="autonomy-form-grid">
-                <label>Default presence entity<input id="autonomy-presence-entity" list="automation-entity-options" maxlength="255" placeholder="binary_sensor.workshop_presence"></label>
+                <label>Default presence entity<input id="autonomy-presence-entity" list="automation-entity-options" maxlength="255" placeholder="person.resident"></label>
                 <label>Minimum confidence<input id="autonomy-min-confidence" type="number" min="0.5" max="0.99" step="0.01" value="0.75"></label>
                 <label>Default cooldown (minutes)<input id="autonomy-default-cooldown" type="number" min="1" max="1440" value="30"></label>
                 <label>Autonomous risk ceiling<select id="autonomy-risk-ceiling"><option value="informational">Informational</option><option value="low" selected>Low risk</option><option value="controlled">Controlled device</option></select></label>

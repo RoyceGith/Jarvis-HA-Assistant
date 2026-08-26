@@ -1,4 +1,4 @@
-ZBRANO v0.13.49 adds a pre-build release contract that validates Home Assistant metadata, architecture, image identity, Docker labels, runtime ports, options schemas, and GitHub publication wiring.
+ZBRANO v0.13.50 separates owner-specific automation examples from product defaults by deriving safe starter drafts from each installation's Home Assistant entity inventory.
 
 ZBRANO v0.13.18 prevents Release Memory synchronization from remaining indefinitely in a non-terminal state by adding worker timeout recovery, note progress, task-health reporting, and automatic interface polling.
 

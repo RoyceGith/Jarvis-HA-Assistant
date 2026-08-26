@@ -72,7 +72,7 @@ function apiFixture(url) {
   if (pathname === "/api/health") {
     return {
       status: "ok",
-      version: "0.13.49",
+      version: "0.13.50",
       speech_provider: "openai",
       speech_providers: {openai: {configured: true}, elevenlabs: {configured: false}},
     };
@@ -100,7 +100,7 @@ function apiFixture(url) {
   if (pathname === "/api/plugins") return {plugins: []};
   if (pathname === "/api/files/shared") return {files: [], count: 0};
   if (pathname === "/api/release-memory-sync") {
-    return {enabled: false, state: "disabled", version: "0.13.49", task_active: false};
+    return {enabled: false, state: "disabled", version: "0.13.50", task_active: false};
   }
   if (pathname === "/api/tab-activity") return {revisions: {}};
   if (pathname === "/api/grinder-monitor/status") return {enabled: false, connected: false};
@@ -199,8 +199,15 @@ async function main() {
     await page.locator('[data-automation-library-panel="saved"]:not(.hidden)').waitFor();
     await page.locator('[data-automation-library-view="create"]').click();
     await page.locator('[data-automation-library-panel="create"]:not(.hidden)').waitFor();
+    await page.locator('[data-auto-template="comfort"]').click();
+    assert.equal(await page.locator("#automation-name").inputValue(), "Comfort advisor");
+    const templateSignals = await page.locator("#automation-signals").inputValue();
+    assert.match(templateSignals, /sensor\.browser_fixture_/);
+    assert.doesNotMatch(templateSignals, /workshop_/);
+    assert.equal(await page.locator("#automation-presence").inputValue(), "");
+    assert.equal(await page.locator("#automation-action-entity").inputValue(), "");
 
-    console.log("Browser smoke passed: New Chat, navigation, Entity scrolling, and Automation Library tabs");
+    console.log("Browser smoke passed: New Chat, navigation, Entity scrolling, Automation Library tabs, and installation-derived templates");
   } finally {
     await browser.close();
     await new Promise(resolve => server.close(resolve));

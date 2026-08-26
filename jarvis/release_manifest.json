@@ -1,9 +1,9 @@
 {
-  "version": "0.13.49",
+  "version": "0.13.50",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/Jarvis-HA-Assistant main",
-  "summary": "Add a pre-build release contract for Home Assistant metadata, architecture, image identity, Docker labels, runtime ports, option schemas, and publication wiring.",
+  "summary": "Separate owner-specific automation examples from product defaults by deriving safe starter drafts from each installation's Home Assistant inventory.",
   "history_backfill": [
     {
       "version": "0.13.0",
@@ -200,21 +200,27 @@
     {
       "version": "0.13.48",
       "summary": "Added build-gated migration coverage for legacy backups and verified malformed restores are rejected before persistent data changes."
+    },
+    {
+      "version": "0.13.49",
+      "summary": "Added a pre-build release contract for Home Assistant metadata, architecture, image identity, Docker labels, runtime ports, option schemas, and publication wiring."
     }
   ],
   "release_entry": {
     "features": [
-      "Validate the complete Home Assistant and container release contract before GitHub computes image build metadata.",
-      "Check version, app identity, architecture, image target, ingress/runtime ports, option schemas, Docker labels, build context, tags, and manifest publication using a standard-library validator."
+      "Build Automation Library starter drafts from the current installation's approved Home Assistant entity inventory.",
+      "Rank temperature, humidity, air-quality, opening, illuminance, climate, ventilation, and lighting candidates without embedding one owner's entity IDs."
     ],
     "fixes": [
-      "Fail the release workflow early when packaging metadata or publication wiring drifts out of alignment."
+      "Remove workshop-specific placeholder entities and the implicit workshop presence sensor from product defaults.",
+      "Keep generated lighting drafts approval-gated until another user reviews the installation-derived entity choices."
     ],
     "validation": [
-      "Release-contract validator execution, workflow gate ordering, metadata and schema consistency, Docker/runtime alignment, publication tags and manifest wiring, regression suite, and v0.13.49 release alignment coverage"
+      "Owner-entity absence, inventory-derived template candidates, blank presence fallback, approval-gated actions, browser template population, stored automation compatibility, regression suite, and v0.13.50 release alignment coverage"
     ]
   },
   "features": [
+    "Derive Automation Library starter drafts from each installation's Home Assistant entity inventory instead of owner-specific placeholders.",
     "Add a pre-build release contract covering Home Assistant metadata, Docker packaging, and GitHub image publication.",
     "Add build-gated real-ASGI migration coverage for legacy backup restoration.",
     "Expose Workshop Memory cost-safety state and counters through application health diagnostics.",
@@ -444,6 +450,7 @@
     "Preserve multi-round Workshop Memory tasks after an approved write in both streaming and non-streaming chat."
   ],
   "fixes": [
+    "Remove hard-coded workshop entity IDs and autonomous lighting authority from product starter templates while preserving stored automations.",
     "Fail releases before image construction when metadata, runtime ports, option schemas, architecture, or image publication wiring drift.",
     "Prove malformed backup migrations are rejected before persistent settings are changed.",
     "Prevent runaway Workshop Memory token use with scoped tools, serial calls, bounded continuations, duplicate suppression, and hard result and token budgets.",
@@ -576,6 +583,7 @@
     "Preserve task-scoped Workshop Memory approval and per-draft Gmail approval isolation."
   ],
   "validation": [
+    "Owner-entity absence, inventory-derived template candidates, blank presence fallback, approval-gated actions, browser template population, stored automation compatibility, regression suite, and v0.13.50 release alignment coverage",
     "Release-contract validator execution, workflow gate ordering, metadata and schema consistency, Docker/runtime alignment, publication tags and manifest wiring, regression suite, and v0.13.49 release alignment coverage",
     "Real-ASGI legacy backup restore, preserved settings/chats/entity policy, malformed restore atomicity, backend compilation, regression suite, and v0.13.48 release alignment coverage",
     "Workshop intent and tool scoping, serial request controls, usage accounting, duplicate and result bounds, approval budget preservation, backend compilation, focused regression suite, and v0.13.47 release alignment coverage",
