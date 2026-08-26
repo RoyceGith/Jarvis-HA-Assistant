@@ -1,4 +1,4 @@
-ZBRANO v0.13.50 separates owner-specific automation examples from product defaults by deriving safe starter drafts from each installation's Home Assistant entity inventory.
+ZBRANO v0.13.51 repairs the build-gated browser validation for installation-aware automation templates by opening the advanced editor and waiting for Home Assistant inventory before exercising a quick design.
 
 ZBRANO v0.13.18 prevents Release Memory synchronization from remaining indefinitely in a non-terminal state by adding worker timeout recovery, note progress, task-health reporting, and automatic interface polling.
 

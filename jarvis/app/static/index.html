@@ -30,7 +30,7 @@
   <header>
     <div class="brand-line">
       <h1>ZBRANO</h1>
-      <div class="status hud-version-label">Workshop Intelligence Interface · HUD 0.13.50</div>
+      <div class="status hud-version-label">Workshop Intelligence Interface · HUD 0.13.51</div>
     </div>
     <div class="runtime-status-stack">
       <button id="calendar-quick-open" class="calendar-quick-open" type="button" aria-label="Open ZBRANO Calendar" title="Open Calendar">
@@ -664,7 +664,7 @@
               <input id="automation-edit-id" type="hidden">
               <div class="autonomy-form-grid">
                 <label>Name<input id="automation-name" maxlength="100" required placeholder="Room comfort advisor"></label>
-                <label>Objective<input id="automation-objective" maxlength="1000" required placeholder="Notice uncomfortable workshop conditions while I am present"></label>
+                <label>Objective<input id="automation-objective" maxlength="1000" required placeholder="Notice uncomfortable room conditions while I am present"></label>
                 <label>Presence entity<input id="automation-presence" list="automation-entity-options" maxlength="255" placeholder="person.resident"></label>
                 <label>Signal entities<input id="automation-signals" maxlength="1500" placeholder="sensor.room_temperature, sensor.outdoor_temperature"></label>
                 <label>Trigger entity<input id="automation-trigger-entity" list="automation-entity-options" maxlength="255" placeholder="sensor.room_temperature"></label>
@@ -673,7 +673,7 @@
                 <label>Sustain condition (seconds)<input id="automation-trigger-for" type="number" min="0" max="86400" value="0"></label>
                 <label class="check wide"><input id="automation-enabled" type="checkbox"> Enable live evaluation after saving</label>
                 <label class="wide">Context and baseline strategy<textarea id="automation-context-notes" rows="3" maxlength="3000" placeholder="Compare indoor temperature with seasonal outdoor norms, recent trend, time of day, and whether HVAC is already running."></textarea></label>
-                <label class="wide">Suggestion wording<textarea id="automation-proposal" rows="2" maxlength="1000" placeholder="It is getting a little hot in the workshop. Would you like me to turn on the air conditioner?"></textarea></label>
+                <label class="wide">Suggestion wording<textarea id="automation-proposal" rows="2" maxlength="1000" placeholder="It is getting a little hot in the room. Would you like me to turn on the air conditioner?"></textarea></label>
                 <label>Proposed action entity<input id="automation-action-entity" list="automation-entity-options" maxlength="255" placeholder="climate.room"></label>
                 <label>Proposed HA service<input id="automation-action-service" maxlength="120" placeholder="climate.set_hvac_mode"></label>
                 <label class="wide">Action service data (JSON)<textarea id="automation-action-data" rows="2" maxlength="4000" placeholder='{"hvac_mode":"cool"}'>{}</textarea></label>

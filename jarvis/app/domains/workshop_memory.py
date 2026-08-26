@@ -222,7 +222,7 @@ async def _list_workshop_memory_endpoint_tools(endpoint_url: str) -> list[dict[s
                 "capabilities": {},
                 "clientInfo": {
                     "name": "zbrano-workshop-assistant",
-                    "version": "0.13.50",
+                    "version": "0.13.51",
                 },
             },
         },

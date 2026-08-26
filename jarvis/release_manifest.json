@@ -1,9 +1,9 @@
 {
-  "version": "0.13.50",
+  "version": "0.13.51",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/Jarvis-HA-Assistant main",
-  "summary": "Separate owner-specific automation examples from product defaults by deriving safe starter drafts from each installation's Home Assistant inventory.",
+  "summary": "Repair build-gated browser validation for installation-aware automation templates by opening the advanced editor and waiting for entity inventory before exercising a quick design.",
   "history_backfill": [
     {
       "version": "0.13.0",
@@ -204,19 +204,22 @@
     {
       "version": "0.13.49",
       "summary": "Added a pre-build release contract for Home Assistant metadata, architecture, image identity, Docker labels, runtime ports, option schemas, and publication wiring."
+    },
+    {
+      "version": "0.13.50",
+      "summary": "Separated owner-specific automation examples from product defaults by deriving safe starter drafts from each installation's Home Assistant inventory."
     }
   ],
   "release_entry": {
     "features": [
-      "Build Automation Library starter drafts from the current installation's approved Home Assistant entity inventory.",
-      "Rank temperature, humidity, air-quality, opening, illuminance, climate, ventilation, and lighting candidates without embedding one owner's entity IDs."
+      "Harden build-gated Automation Library browser coverage with explicit editor visibility and entity-inventory readiness checks."
     ],
     "fixes": [
-      "Remove workshop-specific placeholder entities and the implicit workshop presence sensor from product defaults.",
-      "Keep generated lighting drafts approval-gated until another user reviews the installation-derived entity choices."
+      "Open the collapsed advanced automation editor before the real-browser smoke test clicks a quick-design template.",
+      "Wait for the mocked Home Assistant inventory to populate before validating installation-derived template candidates."
     ],
     "validation": [
-      "Owner-entity absence, inventory-derived template candidates, blank presence fallback, approval-gated actions, browser template population, stored automation compatibility, regression suite, and v0.13.50 release alignment coverage"
+      "Advanced-editor visibility, entity-inventory readiness, template population, release manifest, inline JavaScript, New Chat wiring, regression suite, and v0.13.51 release alignment coverage"
     ]
   },
   "features": [
@@ -450,6 +453,7 @@
     "Preserve multi-round Workshop Memory tasks after an approved write in both streaming and non-streaming chat."
   ],
   "fixes": [
+    "Make build-gated Automation Library browser coverage wait for visible editor controls and loaded Home Assistant inventory.",
     "Remove hard-coded workshop entity IDs and autonomous lighting authority from product starter templates while preserving stored automations.",
     "Fail releases before image construction when metadata, runtime ports, option schemas, architecture, or image publication wiring drift.",
     "Prove malformed backup migrations are rejected before persistent settings are changed.",
@@ -583,6 +587,7 @@
     "Preserve task-scoped Workshop Memory approval and per-draft Gmail approval isolation."
   ],
   "validation": [
+    "Advanced-editor visibility, entity-inventory readiness, template population, release manifest, inline JavaScript, New Chat wiring, regression suite, and v0.13.51 release alignment coverage",
     "Owner-entity absence, inventory-derived template candidates, blank presence fallback, approval-gated actions, browser template population, stored automation compatibility, regression suite, and v0.13.50 release alignment coverage",
     "Release-contract validator execution, workflow gate ordering, metadata and schema consistency, Docker/runtime alignment, publication tags and manifest wiring, regression suite, and v0.13.49 release alignment coverage",
     "Real-ASGI legacy backup restore, preserved settings/chats/entity policy, malformed restore atomicity, backend compilation, regression suite, and v0.13.48 release alignment coverage",
