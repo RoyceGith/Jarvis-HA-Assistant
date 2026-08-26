@@ -1,5 +1,12 @@
 # Change log
 
+## 0.13.59
+
+- Added a backward-compatible first-run setup checklist with readiness detection,
+  preserved existing installations, and optional guided links.
+- Classified Grinder monitoring as an owner-only private extension and excluded it
+  from onboarding and general product scope.
+
 ## 0.13.58
 
 - Aligned the Docker-only ASGI and browser build fixtures with the release version
