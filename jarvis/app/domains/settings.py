@@ -70,6 +70,8 @@ ELEVENLABS_MODELS = {
     "eleven_multilingual_v2",
 }
 
+ONBOARDING_VERSION = 1
+
 def load_settings_payload() -> dict[str, Any]:
     if not SETTINGS_STORAGE_PATH.exists():
         return {}
@@ -87,6 +89,36 @@ def save_settings_payload(payload: dict[str, Any]) -> None:
         encoding="utf-8",
     )
     temporary.replace(SETTINGS_STORAGE_PATH)
+
+def load_onboarding_state() -> dict[str, Any]:
+    payload = load_settings_payload()
+    stored = payload.get("onboarding")
+    explicit = isinstance(stored, dict)
+    legacy_installation = (bool(payload) or SETTINGS_STORAGE_PATH.exists()) and not explicit
+    stored = stored if explicit else {}
+    completed = bool(stored.get("completed")) if explicit else legacy_installation
+    dismissed = bool(stored.get("dismissed")) if explicit else False
+    return {
+        "version": ONBOARDING_VERSION,
+        "completed": completed,
+        "dismissed": dismissed,
+        "legacy_installation": legacy_installation,
+        "show_on_startup": not legacy_installation and not completed and not dismissed,
+        "updated_at": float(stored.get("updated_at") or 0),
+    }
+
+def save_onboarding_state(*, completed: bool, dismissed: bool) -> dict[str, Any]:
+    payload = load_settings_payload()
+    state = {
+        "version": ONBOARDING_VERSION,
+        "completed": bool(completed),
+        "dismissed": bool(dismissed) and not bool(completed),
+        "updated_at": time.time(),
+    }
+    payload.setdefault("version", 3)
+    payload["onboarding"] = state
+    save_settings_payload(payload)
+    return load_onboarding_state()
 
 def load_general_instructions() -> str:
     payload = load_settings_payload()

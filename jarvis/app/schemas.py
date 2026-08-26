@@ -62,6 +62,9 @@ class JarvisSettingsUpdate(BaseModel):
     fast_memory_auto_capture: bool = True
     fast_memory_context_items: int = Field(default=10, ge=2, le=20)
 
+class OnboardingStateUpdate(BaseModel):
+    action: str = Field(pattern="^(complete|dismiss)$")
+
 class AgentSettingsUpdate(BaseModel):
     agent_model: str = Field(min_length=1, max_length=120)
     reasoning_effort: str = Field(default="medium", pattern="^(none|minimal|low|medium|high|xhigh)$")

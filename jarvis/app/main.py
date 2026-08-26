@@ -123,10 +123,12 @@ from .domains.settings import (
     apply_pronunciation_dictionary,
     load_elevenlabs_voice_settings,
     load_general_instructions,
+    load_onboarding_state,
     load_preferences,
     load_settings_payload,
     save_elevenlabs_voice_settings,
     save_general_instructions,
+    save_onboarding_state,
     save_preferences,
     save_settings_payload,
 )
@@ -197,6 +199,7 @@ from .schemas import (
     ChatSessionCreate,
     ChatRenameRequest,
     JarvisSettingsUpdate,
+    OnboardingStateUpdate,
     AgentSettingsUpdate,
     CatalogInstallRequest,
     PluginOAuthStartRequest,
@@ -664,7 +667,7 @@ ha_ws = HomeAssistantWebSocketClient(
 
 app = FastAPI(
     title="ZBRANO",
-    version="0.13.58",
+    version="0.13.59",
     docs_url="/api/docs",
     openapi_url="/api/openapi.json",
 )
@@ -2643,7 +2646,7 @@ async def health() -> dict[str, Any]:
     configured_speech_provider = SPEECH_PROVIDER if SPEECH_PROVIDER in {"openai", "elevenlabs"} else "openai"
     return {
         "status": "ok",
-        "version": "0.13.58",
+        "version": "0.13.59",
         "home_assistant_configured": bool(SUPERVISOR_TOKEN),
         "workshop_memory_configured": bool(WORKSHOP_MEMORY_URL),
         "workshop_memory_cost_guard": workshop_cost_guard_status(),
@@ -3799,6 +3802,101 @@ async def read_settings() -> dict[str, Any]:
         "preferences": load_preferences(),
         "elevenlabs_models": sorted(ELEVENLABS_MODELS),
     }
+
+
+async def onboarding_status_payload() -> dict[str, Any]:
+    state = load_onboarding_state()
+    approved = await approved_ha_entities()
+    read_count = len(approved["read_entities"])
+    control_count = len(approved["control_entities"])
+    ha_status = ha_ws.status()
+    preferences = load_preferences()
+    plugins = plugin_registry()
+    notification_settings = notification_store()["settings"]
+    voice_ready = bool(OPENAI_API_KEY) or bool(ELEVENLABS_API_KEY and ELEVENLABS_VOICE_ID)
+    steps = [
+        {
+            "id": "home_assistant",
+            "title": "Home Assistant",
+            "description": "Connected to Home Assistant" if ha_status.get("connected") else "Waiting for the Home Assistant connection",
+            "ready": bool(SUPERVISOR_TOKEN) and bool(ha_status.get("connected")),
+            "required": True,
+            "target": "entities",
+        },
+        {
+            "id": "model",
+            "title": "AI model",
+            "description": f"{active_agent_model()} is configured" if OPENAI_API_KEY else "Add an OpenAI API key in the ZBRANO app configuration",
+            "ready": bool(OPENAI_API_KEY),
+            "required": True,
+            "target": "model",
+        },
+        {
+            "id": "entities",
+            "title": "Entity permissions",
+            "description": f"{read_count} readable and {control_count} controllable entities approved" if read_count or control_count else "Choose which Home Assistant entities ZBRANO may read or control",
+            "ready": bool(read_count or control_count),
+            "required": False,
+            "target": "entities",
+        },
+        {
+            "id": "voice",
+            "title": "Voice and wake word",
+            "description": "A speech provider is configured" if voice_ready else "Configure OpenAI or ElevenLabs to enable speech",
+            "ready": voice_ready,
+            "required": False,
+            "target": "voice",
+        },
+        {
+            "id": "memory",
+            "title": "Memory",
+            "description": "Fast Memory is enabled" if preferences.get("fast_memory_enabled") else "Fast Memory is currently disabled",
+            "ready": bool(preferences.get("fast_memory_enabled")),
+            "required": False,
+            "target": "memory",
+        },
+        {
+            "id": "plugins",
+            "title": "Plugins",
+            "description": f"{len(plugins)} plugin connections installed" if plugins else "Plugins are optional and can be connected later",
+            "ready": bool(plugins),
+            "required": False,
+            "target": "plugins",
+        },
+        {
+            "id": "notifications",
+            "title": "Notifications and autonomy",
+            "description": "A default notification channel is selected" if notification_settings.get("default_channel") else "Notification delivery and Automation Brain are optional",
+            "ready": bool(notification_settings.get("default_channel")),
+            "required": False,
+            "target": "notifications",
+        },
+    ]
+    required_ready = all(step["ready"] for step in steps if step["required"])
+    return {
+        **state,
+        "core_ready": required_ready,
+        "ready_count": sum(1 for step in steps if step["ready"]),
+        "total_count": len(steps),
+        "steps": steps,
+    }
+
+
+@app.get("/api/onboarding")
+async def read_onboarding() -> dict[str, Any]:
+    return await onboarding_status_payload()
+
+
+@app.put("/api/onboarding")
+async def update_onboarding(request: OnboardingStateUpdate) -> dict[str, Any]:
+    status = await onboarding_status_payload()
+    if request.action == "complete" and not status["core_ready"]:
+        raise HTTPException(status_code=409, detail="Complete the required Home Assistant and AI model steps first")
+    save_onboarding_state(
+        completed=request.action == "complete",
+        dismissed=request.action == "dismiss",
+    )
+    return await onboarding_status_payload()
 
 
 @app.put("/api/settings")

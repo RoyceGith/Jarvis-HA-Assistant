@@ -1,9 +1,9 @@
 {
-  "version": "0.13.58",
+  "version": "0.13.59",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/ZBRANO_Core main",
-  "summary": "Restore image publication by aligning the Docker-only ASGI and browser build fixtures with the compatibility release version.",
+  "summary": "Add the first backward-compatible onboarding foundation with readiness detection while preserving existing installations and excluding owner-only Grinder monitoring.",
   "history_backfill": [
     {
       "version": "0.13.0",
@@ -236,21 +236,27 @@
     {
       "version": "0.13.57",
       "summary": "Bridged both public repository transition histories so Home Assistant Supervisor can fast-forward from either cached branch and discover updates without uninstalling."
+    },
+    {
+      "version": "0.13.58",
+      "summary": "Restored image publication by aligning the Docker-only ASGI and browser build fixtures with the compatibility release version."
     }
   ],
   "release_entry": {
     "features": [
-      "Preserve the two-parent public compatibility bridge created in v0.13.57."
+      "Add a Settings setup guide with live Home Assistant, model, entity, voice, memory, plugin, and notification readiness.",
+      "Automatically open the guide only for genuinely new installations while recognizing existing configuration without writing or resetting it."
     ],
     "fixes": [
-      "Update the Docker-only ASGI integration assertions to the current runtime version.",
-      "Update browser smoke API fixtures to the current runtime version so the image build gate completes."
+      "Persist only explicit setup completion or dismissal while preserving every existing settings key.",
+      "Classify Grinder monitoring as an owner-only private extension excluded from onboarding and general product scope."
     ],
     "validation": [
-      "Release manifest, release contract, Docker-only ASGI integration, browser smoke fixture alignment, focused regression suite, and v0.13.58 release alignment coverage"
+      "Onboarding state migration and persistence, existing-installation suppression, UI wiring, Grinder exclusion, release contract, regression suite, and v0.13.59 release alignment coverage"
     ]
   },
   "features": [
+    "Guide new installations through core and optional setup without interrupting or rewriting existing installations.",
     "Keep Docker-only integration and browser release fixtures aligned with the canonical runtime version.",
     "Bridge both cached public transition histories while keeping the current public tree limited to installer metadata.",
     "Preserve fast-forward ancestry from the last previously public commit while keeping the public repository HEAD limited to installer metadata.",
@@ -626,6 +632,7 @@
     "Preserve task-scoped Workshop Memory approval and per-draft Gmail approval isolation."
   ],
   "validation": [
+    "Onboarding state migration, non-destructive persistence, UI source wiring, owner-only Grinder exclusion, release contract, regression suite, and v0.13.59 release alignment coverage",
     "Docker-only ASGI and browser fixture version alignment, release contract, focused regression suite, and v0.13.58 release alignment coverage",
     "Both public transition heads, compatibility merge ancestry, five-file public tree, release contract, focused regression suite, and v0.13.57 release alignment coverage",
     "Public compatibility-base SHA, first-parent ancestry, thin HEAD tree, jarvis folder, add-on slug, GHCR path, release contract, regression suite, and v0.13.56 release alignment coverage",

@@ -24,13 +24,14 @@
 <link id="zbrano-v01255-entity-columns-style" rel="stylesheet" href="css/entity-columns.css">
 
 <link id="zbrano-v01312-interface-refresh-style" rel="stylesheet" href="css/interface-refresh.css">
+<link id="zbrano-v01359-onboarding-style" rel="stylesheet" href="css/onboarding.css">
 </head>
 <body>
 <main>
   <header>
     <div class="brand-line">
       <h1>ZBRANO</h1>
-      <div class="status hud-version-label">Workshop Intelligence Interface · HUD 0.13.58</div>
+      <div class="status hud-version-label">Workshop Intelligence Interface · HUD 0.13.59</div>
     </div>
     <div class="runtime-status-stack">
       <button id="calendar-quick-open" class="calendar-quick-open" type="button" aria-label="Open ZBRANO Calendar" title="Open Calendar">
@@ -239,6 +240,7 @@
   <section id="settings-panel" class="panel hidden">
     <div class="settings-stack">
     <div class="settings-category-tabs" role="tablist" aria-label="Settings categories">
+      <button type="button" class="settings-category-tab" role="tab" aria-selected="false" data-settings-target="setup">Setup</button>
       <button type="button" class="settings-category-tab active" role="tab" aria-selected="true" data-settings-target="appearance">Appearance</button>
       <button type="button" class="settings-category-tab" role="tab" aria-selected="false" data-settings-target="voice">Voice</button>
       <button type="button" class="settings-category-tab" role="tab" aria-selected="false" data-settings-target="responses">Responses</button>
@@ -247,6 +249,20 @@
       <button type="button" class="settings-category-tab" role="tab" aria-selected="false" data-settings-target="playback">Playback</button>
       <button type="button" class="settings-category-tab" role="tab" aria-selected="false" data-settings-target="memory">Memory</button>
       <button type="button" class="settings-category-tab" role="tab" aria-selected="false" data-settings-target="updates">Updates</button>
+    </div>
+    <div class="settings-card onboarding-card" data-settings-category="setup" hidden>
+      <div class="onboarding-heading">
+        <div><span class="onboarding-kicker">GETTING STARTED</span><h2>Set up ZBRANO</h2><p>Review the essentials first, then connect optional capabilities when you need them.</p></div>
+        <strong id="onboarding-progress-label">Checking setup…</strong>
+      </div>
+      <div class="onboarding-progress" role="progressbar" aria-label="Setup progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><span id="onboarding-progress-bar"></span></div>
+      <div id="onboarding-step-list" class="onboarding-step-list" aria-live="polite"></div>
+      <p id="onboarding-message" class="setting-note">Loading installation readiness…</p>
+      <div class="settings-actions">
+        <button id="onboarding-recheck" type="button">Recheck</button>
+        <button id="onboarding-complete" type="button">Finish setup</button>
+        <button id="onboarding-dismiss" type="button">Do not open automatically</button>
+      </div>
     </div>
     <div class="settings-card" data-settings-category="appearance">
       <h2>APPEARANCE</h2>
@@ -882,5 +898,6 @@
 
 
 <script id="zbrano-v01294-proactive-voice" src="js/voice/proactive.js"></script>
+<script id="zbrano-v01359-onboarding" src="js/onboarding.js"></script>
 </body>
 </html>

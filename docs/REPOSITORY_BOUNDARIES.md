@@ -12,6 +12,11 @@ and `/data`. Personal entity IDs, locations, credentials, calibration recordings
 memory databases, local setup directories, and operator handoff notes must not be
 committed.
 
+Grinder monitoring is an owner-specific private extension. It must not appear in
+first-run onboarding, general product defaults, public product documentation,
+subscription entitlements, or installations distributed to other users. Its current
+compatibility path must be separated without breaking the owner's stored settings.
+
 The private canonical source repository is
 `https://github.com/RoyceGith/ZBRANO_Core`. The public distribution repository is
 `https://github.com/RoyceGith/ZBRANO_HA_Assistant`; its current tree contains only

@@ -21,10 +21,10 @@ MANIFEST = json.loads((ROOT / "jarvis/release_manifest.json").read_text(encoding
 
 class CanonicalModuleArchitectureTests(unittest.TestCase):
     def test_release_markers_are_aligned(self):
-        self.assertIn('version: "0.13.58"', CONFIG)
-        self.assertIn('version="0.13.58"', MAIN_RAW)
-        self.assertIn("HUD 0.13.58", HTML)
-        self.assertEqual(MANIFEST["version"], "0.13.58")
+        self.assertIn('version: "0.13.59"', CONFIG)
+        self.assertIn('version="0.13.59"', MAIN_RAW)
+        self.assertIn("HUD 0.13.59", HTML)
+        self.assertEqual(MANIFEST["version"], "0.13.59")
 
     def test_frontend_is_directly_split_with_stable_order(self):
         stylesheet_paths = re.findall(r'<link[^>]+href="([^"]+\.css)"', HTML)
@@ -34,10 +34,11 @@ class CanonicalModuleArchitectureTests(unittest.TestCase):
             "css/diagnostics.css",
             "css/entity-columns.css",
             "css/interface-refresh.css",
+            "css/onboarding.css",
         ])
-        self.assertEqual(len(script_paths), 27)
+        self.assertEqual(len(script_paths), 28)
         self.assertEqual(script_paths[0], "js/core.js")
-        self.assertEqual(script_paths[-1], "js/voice/proactive.js")
+        self.assertEqual(script_paths[-1], "js/onboarding.js")
         self.assertTrue(all((STATIC / path).is_file() for path in stylesheet_paths + script_paths))
         self.assertLess(len(HTML.encode("utf-8")), 100_000)
         self.assertIn("function renderMarkdownText", FRONTEND)
@@ -64,7 +65,7 @@ class CanonicalModuleArchitectureTests(unittest.TestCase):
 
     def test_request_schemas_have_a_dedicated_module(self):
         schemas = (APP / "schemas.py").read_text(encoding="utf-8")
-        self.assertEqual(len(re.findall(r"^class \w+\(BaseModel\)", schemas, re.MULTILINE)), 33)
+        self.assertEqual(len(re.findall(r"^class \w+\(BaseModel\)", schemas, re.MULTILINE)), 34)
         self.assertIn("from .schemas import (", MAIN_RAW)
         self.assertNotIn("class ChatRequest(BaseModel)", MAIN_RAW)
         self.assertIn("class ChatRequest(BaseModel)", BACKEND)

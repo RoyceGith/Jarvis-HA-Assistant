@@ -1,0 +1,78 @@
+.onboarding-card {
+  max-width: 880px;
+  margin-inline: auto;
+}
+
+.onboarding-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.onboarding-heading h2 { margin: .18rem 0 .35rem; }
+.onboarding-heading p { margin: 0; color: var(--text-muted); }
+.onboarding-heading > strong { white-space: nowrap; color: var(--cyan); }
+.onboarding-kicker { color: var(--text-muted); font-size: .7rem; letter-spacing: .12em; }
+
+.onboarding-progress {
+  height: 6px;
+  margin: 1rem 0;
+  overflow: hidden;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--line) 48%, transparent);
+}
+
+.onboarding-progress span {
+  display: block;
+  width: 0;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, var(--cyan), var(--cyan-dim));
+  transition: width .22s ease;
+}
+
+.onboarding-step-list { display: grid; gap: .55rem; }
+
+.onboarding-step {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: .75rem;
+  padding: .75rem .85rem;
+  border: 1px solid color-mix(in srgb, var(--line) 68%, transparent);
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--surface) 72%, transparent);
+}
+
+.onboarding-step-state {
+  display: grid;
+  place-items: center;
+  width: 1.55rem;
+  height: 1.55rem;
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  color: var(--text-muted);
+}
+
+.onboarding-step.is-ready .onboarding-step-state {
+  border-color: color-mix(in srgb, var(--cyan) 72%, var(--line));
+  background: color-mix(in srgb, var(--cyan) 14%, transparent);
+  color: var(--cyan);
+}
+
+.onboarding-step-copy { min-width: 0; }
+.onboarding-step-copy strong { display: block; }
+.onboarding-step-copy small { display: block; margin-top: .15rem; color: var(--text-muted); }
+.onboarding-required { margin-left: .35rem; color: var(--cyan); font-size: .68rem; letter-spacing: .04em; }
+
+@media (max-width: 640px) {
+  .onboarding-heading { display: block; }
+  .onboarding-heading > strong { display: block; margin-top: .65rem; }
+  .onboarding-step { grid-template-columns: auto minmax(0, 1fr); }
+  .onboarding-step > button { grid-column: 1 / -1; width: 100%; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .onboarding-progress span { transition: none; }
+}
