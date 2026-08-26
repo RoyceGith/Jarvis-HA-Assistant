@@ -93,7 +93,7 @@ function apiFixture(url) {
   if (pathname === "/api/health") {
     return {
       status: "ok",
-      version: "0.13.69",
+      version: "0.13.70",
       speech_provider: "openai",
       speech_providers: {openai: {configured: true}, elevenlabs: {configured: false}},
     };
@@ -115,13 +115,24 @@ function apiFixture(url) {
     return {policy: {}, read_entities: [], control_entities: []};
   }
   if (pathname === "/api/automations") return automationFixture;
+  if (pathname === "/api/automations/test-flow") return {
+    safe_dry_run: true,
+    actions_executed: 0,
+    status: "waiting_for_event",
+    trace: [
+      {kind: "trigger", status: "waiting", title: "Trigger", detail: "Waiting for the next matching state change"},
+      {kind: "context", status: "pass", title: "Context", detail: "Current context passes"},
+      {kind: "decision", status: "pass", title: "Decision", detail: "Linear path; suggest only"},
+      {kind: "action", status: "info", title: "Planned actions", detail: "No action executed"},
+    ],
+  };
   if (pathname === "/api/notifications") {
     return {settings: {}, channels: [], watches: [], deliveries: [], telegram_channels: 0};
   }
   if (pathname === "/api/plugins") return {plugins: []};
   if (pathname === "/api/files/shared") return {files: [], count: 0};
   if (pathname === "/api/release-memory-sync") {
-    return {enabled: false, state: "disabled", version: "0.13.69", task_active: false};
+    return {enabled: false, state: "disabled", version: "0.13.70", task_active: false};
   }
   if (pathname === "/api/tab-activity") return {revisions: {}};
   if (pathname === "/api/grinder-monitor/status") return {enabled: false, connected: false};
@@ -263,6 +274,10 @@ async function main() {
     assert.equal(await page.locator("#automation-execution-policy").inputValue(), "inherit");
     await page.locator("#studio-automation-delivery-voice").uncheck();
     assert.equal(await page.locator("#automation-delivery-voice").isChecked(), false);
+    await page.locator("#automation-studio-test").click();
+    await page.locator("#automation-studio-test-results:not([hidden])").waitFor();
+    assert.equal(await page.locator("#automation-studio-test-results .automation-studio-test-step").count(), 4);
+    assert.match(await page.locator("#automation-studio-state").innerText(), /0 actions executed/i);
     await page.locator("[data-branch-add]").click();
     await page.locator('[data-branch-add-item="conditions"]').click();
     await page.locator('[data-branch-collection="conditions"][data-branch-field="entity_id"]').fill("sensor.browser_fixture_4");

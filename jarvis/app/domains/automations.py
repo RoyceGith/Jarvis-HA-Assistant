@@ -975,6 +975,49 @@ def _automation_expected_zone(data: dict[str, Any], item: dict[str, Any]) -> str
             return str(mapping["zone_entity_id"])
     return ""
 
+def _automation_test_flow(item: dict[str, Any], settings: dict[str, Any], data: dict[str, Any]) -> dict[str, Any]:
+    trigger_results = []
+    for trigger in _automation_triggers(item):
+        entity_id = str(trigger.get("entity_id") or "")
+        current = (ha_ws.state_cache.get(entity_id) or {}).get("state")
+        operator = str(trigger.get("operator") or "changes_to")
+        if operator in {"any_change", "changes_to"}:
+            status = "waiting"
+            detail = f"{entity_id}={current if current is not None else 'unavailable'}; waits for the next matching change"
+        else:
+            matched = _automation_condition_matches(trigger, current, current)
+            status = "pass" if matched else "fail"
+            detail = f"{entity_id}={current if current is not None else 'unavailable'}"
+        trigger_results.append({"status": status, "detail": detail})
+    trigger_status = "pass" if any(result["status"] == "pass" for result in trigger_results) else "waiting" if any(result["status"] == "waiting" for result in trigger_results) else "fail"
+    conditions_ok, conditions_detail = _automation_context_conditions_match(item)
+    presence_ok, presence_detail = _automation_presence_confirmed(item, settings, _automation_expected_zone(data, item))
+    context_ok = conditions_ok and presence_ok
+    branch_ok, branch_detail, actions, branch_name = _automation_select_branch(item)
+    policy, policy_detail = _automation_effective_policy(item, settings)
+    action_details = []
+    for action in actions:
+        kind = str(action.get("kind") or "service")
+        if kind == "delay":
+            action_details.append(f"Delay {int(action.get('delay_seconds') or 0)} seconds")
+        elif kind == "wait_state":
+            action_details.append(f"Wait until {action.get('entity_id')} {action.get('wait_operator') or 'equals'} {action.get('wait_value') or ''}".strip())
+        else:
+            action_details.append(f"Would call {action.get('service')} for {action.get('entity_id')}")
+    return {
+        "safe_dry_run": True,
+        "actions_executed": 0,
+        "status": "blocked" if not context_ok or not branch_ok or trigger_status == "fail" else "waiting_for_event" if trigger_status == "waiting" else "ready",
+        "branch": branch_name,
+        "effective_policy": policy,
+        "trace": [
+            {"kind": "trigger", "status": trigger_status, "title": "Trigger", "detail": "; ".join(result["detail"] for result in trigger_results) or "No trigger configured"},
+            {"kind": "context", "status": "pass" if context_ok else "fail", "title": "Context", "detail": f"{conditions_detail}; {presence_detail}"},
+            {"kind": "decision", "status": "pass" if branch_ok else "fail", "title": "Decision", "detail": f"{branch_detail}; {policy_detail}"},
+            {"kind": "action", "status": "info", "title": "Planned actions", "detail": " → ".join(action_details) or "No Home Assistant service action"},
+        ],
+    }
+
 def _automation_rate_available(item: dict[str, Any], now: float) -> tuple[bool, str]:
     cooldown = max(1, int(item.get("cooldown_minutes") or 30)) * 60
     if now - float(item.get("last_matched_at") or 0) < cooldown:

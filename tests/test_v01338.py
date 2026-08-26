@@ -17,10 +17,10 @@ MANIFEST = json.loads((ROOT / "jarvis/release_manifest.json").read_text(encoding
 
 class HomeAssistantHistoryBoundaryTests(unittest.TestCase):
     def test_release_markers_are_aligned(self):
-        self.assertIn('version: "0.13.69"', CONFIG)
-        self.assertIn('version="0.13.69"', MAIN)
-        self.assertIn("HUD 0.13.69", HTML)
-        self.assertEqual(MANIFEST["version"], "0.13.69")
+        self.assertIn('version: "0.13.70"', CONFIG)
+        self.assertIn('version="0.13.70"', MAIN)
+        self.assertIn("HUD 0.13.70", HTML)
+        self.assertEqual(MANIFEST["version"], "0.13.70")
 
     def test_effective_history_implementation_is_outside_main(self):
         self.assertNotIn("def _ha_history_entities(", MAIN)

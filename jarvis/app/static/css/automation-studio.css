@@ -10,6 +10,16 @@
 .automation-studio-toolbar { padding: .9rem 1rem; border-bottom: 1px solid var(--line); }
 .automation-studio-toolbar-actions { display: grid; justify-items: end; gap: .3rem; }
 .automation-studio-toolbar-actions > span { color: var(--text-muted); font-size: .72rem; }
+.automation-studio-test-results { display: grid; grid-template-columns: repeat(4,minmax(0,1fr)); gap: .5rem; padding: .65rem 1rem; border-bottom: 1px solid var(--line); background: color-mix(in srgb,var(--panel) 88%,transparent); }
+.automation-studio-test-results[hidden] { display: none; }
+.automation-studio-test-step { display: grid; gap: .2rem; min-width: 0; padding: .55rem; border: 1px solid var(--line); border-radius: 9px; }
+.automation-studio-test-step[data-status="pass"] { border-color: color-mix(in srgb,#65d98c 60%,var(--line)); }
+.automation-studio-test-step[data-status="fail"] { border-color: color-mix(in srgb,#ff766d 65%,var(--line)); }
+.automation-studio-test-step[data-status="waiting"] { border-color: color-mix(in srgb,#f0b35b 65%,var(--line)); }
+.automation-studio-test-step small { color: var(--text-muted); overflow-wrap: anywhere; }
+.automation-flow-node.is-test-pass { border-color:#65d98c; }
+.automation-flow-node.is-test-fail { border-color:#ff766d; }
+.automation-flow-node.is-test-waiting { border-color:#f0b35b; }
 .automation-studio-layout { display: grid; grid-template-columns: minmax(155px,.24fr) minmax(360px,1fr) minmax(230px,.38fr); min-height: 560px; }
 .automation-studio-toolbox,.automation-studio-inspector { padding: .85rem; background: color-mix(in srgb,var(--surface) 86%,transparent); }
 .automation-studio-toolbox { display: flex; flex-direction: column; gap: .5rem; border-right: 1px solid var(--line); }
@@ -62,6 +72,7 @@
   .automation-studio-inspector-fields { grid-template-columns: repeat(2,minmax(0,1fr)); }
 }
 @media (max-width:720px) {
+  .automation-studio-test-results { grid-template-columns: 1fr; }
   #automations-panel.studio-active { overflow-y: auto; }
   #automations-panel.studio-active .automation-studio-preview,
   #automations-panel.studio-active .automation-studio-layout { min-height: 0; }

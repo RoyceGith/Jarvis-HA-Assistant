@@ -1,5 +1,11 @@
 # Change log
 
+## 0.13.70
+
+- Added a zero-action Test Flow evaluator for unsaved Automation Studio drafts.
+- Added graphical Trigger, Context, Decision, and Planned Actions test traces using
+  current Home Assistant state and the effective safety policy.
+
 ## 0.13.69
 
 - Added per-automation operating modes and delivery channels under the global

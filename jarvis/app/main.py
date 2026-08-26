@@ -28,6 +28,7 @@ from .domains.automations import (
     _automation_payload_http,
     _automation_refresh_area_context,
     _automation_save,
+    _automation_test_flow,
     _prepare_chat_automation,
     automation_brain_memory_context,
     automation_entity_memory_context,
@@ -671,7 +672,7 @@ ha_ws = HomeAssistantWebSocketClient(
 
 app = FastAPI(
     title="ZBRANO",
-    version="0.13.69",
+    version="0.13.70",
     docs_url="/api/docs",
     openapi_url="/api/openapi.json",
 )
@@ -2650,7 +2651,7 @@ async def health() -> dict[str, Any]:
     configured_speech_provider = SPEECH_PROVIDER if SPEECH_PROVIDER in {"openai", "elevenlabs"} else "openai"
     return {
         "status": "ok",
-        "version": "0.13.69",
+        "version": "0.13.70",
         "home_assistant_configured": bool(SUPERVISOR_TOKEN),
         "workshop_memory_configured": bool(WORKSHOP_MEMORY_URL),
         "workshop_memory_cost_guard": workshop_cost_guard_status(),
@@ -3357,6 +3358,13 @@ async def update_autonomy_settings(request: AutonomySettingsRequest):
     )
     _automation_save(data)
     return {"saved": True, "settings": settings}
+
+
+@app.post("/api/automations/test-flow")
+async def test_autonomous_automation_flow(request: AutonomousAutomationRequest):
+    payload = _automation_payload_http(request)
+    data = automation_store()
+    return _automation_test_flow(payload, data["settings"], data)
 
 
 @app.post("/api/automations")

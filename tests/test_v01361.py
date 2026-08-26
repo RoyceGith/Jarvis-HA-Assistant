@@ -25,10 +25,10 @@ class VerifiedOnboardingReleaseTests(unittest.TestCase):
         self.temporary.cleanup()
 
     def test_release_markers_are_aligned(self):
-        self.assertIn('version: "0.13.69"', CONFIG)
-        self.assertIn('version="0.13.69"', MAIN)
-        self.assertIn("HUD 0.13.69", HTML)
-        self.assertEqual(MANIFEST["version"], "0.13.69")
+        self.assertIn('version: "0.13.70"', CONFIG)
+        self.assertIn('version="0.13.70"', MAIN)
+        self.assertIn("HUD 0.13.70", HTML)
+        self.assertEqual(MANIFEST["version"], "0.13.70")
 
     def test_check_results_are_bounded_and_persisted(self):
         settings.save_onboarding_check(
@@ -62,7 +62,7 @@ class VerifiedOnboardingReleaseTests(unittest.TestCase):
         self.assertNotIn("grinder", ONBOARDING_JS.lower())
 
     def test_release_history_includes_v01360(self):
-        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.68")
+        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.69")
 
 
 if __name__ == "__main__":
