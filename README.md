@@ -1,4 +1,4 @@
-ZBRANO v0.13.48 adds build-gated migration coverage for legacy backups, preserved chats and entity policy, and rejection-before-write safety for malformed restores.
+ZBRANO v0.13.49 adds a pre-build release contract that validates Home Assistant metadata, architecture, image identity, Docker labels, runtime ports, options schemas, and GitHub publication wiring.
 
 ZBRANO v0.13.18 prevents Release Memory synchronization from remaining indefinitely in a non-terminal state by adding worker timeout recovery, note progress, task-health reporting, and automatic interface polling.
 

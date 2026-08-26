@@ -54,3 +54,16 @@ python -m unittest discover -s tests -p "test_*.py"
 
 Future browser and release tests should build on this boundary while
 keeping all external integrations deterministic and opt-in.
+
+## Release contract
+
+Before GitHub reads Home Assistant build metadata, a standard-library validator
+checks the app version and identity, supported architecture, image target, ingress
+and runtime ports, option/schema parity, secret schemas, Docker labels, build
+context, version/latest tags, pull-request push protection, and manifest wiring.
+
+Run it from the repository root:
+
+```text
+python jarvis/validate_release_contract.py
+```
