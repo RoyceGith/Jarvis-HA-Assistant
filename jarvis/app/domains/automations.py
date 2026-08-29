@@ -698,6 +698,18 @@ def _activate_automation(automation_id: str, source: str) -> dict[str, Any]:
     _automation_save(data)
     return {"activated": True, "automation": automation, "preview": _automation_preview(automation)}
 
+def _pause_automation(automation_id: str, source: str) -> dict[str, Any]:
+    data = automation_store()
+    automation = next((item for item in data["automations"] if item.get("id") == automation_id), None)
+    if not automation:
+        raise HTTPException(status_code=404, detail="Automation definition not found")
+    automation["enabled"] = False
+    automation["status"] = "paused"
+    automation["updated_at"] = time.time()
+    _automation_event(data, "configuration", f"Automation paused: {automation.get('name')}", f"source={source}; live evaluation stopped")
+    _automation_save(data)
+    return {"paused": True, "automation": automation, "preview": _automation_preview(automation)}
+
 AUTOMATION_ENGINE_LOCK = asyncio.Lock()
 
 AUTOMATION_PENDING_TASKS: dict[str, asyncio.Task[Any]] = {}

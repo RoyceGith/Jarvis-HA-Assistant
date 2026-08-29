@@ -1,9 +1,9 @@
 {
-  "version": "0.13.89",
+  "version": "0.13.90",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/ZBRANO_Core main",
-  "summary": "Add a safe Automation Library duplicate workflow that prepares an independent disabled Studio draft.",
+  "summary": "Add confirmed Pause and Resume controls to My Automations while preserving definitions, history, and activation safety checks.",
   "history_backfill": [
     {
       "version": "0.13.0",
@@ -360,22 +360,28 @@
     {
       "version": "0.13.88",
       "summary": "Added remembered Detailed and Compact card layouts for scalable Automation Library browsing."
+    },
+    {
+      "version": "0.13.89",
+      "summary": "Added a safe Automation Library duplicate workflow that prepares an independent disabled Studio draft."
     }
   ],
   "release_entry": {
     "features": [
-      "Duplicate any saved automation into an independent Studio draft with copied workflow and settings.",
-      "Name the copy clearly, keep it disabled, and require explicit review and Save before storage."
+      "Pause active automations directly from My Automations with an explicit confirmation and audit event.",
+      "Resume paused rules from the same card through the existing activation permission and authority checks."
     ],
     "fixes": [
-      "Remove the original automation identity from the copy so saving creates a new rule instead of overwriting the source.",
-      "Apply the existing unsaved-change confirmation before duplication replaces another open draft."
+      "Preserve the complete automation definition and history while stopping live evaluation immediately.",
+      "Distinguish Resume from first-time Enable wording while keeping the same guarded activation contract."
     ],
     "validation": [
-      "Browser-level duplicate action, cleared identity, copied naming, disabled state, dirty-state protection, replacement confirmation, history compatibility, README alignment, and v0.13.89 release coverage"
+      "Backend pause route and domain state transition, browser-level confirmed Pause and Resume cycle, activation-label synchronization, history compatibility, README alignment, and v0.13.90 release coverage"
     ]
   },
   "features": [
+    "Pause active automations directly while preserving their definitions and history.",
+    "Resume paused rules through the existing guarded activation safety checks.",
     "Duplicate a saved automation into an independent disabled draft without overwriting the source.",
     "Protect open Studio work before preparing a duplicate and require explicit Save for persistence.",
     "Switch My Automations between full Detailed workflows and a responsive Compact card grid.",

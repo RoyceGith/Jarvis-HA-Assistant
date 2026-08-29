@@ -18,6 +18,7 @@ from .domains.automations import (
     AUTOMATION_ENGINE_LOCK,
     AUTOMATION_PENDING_TASKS,
     _activate_automation,
+    _pause_automation,
     _automation_brain_state_change,
     _automation_entity_role,
     _automation_effective_policy,
@@ -677,7 +678,7 @@ ha_ws = HomeAssistantWebSocketClient(
 
 app = FastAPI(
     title="ZBRANO",
-    version="0.13.89",
+    version="0.13.90",
     docs_url="/api/docs",
     openapi_url="/api/openapi.json",
 )
@@ -2656,7 +2657,7 @@ async def health() -> dict[str, Any]:
     configured_speech_provider = SPEECH_PROVIDER if SPEECH_PROVIDER in {"openai", "elevenlabs"} else "openai"
     return {
         "status": "ok",
-        "version": "0.13.89",
+        "version": "0.13.90",
         "home_assistant_configured": bool(SUPERVISOR_TOKEN),
         "workshop_memory_configured": bool(WORKSHOP_MEMORY_URL),
         "workshop_memory_cost_guard": workshop_cost_guard_status(),
@@ -3409,6 +3410,11 @@ async def create_autonomous_automation(request: AutonomousAutomationRequest):
 @app.post("/api/automations/{automation_id}/activate")
 async def activate_autonomous_automation(automation_id: str) -> dict[str, Any]:
     return _activate_automation(automation_id, "interface_confirmation")
+
+
+@app.post("/api/automations/{automation_id}/pause")
+async def pause_autonomous_automation(automation_id: str) -> dict[str, Any]:
+    return _pause_automation(automation_id, "interface_confirmation")
 
 
 @app.delete("/api/automations/entity-memory/{memory_id}")

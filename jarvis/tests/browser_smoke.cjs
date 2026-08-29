@@ -109,12 +109,12 @@ const automationFixture = {
   engine: {status: "active"},
 };
 
-function apiFixture(url) {
+function apiFixture(url, method = "GET") {
   const pathname = new URL(url).pathname;
   if (pathname === "/api/health") {
     return {
       status: "ok",
-      version: "0.13.89",
+      version: "0.13.90",
       speech_provider: "openai",
       speech_providers: {openai: {configured: true}, elevenlabs: {configured: false}},
     };
@@ -136,6 +136,14 @@ function apiFixture(url) {
     return {policy: {}, read_entities: [], control_entities: []};
   }
   if (pathname === "/api/automations") return automationFixture;
+  if (method === "POST" && pathname === "/api/automations/active-flow/pause") {
+    Object.assign(automationFixture.automations.find(item => item.id === "active-flow"), {enabled: false, status: "paused", updated_at: 300});
+    return {paused: true};
+  }
+  if (method === "POST" && pathname === "/api/automations/active-flow/activate") {
+    Object.assign(automationFixture.automations.find(item => item.id === "active-flow"), {enabled: true, status: "armed", updated_at: 400});
+    return {activated: true};
+  }
   if (pathname === "/api/automations/test-flow") return {
     safe_dry_run: true,
     actions_executed: 0,
@@ -153,7 +161,7 @@ function apiFixture(url) {
   if (pathname === "/api/plugins") return {plugins: []};
   if (pathname === "/api/files/shared") return {files: [], count: 0};
   if (pathname === "/api/release-memory-sync") {
-    return {enabled: false, state: "disabled", version: "0.13.89", task_active: false};
+    return {enabled: false, state: "disabled", version: "0.13.90", task_active: false};
   }
   if (pathname === "/api/tab-activity") return {revisions: {}};
   if (pathname === "/api/grinder-monitor/status") return {enabled: false, connected: false};
@@ -218,7 +226,7 @@ async function main() {
       await route.fulfill({
         status: 200,
         contentType: "application/json",
-        body: JSON.stringify(apiFixture(route.request().url())),
+        body: JSON.stringify(apiFixture(route.request().url(), route.request().method())),
       });
     });
     await page.goto(`http://127.0.0.1:${address.port}/`, {waitUntil: "domcontentloaded"});
@@ -296,6 +304,12 @@ async function main() {
     assert.equal(await page.locator("#automation-library").evaluate(element => element.classList.contains("is-compact")), true);
     assert.equal(await page.locator("#automation-library .automation-flow").first().evaluate(element => getComputedStyle(element).display), "none");
     assert.deepEqual(await page.evaluate(() => JSON.parse(localStorage.getItem("zbrano.automation-studio.library.v1"))), {view: "saved", filter: "all", sort: "active", layout: "compact"});
+    const pauseDialogPromise=page.waitForEvent("dialog"),pauseClick=page.locator('[data-auto-pause="active-flow"]').click();
+    const pauseDialog=await pauseDialogPromise;assert.match(pauseDialog.message(),/Live evaluation and new actions will stop immediately/i);await pauseDialog.accept();await pauseClick;
+    await page.locator('[data-auto-activate="active-flow"][data-auto-activation-label="Resume"]').waitFor();
+    const resumeDialogPromise=page.waitForEvent("dialog"),resumeClick=page.locator('[data-auto-activate="active-flow"]').click();
+    const resumeDialog=await resumeDialogPromise;assert.match(resumeDialog.message(),/^Resume Active lighting/i);await resumeDialog.accept();await resumeClick;
+    await page.locator('[data-auto-pause="active-flow"]').waitFor();
     await page.locator('[data-auto-duplicate="active-flow"]').click();
     assert.equal(await page.locator("#automation-edit-id").inputValue(), "");
     assert.equal(await page.locator("#automation-name").inputValue(), "Active lighting copy");
