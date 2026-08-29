@@ -1,5 +1,11 @@
 # Change log
 
+## 0.13.90
+
+- Added confirmed Pause controls that stop live automation evaluation immediately.
+- Preserved each paused rule's complete definition and history.
+- Added Resume controls that reuse existing activation permission and authority checks.
+
 ## 0.13.89
 
 - Added a Duplicate action that copies a saved automation into a new Studio draft.
