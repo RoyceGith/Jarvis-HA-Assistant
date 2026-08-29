@@ -1,14 +1,14 @@
-## ZBRANO v0.13.100
+## ZBRANO v0.13.101
 
 ZBRANO combines Home Assistant chat, voice, entity control, memory, notifications,
 calendar tools, plugins, and evidence-based automations. Automation Studio now uses
 a visual building-block toolbox, interactive node canvas, and contextual inspector;
 the established automation engine and stored definitions remain compatible.
 
-Version 0.13.100 makes AppSheet-style flow stages responsive to their block count.
-Stages with more than two cards automatically use compact cards so the complete
-group fits the canvas more comfortably. OR/AND selectors now reserve enough width
-to show the full selected relationship without clipping.
+Version 0.13.101 adds an AppSheet-style task palette to the Action inspector.
+Ready-made Power On, Power Off, Toggle, Notification, Delay, and Wait Until blocks
+create real workflow tasks, while Custom Service preserves full Home Assistant
+control. Notification tasks use only detected Home Assistant notify channels.
 
 The application source and post-split build history are maintained in the private
 core repository. Public Home Assistant repositories contain only the five-file

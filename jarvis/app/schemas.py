@@ -127,7 +127,7 @@ class AutomationConditionRequest(BaseModel):
     sun_state: str = Field(default="below_horizon", pattern="^(above_horizon|below_horizon)$")
 
 class AutomationActionRequest(BaseModel):
-    kind: str = Field(default="service", pattern="^(service|delay|wait_state)$")
+    kind: str = Field(default="service", pattern="^(service|notification|delay|wait_state)$")
     entity_id: str = Field(default="", max_length=255, pattern=r"^(|[a-z0-9_]+\.[a-z0-9_]+)$")
     service: str = Field(default="", max_length=120, pattern=r"^(|[a-z0-9_]+\.[a-z0-9_]+)$")
     service_data: dict[str, Any] = Field(default_factory=dict)
@@ -135,6 +135,9 @@ class AutomationActionRequest(BaseModel):
     wait_operator: str = Field(default="equals", pattern="^(equals|not_equals|above|below)$")
     wait_value: str = Field(default="", max_length=255)
     timeout_seconds: int = Field(default=30, ge=1, le=300)
+    notification_title: str = Field(default="ZBRANO automation", max_length=120)
+    notification_message: str = Field(default="", max_length=1000)
+    notification_severity: str = Field(default="suggestion", pattern="^(information|suggestion|warning|critical)$")
 
 class AutomationBranchRequest(BaseModel):
     name: str = Field(min_length=1, max_length=80)

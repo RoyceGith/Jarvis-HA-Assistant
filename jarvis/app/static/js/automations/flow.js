@@ -44,6 +44,10 @@
     const kind=item.kind||"service";
     if(kind==="delay")return [`Delay ${Number(item.delay_seconds||0)||"?"}s`,"Pause the process"];
     if(kind==="wait_state")return [`Wait for ${item.entity_id?entityName(item.entity_id):"an entity"}`,`${text(item.wait_operator,"equals").replaceAll("_"," ")} ${text(item.wait_value,"a value")}`];
+    if(kind==="notification")return [`Notify ${item.entity_id?entityName(item.entity_id):"a channel"}`,text(item.notification_message,"Write a notification message")];
+    if(item.task_template==="turn_on")return [item.entity_id?entityName(item.entity_id):"Choose a device","Power on"];
+    if(item.task_template==="turn_off")return [item.entity_id?entityName(item.entity_id):"Choose a device","Power off"];
+    if(item.task_template==="toggle")return [item.entity_id?entityName(item.entity_id):"Choose a device","Toggle power state"];
     return [item.entity_id?entityName(item.entity_id):"Choose an action entity",text(item.service,"Configure a service action")];
   }
   function create(automation={},entityName=value=>value){

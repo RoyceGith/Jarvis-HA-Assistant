@@ -524,6 +524,9 @@ def _automation_payload(request):
         "wait_operator": str(item.get("wait_operator") or "equals"),
         "wait_value": str(item.get("wait_value") or "").strip(),
         "timeout_seconds": max(1, int(item.get("timeout_seconds") or 30)),
+        "notification_title": str(item.get("notification_title") or "ZBRANO automation").strip(),
+        "notification_message": str(item.get("notification_message") or "").strip(),
+        "notification_severity": str(item.get("notification_severity") or "suggestion"),
     } for item in payload.get("actions") or []]
     payload["branches"] = [{
         "name": " ".join(str(branch.get("name") or "Branch").split())[:80],
@@ -538,6 +541,9 @@ def _automation_payload(request):
             "wait_operator": str(item.get("wait_operator") or "equals"),
             "wait_value": str(item.get("wait_value") or "").strip(),
             "timeout_seconds": max(1, int(item.get("timeout_seconds") or 30)),
+            "notification_title": str(item.get("notification_title") or "ZBRANO automation").strip(),
+            "notification_message": str(item.get("notification_message") or "").strip(),
+            "notification_severity": str(item.get("notification_severity") or "suggestion"),
         } for item in branch.get("actions") or []],
     } for branch in payload.get("branches") or []]
     if not payload["actions"] and payload["action_entity"] and payload["action_service"]:
@@ -602,6 +608,11 @@ def _automation_payload(request):
             if not action["entity_id"]:
                 raise HTTPException(status_code=400, detail="A Wait Until step requires an entity")
             ensure_read_allowed(action["entity_id"])
+        elif kind == "notification":
+            if not action["entity_id"].startswith("notify."):
+                raise HTTPException(status_code=400, detail="A notification task requires a Home Assistant notify entity")
+            if not action["notification_message"]:
+                raise HTTPException(status_code=400, detail="A notification task requires a message")
         else:
             if not action["entity_id"] or not action["service"]:
                 raise HTTPException(status_code=400, detail="A service action requires an entity and service")
@@ -1253,6 +1264,8 @@ def _automation_test_flow(item: dict[str, Any], settings: dict[str, Any], data: 
             action_details.append(f"Delay {int(action.get('delay_seconds') or 0)} seconds")
         elif kind == "wait_state":
             action_details.append(f"Wait until {action.get('entity_id')} {action.get('wait_operator') or 'equals'} {action.get('wait_value') or ''}".strip())
+        elif kind == "notification":
+            action_details.append(f"Send notification to {action.get('entity_id')}")
         else:
             action_details.append(f"Would call {action.get('service')} for {action.get('entity_id')}")
     return {
@@ -1640,8 +1653,8 @@ def _automation_autonomous_allowed(item: dict[str, Any], settings: dict[str, Any
     selected_actions = _automation_actions(item) if actions is None else actions
     if not selected_actions:
         return False, "selected path has no autonomous action"
-    if not any(str(action.get("kind") or "service") == "service" for action in selected_actions):
-        return False, "selected path has no Home Assistant service action"
+    if not any(str(action.get("kind") or "service") in {"service", "notification"} for action in selected_actions):
+        return False, "selected path has no executable Home Assistant task"
     for action in selected_actions:
         if str(action.get("kind") or "service") != "service":
             continue
@@ -1699,6 +1712,16 @@ async def _automation_execute_action(data: dict[str, Any], item: dict[str, Any],
                     await asyncio.sleep(0.5)
                 completed.append({"kind": "wait_state", "entity_id": entity_id, "service": "", "state": current})
                 continue
+            if kind == "notification":
+                target = str(step.get("entity_id") or "")
+                await test_notification_channel(NotificationTestRequest(
+                    target=target,
+                    severity=str(step.get("notification_severity") or "suggestion"),
+                    title=str(step.get("notification_title") or "ZBRANO automation"),
+                    message=str(step.get("notification_message") or ""),
+                ))
+                completed.append({"kind": "notification", "service": "notify.send_message", "entity_id": target})
+                continue
             service = str(step.get("service") or "")
             entity_id = str(step.get("entity_id") or "")
             if "." not in service:
@@ -1743,9 +1766,9 @@ async def _automation_execute_action(data: dict[str, Any], item: dict[str, Any],
     )
     _automation_event(data, "action", f"Automation action sequence executed: {item.get('name')}", f"steps={len(completed)}; source={source}")
     _automation_save(data)
-    if item.get("notify_on_action", True):
+    if item.get("notify_on_action", True) and not any(str(step.get("kind") or "service") == "notification" for step in actions):
         await _automation_notify(str(item.get("name") or "ZBRANO automation"), str(item.get("proposal_template") or f"Executed {len(completed)} automation action(s)."), action=True)
-    first = next((step for step in completed if step.get("kind") == "service"), {"service": "", "entity_id": ""})
+    first = next((step for step in completed if step.get("kind") in {"service", "notification"}), {"service": "", "entity_id": ""})
     return {"executed": True, "service": first["service"], "entity_id": first["entity_id"], "actions": completed}
 
 async def _automation_commit_match(automation_id: str, evidence: dict[str, Any]) -> None:

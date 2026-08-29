@@ -33,10 +33,10 @@ def load_frontend_source_function():
 
 class ModularDiagnosticsRegressionTests(unittest.TestCase):
     def test_release_markers_are_aligned(self):
-        self.assertIn('version: "0.13.100"', CONFIG)
-        self.assertIn('version="0.13.100"', MAIN)
-        self.assertIn("HUD 0.13.100", HTML)
-        self.assertEqual(MANIFEST["version"], "0.13.100")
+        self.assertIn('version: "0.13.101"', CONFIG)
+        self.assertIn('version="0.13.101"', MAIN)
+        self.assertIn("HUD 0.13.101", HTML)
+        self.assertEqual(MANIFEST["version"], "0.13.101")
 
     def test_health_and_entity_routes_import_extracted_policy_constants(self):
         import_block = MAIN[MAIN.index("from .services.entity_policy import ("):]

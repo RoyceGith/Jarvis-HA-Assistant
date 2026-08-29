@@ -1,5 +1,11 @@
 # Change log
 
+## 0.13.101
+
+- Added an AppSheet-style ready-made task palette to the Action inspector.
+- Added executable Power On, Power Off, Toggle, Notification, Delay, Wait Until, and Custom Service blocks.
+- Made notification tasks installation-aware and routed them through Home Assistant notify channels.
+
 ## 0.13.100
 
 - Automatically compacted flow stages containing more than two cards.

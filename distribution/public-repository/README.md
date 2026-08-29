@@ -19,8 +19,9 @@ storage, and `ghcr.io/roycegith/jarvis-ha-assistant` update image.
 
 ## Current experience
 
-Version 0.13.100 automatically compacts Automation Studio stages containing more
-than two cards and keeps selected OR/AND relationship values fully readable.
+Version 0.13.101 adds an AppSheet-style Action task palette with ready-made device,
+notification, delay, wait-state, and custom Home Assistant service blocks.
+Notification tasks appear only when a usable Home Assistant notify channel exists.
 Incomplete blocks remain protected by validation, and existing automation
 definitions and Home Assistant data remain compatible across updates.
 Conversational creation now reuses known Home Assistant Area-to-Zone links and

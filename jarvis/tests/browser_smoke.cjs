@@ -114,7 +114,7 @@ function apiFixture(url, method = "GET") {
   if (pathname === "/api/health") {
     return {
       status: "ok",
-      version: "0.13.100",
+      version: "0.13.101",
       speech_provider: "openai",
       speech_providers: {openai: {configured: true}, elevenlabs: {configured: false}},
     };
@@ -156,12 +156,12 @@ function apiFixture(url, method = "GET") {
     ],
   };
   if (pathname === "/api/notifications") {
-    return {settings: {}, channels: [], watches: [], deliveries: [], telegram_channels: 0};
+    return {settings: {}, channels: [{entity_id: "notify.browser_phone", friendly_name: "Browser Phone", platform: "home_assistant", available: true}], watches: [], deliveries: [], telegram_channels: 0};
   }
   if (pathname === "/api/plugins") return {plugins: []};
   if (pathname === "/api/files/shared") return {files: [], count: 0};
   if (pathname === "/api/release-memory-sync") {
-    return {enabled: false, state: "disabled", version: "0.13.100", task_active: false};
+    return {enabled: false, state: "disabled", version: "0.13.101", task_active: false};
   }
   if (pathname === "/api/tab-activity") return {revisions: {}};
   if (pathname === "/api/grinder-monitor/status") return {enabled: false, connected: false};
@@ -356,8 +356,19 @@ async function main() {
     await dropStudioBlock("action");
     assert.match(await page.locator('#automation-flow-preview [data-flow-kind="action"]').innerText(), /Configure a service action/i);
     assert.equal(await page.locator('#automation-flow-preview [data-flow-kind="action"]').count(), 1);
-    assert.equal(await page.locator(".automation-workflow-step").count(), 1);
     assert.match(await page.locator("#automation-studio-state").innerText(), /Action block added/i);
+    assert.equal(await page.locator(".automation-task-palette [data-action-template]").count(), 7);
+    assert.equal(await page.locator('[data-action-template="notification"]').isEnabled(), true);
+    await page.locator('[data-action-template="turn_on"]').click();
+    await page.locator('[data-workflow-index="1"][data-action-field="entity_id"]').fill("light.browser_fixture");
+    assert.match(await page.locator('#automation-flow-preview [data-flow-kind="action"]').nth(1).innerText(), /Power on/i);
+    await page.locator('[data-action-template="notification"]').click();
+    assert.equal(await page.locator('[data-workflow-index="2"][data-action-field="entity_id"]').inputValue(), "notify.browser_phone");
+    await page.locator('[data-workflow-index="2"][data-action-field="notification_message"]').fill("Automation finished");
+    assert.match(await page.locator('#automation-flow-preview [data-flow-kind="action"]').nth(2).innerText(), /Automation finished/i);
+    await page.locator('[data-workflow-remove="2"]').click();
+    await page.locator('[data-workflow-remove="1"]').click();
+    assert.equal(await page.locator(".automation-workflow-step").count(), 1);
     assert.equal(await page.locator("#automation-studio-dirty").isVisible(), true);
     const droppedBlocksReset=page.waitForEvent("dialog"),droppedBlocksNewFlow=page.locator("#automation-studio-new").click();
     const droppedBlocksDialog=await droppedBlocksReset;assert.match(droppedBlocksDialog.message(),/Discard unsaved automation changes/i);await droppedBlocksDialog.accept();await droppedBlocksNewFlow;
