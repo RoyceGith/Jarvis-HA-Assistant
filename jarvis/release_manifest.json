@@ -1,9 +1,9 @@
 {
-  "version": "0.13.85",
+  "version": "0.13.86",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/ZBRANO_Core main",
-  "summary": "Add compact search, state filters, live result counts, and clear no-match feedback to My Automations without changing stored rules.",
+  "summary": "Add practical Automation Library sorting and remember the selected Studio library view, filter, and sort locally.",
   "history_backfill": [
     {
       "version": "0.13.0",
@@ -344,22 +344,28 @@
     {
       "version": "0.13.84",
       "summary": "Added explicit Automation Studio dirty state and protected unsaved flows from accidental replacement by New, templates, editing, or cancel actions."
+    },
+    {
+      "version": "0.13.85",
+      "summary": "Added compact search, state filters, live result counts, and clear no-match feedback to My Automations without changing stored rules."
     }
   ],
   "release_entry": {
     "features": [
-      "Search My Automations by name, objective, entity, service, trigger, condition, action, and branch content.",
-      "Filter the library by active, attention-needed, disabled or draft, automatic, and notification-watch states with a live result count."
+      "Sort My Automations by recent update, name, active state, or attention priority.",
+      "Remember the selected Create or My Automations view, state filter, and sort order in the local Home Assistant browser origin."
     ],
     "fixes": [
-      "Show a clear empty result when no saved automation matches the current search and filter.",
-      "Keep search and filter state intact while library results refresh or an automation is opened."
+      "Use deterministic name ordering as a fallback when automation timestamps or priority values match.",
+      "Validate restored library preferences against supported values and fall back safely when local data is missing or invalid."
     ],
     "validation": [
-      "Browser-level automation name search, missing-result handling, state filtering and reset restoration, history compatibility, README alignment, and v0.13.85 release coverage"
+      "Browser-level recent, name, and active ordering plus local view/filter/sort preference persistence, history compatibility, README alignment, and v0.13.86 release coverage"
     ]
   },
   "features": [
+    "Sort My Automations by recency, name, active state, or attention priority.",
+    "Remember the Automation Studio library view, filter, and sort locally without changing saved definitions.",
     "Search and filter My Automations without changing saved definitions, authority, or runtime behavior.",
     "Show live library result counts and clear no-match guidance for larger automation collections.",
     "Expose Automation Studio unsaved state clearly and protect it from accidental replacement.",

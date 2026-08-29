@@ -11,6 +11,7 @@
   let editorHistory=[],editorHistoryIndex=-1,editorHistoryTimer=0,restoringEditorHistory=false;
   let editorHistoryBaseline="";
   const localDraftKey="zbrano.automation-studio.unsaved.v1",localDraftMaxAge=7*24*60*60*1000,localDraftMaxBytes=100000;
+  const libraryPrefsKey="zbrano.automation-studio.library.v1";
   const studioPanels={
     details:{title:"Automation",help:"Name the behavior and decide whether live evaluation starts after saving.",fields:[["automation-name","Name"],["automation-objective","Objective"],["automation-enabled","Enable after saving"]]},
     trigger:{title:"Trigger",help:"Start from an entity event, local time, sunrise or sunset, repeating interval, or one-time schedule.",fields:[["automation-trigger-kind","Trigger type"],["automation-trigger-entity","Trigger entity"],["automation-trigger-operator","Condition"],["automation-trigger-value","Value"],["automation-trigger-for","Sustain for seconds"],["automation-trigger-at","Local time"],["automation-trigger-weekdays","Selected weekdays"],["automation-trigger-sun-event","Sun event"],["automation-trigger-sun-offset","Sun offset minutes"],["automation-trigger-interval","Repeat every minutes"],["automation-trigger-one-time","One-time local date and time"]]},
@@ -37,9 +38,16 @@
     panel.classList.toggle("studio-active",name==="studio");
   }
 
-  function showLibraryView(name){
+  function readLibraryPrefs(){
+    try{const value=JSON.parse(localStorage.getItem(libraryPrefsKey)||"{}");return {view:["create","saved"].includes(value.view)?value.view:"create",filter:["all","active","attention","disabled","autonomous","watch"].includes(value.filter)?value.filter:"all",sort:["recent","name_asc","name_desc","active","attention"].includes(value.sort)?value.sort:"recent"}}catch(_error){return {view:"create",filter:"all",sort:"recent"}}
+  }
+  function persistLibraryPrefs(){
+    try{const active=panel.querySelector('[data-automation-library-view].active')?.dataset.automationLibraryView||"create";localStorage.setItem(libraryPrefsKey,JSON.stringify({view:active,filter:$("automation-library-filter").value,sort:$("automation-library-sort").value}))}catch(_error){}
+  }
+  function showLibraryView(name,persist=true){
     for(const button of panel.querySelectorAll("[data-automation-library-view]")){const active=button.dataset.automationLibraryView===name;button.classList.toggle("active",active);button.setAttribute("aria-selected",String(active))}
     for(const view of panel.querySelectorAll("[data-automation-library-panel]")){view.classList.toggle("hidden",view.dataset.automationLibraryPanel!==name)}
+    if(persist)persistLibraryPrefs();
   }
 
   function modeLabel(value){return ({observe_only:"Observe only",suggest_only:"Suggest only",approval_gated:"Approval-gated",selective_autonomy:"Selective autonomy"})[value]||"Suggest only"}
@@ -201,10 +209,13 @@
   }
 
   function renderLibrary(){
-    const root=$("automation-library"),all=state.automations||[],query=$("automation-library-search").value.trim().toLowerCase(),filter=$("automation-library-filter").value;root.replaceChildren();
+    const root=$("automation-library"),all=state.automations||[],query=$("automation-library-search").value.trim().toLowerCase(),filter=$("automation-library-filter").value,sort=$("automation-library-sort").value;root.replaceChildren();
     const searchable=item=>[item.name,item.objective,item.trigger_entity,item.action_entity,item.action_service,item.proposal_template,...(item.signal_entities||[]),...(item.triggers||[]).flatMap(part=>[part.entity_id,part.kind]),...(item.conditions||[]).flatMap(part=>[part.entity_id,part.kind]),...(item.actions||[]).flatMap(part=>[part.entity_id,part.service,part.kind]),...(item.branches||[]).flatMap(branch=>[branch.name,...(branch.conditions||[]).map(part=>part.entity_id),...(branch.actions||[]).flatMap(part=>[part.entity_id,part.service])])].filter(Boolean).join(" ").toLowerCase();
     const matchesFilter=item=>{const recovery=item.recovery_state||{},readiness=item.readiness||{},attention=item.review_required||recovery.circuit_open||readiness.ready===false||["blocked_permission","paused_failure","deferred"].includes(item.status);if(filter==="active")return Boolean(item.enabled);if(filter==="attention")return Boolean(attention);if(filter==="disabled")return !item.enabled;if(filter==="autonomous")return item.execution_policy==="autonomous";if(filter==="watch")return item.kind==="notification_watch";return true};
-    const visible=all.filter(item=>(!query||searchable(item).includes(query))&&matchesFilter(item));$("automation-library-count").textContent=query||filter!=="all"?`${visible.length} of ${all.length}`:`${all.length} automation${all.length===1?"":"s"}`;
+    const attentionScore=item=>{const recovery=item.recovery_state||{},readiness=item.readiness||{};return Number(Boolean(item.review_required||recovery.circuit_open||readiness.ready===false||["blocked_permission","paused_failure","deferred"].includes(item.status)))};
+    const visible=all.filter(item=>(!query||searchable(item).includes(query))&&matchesFilter(item)).slice();
+    visible.sort((left,right)=>{if(sort==="name_asc")return String(left.name||"").localeCompare(String(right.name||""));if(sort==="name_desc")return String(right.name||"").localeCompare(String(left.name||""));if(sort==="active")return Number(Boolean(right.enabled))-Number(Boolean(left.enabled))||String(left.name||"").localeCompare(String(right.name||""));if(sort==="attention")return attentionScore(right)-attentionScore(left)||String(left.name||"").localeCompare(String(right.name||""));return Number(right.updated_at||right.created_at||0)-Number(left.updated_at||left.created_at||0)||String(left.name||"").localeCompare(String(right.name||""))});
+    $("automation-library-count").textContent=query||filter!=="all"?`${visible.length} of ${all.length}`:`${all.length} automation${all.length===1?"":"s"}`;
     if(!all.length){root.innerHTML='<div class="autonomy-empty">No automation drafts. Start with a quick design or create your own.</div>';return}
     if(!visible.length){root.innerHTML='<div class="autonomy-empty">No automations match this search and state filter.</div>';return}
     for(const item of visible){
@@ -396,7 +407,8 @@
   panel.querySelector(".autonomy-tabs")?.addEventListener("click",event=>{const button=event.target.closest("[data-auto-view]");if(button)showView(button.dataset.autoView)});
   panel.querySelector(".automation-library-tabs")?.addEventListener("click",event=>{const button=event.target.closest("[data-automation-library-view]");if(button)showLibraryView(button.dataset.automationLibraryView)});
   $("automation-library-search").addEventListener("input",renderLibrary);
-  $("automation-library-filter").addEventListener("change",renderLibrary);
+  $("automation-library-filter").addEventListener("change",()=>{persistLibraryPrefs();renderLibrary()});
+  $("automation-library-sort").addEventListener("change",()=>{persistLibraryPrefs();renderLibrary()});
   panel.addEventListener("pointerdown",event=>{const block=event.target.closest(".automation-studio-preview [data-flow-kind]");if(block)selectStudioNode(block.dataset.flowKind)},{capture:true});
   panel.addEventListener("click",async event=>{
     const validationIssue=event.target.closest("[data-validation-kind]");if(validationIssue){focusEditorIssue({kind:validationIssue.dataset.validationKind,field:validationIssue.dataset.validationField});return}
@@ -462,6 +474,6 @@
 
   document.addEventListener("click",event=>{const other=event.target.closest?.("#chat-tab,#entities-tab,#settings-tab,#plugins-tab,#files-tab,#calendar-tab,#developer-tab");if(other){panel.classList.add("hidden");tab.classList.remove("active")}},true);
   tab.addEventListener("click",event=>{event.preventDefault();event.stopImmediatePropagation();activate();loadWorkspace().catch(error=>{$("autonomy-context").innerHTML=`<div class="autonomy-empty">Automation workspace unavailable: ${esc(error.message||error)}</div>`})},true);
-  const localDraftRecovery=readLocalEditorDraft();clearEditor();if(localDraftRecovery)recoverLocalEditorDraft(localDraftRecovery);
+  const libraryPrefs=readLibraryPrefs();$("automation-library-filter").value=libraryPrefs.filter;$("automation-library-sort").value=libraryPrefs.sort;const localDraftRecovery=readLocalEditorDraft();clearEditor();if(localDraftRecovery)recoverLocalEditorDraft(localDraftRecovery);showLibraryView(libraryPrefs.view,false);
   window.zbranoAutomationWorkspace={ready:true,load:loadWorkspace,showView};
 })();

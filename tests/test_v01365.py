@@ -20,10 +20,10 @@ READMES = [
 
 class AutomationStudioBuildRepairTests(unittest.TestCase):
     def test_release_markers_are_aligned(self):
-        self.assertIn('version: "0.13.85"', CONFIG)
-        self.assertIn('version="0.13.85"', MAIN)
-        self.assertIn("HUD 0.13.85", HTML)
-        self.assertEqual(MANIFEST["version"], "0.13.85")
+        self.assertIn('version: "0.13.86"', CONFIG)
+        self.assertIn('version="0.13.86"', MAIN)
+        self.assertIn("HUD 0.13.86", HTML)
+        self.assertEqual(MANIFEST["version"], "0.13.86")
 
     def test_decorative_connectors_do_not_intercept_flow_nodes(self):
         rule = next(rule for rule in STYLES.splitlines() if rule.startswith(".automation-flow-connector {"))
@@ -33,9 +33,9 @@ class AutomationStudioBuildRepairTests(unittest.TestCase):
         self.assertIn('panel.addEventListener("pointerdown"', WORKSPACE)
 
     def test_release_history_and_readmes_are_current(self):
-        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.84")
+        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.85")
         for readme in READMES:
-            self.assertIn("0.13.85", readme)
+            self.assertIn("0.13.86", readme)
 
 
 if __name__ == "__main__":

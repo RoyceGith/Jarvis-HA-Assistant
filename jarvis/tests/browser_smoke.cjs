@@ -78,6 +78,27 @@ const automationFixture = {
     risk_level: "controlled",
     enabled: false,
     review_required: false,
+    updated_at: 100,
+  }, {
+    id: "active-flow",
+    name: "Active lighting",
+    objective: "Verify active library ordering",
+    trigger_entity: "sensor.browser_fixture_3",
+    trigger_operator: "above",
+    trigger_value: "20",
+    trigger_for_seconds: 0,
+    presence_entity: "",
+    signal_entities: [],
+    proposal_template: "Suggest lighting",
+    action_entity: "light.browser_fixture",
+    action_service: "light.turn_on",
+    cooldown_minutes: 10,
+    confidence_threshold: 0.9,
+    execution_policy: "autonomous",
+    risk_level: "low",
+    enabled: true,
+    review_required: false,
+    updated_at: 200,
   }],
   suggestions: [],
   timeline: [],
@@ -93,7 +114,7 @@ function apiFixture(url) {
   if (pathname === "/api/health") {
     return {
       status: "ok",
-      version: "0.13.85",
+      version: "0.13.86",
       speech_provider: "openai",
       speech_providers: {openai: {configured: true}, elevenlabs: {configured: false}},
     };
@@ -132,7 +153,7 @@ function apiFixture(url) {
   if (pathname === "/api/plugins") return {plugins: []};
   if (pathname === "/api/files/shared") return {files: [], count: 0};
   if (pathname === "/api/release-memory-sync") {
-    return {enabled: false, state: "disabled", version: "0.13.85", task_active: false};
+    return {enabled: false, state: "disabled", version: "0.13.86", task_active: false};
   }
   if (pathname === "/api/tab-activity") return {revisions: {}};
   if (pathname === "/api/grinder-monitor/status") return {enabled: false, connected: false};
@@ -244,21 +265,28 @@ async function main() {
     assert.equal(automationLayout.navCursor, "pointer");
     await page.locator('[data-automation-library-view="saved"]').click();
     await page.locator('[data-automation-library-panel="saved"]:not(.hidden)').waitFor();
-    assert.equal((await page.locator("#automation-library-count").innerText()).toLowerCase(), "1 automation");
+    assert.equal((await page.locator("#automation-library-count").innerText()).toLowerCase(), "2 automations");
+    assert.match(await page.locator("#automation-library .autonomy-draft").first().innerText(), /Active lighting/i);
     await page.locator("#automation-library-search").fill("browser flow");
     assert.equal(await page.locator("#automation-library .autonomy-draft").count(), 1);
     await page.locator("#automation-library-search").fill("missing automation");
     assert.equal(await page.locator("#automation-library .autonomy-draft").count(), 0);
-    assert.match(await page.locator("#automation-library-count").innerText(), /0 of 1/i);
+    assert.match(await page.locator("#automation-library-count").innerText(), /0 of 2/i);
     await page.locator("#automation-library-search").fill("");
     await page.locator("#automation-library-filter").selectOption("active");
-    assert.equal(await page.locator("#automation-library .autonomy-draft").count(), 0);
+    assert.equal(await page.locator("#automation-library .autonomy-draft").count(), 1);
     await page.locator("#automation-library-filter").selectOption("disabled");
     assert.equal(await page.locator("#automation-library .autonomy-draft").count(), 1);
     await page.locator("#automation-library-filter").selectOption("all");
-    assert.equal(await page.locator("#automation-library .automation-flow-node").count(), 4);
+    await page.locator("#automation-library-sort").selectOption("name_desc");
+    assert.match(await page.locator("#automation-library .autonomy-draft").first().innerText(), /Browser flow/i);
+    await page.locator("#automation-library-sort").selectOption("active");
+    assert.match(await page.locator("#automation-library .autonomy-draft").first().innerText(), /Active lighting/i);
+    assert.equal(await page.locator("#automation-library .automation-flow-node").count(), 8);
+    assert.deepEqual(await page.evaluate(() => JSON.parse(localStorage.getItem("zbrano.automation-studio.library.v1"))), {view: "saved", filter: "all", sort: "active"});
     await page.locator('[data-automation-library-view="create"]').click();
     await page.locator('[data-automation-library-panel="create"]:not(.hidden)').waitFor();
+    assert.equal(await page.evaluate(() => JSON.parse(localStorage.getItem("zbrano.automation-studio.library.v1")).view), "create");
     const studioOrder = await page.evaluate(() => ({
       studio: document.querySelector(".automation-studio-preview").getBoundingClientRect().top,
       chat: document.querySelector(".automation-chat-builder").getBoundingClientRect().top,
