@@ -19,11 +19,11 @@ storage, and `ghcr.io/roycegith/jarvis-ha-assistant` update image.
 
 ## Current experience
 
-Version 0.13.95 includes a full-window Automation Studio with a building-block
-toolbox, interactive flow canvas, and focused settings inspector. Existing
-automation definitions and Home Assistant data remain compatible across updates.
-Automation Overview draft and pending-suggestion metrics now open their matching
-filtered destinations directly.
+Version 0.13.96 makes the full-window Automation Studio toolbox functional:
+dragging Trigger, Context, Decision, or Action onto the canvas adds a real draft
+block, renders it immediately, and opens its focused settings inspector. Incomplete
+blocks remain protected by validation, and existing automation definitions and
+Home Assistant data remain compatible across updates.
 Conversational creation now reuses known Home Assistant Area-to-Zone links and
 approved person or device-tracker presence sources for location-aware rules.
 Studio now reports live entity-permission and Home Assistant safety-label readiness,
