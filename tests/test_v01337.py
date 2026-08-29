@@ -31,10 +31,10 @@ GRINDER_TOOLS = [
 
 class RemainingIntentBoundaryTests(unittest.TestCase):
     def test_release_markers_are_aligned(self):
-        self.assertIn('version: "0.13.81"', CONFIG)
-        self.assertIn('version="0.13.81"', MAIN)
-        self.assertIn("HUD 0.13.81", HTML)
-        self.assertEqual(MANIFEST["version"], "0.13.81")
+        self.assertIn('version: "0.13.82"', CONFIG)
+        self.assertIn('version="0.13.82"', MAIN)
+        self.assertIn("HUD 0.13.82", HTML)
+        self.assertEqual(MANIFEST["version"], "0.13.82")
 
     def test_three_boundaries_are_outside_the_composition_root(self):
         for marker in (

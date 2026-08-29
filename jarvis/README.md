@@ -1,4 +1,4 @@
-# ZBRANO v0.13.81
+# ZBRANO v0.13.82
 
 Automation Studio provides a graphical building-block workflow for Home Assistant
 automations. Use the toolbox to select or drag Trigger, Context, Decision, and
@@ -6,9 +6,9 @@ Action blocks onto the canvas, then edit only that block in the settings inspect
 Natural-language creation, templates, saved automation compatibility, and the full
 Advanced editor remain available.
 
-Version 0.13.81 adds bounded Undo and Redo controls to Automation Studio for field,
-workflow-step, and branch edits. Ctrl/Cmd+Z, Ctrl/Cmd+Shift+Z, and Ctrl/Cmd+Y use
-the same history, while opening or creating a flow starts a clean local edit session.
+Version 0.13.82 recovers the current unsaved Studio flow after an accidental reload.
+The browser-local recovery expires after seven days, is limited to 100 KB, flushes
+on page hide, and is removed when another flow is opened or the draft is saved.
 
 The visual editor supports linear and branching workflows without silently changing
 the behavior of existing stored rules.

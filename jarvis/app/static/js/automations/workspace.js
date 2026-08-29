@@ -9,6 +9,8 @@
   let selectedStudioNode="trigger";
   let workflowDraft={triggers:[],conditions:[],condition_mode:"all",actions:[],branches:[]};
   let editorHistory=[],editorHistoryIndex=-1,editorHistoryTimer=0,restoringEditorHistory=false;
+  let editorHistoryBaseline="";
+  const localDraftKey="zbrano.automation-studio.unsaved.v1",localDraftMaxAge=7*24*60*60*1000,localDraftMaxBytes=100000;
   const studioPanels={
     details:{title:"Automation",help:"Name the behavior and decide whether live evaluation starts after saving.",fields:[["automation-name","Name"],["automation-objective","Objective"],["automation-enabled","Enable after saving"]]},
     trigger:{title:"Trigger",help:"Start from an entity event, local time, sunrise or sunset, repeating interval, or one-time schedule.",fields:[["automation-trigger-kind","Trigger type"],["automation-trigger-entity","Trigger entity"],["automation-trigger-operator","Condition"],["automation-trigger-value","Value"],["automation-trigger-for","Sustain for seconds"],["automation-trigger-at","Local time"],["automation-trigger-weekdays","Selected weekdays"],["automation-trigger-sun-event","Sun event"],["automation-trigger-sun-offset","Sun offset minutes"],["automation-trigger-interval","Repeat every minutes"],["automation-trigger-one-time","One-time local date and time"]]},
@@ -54,6 +56,26 @@
     $("automation-studio-undo").disabled=editorHistoryIndex<=0;
     $("automation-studio-redo").disabled=editorHistoryIndex<0||editorHistoryIndex>=editorHistory.length-1;
   }
+  function removeLocalEditorDraft(){try{localStorage.removeItem(localDraftKey)}catch(_error){}}
+  function persistLocalEditorDraft(state,serialized=JSON.stringify(state)){
+    if(serialized===editorHistoryBaseline){removeLocalEditorDraft();return}
+    const payload=JSON.stringify({schema:1,saved_at:Date.now(),state});
+    if(payload.length>localDraftMaxBytes)return;
+    try{localStorage.setItem(localDraftKey,payload)}catch(_error){}
+  }
+  function readLocalEditorDraft(){
+    try{
+      const raw=localStorage.getItem(localDraftKey);if(!raw)return null;if(raw.length>localDraftMaxBytes){removeLocalEditorDraft();return null}
+      const payload=JSON.parse(raw);
+      if(!payload||payload.schema!==1||!payload.state||Date.now()-Number(payload.saved_at||0)>localDraftMaxAge){removeLocalEditorDraft();return null}
+      return payload;
+    }catch(_error){removeLocalEditorDraft();return null}
+  }
+  function applyEditorHistoryState(snapshot){
+    for(const [id,value] of Object.entries(snapshot.controls||{})){const control=$(id);if(!control)continue;if(control.type==="checkbox")control.checked=Boolean(value);else control.value=String(value??"")}
+    workflowDraft=cloneEditorValue(snapshot.workflowDraft||{triggers:[],conditions:[],condition_mode:"all",actions:[],branches:[]});selectedStudioNode=studioPanels[snapshot.selectedStudioNode]?snapshot.selectedStudioNode:"trigger";
+    renderEditorFlow();renderStudioInspector();
+  }
   function commitEditorHistory(){
     if(restoringEditorHistory)return;
     clearTimeout(editorHistoryTimer);editorHistoryTimer=0;
@@ -61,24 +83,26 @@
     if(current&&JSON.stringify(current)===serialized)return;
     editorHistory=editorHistory.slice(0,editorHistoryIndex+1);editorHistory.push(next);
     if(editorHistory.length>50)editorHistory.shift();
-    editorHistoryIndex=editorHistory.length-1;updateEditorHistoryControls();
+    editorHistoryIndex=editorHistory.length-1;updateEditorHistoryControls();persistLocalEditorDraft(next,serialized);
   }
   function scheduleEditorHistory(){
     if(restoringEditorHistory)return;
     clearTimeout(editorHistoryTimer);editorHistoryTimer=setTimeout(commitEditorHistory,220);
   }
-  function resetEditorHistory(){clearTimeout(editorHistoryTimer);editorHistoryTimer=0;editorHistory=[];editorHistoryIndex=-1;commitEditorHistory()}
+  function resetEditorHistory(){clearTimeout(editorHistoryTimer);editorHistoryTimer=0;editorHistory=[];editorHistoryIndex=-1;commitEditorHistory();editorHistoryBaseline=JSON.stringify(editorHistory[0]);removeLocalEditorDraft()}
   function restoreEditorHistory(index){
     if(index<0||index>=editorHistory.length||index===editorHistoryIndex)return;
     clearTimeout(editorHistoryTimer);editorHistoryTimer=0;restoringEditorHistory=true;
-    const snapshot=editorHistory[index];
-    for(const [id,value] of Object.entries(snapshot.controls)){const control=$(id);if(!control)continue;if(control.type==="checkbox")control.checked=Boolean(value);else control.value=String(value??"")}
-    workflowDraft=cloneEditorValue(snapshot.workflowDraft);selectedStudioNode=studioPanels[snapshot.selectedStudioNode]?snapshot.selectedStudioNode:"trigger";editorHistoryIndex=index;
-    renderEditorFlow();renderStudioInspector();restoringEditorHistory=false;updateEditorHistoryControls();
+    const snapshot=editorHistory[index];applyEditorHistoryState(snapshot);editorHistoryIndex=index;
+    restoringEditorHistory=false;updateEditorHistoryControls();persistLocalEditorDraft(snapshot);
     $("automation-studio-state").textContent=index<editorHistory.length-1?"Edit undone.":"Edit restored.";
   }
   function undoEditor(){commitEditorHistory();restoreEditorHistory(editorHistoryIndex-1)}
   function redoEditor(){restoreEditorHistory(editorHistoryIndex+1)}
+  function recoverLocalEditorDraft(payload){
+    restoringEditorHistory=true;applyEditorHistoryState(payload.state);restoringEditorHistory=false;commitEditorHistory();
+    const saved=new Date(Number(payload.saved_at||0));$("automation-studio-state").textContent=`Recovered unsaved flow from ${saved.toLocaleString()}. New flow discards it.`;
+  }
   function renderStudioInspector(){
     const panelConfig=studioPanels[selectedStudioNode]||studioPanels.trigger;
     $("automation-studio-inspector-title").textContent=panelConfig.title;
@@ -392,6 +416,7 @@
   panel.querySelector(".automation-studio-toolbox")?.addEventListener("dragstart",event=>{const block=event.target.closest("[data-studio-node]");if(block)event.dataTransfer?.setData("text/studio-node",block.dataset.studioNode)});
   $("automation-flow-preview").addEventListener("keydown",event=>{if(!["Enter"," "].includes(event.key))return;const block=event.target.closest("[data-flow-kind]");if(block){event.preventDefault();selectStudioNode(block.dataset.flowKind)}});
   document.addEventListener("keydown",event=>{if(panel.classList.contains("hidden")||!panel.classList.contains("studio-active")||!(event.ctrlKey||event.metaKey)||event.altKey)return;const key=event.key.toLowerCase();if(key==="z"){event.preventDefault();if(event.shiftKey)redoEditor();else undoEditor()}else if(key==="y"){event.preventDefault();redoEditor()}});
+  window.addEventListener("pagehide",commitEditorHistory);
   $("autonomy-settings-form").addEventListener("submit",async event=>{
     event.preventDefault();const status=$("autonomy-settings-state");status.textContent="Saving…";const mode=panel.querySelector('input[name="autonomy-mode"]:checked')?.value||"suggest_only";
     const body={operating_mode:mode,presence_entity:$("autonomy-presence-entity").value.trim(),require_presence:$("autonomy-require-presence").checked,respect_quiet_hours:$("autonomy-respect-quiet").checked,minimum_confidence:Number($("autonomy-min-confidence").value),default_cooldown_minutes:Number($("autonomy-default-cooldown").value),autonomous_risk_ceiling:$("autonomy-risk-ceiling").value,notify_after_autonomous_action:$("autonomy-notify-autonomous").checked,passive_learning_enabled:$("autonomy-passive-learning").checked};
@@ -401,6 +426,6 @@
 
   document.addEventListener("click",event=>{const other=event.target.closest?.("#chat-tab,#entities-tab,#settings-tab,#plugins-tab,#files-tab,#calendar-tab,#developer-tab");if(other){panel.classList.add("hidden");tab.classList.remove("active")}},true);
   tab.addEventListener("click",event=>{event.preventDefault();event.stopImmediatePropagation();activate();loadWorkspace().catch(error=>{$("autonomy-context").innerHTML=`<div class="autonomy-empty">Automation workspace unavailable: ${esc(error.message||error)}</div>`})},true);
-  clearEditor();
+  const localDraftRecovery=readLocalEditorDraft();clearEditor();if(localDraftRecovery)recoverLocalEditorDraft(localDraftRecovery);
   window.zbranoAutomationWorkspace={ready:true,load:loadWorkspace,showView};
 })();

@@ -16,10 +16,10 @@ MANIFEST = json.loads((ROOT / "jarvis/release_manifest.json").read_text(encoding
 
 class BrowserSmokeFoundationTests(unittest.TestCase):
     def test_release_markers_are_aligned(self):
-        self.assertIn('version: "0.13.81"', CONFIG)
-        self.assertIn('version="0.13.81"', MAIN)
-        self.assertIn("HUD 0.13.81", HTML)
-        self.assertEqual(MANIFEST["version"], "0.13.81")
+        self.assertIn('version: "0.13.82"', CONFIG)
+        self.assertIn('version="0.13.82"', MAIN)
+        self.assertIn("HUD 0.13.82", HTML)
+        self.assertEqual(MANIFEST["version"], "0.13.82")
 
     def test_image_build_runs_browser_smoke_after_asgi_tests(self):
         integration = 'python3 -m unittest discover -s ./tests -p "test_*.py"'

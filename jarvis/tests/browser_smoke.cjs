@@ -93,7 +93,7 @@ function apiFixture(url) {
   if (pathname === "/api/health") {
     return {
       status: "ok",
-      version: "0.13.81",
+      version: "0.13.82",
       speech_provider: "openai",
       speech_providers: {openai: {configured: true}, elevenlabs: {configured: false}},
     };
@@ -132,7 +132,7 @@ function apiFixture(url) {
   if (pathname === "/api/plugins") return {plugins: []};
   if (pathname === "/api/files/shared") return {files: [], count: 0};
   if (pathname === "/api/release-memory-sync") {
-    return {enabled: false, state: "disabled", version: "0.13.81", task_active: false};
+    return {enabled: false, state: "disabled", version: "0.13.82", task_active: false};
   }
   if (pathname === "/api/tab-activity") return {revisions: {}};
   if (pathname === "/api/grinder-monitor/status") return {enabled: false, connected: false};
@@ -274,6 +274,14 @@ async function main() {
     assert.equal(await page.locator("#automation-studio-redo").isEnabled(), true);
     await page.locator("#automation-studio-redo").click();
     assert.equal(await page.locator("#automation-trigger-value").inputValue(), "27");
+    await page.waitForTimeout(260);
+    await page.reload({waitUntil: "domcontentloaded"});
+    await page.waitForFunction(() => window.zbranoAutomationWorkspace?.ready === true);
+    await page.locator("#automations-tab").click();
+    await page.locator('[data-auto-view="studio"]').click();
+    assert.equal(await page.locator("#automation-trigger-value").inputValue(), "27");
+    assert.match(await page.locator("#automation-studio-state").innerText(), /Recovered unsaved flow/i);
+    await page.locator('[data-studio-node="trigger"]').click();
     await page.locator('[data-workflow-add="triggers"]').click();
     await page.locator('[data-workflow-index="0"][data-trigger-field="kind"]').selectOption("time");
     await page.locator('[data-workflow-index="0"][data-trigger-field="at"]').fill("18:30");
@@ -333,7 +341,7 @@ async function main() {
     assert.equal(voiceScroll.scrollable, true, "Voice settings must exceed and scroll within the panel at compact viewport heights");
     assert.equal(voiceScroll.moved, true, "Voice settings panel must accept vertical scrolling");
 
-    console.log("Browser smoke passed: New Chat, navigation, Entity scrolling, modern Settings, Studio undo/redo, branching workflows, and installation-derived templates");
+    console.log("Browser smoke passed: New Chat, navigation, Entity scrolling, modern Settings, Studio history and draft recovery, branching workflows, and installation-derived templates");
   } finally {
     await browser.close();
     await new Promise(resolve => server.close(resolve));

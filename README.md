@@ -1,14 +1,14 @@
-## ZBRANO v0.13.81
+## ZBRANO v0.13.82
 
 ZBRANO combines Home Assistant chat, voice, entity control, memory, notifications,
 calendar tools, plugins, and evidence-based automations. Automation Studio now uses
 a visual building-block toolbox, interactive node canvas, and contextual inspector;
 the established automation engine and stored definitions remain compatible.
 
-Version 0.13.81 adds bounded Undo and Redo to Automation Studio. Field changes,
-workflow steps, branches, and the selected block can be restored from visible
-controls or standard Ctrl/Cmd keyboard shortcuts. Edit history stays local to the
-open draft and never changes saved automation authority or execution behavior.
+Version 0.13.82 recovers an unsaved Automation Studio flow after an accidental page
+refresh. Recovery remains local to the Home Assistant browser origin, expires after
+seven days, and is capped at 100 KB. Starting another flow or completing a save
+discards recovery without changing saved automation authority or execution behavior.
 
 The application source and post-split build history are maintained in the private
 core repository. Public Home Assistant repositories contain only the five-file

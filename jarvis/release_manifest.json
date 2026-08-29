@@ -1,9 +1,9 @@
 {
-  "version": "0.13.81",
+  "version": "0.13.82",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/ZBRANO_Core main",
-  "summary": "Add bounded Automation Studio edit history with visible Undo and Redo controls plus standard keyboard shortcuts.",
+  "summary": "Recover bounded unsaved Automation Studio drafts after accidental refreshes while preserving saved automation and authority boundaries.",
   "history_backfill": [
     {
       "version": "0.13.0",
@@ -328,22 +328,28 @@
     {
       "version": "0.13.80",
       "summary": "Compacted wide controls, gave Automations a Settings-style sidebar, and restored reliable scrolling across full-height workspaces."
+    },
+    {
+      "version": "0.13.81",
+      "summary": "Added bounded Automation Studio Undo and Redo for fields, workflow steps, branches, and selected block context."
     }
   ],
   "release_entry": {
     "features": [
-      "Add visible Undo and Redo controls to Automation Studio with familiar Ctrl/Cmd+Z, Ctrl/Cmd+Shift+Z, and Ctrl/Cmd+Y shortcuts.",
-      "Retain up to 50 bounded in-memory edit states for fields, workflow steps, branches, and selected block context."
+      "Recover the current unsaved Automation Studio flow after an accidental page refresh or navigation reload.",
+      "Keep recovery local to the browser origin with a seven-day expiry and 100 KB payload ceiling."
     ],
     "fixes": [
-      "Restore both the visual flow and the underlying advanced-editor values when undoing or redoing an edit.",
-      "Reset edit history cleanly when starting a new flow, loading a template, or opening an existing automation."
+      "Flush pending edits during page hide so a rapid refresh does not lose the latest field value.",
+      "Discard recovered state when starting a new flow, loading a template, opening an existing automation, or completing a save."
     ],
     "validation": [
-      "Browser-level field edit, Undo, Redo, underlying-value restoration, keyboard wiring, bounded-history markers, compatibility, README alignment, and v0.13.81 release coverage"
+      "Browser-level full reload recovery, recovered status, local expiry and size bounds, page-hide flushing, clean discard paths, compatibility, README alignment, and v0.13.82 release coverage"
     ]
   },
   "features": [
+    "Recover bounded unsaved Automation Studio drafts locally after accidental refreshes.",
+    "Expire local draft recovery automatically without changing saved automations or execution authority.",
     "Undo and redo Automation Studio edits without changing saved automation data or execution authority.",
     "Use bounded editor history with familiar keyboard shortcuts and visible availability states.",
     "Use a Settings-style navigation sidebar and independently scrolling content views throughout Automations.",
