@@ -6,7 +6,8 @@ connections.
 
 ## Automation Studio
 
-Version 0.13.96 provides a full-window visual automation builder with functional
+Version 0.13.97 preserves the full-window visual automation builder and repairs its
+slower ARM image validation. It includes functional
 drag-and-drop Trigger, Context, Decision, and Action blocks. Dropped blocks are added
 to the draft, rendered immediately, and opened for configuration. The full
 Advanced editor remains available, existing stored automations are preserved, and
