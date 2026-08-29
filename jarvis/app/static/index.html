@@ -33,7 +33,7 @@
   <header>
     <div class="brand-line">
       <h1>ZBRANO</h1>
-      <div class="status hud-version-label">Workshop Intelligence Interface · HUD 0.13.94</div>
+      <div class="status hud-version-label">Workshop Intelligence Interface · HUD 0.13.95</div>
     </div>
     <div class="runtime-status-stack">
       <button id="calendar-quick-open" class="calendar-quick-open" type="button" aria-label="Open ZBRANO Calendar" title="Open Calendar">
@@ -653,11 +653,11 @@
         <div class="autonomy-metrics">
           <article><span>Engine</span><strong id="autonomy-engine-status">Waiting</strong><small>Event-driven · no idle AI usage</small></article>
           <article><span>Operating policy</span><strong id="autonomy-mode-summary">Suggest only</strong><small id="autonomy-mode-detail">Per-automation authority supported</small></article>
-          <article><span>Automation drafts</span><strong id="autonomy-draft-count">0</strong><small>Prepared observation plans</small></article>
-          <article><span>Pending suggestions</span><strong id="autonomy-suggestion-count">0</strong><small>No synthetic suggestions</small></article>
+          <button class="autonomy-metric-link" type="button" data-automation-overview-target="drafts" aria-label="View automation drafts"><span>Automation drafts</span><strong id="autonomy-draft-count">0</strong><small>Open drafts and disabled rules</small></button>
+          <button class="autonomy-metric-link" type="button" data-automation-overview-target="suggestions" aria-label="View pending suggestions"><span>Pending suggestions</span><strong id="autonomy-suggestion-count">0</strong><small>Open the Suggestion Inbox</small></button>
         </div>
         <div class="autonomy-overview-grid">
-          <article class="autonomy-card">
+          <article id="autonomy-suggestion-inbox" class="autonomy-card autonomy-shortcut-target" tabindex="-1">
             <div class="autonomy-card-head"><div><h3>Suggestion Inbox</h3><p>Live recommendations include the triggering evidence, confidence, proposed action, and authority decision.</p></div></div>
             <div id="autonomy-suggestions" class="autonomy-list"><div class="autonomy-empty">No live automation suggestions yet.</div></div>
           </article>

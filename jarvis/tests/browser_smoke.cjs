@@ -114,7 +114,7 @@ function apiFixture(url, method = "GET") {
   if (pathname === "/api/health") {
     return {
       status: "ok",
-      version: "0.13.94",
+      version: "0.13.95",
       speech_provider: "openai",
       speech_providers: {openai: {configured: true}, elevenlabs: {configured: false}},
     };
@@ -161,7 +161,7 @@ function apiFixture(url, method = "GET") {
   if (pathname === "/api/plugins") return {plugins: []};
   if (pathname === "/api/files/shared") return {files: [], count: 0};
   if (pathname === "/api/release-memory-sync") {
-    return {enabled: false, state: "disabled", version: "0.13.94", task_active: false};
+    return {enabled: false, state: "disabled", version: "0.13.95", task_active: false};
   }
   if (pathname === "/api/tab-activity") return {revisions: {}};
   if (pathname === "/api/grinder-monitor/status") return {enabled: false, connected: false};
@@ -260,6 +260,18 @@ async function main() {
 
     await page.locator("#automations-tab").click();
     await page.locator("#automations-panel:not(.hidden)").waitFor();
+    assert.equal(await page.locator('[data-automation-overview-target="drafts"]').evaluate(element => getComputedStyle(element).cursor), "pointer");
+    assert.equal(await page.locator('[data-automation-overview-target="drafts"]').getAttribute("aria-label"), "View 1 automation draft");
+    await page.locator('[data-automation-overview-target="drafts"]').click();
+    await page.locator('[data-auto-panel="studio"]:not(.hidden)').waitFor();
+    await page.locator('[data-automation-library-panel="saved"]:not(.hidden)').waitFor();
+    assert.equal(await page.locator("#automation-library-filter").inputValue(), "disabled");
+    assert.equal(await page.locator("#automation-library .autonomy-draft").count(), 1);
+    await page.locator("#automation-library-filter").selectOption("all");
+    await page.locator('[data-auto-view="overview"]').click();
+    await page.locator('[data-automation-overview-target="suggestions"]').click();
+    await page.waitForFunction(() => document.activeElement?.id === "autonomy-suggestion-inbox");
+    assert.equal(await page.locator('[data-auto-panel="overview"]').evaluate(element => element.classList.contains("hidden")), false);
     await page.locator('[data-auto-view="studio"]').click();
     await page.locator('[data-auto-panel="studio"]:not(.hidden)').waitFor();
     assert.equal(await page.locator("#automations-panel").evaluate(element => element.classList.contains("studio-active")), true);

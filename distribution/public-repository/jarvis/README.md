@@ -6,7 +6,7 @@ connections.
 
 ## Automation Studio
 
-Version 0.13.94 provides a full-window visual automation builder with Trigger, Context,
+Version 0.13.95 provides a full-window visual automation builder with Trigger, Context,
 Decision, and Action blocks, a node canvas, and block-specific settings. The full
 Advanced editor remains available, existing stored automations are preserved, and
 repeatable OR triggers, grouped conditions, ordered actions, and IF/ELSE branches
@@ -22,6 +22,8 @@ The owner-specific Grinder diagnostic extension remains invisible and unavailabl
 unless its explicit Home Assistant option is enabled.
 Conversational creation now reads known Home Assistant Area-to-Zone links and uses
 approved person or device-tracker presence sources for site-aware automation drafts.
+Automation Overview draft and pending-suggestion metrics now open their matching
+filtered destinations directly with accessible keyboard focus.
 Studio also checks live read and control permissions plus Home Assistant safety
 labels before approval or autonomous execution and explains any blocked entity.
 Its bounded per-automation decision journal shows why recent evaluations observed,

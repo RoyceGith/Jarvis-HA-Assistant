@@ -1,15 +1,13 @@
-## ZBRANO v0.13.94
+## ZBRANO v0.13.95
 
 ZBRANO combines Home Assistant chat, voice, entity control, memory, notifications,
 calendar tools, plugins, and evidence-based automations. Automation Studio now uses
 a visual building-block toolbox, interactive node canvas, and contextual inspector;
 the established automation engine and stored definitions remain compatible.
 
-Version 0.13.94 lets conversational automation creation read the Home Assistant
-Areas, linked Zones, and approved presence trackers already known by Rooms &
-Learning. Location-aware requests now use an approved person or device tracker and
-infer the expected site Zone from the selected room entities instead of asking for
-a known Zone again.
+Version 0.13.95 makes Automation drafts and Pending suggestions in Automation
+Overview accessible navigation shortcuts. Drafts open My Automations with the
+matching filter, while suggestions move directly to the Suggestion Inbox.
 
 The application source and post-split build history are maintained in the private
 core repository. Public Home Assistant repositories contain only the five-file

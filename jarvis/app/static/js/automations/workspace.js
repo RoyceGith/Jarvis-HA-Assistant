@@ -50,6 +50,18 @@
     if(persist)persistLibraryPrefs();
   }
 
+  function openOverviewShortcut(target){
+    let destination=null;
+    if(target==="drafts"){
+      showView("studio");showLibraryView("saved");
+      $("automation-library-search").value="";$("automation-library-filter").value="disabled";
+      persistLibraryPrefs();renderLibrary();destination=$("automation-library-filter");
+    }else if(target==="suggestions"){
+      showView("overview");destination=$("autonomy-suggestion-inbox");
+    }
+    if(destination)requestAnimationFrame(()=>{destination.scrollIntoView({behavior:"smooth",block:"center"});destination.focus({preventScroll:true})});
+  }
+
   function modeLabel(value){return ({observe_only:"Observe only",suggest_only:"Suggest only",approval_gated:"Approval-gated",selective_autonomy:"Selective autonomy"})[value]||"Suggest only"}
   function authorityLabel(value){return ({inherit:"Use global default",observe:"Observe only",suggest:"Suggest only",approval_required:"Ask for approval",autonomous:"Automatic"})[value]||"Use global default"}
   function entityLabel(id){const entity=entityMap.get(id);return entity?.friendly_name||id}
@@ -184,8 +196,12 @@
     $("autonomy-engine-status").textContent=state.engine?.status==="active"?"Live":state.engine?.status==="waiting_for_home_assistant"?"Waiting for HA":"Unavailable";
     $("autonomy-mode-summary").textContent=modeLabel(state.settings?.operating_mode);
     $("autonomy-mode-detail").textContent=state.settings?.operating_mode==="selective_autonomy"?`Autonomous up to ${state.settings?.autonomous_risk_ceiling||"low"} risk`:"Per-automation authority limited by global policy";
-    $("autonomy-draft-count").textContent=String(state.automations.length);
-    $("autonomy-suggestion-count").textContent=String(state.suggestions.length);
+    const draftCount=(state.automations||[]).filter(item=>!item.enabled).length;
+    const suggestionCount=(state.suggestions||[]).filter(item=>["pending","approval_required"].includes(item.status)&&item.delivery_notification_center!==false).length;
+    $("autonomy-draft-count").textContent=String(draftCount);
+    $("autonomy-suggestion-count").textContent=String(suggestionCount);
+    panel.querySelector('[data-automation-overview-target="drafts"]')?.setAttribute("aria-label",`View ${draftCount} automation draft${draftCount===1?"":"s"}`);
+    panel.querySelector('[data-automation-overview-target="suggestions"]')?.setAttribute("aria-label",`View ${suggestionCount} pending suggestion${suggestionCount===1?"":"s"}`);
   }
 
   function renderSuggestions(){
@@ -409,6 +425,7 @@
   }
 
   panel.querySelector(".autonomy-tabs")?.addEventListener("click",event=>{const button=event.target.closest("[data-auto-view]");if(button)showView(button.dataset.autoView)});
+  panel.querySelector(".autonomy-metrics")?.addEventListener("click",event=>{const button=event.target.closest("[data-automation-overview-target]");if(button)openOverviewShortcut(button.dataset.automationOverviewTarget)});
   panel.querySelector(".automation-library-tabs")?.addEventListener("click",event=>{const button=event.target.closest("[data-automation-library-view]");if(button)showLibraryView(button.dataset.automationLibraryView)});
   $("automation-library-search").addEventListener("input",renderLibrary);
   $("automation-library-filter").addEventListener("change",()=>{persistLibraryPrefs();renderLibrary()});

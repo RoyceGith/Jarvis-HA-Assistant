@@ -1,9 +1,9 @@
 {
-  "version": "0.13.94",
+  "version": "0.13.95",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/ZBRANO_Core main",
-  "summary": "Let conversational automation creation read Home Assistant Areas, linked Zones, and approved presence trackers so known location relationships are reused correctly.",
+  "summary": "Turn Automation Overview draft and pending-suggestion metrics into accessible shortcuts to their filtered destinations.",
   "history_backfill": [
     {
       "version": "0.13.0",
@@ -380,22 +380,28 @@
     {
       "version": "0.13.93",
       "summary": "Hid the owner-specific Grinder extension UI, intent routing, tools, and incident APIs unless explicitly enabled."
+    },
+    {
+      "version": "0.13.94",
+      "summary": "Let conversational automation creation reuse Home Assistant Areas, linked Zones, and approved presence trackers for location-aware drafts."
     }
   ],
   "release_entry": {
     "features": [
-      "Give conversational automation design a bounded read-only view of Home Assistant Areas, linked Zones, approved room entities, and person or device-tracker presence candidates.",
-      "Reuse the Area-to-Zone relationship already maintained by Rooms & Learning when preparing location-aware automations."
+      "Open My Automations with the Drafts and disabled filter directly from the Automation drafts overview metric.",
+      "Focus the Suggestion Inbox directly from the Pending suggestions overview metric with mouse or keyboard navigation."
     ],
     "fixes": [
-      "Stop asking users for a known zone entity merely because the ordinary approved-entity search does not list zone registry context.",
-      "Keep presence_entity correctly assigned to an approved person or device tracker while the automation engine compares its state with the inferred linked Zone."
+      "Make overview draft and pending-suggestion counts match the records shown at their destinations.",
+      "Expose visible hover, focus, and dynamic accessible-label states for both overview shortcuts."
     ],
     "validation": [
-      "Location-aware automation tool routing, bounded Area/Zone/entity context, approved person presence semantics, browser smoke, release manifest, README alignment, and v0.13.94 release coverage"
+      "Draft and suggestion shortcut navigation, destination filtering and focus, accessible labels, browser smoke, release manifest, README alignment, and v0.13.95 release coverage"
     ]
   },
   "features": [
+    "Navigate directly from Automation Overview metrics to filtered drafts or the Suggestion Inbox.",
+    "Keep overview shortcut counts aligned with their visible destination records and accessible labels.",
     "Expose known Home Assistant Area-to-Zone relationships and approved presence candidates to conversational automation creation.",
     "Use an approved person or device tracker as automation presence while inferring the expected Zone from linked room entities.",
     "Hide owner-specific Grinder UI and runtime tools unless its explicit Home Assistant option enables the extension.",
