@@ -11,21 +11,20 @@ BROWSER = (ROOT / "jarvis/tests/browser_smoke.cjs").read_text(encoding="utf-8")
 MANIFEST = json.loads((ROOT / "jarvis/release_manifest.json").read_text(encoding="utf-8"))
 
 
-class BrowserBuildRepairReleaseTests(unittest.TestCase):
+class ArmBrowserBuildStabilityReleaseTests(unittest.TestCase):
     def test_release_markers_are_aligned(self):
         self.assertIn('version: "0.13.97"', CONFIG)
         self.assertIn('version="0.13.97"', MAIN)
         self.assertIn("HUD 0.13.97", HTML)
         self.assertEqual(MANIFEST["version"], "0.13.97")
 
-    def test_browser_opens_editor_and_waits_for_inventory_before_template(self):
-        open_editor = BROWSER.index('locator(".automation-advanced summary").click()')
-        wait_inventory = BROWSER.index('locator("#automation-entity-options option").nth(47).waitFor({state: "attached"})')
-        click_template = BROWSER.index('locator(\'[data-auto-template="comfort"]\').click()')
-        self.assertLess(open_editor, wait_inventory)
-        self.assertLess(wait_inventory, click_template)
+    def test_browser_waits_for_async_automation_summary(self):
+        self.assertIn('[aria-label="View 1 automation draft"]\').waitFor()', BROWSER)
+        wait_index = BROWSER.index('[aria-label="View 1 automation draft"]\').waitFor()')
+        assertion_index = BROWSER.index('getAttribute("aria-label"), "View 1 automation draft"')
+        self.assertLess(wait_index, assertion_index)
 
-    def test_release_history_includes_v01350(self):
+    def test_release_history_includes_v01396(self):
         self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.96")
 
 

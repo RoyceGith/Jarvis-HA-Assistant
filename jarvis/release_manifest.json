@@ -1,9 +1,9 @@
 {
-  "version": "0.13.96",
+  "version": "0.13.97",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/ZBRANO_Core main",
-  "summary": "Make Automation Studio drag-and-drop create real configurable draft blocks and render them immediately in the visual flow.",
+  "summary": "Stabilize the ARM image build by waiting for asynchronous Automation Overview data before browser assertions.",
   "history_backfill": [
     {
       "version": "0.13.0",
@@ -388,22 +388,26 @@
     {
       "version": "0.13.95",
       "summary": "Turned Automation Overview draft and pending-suggestion metrics into accessible shortcuts to their filtered destinations."
+    },
+    {
+      "version": "0.13.96",
+      "summary": "Made Automation Studio drag-and-drop create real configurable draft blocks and render them immediately in the visual flow."
     }
   ],
   "release_entry": {
     "features": [
-      "Create Trigger, Context, Decision, and Action draft blocks by dragging them from the Automation Studio toolbox onto the canvas.",
-      "Render newly dropped incomplete blocks immediately as nested visual-flow steps and open their settings for configuration."
+      "Preserve the v0.13.96 functional Automation Studio drag-and-drop release without changing runtime behavior."
     ],
     "fixes": [
-      "Replace the previous drag behavior that only selected an inspector with real workflow-draft mutation.",
-      "Keep dropped blocks inside bounded undo, reset, validation, and unsaved-change safeguards."
+      "Wait for asynchronously loaded Automation Overview counts before asserting their accessible labels in browser validation.",
+      "Remove the timing race that failed slower aarch64 image builds after all product validations had passed."
     ],
     "validation": [
-      "Trigger, context, decision, and action drop creation, immediate canvas rendering, inspector selection, reset behavior, browser smoke, release manifest, README alignment, and v0.13.96 release coverage"
+      "Asynchronous overview-label readiness, Automation Studio drag-and-drop browser smoke, regression suite, release manifest, README alignment, and v0.13.97 release coverage"
     ]
   },
   "features": [
+    "Wait for asynchronous Automation Overview data in build-gated browser validation on slower ARM runners.",
     "Create real configurable Automation Studio blocks by dragging toolbox items onto the visual canvas.",
     "Show newly dropped incomplete workflow steps immediately without bypassing save validation or safety limits.",
     "Navigate directly from Automation Overview metrics to filtered drafts or the Suggestion Inbox.",

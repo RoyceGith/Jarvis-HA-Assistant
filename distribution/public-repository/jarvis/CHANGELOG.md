@@ -1,5 +1,10 @@
 # Change log
 
+## 0.13.97
+
+- Removed an asynchronous browser-test timing race on slower ARM image builders.
+- Preserved the functional Automation Studio drag-and-drop behavior from v0.13.96.
+
 ## 0.13.96
 
 - Made toolbox drag-and-drop create real automation draft blocks.
