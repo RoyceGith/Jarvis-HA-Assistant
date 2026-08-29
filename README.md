@@ -1,13 +1,14 @@
-## ZBRANO v0.13.90
+## ZBRANO v0.13.91
 
 ZBRANO combines Home Assistant chat, voice, entity control, memory, notifications,
 calendar tools, plugins, and evidence-based automations. Automation Studio now uses
 a visual building-block toolbox, interactive node canvas, and contextual inspector;
 the established automation engine and stored definitions remain compatible.
 
-Version 0.13.90 adds confirmed Pause and Resume controls to My Automations. Pause
-stops live evaluation while preserving the rule and its history; Resume uses the
-existing permission, authority, and activation safety checks.
+Version 0.13.91 adds build-gated upgrade coverage for automations created before
+the graphical Studio. The real application now proves that a legacy backup can be
+restored, loaded, and saved through the current schema without losing rule identity,
+trigger behavior, suggestion wording, or creation history.
 
 The application source and post-split build history are maintained in the private
 core repository. Public Home Assistant repositories contain only the five-file

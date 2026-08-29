@@ -1,9 +1,9 @@
 {
-  "version": "0.13.90",
+  "version": "0.13.91",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/ZBRANO_Core main",
-  "summary": "Add confirmed Pause and Resume controls to My Automations while preserving definitions, history, and activation safety checks.",
+  "summary": "Add build-gated upgrade coverage proving pre-Studio automations restore, load, and adopt the current workflow schema without losing their identity or behavior.",
   "history_backfill": [
     {
       "version": "0.13.0",
@@ -364,22 +364,28 @@
     {
       "version": "0.13.89",
       "summary": "Added a safe Automation Library duplicate workflow that prepares an independent disabled Studio draft."
+    },
+    {
+      "version": "0.13.90",
+      "summary": "Added confirmed Pause and Resume controls to My Automations while preserving definitions, history, and activation safety checks."
     }
   ],
   "release_entry": {
     "features": [
-      "Pause active automations directly from My Automations with an explicit confirmation and audit event.",
-      "Resume paused rules from the same card through the existing activation permission and authority checks."
+      "Restore a pre-Studio automation backup through the real application API and verify its original simple trigger and suggestion fields remain intact.",
+      "Save that legacy rule through the current Automation Studio schema while preserving its identity, creation time, trigger semantics, and suggestion wording."
     ],
     "fixes": [
-      "Preserve the complete automation definition and history while stopping live evaluation immediately.",
-      "Distinguish Resume from first-time Enable wording while keeping the same guarded activation contract."
+      "Gate future releases against regressions that could discard or reinterpret older simple automation definitions.",
+      "Verify current empty condition, action, and branch collections are added safely when a legacy suggestion-only rule is edited."
     ],
     "validation": [
-      "Backend pause route and domain state transition, browser-level confirmed Pause and Resume cycle, activation-label synchronization, history compatibility, README alignment, and v0.13.90 release coverage"
+      "Real-ASGI legacy automation backup restore, API read, current-schema save, persisted-data verification, browser smoke, release manifest, README alignment, and v0.13.91 release coverage"
     ]
   },
   "features": [
+    "Prove pre-Studio automation backups restore and upgrade through current APIs without behavior loss.",
+    "Preserve legacy rule identity, creation time, simple trigger semantics, and suggestion wording during current-schema save.",
     "Pause active automations directly while preserving their definitions and history.",
     "Resume paused rules through the existing guarded activation safety checks.",
     "Duplicate a saved automation into an independent disabled draft without overwriting the source.",

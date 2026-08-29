@@ -93,13 +93,13 @@ class ApplicationIntegrationTests(unittest.IsolatedAsyncioTestCase):
             response = await self.client.get("/api/health")
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json()["status"], "ok")
-        self.assertEqual(response.json()["version"], "0.13.90")
+        self.assertEqual(response.json()["version"], "0.13.91")
         self.assertEqual(response.json()["ha_read_entity_count"], 1)
         self.assertEqual(response.json()["ha_control_entity_count"], 1)
 
         frontend = await self.client.get("/")
         self.assertEqual(frontend.status_code, 200)
-        self.assertIn("HUD 0.13.90", frontend.text)
+        self.assertIn("HUD 0.13.91", frontend.text)
         self.assertEqual(
             frontend.headers.get("cache-control"),
             "no-store, no-cache, must-revalidate, max-age=0",
@@ -198,6 +198,80 @@ class ApplicationIntegrationTests(unittest.IsolatedAsyncioTestCase):
             settings.SETTINGS_STORAGE_PATH.read_text(encoding="utf-8"),
             original_settings,
         )
+
+    async def test_pre_studio_automation_restores_and_upgrades_without_behavior_loss(self) -> None:
+        legacy_automation = {
+            "id": "legacy-temperature-rule",
+            "name": "Legacy temperature suggestion",
+            "objective": "Suggest cooling when the room becomes warm.",
+            "trigger_entity": "sensor.legacy_temperature",
+            "trigger_operator": "above",
+            "trigger_value": "25",
+            "trigger_for_seconds": 60,
+            "proposal_template": "Would you like me to turn on cooling?",
+            "cooldown_minutes": 30,
+            "confidence_threshold": 0.75,
+            "risk_level": "controlled",
+            "enabled": False,
+            "status": "draft",
+            "created_at": 1_700_000_000,
+            "updated_at": 1_700_000_100,
+        }
+        backup = {
+            "format": "jarvis-backup-v1",
+            "settings": {"version": 1, "preferences": {"theme": "dark"}},
+            "chats": {"version": 1, "sessions": {}},
+            "entity_policy": {"version": 1, "entities": {}},
+            "automations": {
+                "settings": {"operating_mode": "suggest_only"},
+                "automations": [legacy_automation],
+            },
+        }
+
+        restored = await self.client.post("/api/settings/restore", json={"backup": backup})
+        self.assertEqual(restored.status_code, 200)
+        self.assertEqual(restored.json()["automation_count"], 1)
+
+        with patch.object(main, "_automation_refresh_area_context", AsyncMock(return_value={})):
+            listed = await self.client.get("/api/automations")
+        self.assertEqual(listed.status_code, 200)
+        loaded = listed.json()["automations"][0]
+        for field in ("id", "trigger_entity", "trigger_operator", "trigger_value", "proposal_template"):
+            self.assertEqual(loaded[field], legacy_automation[field])
+
+        with patch.object(automations, "ensure_read_allowed"):
+            upgraded = await self.client.put(
+                "/api/automations/legacy-temperature-rule",
+                json={
+                    "name": loaded["name"],
+                    "objective": loaded["objective"],
+                    "trigger_entity": loaded["trigger_entity"],
+                    "trigger_operator": loaded["trigger_operator"],
+                    "trigger_value": loaded["trigger_value"],
+                    "trigger_for_seconds": loaded["trigger_for_seconds"],
+                    "proposal_template": loaded["proposal_template"],
+                    "cooldown_minutes": loaded["cooldown_minutes"],
+                    "confidence_threshold": loaded["confidence_threshold"],
+                    "risk_level": loaded["risk_level"],
+                    "enabled": False,
+                },
+            )
+        self.assertEqual(upgraded.status_code, 200)
+        current = upgraded.json()["automation"]
+        self.assertEqual(current["id"], legacy_automation["id"])
+        self.assertEqual(current["created_at"], legacy_automation["created_at"])
+        self.assertEqual(current["trigger_entity"], legacy_automation["trigger_entity"])
+        self.assertEqual(current["trigger_operator"], legacy_automation["trigger_operator"])
+        self.assertEqual(current["trigger_value"], legacy_automation["trigger_value"])
+        self.assertEqual(current["proposal_template"], legacy_automation["proposal_template"])
+        self.assertEqual(current["triggers"][0]["entity_id"], legacy_automation["trigger_entity"])
+        self.assertEqual(current["conditions"], [])
+        self.assertEqual(current["actions"], [])
+        self.assertEqual(current["branches"], [])
+
+        persisted = json.loads(automations.AUTOMATION_STORAGE_PATH.read_text(encoding="utf-8"))
+        self.assertEqual(persisted["automations"][0]["id"], "legacy-temperature-rule")
+        self.assertEqual(persisted["automations"][0]["trigger_value"], "25")
 
     async def test_chat_api_create_rename_list_and_delete_round_trip(self) -> None:
         created = await self.client.post("/api/chats", json={"session_id": "integration-chat"})
