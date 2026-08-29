@@ -8,29 +8,28 @@ MAIN = (ROOT / "jarvis/app/main.py").read_text(encoding="utf-8")
 CONFIG = (ROOT / "jarvis/config.yaml").read_text(encoding="utf-8")
 HTML = (ROOT / "jarvis/app/static/index.html").read_text(encoding="utf-8")
 INTEGRATION = (ROOT / "jarvis/tests/test_app_integration.py").read_text(encoding="utf-8")
-DOCKERFILE = (ROOT / "jarvis/Dockerfile").read_text(encoding="utf-8")
 MANIFEST = json.loads((ROOT / "jarvis/release_manifest.json").read_text(encoding="utf-8"))
 
 
-class MigrationCoverageReleaseTests(unittest.TestCase):
+class AutomationStudioLifecycleGateReleaseTests(unittest.TestCase):
     def test_release_markers_are_aligned(self):
         self.assertIn('version: "0.13.98"', CONFIG)
         self.assertIn('version="0.13.98"', MAIN)
         self.assertIn("HUD 0.13.98", HTML)
         self.assertEqual(MANIFEST["version"], "0.13.98")
 
-    def test_image_build_gates_legacy_migration_coverage(self):
-        self.assertIn('python3 -m unittest discover -s ./tests -p "test_*.py"', DOCKERFILE)
+    def test_build_gate_covers_complete_studio_workflow_lifecycle(self):
+        self.assertIn("test_studio_workflow_persists_activates_and_evaluates_end_to_end", INTEGRATION)
         for marker in (
-            "test_legacy_minimal_backup_restores_without_newer_optional_sections",
-            "test_malformed_migration_backup_is_rejected_before_any_write",
-            '"format": "jarvis-backup-v1"',
-            '"entity_policy"',
-            '"legacy-chat"',
+            'self.client.post("/api/automations", json=workflow)',
+            'self.client.post("/api/automations/test-flow", json=workflow)',
+            'self.client.post(f"/api/automations/{automation_id}/activate")',
+            "await automations._automation_evaluate_state_change",
+            'evaluated["suggestions"][0]["action_service"]',
         ):
             self.assertIn(marker, INTEGRATION)
 
-    def test_release_history_includes_previous_release(self):
+    def test_release_history_includes_v01397(self):
         self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.97")
 
 

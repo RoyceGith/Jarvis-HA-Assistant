@@ -1,9 +1,9 @@
 {
-  "version": "0.13.97",
+  "version": "0.13.98",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/ZBRANO_Core main",
-  "summary": "Stabilize the ARM image build by waiting for asynchronous Automation Overview data before browser assertions.",
+  "summary": "Add a build-gated end-to-end Automation Studio workflow lifecycle covering persistence, dry-run, activation, reload, and event evaluation.",
   "history_backfill": [
     {
       "version": "0.13.0",
@@ -392,21 +392,26 @@
     {
       "version": "0.13.96",
       "summary": "Made Automation Studio drag-and-drop create real configurable draft blocks and render them immediately in the visual flow."
+    },
+    {
+      "version": "0.13.97",
+      "summary": "Stabilized the ARM image build by waiting for asynchronous Automation Overview data before browser assertions."
     }
   ],
   "release_entry": {
     "features": [
-      "Preserve the v0.13.96 functional Automation Studio drag-and-drop release without changing runtime behavior."
+      "Build-gate a Studio-style workflow through API creation, JSON persistence, safe dry-run, explicit activation, disk reload, and live state-change evaluation."
     ],
     "fixes": [
-      "Wait for asynchronously loaded Automation Overview counts before asserting their accessible labels in browser validation.",
-      "Remove the timing race that failed slower aarch64 image builds after all product validations had passed."
+      "Verify that a persisted visual workflow produces the expected bounded suggestion without executing its Home Assistant action.",
+      "Keep the release limited to automated lifecycle coverage with no runtime feature or stored-data change."
     ],
     "validation": [
-      "Asynchronous overview-label readiness, Automation Studio drag-and-drop browser smoke, regression suite, release manifest, README alignment, and v0.13.97 release coverage"
+      "Automation Studio draft creation, normalized persistence, safe dry-run, activation, reload, event evaluation, suggestion output, regression suite, release manifest, README alignment, and v0.13.98 release coverage"
     ]
   },
   "features": [
+    "Build-gate the complete Automation Studio workflow lifecycle from draft persistence through safe event evaluation.",
     "Wait for asynchronous Automation Overview data in build-gated browser validation on slower ARM runners.",
     "Create real configurable Automation Studio blocks by dragging toolbox items onto the visual canvas.",
     "Show newly dropped incomplete workflow steps immediately without bypassing save validation or safety limits.",

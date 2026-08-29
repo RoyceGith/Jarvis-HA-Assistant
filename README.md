@@ -1,14 +1,15 @@
-## ZBRANO v0.13.97
+## ZBRANO v0.13.98
 
 ZBRANO combines Home Assistant chat, voice, entity control, memory, notifications,
 calendar tools, plugins, and evidence-based automations. Automation Studio now uses
 a visual building-block toolbox, interactive node canvas, and contextual inspector;
 the established automation engine and stored definitions remain compatible.
 
-Version 0.13.97 preserves the v0.13.96 Automation Studio functionality and repairs
-the slower ARM image build by waiting for asynchronous overview data during browser
-validation. Dragging a Trigger, Context, Decision, or Action onto the canvas now
-adds it to the draft,
+Version 0.13.98 adds a build-gated end-to-end Automation Studio lifecycle test. A
+visual workflow is created, persisted, dry-run safely, activated, reloaded, and
+evaluated against a Home Assistant state change without executing its proposed
+device action. Dragging a Trigger, Context, Decision, or Action onto the canvas adds
+it to the draft,
 shows it in the visual flow, and opens its settings. Incomplete blocks remain
 protected by the existing validation and cannot be saved accidentally.
 

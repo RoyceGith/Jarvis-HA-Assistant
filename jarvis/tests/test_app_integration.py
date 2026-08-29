@@ -96,13 +96,13 @@ class ApplicationIntegrationTests(unittest.IsolatedAsyncioTestCase):
             response = await self.client.get("/api/health")
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json()["status"], "ok")
-        self.assertEqual(response.json()["version"], "0.13.97")
+        self.assertEqual(response.json()["version"], "0.13.98")
         self.assertEqual(response.json()["ha_read_entity_count"], 1)
         self.assertEqual(response.json()["ha_control_entity_count"], 1)
 
         frontend = await self.client.get("/")
         self.assertEqual(frontend.status_code, 200)
-        self.assertIn("HUD 0.13.97", frontend.text)
+        self.assertIn("HUD 0.13.98", frontend.text)
         self.assertEqual(
             frontend.headers.get("cache-control"),
             "no-store, no-cache, must-revalidate, max-age=0",
@@ -421,6 +421,80 @@ class ApplicationIntegrationTests(unittest.IsolatedAsyncioTestCase):
         deleted = await self.client.delete(f"/api/automations/{automation_id}")
         self.assertEqual(deleted.status_code, 200)
         self.assertEqual(automations.automation_store()["automations"], [])
+
+    async def test_studio_workflow_persists_activates_and_evaluates_end_to_end(self) -> None:
+        class FlowHomeAssistant:
+            connected = True
+            state_cache = {
+                "sensor.workshop_temperature": {"state": "28", "attributes": {}},
+                "binary_sensor.workshop_occupied": {"state": "on", "attributes": {}},
+                "light.workshop": {"state": "off", "attributes": {}},
+            }
+
+        store = automations._automation_empty_store()
+        store["settings"]["require_presence"] = False
+        automations._automation_save(store)
+        workflow = {
+            "name": "Studio lifecycle flow",
+            "objective": "Suggest workshop lighting when the configured context matches.",
+            "proposal_template": "Would you like me to switch on the workshop light?",
+            "execution_policy": "suggest",
+            "delivery_voice": False,
+            "delivery_notification_center": False,
+            "delivery_ha_push": False,
+            "enabled": False,
+            "triggers": [{
+                "kind": "entity", "entity_id": "sensor.workshop_temperature",
+                "operator": "above", "value": "27", "for_seconds": 0,
+            }],
+            "conditions": [{
+                "kind": "entity", "entity_id": "binary_sensor.workshop_occupied",
+                "operator": "equals", "value": "on",
+            }],
+            "condition_mode": "all",
+            "actions": [{
+                "kind": "service", "entity_id": "light.workshop",
+                "service": "light.turn_on", "service_data": {},
+            }],
+        }
+        with (
+            patch.object(automations, "ensure_read_allowed"),
+            patch.object(automations, "effective_entity_access", return_value="control"),
+            patch.object(automations, "ha_ws", FlowHomeAssistant()),
+        ):
+            created = await self.client.post("/api/automations", json=workflow)
+            self.assertEqual(created.status_code, 200)
+            automation_id = created.json()["automation"]["id"]
+            self.assertEqual(created.json()["automation"]["status"], "draft")
+
+            persisted = json.loads(automations.AUTOMATION_STORAGE_PATH.read_text(encoding="utf-8"))
+            self.assertEqual(persisted["automations"][0]["triggers"][0]["entity_id"], "sensor.workshop_temperature")
+            self.assertEqual(persisted["automations"][0]["triggers"][0]["value"], "27")
+            self.assertEqual(persisted["automations"][0]["conditions"][0]["entity_id"], "binary_sensor.workshop_occupied")
+            self.assertEqual(persisted["automations"][0]["actions"][0]["service"], "light.turn_on")
+
+            tested = await self.client.post("/api/automations/test-flow", json=workflow)
+            self.assertEqual(tested.status_code, 200)
+            self.assertEqual(len(tested.json()["trace"]), 4)
+            self.assertEqual(tested.json()["actions_executed"], 0)
+
+            activated = await self.client.post(f"/api/automations/{automation_id}/activate")
+            self.assertEqual(activated.status_code, 200)
+            self.assertTrue(activated.json()["automation"]["enabled"])
+            self.assertEqual(activated.json()["automation"]["status"], "armed")
+
+            reloaded = automations.automation_store()["automations"][0]
+            self.assertEqual(reloaded["id"], automation_id)
+            self.assertEqual(reloaded["triggers"][0]["value"], "27")
+            await automations._automation_evaluate_state_change({
+                "entity_id": "sensor.workshop_temperature", "old_state": "26", "state": "28",
+            })
+
+        evaluated = automations.automation_store()
+        self.assertEqual(evaluated["automations"][0]["status"], "pending")
+        self.assertEqual(len(evaluated["suggestions"]), 1)
+        self.assertEqual(evaluated["suggestions"][0]["action_entity"], "light.workshop")
+        self.assertEqual(evaluated["suggestions"][0]["action_service"], "light.turn_on")
 
     async def test_calendar_api_create_list_and_cancel_round_trip(self) -> None:
         start_at = (datetime.now(timezone.utc) + timedelta(hours=2)).isoformat()

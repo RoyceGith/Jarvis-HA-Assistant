@@ -27,10 +27,10 @@ def load_action_functions():
 
 class AutomationFlowControlReleaseTests(unittest.TestCase):
     def test_release_markers_are_aligned(self):
-        self.assertIn('version: "0.13.97"', CONFIG)
-        self.assertIn('version="0.13.97"', MAIN)
-        self.assertIn("HUD 0.13.97", HTML)
-        self.assertEqual(MANIFEST["version"], "0.13.97")
+        self.assertIn('version: "0.13.98"', CONFIG)
+        self.assertIn('version="0.13.98"', MAIN)
+        self.assertIn("HUD 0.13.98", HTML)
+        self.assertEqual(MANIFEST["version"], "0.13.98")
 
     def test_typed_step_schema_is_bounded(self):
         self.assertIn('pattern="^(service|delay|wait_state)$"', SCHEMAS)
@@ -53,7 +53,7 @@ class AutomationFlowControlReleaseTests(unittest.TestCase):
         self.assertIn("Delay ${item.delay_seconds}s", FLOW)
 
     def test_release_history_includes_v01367(self):
-        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.96")
+        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.97")
 
 
 if __name__ == "__main__":

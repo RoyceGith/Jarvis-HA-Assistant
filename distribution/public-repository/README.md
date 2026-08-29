@@ -19,9 +19,9 @@ storage, and `ghcr.io/roycegith/jarvis-ha-assistant` update image.
 
 ## Current experience
 
-Version 0.13.97 preserves the functional Automation Studio toolbox from v0.13.96
-and repairs its slower ARM image validation. In the Studio,
-dragging Trigger, Context, Decision, or Action onto the canvas adds a real draft
+Version 0.13.98 adds build-gated coverage for a complete Automation Studio workflow
+from creation and persistence through safe activation and event evaluation. In the
+Studio, dragging Trigger, Context, Decision, or Action onto the canvas adds a real draft
 block, renders it immediately, and opens its focused settings inspector. Incomplete
 blocks remain protected by validation, and existing automation definitions and
 Home Assistant data remain compatible across updates.
