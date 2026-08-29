@@ -1,9 +1,9 @@
 {
-  "version": "0.13.88",
+  "version": "0.13.89",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/ZBRANO_Core main",
-  "summary": "Add remembered Detailed and Compact card layouts for scalable Automation Library browsing.",
+  "summary": "Add a safe Automation Library duplicate workflow that prepares an independent disabled Studio draft.",
   "history_backfill": [
     {
       "version": "0.13.0",
@@ -356,22 +356,28 @@
     {
       "version": "0.13.87",
       "summary": "Added live graphical Automation Library status summaries that double as accessible quick filters."
+    },
+    {
+      "version": "0.13.88",
+      "summary": "Added remembered Detailed and Compact card layouts for scalable Automation Library browsing."
     }
   ],
   "release_entry": {
     "features": [
-      "Switch My Automations between full Detailed workflows and a responsive Compact card grid.",
-      "Remember the chosen library layout together with the existing view, filter, and sort preferences."
+      "Duplicate any saved automation into an independent Studio draft with copied workflow and settings.",
+      "Name the copy clearly, keep it disabled, and require explicit review and Save before storage."
     ],
     "fixes": [
-      "Keep rule names, objectives, state tags, and editing actions available in Compact mode while hiding extended diagrams and reasoning.",
-      "Validate restored layout preferences and default safely to Detailed when local data is absent or invalid."
+      "Remove the original automation identity from the copy so saving creates a new rule instead of overwriting the source.",
+      "Apply the existing unsaved-change confirmation before duplication replaces another open draft."
     ],
     "validation": [
-      "Browser-level Detailed-to-Compact switching, responsive grid state, hidden extended diagrams, local preference persistence, history compatibility, README alignment, and v0.13.88 release coverage"
+      "Browser-level duplicate action, cleared identity, copied naming, disabled state, dirty-state protection, replacement confirmation, history compatibility, README alignment, and v0.13.89 release coverage"
     ]
   },
   "features": [
+    "Duplicate a saved automation into an independent disabled draft without overwriting the source.",
+    "Protect open Studio work before preparing a duplicate and require explicit Save for persistence.",
     "Switch My Automations between full Detailed workflows and a responsive Compact card grid.",
     "Remember library layout locally without changing automation definitions or execution behavior.",
     "Show live visual Automation Library status summaries that work as accessible quick filters.",

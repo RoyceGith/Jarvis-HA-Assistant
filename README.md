@@ -1,13 +1,13 @@
-## ZBRANO v0.13.88
+## ZBRANO v0.13.89
 
 ZBRANO combines Home Assistant chat, voice, entity control, memory, notifications,
 calendar tools, plugins, and evidence-based automations. Automation Studio now uses
 a visual building-block toolbox, interactive node canvas, and contextual inspector;
 the established automation engine and stored definitions remain compatible.
 
-Version 0.13.88 adds remembered Detailed and Compact layouts to My Automations.
-Detailed retains full diagrams and reasoning, while Compact presents a responsive
-overview grid with names, states, and editing actions. Saved rules remain unchanged.
+Version 0.13.89 adds a safe Duplicate action to My Automations. It prepares an
+independent disabled Studio draft with copied workflow settings, removes the original
+identity, and requires explicit review and Save before creating a new rule.
 
 The application source and post-split build history are maintained in the private
 core repository. Public Home Assistant repositories contain only the five-file

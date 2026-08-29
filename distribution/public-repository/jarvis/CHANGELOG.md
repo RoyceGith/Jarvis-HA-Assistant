@@ -1,5 +1,11 @@
 # Change log
 
+## 0.13.89
+
+- Added a Duplicate action that copies a saved automation into a new Studio draft.
+- Cleared the source identity and disabled the copy so the original cannot be overwritten.
+- Required explicit review and Save, with existing unsaved-work protection retained.
+
 ## 0.13.88
 
 - Added Detailed and responsive Compact card layouts to My Automations.
