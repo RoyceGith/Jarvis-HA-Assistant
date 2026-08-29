@@ -1,5 +1,11 @@
 # Change log
 
+## 0.13.99
+
+- Rebuilt Automation Studio as an AppSheet-style staged event and process canvas.
+- Kept every trigger, condition, branch, and action visible as a separate card.
+- Added persisted OR/AND trigger controls with dry-run and runtime enforcement.
+
 ## 0.13.98
 
 - Added build-gated end-to-end Automation Studio workflow lifecycle coverage.
