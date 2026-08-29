@@ -1,5 +1,12 @@
 # Change log
 
+## 0.13.86
+
+- Added My Automations sorting by recent update, name, active state, and attention
+  priority with deterministic fallback ordering.
+- Remembered the selected Studio library view, state filter, and sort order locally.
+- Validated restored preferences and safely ignored missing or invalid local data.
+
 ## 0.13.85
 
 - Added compact My Automations search across names, objectives, entities, services,
