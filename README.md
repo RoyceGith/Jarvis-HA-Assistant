@@ -1,16 +1,14 @@
-## ZBRANO v0.13.99
+## ZBRANO v0.13.100
 
 ZBRANO combines Home Assistant chat, voice, entity control, memory, notifications,
 calendar tools, plugins, and evidence-based automations. Automation Studio now uses
 a visual building-block toolbox, interactive node canvas, and contextual inspector;
 the established automation engine and stored definitions remain compatible.
 
-Version 0.13.99 reshapes Automation Studio around the AppSheet Automation model.
-Every event, condition, process path, and task remains visible as an independent
-card on a connected canvas, with compact settings beside it. Multiple event cards
-have an OR/AND selector directly between them, and the chosen relationship is
-persisted and enforced by the automation engine. Existing rules continue to use
-OR unless explicitly changed.
+Version 0.13.100 makes AppSheet-style flow stages responsive to their block count.
+Stages with more than two cards automatically use compact cards so the complete
+group fits the canvas more comfortably. OR/AND selectors now reserve enough width
+to show the full selected relationship without clipping.
 
 The application source and post-split build history are maintained in the private
 core repository. Public Home Assistant repositories contain only the five-file

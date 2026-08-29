@@ -1,9 +1,9 @@
 {
-  "version": "0.13.99",
+  "version": "0.13.100",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/ZBRANO_Core main",
-  "summary": "Rebuild Automation Studio as an AppSheet-style staged canvas with independent workflow cards and persisted OR/AND event relationships.",
+  "summary": "Compact Automation Studio stages with more than two cards and keep selected OR/AND relationship values fully visible.",
   "history_backfill": [
     {
       "version": "0.13.0",
@@ -400,22 +400,28 @@
     {
       "version": "0.13.98",
       "summary": "Added a build-gated end-to-end Automation Studio workflow lifecycle covering persistence, dry-run, activation, reload, and event evaluation."
+    },
+    {
+      "version": "0.13.99",
+      "summary": "Rebuilt Automation Studio as an AppSheet-style staged canvas with independent workflow cards and persisted OR/AND event relationships."
     }
   ],
   "release_entry": {
     "features": [
-      "Present separate event, condition, process-path, and task cards on an AppSheet-style connected Automation Studio canvas.",
-      "Place a persisted OR/AND selector directly between multiple event cards."
+      "Automatically switch stages with more than two cards to a compact visual layout.",
+      "Keep the complete OR or AND selection visible on relationship connectors."
     ],
     "fixes": [
-      "Stop collapsing additional workflow blocks into labels inside four summary cards.",
-      "Enforce AND event relationships during safe dry-runs and live event evaluation while preserving OR for existing rules."
+      "Reduce unnecessary wrapping and overflow in larger same-category flow groups.",
+      "Prevent the compact relationship selector from clipping its selected value."
     ],
     "validation": [
-      "Independent block rendering, canvas relationship selection, AND persistence and evaluation, browser smoke, integration lifecycle, regression suite, release manifest, README alignment, and v0.13.99 release coverage"
+      "Three-card dense-stage rendering, full OR/AND option visibility, browser smoke, regression suite, release manifest, README alignment, and v0.13.100 release coverage"
     ]
   },
   "features": [
+    "Compact Automation Studio stages automatically when they contain more than two cards.",
+    "Keep OR and AND relationship selections fully visible in the canvas connector.",
     "Render Automation Studio as an AppSheet-style staged event and process canvas.",
     "Persist and enforce selectable OR/AND relationships between independently visible event cards.",
     "Build-gate the complete Automation Studio workflow lifecycle from draft persistence through safe event evaluation.",

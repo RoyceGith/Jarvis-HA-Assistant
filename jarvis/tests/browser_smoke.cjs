@@ -114,7 +114,7 @@ function apiFixture(url, method = "GET") {
   if (pathname === "/api/health") {
     return {
       status: "ok",
-      version: "0.13.99",
+      version: "0.13.100",
       speech_provider: "openai",
       speech_providers: {openai: {configured: true}, elevenlabs: {configured: false}},
     };
@@ -161,7 +161,7 @@ function apiFixture(url, method = "GET") {
   if (pathname === "/api/plugins") return {plugins: []};
   if (pathname === "/api/files/shared") return {files: [], count: 0};
   if (pathname === "/api/release-memory-sync") {
-    return {enabled: false, state: "disabled", version: "0.13.99", task_active: false};
+    return {enabled: false, state: "disabled", version: "0.13.100", task_active: false};
   }
   if (pathname === "/api/tab-activity") return {revisions: {}};
   if (pathname === "/api/grinder-monitor/status") return {enabled: false, connected: false};
@@ -345,6 +345,10 @@ async function main() {
     assert.equal(await page.locator('#automation-flow-preview [data-flow-kind="trigger"]').count(), 2);
     assert.equal(await page.locator('#automation-flow-preview [data-trigger-logic]').count(), 1);
     assert.match(await page.locator('#automation-flow-preview [data-flow-kind="trigger"]').last().innerText(), /Choose a trigger entity/i);
+    await dropStudioBlock("trigger");
+    assert.equal(await page.locator('#automation-flow-preview [data-flow-kind="trigger"]').count(), 3);
+    assert.equal(await page.locator('#automation-flow-preview .automation-flow-stage.is-trigger.is-dense').count(), 1);
+    assert.deepEqual(await page.locator('#automation-flow-preview [data-trigger-logic]').first().locator("option").allTextContents(), ["OR", "AND"]);
     await dropStudioBlock("context");
     assert.equal(await page.locator('#automation-flow-preview [data-flow-kind="context"]').count(), 1);
     await dropStudioBlock("decision");

@@ -1,4 +1,4 @@
-# ZBRANO v0.13.99
+# ZBRANO v0.13.100
 
 Automation Studio provides a graphical building-block workflow for Home Assistant
 automations. Use the toolbox to select or drag Trigger, Context, Decision, and
@@ -6,11 +6,10 @@ Action blocks onto the canvas, then edit only that block in the settings inspect
 Natural-language creation, templates, saved automation compatibility, and the full
 Advanced editor remain available.
 
-Version 0.13.99 presents Automation Studio as an AppSheet-style event and process
-canvas. Each event, condition, branch, and task is a separate connected card while
-its configuration remains in the compact inspector. Multiple event cards expose
-an OR/AND selector on their connector; the relationship is saved, dry-run, and
-enforced at runtime. Existing stored rules remain OR-compatible by default.
+Version 0.13.100 automatically compacts any Automation Studio stage containing
+more than two cards, keeping larger event, condition, branch, and task groups
+visible in the flow window. The OR/AND relationship selector is widened so its
+selected value remains fully readable.
 
 The visual editor supports linear and branching workflows without silently changing
 the behavior of existing stored rules.

@@ -19,7 +19,7 @@
     for(const [value,label] of [["any","OR"],["all","AND"]]){const option=document.createElement("option");option.value=value;option.textContent=label;option.selected=normalized===value;select.append(option)}element.append(select);return element;
   }
   function stage(kind,title,nodes,joinMode="",interactive=false){
-    const section=document.createElement("section");section.className=`automation-flow-stage is-${kind}`;
+    const section=document.createElement("section");section.className=`automation-flow-stage is-${kind}${nodes.length>2?" is-dense":""}`;section.dataset.flowCount=String(nodes.length);
     const heading=document.createElement("div");heading.className="automation-flow-stage-heading";heading.textContent=title;
     const row=document.createElement("div");row.className="automation-flow-node-row";
     nodes.forEach((item,index)=>{if(index)row.append(logicConnector(joinMode,interactive,kind==="trigger"?"trigger":"condition"));row.append(item)});section.append(heading,row);return section;

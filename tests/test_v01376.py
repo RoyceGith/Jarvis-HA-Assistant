@@ -25,10 +25,10 @@ def load_function(name):
 
 class AutomationFailureCircuitReleaseTests(unittest.TestCase):
     def test_release_markers_are_aligned(self):
-        self.assertIn('version: "0.13.99"', CONFIG)
-        self.assertIn('version="0.13.99"', MAIN)
-        self.assertIn("HUD 0.13.99", HTML)
-        self.assertEqual(MANIFEST["version"], "0.13.99")
+        self.assertIn('version: "0.13.100"', CONFIG)
+        self.assertIn('version="0.13.100"', MAIN)
+        self.assertIn("HUD 0.13.100", HTML)
+        self.assertEqual(MANIFEST["version"], "0.13.100")
 
     def test_failure_circuit_opens_within_configured_window(self):
         circuit = load_function("_automation_failure_circuit")
@@ -76,7 +76,7 @@ class AutomationFailureCircuitReleaseTests(unittest.TestCase):
         self.assertNotIn('feedback.pop("history"', route)
 
     def test_release_history_includes_v01375(self):
-        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.98")
+        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.99")
 
 
 if __name__ == "__main__":

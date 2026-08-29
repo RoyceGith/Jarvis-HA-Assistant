@@ -83,6 +83,12 @@
 .automation-flow-node-row .automation-flow-node { width: clamp(175px,20vw,250px); flex: 0 0 auto; }
 .automation-studio-canvas .automation-flow-node-row { flex-wrap: wrap; }
 .automation-studio-canvas .automation-flow-node-row .automation-flow-node { width: clamp(190px,23vw,270px); }
+.automation-studio-canvas .automation-flow-stage.is-dense .automation-flow-node-row { flex-wrap: nowrap; gap: .3rem; }
+.automation-studio-canvas .automation-flow-stage.is-dense .automation-flow-node { width: clamp(118px,14vw,160px); padding: .56rem .58rem; }
+.automation-studio-canvas .automation-flow-stage.is-dense .automation-flow-node strong { font-size: .78rem; }
+.automation-studio-canvas .automation-flow-stage.is-dense .automation-flow-node small { font-size: .64rem; }
+.automation-studio-canvas .automation-flow-stage.is-dense .automation-flow-kicker { font-size: .58rem; }
+.automation-studio-canvas .automation-flow-stage.is-dense .automation-flow-logic { min-width: 42px; }
 .automation-flow-node { position: relative; z-index: 1; min-width: 0; padding: .72rem .75rem; border: 1px solid color-mix(in srgb,var(--line) 78%,transparent); border-radius: 12px; background: color-mix(in srgb,var(--surface-strong) 90%,transparent); box-shadow: inset 3px 0 color-mix(in srgb,var(--cyan) 55%,transparent),0 8px 24px rgba(0,0,0,.12); cursor: pointer; transition: border-color .16s ease,transform .16s ease,box-shadow .16s ease; }
 .automation-flow-node:hover,.automation-flow-node:focus-visible,.automation-flow-node.is-selected { border-color: var(--cyan); transform: translateY(-1px); box-shadow: inset 3px 0 var(--cyan),0 0 0 2px color-mix(in srgb,var(--cyan) 18%,transparent),0 10px 28px rgba(0,0,0,.16); outline: none; }
 .automation-flow-node.has-validation-error { border-color: #f0b35b; box-shadow: inset 3px 0 #f0b35b,0 0 0 2px color-mix(in srgb,#f0b35b 16%,transparent),0 8px 24px rgba(0,0,0,.12); }
@@ -100,7 +106,7 @@
 .automation-flow-logic::before,.automation-flow-logic::after { content: ""; position: absolute; top: 50%; width: .45rem; height: 1px; background: color-mix(in srgb,var(--cyan) 58%,var(--line)); }
 .automation-flow-logic::before { right: 100%; }
 .automation-flow-logic::after { left: 100%; }
-.automation-flow-logic-select { width: 58px; min-width: 58px; padding: .35rem 1.25rem .35rem .5rem; border-color: color-mix(in srgb,var(--cyan) 58%,var(--line)); border-radius: 999px; background-color: var(--surface-strong); color: var(--cyan); font-size: .68rem; font-weight: 750; cursor: pointer; }
+.automation-flow-logic-select { width: 72px; min-width: 72px; padding: .35rem 1.35rem .35rem .6rem; border-color: color-mix(in srgb,var(--cyan) 58%,var(--line)); border-radius: 999px; background-color: var(--surface-strong); color: var(--cyan); font-size: .68rem; font-weight: 750; cursor: pointer; }
 .autonomy-draft > .automation-flow { margin-top: .35rem; }
 @media (max-width:1050px) {
   .automation-studio-layout { grid-template-columns: 150px minmax(330px,1fr); }
@@ -122,6 +128,8 @@
   .automation-flow-stage { min-width: 0; }
   .automation-flow-node-row { display: grid; width: 100%; }
   .automation-flow-node-row .automation-flow-node,.automation-studio-canvas .automation-flow-node-row .automation-flow-node { width: 100%; }
+  .automation-studio-canvas .automation-flow-stage.is-dense .automation-flow-node-row { display: grid; width: 100%; }
+  .automation-studio-canvas .automation-flow-stage.is-dense .automation-flow-node { width: 100%; }
   .automation-flow-logic { justify-self: center; min-height: 34px; }
   .automation-flow-logic::before,.automation-flow-logic::after { left: 50%; right: auto; width: 1px; height: .45rem; }
   .automation-flow-logic::before { top: auto; bottom: 100%; }
