@@ -1,5 +1,11 @@
 # Change log
 
+## 0.13.91
+
+- Added build-gated restore and upgrade coverage for pre-Studio simple automations.
+- Verified legacy rule identity, creation time, trigger semantics, and suggestion wording remain intact.
+- Verified current workflow collections are added safely when an older rule is edited and saved.
+
 ## 0.13.90
 
 - Added confirmed Pause controls that stop live automation evaluation immediately.
