@@ -1,5 +1,11 @@
 # Change log
 
+## 0.13.93
+
+- Hid the owner-specific Grinder HUD when its Home Assistant option is disabled.
+- Removed disabled Grinder chat routing and AI tools from normal product behavior.
+- Guarded owner-only incident APIs while preserving explicitly enabled owner installations.
+
 ## 0.13.92
 
 - Added a build-gated complete backup export and restore round trip.
