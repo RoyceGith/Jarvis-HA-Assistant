@@ -1,9 +1,9 @@
 {
-  "version": "0.13.83",
+  "version": "0.13.84",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/ZBRANO_Core main",
-  "summary": "Add live Automation Studio draft validation with canvas issue markers, direct inspector navigation, and guarded Test and Save actions.",
+  "summary": "Add explicit Automation Studio dirty state and protect unsaved flows from accidental replacement by New, templates, editing, or cancel actions.",
   "history_backfill": [
     {
       "version": "0.13.0",
@@ -336,22 +336,28 @@
     {
       "version": "0.13.82",
       "summary": "Recovered bounded unsaved Automation Studio drafts locally after accidental refreshes without changing saved automation authority."
+    },
+    {
+      "version": "0.13.83",
+      "summary": "Added live visual draft validation, clickable issue navigation, canvas markers, and guarded Test and Save actions."
     }
   ],
   "release_entry": {
     "features": [
-      "Validate Automation Studio details, triggers, conditions, actions, branches, and service-data JSON continuously while editing.",
-      "Show issue chips and amber canvas markers that open the correct block inspector and focus the relevant field."
+      "Show an explicit Unsaved changes badge whenever the open Automation Studio flow differs from its clean baseline.",
+      "Track template, recovered, field, workflow-step, and branch changes through the same dirty-state contract."
     ],
     "fixes": [
-      "Prevent Test Flow and Save Draft from sending structurally incomplete visual workflows.",
-      "Keep suggestion-only flows valid while detecting partially configured Home Assistant actions."
+      "Confirm before New Flow, template loading, opening another automation, or Cancel replaces unsaved work.",
+      "Preserve the current flow unchanged when the replacement confirmation is dismissed."
     ],
     "validation": [
-      "Browser-level issue discovery, inspector navigation, field completion, issue clearance, guarded actions, recovery compatibility, README alignment, and v0.13.83 release coverage"
+      "Browser-level template dirty state, recovered dirty state, replacement confirmation and cancellation preservation, history compatibility, README alignment, and v0.13.84 release coverage"
     ]
   },
   "features": [
+    "Expose Automation Studio unsaved state clearly and protect it from accidental replacement.",
+    "Confirm destructive editor transitions while leaving ordinary navigation and saved automations unchanged.",
     "Validate visual automation drafts continuously and identify incomplete blocks directly on the canvas.",
     "Navigate from each validation issue to the relevant Automation Studio inspector field.",
     "Recover bounded unsaved Automation Studio drafts locally after accidental refreshes.",

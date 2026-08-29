@@ -93,7 +93,7 @@ function apiFixture(url) {
   if (pathname === "/api/health") {
     return {
       status: "ok",
-      version: "0.13.83",
+      version: "0.13.84",
       speech_provider: "openai",
       speech_providers: {openai: {configured: true}, elevenlabs: {configured: false}},
     };
@@ -132,7 +132,7 @@ function apiFixture(url) {
   if (pathname === "/api/plugins") return {plugins: []};
   if (pathname === "/api/files/shared") return {files: [], count: 0};
   if (pathname === "/api/release-memory-sync") {
-    return {enabled: false, state: "disabled", version: "0.13.83", task_active: false};
+    return {enabled: false, state: "disabled", version: "0.13.84", task_active: false};
   }
   if (pathname === "/api/tab-activity") return {revisions: {}};
   if (pathname === "/api/grinder-monitor/status") return {enabled: false, connected: false};
@@ -256,6 +256,7 @@ async function main() {
     await page.locator("#automation-entity-options option").nth(47).waitFor({state: "attached"});
     await page.locator('[data-auto-template="comfort"]').click();
     assert.equal(await page.locator("#automation-name").inputValue(), "Comfort advisor");
+    assert.equal(await page.locator("#automation-studio-dirty").isVisible(), true);
     const templateSignals = await page.locator("#automation-signals").inputValue();
     assert.match(templateSignals, /sensor\.browser_fixture_/);
     assert.doesNotMatch(templateSignals, /workshop_/);
@@ -289,6 +290,10 @@ async function main() {
     await page.locator('[data-auto-view="studio"]').click();
     assert.equal(await page.locator("#automation-trigger-value").inputValue(), "27");
     assert.match(await page.locator("#automation-studio-state").innerText(), /Recovered unsaved flow/i);
+    assert.equal(await page.locator("#automation-studio-dirty").isVisible(), true);
+    const replacementDialog=page.waitForEvent("dialog"),newFlowClick=page.locator("#automation-studio-new").click();
+    const dialog=await replacementDialog;assert.match(dialog.message(),/Discard unsaved automation changes/i);await dialog.dismiss();await newFlowClick;
+    assert.equal(await page.locator("#automation-trigger-value").inputValue(), "27");
     await page.locator('[data-studio-node="trigger"]').click();
     await page.locator('[data-workflow-add="triggers"]').click();
     await page.locator('[data-workflow-index="0"][data-trigger-field="kind"]').selectOption("time");
@@ -350,7 +355,7 @@ async function main() {
     assert.equal(voiceScroll.scrollable, true, "Voice settings must exceed and scroll within the panel at compact viewport heights");
     assert.equal(voiceScroll.moved, true, "Voice settings panel must accept vertical scrolling");
 
-    console.log("Browser smoke passed: New Chat, navigation, Entity scrolling, modern Settings, Studio validation and recovery, branching workflows, and installation-derived templates");
+    console.log("Browser smoke passed: New Chat, navigation, Entity scrolling, modern Settings, Studio dirty-state safety, validation, recovery, and branching workflows");
   } finally {
     await browser.close();
     await new Promise(resolve => server.close(resolve));

@@ -1,14 +1,14 @@
-## ZBRANO v0.13.83
+## ZBRANO v0.13.84
 
 ZBRANO combines Home Assistant chat, voice, entity control, memory, notifications,
 calendar tools, plugins, and evidence-based automations. Automation Studio now uses
 a visual building-block toolbox, interactive node canvas, and contextual inspector;
 the established automation engine and stored definitions remain compatible.
 
-Version 0.13.83 validates visual automation drafts continuously. Incomplete blocks
-receive canvas markers and clickable issue chips that open the correct inspector.
-Test and Save remain unavailable to incomplete structures, while valid
-suggestion-only flows and existing stored automations remain compatible.
+Version 0.13.84 shows an explicit Unsaved changes state in Automation Studio and
+protects the current flow before New Flow, template loading, editing another rule,
+or Cancel replaces it. Dismissing the confirmation leaves every draft field and
+workflow step unchanged; saved automations and normal tab navigation are unaffected.
 
 The application source and post-split build history are maintained in the private
 core repository. Public Home Assistant repositories contain only the five-file

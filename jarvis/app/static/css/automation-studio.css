@@ -9,7 +9,9 @@
 #automations-panel.studio-active .automation-studio-layout { min-height: calc(100dvh - 285px); }
 .automation-studio-toolbar { padding: .9rem 1rem; border-bottom: 1px solid var(--line); }
 .automation-studio-toolbar-actions { display: grid; justify-items: end; gap: .3rem; }
-.automation-studio-toolbar-actions > span { color: var(--text-muted); font-size: .72rem; }
+.automation-studio-status { display: flex; flex-wrap: wrap; justify-content: flex-end; align-items: center; gap: .4rem; color: var(--text-muted); font-size: .72rem; }
+.automation-studio-dirty { padding: .2rem .42rem; border: 1px solid color-mix(in srgb,#f0b35b 55%,var(--line)); border-radius: 999px; color: #f0b35b; background: color-mix(in srgb,#f0b35b 9%,transparent); font-weight: 650; }
+.automation-studio-dirty[hidden] { display: none; }
 .automation-studio-history-controls { display: inline-flex; align-items: center; gap: .2rem; padding-right: .35rem; border-right: 1px solid var(--line); }
 .automation-studio-history-controls button { min-width: 2rem; padding: .38rem .5rem; font-size: 1rem; line-height: 1; }
 .automation-studio-history-controls button:disabled { opacity: .38; cursor: default; }

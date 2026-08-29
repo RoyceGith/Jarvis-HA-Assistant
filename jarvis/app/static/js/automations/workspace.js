@@ -56,6 +56,10 @@
     $("automation-studio-undo").disabled=editorHistoryIndex<=0;
     $("automation-studio-redo").disabled=editorHistoryIndex<0||editorHistoryIndex>=editorHistory.length-1;
   }
+  function editorHasUnsavedChanges(){return Boolean(editorHistoryBaseline)&&JSON.stringify(editorHistoryState())!==editorHistoryBaseline}
+  function updateEditorDirtyState(){$("automation-studio-dirty").hidden=!editorHasUnsavedChanges()}
+  function confirmEditorReplacement(action){commitEditorHistory();return !editorHasUnsavedChanges()||confirm(`Discard unsaved automation changes and ${action}?`)}
+  function markEditorAsUnsaved(){editorHistoryBaseline="__unsaved__";const current=editorHistoryState();persistLocalEditorDraft(current);updateEditorDirtyState()}
   function removeLocalEditorDraft(){try{localStorage.removeItem(localDraftKey)}catch(_error){}}
   function persistLocalEditorDraft(state,serialized=JSON.stringify(state)){
     if(serialized===editorHistoryBaseline){removeLocalEditorDraft();return}
@@ -83,18 +87,18 @@
     if(current&&JSON.stringify(current)===serialized)return;
     editorHistory=editorHistory.slice(0,editorHistoryIndex+1);editorHistory.push(next);
     if(editorHistory.length>50)editorHistory.shift();
-    editorHistoryIndex=editorHistory.length-1;updateEditorHistoryControls();persistLocalEditorDraft(next,serialized);
+    editorHistoryIndex=editorHistory.length-1;updateEditorHistoryControls();persistLocalEditorDraft(next,serialized);updateEditorDirtyState();
   }
   function scheduleEditorHistory(){
     if(restoringEditorHistory)return;
     clearTimeout(editorHistoryTimer);editorHistoryTimer=setTimeout(commitEditorHistory,220);
   }
-  function resetEditorHistory(){clearTimeout(editorHistoryTimer);editorHistoryTimer=0;editorHistory=[];editorHistoryIndex=-1;commitEditorHistory();editorHistoryBaseline=JSON.stringify(editorHistory[0]);removeLocalEditorDraft()}
+  function resetEditorHistory(){clearTimeout(editorHistoryTimer);editorHistoryTimer=0;editorHistory=[];editorHistoryIndex=-1;commitEditorHistory();editorHistoryBaseline=JSON.stringify(editorHistory[0]);removeLocalEditorDraft();updateEditorDirtyState()}
   function restoreEditorHistory(index){
     if(index<0||index>=editorHistory.length||index===editorHistoryIndex)return;
     clearTimeout(editorHistoryTimer);editorHistoryTimer=0;restoringEditorHistory=true;
     const snapshot=editorHistory[index];applyEditorHistoryState(snapshot);editorHistoryIndex=index;
-    restoringEditorHistory=false;updateEditorHistoryControls();persistLocalEditorDraft(snapshot);
+    restoringEditorHistory=false;updateEditorHistoryControls();persistLocalEditorDraft(snapshot);updateEditorDirtyState();
     $("automation-studio-state").textContent=index<editorHistory.length-1?"Edit undone.":"Edit restored.";
   }
   function undoEditor(){commitEditorHistory();restoreEditorHistory(editorHistoryIndex-1)}
@@ -331,6 +335,7 @@
     $("automation-studio-flow-name").textContent=snapshot.name;
     for(const button of panel.querySelectorAll("[data-studio-node]"))button.classList.toggle("active",button.dataset.studioNode===selectedStudioNode);
     renderEditorValidation();
+    updateEditorDirtyState();
   }
 
   function clearEditor(){
@@ -381,7 +386,7 @@
       air:{name:"Air quality advisor",objective:"Notice sustained worsening air quality while occupied and suggest ventilation",presence_entity:presence,signal_entities:airSignals,context_notes:"Review the installation-derived candidates. Use sustained readings and trends rather than one sample, and consider active extraction and outdoor air quality.",proposal_template:"Air quality is getting worse. Would you like me to start ventilation?",action_entity:ventilation,action_service:ventilation?"fan.turn_on":"",cooldown_minutes:20,confidence_threshold:0.82,risk_level:"controlled",execution_policy:"approval_required",notify_on_action:true,reversible_only:true,max_actions_per_hour:2},
       security:{name:"Departure safety check",objective:"Notice sustained absence while an opening remains active",presence_entity:presence,signal_entities:openings,context_notes:"Review the installation-derived candidates. Require sustained absence and do not infer that arbitrary equipment should be switched off.",proposal_template:"It looks like the area is empty, but an opening may have been left active. Would you like a safety check?",action_entity:"",action_service:"",cooldown_minutes:30,confidence_threshold:0.9,risk_level:"high",execution_policy:"suggest",notify_on_action:true,reversible_only:true,max_actions_per_hour:1},
       lighting:{name:"Presence lighting",objective:"Suggest lighting when presence is confirmed and available light is low",presence_entity:presence,signal_entities:[...new Set([illuminance,light].filter(Boolean))],context_notes:"Review the installation-derived candidates. Require stable presence and low illuminance. Do nothing when daylight is sufficient or lighting is already on.",proposal_template:"Presence and low light were confirmed. Would you like me to turn on the light?",action_entity:light,action_service:light?"light.turn_on":"",cooldown_minutes:10,confidence_threshold:0.9,risk_level:"low",execution_policy:"approval_required",notify_on_action:true,reversible_only:true,max_actions_per_hour:4}
-    };fillEditor(templates[name])
+    };fillEditor(templates[name]);markEditorAsUnsaved()
   }
 
   panel.querySelector(".autonomy-tabs")?.addEventListener("click",event=>{const button=event.target.closest("[data-auto-view]");if(button)showView(button.dataset.autoView)});
@@ -390,12 +395,12 @@
   panel.addEventListener("click",async event=>{
     const validationIssue=event.target.closest("[data-validation-kind]");if(validationIssue){focusEditorIssue({kind:validationIssue.dataset.validationKind,field:validationIssue.dataset.validationField});return}
     const studioBlock=event.target.closest(".automation-studio-preview [data-studio-node],.automation-studio-preview [data-flow-kind]");if(studioBlock){selectStudioNode(studioBlock.dataset.studioNode||studioBlock.dataset.flowKind);return}
-    const templateButton=event.target.closest("[data-auto-template]");if(templateButton){template(templateButton.dataset.autoTemplate);return}
+    const templateButton=event.target.closest("[data-auto-template]");if(templateButton){if(confirmEditorReplacement("load this template"))template(templateButton.dataset.autoTemplate);return}
     const notificationWatch=event.target.closest("[data-auto-watch]");if(notificationWatch){showView("notifications");window.zbranoNotificationCenter?.showView("watchlist");window.zbranoNotificationCenter?.load();return}
     const approve=event.target.closest("[data-suggestion-approve]");if(approve){approve.disabled=true;try{await api(`api/automations/suggestions/${encodeURIComponent(approve.dataset.suggestionApprove)}/approve`,{method:"POST"});await loadWorkspace()}catch(error){alert(`Action failed: ${error.message||error}`);approve.disabled=false}return}
     const dismiss=event.target.closest("[data-suggestion-dismiss]");if(dismiss){dismiss.disabled=true;try{await api(`api/automations/suggestions/${encodeURIComponent(dismiss.dataset.suggestionDismiss)}/dismiss`,{method:"POST"});await loadWorkspace()}catch(error){alert(`Dismiss failed: ${error.message||error}`);dismiss.disabled=false}return}
     const discoveryFeedback=event.target.closest("[data-discovery-feedback]");if(discoveryFeedback){discoveryFeedback.disabled=true;try{await api(`api/automations/discoveries/${encodeURIComponent(discoveryFeedback.dataset.discoveryId)}/feedback`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({feedback:discoveryFeedback.dataset.discoveryFeedback})});await loadWorkspace()}catch(error){alert(`Learning feedback failed: ${error.message||error}`);discoveryFeedback.disabled=false}return}
-    const edit=event.target.closest("[data-auto-edit]");if(edit){const item=state.automations.find(value=>value.id===edit.dataset.autoEdit);if(item)fillEditor(item);return}
+    const edit=event.target.closest("[data-auto-edit]");if(edit){const item=state.automations.find(value=>value.id===edit.dataset.autoEdit);if(item&&confirmEditorReplacement("open another automation"))fillEditor(item);return}
     const activateDraft=event.target.closest("[data-auto-activate]");if(activateDraft){const item=state.automations.find(value=>value.id===activateDraft.dataset.autoActivate),trigger=`${item?.trigger_entity||""} ${(item?.trigger_operator||"").replaceAll("_"," ")} ${item?.trigger_value||""}`.trim(),action=item?.branches?.length?`${item.branches.length} first-match branches`:item?.action_service&&item?.action_entity?`${item.action_service} → ${item.action_entity}`:"no device action";if(!item||!confirm(`Enable ${item.name}?\n\nWhen: ${trigger}\nAction: ${action}\nAuthority: ${authorityLabel(item.execution_policy)}\nCooldown: ${item.cooldown_minutes} minutes\n\nLive evaluation begins immediately.`))return;activateDraft.disabled=true;try{await api(`api/automations/${encodeURIComponent(item.id)}/activate`,{method:"POST"});await loadWorkspace()}catch(error){alert(`Activation failed: ${error.message||error}`);activateDraft.disabled=false}return}
     const forgetMemory=event.target.closest("[data-automation-memory-forget]");if(forgetMemory){if(!confirm("Forget this automation entity mapping? Existing rules will not be changed."))return;await api(`api/automations/entity-memory/${encodeURIComponent(forgetMemory.dataset.automationMemoryForget)}`,{method:"DELETE"});await loadWorkspace();return}
     const resetLearning=event.target.closest("[data-auto-reset-learning]");if(resetLearning){if(!confirm("Reset learned feedback for this automation? Its configured rule and episode history will remain."))return;resetLearning.disabled=true;try{await api(`api/automations/${encodeURIComponent(resetLearning.dataset.autoResetLearning)}/feedback`,{method:"DELETE"});await loadWorkspace()}catch(error){alert(`Learning reset failed: ${error.message||error}`);resetLearning.disabled=false}return}
@@ -426,12 +431,12 @@
     let body;try{body=automationRequestBody()}catch(error){status.textContent=`Action data must be valid JSON: ${error.message||error}`;studioStatus.textContent=status.textContent;return}
     try{await api(id?`api/automations/${encodeURIComponent(id)}`:"api/automations",{method:id?"PUT":"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)});clearEditor();studioStatus.textContent="Draft saved.";await loadWorkspace();showLibraryView("saved")}catch(error){status.textContent=`Save failed: ${error.message||error}`;studioStatus.textContent=status.textContent}
   });
-  $("automation-cancel-edit").addEventListener("click",clearEditor);
+  $("automation-cancel-edit").addEventListener("click",()=>{if(confirmEditorReplacement("cancel editing"))clearEditor()});
   $("automation-draft-form").addEventListener("input",()=>{renderEditorFlow();scheduleEditorHistory()});
   $("automation-draft-form").addEventListener("change",()=>{renderEditorFlow();scheduleEditorHistory()});
   $("automation-studio-undo").addEventListener("click",undoEditor);
   $("automation-studio-redo").addEventListener("click",redoEditor);
-  $("automation-studio-new").addEventListener("click",()=>{$("automation-studio-state").textContent="";clearEditor()});
+  $("automation-studio-new").addEventListener("click",()=>{if(!confirmEditorReplacement("start a new flow"))return;$("automation-studio-state").textContent="";clearEditor()});
   $("automation-studio-test").addEventListener("click",async()=>{const status=$("automation-studio-state"),results=$("automation-studio-test-results"),issues=renderEditorValidation();if(issues.length){focusEditorIssue(issues[0]);status.textContent=`Review ${issues.length} incomplete item${issues.length===1?"":"s"} before testing.`;return}status.textContent="Testing safely…";try{const result=await api("api/automations/test-flow",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(automationRequestBody())});renderTestTrace(result);status.textContent=`Dry run: ${String(result.status||"complete").replaceAll("_"," ")} · 0 actions executed`}catch(error){results.hidden=true;status.textContent=`Test failed: ${error.message||error}`}});
   $("automation-studio-save").addEventListener("click",()=>{const issues=renderEditorValidation();if(issues.length){focusEditorIssue(issues[0]);$("automation-draft-state").textContent=`Review ${issues.length} incomplete item${issues.length===1?"":"s"} before saving.`;$("automation-studio-state").textContent=$("automation-draft-state").textContent;return}$("automation-draft-form").requestSubmit()});
   $("automation-studio-advanced").addEventListener("click",()=>{const advanced=document.querySelector(".automation-advanced");advanced?.setAttribute("open","");advanced?.scrollIntoView({behavior:"smooth",block:"start"})});
