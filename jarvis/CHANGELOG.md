@@ -1,5 +1,11 @@
 # Change log
 
+## 0.13.98
+
+- Added build-gated end-to-end Automation Studio workflow lifecycle coverage.
+- Verified persistence, safe dry-run, activation, reload, event evaluation, and suggestion output together.
+- Confirmed the lifecycle test never executes its proposed Home Assistant action.
+
 ## 0.13.97
 
 - Removed an asynchronous browser-test timing race on slower ARM image builders.

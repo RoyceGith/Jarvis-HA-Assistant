@@ -6,9 +6,9 @@ connections.
 
 ## Automation Studio
 
-Version 0.13.97 preserves the full-window visual automation builder and repairs its
-slower ARM image validation. It includes functional
-drag-and-drop Trigger, Context, Decision, and Action blocks. Dropped blocks are added
+Version 0.13.98 build-gates a complete visual workflow lifecycle through creation,
+persistence, safe dry-run, activation, reload, and event evaluation. It includes
+functional drag-and-drop Trigger, Context, Decision, and Action blocks. Dropped blocks are added
 to the draft, rendered immediately, and opened for configuration. The full
 Advanced editor remains available, existing stored automations are preserved, and
 repeatable OR triggers, grouped conditions, ordered actions, and IF/ELSE branches
