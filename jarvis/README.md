@@ -1,4 +1,4 @@
-# ZBRANO v0.13.92
+# ZBRANO v0.13.93
 
 Automation Studio provides a graphical building-block workflow for Home Assistant
 automations. Use the toolbox to select or drag Trigger, Context, Decision, and
@@ -6,10 +6,10 @@ Action blocks onto the canvas, then edit only that block in the settings inspect
 Natural-language creation, templates, saved automation compatibility, and the full
 Advanced editor remain available.
 
-Version 0.13.92 verifies a complete backup round trip across Settings, conversations,
-entity policy, automations, notifications, calendar, and Fast Memory. The integration
-gate replaces the test state before restoring it and isolates SQLite memory inside
-temporary storage.
+Version 0.13.93 hides the owner-specific Grinder extension whenever its existing
+Home Assistant option is disabled. Disabled installations receive no Grinder HUD,
+chat routing, AI tools, or incident data; explicitly enabled owner installations
+retain the established diagnostic workflow.
 
 The visual editor supports linear and branching workflows without silently changing
 the behavior of existing stored rules.

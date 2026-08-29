@@ -236,6 +236,10 @@ GRINDER_MONITOR_TOOLS: list[dict[str, Any]] = [
     {"type": "function", "name": "get_grinder_incident", "description": "Read one grinder incident and its bounded pre-failure telemetry window.", "parameters": {"type": "object", "properties": {"incident_id": {"type": "string"}}, "required": ["incident_id"], "additionalProperties": False}, "strict": True},
 ]
 
+def active_grinder_monitor_tools() -> list[dict[str, Any]]:
+    """Expose the owner extension to the agent only when explicitly enabled."""
+    return list(GRINDER_MONITOR_TOOLS) if GRINDER_MONITOR_ENABLED else []
+
 
 def start_grinder_monitor() -> bool:
     global GRINDER_MONITOR_TASK

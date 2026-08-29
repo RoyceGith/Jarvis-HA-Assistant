@@ -1,14 +1,14 @@
-## ZBRANO v0.13.92
+## ZBRANO v0.13.93
 
 ZBRANO combines Home Assistant chat, voice, entity control, memory, notifications,
 calendar tools, plugins, and evidence-based automations. Automation Studio now uses
 a visual building-block toolbox, interactive node canvas, and contextual inspector;
 the established automation engine and stored definitions remain compatible.
 
-Version 0.13.92 adds a build-gated complete backup round trip. The real application
-exports, replaces, restores, and verifies Settings, chats, entity permissions,
-automations, notifications, calendar data, and Fast Memory together, while secrets
-and plugin credentials remain outside the backup.
+Version 0.13.93 isolates the owner-specific Grinder extension from normal product
+behavior. Its HUD, chat intent, AI tools, and incident data stay hidden and inactive
+unless `grinder_monitor_enabled` is explicitly true; existing enabled owner
+configurations continue to work unchanged.
 
 The application source and post-split build history are maintained in the private
 core repository. Public Home Assistant repositories contain only the five-file

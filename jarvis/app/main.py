@@ -107,7 +107,7 @@ from .domains.workshop_memory import (
     workshop_memory_tool_permission,
 )
 from .domains.grinder import (
-    GRINDER_MONITOR_TOOLS,
+    active_grinder_monitor_tools,
     get_grinder_incident,
     grinder_monitor_status,
     list_grinder_incidents,
@@ -678,7 +678,7 @@ ha_ws = HomeAssistantWebSocketClient(
 
 app = FastAPI(
     title="ZBRANO",
-    version="0.13.92",
+    version="0.13.93",
     docs_url="/api/docs",
     openapi_url="/api/openapi.json",
 )
@@ -1437,7 +1437,7 @@ async def execute_tool_calls(
     allowed_function_tools = (
         developer_runtime_tools()
         if developer_mode_enabled()
-        else WORKSHOP_TOOLS + GRINDER_MONITOR_TOOLS + workshop_memory_function_tools() + gmail_direct_function_tools()
+        else WORKSHOP_TOOLS + active_grinder_monitor_tools() + workshop_memory_function_tools() + gmail_direct_function_tools()
     )
     allowed_names = {tool["name"] for tool in allowed_function_tools}
     if developer_mode_enabled():
@@ -2657,7 +2657,7 @@ async def health() -> dict[str, Any]:
     configured_speech_provider = SPEECH_PROVIDER if SPEECH_PROVIDER in {"openai", "elevenlabs"} else "openai"
     return {
         "status": "ok",
-        "version": "0.13.92",
+        "version": "0.13.93",
         "home_assistant_configured": bool(SUPERVISOR_TOKEN),
         "workshop_memory_configured": bool(WORKSHOP_MEMORY_URL),
         "workshop_memory_cost_guard": workshop_cost_guard_status(),
@@ -2766,11 +2766,15 @@ async def get_grinder_monitor_status() -> dict[str, Any]:
 
 @app.get("/api/grinder-monitor/incidents")
 async def get_grinder_monitor_incidents(limit: int = 20) -> dict[str, Any]:
+    if not grinder_monitor_status().get("enabled"):
+        raise HTTPException(status_code=404, detail="Owner extension is not enabled")
     return list_grinder_incidents(limit)
 
 
 @app.get("/api/grinder-monitor/incidents/{incident_id}")
 async def get_grinder_monitor_incident(incident_id: str) -> dict[str, Any]:
+    if not grinder_monitor_status().get("enabled"):
+        raise HTTPException(status_code=404, detail="Owner extension is not enabled")
     result = get_grinder_incident(incident_id)
     if "error" in result:
         raise HTTPException(status_code=404, detail=result["error"])
@@ -5781,7 +5785,7 @@ configure_calendar_intents(
     workshop_tools=WORKSHOP_TOOLS,
 )
 configure_grinder_intents(
-    grinder_monitor_tools=GRINDER_MONITOR_TOOLS,
+    grinder_monitor_tools=active_grinder_monitor_tools(),
 )
 configure_fast_memory_intents(
     workshop_tools=WORKSHOP_TOOLS,
@@ -5810,7 +5814,7 @@ configure_runtime_routing(
     calendar_tools_fn=calendar_priority_tools,
     ha_history_tools_fn=home_assistant_history_tools,
     ha_priority_tools_fn=home_assistant_priority_tools,
-    default_tools_fn=lambda: WORKSHOP_TOOLS + GRINDER_MONITOR_TOOLS + workshop_memory_function_tools() + gmail_direct_function_tools() + active_mcp_tools(),
+    default_tools_fn=lambda: WORKSHOP_TOOLS + active_grinder_monitor_tools() + workshop_memory_function_tools() + gmail_direct_function_tools() + active_mcp_tools(),
     native_web_search_tool_fn=native_web_search_tool,
     is_workshop_memory_fn=is_workshop_memory_intent,
     workshop_memory_tools_fn=lambda: workshop_tools(

@@ -19,7 +19,7 @@ storage, and `ghcr.io/roycegith/jarvis-ha-assistant` update image.
 
 ## Current experience
 
-Version 0.13.92 includes a full-window Automation Studio with a building-block
+Version 0.13.93 includes a full-window Automation Studio with a building-block
 toolbox, interactive flow canvas, and focused settings inspector. Existing
 automation definitions and Home Assistant data remain compatible across updates.
 Studio now reports live entity-permission and Home Assistant safety-label readiness,
@@ -54,6 +54,8 @@ Pre-Studio simple automations are now exercised by a build-gated restore, load, 
 current-schema save path that verifies their original identity and behavior remain intact.
 A complete build-gated backup round trip also verifies Settings, chats, entity policy,
 automations, notifications, calendar, and Fast Memory restore together without secrets.
+The owner-specific Grinder extension is hidden from UI, chat routing, AI tools, and
+incident APIs unless its existing Home Assistant option is explicitly enabled.
 Visual workflows can use OR triggers, grouped conditions, ordered actions, and
 first-match IF/ELSE branches, Delay steps, and bounded Wait Until steps. Every
 automation can independently observe, suggest, ask approval, or act automatically

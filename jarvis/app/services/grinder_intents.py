@@ -19,6 +19,8 @@ def configure_grinder_intents(*, grinder_monitor_tools: list[dict[str, Any]]) ->
 
 
 def is_grinder_diagnostic_intent(message: str) -> bool:
+    if not _grinder_monitor_tools:
+        return False
     normalized = " ".join(str(message or "").casefold().split())
     if "grinder" not in normalized and "espresso_grinder-" not in normalized:
         return False

@@ -4,6 +4,7 @@
   if (!indicator || !label) return;
   const stateClasses = ["is-checking", "is-online", "is-waiting", "is-offline", "is-disabled"];
   let requestActive = false;
+  let monitorAvailable = null;
 
   function render(state, text, title) {
     indicator.classList.remove(...stateClasses);
@@ -27,21 +28,34 @@
       const devices = Array.isArray(data.devices) ? data.devices : [];
       const online = devices.filter(device => device?.online === true);
       if (!data.enabled) {
-        render("disabled", "Grinder Monitor Off", "Grinder diagnostic monitoring is disabled");
+        monitorAvailable = false;
+        indicator.hidden = true;
+        return;
       } else if (!data.connected) {
+        monitorAvailable = true;
+        indicator.hidden = false;
         render("offline", "Grinder Broker Offline", data.last_error || "ZBRANO cannot reach the grinder MQTT broker");
       } else if (online.length) {
+        monitorAvailable = true;
+        indicator.hidden = false;
         const device = online[0];
         const age = Number(device.heartbeat_age_seconds);
         const ageText = Number.isFinite(age) ? ` · heartbeat ${age.toFixed(1)}s` : "";
         render("online", "Grinder Online", `${device.device_id || "Grinder"} connected${ageText}`);
       } else if (devices.length) {
+        monitorAvailable = true;
+        indicator.hidden = false;
         render("offline", "Grinder Offline", "The broker is connected, but no grinder heartbeat is active");
       } else {
+        monitorAvailable = true;
+        indicator.hidden = false;
         render("waiting", "Grinder Waiting", "The broker is connected and waiting for grinder telemetry");
       }
     } catch (error) {
-      render("offline", "Grinder Status Unavailable", error?.name === "AbortError" ? "Grinder status check timed out" : "Could not read grinder diagnostic status");
+      if (monitorAvailable === true) {
+        indicator.hidden = false;
+        render("offline", "Grinder Status Unavailable", error?.name === "AbortError" ? "Grinder status check timed out" : "Could not read grinder diagnostic status");
+      }
     } finally {
       window.clearTimeout(timeout);
       requestActive = false;
@@ -50,9 +64,9 @@
 
   refreshGrinderIndicator();
   window.setInterval(() => {
-    if (!document.hidden) refreshGrinderIndicator();
+    if (!document.hidden && monitorAvailable !== false) refreshGrinderIndicator();
   }, 5000);
   document.addEventListener("visibilitychange", () => {
-    if (!document.hidden) refreshGrinderIndicator();
+    if (!document.hidden && monitorAvailable !== false) refreshGrinderIndicator();
   });
 })();
