@@ -114,7 +114,7 @@ function apiFixture(url, method = "GET") {
   if (pathname === "/api/health") {
     return {
       status: "ok",
-      version: "0.13.95",
+      version: "0.13.96",
       speech_provider: "openai",
       speech_providers: {openai: {configured: true}, elevenlabs: {configured: false}},
     };
@@ -161,7 +161,7 @@ function apiFixture(url, method = "GET") {
   if (pathname === "/api/plugins") return {plugins: []};
   if (pathname === "/api/files/shared") return {files: [], count: 0};
   if (pathname === "/api/release-memory-sync") {
-    return {enabled: false, state: "disabled", version: "0.13.95", task_active: false};
+    return {enabled: false, state: "disabled", version: "0.13.96", task_active: false};
   }
   if (pathname === "/api/tab-activity") return {revisions: {}};
   if (pathname === "/api/grinder-monitor/status") return {enabled: false, connected: false};
@@ -338,6 +338,24 @@ async function main() {
       chat: document.querySelector(".automation-chat-builder").getBoundingClientRect().top,
     }));
     assert.ok(studioOrder.studio < studioOrder.chat, "Automation Studio must appear before Create with ZBRANO");
+    const dropStudioBlock=kind=>page.evaluate(blockKind=>{const source=document.querySelector(`.automation-studio-toolbox [data-studio-node="${blockKind}"]`),canvas=document.querySelector("#automation-studio-canvas"),dataTransfer=new DataTransfer();source.dispatchEvent(new DragEvent("dragstart",{bubbles:true,dataTransfer}));canvas.dispatchEvent(new DragEvent("dragover",{bubbles:true,cancelable:true,dataTransfer}));canvas.dispatchEvent(new DragEvent("drop",{bubbles:true,cancelable:true,dataTransfer}));source.dispatchEvent(new DragEvent("dragend",{bubbles:true,dataTransfer}))},kind);
+    await dropStudioBlock("trigger");
+    assert.match(await page.locator("#automation-studio-state").innerText(), /Trigger block added/i);
+    assert.equal(await page.locator('#automation-flow-preview [data-flow-kind="trigger"] .automation-flow-substep').count(), 1);
+    assert.match(await page.locator('#automation-flow-preview [data-flow-kind="trigger"]').innerText(), /Choose a trigger entity/i);
+    await dropStudioBlock("context");
+    assert.equal(await page.locator('#automation-flow-preview [data-flow-kind="context"] .automation-flow-substep').count(), 1);
+    await dropStudioBlock("decision");
+    assert.equal(await page.locator('#automation-flow-preview [data-flow-kind="decision"] .automation-flow-substep').count(), 1);
+    await dropStudioBlock("action");
+    assert.match(await page.locator('#automation-flow-preview [data-flow-kind="action"]').innerText(), /Configure service action/i);
+    assert.equal(await page.locator('#automation-flow-preview [data-flow-kind="action"] .automation-flow-substep').count(), 1);
+    assert.equal(await page.locator(".automation-workflow-step").count(), 1);
+    assert.match(await page.locator("#automation-studio-state").innerText(), /Action block added/i);
+    assert.equal(await page.locator("#automation-studio-dirty").isVisible(), true);
+    const droppedBlocksReset=page.waitForEvent("dialog"),droppedBlocksNewFlow=page.locator("#automation-studio-new").click();
+    const droppedBlocksDialog=await droppedBlocksReset;assert.match(droppedBlocksDialog.message(),/Discard unsaved automation changes/i);await droppedBlocksDialog.accept();await droppedBlocksNewFlow;
+    assert.equal(await page.locator(".automation-flow-substep").count(), 0);
     await page.locator(".automation-advanced summary").click();
     await page.locator("#automation-entity-options option").nth(47).waitFor({state: "attached"});
     await page.locator('[data-auto-template="comfort"]').click();

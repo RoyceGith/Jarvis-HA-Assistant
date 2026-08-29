@@ -1,5 +1,11 @@
 # Change log
 
+## 0.13.96
+
+- Made toolbox drag-and-drop create real automation draft blocks.
+- Rendered dropped Trigger, Context, Decision, and Action blocks immediately in the visual flow.
+- Kept incomplete blocks inside existing validation, undo, reset, and safety limits.
+
 ## 0.13.95
 
 - Made Automation drafts open My Automations with the matching filter.

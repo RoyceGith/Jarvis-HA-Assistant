@@ -6,8 +6,9 @@ connections.
 
 ## Automation Studio
 
-Version 0.13.95 provides a full-window visual automation builder with Trigger, Context,
-Decision, and Action blocks, a node canvas, and block-specific settings. The full
+Version 0.13.96 provides a full-window visual automation builder with functional
+drag-and-drop Trigger, Context, Decision, and Action blocks. Dropped blocks are added
+to the draft, rendered immediately, and opened for configuration. The full
 Advanced editor remains available, existing stored automations are preserved, and
 repeatable OR triggers, grouped conditions, ordered actions, and IF/ELSE branches
 are supported, together with dedicated Delay and bounded Wait Until steps. Each

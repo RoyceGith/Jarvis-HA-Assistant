@@ -1,9 +1,9 @@
 {
-  "version": "0.13.95",
+  "version": "0.13.96",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/ZBRANO_Core main",
-  "summary": "Turn Automation Overview draft and pending-suggestion metrics into accessible shortcuts to their filtered destinations.",
+  "summary": "Make Automation Studio drag-and-drop create real configurable draft blocks and render them immediately in the visual flow.",
   "history_backfill": [
     {
       "version": "0.13.0",
@@ -384,22 +384,28 @@
     {
       "version": "0.13.94",
       "summary": "Let conversational automation creation reuse Home Assistant Areas, linked Zones, and approved presence trackers for location-aware drafts."
+    },
+    {
+      "version": "0.13.95",
+      "summary": "Turned Automation Overview draft and pending-suggestion metrics into accessible shortcuts to their filtered destinations."
     }
   ],
   "release_entry": {
     "features": [
-      "Open My Automations with the Drafts and disabled filter directly from the Automation drafts overview metric.",
-      "Focus the Suggestion Inbox directly from the Pending suggestions overview metric with mouse or keyboard navigation."
+      "Create Trigger, Context, Decision, and Action draft blocks by dragging them from the Automation Studio toolbox onto the canvas.",
+      "Render newly dropped incomplete blocks immediately as nested visual-flow steps and open their settings for configuration."
     ],
     "fixes": [
-      "Make overview draft and pending-suggestion counts match the records shown at their destinations.",
-      "Expose visible hover, focus, and dynamic accessible-label states for both overview shortcuts."
+      "Replace the previous drag behavior that only selected an inspector with real workflow-draft mutation.",
+      "Keep dropped blocks inside bounded undo, reset, validation, and unsaved-change safeguards."
     ],
     "validation": [
-      "Draft and suggestion shortcut navigation, destination filtering and focus, accessible labels, browser smoke, release manifest, README alignment, and v0.13.95 release coverage"
+      "Trigger, context, decision, and action drop creation, immediate canvas rendering, inspector selection, reset behavior, browser smoke, release manifest, README alignment, and v0.13.96 release coverage"
     ]
   },
   "features": [
+    "Create real configurable Automation Studio blocks by dragging toolbox items onto the visual canvas.",
+    "Show newly dropped incomplete workflow steps immediately without bypassing save validation or safety limits.",
     "Navigate directly from Automation Overview metrics to filtered drafts or the Suggestion Inbox.",
     "Keep overview shortcut counts aligned with their visible destination records and accessible labels.",
     "Expose known Home Assistant Area-to-Zone relationships and approved presence candidates to conversational automation creation.",

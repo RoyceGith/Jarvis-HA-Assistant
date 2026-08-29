@@ -15,7 +15,7 @@
     return cleaned || fallback;
   }
 
-  function node(kind, label, title, detail) {
+  function node(kind, label, title, detail, steps = []) {
     const element = document.createElement("section");
     element.className = `automation-flow-node is-${kind}`;
     element.dataset.flowKind = kind;
@@ -30,6 +30,7 @@
     const description = document.createElement("small");
     description.textContent = detail;
     element.append(kicker, heading, description);
+    appendSubsteps(element, steps);
     return element;
   }
 
@@ -39,6 +40,19 @@
     element.setAttribute("aria-hidden", "true");
     element.textContent = "→";
     return element;
+  }
+
+  function appendSubsteps(element, steps) {
+    if (!steps.length) return;
+    const list = document.createElement("div");
+    list.className = "automation-flow-substeps";
+    for (const step of steps) {
+      const item = document.createElement("span");
+      item.className = "automation-flow-substep";
+      item.textContent = step;
+      list.append(item);
+    }
+    element.append(list);
   }
 
   function create(automation = {}, entityName = value => value) {
@@ -54,14 +68,14 @@
     const triggerValue = text(primaryTrigger.value || automation.trigger_value, "any value");
     const operator = operatorLabels[primaryTrigger.operator || automation.trigger_operator] || text(primaryTrigger.operator || automation.trigger_operator, "changes to");
     const duration = Number(primaryTrigger.for_seconds || automation.trigger_for_seconds || 0);
-    const triggers = Array.isArray(automation.triggers) ? automation.triggers.filter(item => item?.entity_id || (item?.kind && item.kind !== "entity")) : [];
+    const triggers = Array.isArray(automation.triggers) ? automation.triggers.filter(item => item && typeof item === "object") : [];
     const scheduleDays = Array.isArray(primaryTrigger.weekdays)&&primaryTrigger.weekdays.length ? ` · ${primaryTrigger.weekdays.length} selected day${primaryTrigger.weekdays.length===1?"":"s"}` : "";
     const triggerDetail = triggerKind === "entity" ? `${operator} ${triggerValue}${duration > 0 ? ` for ${duration} seconds` : ""}${triggers.length > 1 ? ` · ${triggers.length} OR triggers` : ""}` : `Local Home Assistant schedule${scheduleDays}${triggers.length > 1 ? ` · ${triggers.length} OR triggers` : ""}`;
 
     const presence = text(automation.presence_entity, "");
     const signals = Array.isArray(automation.signal_entities) ? automation.signal_entities.filter(Boolean) : [];
     const contextTitle = presence ? entityName(presence) : signals.length ? `${signals.length} context signal${signals.length === 1 ? "" : "s"}` : "No presence requirement";
-    const conditions = Array.isArray(automation.conditions) ? automation.conditions.filter(item => item?.entity_id || (item?.kind && item.kind !== "entity")) : [];
+    const conditions = Array.isArray(automation.conditions) ? automation.conditions.filter(item => item && typeof item === "object") : [];
     const conditionDetail = conditions.length ? `${conditions.length} ${String(automation.condition_mode || "all").toUpperCase()} condition${conditions.length === 1 ? "" : "s"}` : "";
     const contextDetail = presence
       ? `Presence confirmed${signals.length ? ` · ${signals.length} supporting signal${signals.length === 1 ? "" : "s"}` : ""}`
@@ -69,7 +83,7 @@
 
     const confidence = Math.round(Number(automation.confidence_threshold ?? 0.75) * 100);
     const authority = text(automation.execution_policy, "suggest").replaceAll("_", " ");
-    const branches = Array.isArray(automation.branches) ? automation.branches.filter(item => item?.name) : [];
+    const branches = Array.isArray(automation.branches) ? automation.branches.filter(item => item && typeof item === "object") : [];
     const decisionTitle = branches.length ? `${branches.length} first-match branch${branches.length === 1 ? "" : "es"}` : text(automation.proposal_template, text(automation.objective, "Record the match"));
     const reoffer = Number(automation.reoffer_delta || 0);
     const reset = Number(automation.reset_delta || 0);
@@ -78,9 +92,9 @@
 
     const actionEntity = text(automation.action_entity, "");
     const actionService = text(automation.action_service, "");
-    const actions = Array.isArray(automation.actions) ? automation.actions.filter(item => (item?.kind === "delay" && item?.delay_seconds) || (item?.kind === "wait_state" && item?.entity_id) || ((!item?.kind || item.kind === "service") && item?.entity_id && item?.service)) : [];
-    const actionLabel = item => item.kind === "delay" ? `Delay ${item.delay_seconds}s` : item.kind === "wait_state" ? `Wait for ${entityName(item.entity_id)}` : item.service;
-    const actionTitle = actions.length > 1 ? `${actions.length} ordered actions` : actionEntity ? entityName(actionEntity) : "Suggestion only";
+    const actions = Array.isArray(automation.actions) ? automation.actions.filter(item => item && typeof item === "object") : [];
+    const actionLabel = item => item.kind === "delay" ? item.delay_seconds ? `Delay ${item.delay_seconds}s` : "Delay ?s" : item.kind === "wait_state" ? `Wait for ${item.entity_id ? entityName(item.entity_id) : "an entity"}` : text(item.service, "Configure service action");
+    const actionTitle = actions.length > 1 ? `${actions.length} ordered actions` : actions.length === 1 ? actionLabel(actions[0]) : actionEntity ? entityName(actionEntity) : "Suggestion only";
     const actionDetail = actions.length > 1 ? actions.map(actionLabel).slice(0, 2).join(" → ") : actions.length === 1 ? actionLabel(actions[0]) : actionEntity && actionService ? actionService : "No Home Assistant service call";
 
     const nodes = [
@@ -89,6 +103,10 @@
       node("decision", "DECIDE", decisionTitle, decisionDetail),
       node("action", "THEN", actionTitle, actionDetail),
     ];
+    appendSubsteps(nodes[0], triggers.slice(1).map((item, index) => `OR ${index + 2} · ${item.kind && item.kind !== "entity" ? item.kind.replaceAll("_", " ") : text(item.entity_id, "Choose a trigger entity")}`));
+    appendSubsteps(nodes[1], conditions.map((item, index) => `${String(automation.condition_mode || "all").toUpperCase()} ${index + 1} · ${item.kind && item.kind !== "entity" ? item.kind.replaceAll("_", " ") : text(item.entity_id, "Choose a condition entity")}`));
+    appendSubsteps(nodes[2], branches.map((item, index) => `${text(item.name, `Branch ${index + 1}`)} · ${(item.conditions || []).length} condition${(item.conditions || []).length === 1 ? "" : "s"}`));
+    appendSubsteps(nodes[3], automation.studio_visual_draft || actions.length > 1 ? actions.map((item, index) => `${index + 1} · ${actionLabel(item)}`) : []);
     nodes.forEach((item, index) => {
       if (index) flow.append(connector());
       flow.append(item);

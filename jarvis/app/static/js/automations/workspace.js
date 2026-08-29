@@ -8,6 +8,7 @@
   let entityMap=new Map();
   let selectedStudioNode="trigger";
   let workflowDraft={triggers:[],conditions:[],condition_mode:"all",actions:[],branches:[]};
+  let draggedStudioNode="";
   let editorHistory=[],editorHistoryIndex=-1,editorHistoryTimer=0,restoringEditorHistory=false;
   let editorHistoryBaseline="";
   const localDraftKey="zbrano.automation-studio.unsaved.v1",localDraftMaxAge=7*24*60*60*1000,localDraftMaxBytes=100000;
@@ -192,6 +193,28 @@
     if(!studioPanels[kind])return;
     selectedStudioNode=kind;renderEditorFlow();renderStudioInspector();
   }
+  function addStudioBlock(kind){
+    const trigger=()=>({kind:"entity",entity_id:"",operator:"changes_to",value:"",for_seconds:0,weekdays:[],at:"",sun_event:"sunrise",offset_minutes:0,interval_minutes:5,one_time_at:""});
+    const condition=()=>({kind:"entity",entity_id:"",operator:"equals",value:"",for_seconds:0,weekdays:[],start_time:"",end_time:"",sun_state:"below_horizon"});
+    const action=()=>({kind:"service",entity_id:"",service:"",service_data:{},delay_seconds:0,wait_operator:"equals",wait_value:"",timeout_seconds:30});
+    if(kind==="trigger"){
+      if(workflowDraft.triggers.length>=9){$("automation-studio-state").textContent="A flow supports up to 10 triggers including the primary trigger.";return}
+      workflowDraft.triggers.push(trigger());
+    }else if(kind==="context"){
+      if(workflowDraft.conditions.length>=20){$("automation-studio-state").textContent="A flow supports up to 20 context conditions.";return}
+      workflowDraft.conditions.push(condition());
+    }else if(kind==="decision"){
+      if(workflowDraft.branches.length>=10){$("automation-studio-state").textContent="A flow supports up to 10 decision branches.";return}
+      workflowDraft.branches.push({name:`Branch ${workflowDraft.branches.length+1}`,condition_mode:"all",conditions:[condition()],actions:[action()]});
+    }else if(kind==="action"){
+      if(workflowDraft.actions.length>=19){$("automation-studio-state").textContent="A flow supports up to 20 actions including the primary action.";return}
+      workflowDraft.actions.push(action());
+    }else{
+      selectStudioNode("details");$("automation-studio-state").textContent="Automation details are already part of this flow.";return
+    }
+    selectedStudioNode=kind;renderStudioInspector();renderEditorFlow();commitEditorHistory();
+    $("automation-studio-state").textContent=`${studioPanels[kind].title} block added. Complete its settings before saving.`;
+  }
   function renderSummary(){
     $("autonomy-engine-status").textContent=state.engine?.status==="active"?"Live":state.engine?.status==="waiting_for_home_assistant"?"Waiting for HA":"Unavailable";
     $("autonomy-mode-summary").textContent=modeLabel(state.settings?.operating_mode);
@@ -365,7 +388,10 @@
 
   function renderEditorFlow(){
     const snapshot=editorSnapshot(),root=$("automation-flow-preview");
-    window.zbranoAutomationFlow?.render(root,snapshot,entityLabel);
+    const primaryTrigger={kind:$("automation-trigger-kind").value,entity_id:$("automation-trigger-entity").value.trim(),operator:$("automation-trigger-operator").value,value:$("automation-trigger-value").value.trim(),for_seconds:Number($("automation-trigger-for").value||0)};
+    const primaryAction={kind:"service",entity_id:$("automation-action-entity").value.trim(),service:$("automation-action-service").value.trim(),service_data:{}};
+    const visualSnapshot={...snapshot,studio_visual_draft:true,triggers:[primaryTrigger,...cloneEditorValue(workflowDraft.triggers)],conditions:cloneEditorValue(workflowDraft.conditions),actions:[...(primaryAction.entity_id||primaryAction.service?[primaryAction]:[]),...cloneEditorValue(workflowDraft.actions)],branches:cloneEditorValue(workflowDraft.branches)};
+    window.zbranoAutomationFlow?.render(root,visualSnapshot,entityLabel);
     root?.querySelector(`[data-flow-kind="${selectedStudioNode}"]`)?.classList.add("is-selected");
     $("automation-studio-flow-name").textContent=snapshot.name;
     for(const button of panel.querySelectorAll("[data-studio-node]"))button.classList.toggle("active",button.dataset.studioNode===selectedStudioNode);
@@ -485,8 +511,9 @@
   $("automation-studio-advanced").addEventListener("click",()=>{const advanced=document.querySelector(".automation-advanced");advanced?.setAttribute("open","");advanced?.scrollIntoView({behavior:"smooth",block:"start"})});
   $("automation-studio-canvas").addEventListener("dragover",event=>{event.preventDefault();event.currentTarget.classList.add("is-drop-target")});
   $("automation-studio-canvas").addEventListener("dragleave",event=>event.currentTarget.classList.remove("is-drop-target"));
-  $("automation-studio-canvas").addEventListener("drop",event=>{event.preventDefault();event.currentTarget.classList.remove("is-drop-target");selectStudioNode(event.dataTransfer?.getData("text/studio-node"))});
-  panel.querySelector(".automation-studio-toolbox")?.addEventListener("dragstart",event=>{const block=event.target.closest("[data-studio-node]");if(block)event.dataTransfer?.setData("text/studio-node",block.dataset.studioNode)});
+  $("automation-studio-canvas").addEventListener("drop",event=>{event.preventDefault();event.currentTarget.classList.remove("is-drop-target");const kind=event.dataTransfer?.getData("text/studio-node")||event.dataTransfer?.getData("text/plain")||draggedStudioNode;draggedStudioNode="";addStudioBlock(kind)});
+  panel.querySelector(".automation-studio-toolbox")?.addEventListener("dragstart",event=>{const block=event.target.closest("[data-studio-node]");if(!block)return;draggedStudioNode=block.dataset.studioNode;event.dataTransfer?.setData("text/studio-node",draggedStudioNode);event.dataTransfer?.setData("text/plain",draggedStudioNode);if(event.dataTransfer)event.dataTransfer.effectAllowed="copy"});
+  panel.querySelector(".automation-studio-toolbox")?.addEventListener("dragend",()=>{draggedStudioNode=""});
   $("automation-flow-preview").addEventListener("keydown",event=>{if(!["Enter"," "].includes(event.key))return;const block=event.target.closest("[data-flow-kind]");if(block){event.preventDefault();selectStudioNode(block.dataset.flowKind)}});
   document.addEventListener("keydown",event=>{if(panel.classList.contains("hidden")||!panel.classList.contains("studio-active")||!(event.ctrlKey||event.metaKey)||event.altKey)return;const key=event.key.toLowerCase();if(key==="z"){event.preventDefault();if(event.shiftKey)redoEditor();else undoEditor()}else if(key==="y"){event.preventDefault();redoEditor()}});
   window.addEventListener("pagehide",commitEditorHistory);

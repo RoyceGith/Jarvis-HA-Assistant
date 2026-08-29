@@ -84,6 +84,8 @@
 .automation-flow-node strong,.automation-flow-node small { display: block; }
 .automation-flow-node strong { margin: .28rem 0; overflow-wrap: anywhere; }
 .automation-flow-node small { color: var(--text-muted); line-height: 1.35; }
+.automation-flow-substeps { display: grid; gap: .3rem; margin-top: .55rem; padding-top: .5rem; border-top: 1px solid color-mix(in srgb,var(--line) 72%,transparent); }
+.automation-flow-substep { display: block; padding: .32rem .42rem; border: 1px solid color-mix(in srgb,var(--cyan) 28%,var(--line)); border-radius: 7px; background: color-mix(in srgb,var(--cyan) 5%,var(--panel)); color: var(--text-muted); font-size: .64rem; line-height: 1.3; overflow-wrap: anywhere; }
 .automation-flow-kicker { color: var(--cyan); font-size: .66rem; letter-spacing: .1em; }
 .automation-flow-node.is-context { box-shadow: inset 3px 0 color-mix(in srgb,#a7d46f 62%,transparent),0 8px 24px rgba(0,0,0,.12); }
 .automation-flow-node.is-decision { box-shadow: inset 3px 0 color-mix(in srgb,#c29cff 62%,transparent),0 8px 24px rgba(0,0,0,.12); }
