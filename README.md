@@ -19,7 +19,7 @@ storage, and `ghcr.io/roycegith/jarvis-ha-assistant` update image.
 
 ## Current experience
 
-Version 0.13.91 includes a full-window Automation Studio with a building-block
+Version 0.13.92 includes a full-window Automation Studio with a building-block
 toolbox, interactive flow canvas, and focused settings inspector. Existing
 automation definitions and Home Assistant data remain compatible across updates.
 Studio now reports live entity-permission and Home Assistant safety-label readiness,
@@ -52,6 +52,8 @@ Active rules can be paused directly without losing their definition or history, 
 paused rules resume through the existing guarded activation checks.
 Pre-Studio simple automations are now exercised by a build-gated restore, load, and
 current-schema save path that verifies their original identity and behavior remain intact.
+A complete build-gated backup round trip also verifies Settings, chats, entity policy,
+automations, notifications, calendar, and Fast Memory restore together without secrets.
 Visual workflows can use OR triggers, grouped conditions, ordered actions, and
 first-match IF/ELSE branches, Delay steps, and bounded Wait Until steps. Every
 automation can independently observe, suggest, ask approval, or act automatically
