@@ -1,5 +1,11 @@
 # Change log
 
+## 0.13.95
+
+- Made Automation drafts open My Automations with the matching filter.
+- Made Pending suggestions focus the Suggestion Inbox directly.
+- Aligned shortcut counts, hover states, focus behavior, and accessible labels.
+
 ## 0.13.94
 
 - Exposed known Home Assistant Area-to-Zone links to conversational automation creation.
