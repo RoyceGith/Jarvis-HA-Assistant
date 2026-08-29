@@ -1,5 +1,11 @@
 # Change log
 
+## 0.13.100
+
+- Automatically compacted flow stages containing more than two cards.
+- Kept larger same-category groups within the Automation Studio canvas.
+- Widened OR/AND selectors so their selected value is fully visible.
+
 ## 0.13.99
 
 - Rebuilt Automation Studio as an AppSheet-style staged event and process canvas.

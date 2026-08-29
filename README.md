@@ -19,11 +19,10 @@ storage, and `ghcr.io/roycegith/jarvis-ha-assistant` update image.
 
 ## Current experience
 
-Version 0.13.99 adds an AppSheet-style Automation Studio canvas with separate event,
-condition, process, and task cards plus persisted OR/AND event relationships. Each
-dragged block remains visible and opens its focused settings inspector. Incomplete
-blocks remain protected by validation, and existing automation definitions and
-Home Assistant data remain compatible across updates.
+Version 0.13.100 automatically compacts Automation Studio stages containing more
+than two cards and keeps selected OR/AND relationship values fully readable.
+Incomplete blocks remain protected by validation, and existing automation
+definitions and Home Assistant data remain compatible across updates.
 Conversational creation now reuses known Home Assistant Area-to-Zone links and
 approved person or device-tracker presence sources for location-aware rules.
 Studio now reports live entity-permission and Home Assistant safety-label readiness,
