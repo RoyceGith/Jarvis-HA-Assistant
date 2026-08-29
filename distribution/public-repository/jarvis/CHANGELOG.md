@@ -1,5 +1,12 @@
 # Change log
 
+## 0.13.87
+
+- Added live graphical counts for all, active, attention-needed, draft or disabled,
+  and automatic automations.
+- Made each summary an accessible one-click filter synchronized with the state selector.
+- Kept quick-filter selection synchronized with locally remembered library preferences.
+
 ## 0.13.86
 
 - Added My Automations sorting by recent update, name, active state, and attention

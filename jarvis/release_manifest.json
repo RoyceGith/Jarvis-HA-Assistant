@@ -1,9 +1,9 @@
 {
-  "version": "0.13.86",
+  "version": "0.13.87",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/ZBRANO_Core main",
-  "summary": "Add practical Automation Library sorting and remember the selected Studio library view, filter, and sort locally.",
+  "summary": "Add live graphical Automation Library status summaries that double as accessible quick filters.",
   "history_backfill": [
     {
       "version": "0.13.0",
@@ -348,22 +348,28 @@
     {
       "version": "0.13.85",
       "summary": "Added compact search, state filters, live result counts, and clear no-match feedback to My Automations without changing stored rules."
+    },
+    {
+      "version": "0.13.86",
+      "summary": "Added practical Automation Library sorting and remembered the selected Studio library view, filter, and sort locally."
     }
   ],
   "release_entry": {
     "features": [
-      "Sort My Automations by recent update, name, active state, or attention priority.",
-      "Remember the selected Create or My Automations view, state filter, and sort order in the local Home Assistant browser origin."
+      "Show live graphical counts for all, active, attention-needed, draft or disabled, and automatic automations.",
+      "Use each status summary as a one-click filter synchronized with the existing state selector."
     ],
     "fixes": [
-      "Use deterministic name ordering as a fallback when automation timestamps or priority values match.",
-      "Validate restored library preferences against supported values and fall back safely when local data is missing or invalid."
+      "Keep quick-filter selection, the state selector, and locally remembered library preferences synchronized.",
+      "Expose the selected summary through aria-pressed state for keyboard and assistive-technology users."
     ],
     "validation": [
-      "Browser-level recent, name, and active ordering plus local view/filter/sort preference persistence, history compatibility, README alignment, and v0.13.86 release coverage"
+      "Browser-level live summary counts, quick-filter selection, selector synchronization, accessibility state, responsive styling, history compatibility, README alignment, and v0.13.87 release coverage"
     ]
   },
   "features": [
+    "Show live visual Automation Library status summaries that work as accessible quick filters.",
+    "Keep summary selection synchronized with state filtering and local library preferences.",
     "Sort My Automations by recency, name, active state, or attention priority.",
     "Remember the Automation Studio library view, filter, and sort locally without changing saved definitions.",
     "Search and filter My Automations without changing saved definitions, authority, or runtime behavior.",

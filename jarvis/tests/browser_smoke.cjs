@@ -114,7 +114,7 @@ function apiFixture(url) {
   if (pathname === "/api/health") {
     return {
       status: "ok",
-      version: "0.13.86",
+      version: "0.13.87",
       speech_provider: "openai",
       speech_providers: {openai: {configured: true}, elevenlabs: {configured: false}},
     };
@@ -153,7 +153,7 @@ function apiFixture(url) {
   if (pathname === "/api/plugins") return {plugins: []};
   if (pathname === "/api/files/shared") return {files: [], count: 0};
   if (pathname === "/api/release-memory-sync") {
-    return {enabled: false, state: "disabled", version: "0.13.86", task_active: false};
+    return {enabled: false, state: "disabled", version: "0.13.87", task_active: false};
   }
   if (pathname === "/api/tab-activity") return {revisions: {}};
   if (pathname === "/api/grinder-monitor/status") return {enabled: false, connected: false};
@@ -273,6 +273,15 @@ async function main() {
     assert.equal(await page.locator("#automation-library .autonomy-draft").count(), 0);
     assert.match(await page.locator("#automation-library-count").innerText(), /0 of 2/i);
     await page.locator("#automation-library-search").fill("");
+    assert.equal(await page.locator("#automation-library-all-count").innerText(), "2");
+    assert.equal(await page.locator("#automation-library-active-count").innerText(), "1");
+    assert.equal(await page.locator("#automation-library-attention-count").innerText(), "0");
+    assert.equal(await page.locator("#automation-library-disabled-count").innerText(), "1");
+    assert.equal(await page.locator("#automation-library-autonomous-count").innerText(), "1");
+    await page.locator('[data-library-quick-filter="disabled"]').click();
+    assert.equal(await page.locator("#automation-library-filter").inputValue(), "disabled");
+    assert.equal(await page.locator('[data-library-quick-filter="disabled"]').getAttribute("aria-pressed"), "true");
+    assert.equal(await page.locator("#automation-library .autonomy-draft").count(), 1);
     await page.locator("#automation-library-filter").selectOption("active");
     assert.equal(await page.locator("#automation-library .autonomy-draft").count(), 1);
     await page.locator("#automation-library-filter").selectOption("disabled");
