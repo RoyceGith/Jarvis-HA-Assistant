@@ -1,5 +1,11 @@
 # Change log
 
+## 0.13.88
+
+- Added Detailed and responsive Compact card layouts to My Automations.
+- Kept names, objectives, state tags, and editing actions visible in Compact mode.
+- Remembered the chosen layout locally and safely defaulted invalid data to Detailed.
+
 ## 0.13.87
 
 - Added live graphical counts for all, active, attention-needed, draft or disabled,

@@ -1,9 +1,9 @@
 {
-  "version": "0.13.87",
+  "version": "0.13.88",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/ZBRANO_Core main",
-  "summary": "Add live graphical Automation Library status summaries that double as accessible quick filters.",
+  "summary": "Add remembered Detailed and Compact card layouts for scalable Automation Library browsing.",
   "history_backfill": [
     {
       "version": "0.13.0",
@@ -352,22 +352,28 @@
     {
       "version": "0.13.86",
       "summary": "Added practical Automation Library sorting and remembered the selected Studio library view, filter, and sort locally."
+    },
+    {
+      "version": "0.13.87",
+      "summary": "Added live graphical Automation Library status summaries that double as accessible quick filters."
     }
   ],
   "release_entry": {
     "features": [
-      "Show live graphical counts for all, active, attention-needed, draft or disabled, and automatic automations.",
-      "Use each status summary as a one-click filter synchronized with the existing state selector."
+      "Switch My Automations between full Detailed workflows and a responsive Compact card grid.",
+      "Remember the chosen library layout together with the existing view, filter, and sort preferences."
     ],
     "fixes": [
-      "Keep quick-filter selection, the state selector, and locally remembered library preferences synchronized.",
-      "Expose the selected summary through aria-pressed state for keyboard and assistive-technology users."
+      "Keep rule names, objectives, state tags, and editing actions available in Compact mode while hiding extended diagrams and reasoning.",
+      "Validate restored layout preferences and default safely to Detailed when local data is absent or invalid."
     ],
     "validation": [
-      "Browser-level live summary counts, quick-filter selection, selector synchronization, accessibility state, responsive styling, history compatibility, README alignment, and v0.13.87 release coverage"
+      "Browser-level Detailed-to-Compact switching, responsive grid state, hidden extended diagrams, local preference persistence, history compatibility, README alignment, and v0.13.88 release coverage"
     ]
   },
   "features": [
+    "Switch My Automations between full Detailed workflows and a responsive Compact card grid.",
+    "Remember library layout locally without changing automation definitions or execution behavior.",
     "Show live visual Automation Library status summaries that work as accessible quick filters.",
     "Keep summary selection synchronized with state filtering and local library preferences.",
     "Sort My Automations by recency, name, active state, or attention priority.",

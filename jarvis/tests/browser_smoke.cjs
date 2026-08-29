@@ -114,7 +114,7 @@ function apiFixture(url) {
   if (pathname === "/api/health") {
     return {
       status: "ok",
-      version: "0.13.87",
+      version: "0.13.88",
       speech_provider: "openai",
       speech_providers: {openai: {configured: true}, elevenlabs: {configured: false}},
     };
@@ -153,7 +153,7 @@ function apiFixture(url) {
   if (pathname === "/api/plugins") return {plugins: []};
   if (pathname === "/api/files/shared") return {files: [], count: 0};
   if (pathname === "/api/release-memory-sync") {
-    return {enabled: false, state: "disabled", version: "0.13.87", task_active: false};
+    return {enabled: false, state: "disabled", version: "0.13.88", task_active: false};
   }
   if (pathname === "/api/tab-activity") return {revisions: {}};
   if (pathname === "/api/grinder-monitor/status") return {enabled: false, connected: false};
@@ -292,7 +292,10 @@ async function main() {
     await page.locator("#automation-library-sort").selectOption("active");
     assert.match(await page.locator("#automation-library .autonomy-draft").first().innerText(), /Active lighting/i);
     assert.equal(await page.locator("#automation-library .automation-flow-node").count(), 8);
-    assert.deepEqual(await page.evaluate(() => JSON.parse(localStorage.getItem("zbrano.automation-studio.library.v1"))), {view: "saved", filter: "all", sort: "active"});
+    await page.locator("#automation-library-layout").selectOption("compact");
+    assert.equal(await page.locator("#automation-library").evaluate(element => element.classList.contains("is-compact")), true);
+    assert.equal(await page.locator("#automation-library .automation-flow").first().evaluate(element => getComputedStyle(element).display), "none");
+    assert.deepEqual(await page.evaluate(() => JSON.parse(localStorage.getItem("zbrano.automation-studio.library.v1"))), {view: "saved", filter: "all", sort: "active", layout: "compact"});
     await page.locator('[data-automation-library-view="create"]').click();
     await page.locator('[data-automation-library-panel="create"]:not(.hidden)').waitFor();
     assert.equal(await page.evaluate(() => JSON.parse(localStorage.getItem("zbrano.automation-studio.library.v1")).view), "create");

@@ -52,6 +52,11 @@
 .automation-library-toolbar input { width: min(100%,340px); }
 .automation-library-toolbar select { width: min(100%,220px); }
 .automation-library-toolbar .automation-state { margin-left: auto; align-self: center; white-space: nowrap; }
+#automation-library.is-compact { grid-template-columns: repeat(auto-fill,minmax(280px,1fr)); align-items: start; }
+#automation-library.is-compact .autonomy-draft { height: 100%; align-content: start; }
+#automation-library.is-compact .autonomy-draft > :is(.automation-flow,small,details) { display: none; }
+#automation-library.is-compact .autonomy-draft-head { align-items: start; }
+#automation-library.is-compact .autonomy-draft-actions { justify-content: flex-end; }
 .automation-studio-inspector { border-left: 1px solid var(--line); }
 .automation-studio-inspector-head { display: flex; align-items: center; justify-content: space-between; gap: .5rem; }
 .automation-studio-inspector h4 { margin: .8rem 0 .25rem; font-size: 1rem; }
@@ -106,6 +111,7 @@
   .automation-flow { grid-template-columns: 1fr; overflow: visible; }
   .automation-flow-connector { transform: rotate(90deg); min-height: 1.1rem; }
   .automation-library-summary { grid-template-columns: repeat(2,minmax(0,1fr)); }
+  #automation-library.is-compact { grid-template-columns: 1fr; }
   .automation-library-toolbar { display: grid; }
   .automation-library-toolbar label,.automation-library-toolbar input,.automation-library-toolbar select { width: 100%; max-width: none; }
   .automation-library-toolbar .automation-state { margin-left: 0; justify-self: start; }

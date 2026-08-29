@@ -39,10 +39,10 @@
   }
 
   function readLibraryPrefs(){
-    try{const value=JSON.parse(localStorage.getItem(libraryPrefsKey)||"{}");return {view:["create","saved"].includes(value.view)?value.view:"create",filter:["all","active","attention","disabled","autonomous","watch"].includes(value.filter)?value.filter:"all",sort:["recent","name_asc","name_desc","active","attention"].includes(value.sort)?value.sort:"recent"}}catch(_error){return {view:"create",filter:"all",sort:"recent"}}
+    try{const value=JSON.parse(localStorage.getItem(libraryPrefsKey)||"{}");return {view:["create","saved"].includes(value.view)?value.view:"create",filter:["all","active","attention","disabled","autonomous","watch"].includes(value.filter)?value.filter:"all",sort:["recent","name_asc","name_desc","active","attention"].includes(value.sort)?value.sort:"recent",layout:["detailed","compact"].includes(value.layout)?value.layout:"detailed"}}catch(_error){return {view:"create",filter:"all",sort:"recent",layout:"detailed"}}
   }
   function persistLibraryPrefs(){
-    try{const active=panel.querySelector('[data-automation-library-view].active')?.dataset.automationLibraryView||"create";localStorage.setItem(libraryPrefsKey,JSON.stringify({view:active,filter:$("automation-library-filter").value,sort:$("automation-library-sort").value}))}catch(_error){}
+    try{const active=panel.querySelector('[data-automation-library-view].active')?.dataset.automationLibraryView||"create";localStorage.setItem(libraryPrefsKey,JSON.stringify({view:active,filter:$("automation-library-filter").value,sort:$("automation-library-sort").value,layout:$("automation-library-layout").value}))}catch(_error){}
   }
   function showLibraryView(name,persist=true){
     for(const button of panel.querySelectorAll("[data-automation-library-view]")){const active=button.dataset.automationLibraryView===name;button.classList.toggle("active",active);button.setAttribute("aria-selected",String(active))}
@@ -209,7 +209,7 @@
   }
 
   function renderLibrary(){
-    const root=$("automation-library"),all=state.automations||[],query=$("automation-library-search").value.trim().toLowerCase(),filter=$("automation-library-filter").value,sort=$("automation-library-sort").value;root.replaceChildren();
+    const root=$("automation-library"),all=state.automations||[],query=$("automation-library-search").value.trim().toLowerCase(),filter=$("automation-library-filter").value,sort=$("automation-library-sort").value,layout=$("automation-library-layout").value;root.replaceChildren();root.classList.toggle("is-compact",layout==="compact");
     const searchable=item=>[item.name,item.objective,item.trigger_entity,item.action_entity,item.action_service,item.proposal_template,...(item.signal_entities||[]),...(item.triggers||[]).flatMap(part=>[part.entity_id,part.kind]),...(item.conditions||[]).flatMap(part=>[part.entity_id,part.kind]),...(item.actions||[]).flatMap(part=>[part.entity_id,part.service,part.kind]),...(item.branches||[]).flatMap(branch=>[branch.name,...(branch.conditions||[]).map(part=>part.entity_id),...(branch.actions||[]).flatMap(part=>[part.entity_id,part.service])])].filter(Boolean).join(" ").toLowerCase();
     const isAttention=item=>{const recovery=item.recovery_state||{},readiness=item.readiness||{};return Boolean(item.review_required||recovery.circuit_open||readiness.ready===false||["blocked_permission","paused_failure","deferred"].includes(item.status))};
     const matchesFilter=item=>{if(filter==="active")return Boolean(item.enabled);if(filter==="attention")return isAttention(item);if(filter==="disabled")return !item.enabled;if(filter==="autonomous")return item.execution_policy==="autonomous";if(filter==="watch")return item.kind==="notification_watch";return true};
@@ -413,6 +413,7 @@
   $("automation-library-search").addEventListener("input",renderLibrary);
   $("automation-library-filter").addEventListener("change",()=>{persistLibraryPrefs();renderLibrary()});
   $("automation-library-sort").addEventListener("change",()=>{persistLibraryPrefs();renderLibrary()});
+  $("automation-library-layout").addEventListener("change",()=>{persistLibraryPrefs();renderLibrary()});
   $("automation-library-summary").addEventListener("click",event=>{const button=event.target.closest("[data-library-quick-filter]");if(!button)return;$("automation-library-filter").value=button.dataset.libraryQuickFilter;persistLibraryPrefs();renderLibrary()});
   panel.addEventListener("pointerdown",event=>{const block=event.target.closest(".automation-studio-preview [data-flow-kind]");if(block)selectStudioNode(block.dataset.flowKind)},{capture:true});
   panel.addEventListener("click",async event=>{
@@ -479,6 +480,6 @@
 
   document.addEventListener("click",event=>{const other=event.target.closest?.("#chat-tab,#entities-tab,#settings-tab,#plugins-tab,#files-tab,#calendar-tab,#developer-tab");if(other){panel.classList.add("hidden");tab.classList.remove("active")}},true);
   tab.addEventListener("click",event=>{event.preventDefault();event.stopImmediatePropagation();activate();loadWorkspace().catch(error=>{$("autonomy-context").innerHTML=`<div class="autonomy-empty">Automation workspace unavailable: ${esc(error.message||error)}</div>`})},true);
-  const libraryPrefs=readLibraryPrefs();$("automation-library-filter").value=libraryPrefs.filter;$("automation-library-sort").value=libraryPrefs.sort;const localDraftRecovery=readLocalEditorDraft();clearEditor();if(localDraftRecovery)recoverLocalEditorDraft(localDraftRecovery);showLibraryView(libraryPrefs.view,false);
+  const libraryPrefs=readLibraryPrefs();$("automation-library-filter").value=libraryPrefs.filter;$("automation-library-sort").value=libraryPrefs.sort;$("automation-library-layout").value=libraryPrefs.layout;const localDraftRecovery=readLocalEditorDraft();clearEditor();if(localDraftRecovery)recoverLocalEditorDraft(localDraftRecovery);showLibraryView(libraryPrefs.view,false);
   window.zbranoAutomationWorkspace={ready:true,load:loadWorkspace,showView};
 })();

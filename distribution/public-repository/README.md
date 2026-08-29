@@ -19,7 +19,7 @@ storage, and `ghcr.io/roycegith/jarvis-ha-assistant` update image.
 
 ## Current experience
 
-Version 0.13.87 includes a full-window Automation Studio with a building-block
+Version 0.13.88 includes a full-window Automation Studio with a building-block
 toolbox, interactive flow canvas, and focused settings inspector. Existing
 automation definitions and Home Assistant data remain compatible across updates.
 Studio now reports live entity-permission and Home Assistant safety-label readiness,
@@ -44,6 +44,8 @@ Rules can be sorted by recency, name, active state, or attention priority, and t
 selected Studio library view, filter, and sort are remembered locally.
 Live visual summaries show all, active, attention-needed, draft, and automatic rule
 counts and act as one-click filters synchronized with the state selector.
+My Automations can switch between the full Detailed workflow view and a remembered
+responsive Compact card grid that keeps names, states, and editing actions visible.
 Visual workflows can use OR triggers, grouped conditions, ordered actions, and
 first-match IF/ELSE branches, Delay steps, and bounded Wait Until steps. Every
 automation can independently observe, suggest, ask approval, or act automatically

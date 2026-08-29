@@ -1,4 +1,4 @@
-# ZBRANO v0.13.87
+# ZBRANO v0.13.88
 
 Automation Studio provides a graphical building-block workflow for Home Assistant
 automations. Use the toolbox to select or drag Trigger, Context, Decision, and
@@ -6,9 +6,9 @@ Action blocks onto the canvas, then edit only that block in the settings inspect
 Natural-language creation, templates, saved automation compatibility, and the full
 Advanced editor remain available.
 
-Version 0.13.87 adds live visual summaries for all, active, attention-needed, draft,
-and automatic rules. Each summary is an accessible quick filter synchronized with
-the state selector and remembered library preferences without altering saved rules.
+Version 0.13.88 adds remembered Detailed and Compact layouts to My Automations.
+Detailed retains full diagrams and reasoning, while Compact presents a responsive
+overview grid with names, states, and editing actions without altering saved rules.
 
 The visual editor supports linear and branching workflows without silently changing
 the behavior of existing stored rules.

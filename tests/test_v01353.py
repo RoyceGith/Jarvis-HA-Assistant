@@ -15,10 +15,10 @@ MANIFEST = json.loads((ROOT / "jarvis/release_manifest.json").read_text(encoding
 
 class RepositoryRenameReleaseTests(unittest.TestCase):
     def test_release_markers_are_aligned(self):
-        self.assertIn('version: "0.13.87"', CONFIG)
-        self.assertIn('version="0.13.87"', MAIN)
-        self.assertIn("HUD 0.13.87", HTML)
-        self.assertEqual(MANIFEST["version"], "0.13.87")
+        self.assertIn('version: "0.13.88"', CONFIG)
+        self.assertIn('version="0.13.88"', MAIN)
+        self.assertIn("HUD 0.13.88", HTML)
+        self.assertEqual(MANIFEST["version"], "0.13.88")
 
     def test_source_and_distribution_repositories_are_separate(self):
         canonical = "RoyceGith/ZBRANO_Core"
@@ -34,7 +34,7 @@ class RepositoryRenameReleaseTests(unittest.TestCase):
         self.assertNotIn("ghcr.io/roycegith/zbrano_ha_assistant", CONFIG.lower())
 
     def test_release_history_includes_v01352(self):
-        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.86")
+        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.87")
 
 
 if __name__ == "__main__":
