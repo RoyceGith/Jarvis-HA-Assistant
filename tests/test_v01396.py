@@ -15,10 +15,10 @@ MANIFEST = json.loads((ROOT / "jarvis/release_manifest.json").read_text(encoding
 
 class AutomationStudioDropReleaseTests(unittest.TestCase):
     def test_release_markers_are_aligned(self):
-        self.assertIn('version: "0.13.98"', CONFIG)
-        self.assertIn('version="0.13.98"', MAIN)
-        self.assertIn("HUD 0.13.98", HTML)
-        self.assertEqual(MANIFEST["version"], "0.13.98")
+        self.assertIn('version: "0.13.99"', CONFIG)
+        self.assertIn('version="0.13.99"', MAIN)
+        self.assertIn("HUD 0.13.99", HTML)
+        self.assertEqual(MANIFEST["version"], "0.13.99")
 
     def test_drop_creates_real_workflow_blocks(self):
         self.assertIn("function addStudioBlock(kind)", WORKSPACE)
@@ -32,12 +32,12 @@ class AutomationStudioDropReleaseTests(unittest.TestCase):
         self.assertIn("const visualSnapshot=", WORKSPACE)
         self.assertIn("cloneEditorValue(workflowDraft.triggers)", WORKSPACE)
         self.assertIn("Complete its settings before saving", WORKSPACE)
-        self.assertIn("automation-flow-substeps", FLOW)
+        self.assertIn("automation-flow-node-row", FLOW)
         self.assertIn("Choose a trigger entity", FLOW)
-        self.assertIn("automation-flow-substep", CSS)
+        self.assertIn("automation-flow-node-row", CSS)
 
     def test_release_history_includes_v01395(self):
-        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.97")
+        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.98")
 
 
 if __name__ == "__main__":

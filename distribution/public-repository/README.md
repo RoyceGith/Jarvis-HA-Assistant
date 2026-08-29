@@ -19,10 +19,9 @@ storage, and `ghcr.io/roycegith/jarvis-ha-assistant` update image.
 
 ## Current experience
 
-Version 0.13.98 adds build-gated coverage for a complete Automation Studio workflow
-from creation and persistence through safe activation and event evaluation. In the
-Studio, dragging Trigger, Context, Decision, or Action onto the canvas adds a real draft
-block, renders it immediately, and opens its focused settings inspector. Incomplete
+Version 0.13.99 adds an AppSheet-style Automation Studio canvas with separate event,
+condition, process, and task cards plus persisted OR/AND event relationships. Each
+dragged block remains visible and opens its focused settings inspector. Incomplete
 blocks remain protected by validation, and existing automation definitions and
 Home Assistant data remain compatible across updates.
 Conversational creation now reuses known Home Assistant Area-to-Zone links and

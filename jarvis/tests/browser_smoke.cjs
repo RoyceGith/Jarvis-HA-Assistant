@@ -114,7 +114,7 @@ function apiFixture(url, method = "GET") {
   if (pathname === "/api/health") {
     return {
       status: "ok",
-      version: "0.13.98",
+      version: "0.13.99",
       speech_provider: "openai",
       speech_providers: {openai: {configured: true}, elevenlabs: {configured: false}},
     };
@@ -161,7 +161,7 @@ function apiFixture(url, method = "GET") {
   if (pathname === "/api/plugins") return {plugins: []};
   if (pathname === "/api/files/shared") return {files: [], count: 0};
   if (pathname === "/api/release-memory-sync") {
-    return {enabled: false, state: "disabled", version: "0.13.98", task_active: false};
+    return {enabled: false, state: "disabled", version: "0.13.99", task_active: false};
   }
   if (pathname === "/api/tab-activity") return {revisions: {}};
   if (pathname === "/api/grinder-monitor/status") return {enabled: false, connected: false};
@@ -312,7 +312,7 @@ async function main() {
     assert.match(await page.locator("#automation-library .autonomy-draft").first().innerText(), /Browser flow/i);
     await page.locator("#automation-library-sort").selectOption("active");
     assert.match(await page.locator("#automation-library .autonomy-draft").first().innerText(), /Active lighting/i);
-    assert.equal(await page.locator("#automation-library .automation-flow-node").count(), 8);
+    assert.equal(await page.locator("#automation-library .automation-flow-stage").count(), 8);
     await page.locator("#automation-library-layout").selectOption("compact");
     assert.equal(await page.locator("#automation-library").evaluate(element => element.classList.contains("is-compact")), true);
     assert.equal(await page.locator("#automation-library .automation-flow").first().evaluate(element => getComputedStyle(element).display), "none");
@@ -342,21 +342,22 @@ async function main() {
     const dropStudioBlock=kind=>page.evaluate(blockKind=>{const source=document.querySelector(`.automation-studio-toolbox [data-studio-node="${blockKind}"]`),canvas=document.querySelector("#automation-studio-canvas"),dataTransfer=new DataTransfer();source.dispatchEvent(new DragEvent("dragstart",{bubbles:true,dataTransfer}));canvas.dispatchEvent(new DragEvent("dragover",{bubbles:true,cancelable:true,dataTransfer}));canvas.dispatchEvent(new DragEvent("drop",{bubbles:true,cancelable:true,dataTransfer}));source.dispatchEvent(new DragEvent("dragend",{bubbles:true,dataTransfer}))},kind);
     await dropStudioBlock("trigger");
     assert.match(await page.locator("#automation-studio-state").innerText(), /Trigger block added/i);
-    assert.equal(await page.locator('#automation-flow-preview [data-flow-kind="trigger"] .automation-flow-substep').count(), 1);
-    assert.match(await page.locator('#automation-flow-preview [data-flow-kind="trigger"]').innerText(), /Choose a trigger entity/i);
+    assert.equal(await page.locator('#automation-flow-preview [data-flow-kind="trigger"]').count(), 2);
+    assert.equal(await page.locator('#automation-flow-preview [data-trigger-logic]').count(), 1);
+    assert.match(await page.locator('#automation-flow-preview [data-flow-kind="trigger"]').last().innerText(), /Choose a trigger entity/i);
     await dropStudioBlock("context");
-    assert.equal(await page.locator('#automation-flow-preview [data-flow-kind="context"] .automation-flow-substep').count(), 1);
+    assert.equal(await page.locator('#automation-flow-preview [data-flow-kind="context"]').count(), 1);
     await dropStudioBlock("decision");
-    assert.equal(await page.locator('#automation-flow-preview [data-flow-kind="decision"] .automation-flow-substep').count(), 1);
+    assert.equal(await page.locator('#automation-flow-preview [data-flow-kind="decision"]').count(), 1);
     await dropStudioBlock("action");
-    assert.match(await page.locator('#automation-flow-preview [data-flow-kind="action"]').innerText(), /Configure service action/i);
-    assert.equal(await page.locator('#automation-flow-preview [data-flow-kind="action"] .automation-flow-substep').count(), 1);
+    assert.match(await page.locator('#automation-flow-preview [data-flow-kind="action"]').innerText(), /Configure a service action/i);
+    assert.equal(await page.locator('#automation-flow-preview [data-flow-kind="action"]').count(), 1);
     assert.equal(await page.locator(".automation-workflow-step").count(), 1);
     assert.match(await page.locator("#automation-studio-state").innerText(), /Action block added/i);
     assert.equal(await page.locator("#automation-studio-dirty").isVisible(), true);
     const droppedBlocksReset=page.waitForEvent("dialog"),droppedBlocksNewFlow=page.locator("#automation-studio-new").click();
     const droppedBlocksDialog=await droppedBlocksReset;assert.match(droppedBlocksDialog.message(),/Discard unsaved automation changes/i);await droppedBlocksDialog.accept();await droppedBlocksNewFlow;
-    assert.equal(await page.locator(".automation-flow-substep").count(), 0);
+    assert.equal(await page.locator('#automation-flow-preview [data-flow-kind="trigger"]').count(), 1);
     await page.locator(".automation-advanced summary").click();
     await page.locator("#automation-entity-options option").nth(47).waitFor({state: "attached"});
     await page.locator('[data-auto-template="comfort"]').click();
@@ -367,7 +368,7 @@ async function main() {
     assert.doesNotMatch(templateSignals, /workshop_/);
     assert.equal(await page.locator("#automation-presence").inputValue(), "");
     assert.equal(await page.locator("#automation-action-entity").inputValue(), "");
-    assert.equal(await page.locator("#automation-flow-preview .automation-flow-node").count(), 4);
+    assert.equal(await page.locator("#automation-flow-preview .automation-flow-stage").count(), 4);
     assert.match(await page.locator("#automation-flow-preview").innerText(), /Comfort advisor|Record the match|room is becoming uncomfortable/i);
     await page.locator("#automation-studio-validation:not([hidden])").waitFor();
     assert.match(await page.locator("#automation-studio-validation").innerText(), /trigger: choose an entity/i);
@@ -405,13 +406,17 @@ async function main() {
     await page.locator('[data-workflow-index="0"][data-trigger-field="at"]').fill("18:30");
     await page.locator('[data-workflow-index="0"][data-trigger-field="weekdays"]').fill("Mon, Wed, Fri");
     assert.equal(await page.locator('[data-workflow-index="0"][data-trigger-field="at"]').inputValue(), "18:30");
-    assert.match(await page.locator("#automation-flow-preview").innerText(), /2 OR triggers/i);
-    await page.locator('#automation-flow-preview [data-flow-kind="context"]').click();
+    assert.equal(await page.locator('#automation-flow-preview [data-flow-kind="trigger"]').count(), 2);
+    assert.equal(await page.locator("#automation-flow-preview [data-trigger-logic]").inputValue(), "any");
+    await page.locator("#automation-flow-preview [data-trigger-logic]").selectOption("all");
+    assert.equal(await page.locator("[data-trigger-mode]").inputValue(), "all");
+    await page.locator("#automation-flow-preview [data-trigger-logic]").selectOption("any");
+    await page.locator('#automation-flow-preview [data-flow-kind="context"]').first().click();
     assert.equal(await page.locator("#automation-studio-inspector-title").innerText(), "Context");
     await page.locator('[data-workflow-add="conditions"]').click();
     await page.locator('[data-workflow-index="0"][data-condition-field="entity_id"]').fill("sensor.browser_fixture_3");
     await page.locator("[data-workflow-mode]").selectOption("any");
-    assert.match(await page.locator("#automation-flow-preview").innerText(), /1 ANY condition/i);
+    assert.match(await page.locator("#automation-flow-preview").innerText(), /Browser Fixture 3/i);
     await page.locator('#automation-flow-preview [data-flow-kind="action"]').click();
     await page.locator('[data-workflow-add="actions"]').click();
     assert.equal(await page.locator(".automation-workflow-step").count(), 1);
@@ -437,7 +442,7 @@ async function main() {
     await page.locator('[data-branch-collection="actions"][data-item-index="1"][data-action-field="kind"]').selectOption("wait_state");
     await page.locator('[data-branch-collection="actions"][data-item-index="1"][data-action-field="entity_id"]').fill("sensor.browser_fixture_5");
     await page.locator('[data-branch-collection="actions"][data-item-index="1"][data-action-field="wait_value"]').fill("25");
-    assert.match(await page.locator("#automation-flow-preview").innerText(), /1 first-match branch/i);
+    assert.match(await page.locator("#automation-flow-preview").innerText(), /PATH 1|Branch 1/i);
 
     await page.locator("#settings-tab").click();
     await page.locator("#settings-panel:not(.hidden)").waitFor();

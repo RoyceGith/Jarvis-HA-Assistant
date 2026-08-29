@@ -508,6 +508,7 @@ def _automation_payload(request):
     payload["trigger_value"] = payload["trigger_value"].strip()
     payload["action_service_data"] = dict(payload.get("action_service_data") or {})
     payload["triggers"] = [_automation_normalize_trigger(item) for item in payload.get("triggers") or []]
+    payload["trigger_mode"] = "all" if payload.get("trigger_mode") == "all" else "any"
     if not payload["triggers"] and payload["trigger_entity"]:
         payload["triggers"] = [{
             "kind": "entity", "entity_id": payload["trigger_entity"], "operator": payload["trigger_operator"],
@@ -568,6 +569,11 @@ def _automation_payload(request):
                 datetime.fromisoformat(trigger["one_time_at"])
             except ValueError as exc:
                 raise HTTPException(status_code=400, detail="A one-time trigger requires a valid local date and time") from exc
+    if payload["trigger_mode"] == "all" and len(payload["triggers"]) > 1:
+        if any(trigger["kind"] != "entity" for trigger in payload["triggers"]):
+            raise HTTPException(status_code=400, detail="AND trigger logic requires entity-state triggers; use OR for schedules")
+        if any(trigger["operator"] == "any_change" for trigger in payload["triggers"]):
+            raise HTTPException(status_code=400, detail="AND trigger logic requires a target state, threshold, or comparison")
     all_conditions = [*payload["conditions"], *(item for branch in payload["branches"] for item in branch["conditions"])]
     all_actions = [*payload["actions"], *(item for branch in payload["branches"] for item in branch["actions"])]
     for condition in all_conditions:
@@ -1007,6 +1013,26 @@ def _automation_triggers(item: dict[str, Any]) -> list[dict[str, Any]]:
     return [{"entity_id": entity_id, "operator": item.get("trigger_operator") or "changes_to",
              "value": item.get("trigger_value") or "", "for_seconds": int(item.get("trigger_for_seconds") or 0)}] if entity_id else []
 
+def _automation_trigger_mode(item: dict[str, Any]) -> str:
+    return "all" if str(item.get("trigger_mode") or "any") == "all" else "any"
+
+def _automation_trigger_group_active(item: dict[str, Any]) -> tuple[bool, str]:
+    triggers = _automation_triggers(item)
+    if _automation_trigger_mode(item) != "all" or len(triggers) < 2:
+        return True, "trigger logic OR"
+    scheduled = [trigger for trigger in triggers if str(trigger.get("kind") or "entity") != "entity"]
+    if scheduled:
+        return False, "AND trigger logic currently requires entity-state triggers"
+    states = []
+    for trigger in triggers:
+        entity_id = str(trigger.get("entity_id") or "")
+        current = (ha_ws.state_cache.get(entity_id) or {}).get("state")
+        active = _automation_trigger_active(trigger, current)
+        states.append(f"{entity_id}={current if current is not None else 'unavailable'}")
+        if not active:
+            return False, "AND trigger waiting: " + ", ".join(states)
+    return True, "AND triggers active: " + ", ".join(states)
+
 def _automation_conditions(item: dict[str, Any]) -> list[dict[str, Any]]:
     return [value for value in item.get("conditions") or [] if isinstance(value, dict) and (value.get("entity_id") or str(value.get("kind") or "entity") != "entity")][:20]
 
@@ -1189,6 +1215,7 @@ def _automation_expected_zone(data: dict[str, Any], item: dict[str, Any]) -> str
 
 def _automation_test_flow(item: dict[str, Any], settings: dict[str, Any], data: dict[str, Any]) -> dict[str, Any]:
     trigger_results = []
+    trigger_mode = "all" if str(item.get("trigger_mode") or "any") == "all" else "any"
     for index, trigger in enumerate(_automation_triggers(item)):
         entity_id = str(trigger.get("entity_id") or "")
         current = (ha_ws.state_cache.get(entity_id) or {}).get("state")
@@ -1198,7 +1225,11 @@ def _automation_test_flow(item: dict[str, Any], settings: dict[str, Any], data: 
             trigger_results.append({"status": "pass" if due else "waiting", "detail": detail})
             continue
         operator = str(trigger.get("operator") or "changes_to")
-        if operator in {"any_change", "changes_to"}:
+        if trigger_mode == "all" and operator == "changes_to":
+            matched = _automation_trigger_active(trigger, current)
+            status = "pass" if matched else "fail"
+            detail = f"{entity_id}={current if current is not None else 'unavailable'}"
+        elif operator in {"any_change", "changes_to"}:
             status = "waiting"
             detail = f"{entity_id}={current if current is not None else 'unavailable'}; waits for the next matching change"
         else:
@@ -1206,7 +1237,10 @@ def _automation_test_flow(item: dict[str, Any], settings: dict[str, Any], data: 
             status = "pass" if matched else "fail"
             detail = f"{entity_id}={current if current is not None else 'unavailable'}"
         trigger_results.append({"status": status, "detail": detail})
-    trigger_status = "pass" if any(result["status"] == "pass" for result in trigger_results) else "waiting" if any(result["status"] == "waiting" for result in trigger_results) else "fail"
+    if trigger_mode == "all" and len(trigger_results) > 1:
+        trigger_status = "pass" if all(result["status"] == "pass" for result in trigger_results) else "fail" if any(result["status"] == "fail" for result in trigger_results) else "waiting"
+    else:
+        trigger_status = "pass" if any(result["status"] == "pass" for result in trigger_results) else "waiting" if any(result["status"] == "waiting" for result in trigger_results) else "fail"
     conditions_ok, conditions_detail = _automation_context_conditions_match(item)
     presence_ok, presence_detail = _automation_presence_confirmed(item, settings, _automation_expected_zone(data, item))
     context_ok = conditions_ok and presence_ok
@@ -1228,7 +1262,7 @@ def _automation_test_flow(item: dict[str, Any], settings: dict[str, Any], data: 
         "branch": branch_name,
         "effective_policy": policy,
         "trace": [
-            {"kind": "trigger", "status": trigger_status, "title": "Trigger", "detail": "; ".join(result["detail"] for result in trigger_results) or "No trigger configured"},
+            {"kind": "trigger", "status": trigger_status, "title": "Trigger", "detail": f"{trigger_mode.upper()} logic: " + ("; ".join(result["detail"] for result in trigger_results) or "No trigger configured")},
             {"kind": "context", "status": "pass" if context_ok else "fail", "title": "Context", "detail": f"{conditions_detail}; {presence_detail}"},
             {"kind": "decision", "status": "pass" if branch_ok else "fail", "title": "Decision", "detail": f"{branch_detail}; {policy_detail}"},
             {"kind": "action", "status": "info", "title": "Planned actions", "detail": " → ".join(action_details) or "No Home Assistant service action"},
@@ -1736,6 +1770,13 @@ async def _automation_commit_match(automation_id: str, evidence: dict[str, Any])
             current = (ha_ws.state_cache.get(trigger_entity) or {}).get("state")
             if not trigger or not _automation_condition_matches(trigger, evidence.get("old_state"), current):
                 return
+        trigger_group_ok, trigger_group_detail = _automation_trigger_group_active(item)
+        if not trigger_group_ok:
+            item["status"] = "armed"
+            item["last_deferred_reason"] = trigger_group_detail
+            _automation_record_decision(item, "waiting_trigger_group", trigger_group_detail, evidence=trigger_entity)
+            _automation_save(data)
+            return
         now = time.time()
         if _automation_numeric_episode_update(item, trigger, current, now):
             _automation_save(data)
@@ -1836,7 +1877,7 @@ async def _automation_commit_match(automation_id: str, evidence: dict[str, Any])
         confidence = 1.0
         detail = str(item.get("proposal_template") or item.get("objective") or "Automation condition matched.")
         trigger_detail = "fired" if trigger_kind != "entity" else f"changed from {evidence.get('old_state')} to {current}"
-        evidence_text = f"{trigger_entity} {trigger_detail}; {conditions_detail}; {branch_detail}; {presence_detail}; {rate_detail}"
+        evidence_text = f"{trigger_entity} {trigger_detail}; {trigger_group_detail}; {conditions_detail}; {branch_detail}; {presence_detail}; {rate_detail}"
         if policy == "observe":
             item["status"] = "observed"
             _automation_record_decision(item, "observed", policy_detail, evidence=evidence_text, policy=policy, branch=branch_name)

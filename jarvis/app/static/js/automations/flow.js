@@ -1,123 +1,62 @@
 "use strict";
 
 (() => {
-  const operatorLabels = {
-    any_change: "changes",
-    changes_to: "changes to",
-    equals: "equals",
-    not_equals: "does not equal",
-    above: "rises above",
-    below: "falls below",
-  };
+  const operatorLabels = {any_change:"changes",changes_to:"changes to",equals:"equals",not_equals:"does not equal",above:"rises above",below:"falls below"};
+  const text = (value, fallback) => String(value ?? "").trim() || fallback;
 
-  function text(value, fallback) {
-    const cleaned = String(value ?? "").trim();
-    return cleaned || fallback;
+  function node(kind,index,label,title,detail) {
+    const element=document.createElement("section");element.className=`automation-flow-node is-${kind}`;element.dataset.flowKind=kind;element.dataset.flowIndex=String(index);element.tabIndex=0;element.setAttribute("role","button");element.setAttribute("aria-label",`Configure ${label.toLowerCase()} block ${index+1}`);
+    const kicker=document.createElement("span");kicker.className="automation-flow-kicker";kicker.textContent=label;
+    const heading=document.createElement("strong");heading.textContent=title;
+    const description=document.createElement("small");description.textContent=detail;
+    element.append(kicker,heading,description);return element;
   }
-
-  function node(kind, label, title, detail, steps = []) {
-    const element = document.createElement("section");
-    element.className = `automation-flow-node is-${kind}`;
-    element.dataset.flowKind = kind;
-    element.tabIndex = 0;
-    element.setAttribute("role", "button");
-    element.setAttribute("aria-label", `Configure ${label.toLowerCase()} block`);
-    const kicker = document.createElement("span");
-    kicker.className = "automation-flow-kicker";
-    kicker.textContent = label;
-    const heading = document.createElement("strong");
-    heading.textContent = title;
-    const description = document.createElement("small");
-    description.textContent = detail;
-    element.append(kicker, heading, description);
-    appendSubsteps(element, steps);
-    return element;
+  function verticalConnector(){const element=document.createElement("span");element.className="automation-flow-stage-connector";element.setAttribute("aria-hidden","true");return element}
+  function logicConnector(mode,interactive,type="trigger"){
+    const element=document.createElement("span");element.className="automation-flow-logic";const normalized=mode==="all"?"all":"any";
+    if(!interactive){element.textContent=normalized==="all"?"AND":"OR";return element}
+    const select=document.createElement("select");select.className="automation-flow-logic-select";select.dataset[type==="trigger"?"triggerLogic":"conditionLogic"]="";select.setAttribute("aria-label",type==="trigger"?"Relationship between triggers":"Relationship between conditions");
+    for(const [value,label] of [["any","OR"],["all","AND"]]){const option=document.createElement("option");option.value=value;option.textContent=label;option.selected=normalized===value;select.append(option)}element.append(select);return element;
   }
-
-  function connector() {
-    const element = document.createElement("span");
-    element.className = "automation-flow-connector";
-    element.setAttribute("aria-hidden", "true");
-    element.textContent = "→";
-    return element;
+  function stage(kind,title,nodes,joinMode="",interactive=false){
+    const section=document.createElement("section");section.className=`automation-flow-stage is-${kind}`;
+    const heading=document.createElement("div");heading.className="automation-flow-stage-heading";heading.textContent=title;
+    const row=document.createElement("div");row.className="automation-flow-node-row";
+    nodes.forEach((item,index)=>{if(index)row.append(logicConnector(joinMode,interactive,kind==="trigger"?"trigger":"condition"));row.append(item)});section.append(heading,row);return section;
   }
-
-  function appendSubsteps(element, steps) {
-    if (!steps.length) return;
-    const list = document.createElement("div");
-    list.className = "automation-flow-substeps";
-    for (const step of steps) {
-      const item = document.createElement("span");
-      item.className = "automation-flow-substep";
-      item.textContent = step;
-      list.append(item);
-    }
-    element.append(list);
+  function triggerCard(item,index,entityName){
+    const kind=item.kind||"entity";
+    if(kind==="time")return node("trigger",index,`EVENT ${index+1}`,`At ${text(item.at,"a local time")}`,"Home Assistant local time");
+    if(kind==="sun")return node("trigger",index,`EVENT ${index+1}`,`${item.sun_event||"sunrise"} ${Number(item.offset_minutes||0)>=0?"+":""}${Number(item.offset_minutes||0)} min`,"Sun event schedule");
+    if(kind==="interval")return node("trigger",index,`EVENT ${index+1}`,`Every ${Number(item.interval_minutes||5)} min`,"Repeating schedule");
+    if(kind==="one_time")return node("trigger",index,`EVENT ${index+1}`,text(item.one_time_at,"Choose a date and time"),"One-time schedule");
+    const operator=operatorLabels[item.operator]||text(item.operator,"changes to"),value=text(item.value,"any value"),duration=Number(item.for_seconds||0);
+    return node("trigger",index,`EVENT ${index+1}`,entityName(text(item.entity_id,"Choose a trigger entity")),`${operator} ${value}${duration?` for ${duration} seconds`:""}`);
   }
-
-  function create(automation = {}, entityName = value => value) {
-    const flow = document.createElement("div");
-    flow.className = "automation-flow";
-    flow.setAttribute("role", "group");
-    flow.setAttribute("aria-label", `${text(automation.name, "Automation")} visual flow`);
-
-    const primaryTrigger = Array.isArray(automation.triggers) && automation.triggers.length ? automation.triggers[0] : {kind:"entity",entity_id:automation.trigger_entity,operator:automation.trigger_operator,value:automation.trigger_value,for_seconds:automation.trigger_for_seconds};
-    const triggerKind = primaryTrigger.kind || "entity";
-    const scheduleTitle = triggerKind === "time" ? `At ${primaryTrigger.at || "a local time"}` : triggerKind === "sun" ? `${primaryTrigger.sun_event || "sunrise"} ${Number(primaryTrigger.offset_minutes||0) >= 0 ? "+" : ""}${Number(primaryTrigger.offset_minutes||0)} min` : triggerKind === "interval" ? `Every ${Number(primaryTrigger.interval_minutes||5)} min` : triggerKind === "one_time" ? text(primaryTrigger.one_time_at,"Choose a date and time") : "";
-    const triggerEntity = triggerKind === "entity" ? text(primaryTrigger.entity_id || automation.trigger_entity, "Choose a trigger entity") : scheduleTitle;
-    const triggerValue = text(primaryTrigger.value || automation.trigger_value, "any value");
-    const operator = operatorLabels[primaryTrigger.operator || automation.trigger_operator] || text(primaryTrigger.operator || automation.trigger_operator, "changes to");
-    const duration = Number(primaryTrigger.for_seconds || automation.trigger_for_seconds || 0);
-    const triggers = Array.isArray(automation.triggers) ? automation.triggers.filter(item => item && typeof item === "object") : [];
-    const scheduleDays = Array.isArray(primaryTrigger.weekdays)&&primaryTrigger.weekdays.length ? ` · ${primaryTrigger.weekdays.length} selected day${primaryTrigger.weekdays.length===1?"":"s"}` : "";
-    const triggerDetail = triggerKind === "entity" ? `${operator} ${triggerValue}${duration > 0 ? ` for ${duration} seconds` : ""}${triggers.length > 1 ? ` · ${triggers.length} OR triggers` : ""}` : `Local Home Assistant schedule${scheduleDays}${triggers.length > 1 ? ` · ${triggers.length} OR triggers` : ""}`;
-
-    const presence = text(automation.presence_entity, "");
-    const signals = Array.isArray(automation.signal_entities) ? automation.signal_entities.filter(Boolean) : [];
-    const contextTitle = presence ? entityName(presence) : signals.length ? `${signals.length} context signal${signals.length === 1 ? "" : "s"}` : "No presence requirement";
-    const conditions = Array.isArray(automation.conditions) ? automation.conditions.filter(item => item && typeof item === "object") : [];
-    const conditionDetail = conditions.length ? `${conditions.length} ${String(automation.condition_mode || "all").toUpperCase()} condition${conditions.length === 1 ? "" : "s"}` : "";
-    const contextDetail = presence
-      ? `Presence confirmed${signals.length ? ` · ${signals.length} supporting signal${signals.length === 1 ? "" : "s"}` : ""}`
-      : signals.length ? signals.slice(0, 2).map(entityName).join(" · ") : "Evaluate from the trigger alone";
-
-    const confidence = Math.round(Number(automation.confidence_threshold ?? 0.75) * 100);
-    const authority = text(automation.execution_policy, "suggest").replaceAll("_", " ");
-    const branches = Array.isArray(automation.branches) ? automation.branches.filter(item => item && typeof item === "object") : [];
-    const decisionTitle = branches.length ? `${branches.length} first-match branch${branches.length === 1 ? "" : "es"}` : text(automation.proposal_template, text(automation.objective, "Record the match"));
-    const reoffer = Number(automation.reoffer_delta || 0);
-    const reset = Number(automation.reset_delta || 0);
-    const episodePolicy = `${reoffer > 0 ? `${reoffer} worsening` : "auto reconsider"} · ${reset > 0 ? `${reset} reset margin` : "threshold reset"}`;
-    const decisionDetail = `${confidence}% confidence · ${authority} · ${Number(automation.cooldown_minutes || 30)} min cooldown · ${episodePolicy}${branches.length ? " · IF / ELSE" : ""}`;
-
-    const actionEntity = text(automation.action_entity, "");
-    const actionService = text(automation.action_service, "");
-    const actions = Array.isArray(automation.actions) ? automation.actions.filter(item => item && typeof item === "object") : [];
-    const actionLabel = item => item.kind === "delay" ? item.delay_seconds ? `Delay ${item.delay_seconds}s` : "Delay ?s" : item.kind === "wait_state" ? `Wait for ${item.entity_id ? entityName(item.entity_id) : "an entity"}` : text(item.service, "Configure service action");
-    const actionTitle = actions.length > 1 ? `${actions.length} ordered actions` : actions.length === 1 ? actionLabel(actions[0]) : actionEntity ? entityName(actionEntity) : "Suggestion only";
-    const actionDetail = actions.length > 1 ? actions.map(actionLabel).slice(0, 2).join(" → ") : actions.length === 1 ? actionLabel(actions[0]) : actionEntity && actionService ? actionService : "No Home Assistant service call";
-
-    const nodes = [
-      node("trigger", "WHEN", entityName(triggerEntity), triggerDetail),
-      node("context", "IF", conditionDetail || contextTitle, conditionDetail ? `${contextDetail} · ${conditionDetail}` : contextDetail),
-      node("decision", "DECIDE", decisionTitle, decisionDetail),
-      node("action", "THEN", actionTitle, actionDetail),
-    ];
-    appendSubsteps(nodes[0], triggers.slice(1).map((item, index) => `OR ${index + 2} · ${item.kind && item.kind !== "entity" ? item.kind.replaceAll("_", " ") : text(item.entity_id, "Choose a trigger entity")}`));
-    appendSubsteps(nodes[1], conditions.map((item, index) => `${String(automation.condition_mode || "all").toUpperCase()} ${index + 1} · ${item.kind && item.kind !== "entity" ? item.kind.replaceAll("_", " ") : text(item.entity_id, "Choose a condition entity")}`));
-    appendSubsteps(nodes[2], branches.map((item, index) => `${text(item.name, `Branch ${index + 1}`)} · ${(item.conditions || []).length} condition${(item.conditions || []).length === 1 ? "" : "s"}`));
-    appendSubsteps(nodes[3], automation.studio_visual_draft || actions.length > 1 ? actions.map((item, index) => `${index + 1} · ${actionLabel(item)}`) : []);
-    nodes.forEach((item, index) => {
-      if (index) flow.append(connector());
-      flow.append(item);
-    });
-    return flow;
+  function conditionCard(item,index,entityName){
+    const kind=item.kind||"entity";
+    if(kind==="time_window")return node("context",index,`CONDITION ${index+1}`,`${text(item.start_time,"start")} – ${text(item.end_time,"end")}`,"Local time window");
+    if(kind==="weekday")return node("context",index,`CONDITION ${index+1}`,Array.isArray(item.weekdays)&&item.weekdays.length?`${item.weekdays.length} selected days`:"Choose weekdays","Calendar condition");
+    if(kind==="sun")return node("context",index,`CONDITION ${index+1}`,`Sun is ${text(item.sun_state,"below horizon").replaceAll("_"," ")}`,"Home Assistant sun state");
+    const operator=operatorLabels[item.operator]||text(item.operator,"equals");return node("context",index,`CONDITION ${index+1}`,entityName(text(item.entity_id,"Choose a condition entity")),`${operator} ${text(item.value,"a value")}`);
   }
-
-  function render(root, automation, entityName) {
-    if (!root) return;
-    root.replaceChildren(create(automation, entityName));
+  function actionLabel(item,entityName){
+    const kind=item.kind||"service";
+    if(kind==="delay")return [`Delay ${Number(item.delay_seconds||0)||"?"}s`,"Pause the process"];
+    if(kind==="wait_state")return [`Wait for ${item.entity_id?entityName(item.entity_id):"an entity"}`,`${text(item.wait_operator,"equals").replaceAll("_"," ")} ${text(item.wait_value,"a value")}`];
+    return [item.entity_id?entityName(item.entity_id):"Choose an action entity",text(item.service,"Configure a service action")];
   }
-
-  window.zbranoAutomationFlow = {create, render};
+  function create(automation={},entityName=value=>value){
+    const flow=document.createElement("div");flow.className="automation-flow";flow.setAttribute("role","group");flow.setAttribute("aria-label",`${text(automation.name,"Automation")} visual flow`);const interactive=Boolean(automation.studio_visual_draft);
+    let triggers=Array.isArray(automation.triggers)?automation.triggers.filter(item=>item&&typeof item==="object"):[];if(!triggers.length)triggers=[{kind:"entity",entity_id:automation.trigger_entity,operator:automation.trigger_operator,value:automation.trigger_value,for_seconds:automation.trigger_for_seconds}];
+    flow.append(stage("trigger","WHEN THIS HAPPENS",triggers.map((item,index)=>triggerCard(item,index,entityName)),automation.trigger_mode,interactive));
+    const contextNodes=[];if(automation.presence_entity)contextNodes.push(node("context",contextNodes.length,"CONTEXT",entityName(automation.presence_entity),"Presence must be confirmed"));for(const entityId of (automation.signal_entities||[]).filter(Boolean))contextNodes.push(node("context",contextNodes.length,"SIGNAL",entityName(entityId),"Supporting context signal"));for(const condition of (automation.conditions||[]).filter(item=>item&&typeof item==="object"))contextNodes.push(conditionCard(condition,contextNodes.length,entityName));if(!contextNodes.length)contextNodes.push(node("context",0,"CONTEXT","No extra condition","Continue when an event matches"));
+    flow.append(verticalConnector(),stage("context","CHECK THESE CONDITIONS",contextNodes,automation.condition_mode,false));
+    const branches=(automation.branches||[]).filter(item=>item&&typeof item==="object"),decisionNodes=branches.length?branches.map((branch,index)=>node("decision",index,index===branches.length-1&&!(branch.conditions||[]).length?"ELSE":`PATH ${index+1}`,text(branch.name,`Branch ${index+1}`),`${(branch.conditions||[]).length} condition${(branch.conditions||[]).length===1?"":"s"} · ${(branch.actions||[]).length} task${(branch.actions||[]).length===1?"":"s"}`)):[node("decision",0,"PROCESS",text(automation.proposal_template,text(automation.objective,"Record the match")),`${Math.round(Number(automation.confidence_threshold??.75)*100)}% confidence · ${text(automation.execution_policy,"suggest").replaceAll("_"," ")}`)];
+    flow.append(verticalConnector(),stage("decision",branches.length?"CHOOSE THE FIRST MATCHING PATH":"RUN THIS PROCESS",decisionNodes));
+    let actions=(automation.actions||[]).filter(item=>item&&typeof item==="object");if(!actions.length&&automation.action_entity&&automation.action_service)actions=[{kind:"service",entity_id:automation.action_entity,service:automation.action_service}];const actionNodes=actions.length?actions.map((item,index)=>{const [title,detail]=actionLabel(item,entityName);return node("action",index,`TASK ${index+1}`,title,detail)}):[node("action",0,"TASK","Suggestion only","No Home Assistant service call")];
+    flow.append(verticalConnector(),stage("action","DO THESE TASKS",actionNodes));return flow;
+  }
+  function render(root,automation,entityName){if(root)root.replaceChildren(create(automation,entityName))}
+  window.zbranoAutomationFlow={create,render};
 })();

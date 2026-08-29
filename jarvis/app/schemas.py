@@ -173,6 +173,7 @@ class AutonomousAutomationRequest(BaseModel):
     trigger_for_seconds: int = Field(default=0, ge=0, le=86400)
     action_service_data: dict[str, Any] = Field(default_factory=dict)
     triggers: list[AutomationTriggerRequest] = Field(default_factory=list, max_length=10)
+    trigger_mode: str = Field(default="any", pattern="^(any|all)$")
     conditions: list[AutomationConditionRequest] = Field(default_factory=list, max_length=20)
     condition_mode: str = Field(default="all", pattern="^(all|any)$")
     actions: list[AutomationActionRequest] = Field(default_factory=list, max_length=20)

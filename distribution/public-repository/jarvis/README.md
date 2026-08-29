@@ -6,11 +6,10 @@ connections.
 
 ## Automation Studio
 
-Version 0.13.98 build-gates a complete visual workflow lifecycle through creation,
-persistence, safe dry-run, activation, reload, and event evaluation. It includes
-functional drag-and-drop Trigger, Context, Decision, and Action blocks. Dropped blocks are added
-to the draft, rendered immediately, and opened for configuration. The full
-Advanced editor remains available, existing stored automations are preserved, and
+Version 0.13.99 presents every dragged event, condition, process path, and task as
+an independent connected card in an AppSheet-style canvas. Multiple event cards
+use a visible persisted OR/AND relationship control and open their configuration
+in the compact inspector. The full Advanced editor remains available, existing stored automations are preserved, and
 repeatable OR triggers, grouped conditions, ordered actions, and IF/ELSE branches
 are supported, together with dedicated Delay and bounded Wait Until steps. Each
 automation can use the global operating default or select its own lower authority,

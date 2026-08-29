@@ -34,10 +34,10 @@ def load_functions(names, states=None):
 
 class TimeScheduleAutomationReleaseTests(unittest.TestCase):
     def test_release_markers_are_aligned(self):
-        self.assertIn('version: "0.13.98"', CONFIG)
-        self.assertIn('version="0.13.98"', MAIN)
-        self.assertIn("HUD 0.13.98", HTML)
-        self.assertEqual(MANIFEST["version"], "0.13.98")
+        self.assertIn('version: "0.13.99"', CONFIG)
+        self.assertIn('version="0.13.99"', MAIN)
+        self.assertIn("HUD 0.13.99", HTML)
+        self.assertEqual(MANIFEST["version"], "0.13.99")
 
     def test_schedule_triggers_fire_once_per_slot(self):
         schedule_due = load_functions({"_automation_schedule_due"})["_automation_schedule_due"]
@@ -78,7 +78,7 @@ class TimeScheduleAutomationReleaseTests(unittest.TestCase):
     def test_graphical_builder_and_worker_cover_all_schedule_types(self):
         for kind in ("time", "sun", "interval", "one_time"):
             self.assertIn(f'<option value="{kind}"', HTML)
-            self.assertIn(f'triggerKind === "{kind}"', FLOW)
+            self.assertIn(f'kind==="{kind}"', FLOW)
         for kind in ("time_window", "weekday", "sun"):
             self.assertIn(f'value="{kind}"', WORKSPACE)
         self.assertIn("async def automation_schedule_worker", AUTOMATIONS)
@@ -88,7 +88,7 @@ class TimeScheduleAutomationReleaseTests(unittest.TestCase):
         self.assertIn("AutomationConditionRequest", SCHEMAS)
 
     def test_release_history_includes_v01370(self):
-        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.97")
+        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.98")
 
 
 if __name__ == "__main__":
