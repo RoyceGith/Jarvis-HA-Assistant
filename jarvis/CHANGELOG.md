@@ -1,5 +1,13 @@
 # Change log
 
+## 0.13.84
+
+- Added an explicit Unsaved changes badge to Automation Studio.
+- Protected dirty flows before New Flow, template loading, opening another rule, or
+  Cancel replaces the current editor state.
+- Preserved every current field and workflow step when replacement confirmation is
+  dismissed, without interrupting clean flows or ordinary navigation.
+
 ## 0.13.83
 
 - Added continuous validation for visual automation details, triggers, conditions,
