@@ -382,6 +382,63 @@ def automation_brain_memory_context(message: str) -> str:
         "learned_patterns": patterns, "discoveries": discoveries,
     }, ensure_ascii=False)
 
+async def automation_chat_context(entity_ids: list[str] | None = None) -> dict[str, Any]:
+    """Return bounded HA organization context for conversational automation design."""
+    try:
+        context = await _automation_refresh_area_context()
+    except (RuntimeError, OSError, asyncio.TimeoutError):
+        context = automation_store().get("area_context") or {}
+    zones = [{
+        "entity_id": str(item.get("entity_id") or ""),
+        "name": str(item.get("name") or ""),
+        "occupants": item.get("occupants"),
+    } for item in context.get("zones", []) if isinstance(item, dict) and item.get("entity_id")]
+    areas = [{
+        "area_id": str(item.get("area_id") or ""),
+        "name": str(item.get("name") or ""),
+        "site_name": str(item.get("site_name") or ""),
+        "zone_entity_id": str(item.get("zone_entity_id") or ""),
+        "labels": list(item.get("labels") or [])[:20],
+    } for item in context.get("areas", []) if isinstance(item, dict) and item.get("area_id")]
+    requested_entities = {str(entity_id or "").strip().lower() for entity_id in entity_ids or [] if str(entity_id or "").strip()}
+    linked_entities = []
+    for item in context.get("entities", []):
+        if not isinstance(item, dict):
+            continue
+        entity_id = str(item.get("entity_id") or "")
+        if not entity_id or not effective_entity_access(entity_id):
+            continue
+        if requested_entities and entity_id not in requested_entities:
+            continue
+        linked_entities.append({
+            "entity_id": entity_id,
+            "area_id": str(item.get("area_id") or ""),
+            "area_name": str(item.get("area_name") or ""),
+            "site_name": str(item.get("site_name") or ""),
+            "zone_entity_id": str(item.get("zone_entity_id") or ""),
+            "role": str(item.get("role") or ""),
+        })
+    presence_candidates = []
+    for entity_id, state in ha_ws.state_cache.items():
+        if entity_id.split(".", 1)[0] not in {"person", "device_tracker"} or not effective_entity_access(entity_id):
+            continue
+        attributes = state.get("attributes") if isinstance(state.get("attributes"), dict) else {}
+        presence_candidates.append({
+            "entity_id": entity_id,
+            "friendly_name": str(attributes.get("friendly_name") or entity_id),
+            "state": str(state.get("state") or "unknown"),
+        })
+    return {
+        "zones": zones[:20],
+        "areas": areas[:60],
+        "linked_entities": linked_entities[:40] if requested_entities else linked_entities[:80],
+        "presence_candidates": presence_candidates[:20],
+        "presence_semantics": (
+            "Use an approved person.* or device_tracker.* as presence_entity. Do not use zone.* as the person. "
+            "For an entity in an Area linked to a Zone, ZBRANO compares that person's state with the linked Zone automatically."
+        ),
+    }
+
 def _automation_event(data, event_type, title, detail=""):
     import secrets
 

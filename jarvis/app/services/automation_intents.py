@@ -37,6 +37,7 @@ def is_automation_intent(message: str) -> bool:
 def automation_priority_tools() -> list[dict[str, Any]]:
     names = {
         "find_home_assistant_entities", "get_home_assistant_state",
+        "get_home_assistant_automation_context",
         "prepare_autonomous_automation", "create_notification_watch",
     }
     return [tool for tool in _workshop_tools if str(tool.get("name") or "") in names]
@@ -59,6 +60,11 @@ Interpret the user's request as recurring behavior, not an immediate device comm
 natural entity name with find_home_assistant_entities. Inspect the exact trigger and action entities with
 get_home_assistant_state so current state and supported attributes are known. A remembered mapping is a candidate,
 not permission to guess. If more than one plausible entity remains, present the short choices and ask which one.
+When the request mentions presence, a room, Area, site, location, or Zone, call
+get_home_assistant_automation_context before asking the user. Reuse its known Area-to-Zone links and approved
+person/device tracker candidates. A zone.* entity describes the place; presence_entity must be the approved
+person.* or device_tracker.* whose state is compared with the linked Zone automatically. Never claim Zones are
+unavailable merely because find_home_assistant_entities does not return them.
 Infer safe defaults only for cooldown and suggestion wording; ask when action semantics, presence, or authority are
 materially ambiguous. Never generate executable code. Call prepare_autonomous_automation only with exact approved
 entity IDs and a deterministic Home Assistant service. The tool stores a disabled draft and a review preview.

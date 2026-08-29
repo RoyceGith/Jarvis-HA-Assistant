@@ -1,9 +1,9 @@
 {
-  "version": "0.13.93",
+  "version": "0.13.94",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/ZBRANO_Core main",
-  "summary": "Hide the owner-specific Grinder extension UI, intent routing, tools, and incident APIs unless its existing Home Assistant option explicitly enables it.",
+  "summary": "Let conversational automation creation read Home Assistant Areas, linked Zones, and approved presence trackers so known location relationships are reused correctly.",
   "history_backfill": [
     {
       "version": "0.13.0",
@@ -376,22 +376,28 @@
     {
       "version": "0.13.92",
       "summary": "Added a build-gated complete backup round trip across Settings, chats, entity policy, automations, notifications, calendar, and Fast Memory."
+    },
+    {
+      "version": "0.13.93",
+      "summary": "Hid the owner-specific Grinder extension UI, intent routing, tools, and incident APIs unless explicitly enabled."
     }
   ],
   "release_entry": {
     "features": [
-      "Keep the personal Grinder HUD completely hidden on installations where the extension is disabled.",
-      "Expose Grinder intent tools only when grinder_monitor_enabled is explicitly true, preserving the owner's existing configuration."
+      "Give conversational automation design a bounded read-only view of Home Assistant Areas, linked Zones, approved room entities, and person or device-tracker presence candidates.",
+      "Reuse the Area-to-Zone relationship already maintained by Rooms & Learning when preparing location-aware automations."
     ],
     "fixes": [
-      "Prevent disabled installations from routing normal chat into owner-specific Grinder diagnostics.",
-      "Return not found from owner-only incident APIs when the extension is disabled and stop unnecessary HUD polling."
+      "Stop asking users for a known zone entity merely because the ordinary approved-entity search does not list zone registry context.",
+      "Keep presence_entity correctly assigned to an approved person or device tracker while the automation engine compares its state with the inferred linked Zone."
     ],
     "validation": [
-      "Disabled and enabled Grinder intent/tool gating, hidden HUD behavior, incident API guards, browser smoke, release manifest, README alignment, and v0.13.93 release coverage"
+      "Location-aware automation tool routing, bounded Area/Zone/entity context, approved person presence semantics, browser smoke, release manifest, README alignment, and v0.13.94 release coverage"
     ]
   },
   "features": [
+    "Expose known Home Assistant Area-to-Zone relationships and approved presence candidates to conversational automation creation.",
+    "Use an approved person or device tracker as automation presence while inferring the expected Zone from linked room entities.",
     "Hide owner-specific Grinder UI and runtime tools unless its explicit Home Assistant option enables the extension.",
     "Block disabled Grinder intent routing and incident data APIs while preserving the owner's configured behavior.",
     "Prove a complete user-data backup round trip across all backed-up persistent domains.",

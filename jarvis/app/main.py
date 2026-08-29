@@ -36,6 +36,7 @@ from .domains.automations import (
     _automation_test_flow,
     _prepare_chat_automation,
     automation_brain_memory_context,
+    automation_chat_context,
     automation_entity_memory_context,
     automation_schedule_worker,
     automation_store,
@@ -678,7 +679,7 @@ ha_ws = HomeAssistantWebSocketClient(
 
 app = FastAPI(
     title="ZBRANO",
-    version="0.13.93",
+    version="0.13.94",
     docs_url="/api/docs",
     openapi_url="/api/openapi.json",
 )
@@ -778,11 +779,37 @@ WORKSHOP_TOOLS: list[dict[str, Any]] = [
     },
     {
         "type": "function",
+        "name": "get_home_assistant_automation_context",
+        "description": (
+            "Read ZBRANO's current Home Assistant Areas, linked Zones, approved area entities, and approved "
+            "person/device tracker presence candidates before designing a location-aware automation. This is "
+            "read-only and should be used instead of asking for a Zone that ZBRANO already knows. Pass the "
+            "already resolved trigger and action entity IDs to return their exact Area-to-Zone links; pass [] "
+            "when only the known Areas, Zones, and presence candidates are needed."
+        ),
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "entity_ids": {
+                    "type": "array",
+                    "items": {"type": "string"},
+                    "description": "Exact approved trigger/action entity IDs whose Area and Zone links are needed."
+                }
+            },
+            "required": ["entity_ids"],
+            "additionalProperties": False
+        },
+        "strict": True,
+    },
+    {
+        "type": "function",
         "name": "prepare_autonomous_automation",
         "description": (
             "Prepare a disabled, reviewable ZBRANO automation draft after the user asks for recurring behavior. "
             "Resolve every natural entity name with find_home_assistant_entities and inspect action capabilities "
-            "with get_home_assistant_state first. If a required entity is ambiguous, ask one concise question and "
+            "with get_home_assistant_state first. For room, site, Zone, or presence behavior, read "
+            "get_home_assistant_automation_context first and reuse its known Area-to-Zone link plus an approved "
+            "person/device tracker; never use zone.* as presence_entity. If a required entity is ambiguous, ask one concise question and "
             "do not call this tool yet. This tool never enables or executes the automation. It saves a structured "
             "preview, remembers confirmed natural-name mappings, and requires a separate user confirmation before activation."
         ),
@@ -1159,7 +1186,10 @@ explicitly names another device.
 
 For recurring Home Assistant behavior, use the Automation Brain workflow rather than performing the requested
 device action immediately. Resolve trigger, presence, signal, and action entities from approved Home Assistant
-entities. Reuse remembered automation mappings only as candidates and verify them. Ask one concise clarification
+entities. For room, site, Zone, location, or presence requests, call get_home_assistant_automation_context and use
+known Area-to-Zone links plus approved person/device tracker candidates before asking the user. A zone.* entity is
+the place, not the presence_entity; ZBRANO automatically compares the selected person/device tracker state with
+the Zone linked to the trigger or action Area. Reuse remembered automation mappings only as candidates and verify them. Ask one concise clarification
 when a required mapping is ambiguous. Once all essentials are known, call prepare_autonomous_automation. It saves
 only a disabled structured draft. Explain its trigger, action, authority, cooldown, and safety conditions, then ask
 the user to reply confirm or cancel. Never claim a prepared draft is active before confirmation.
@@ -1502,6 +1532,8 @@ async def execute_tool_calls(
                     result = await _create_notification_watch(NotificationWatchRequest(**arguments), source="chat")
                 elif name == "prepare_autonomous_automation":
                     result = await _prepare_chat_automation(AutomationChatDraftRequest(**arguments), session_id)
+                elif name == "get_home_assistant_automation_context":
+                    result = await automation_chat_context(arguments.get("entity_ids") or [])
                 elif name == "find_home_assistant_entities":
                     result = find_approved_entities(arguments["query"])
                 elif name == "get_home_assistant_state":
@@ -2657,7 +2689,7 @@ async def health() -> dict[str, Any]:
     configured_speech_provider = SPEECH_PROVIDER if SPEECH_PROVIDER in {"openai", "elevenlabs"} else "openai"
     return {
         "status": "ok",
-        "version": "0.13.93",
+        "version": "0.13.94",
         "home_assistant_configured": bool(SUPERVISOR_TOKEN),
         "workshop_memory_configured": bool(WORKSHOP_MEMORY_URL),
         "workshop_memory_cost_guard": workshop_cost_guard_status(),

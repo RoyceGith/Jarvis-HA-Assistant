@@ -1,5 +1,11 @@
 # Change log
 
+## 0.13.94
+
+- Exposed known Home Assistant Area-to-Zone links to conversational automation creation.
+- Reused approved person or device-tracker presence candidates for site-aware rules.
+- Stopped asking for Zone IDs already known by Rooms & Learning.
+
 ## 0.13.93
 
 - Hid the owner-specific Grinder HUD when its Home Assistant option is disabled.
