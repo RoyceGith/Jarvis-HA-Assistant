@@ -1,5 +1,13 @@
 # Change log
 
+## 0.13.85
+
+- Added compact My Automations search across names, objectives, entities, services,
+  triggers, conditions, actions, and branches.
+- Added active, attention-needed, disabled, automatic, and notification-watch filters
+  with live result counts.
+- Added clear no-match feedback without modifying stored automation definitions.
+
 ## 0.13.84
 
 - Added an explicit Unsaved changes badge to Automation Studio.

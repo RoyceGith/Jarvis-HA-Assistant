@@ -93,7 +93,7 @@ function apiFixture(url) {
   if (pathname === "/api/health") {
     return {
       status: "ok",
-      version: "0.13.84",
+      version: "0.13.85",
       speech_provider: "openai",
       speech_providers: {openai: {configured: true}, elevenlabs: {configured: false}},
     };
@@ -132,7 +132,7 @@ function apiFixture(url) {
   if (pathname === "/api/plugins") return {plugins: []};
   if (pathname === "/api/files/shared") return {files: [], count: 0};
   if (pathname === "/api/release-memory-sync") {
-    return {enabled: false, state: "disabled", version: "0.13.84", task_active: false};
+    return {enabled: false, state: "disabled", version: "0.13.85", task_active: false};
   }
   if (pathname === "/api/tab-activity") return {revisions: {}};
   if (pathname === "/api/grinder-monitor/status") return {enabled: false, connected: false};
@@ -244,6 +244,18 @@ async function main() {
     assert.equal(automationLayout.navCursor, "pointer");
     await page.locator('[data-automation-library-view="saved"]').click();
     await page.locator('[data-automation-library-panel="saved"]:not(.hidden)').waitFor();
+    assert.equal((await page.locator("#automation-library-count").innerText()).toLowerCase(), "1 automation");
+    await page.locator("#automation-library-search").fill("browser flow");
+    assert.equal(await page.locator("#automation-library .autonomy-draft").count(), 1);
+    await page.locator("#automation-library-search").fill("missing automation");
+    assert.equal(await page.locator("#automation-library .autonomy-draft").count(), 0);
+    assert.match(await page.locator("#automation-library-count").innerText(), /0 of 1/i);
+    await page.locator("#automation-library-search").fill("");
+    await page.locator("#automation-library-filter").selectOption("active");
+    assert.equal(await page.locator("#automation-library .autonomy-draft").count(), 0);
+    await page.locator("#automation-library-filter").selectOption("disabled");
+    assert.equal(await page.locator("#automation-library .autonomy-draft").count(), 1);
+    await page.locator("#automation-library-filter").selectOption("all");
     assert.equal(await page.locator("#automation-library .automation-flow-node").count(), 4);
     await page.locator('[data-automation-library-view="create"]').click();
     await page.locator('[data-automation-library-panel="create"]:not(.hidden)').waitFor();
@@ -355,7 +367,7 @@ async function main() {
     assert.equal(voiceScroll.scrollable, true, "Voice settings must exceed and scroll within the panel at compact viewport heights");
     assert.equal(voiceScroll.moved, true, "Voice settings panel must accept vertical scrolling");
 
-    console.log("Browser smoke passed: New Chat, navigation, Entity scrolling, modern Settings, Studio dirty-state safety, validation, recovery, and branching workflows");
+    console.log("Browser smoke passed: New Chat, navigation, Entity scrolling, modern Settings, Automation Library filtering, Studio safety, validation, recovery, and branching workflows");
   } finally {
     await browser.close();
     await new Promise(resolve => server.close(resolve));

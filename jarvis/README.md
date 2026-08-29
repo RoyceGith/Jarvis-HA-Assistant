@@ -1,4 +1,4 @@
-# ZBRANO v0.13.84
+# ZBRANO v0.13.85
 
 Automation Studio provides a graphical building-block workflow for Home Assistant
 automations. Use the toolbox to select or drag Trigger, Context, Decision, and
@@ -6,9 +6,10 @@ Action blocks onto the canvas, then edit only that block in the settings inspect
 Natural-language creation, templates, saved automation compatibility, and the full
 Advanced editor remain available.
 
-Version 0.13.84 adds a clear Unsaved changes badge and confirmation before New,
-template, edit, or cancel actions replace the current Studio flow. Cancelling the
-confirmation preserves the draft, while clean and saved flows remain interruption-free.
+Version 0.13.85 adds compact search and state filters to My Automations. Rules can
+be found by name, objective, entity, service, or workflow content and narrowed to
+active, attention-needed, disabled, automatic, or notification-watch entries.
+Live counts and no-match feedback do not alter stored automation definitions.
 
 The visual editor supports linear and branching workflows without silently changing
 the behavior of existing stored rules.

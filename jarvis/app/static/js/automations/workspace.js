@@ -201,9 +201,13 @@
   }
 
   function renderLibrary(){
-    const root=$("automation-library");root.replaceChildren();
-    if(!state.automations.length){root.innerHTML='<div class="autonomy-empty">No automation drafts. Start with a quick design or create your own.</div>';return}
-    for(const item of state.automations){
+    const root=$("automation-library"),all=state.automations||[],query=$("automation-library-search").value.trim().toLowerCase(),filter=$("automation-library-filter").value;root.replaceChildren();
+    const searchable=item=>[item.name,item.objective,item.trigger_entity,item.action_entity,item.action_service,item.proposal_template,...(item.signal_entities||[]),...(item.triggers||[]).flatMap(part=>[part.entity_id,part.kind]),...(item.conditions||[]).flatMap(part=>[part.entity_id,part.kind]),...(item.actions||[]).flatMap(part=>[part.entity_id,part.service,part.kind]),...(item.branches||[]).flatMap(branch=>[branch.name,...(branch.conditions||[]).map(part=>part.entity_id),...(branch.actions||[]).flatMap(part=>[part.entity_id,part.service])])].filter(Boolean).join(" ").toLowerCase();
+    const matchesFilter=item=>{const recovery=item.recovery_state||{},readiness=item.readiness||{},attention=item.review_required||recovery.circuit_open||readiness.ready===false||["blocked_permission","paused_failure","deferred"].includes(item.status);if(filter==="active")return Boolean(item.enabled);if(filter==="attention")return Boolean(attention);if(filter==="disabled")return !item.enabled;if(filter==="autonomous")return item.execution_policy==="autonomous";if(filter==="watch")return item.kind==="notification_watch";return true};
+    const visible=all.filter(item=>(!query||searchable(item).includes(query))&&matchesFilter(item));$("automation-library-count").textContent=query||filter!=="all"?`${visible.length} of ${all.length}`:`${all.length} automation${all.length===1?"":"s"}`;
+    if(!all.length){root.innerHTML='<div class="autonomy-empty">No automation drafts. Start with a quick design or create your own.</div>';return}
+    if(!visible.length){root.innerHTML='<div class="autonomy-empty">No automations match this search and state filter.</div>';return}
+    for(const item of visible){
       const row=document.createElement("div");row.className="autonomy-draft";
       const isWatch=item.kind==="notification_watch";
       const tags=[item.source==="chat"?"Chat prepared":null,isWatch?(item.status||"armed"):(item.enabled?(item.status||"armed"):item.review_required?"Review required":"Disabled"),authorityLabel(item.execution_policy),`${Math.round(Number(item.confidence_threshold||0)*100)}% confidence`,`${item.cooldown_minutes} min cooldown`,item.risk_level].filter(Boolean);
@@ -391,6 +395,8 @@
 
   panel.querySelector(".autonomy-tabs")?.addEventListener("click",event=>{const button=event.target.closest("[data-auto-view]");if(button)showView(button.dataset.autoView)});
   panel.querySelector(".automation-library-tabs")?.addEventListener("click",event=>{const button=event.target.closest("[data-automation-library-view]");if(button)showLibraryView(button.dataset.automationLibraryView)});
+  $("automation-library-search").addEventListener("input",renderLibrary);
+  $("automation-library-filter").addEventListener("change",renderLibrary);
   panel.addEventListener("pointerdown",event=>{const block=event.target.closest(".automation-studio-preview [data-flow-kind]");if(block)selectStudioNode(block.dataset.flowKind)},{capture:true});
   panel.addEventListener("click",async event=>{
     const validationIssue=event.target.closest("[data-validation-kind]");if(validationIssue){focusEditorIssue({kind:validationIssue.dataset.validationKind,field:validationIssue.dataset.validationField});return}

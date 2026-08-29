@@ -33,7 +33,7 @@
   <header>
     <div class="brand-line">
       <h1>ZBRANO</h1>
-      <div class="status hud-version-label">Workshop Intelligence Interface · HUD 0.13.84</div>
+      <div class="status hud-version-label">Workshop Intelligence Interface · HUD 0.13.85</div>
     </div>
     <div class="runtime-status-stack">
       <button id="calendar-quick-open" class="calendar-quick-open" type="button" aria-label="Open ZBRANO Calendar" title="Open Calendar">
@@ -777,7 +777,7 @@
         </div>
         <div class="hidden" data-automation-library-panel="saved">
           <article class="autonomy-card"><div class="autonomy-card-head"><div><h3>Automation Memory</h3><p>Confirmed natural names remembered for future automation requests.</p></div><span id="automation-memory-count" class="automation-state">0 mappings</span></div><div id="automation-memory-list" class="automation-memory-list"></div></article>
-          <article class="autonomy-card" style="margin-top:.75rem"><div class="autonomy-card-head"><div><h3>My Automations</h3><p>Review-required drafts stay disabled until confirmed. Armed rules evaluate live Home Assistant events.</p></div></div><div id="automation-library" class="autonomy-list"></div></article>
+          <article class="autonomy-card" style="margin-top:.75rem"><div class="autonomy-card-head"><div><h3>My Automations</h3><p>Review-required drafts stay disabled until confirmed. Armed rules evaluate live Home Assistant events.</p></div></div><div class="automation-library-toolbar"><label><span>Search</span><input id="automation-library-search" type="search" placeholder="Name, objective, entity or service" autocomplete="off"></label><label><span>State</span><select id="automation-library-filter"><option value="all">All automations</option><option value="active">Active</option><option value="attention">Needs attention</option><option value="disabled">Drafts &amp; disabled</option><option value="autonomous">Automatic</option><option value="watch">Notification watches</option></select></label><span id="automation-library-count" class="automation-state">0 automations</span></div><div id="automation-library" class="autonomy-list"></div></article>
         </div>
       </section>
 
