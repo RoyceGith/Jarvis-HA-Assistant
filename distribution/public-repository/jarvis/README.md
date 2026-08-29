@@ -6,7 +6,7 @@ connections.
 
 ## Automation Studio
 
-Version 0.13.91 provides a full-window visual automation builder with Trigger, Context,
+Version 0.13.92 provides a full-window visual automation builder with Trigger, Context,
 Decision, and Action blocks, a node canvas, and block-specific settings. The full
 Advanced editor remains available, existing stored automations are preserved, and
 repeatable OR triggers, grouped conditions, ordered actions, and IF/ELSE branches
@@ -16,6 +16,8 @@ plus voice, Studio inbox, and Home Assistant push delivery.
 Build-gated upgrade coverage now proves that pre-Studio simple rules retain their
 identity, creation history, trigger behavior, and suggestion wording when restored
 and saved through the current workflow schema.
+A complete backup gate now exports and restores all supported user-data domains
+together while keeping secrets and plugin credentials outside the backup.
 Studio also checks live read and control permissions plus Home Assistant safety
 labels before approval or autonomous execution and explains any blocked entity.
 Its bounded per-automation decision journal shows why recent evaluations observed,

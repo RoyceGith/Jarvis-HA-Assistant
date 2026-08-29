@@ -10,7 +10,7 @@ from unittest.mock import AsyncMock, patch
 import httpx
 
 from app import main
-from app.domains import automations, calendar, conversations, notifications, settings
+from app.domains import automations, calendar, conversations, fast_memory, notifications, settings
 from app.services import entity_policy
 
 
@@ -34,6 +34,7 @@ class ApplicationIntegrationTests(unittest.IsolatedAsyncioTestCase):
         self.original_automation_path = automations.AUTOMATION_STORAGE_PATH
         self.original_calendar_path = calendar.CALENDAR_STORAGE_PATH
         self.original_notification_path = notifications.NOTIFICATION_STORAGE_PATH
+        self.original_fast_memory_path = fast_memory.FAST_MEMORY_PATH
         self.original_main_chat_path = main.CHAT_STORAGE_PATH
         self.original_main_entity_policy_path = main.ENTITY_POLICY_PATH
         self.original_entity_data_dir = entity_policy.DATA_DIR
@@ -46,6 +47,7 @@ class ApplicationIntegrationTests(unittest.IsolatedAsyncioTestCase):
         automations.AUTOMATION_STORAGE_PATH = temporary_root / "autonomous_automations.json"
         calendar.CALENDAR_STORAGE_PATH = temporary_root / "zbrano_calendar.json"
         notifications.NOTIFICATION_STORAGE_PATH = temporary_root / "notification_center.json"
+        fast_memory.FAST_MEMORY_PATH = temporary_root / "zbrano_fast_memory.sqlite3"
         main.CHAT_STORAGE_PATH = conversations.CHAT_STORAGE_PATH
         main.ENTITY_POLICY_PATH = temporary_root / "entity_policy.json"
         entity_policy.DATA_DIR = temporary_root
@@ -69,6 +71,7 @@ class ApplicationIntegrationTests(unittest.IsolatedAsyncioTestCase):
         automations.AUTOMATION_STORAGE_PATH = self.original_automation_path
         calendar.CALENDAR_STORAGE_PATH = self.original_calendar_path
         notifications.NOTIFICATION_STORAGE_PATH = self.original_notification_path
+        fast_memory.FAST_MEMORY_PATH = self.original_fast_memory_path
         main.CHAT_STORAGE_PATH = self.original_main_chat_path
         main.ENTITY_POLICY_PATH = self.original_main_entity_policy_path
         entity_policy.DATA_DIR = self.original_entity_data_dir
@@ -93,13 +96,13 @@ class ApplicationIntegrationTests(unittest.IsolatedAsyncioTestCase):
             response = await self.client.get("/api/health")
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json()["status"], "ok")
-        self.assertEqual(response.json()["version"], "0.13.91")
+        self.assertEqual(response.json()["version"], "0.13.92")
         self.assertEqual(response.json()["ha_read_entity_count"], 1)
         self.assertEqual(response.json()["ha_control_entity_count"], 1)
 
         frontend = await self.client.get("/")
         self.assertEqual(frontend.status_code, 200)
-        self.assertIn("HUD 0.13.91", frontend.text)
+        self.assertIn("HUD 0.13.92", frontend.text)
         self.assertEqual(
             frontend.headers.get("cache-control"),
             "no-store, no-cache, must-revalidate, max-age=0",
@@ -272,6 +275,100 @@ class ApplicationIntegrationTests(unittest.IsolatedAsyncioTestCase):
         persisted = json.loads(automations.AUTOMATION_STORAGE_PATH.read_text(encoding="utf-8"))
         self.assertEqual(persisted["automations"][0]["id"], "legacy-temperature-rule")
         self.assertEqual(persisted["automations"][0]["trigger_value"], "25")
+
+    async def test_complete_backup_round_trip_preserves_all_user_data_domains(self) -> None:
+        settings.save_settings_payload({
+            "version": 3,
+            "general_instructions": "Preserve the complete integration backup.",
+            "preferences": {"theme": "gray"},
+        })
+        await self.client.post("/api/chats", json={"session_id": "backup-chat"})
+        await self.client.put("/api/chats/backup-chat/title", json={"title": "Backup chat"})
+        entity_policy.save_entity_policy({
+            "sensor.backup_temperature": {
+                "entity_id": "sensor.backup_temperature",
+                "friendly_name": "Backup temperature",
+                "enabled": True,
+                "access": "read_only",
+                "aliases": ["backup sensor"],
+            },
+        })
+        automations._automation_save({
+            **automations._automation_empty_store(),
+            "automations": [{
+                "id": "backup-automation",
+                "name": "Backup automation",
+                "objective": "Preserve this automation.",
+                "trigger_entity": "sensor.backup_temperature",
+                "trigger_operator": "above",
+                "trigger_value": "28",
+                "enabled": False,
+                "status": "draft",
+            }],
+        })
+        notifications._notification_save({
+            "settings": {**notifications.NOTIFICATION_DEFAULT_SETTINGS, "quiet_hours_enabled": True},
+            "deliveries": [{
+                "id": "backup-delivery",
+                "target": "notify.mobile_app_phone",
+                "severity": "information",
+                "title": "Backup delivery",
+                "status": "sent",
+                "detail": "Preserve this notification record.",
+                "created_at": 1_700_000_200,
+            }],
+        })
+        calendar._calendar_save({
+            "appointments": [{
+                "id": "backup-appointment",
+                "title": "Backup appointment",
+                "start_at": "2030-01-01T10:00:00+00:00",
+                "start_timestamp": 1_893_492_000,
+                "end_timestamp": 1_893_495_600,
+                "status": "scheduled",
+            }],
+        })
+        fast_memory.upsert_fast_memory({
+            "kind": "preference",
+            "subject": "Backup preference",
+            "key": "backup_round_trip",
+            "value": "Preserve Fast Memory during upgrades.",
+            "importance": 4,
+            "confidence": 1.0,
+        })
+
+        exported = await self.client.get("/api/settings/backup")
+        self.assertEqual(exported.status_code, 200)
+        backup = exported.json()
+        self.assertEqual(set(backup), {
+            "format", "created_at", "settings", "chats", "entity_policy",
+            "automations", "notifications", "calendar", "fast_memory",
+        })
+
+        settings.save_settings_payload({"version": 3, "general_instructions": "Replace me."})
+        conversations.CHAT_SESSIONS.clear()
+        conversations.CHAT_SESSION_ORDER.clear()
+        conversations.CHAT_SESSION_META.clear()
+        conversations.persist_chat_sessions()
+        entity_policy.save_entity_policy({})
+        automations._automation_save(automations._automation_empty_store())
+        notifications._notification_save({"settings": {}, "deliveries": []})
+        calendar._calendar_save({"appointments": []})
+        fast_memory.restore_fast_memory({"version": 1, "memories": []})
+
+        restored = await self.client.post("/api/settings/restore", json={"backup": backup})
+        self.assertEqual(restored.status_code, 200)
+        self.assertEqual(settings.load_general_instructions(), "Preserve the complete integration backup.")
+        self.assertEqual(conversations.CHAT_SESSION_META["backup-chat"]["title"], "Backup chat")
+        self.assertEqual(
+            entity_policy.load_entity_policy()["sensor.backup_temperature"]["aliases"],
+            ["backup sensor"],
+        )
+        self.assertEqual(automations.automation_store()["automations"][0]["id"], "backup-automation")
+        self.assertEqual(notifications.notification_store()["deliveries"][0]["id"], "backup-delivery")
+        self.assertEqual(calendar.calendar_store()["appointments"][0]["id"], "backup-appointment")
+        memories = fast_memory.fast_memory_search("upgrades", limit=10)["memories"]
+        self.assertEqual(memories[0]["key"], "backup_round_trip")
 
     async def test_chat_api_create_rename_list_and_delete_round_trip(self) -> None:
         created = await self.client.post("/api/chats", json={"session_id": "integration-chat"})

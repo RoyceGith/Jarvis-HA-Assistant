@@ -12,29 +12,29 @@ DOCKERFILE = (ROOT / "jarvis/Dockerfile").read_text(encoding="utf-8")
 MANIFEST = json.loads((ROOT / "jarvis/release_manifest.json").read_text(encoding="utf-8"))
 
 
-class AutomationUpgradeCompatibilityReleaseTests(unittest.TestCase):
+class CompleteBackupRoundTripReleaseTests(unittest.TestCase):
     def test_release_markers_are_aligned(self):
         self.assertIn('version: "0.13.92"', CONFIG)
         self.assertIn('version="0.13.92"', MAIN)
         self.assertIn("HUD 0.13.92", HTML)
         self.assertEqual(MANIFEST["version"], "0.13.92")
 
-    def test_image_build_gates_pre_studio_automation_upgrade(self):
+    def test_image_build_gates_complete_backup_round_trip(self):
         self.assertIn('python3 -m unittest discover -s ./tests -p "test_*.py"', DOCKERFILE)
         for marker in (
-            "test_pre_studio_automation_restores_and_upgrades_without_behavior_loss",
-            '"id": "legacy-temperature-rule"',
-            '"trigger_operator": "above"',
-            '"trigger_value": "25"',
-            'current["created_at"]',
-            'current["triggers"][0]["entity_id"]',
-            'current["conditions"], []',
-            'current["actions"], []',
-            'current["branches"], []',
+            "test_complete_backup_round_trip_preserves_all_user_data_domains",
+            "fast_memory.FAST_MEMORY_PATH = temporary_root",
+            'self.client.get("/api/settings/backup")',
+            'self.client.post("/api/settings/restore"',
+            '"automations", "notifications", "calendar", "fast_memory"',
+            'CHAT_SESSION_META["backup-chat"]',
+            'notification_store()["deliveries"]',
+            'calendar_store()["appointments"]',
+            'fast_memory_search("upgrades"',
         ):
             self.assertIn(marker, INTEGRATION)
 
-    def test_release_history_includes_v01390(self):
+    def test_release_history_includes_v01391(self):
         self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.91")
 
 

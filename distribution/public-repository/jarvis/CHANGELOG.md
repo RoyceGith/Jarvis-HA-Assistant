@@ -1,5 +1,11 @@
 # Change log
 
+## 0.13.92
+
+- Added a build-gated complete backup export and restore round trip.
+- Verified Settings, chats, entity policy, automations, notifications, calendar, and Fast Memory together.
+- Isolated integration-test Fast Memory storage and confirmed secrets remain outside backups.
+
 ## 0.13.91
 
 - Added build-gated restore and upgrade coverage for pre-Studio simple automations.

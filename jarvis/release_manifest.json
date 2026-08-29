@@ -1,9 +1,9 @@
 {
-  "version": "0.13.91",
+  "version": "0.13.92",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/ZBRANO_Core main",
-  "summary": "Add build-gated upgrade coverage proving pre-Studio automations restore, load, and adopt the current workflow schema without losing their identity or behavior.",
+  "summary": "Add a build-gated complete backup round trip across Settings, chats, entity policy, automations, notifications, calendar, and Fast Memory.",
   "history_backfill": [
     {
       "version": "0.13.0",
@@ -368,22 +368,28 @@
     {
       "version": "0.13.90",
       "summary": "Added confirmed Pause and Resume controls to My Automations while preserving definitions, history, and activation safety checks."
+    },
+    {
+      "version": "0.13.91",
+      "summary": "Added build-gated upgrade coverage proving pre-Studio automations restore, load, and adopt the current workflow schema without losing identity or behavior."
     }
   ],
   "release_entry": {
     "features": [
-      "Restore a pre-Studio automation backup through the real application API and verify its original simple trigger and suggestion fields remain intact.",
-      "Save that legacy rule through the current Automation Studio schema while preserving its identity, creation time, trigger semantics, and suggestion wording."
+      "Export and restore representative Settings, conversation, entity policy, automation, notification, calendar, and Fast Memory records through the real application API.",
+      "Isolate the integration suite's SQLite Fast Memory database inside its temporary test directory."
     ],
     "fixes": [
-      "Gate future releases against regressions that could discard or reinterpret older simple automation definitions.",
-      "Verify current empty condition, action, and branch collections are added safely when a legacy suggestion-only rule is edited."
+      "Gate future releases against cross-domain backup omissions or restore regressions after backend modularization.",
+      "Verify backup exports contain only the intended user-data sections and do not add plugin credentials or secrets."
     ],
     "validation": [
-      "Real-ASGI legacy automation backup restore, API read, current-schema save, persisted-data verification, browser smoke, release manifest, README alignment, and v0.13.91 release coverage"
+      "Real-ASGI complete backup export, destructive test-state replacement, full restore and per-domain read-back, browser smoke, release manifest, README alignment, and v0.13.92 release coverage"
     ]
   },
   "features": [
+    "Prove a complete user-data backup round trip across all backed-up persistent domains.",
+    "Isolate Fast Memory integration data so build tests cannot touch external or owner-specific storage.",
     "Prove pre-Studio automation backups restore and upgrade through current APIs without behavior loss.",
     "Preserve legacy rule identity, creation time, simple trigger semantics, and suggestion wording during current-schema save.",
     "Pause active automations directly while preserving their definitions and history.",
