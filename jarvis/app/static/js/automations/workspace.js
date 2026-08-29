@@ -8,6 +8,7 @@
   let entityMap=new Map();
   let selectedStudioNode="trigger";
   let workflowDraft={triggers:[],conditions:[],condition_mode:"all",actions:[],branches:[]};
+  let editorHistory=[],editorHistoryIndex=-1,editorHistoryTimer=0,restoringEditorHistory=false;
   const studioPanels={
     details:{title:"Automation",help:"Name the behavior and decide whether live evaluation starts after saving.",fields:[["automation-name","Name"],["automation-objective","Objective"],["automation-enabled","Enable after saving"]]},
     trigger:{title:"Trigger",help:"Start from an entity event, local time, sunrise or sunset, repeating interval, or one-time schedule.",fields:[["automation-trigger-kind","Trigger type"],["automation-trigger-entity","Trigger entity"],["automation-trigger-operator","Condition"],["automation-trigger-value","Value"],["automation-trigger-for","Sustain for seconds"],["automation-trigger-at","Local time"],["automation-trigger-weekdays","Selected weekdays"],["automation-trigger-sun-event","Sun event"],["automation-trigger-sun-offset","Sun offset minutes"],["automation-trigger-interval","Repeat every minutes"],["automation-trigger-one-time","One-time local date and time"]]},
@@ -43,6 +44,41 @@
   function authorityLabel(value){return ({inherit:"Use global default",observe:"Observe only",suggest:"Suggest only",approval_required:"Ask for approval",autonomous:"Automatic"})[value]||"Use global default"}
   function entityLabel(id){const entity=entityMap.get(id);return entity?.friendly_name||id}
   function flowElement(item){return window.zbranoAutomationFlow?.create(item,entityLabel)||null}
+  function cloneEditorValue(value){return JSON.parse(JSON.stringify(value))}
+  function editorHistoryState(){
+    const controls={};
+    for(const control of $("automation-draft-form").querySelectorAll("input[id],select[id],textarea[id]"))controls[control.id]=control.type==="checkbox"?control.checked:control.value;
+    return {controls,workflowDraft:cloneEditorValue(workflowDraft),selectedStudioNode};
+  }
+  function updateEditorHistoryControls(){
+    $("automation-studio-undo").disabled=editorHistoryIndex<=0;
+    $("automation-studio-redo").disabled=editorHistoryIndex<0||editorHistoryIndex>=editorHistory.length-1;
+  }
+  function commitEditorHistory(){
+    if(restoringEditorHistory)return;
+    clearTimeout(editorHistoryTimer);editorHistoryTimer=0;
+    const next=editorHistoryState(),serialized=JSON.stringify(next),current=editorHistory[editorHistoryIndex];
+    if(current&&JSON.stringify(current)===serialized)return;
+    editorHistory=editorHistory.slice(0,editorHistoryIndex+1);editorHistory.push(next);
+    if(editorHistory.length>50)editorHistory.shift();
+    editorHistoryIndex=editorHistory.length-1;updateEditorHistoryControls();
+  }
+  function scheduleEditorHistory(){
+    if(restoringEditorHistory)return;
+    clearTimeout(editorHistoryTimer);editorHistoryTimer=setTimeout(commitEditorHistory,220);
+  }
+  function resetEditorHistory(){clearTimeout(editorHistoryTimer);editorHistoryTimer=0;editorHistory=[];editorHistoryIndex=-1;commitEditorHistory()}
+  function restoreEditorHistory(index){
+    if(index<0||index>=editorHistory.length||index===editorHistoryIndex)return;
+    clearTimeout(editorHistoryTimer);editorHistoryTimer=0;restoringEditorHistory=true;
+    const snapshot=editorHistory[index];
+    for(const [id,value] of Object.entries(snapshot.controls)){const control=$(id);if(!control)continue;if(control.type==="checkbox")control.checked=Boolean(value);else control.value=String(value??"")}
+    workflowDraft=cloneEditorValue(snapshot.workflowDraft);selectedStudioNode=studioPanels[snapshot.selectedStudioNode]?snapshot.selectedStudioNode:"trigger";editorHistoryIndex=index;
+    renderEditorFlow();renderStudioInspector();restoringEditorHistory=false;updateEditorHistoryControls();
+    $("automation-studio-state").textContent=index<editorHistory.length-1?"Edit undone.":"Edit restored.";
+  }
+  function undoEditor(){commitEditorHistory();restoreEditorHistory(editorHistoryIndex-1)}
+  function redoEditor(){restoreEditorHistory(editorHistoryIndex+1)}
   function renderStudioInspector(){
     const panelConfig=studioPanels[selectedStudioNode]||studioPanels.trigger;
     $("automation-studio-inspector-title").textContent=panelConfig.title;
@@ -86,9 +122,9 @@
       return `<div class="automation-workflow-step">${collection==="triggers"?triggerStepHtml(item,`data-workflow-index="${index}"`):conditionStepHtml(item,`data-workflow-index="${index}"`)}<button type="button" data-workflow-remove="${index}">Remove</button></div>`;
     }).join("");
     section.innerHTML=`<div class="automation-workflow-head"><strong>${title}</strong><button type="button" data-workflow-add="${collection}">+ Add</button></div>${mode}${rows||'<small class="automation-workflow-empty">None added. The primary block above remains active.</small>'}`;root.append(section);
-    section.addEventListener("input",event=>{const field=event.target.dataset.actionField||event.target.dataset.triggerField||event.target.dataset.conditionField,index=Number(event.target.dataset.workflowIndex);if(!field||!items[index])return;items[index][field]=field==="weekdays"?parseWeekdays(event.target.value):field.endsWith("seconds")||field.endsWith("minutes")?Number(event.target.value||0):event.target.value;if(field==="kind")renderStudioInspector();renderEditorFlow()});
-    section.addEventListener("change",event=>{if(event.target.hasAttribute("data-workflow-mode")){workflowDraft.condition_mode=event.target.value;renderEditorFlow()}});
-    section.addEventListener("click",event=>{const add=event.target.closest("[data-workflow-add]"),remove=event.target.closest("[data-workflow-remove]");if(add){items.push(collection==="actions"?{kind:"service",entity_id:"",service:"",service_data:{},delay_seconds:0,wait_operator:"equals",wait_value:"",timeout_seconds:30}:collection==="triggers"?{kind:"entity",entity_id:"",operator:"changes_to",value:"",for_seconds:0,weekdays:[],at:"",sun_event:"sunrise",offset_minutes:0,interval_minutes:5,one_time_at:""}:{kind:"entity",entity_id:"",operator:"equals",value:"",weekdays:[],start_time:"",end_time:"",sun_state:"below_horizon"});renderStudioInspector();renderEditorFlow()}else if(remove){items.splice(Number(remove.dataset.workflowRemove),1);renderStudioInspector();renderEditorFlow()}});
+    section.addEventListener("input",event=>{const field=event.target.dataset.actionField||event.target.dataset.triggerField||event.target.dataset.conditionField,index=Number(event.target.dataset.workflowIndex);if(!field||!items[index])return;items[index][field]=field==="weekdays"?parseWeekdays(event.target.value):field.endsWith("seconds")||field.endsWith("minutes")?Number(event.target.value||0):event.target.value;if(field==="kind")renderStudioInspector();renderEditorFlow();scheduleEditorHistory()});
+    section.addEventListener("change",event=>{if(event.target.hasAttribute("data-workflow-mode")){workflowDraft.condition_mode=event.target.value;renderEditorFlow();scheduleEditorHistory()}});
+    section.addEventListener("click",event=>{const add=event.target.closest("[data-workflow-add]"),remove=event.target.closest("[data-workflow-remove]");if(add){items.push(collection==="actions"?{kind:"service",entity_id:"",service:"",service_data:{},delay_seconds:0,wait_operator:"equals",wait_value:"",timeout_seconds:30}:collection==="triggers"?{kind:"entity",entity_id:"",operator:"changes_to",value:"",for_seconds:0,weekdays:[],at:"",sun_event:"sunrise",offset_minutes:0,interval_minutes:5,one_time_at:""}:{kind:"entity",entity_id:"",operator:"equals",value:"",weekdays:[],start_time:"",end_time:"",sun_state:"below_horizon"});renderStudioInspector();renderEditorFlow();commitEditorHistory()}else if(remove){items.splice(Number(remove.dataset.workflowRemove),1);renderStudioInspector();renderEditorFlow();commitEditorHistory()}});
   }
 
   function renderBranchInspector(root){
@@ -99,9 +135,9 @@
       return `<article class="automation-branch-card"><div class="automation-workflow-head"><input data-branch-name="${branchIndex}" value="${esc(branch.name||`Branch ${branchIndex+1}`)}" aria-label="Branch name"><button type="button" data-branch-remove="${branchIndex}">Remove branch</button></div><label>Condition logic<select data-branch-mode="${branchIndex}"><option value="all"${branch.condition_mode!=="any"?" selected":""}>All conditions</option><option value="any"${branch.condition_mode==="any"?" selected":""}>Any condition</option></select></label><small>Conditions are checked top to bottom. Leave this list empty to make an ELSE fallback.</small>${conditions}<button type="button" data-branch-add-item="conditions" data-branch-index="${branchIndex}">+ Condition</button><strong>Branch actions</strong>${actions}<button type="button" data-branch-add-item="actions" data-branch-index="${branchIndex}">+ Action</button></article>`;
     }).join("");
     section.innerHTML=`<div class="automation-workflow-head"><strong>Choose branches</strong><button type="button" data-branch-add>+ Branch</button></div><small>The first matching branch runs. Put an empty-condition ELSE branch last.</small>${cards||'<small class="automation-workflow-empty">No branches. The linear action path remains active.</small>'}`;root.append(section);
-    section.addEventListener("input",event=>{const branchIndex=Number(event.target.dataset.branchIndex),branch=workflowDraft.branches[branchIndex];if(event.target.hasAttribute("data-branch-name")){workflowDraft.branches[Number(event.target.dataset.branchName)].name=event.target.value;renderEditorFlow();return}const collection=event.target.dataset.branchCollection,itemIndex=Number(event.target.dataset.itemIndex),field=event.target.dataset.actionField||event.target.dataset.conditionField;if(!branch||!collection||!field)return;branch[collection][itemIndex][field]=field==="weekdays"?parseWeekdays(event.target.value):field.endsWith("seconds")||field.endsWith("minutes")?Number(event.target.value||0):event.target.value;if(field==="kind")renderStudioInspector();renderEditorFlow()});
-    section.addEventListener("change",event=>{if(event.target.hasAttribute("data-branch-mode")){workflowDraft.branches[Number(event.target.dataset.branchMode)].condition_mode=event.target.value;renderEditorFlow()}});
-    section.addEventListener("click",event=>{const add=event.target.closest("[data-branch-add]"),remove=event.target.closest("[data-branch-remove]"),addItem=event.target.closest("[data-branch-add-item]"),removeItem=event.target.closest("[data-branch-remove-item]");if(add){workflowDraft.branches.push({name:`Branch ${workflowDraft.branches.length+1}`,condition_mode:"all",conditions:[],actions:[]})}else if(remove){workflowDraft.branches.splice(Number(remove.dataset.branchRemove),1)}else if(addItem){const branch=workflowDraft.branches[Number(addItem.dataset.branchIndex)],collection=addItem.dataset.branchAddItem;branch[collection].push(collection==="actions"?{kind:"service",entity_id:"",service:"",service_data:{},delay_seconds:0,wait_operator:"equals",wait_value:"",timeout_seconds:30}:{kind:"entity",entity_id:"",operator:"equals",value:"",weekdays:[],start_time:"",end_time:"",sun_state:"below_horizon"})}else if(removeItem){workflowDraft.branches[Number(removeItem.dataset.branchIndex)][removeItem.dataset.branchRemoveItem].splice(Number(removeItem.dataset.itemIndex),1)}else return;renderStudioInspector();renderEditorFlow()});
+    section.addEventListener("input",event=>{const branchIndex=Number(event.target.dataset.branchIndex),branch=workflowDraft.branches[branchIndex];if(event.target.hasAttribute("data-branch-name")){workflowDraft.branches[Number(event.target.dataset.branchName)].name=event.target.value;renderEditorFlow();scheduleEditorHistory();return}const collection=event.target.dataset.branchCollection,itemIndex=Number(event.target.dataset.itemIndex),field=event.target.dataset.actionField||event.target.dataset.conditionField;if(!branch||!collection||!field)return;branch[collection][itemIndex][field]=field==="weekdays"?parseWeekdays(event.target.value):field.endsWith("seconds")||field.endsWith("minutes")?Number(event.target.value||0):event.target.value;if(field==="kind")renderStudioInspector();renderEditorFlow();scheduleEditorHistory()});
+    section.addEventListener("change",event=>{if(event.target.hasAttribute("data-branch-mode")){workflowDraft.branches[Number(event.target.dataset.branchMode)].condition_mode=event.target.value;renderEditorFlow();scheduleEditorHistory()}});
+    section.addEventListener("click",event=>{const add=event.target.closest("[data-branch-add]"),remove=event.target.closest("[data-branch-remove]"),addItem=event.target.closest("[data-branch-add-item]"),removeItem=event.target.closest("[data-branch-remove-item]");if(add){workflowDraft.branches.push({name:`Branch ${workflowDraft.branches.length+1}`,condition_mode:"all",conditions:[],actions:[]})}else if(remove){workflowDraft.branches.splice(Number(remove.dataset.branchRemove),1)}else if(addItem){const branch=workflowDraft.branches[Number(addItem.dataset.branchIndex)],collection=addItem.dataset.branchAddItem;branch[collection].push(collection==="actions"?{kind:"service",entity_id:"",service:"",service_data:{},delay_seconds:0,wait_operator:"equals",wait_value:"",timeout_seconds:30}:{kind:"entity",entity_id:"",operator:"equals",value:"",weekdays:[],start_time:"",end_time:"",sun_state:"below_horizon"})}else if(removeItem){workflowDraft.branches[Number(removeItem.dataset.branchIndex)][removeItem.dataset.branchRemoveItem].splice(Number(removeItem.dataset.itemIndex),1)}else return;renderStudioInspector();renderEditorFlow();commitEditorHistory()});
   }
 
   function selectStudioNode(kind){
@@ -256,7 +292,7 @@
     $("automation-failure-limit").value="3";$("automation-failure-window").value="60";
     $("automation-reoffer-delta").value="0";$("automation-reset-delta").value="0";
     $("automation-trigger-kind").value="entity";$("automation-trigger-at").value="";$("automation-trigger-weekdays").value="";$("automation-trigger-sun-event").value="sunrise";$("automation-trigger-sun-offset").value="0";$("automation-trigger-interval").value="5";$("automation-trigger-one-time").value="";
-    workflowDraft={triggers:[],conditions:[],condition_mode:"all",actions:[],branches:[]};selectedStudioNode="trigger";renderEditorFlow();renderStudioInspector();
+    workflowDraft={triggers:[],conditions:[],condition_mode:"all",actions:[],branches:[]};selectedStudioNode="trigger";renderEditorFlow();renderStudioInspector();resetEditorHistory();
   }
 
   function fillEditor(item){
@@ -265,7 +301,7 @@
     $("automation-reoffer-delta").value=String(item.reoffer_delta||0);$("automation-reset-delta").value=String(item.reset_delta||0);
     $("automation-edit-id").value=item.id||"";$("automation-name").value=item.name||"";$("automation-objective").value=item.objective||"";$("automation-presence").value=item.presence_entity||"";$("automation-signals").value=(item.signal_entities||[]).join(", ");$("automation-trigger-entity").value=item.trigger_entity||(item.signal_entities||[])[0]||"";$("automation-trigger-operator").value=item.trigger_operator||"changes_to";$("automation-trigger-value").value=item.trigger_value||"";$("automation-trigger-for").value=String(item.trigger_for_seconds||0);$("automation-enabled").checked=Boolean(item.enabled);$("automation-context-notes").value=item.context_notes||"";$("automation-proposal").value=item.proposal_template||"";$("automation-action-entity").value=item.action_entity||"";$("automation-action-service").value=item.action_service||"";$("automation-action-data").value=JSON.stringify(item.action_service_data||{},null,2);$("automation-cooldown").value=String(item.cooldown_minutes||30);$("automation-confidence").value=String(item.confidence_threshold||0.75);$("automation-risk").value=item.risk_level||"controlled";$("automation-execution-policy").value=item.execution_policy||"inherit";$("automation-max-actions").value=String(item.max_actions_per_hour||2);$("automation-notify-action").checked=item.notify_on_action!==false;$("automation-reversible-only").checked=item.reversible_only!==false;$("automation-delivery-voice").checked=item.delivery_voice!==false;$("automation-delivery-center").checked=item.delivery_notification_center!==false;$("automation-delivery-push").checked=item.delivery_ha_push!==false;$("automation-editor-title").textContent=item.id?"Edit automation":"New automation";$("automation-cancel-edit").hidden=!item.id;showView("studio");showLibraryView("create");document.querySelector(".automation-advanced")?.removeAttribute("open");selectedStudioNode="details";
     const triggers=Array.isArray(item.triggers)&&item.triggers.length?item.triggers:[{kind:"entity",entity_id:item.trigger_entity||"",operator:item.trigger_operator||"changes_to",value:item.trigger_value||"",for_seconds:item.trigger_for_seconds||0}],primary=triggers[0]||{};$("automation-trigger-kind").value=primary.kind||"entity";$("automation-trigger-entity").value=primary.entity_id||"";$("automation-trigger-operator").value=primary.operator||"changes_to";$("automation-trigger-value").value=primary.value||"";$("automation-trigger-for").value=String(primary.for_seconds||0);$("automation-trigger-at").value=primary.at||"";$("automation-trigger-weekdays").value=formatWeekdays(primary.weekdays);$("automation-trigger-sun-event").value=primary.sun_event||"sunrise";$("automation-trigger-sun-offset").value=String(primary.offset_minutes||0);$("automation-trigger-interval").value=String(primary.interval_minutes||5);$("automation-trigger-one-time").value=primary.one_time_at||"";const actions=Array.isArray(item.actions)?item.actions:[];workflowDraft={triggers:triggers.slice(1),conditions:Array.isArray(item.conditions)?item.conditions:[],condition_mode:item.condition_mode||"all",actions:actions.slice(1),branches:Array.isArray(item.branches)?item.branches:[]};
-    renderEditorFlow();renderStudioInspector();
+    renderEditorFlow();renderStudioInspector();resetEditorHistory();
   }
 
   function inventoryMatches({domains=[],deviceClasses=[],keywords=[],limit=3}){
@@ -342,8 +378,10 @@
     try{await api(id?`api/automations/${encodeURIComponent(id)}`:"api/automations",{method:id?"PUT":"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)});clearEditor();studioStatus.textContent="Draft saved.";await loadWorkspace();showLibraryView("saved")}catch(error){status.textContent=`Save failed: ${error.message||error}`;studioStatus.textContent=status.textContent}
   });
   $("automation-cancel-edit").addEventListener("click",clearEditor);
-  $("automation-draft-form").addEventListener("input",renderEditorFlow);
-  $("automation-draft-form").addEventListener("change",renderEditorFlow);
+  $("automation-draft-form").addEventListener("input",()=>{renderEditorFlow();scheduleEditorHistory()});
+  $("automation-draft-form").addEventListener("change",()=>{renderEditorFlow();scheduleEditorHistory()});
+  $("automation-studio-undo").addEventListener("click",undoEditor);
+  $("automation-studio-redo").addEventListener("click",redoEditor);
   $("automation-studio-new").addEventListener("click",()=>{$("automation-studio-state").textContent="";clearEditor()});
   $("automation-studio-test").addEventListener("click",async()=>{const status=$("automation-studio-state"),results=$("automation-studio-test-results");if(!$("automation-name").value.trim()||!$("automation-objective").value.trim()){selectStudioNode("details");status.textContent="Add a name and objective before testing.";return}status.textContent="Testing safely…";try{const result=await api("api/automations/test-flow",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(automationRequestBody())});renderTestTrace(result);status.textContent=`Dry run: ${String(result.status||"complete").replaceAll("_"," ")} · 0 actions executed`}catch(error){results.hidden=true;status.textContent=`Test failed: ${error.message||error}`}});
   $("automation-studio-save").addEventListener("click",()=>{if(!$("automation-name").value.trim()||!$("automation-objective").value.trim()){selectStudioNode("details");$("automation-draft-state").textContent="Add a name and objective before saving.";$("automation-studio-state").textContent="Add a name and objective before saving.";$("studio-automation-name")?.focus();return}$("automation-draft-form").requestSubmit()});
@@ -353,6 +391,7 @@
   $("automation-studio-canvas").addEventListener("drop",event=>{event.preventDefault();event.currentTarget.classList.remove("is-drop-target");selectStudioNode(event.dataTransfer?.getData("text/studio-node"))});
   panel.querySelector(".automation-studio-toolbox")?.addEventListener("dragstart",event=>{const block=event.target.closest("[data-studio-node]");if(block)event.dataTransfer?.setData("text/studio-node",block.dataset.studioNode)});
   $("automation-flow-preview").addEventListener("keydown",event=>{if(!["Enter"," "].includes(event.key))return;const block=event.target.closest("[data-flow-kind]");if(block){event.preventDefault();selectStudioNode(block.dataset.flowKind)}});
+  document.addEventListener("keydown",event=>{if(panel.classList.contains("hidden")||!panel.classList.contains("studio-active")||!(event.ctrlKey||event.metaKey)||event.altKey)return;const key=event.key.toLowerCase();if(key==="z"){event.preventDefault();if(event.shiftKey)redoEditor();else undoEditor()}else if(key==="y"){event.preventDefault();redoEditor()}});
   $("autonomy-settings-form").addEventListener("submit",async event=>{
     event.preventDefault();const status=$("autonomy-settings-state");status.textContent="Saving…";const mode=panel.querySelector('input[name="autonomy-mode"]:checked')?.value||"suggest_only";
     const body={operating_mode:mode,presence_entity:$("autonomy-presence-entity").value.trim(),require_presence:$("autonomy-require-presence").checked,respect_quiet_hours:$("autonomy-respect-quiet").checked,minimum_confidence:Number($("autonomy-min-confidence").value),default_cooldown_minutes:Number($("autonomy-default-cooldown").value),autonomous_risk_ceiling:$("autonomy-risk-ceiling").value,notify_after_autonomous_action:$("autonomy-notify-autonomous").checked,passive_learning_enabled:$("autonomy-passive-learning").checked};

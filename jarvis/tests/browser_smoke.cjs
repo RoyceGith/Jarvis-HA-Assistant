@@ -93,7 +93,7 @@ function apiFixture(url) {
   if (pathname === "/api/health") {
     return {
       status: "ok",
-      version: "0.13.80",
+      version: "0.13.81",
       speech_provider: "openai",
       speech_providers: {openai: {configured: true}, elevenlabs: {configured: false}},
     };
@@ -132,7 +132,7 @@ function apiFixture(url) {
   if (pathname === "/api/plugins") return {plugins: []};
   if (pathname === "/api/files/shared") return {files: [], count: 0};
   if (pathname === "/api/release-memory-sync") {
-    return {enabled: false, state: "disabled", version: "0.13.80", task_active: false};
+    return {enabled: false, state: "disabled", version: "0.13.81", task_active: false};
   }
   if (pathname === "/api/tab-activity") return {revisions: {}};
   if (pathname === "/api/grinder-monitor/status") return {enabled: false, connected: false};
@@ -267,6 +267,13 @@ async function main() {
     assert.equal(await page.locator("#automation-studio-inspector-title").innerText(), "Trigger");
     await page.locator("#studio-automation-trigger-value").fill("27");
     assert.equal(await page.locator("#automation-trigger-value").inputValue(), "27");
+    await page.waitForTimeout(260);
+    assert.equal(await page.locator("#automation-studio-undo").isEnabled(), true);
+    await page.locator("#automation-studio-undo").click();
+    assert.equal(await page.locator("#automation-trigger-value").inputValue(), "");
+    assert.equal(await page.locator("#automation-studio-redo").isEnabled(), true);
+    await page.locator("#automation-studio-redo").click();
+    assert.equal(await page.locator("#automation-trigger-value").inputValue(), "27");
     await page.locator('[data-workflow-add="triggers"]').click();
     await page.locator('[data-workflow-index="0"][data-trigger-field="kind"]').selectOption("time");
     await page.locator('[data-workflow-index="0"][data-trigger-field="at"]').fill("18:30");
@@ -326,7 +333,7 @@ async function main() {
     assert.equal(voiceScroll.scrollable, true, "Voice settings must exceed and scroll within the panel at compact viewport heights");
     assert.equal(voiceScroll.moved, true, "Voice settings panel must accept vertical scrolling");
 
-    console.log("Browser smoke passed: New Chat, navigation, Entity scrolling, modern Settings, Studio ordering, branching workflows, and installation-derived templates");
+    console.log("Browser smoke passed: New Chat, navigation, Entity scrolling, modern Settings, Studio undo/redo, branching workflows, and installation-derived templates");
   } finally {
     await browser.close();
     await new Promise(resolve => server.close(resolve));

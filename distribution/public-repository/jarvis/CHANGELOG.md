@@ -1,5 +1,14 @@
 # Change log
 
+## 0.13.81
+
+- Added visible Undo and Redo controls to Automation Studio with standard keyboard
+  shortcuts.
+- Retained up to 50 local edit states covering fields, workflow steps, branches,
+  and selected block context.
+- Restored the underlying advanced-editor values together with the visual flow and
+  reset history cleanly for new, templated, and existing drafts.
+
 ## 0.13.80
 
 - Capped wide Settings and Automation controls and sliders at practical reading

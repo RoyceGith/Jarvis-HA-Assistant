@@ -1,9 +1,9 @@
 {
-  "version": "0.13.80",
+  "version": "0.13.81",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/ZBRANO_Core main",
-  "summary": "Compact wide form controls, give Automations a Settings-style sidebar, and restore reliable scrolling across full-height workspaces.",
+  "summary": "Add bounded Automation Studio edit history with visible Undo and Redo controls plus standard keyboard shortcuts.",
   "history_backfill": [
     {
       "version": "0.13.0",
@@ -324,22 +324,28 @@
     {
       "version": "0.13.79",
       "summary": "Modernized Automation Studio ordering, Settings navigation, and the primary top bar with a clean responsive GitHub-inspired workspace."
+    },
+    {
+      "version": "0.13.80",
+      "summary": "Compacted wide controls, gave Automations a Settings-style sidebar, and restored reliable scrolling across full-height workspaces."
     }
   ],
   "release_entry": {
     "features": [
-      "Give Automations the same icon-led desktop sidebar and independently scrolling content layout as Settings.",
-      "Cap text, select, textarea, and range controls at practical reading widths instead of stretching across the workspace."
+      "Add visible Undo and Redo controls to Automation Studio with familiar Ctrl/Cmd+Z, Ctrl/Cmd+Shift+Z, and Ctrl/Cmd+Y shortcuts.",
+      "Retain up to 50 bounded in-memory edit states for fields, workflow steps, branches, and selected block context."
     ],
     "fixes": [
-      "Restore actual vertical scrolling in the long Voice settings page and other full-height workspaces.",
-      "Collapse compact controls and navigation into responsive single-column or horizontal layouts on smaller screens."
+      "Restore both the visual flow and the underlying advanced-editor values when undoing or redoing an edit.",
+      "Reset edit history cleanly when starting a new flow, loading a template, or opening an existing automation."
     ],
     "validation": [
-      "Compact form sizing, Automation sidebar layout, independent view scrolling, real Voice scroll movement, responsive fallbacks, browser smoke, compatibility, README alignment, and v0.13.80 release coverage"
+      "Browser-level field edit, Undo, Redo, underlying-value restoration, keyboard wiring, bounded-history markers, compatibility, README alignment, and v0.13.81 release coverage"
     ]
   },
   "features": [
+    "Undo and redo Automation Studio edits without changing saved automation data or execution authority.",
+    "Use bounded editor history with familiar keyboard shortcuts and visible availability states.",
     "Use a Settings-style navigation sidebar and independently scrolling content views throughout Automations.",
     "Keep form controls compact and restore reliable scrolling across long full-screen workspaces.",
     "Use a modern GitHub-inspired Settings workspace with collapsible categories, icons, and per-section color accents.",

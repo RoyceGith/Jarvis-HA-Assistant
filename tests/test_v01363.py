@@ -15,10 +15,10 @@ MANIFEST = json.loads((ROOT / "jarvis/release_manifest.json").read_text(encoding
 
 class AutomationStudioReleaseTests(unittest.TestCase):
     def test_release_markers_are_aligned(self):
-        self.assertIn('version: "0.13.80"', CONFIG)
-        self.assertIn('version="0.13.80"', MAIN)
-        self.assertIn("HUD 0.13.80", HTML)
-        self.assertEqual(MANIFEST["version"], "0.13.80")
+        self.assertIn('version: "0.13.81"', CONFIG)
+        self.assertIn('version="0.13.81"', MAIN)
+        self.assertIn("HUD 0.13.81", HTML)
+        self.assertEqual(MANIFEST["version"], "0.13.81")
 
     def test_visual_renderer_is_safe_and_schema_neutral(self):
         for label in ("WHEN", "IF", "DECIDE", "THEN"):
@@ -33,7 +33,7 @@ class AutomationStudioReleaseTests(unittest.TestCase):
         self.assertLess(HTML.index('src="js/automations/flow.js"'), HTML.index('src="js/automations/workspace.js"'))
         self.assertIn("flowElement(item)", WORKSPACE)
         self.assertIn("renderEditorFlow", WORKSPACE)
-        self.assertIn('addEventListener("input",renderEditorFlow)', WORKSPACE)
+        self.assertIn('addEventListener("input",()=>{renderEditorFlow();scheduleEditorHistory()})', WORKSPACE)
 
     def test_flow_is_responsive_and_grinder_is_excluded(self):
         self.assertIn("grid-template-columns", STYLES)
@@ -41,7 +41,7 @@ class AutomationStudioReleaseTests(unittest.TestCase):
         self.assertNotIn("grinder", FLOW.lower())
 
     def test_release_history_includes_v01362(self):
-        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.79")
+        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.80")
 
 
 if __name__ == "__main__":

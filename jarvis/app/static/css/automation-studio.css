@@ -10,6 +10,9 @@
 .automation-studio-toolbar { padding: .9rem 1rem; border-bottom: 1px solid var(--line); }
 .automation-studio-toolbar-actions { display: grid; justify-items: end; gap: .3rem; }
 .automation-studio-toolbar-actions > span { color: var(--text-muted); font-size: .72rem; }
+.automation-studio-history-controls { display: inline-flex; align-items: center; gap: .2rem; padding-right: .35rem; border-right: 1px solid var(--line); }
+.automation-studio-history-controls button { min-width: 2rem; padding: .38rem .5rem; font-size: 1rem; line-height: 1; }
+.automation-studio-history-controls button:disabled { opacity: .38; cursor: default; }
 .automation-studio-test-results { display: grid; grid-template-columns: repeat(4,minmax(0,1fr)); gap: .5rem; padding: .65rem 1rem; border-bottom: 1px solid var(--line); background: color-mix(in srgb,var(--panel) 88%,transparent); }
 .automation-studio-test-results[hidden] { display: none; }
 .automation-studio-test-step { display: grid; gap: .2rem; min-width: 0; padding: .55rem; border: 1px solid var(--line); border-radius: 9px; }
