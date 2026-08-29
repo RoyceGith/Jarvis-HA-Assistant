@@ -1,9 +1,9 @@
 {
-  "version": "0.13.82",
+  "version": "0.13.83",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/ZBRANO_Core main",
-  "summary": "Recover bounded unsaved Automation Studio drafts after accidental refreshes while preserving saved automation and authority boundaries.",
+  "summary": "Add live Automation Studio draft validation with canvas issue markers, direct inspector navigation, and guarded Test and Save actions.",
   "history_backfill": [
     {
       "version": "0.13.0",
@@ -332,22 +332,28 @@
     {
       "version": "0.13.81",
       "summary": "Added bounded Automation Studio Undo and Redo for fields, workflow steps, branches, and selected block context."
+    },
+    {
+      "version": "0.13.82",
+      "summary": "Recovered bounded unsaved Automation Studio drafts locally after accidental refreshes without changing saved automation authority."
     }
   ],
   "release_entry": {
     "features": [
-      "Recover the current unsaved Automation Studio flow after an accidental page refresh or navigation reload.",
-      "Keep recovery local to the browser origin with a seven-day expiry and 100 KB payload ceiling."
+      "Validate Automation Studio details, triggers, conditions, actions, branches, and service-data JSON continuously while editing.",
+      "Show issue chips and amber canvas markers that open the correct block inspector and focus the relevant field."
     ],
     "fixes": [
-      "Flush pending edits during page hide so a rapid refresh does not lose the latest field value.",
-      "Discard recovered state when starting a new flow, loading a template, opening an existing automation, or completing a save."
+      "Prevent Test Flow and Save Draft from sending structurally incomplete visual workflows.",
+      "Keep suggestion-only flows valid while detecting partially configured Home Assistant actions."
     ],
     "validation": [
-      "Browser-level full reload recovery, recovered status, local expiry and size bounds, page-hide flushing, clean discard paths, compatibility, README alignment, and v0.13.82 release coverage"
+      "Browser-level issue discovery, inspector navigation, field completion, issue clearance, guarded actions, recovery compatibility, README alignment, and v0.13.83 release coverage"
     ]
   },
   "features": [
+    "Validate visual automation drafts continuously and identify incomplete blocks directly on the canvas.",
+    "Navigate from each validation issue to the relevant Automation Studio inspector field.",
     "Recover bounded unsaved Automation Studio drafts locally after accidental refreshes.",
     "Expire local draft recovery automatically without changing saved automations or execution authority.",
     "Undo and redo Automation Studio edits without changing saved automation data or execution authority.",

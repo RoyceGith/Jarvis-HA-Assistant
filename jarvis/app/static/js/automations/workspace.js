@@ -301,12 +301,36 @@
     };
   }
 
+  function editorValidationIssues(){
+    const issues=[],add=(kind,message,field)=>issues.push({kind,message,field});
+    if(!$("automation-name").value.trim())add("details","Add an automation name","automation-name");
+    if(!$("automation-objective").value.trim())add("details","Describe the objective","automation-objective");
+    const validateTrigger=(item,primary=false)=>{const kind=item.kind||"entity",prefix=primary?"Trigger":"Additional trigger";if(kind==="entity"&&!item.entity_id)add("trigger",`${prefix}: choose an entity`,primary?"automation-trigger-entity":null);else if(kind==="time"&&!item.at)add("trigger",`${prefix}: choose a local time`,primary?"automation-trigger-at":null);else if(kind==="interval"&&Number(item.interval_minutes)<1)add("trigger",`${prefix}: enter an interval`,primary?"automation-trigger-interval":null);else if(kind==="one_time"&&!item.one_time_at)add("trigger",`${prefix}: choose a date and time`,primary?"automation-trigger-one-time":null)};
+    validateTrigger({kind:$("automation-trigger-kind").value,entity_id:$("automation-trigger-entity").value.trim(),at:$("automation-trigger-at").value,interval_minutes:Number($("automation-trigger-interval").value||0),one_time_at:$("automation-trigger-one-time").value},true);
+    for(const trigger of workflowDraft.triggers)validateTrigger(trigger);
+    for(const condition of workflowDraft.conditions){const kind=condition.kind||"entity";if(kind==="entity"&&!condition.entity_id)add("context","Condition: choose an entity");else if(kind==="time_window"&&(!condition.start_time||!condition.end_time))add("context","Condition: complete the time window");else if(kind==="weekday"&&!(condition.weekdays||[]).length)add("context","Condition: select at least one weekday")}
+    const primaryEntity=$("automation-action-entity").value.trim(),primaryService=$("automation-action-service").value.trim();if(Boolean(primaryEntity)!==Boolean(primaryService))add("action","Complete both action entity and service",primaryEntity?"automation-action-service":"automation-action-entity");
+    try{const data=JSON.parse($("automation-action-data").value||"{}");if(!data||Array.isArray(data)||typeof data!=="object")throw new Error()}catch(_error){add("action","Action service data must be a JSON object","automation-action-data")}
+    const validateAction=(item,issueKind="action",prefix="Action step")=>{const kind=item.kind||"service";if(kind==="service"&&(!item.entity_id||!item.service))add(issueKind,`${prefix}: complete entity and service`);else if(kind==="delay"&&Number(item.delay_seconds)<1)add(issueKind,`${prefix}: enter at least one delay second`);else if(kind==="wait_state"&&!item.entity_id)add(issueKind,`${prefix}: choose a wait entity`)};
+    for(const action of workflowDraft.actions)validateAction(action);
+    for(const branch of workflowDraft.branches){for(const condition of branch.conditions||[]){if((condition.kind||"entity")==="entity"&&!condition.entity_id)add("decision",`${branch.name||"Branch"}: complete its condition`)}for(const action of branch.actions||[])validateAction(action,"decision",`${branch.name||"Branch"} action`)}
+    return issues;
+  }
+  function renderEditorValidation(){
+    const issues=editorValidationIssues(),root=$("automation-studio-validation");root.hidden=!issues.length;root.replaceChildren();
+    if(issues.length){const title=document.createElement("strong");title.textContent=`${issues.length} item${issues.length===1?"":"s"} to review`;root.append(title);for(const issue of issues){const button=document.createElement("button");button.type="button";button.dataset.validationKind=issue.kind;button.dataset.validationField=issue.field||"";button.textContent=issue.message;root.append(button)}}
+    const kinds=new Set(issues.map(issue=>issue.kind));for(const node of $("automation-flow-preview").querySelectorAll("[data-flow-kind]")){const invalid=kinds.has(node.dataset.flowKind);node.classList.toggle("has-validation-error",invalid);node.setAttribute("aria-invalid",String(invalid))}
+    return issues;
+  }
+  function focusEditorIssue(issue){selectStudioNode(issue.kind);const field=issue.field?$("studio-"+issue.field):null;(field||$("automation-studio-inspector-fields").querySelector("input,select,textarea"))?.focus()}
+
   function renderEditorFlow(){
     const snapshot=editorSnapshot(),root=$("automation-flow-preview");
     window.zbranoAutomationFlow?.render(root,snapshot,entityLabel);
     root?.querySelector(`[data-flow-kind="${selectedStudioNode}"]`)?.classList.add("is-selected");
     $("automation-studio-flow-name").textContent=snapshot.name;
     for(const button of panel.querySelectorAll("[data-studio-node]"))button.classList.toggle("active",button.dataset.studioNode===selectedStudioNode);
+    renderEditorValidation();
   }
 
   function clearEditor(){
@@ -364,6 +388,7 @@
   panel.querySelector(".automation-library-tabs")?.addEventListener("click",event=>{const button=event.target.closest("[data-automation-library-view]");if(button)showLibraryView(button.dataset.automationLibraryView)});
   panel.addEventListener("pointerdown",event=>{const block=event.target.closest(".automation-studio-preview [data-flow-kind]");if(block)selectStudioNode(block.dataset.flowKind)},{capture:true});
   panel.addEventListener("click",async event=>{
+    const validationIssue=event.target.closest("[data-validation-kind]");if(validationIssue){focusEditorIssue({kind:validationIssue.dataset.validationKind,field:validationIssue.dataset.validationField});return}
     const studioBlock=event.target.closest(".automation-studio-preview [data-studio-node],.automation-studio-preview [data-flow-kind]");if(studioBlock){selectStudioNode(studioBlock.dataset.studioNode||studioBlock.dataset.flowKind);return}
     const templateButton=event.target.closest("[data-auto-template]");if(templateButton){template(templateButton.dataset.autoTemplate);return}
     const notificationWatch=event.target.closest("[data-auto-watch]");if(notificationWatch){showView("notifications");window.zbranoNotificationCenter?.showView("watchlist");window.zbranoNotificationCenter?.load();return}
@@ -407,8 +432,8 @@
   $("automation-studio-undo").addEventListener("click",undoEditor);
   $("automation-studio-redo").addEventListener("click",redoEditor);
   $("automation-studio-new").addEventListener("click",()=>{$("automation-studio-state").textContent="";clearEditor()});
-  $("automation-studio-test").addEventListener("click",async()=>{const status=$("automation-studio-state"),results=$("automation-studio-test-results");if(!$("automation-name").value.trim()||!$("automation-objective").value.trim()){selectStudioNode("details");status.textContent="Add a name and objective before testing.";return}status.textContent="Testing safely…";try{const result=await api("api/automations/test-flow",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(automationRequestBody())});renderTestTrace(result);status.textContent=`Dry run: ${String(result.status||"complete").replaceAll("_"," ")} · 0 actions executed`}catch(error){results.hidden=true;status.textContent=`Test failed: ${error.message||error}`}});
-  $("automation-studio-save").addEventListener("click",()=>{if(!$("automation-name").value.trim()||!$("automation-objective").value.trim()){selectStudioNode("details");$("automation-draft-state").textContent="Add a name and objective before saving.";$("automation-studio-state").textContent="Add a name and objective before saving.";$("studio-automation-name")?.focus();return}$("automation-draft-form").requestSubmit()});
+  $("automation-studio-test").addEventListener("click",async()=>{const status=$("automation-studio-state"),results=$("automation-studio-test-results"),issues=renderEditorValidation();if(issues.length){focusEditorIssue(issues[0]);status.textContent=`Review ${issues.length} incomplete item${issues.length===1?"":"s"} before testing.`;return}status.textContent="Testing safely…";try{const result=await api("api/automations/test-flow",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(automationRequestBody())});renderTestTrace(result);status.textContent=`Dry run: ${String(result.status||"complete").replaceAll("_"," ")} · 0 actions executed`}catch(error){results.hidden=true;status.textContent=`Test failed: ${error.message||error}`}});
+  $("automation-studio-save").addEventListener("click",()=>{const issues=renderEditorValidation();if(issues.length){focusEditorIssue(issues[0]);$("automation-draft-state").textContent=`Review ${issues.length} incomplete item${issues.length===1?"":"s"} before saving.`;$("automation-studio-state").textContent=$("automation-draft-state").textContent;return}$("automation-draft-form").requestSubmit()});
   $("automation-studio-advanced").addEventListener("click",()=>{const advanced=document.querySelector(".automation-advanced");advanced?.setAttribute("open","");advanced?.scrollIntoView({behavior:"smooth",block:"start"})});
   $("automation-studio-canvas").addEventListener("dragover",event=>{event.preventDefault();event.currentTarget.classList.add("is-drop-target")});
   $("automation-studio-canvas").addEventListener("dragleave",event=>event.currentTarget.classList.remove("is-drop-target"));

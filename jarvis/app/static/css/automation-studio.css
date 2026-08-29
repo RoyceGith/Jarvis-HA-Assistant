@@ -15,6 +15,10 @@
 .automation-studio-history-controls button:disabled { opacity: .38; cursor: default; }
 .automation-studio-test-results { display: grid; grid-template-columns: repeat(4,minmax(0,1fr)); gap: .5rem; padding: .65rem 1rem; border-bottom: 1px solid var(--line); background: color-mix(in srgb,var(--panel) 88%,transparent); }
 .automation-studio-test-results[hidden] { display: none; }
+.automation-studio-validation { display: flex; flex-wrap: wrap; align-items: center; gap: .4rem; padding: .55rem 1rem; border-bottom: 1px solid color-mix(in srgb,#f0b35b 55%,var(--line)); background: color-mix(in srgb,#f0b35b 9%,var(--panel)); }
+.automation-studio-validation[hidden] { display: none; }
+.automation-studio-validation strong { margin-right: .2rem; color: #f0b35b; font-size: .76rem; }
+.automation-studio-validation button { padding: .35rem .55rem; border-color: color-mix(in srgb,#f0b35b 52%,var(--line)); background: transparent; font-size: .7rem; }
 .automation-studio-test-step { display: grid; gap: .2rem; min-width: 0; padding: .55rem; border: 1px solid var(--line); border-radius: 9px; }
 .automation-studio-test-step[data-status="pass"] { border-color: color-mix(in srgb,#65d98c 60%,var(--line)); }
 .automation-studio-test-step[data-status="fail"] { border-color: color-mix(in srgb,#ff766d 65%,var(--line)); }
@@ -58,6 +62,8 @@
 .automation-studio-canvas .automation-flow { grid-template-columns: minmax(230px,330px); justify-content: center; overflow: visible; padding: .8rem 0; }
 .automation-flow-node { position: relative; z-index: 1; min-width: 0; padding: .72rem .75rem; border: 1px solid color-mix(in srgb,var(--line) 78%,transparent); border-radius: 12px; background: color-mix(in srgb,var(--surface-strong) 90%,transparent); box-shadow: inset 3px 0 color-mix(in srgb,var(--cyan) 55%,transparent),0 8px 24px rgba(0,0,0,.12); cursor: pointer; transition: border-color .16s ease,transform .16s ease,box-shadow .16s ease; }
 .automation-flow-node:hover,.automation-flow-node:focus-visible,.automation-flow-node.is-selected { border-color: var(--cyan); transform: translateY(-1px); box-shadow: inset 3px 0 var(--cyan),0 0 0 2px color-mix(in srgb,var(--cyan) 18%,transparent),0 10px 28px rgba(0,0,0,.16); outline: none; }
+.automation-flow-node.has-validation-error { border-color: #f0b35b; box-shadow: inset 3px 0 #f0b35b,0 0 0 2px color-mix(in srgb,#f0b35b 16%,transparent),0 8px 24px rgba(0,0,0,.12); }
+.automation-flow-node.has-validation-error::after { content: "Needs attention"; position: absolute; top: .45rem; right: .55rem; color: #f0b35b; font-size: .58rem; letter-spacing: .04em; }
 .automation-flow-node strong,.automation-flow-node small { display: block; }
 .automation-flow-node strong { margin: .28rem 0; overflow-wrap: anywhere; }
 .automation-flow-node small { color: var(--text-muted); line-height: 1.35; }

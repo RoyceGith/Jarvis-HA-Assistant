@@ -6,7 +6,7 @@ connections.
 
 ## Automation Studio
 
-Version 0.13.82 provides a full-window visual automation builder with Trigger, Context,
+Version 0.13.83 provides a full-window visual automation builder with Trigger, Context,
 Decision, and Action blocks, a node canvas, and block-specific settings. The full
 Advanced editor remains available, existing stored automations are preserved, and
 repeatable OR triggers, grouped conditions, ordered actions, and IF/ELSE branches
@@ -25,6 +25,8 @@ Visible Undo and Redo controls plus standard keyboard shortcuts restore field,
 workflow-step, branch, and selected-block edits from a bounded local history.
 Unsaved work recovers after an accidental refresh from a seven-day, 100 KB maximum
 browser-local record that is discarded after save or when another flow is opened.
+Live validation marks incomplete canvas blocks, links each issue to its inspector,
+and guards Test and Save until the visual workflow is structurally complete.
 The Test Flow control checks an unsaved draft against current Home Assistant state,
 renders a four-stage trace, and performs no service calls.
 Graphical triggers now include selected local times and weekdays, sunrise or sunset
