@@ -1,5 +1,13 @@
 # Change log
 
+## 0.13.82
+
+- Recovered the current unsaved Automation Studio flow after an accidental refresh.
+- Kept recovery local to the Home Assistant browser origin with a seven-day expiry
+  and 100 KB ceiling.
+- Flushed pending edits during page hide and discarded recovery after save or when
+  another flow is started, templated, or opened.
+
 ## 0.13.81
 
 - Added visible Undo and Redo controls to Automation Studio with standard keyboard
