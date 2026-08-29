@@ -1,5 +1,14 @@
 # Change log
 
+## 0.13.83
+
+- Added continuous validation for visual automation details, triggers, conditions,
+  actions, branches, and service-data JSON.
+- Added clickable issue chips and amber canvas markers that open the relevant block
+  inspector and focus a known field.
+- Guarded Test Flow and Save Draft against incomplete structures while retaining
+  valid suggestion-only workflows.
+
 ## 0.13.82
 
 - Recovered the current unsaved Automation Studio flow after an accidental refresh.
