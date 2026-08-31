@@ -1,9 +1,9 @@
 {
-  "version": "0.13.108",
+  "version": "0.13.109",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/ZBRANO_Core main",
-  "summary": "Add direct decision-path creation and branch condition presets for entity, time-window, weekday, and sun logic.",
+  "summary": "Add direct whole-path duplicate, reorder, and delete controls with protected trailing ELSE behavior.",
   "history_backfill": [
     {
       "version": "0.13.0",
@@ -436,24 +436,30 @@
     {
       "version": "0.13.107",
       "summary": "Added self-contained branch quick building with direct IF controls, branch-aware task presets, and focused settings handoff."
+    },
+    {
+      "version": "0.13.108",
+      "summary": "Added direct decision-path creation and branch condition presets for entity, time-window, weekday, and sun logic."
     }
   ],
   "release_entry": {
     "features": [
-      "Create a new decision path directly from the visual branch stage.",
-      "Choose Entity State, Time Window, Weekdays, or Sun State from each path's IF menu.",
-      "Insert condition presets after the selected IF card and open their focused settings."
+      "Duplicate complete decision paths with their ordered IF conditions and tasks.",
+      "Move paths left or right directly from each visual lane.",
+      "Delete whole paths from explicit, accessible canvas controls."
     ],
     "fixes": [
-      "Insert new paths before a trailing ELSE fallback so first-match ordering remains safe.",
-      "Give every new path a configurable starter condition instead of creating an accidental second fallback.",
-      "Preserve Advanced-editor compatibility, Undo/Redo, validation, and existing stored branch definitions."
+      "Keep a trailing ELSE fallback fixed at the end of first-match evaluation.",
+      "Convert a duplicated ELSE fallback into a configurable conditional path instead of creating two fallbacks.",
+      "Protect the last remaining path and preserve Undo/Redo, validation, and stored definitions."
     ],
     "validation": [
-      "Direct path creation, fallback ordering, typed condition presets, selected-position placement, focused settings, browser smoke, regression suite, release manifest, README alignment, and v0.13.108 release coverage"
+      "Whole-path controls, duplication, reordering, deletion, ELSE protection, focused settings, browser smoke, regression suite, release manifest, README alignment, and v0.13.109 release coverage"
     ]
   },
   "features": [
+    "Duplicate, reorder, and delete complete Automation Studio decision paths directly on the canvas.",
+    "Keep the trailing ELSE path safe while editing first-match branch order.",
     "Create decision paths directly on the Automation Studio canvas while preserving a trailing ELSE fallback.",
     "Add Entity State, Time Window, Weekdays, and Sun State IF presets inside each branch.",
     "Build decision paths without dragging through direct IF and branch-local preset Task controls.",

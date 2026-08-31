@@ -118,7 +118,7 @@ function apiFixture(url, method = "GET") {
   if (pathname === "/api/health") {
     return {
       status: "ok",
-      version: "0.13.108",
+      version: "0.13.109",
       speech_provider: "openai",
       speech_providers: {openai: {configured: true}, elevenlabs: {configured: false}},
     };
@@ -165,7 +165,7 @@ function apiFixture(url, method = "GET") {
   if (pathname === "/api/plugins") return {plugins: []};
   if (pathname === "/api/files/shared") return {files: [], count: 0};
   if (pathname === "/api/release-memory-sync") {
-    return {enabled: false, state: "disabled", version: "0.13.108", task_active: false};
+    return {enabled: false, state: "disabled", version: "0.13.109", task_active: false};
   }
   if (pathname === "/api/tab-activity") return {revisions: {}};
   if (pathname === "/api/grinder-monitor/status") return {enabled: false, connected: false};
@@ -509,6 +509,14 @@ async function main() {
     assert.equal(await page.locator('#automation-flow-preview [data-flow-kind="branch-condition"]').count(), 2);
     await page.locator("[data-flow-add-branch]").click();
     assert.equal(await page.locator('#automation-flow-preview [data-flow-branch-drop="1"]').count(), 1);
+    assert.equal(await page.locator("#automation-flow-preview .automation-flow-branch-toolbar").count(), 2);
+    await page.locator('[data-flow-branch-action="duplicate"][data-flow-branch-index="0"]').click();
+    assert.equal(await page.locator("#automation-flow-preview .automation-flow-branch-lane").count(), 3);
+    await page.locator('[data-flow-branch-action="delete"][data-flow-branch-index="1"]').click();
+    assert.equal(await page.locator("#automation-flow-preview .automation-flow-branch-lane").count(), 2);
+    await page.locator('[data-flow-branch-action="next"][data-flow-branch-index="0"]').click();
+    await page.locator('[data-flow-branch-action="previous"][data-flow-branch-index="1"]').click();
+    assert.match(await page.locator('[data-flow-branch-drop="0"] [data-flow-kind="decision"]').innerText(), /Branch 1/i);
     const starterPathCondition=page.locator('#automation-flow-preview [data-flow-kind="branch-condition"][data-flow-branch-index="1"]');await starterPathCondition.hover();await starterPathCondition.locator(".automation-flow-card-delete").click();
     await page.evaluate(()=>{const source=document.querySelector('#automation-flow-preview [data-flow-kind="branch-condition"]'),lane=document.querySelector('#automation-flow-preview [data-flow-branch-condition-drop="1"]'),dataTransfer=new DataTransfer();source.dispatchEvent(new DragEvent("dragstart",{bubbles:true,dataTransfer}));lane.dispatchEvent(new DragEvent("dragover",{bubbles:true,cancelable:true,dataTransfer}));lane.dispatchEvent(new DragEvent("drop",{bubbles:true,cancelable:true,dataTransfer}))});
     assert.equal(await page.locator('#automation-flow-preview [data-flow-kind="branch-condition"][data-flow-branch-index="1"]').count(), 1);
@@ -521,6 +529,7 @@ async function main() {
     await page.locator('[data-flow-branch-drop="0"] .automation-flow-branch-task-menu > summary').click();
     await page.locator('[data-flow-branch-task-template="delay"][data-flow-branch-index="0"]').click();
     assert.match(await page.locator('#automation-flow-preview [data-flow-kind="branch-action"]').last().innerText(), /Delay 5s/i);
+    await page.waitForTimeout(260);
     const quickBranchTask=page.locator('#automation-flow-preview [data-flow-kind="branch-action"]').last();await quickBranchTask.hover();await quickBranchTask.locator(".automation-flow-card-delete").click();
     assert.equal(await page.locator('#automation-flow-preview [data-flow-kind="branch-action"]').count(), 2);
     assert.match(await page.locator('#automation-flow-preview .automation-flow-stage.is-action').innerText(), /UNASSIGNED TASKS|Delay 2s/i);

@@ -14,10 +14,10 @@ MANIFEST = json.loads((ROOT / "jarvis/release_manifest.json").read_text(encoding
 
 class VoiceBargeInTests(unittest.TestCase):
     def test_release_markers_are_aligned(self):
-        self.assertIn('version: "0.13.108"', CONFIG)
-        self.assertIn('version="0.13.108"', MAIN)
-        self.assertIn("HUD 0.13.108", INDEX)
-        self.assertEqual(MANIFEST["version"], "0.13.108")
+        self.assertIn('version: "0.13.109"', CONFIG)
+        self.assertIn('version="0.13.109"', MAIN)
+        self.assertIn("HUD 0.13.109", INDEX)
+        self.assertEqual(MANIFEST["version"], "0.13.109")
 
     def test_talk_remains_enabled_while_response_streams(self):
         submit = INDEX[INDEX.index('form.addEventListener("submit"') : INDEX.index("const jarvisMessage")]

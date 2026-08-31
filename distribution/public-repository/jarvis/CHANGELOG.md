@@ -1,5 +1,11 @@
 # Change log
 
+## 0.13.109
+
+- Added direct duplicate, reorder, and delete controls for complete decision paths.
+- Kept a trailing ELSE fallback fixed at the end of first-match evaluation.
+- Copied ELSE paths become configurable conditional paths, preserving one fallback.
+
 ## 0.13.108
 
 - Added direct decision-path creation on the visual canvas.

@@ -1,4 +1,4 @@
-# ZBRANO v0.13.108
+# ZBRANO v0.13.109
 
 Automation Studio provides a graphical building-block workflow for Home Assistant
 automations. Use the toolbox to select or drag Trigger, Context, Decision, and
@@ -6,10 +6,9 @@ Action blocks onto the canvas, then edit only that block in the settings inspect
 Natural-language creation, templates, saved automation compatibility, and the full
 Advanced editor remain available.
 
-Version 0.13.108 adds direct Path creation and branch IF presets for Entity State,
-Time Window, Weekdays, and Sun State. New paths retain safe first-match ordering by
-appearing before a trailing ELSE fallback, and each new condition opens its exact
-inspector settings automatically.
+Version 0.13.109 adds direct controls to duplicate, reorder, and delete complete
+decision paths. It keeps the ELSE fallback last, converts a copied ELSE into a safe
+conditional path, and retains Undo/Redo throughout path management.
 
 The visual editor supports linear and branching workflows without silently changing
 the behavior of existing stored rules.

@@ -273,13 +273,13 @@
     return {type:"condition",item:workflowDraft.conditions[signalIndex-signals.length],index:signalIndex-signals.length,signals};
   }
   function deleteFlowCard(kind,index,branchIndex=null){
+    if(kind==="decision")return deleteBranchPath(index);
     if(kind==="trigger"){if(index===0)clearPrimaryTrigger();else workflowDraft.triggers.splice(index-1,1)}
     else if(kind==="context"){
       const hasPresence=Boolean($("automation-presence").value.trim()),signals=$("automation-signals").value.split(/[,\n]/).map(value=>value.trim()).filter(Boolean);
       if(hasPresence&&index===0)$("automation-presence").value="";
       else{const signalIndex=index-(hasPresence?1:0);if(signalIndex<signals.length){signals.splice(signalIndex,1);$("automation-signals").value=signals.join(", ")}else workflowDraft.conditions.splice(signalIndex-signals.length,1)}
-    }else if(kind==="decision")workflowDraft.branches.splice(index,1);
-    else if(kind==="branch-action"){const branch=workflowDraft.branches[branchIndex];if(!branch?.actions?.[index])return;branch.actions.splice(index,1)}
+    }else if(kind==="branch-action"){const branch=workflowDraft.branches[branchIndex];if(!branch?.actions?.[index])return;branch.actions.splice(index,1)}
     else if(kind==="branch-condition"){const branch=workflowDraft.branches[branchIndex];if(!branch?.conditions?.[index])return;branch.conditions.splice(index,1)}
     else if(kind==="action"){
       const primary=Boolean($("automation-action-entity").value.trim()||$("automation-action-service").value.trim());
@@ -288,6 +288,7 @@
     selectedFlowCard={kind,index:Math.max(0,index-1),branchIndex};renderStudioInspector();renderEditorFlow();commitEditorHistory();$("automation-studio-state").textContent="Flow card removed. Use Undo to restore it.";
   }
   function duplicateFlowCard(kind,index,branchIndex=null){
+    if(kind==="decision")return duplicateBranchPath(index);
     if(kind==="branch-action"){const actions=workflowDraft.branches[branchIndex]?.actions;if(!actions?.[index])return;if(actions.length>=20){$("automation-studio-state").textContent="This branch already has its maximum of 20 tasks.";return}actions.splice(index+1,0,cloneEditorValue(actions[index]));selectedFlowCard={kind,index:index+1,branchIndex};renderStudioInspector();renderEditorFlow();commitEditorHistory();$("automation-studio-state").textContent="Branch task duplicated. Use Undo to restore the previous flow.";return}
     if(kind==="branch-condition"){const conditions=workflowDraft.branches[branchIndex]?.conditions;if(!conditions?.[index])return;if(conditions.length>=20){$("automation-studio-state").textContent="This branch already has its maximum of 20 conditions.";return}conditions.splice(index+1,0,cloneEditorValue(conditions[index]));selectedFlowCard={kind,index:index+1,branchIndex};renderStudioInspector();renderEditorFlow();commitEditorHistory();$("automation-studio-state").textContent="Branch condition duplicated. Use Undo to restore the previous flow.";return}
     const limits={trigger:10,decision:10,action:20},items=kind==="context"?null:visualFlowItems(kind);
@@ -302,6 +303,7 @@
     selectedFlowCard={kind,index:index+1};renderStudioInspector();renderEditorFlow();commitEditorHistory();$("automation-studio-state").textContent="Flow card duplicated. Use Undo to restore the previous flow.";
   }
   function moveFlowCard(kind,fromIndex,insertionIndex){
+    if(kind==="decision")return moveBranchPathTo(fromIndex,insertionIndex>fromIndex?insertionIndex-1:insertionIndex);
     if(kind==="context"){
       const source=contextFlowSource(fromIndex),presence=$("automation-presence").value.trim()?1:0;
       if(source.type==="presence"){$("automation-studio-state").textContent="Presence stays first because it is the flow's unique occupancy gate.";return false}
@@ -340,6 +342,15 @@
   }
   function addBranchPath(){
     if(workflowDraft.branches.length>=10){$("automation-studio-state").textContent="A flow supports up to 10 decision paths.";return false}const fallbackIndex=workflowDraft.branches.findIndex((branch,index)=>index===workflowDraft.branches.length-1&&!(branch.conditions||[]).length),selectedAfter=selectedFlowCard.kind==="decision"?selectedFlowCard.index+1:workflowDraft.branches.length,target=Math.max(0,Math.min(fallbackIndex>=0?Math.min(selectedAfter,fallbackIndex):selectedAfter,workflowDraft.branches.length));workflowDraft.branches.splice(target,0,{name:`Path ${target+1}`,condition_mode:"all",conditions:[newBranchCondition()],actions:[]});selectedStudioNode="decision";selectedFlowCard={kind:"decision",index:target,branchIndex:null};renderStudioInspector();renderEditorFlow();commitEditorHistory();requestAnimationFrame(()=>focusSelectedFlowEditor("decision",target));$("automation-studio-state").textContent="Decision path added before the ELSE fallback. Complete its IF condition and tasks.";return true;
+  }
+  function moveBranchPathTo(fromIndex,targetIndex){
+    const branches=workflowDraft.branches;if(!branches[fromIndex])return false;const fallbackIndex=branches.length&&!(branches.at(-1)?.conditions||[]).length?branches.length-1:-1;if(fromIndex===fallbackIndex){$("automation-studio-state").textContent="The ELSE fallback stays last so path evaluation remains safe.";return false}const maxTarget=fallbackIndex>=0?fallbackIndex-1:branches.length-1,target=Math.max(0,Math.min(Number(targetIndex),maxTarget));if(target===fromIndex)return false;const moved=branches.splice(fromIndex,1)[0];branches.splice(target,0,moved);selectedStudioNode="decision";selectedFlowCard={kind:"decision",index:target,branchIndex:null};renderStudioInspector();renderEditorFlow();commitEditorHistory();requestAnimationFrame(()=>focusSelectedFlowEditor("decision",target));$("automation-studio-state").textContent="Decision path moved. The ELSE fallback remains last. Use Undo to restore the previous order.";return true;
+  }
+  function duplicateBranchPath(index){
+    const branches=workflowDraft.branches,source=branches[index];if(!source)return false;if(branches.length>=10){$("automation-studio-state").textContent="A flow supports up to 10 decision paths.";return false}const copy=cloneEditorValue(source),sourceIsFallback=index===branches.length-1&&!(source.conditions||[]).length;copy.name=`${source.name||`Path ${index+1}`} copy`;if(sourceIsFallback)copy.conditions=[newBranchCondition()];const fallbackIndex=branches.length&&!(branches.at(-1)?.conditions||[]).length?branches.length-1:-1,target=sourceIsFallback?index:Math.min(index+1,fallbackIndex>=0?fallbackIndex:branches.length);branches.splice(target,0,copy);selectedStudioNode="decision";selectedFlowCard={kind:"decision",index:target,branchIndex:null};renderStudioInspector();renderEditorFlow();commitEditorHistory();requestAnimationFrame(()=>focusSelectedFlowEditor("decision",target));$("automation-studio-state").textContent=sourceIsFallback?"ELSE copied as a conditional path so only one fallback remains.":"Decision path duplicated with its IF conditions and tasks. Use Undo to restore the previous flow.";return true;
+  }
+  function deleteBranchPath(index){
+    const branches=workflowDraft.branches;if(!branches[index])return false;if(branches.length===1){$("automation-studio-state").textContent="Keep at least one decision path, or remove branching from Advanced settings.";return false}const removed=branches.splice(index,1)[0],target=Math.max(0,Math.min(index,branches.length-1));selectedStudioNode="decision";selectedFlowCard={kind:"decision",index:target,branchIndex:null};renderStudioInspector();renderEditorFlow();commitEditorHistory();requestAnimationFrame(()=>focusSelectedFlowEditor("decision",target));$("automation-studio-state").textContent=`${removed.name||"Decision path"} removed. Use Undo to restore it.`;return true;
   }
   function addStudioBlock(kind,insertionIndex=null){
     const trigger=()=>({kind:"entity",entity_id:"",operator:"changes_to",value:"",for_seconds:0,weekdays:[],at:"",sun_event:"sunrise",offset_minutes:0,interval_minutes:5,one_time_at:""});
@@ -549,7 +560,7 @@
     const actualContextCount=(snapshot.presence_entity?1:0)+(snapshot.signal_entities||[]).length+(visualSnapshot.conditions||[]).length,actualDecisionCount=(visualSnapshot.branches||[]).length,actualActionCount=(visualSnapshot.actions||[]).length;
     for(const card of root?.querySelectorAll("[data-flow-kind]")||[]){
       const kind=card.dataset.flowKind,index=Number(card.dataset.flowIndex),branchIndex=card.hasAttribute("data-flow-branch-index")?Number(card.dataset.flowBranchIndex):null,deletable=kind==="trigger"?(index>0||primaryTrigger.kind!=="entity"||Boolean(primaryTrigger.entity_id)):kind==="context"?index<actualContextCount:kind==="decision"?index<actualDecisionCount:kind==="action"?index<actualActionCount:kind==="branch-action"?Boolean(visualSnapshot.branches?.[branchIndex]?.actions?.[index]):kind==="branch-condition"?Boolean(visualSnapshot.branches?.[branchIndex]?.conditions?.[index]):false;
-      if(deletable){
+      if(deletable&&kind!=="decision"){
         card.draggable=true;card.setAttribute("aria-grabbed","false");
         const controls=document.createElement("span");controls.className="automation-flow-card-actions";
         const duplicate=document.createElement("button");duplicate.type="button";duplicate.className="automation-flow-card-duplicate";duplicate.dataset.flowDuplicateKind=kind;duplicate.dataset.flowDuplicateIndex=String(index);if(branchIndex!=null)duplicate.dataset.flowBranchIndex=String(branchIndex);duplicate.setAttribute("aria-label",`Duplicate ${kind} card ${index+1}`);duplicate.title=kind==="context"&&contextFlowSource(index).type==="presence"?"Presence is unique":"Duplicate card";duplicate.textContent="⧉";if(kind==="context"&&contextFlowSource(index).type==="presence")duplicate.disabled=true;
@@ -625,6 +636,7 @@
   panel.addEventListener("pointerdown",event=>{if(event.target.closest(".automation-flow-card-actions"))return;const block=event.target.closest(".automation-studio-preview [data-flow-kind]");if(block&&!block.draggable)selectStudioNode(block.dataset.flowKind,Number(block.dataset.flowIndex),block.hasAttribute("data-flow-branch-index")?Number(block.dataset.flowBranchIndex):null)},{capture:true});
   panel.addEventListener("click",async event=>{
     const addBranchPathButton=event.target.closest("[data-flow-add-branch]");if(addBranchPathButton){event.preventDefault();event.stopPropagation();addBranchPath();return}
+    const branchPathAction=event.target.closest("[data-flow-branch-action]");if(branchPathAction){event.preventDefault();event.stopPropagation();const branchIndex=Number(branchPathAction.dataset.flowBranchIndex),action=branchPathAction.dataset.flowBranchAction;if(action==="previous")moveBranchPathTo(branchIndex,branchIndex-1);else if(action==="next")moveBranchPathTo(branchIndex,branchIndex+1);else if(action==="duplicate")duplicateBranchPath(branchIndex);else if(action==="delete")deleteBranchPath(branchIndex);return}
     const branchConditionTemplate=event.target.closest("[data-flow-branch-condition-template]");if(branchConditionTemplate){event.preventDefault();event.stopPropagation();const branchIndex=Number(branchConditionTemplate.dataset.flowBranchIndex);addBranchCondition(branchIndex,branchQuickInsertion("branch-condition",branchIndex),branchConditionTemplate.dataset.flowBranchConditionTemplate);return}
     const addBranchConditionButton=event.target.closest("[data-flow-branch-add-condition]");if(addBranchConditionButton){event.preventDefault();event.stopPropagation();const branchIndex=Number(addBranchConditionButton.dataset.flowBranchAddCondition);addBranchCondition(branchIndex,branchQuickInsertion("branch-condition",branchIndex));return}
     const branchTaskTemplate=event.target.closest("[data-flow-branch-task-template]");if(branchTaskTemplate){event.preventDefault();event.stopPropagation();const branchIndex=Number(branchTaskTemplate.dataset.flowBranchIndex);addBranchActionTemplate(branchIndex,branchTaskTemplate.dataset.flowBranchTaskTemplate,branchQuickInsertion("branch-action",branchIndex));return}

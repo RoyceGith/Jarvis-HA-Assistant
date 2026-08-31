@@ -99,6 +99,12 @@
 .automation-flow-branch-lane { display:grid; justify-items:center; align-content:start; min-width:0; padding:.55rem; border:1px dashed color-mix(in srgb,#c29cff 40%,var(--line)); border-radius:14px; background:color-mix(in srgb,#c29cff 4%,var(--surface)); transition:border-color .14s ease,background .14s ease; }
 .automation-flow-branch-lane.is-branch-drop-target { border-color:#c29cff; background:color-mix(in srgb,#c29cff 10%,var(--surface)); }
 .automation-flow-branch-lane > .automation-flow-node { width:100%; }
+.automation-flow-branch-toolbar { display:flex; align-items:center; justify-content:flex-end; gap:.18rem; width:100%; margin-bottom:.32rem; color:var(--text-muted); font-size:.62rem; font-weight:700; letter-spacing:.05em; }
+.automation-flow-branch-toolbar span { margin-right:auto; }
+.automation-flow-branch-toolbar button { display:grid; place-items:center; width:1.45rem; height:1.45rem; padding:0; border:1px solid transparent; border-radius:999px; background:transparent; color:var(--text-muted); cursor:pointer; }
+.automation-flow-branch-toolbar button:hover,.automation-flow-branch-toolbar button:focus-visible { border-color:color-mix(in srgb,#c29cff 55%,var(--line)); background:color-mix(in srgb,#c29cff 14%,var(--surface-strong)); color:#c29cff; outline:none; }
+.automation-flow-branch-toolbar button[data-flow-branch-action="delete"]:hover,.automation-flow-branch-toolbar button[data-flow-branch-action="delete"]:focus-visible { border-color:#ff766d; background:color-mix(in srgb,#ff766d 18%,var(--surface-strong)); color:#ff8b84; }
+.automation-flow-branch-toolbar button:disabled { opacity:.28; cursor:not-allowed; }
 .automation-flow-branch-conditions { display:grid; justify-items:center; gap:.32rem; width:100%; min-height:54px; }
 .automation-flow-branch-conditions .automation-flow-node { width:100%; border-color:color-mix(in srgb,#4f9cff 42%,var(--line)); }
 .automation-flow-branch-conditions.is-branch-drop-target { padding:.25rem; border-radius:11px; outline:2px dashed color-mix(in srgb,#4f9cff 70%,transparent); background:color-mix(in srgb,#4f9cff 8%,transparent); }

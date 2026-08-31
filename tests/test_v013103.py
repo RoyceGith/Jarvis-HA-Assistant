@@ -15,10 +15,10 @@ MANIFEST = json.loads((ROOT / "jarvis/release_manifest.json").read_text(encoding
 
 class DirectFlowCardDeletionReleaseTests(unittest.TestCase):
     def test_release_markers_are_aligned(self):
-        self.assertIn('version: "0.13.108"', CONFIG)
-        self.assertIn('version="0.13.108"', MAIN)
-        self.assertIn("HUD 0.13.108", HTML)
-        self.assertEqual(MANIFEST["version"], "0.13.108")
+        self.assertIn('version: "0.13.109"', CONFIG)
+        self.assertIn('version="0.13.109"', MAIN)
+        self.assertIn("HUD 0.13.109", HTML)
+        self.assertEqual(MANIFEST["version"], "0.13.109")
 
     def test_exact_cards_have_direct_delete_controls(self):
         for marker in (
@@ -29,7 +29,7 @@ class DirectFlowCardDeletionReleaseTests(unittest.TestCase):
             "clearPrimaryTrigger()",
             'workflowDraft.triggers.splice(index-1,1)',
             'workflowDraft.conditions.splice(signalIndex-signals.length,1)',
-            'workflowDraft.branches.splice(index,1)',
+            'deleteBranchPath(index)',
             'workflowDraft.actions.splice(index-(primary?1:0),1)',
         ):
             self.assertIn(marker, WORKSPACE)
@@ -52,7 +52,7 @@ class DirectFlowCardDeletionReleaseTests(unittest.TestCase):
         self.assertIn('temperatureCard.locator(".automation-flow-card-delete").click()', BROWSER)
 
     def test_release_history_includes_v013102(self):
-        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.107")
+        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.108")
 
 
 if __name__ == "__main__":

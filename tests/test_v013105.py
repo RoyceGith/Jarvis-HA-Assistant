@@ -16,10 +16,10 @@ MANIFEST = json.loads((ROOT / "jarvis/release_manifest.json").read_text(encoding
 
 class VisualBranchTaskLaneReleaseTests(unittest.TestCase):
     def test_release_markers_are_aligned(self):
-        self.assertIn('version: "0.13.108"', CONFIG)
-        self.assertIn('version="0.13.108"', MAIN)
-        self.assertIn("HUD 0.13.108", HTML)
-        self.assertEqual(MANIFEST["version"], "0.13.108")
+        self.assertIn('version: "0.13.109"', CONFIG)
+        self.assertIn('version="0.13.109"', MAIN)
+        self.assertIn("HUD 0.13.109", HTML)
+        self.assertEqual(MANIFEST["version"], "0.13.109")
 
     def test_branches_render_real_task_lanes(self):
         for marker in (
@@ -56,7 +56,7 @@ class VisualBranchTaskLaneReleaseTests(unittest.TestCase):
         self.assertIn("Configure a service action", BROWSER)
 
     def test_release_history_includes_v013104(self):
-        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.107")
+        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.108")
 
 
 if __name__ == "__main__":
