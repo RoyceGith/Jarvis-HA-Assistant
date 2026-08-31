@@ -19,8 +19,8 @@ storage, and `ghcr.io/roycegith/jarvis-ha-assistant` update image.
 
 ## Current experience
 
-Version 0.13.103 adds discreet hover/focus deletion to real Automation Studio cards,
-exact workflow-item removal, Undo recovery, and responsive canvas containment.
+Version 0.13.104 adds exact-position block insertion, same-stage card reordering,
+and discreet duplicate/delete controls with Undo/Redo recovery.
 Incomplete blocks remain protected by validation, and existing automation
 definitions and Home Assistant data remain compatible across updates.
 Conversational creation now reuses known Home Assistant Area-to-Zone links and
