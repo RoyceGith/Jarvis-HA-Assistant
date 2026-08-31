@@ -92,6 +92,14 @@
 .automation-studio-canvas .automation-flow-stage { min-width:0; }
 .automation-flow-stage { display: grid; justify-items: center; gap: .45rem; width: 100%; min-width: max-content; }
 .automation-flow-stage-heading { padding: .2rem .55rem; border-radius: 999px; background: color-mix(in srgb,var(--surface-strong) 88%,transparent); color: var(--text-muted); font-size: .58rem; font-weight: 700; letter-spacing: .13em; }
+.automation-flow-branch-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(170px,1fr)); gap:.65rem; width:100%; align-items:start; }
+.automation-flow-branch-lane { display:grid; justify-items:center; align-content:start; min-width:0; padding:.55rem; border:1px dashed color-mix(in srgb,#c29cff 40%,var(--line)); border-radius:14px; background:color-mix(in srgb,#c29cff 4%,var(--surface)); transition:border-color .14s ease,background .14s ease; }
+.automation-flow-branch-lane.is-branch-drop-target { border-color:#c29cff; background:color-mix(in srgb,#c29cff 10%,var(--surface)); }
+.automation-flow-branch-lane > .automation-flow-node { width:100%; }
+.automation-flow-branch-actions { display:grid; gap:.4rem; width:100%; min-height:54px; }
+.automation-flow-branch-actions .automation-flow-node { width:100%; }
+.automation-flow-branch-empty { display:grid; place-items:center; min-height:54px; padding:.55rem; border:1px dashed var(--line); border-radius:10px; color:var(--text-muted); font-size:.7rem; text-align:center; }
+.automation-flow-node.is-branch-action { box-shadow:inset 3px 0 color-mix(in srgb,#f0b35b 66%,transparent),0 8px 24px rgba(0,0,0,.12); }
 .automation-flow-node-row { display: flex; align-items: center; justify-content: center; gap: .45rem; min-width: 0; }
 .automation-flow-node-row .automation-flow-node { width: clamp(175px,20vw,250px); flex: 0 0 auto; }
 .automation-studio-canvas .automation-flow-node-row { flex-wrap: wrap; }
@@ -154,6 +162,7 @@
   .automation-flow { overflow: visible; }
   .automation-flow-stage { min-width: 0; }
   .automation-flow-node-row { display: grid; width: 100%; }
+  .automation-flow-branch-grid { grid-template-columns:1fr; }
   .automation-flow-node-row .automation-flow-node,.automation-studio-canvas .automation-flow-node-row .automation-flow-node { width: 100%; }
   .automation-studio-canvas .automation-flow-stage.is-dense .automation-flow-node-row { display: grid; width: 100%; }
   .automation-studio-canvas .automation-flow-stage.is-dense .automation-flow-node { width: 100%; }

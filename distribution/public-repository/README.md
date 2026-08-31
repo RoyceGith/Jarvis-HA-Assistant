@@ -19,8 +19,8 @@ storage, and `ghcr.io/roycegith/jarvis-ha-assistant` update image.
 
 ## Current experience
 
-Version 0.13.104 adds exact-position block insertion, same-stage card reordering,
-and discreet duplicate/delete controls with Undo/Redo recovery.
+Version 0.13.105 adds visible decision-path task lanes, direct action assignment to
+branches, in-branch ordering, and clear non-running status for unassigned tasks.
 Incomplete blocks remain protected by validation, and existing automation
 definitions and Home Assistant data remain compatible across updates.
 Conversational creation now reuses known Home Assistant Area-to-Zone links and

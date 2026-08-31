@@ -15,17 +15,17 @@ MANIFEST = json.loads((ROOT / "jarvis/release_manifest.json").read_text(encoding
 
 class InteractiveFlowCardReleaseTests(unittest.TestCase):
     def test_release_markers_are_aligned(self):
-        self.assertIn('version: "0.13.104"', CONFIG)
-        self.assertIn('version="0.13.104"', MAIN)
-        self.assertIn("HUD 0.13.104", HTML)
-        self.assertEqual(MANIFEST["version"], "0.13.104")
+        self.assertIn('version: "0.13.105"', CONFIG)
+        self.assertIn('version="0.13.105"', MAIN)
+        self.assertIn("HUD 0.13.105", HTML)
+        self.assertEqual(MANIFEST["version"], "0.13.105")
 
     def test_cards_support_exact_insertion_and_same_stage_movement(self):
         for marker in (
             "draggedFlowCard",
             "moveFlowCard(kind,fromIndex,insertionIndex)",
             "addStudioBlock(kind,insertionIndex=null)",
-            "flowDropPosition(event)",
+            'flowDropPosition(event,sourceKind="")',
             'target&&target.kind===kind?target.index:null',
             'source.kind===target.kind',
         ):
@@ -37,12 +37,12 @@ class InteractiveFlowCardReleaseTests(unittest.TestCase):
             "writePrimaryTrigger(item={})",
             "primaryActionValue()",
             "writeFlowSequence(kind,items)",
-            '!first.task_template||first.task_template==="service"',
+            '!first?.task_template||first.task_template==="service"',
         ):
             self.assertIn(marker, WORKSPACE)
 
     def test_repeatable_cards_have_discreet_duplicate_controls(self):
-        self.assertIn("duplicateFlowCard(kind,index)", WORKSPACE)
+        self.assertIn("duplicateFlowCard(kind,index,branchIndex=null)", WORKSPACE)
         self.assertIn("data-flow-duplicate-kind", WORKSPACE)
         self.assertIn("Presence is a unique context rule", WORKSPACE)
         self.assertIn(".automation-flow-card-actions", STYLES)
@@ -58,7 +58,7 @@ class InteractiveFlowCardReleaseTests(unittest.TestCase):
         self.assertIn("Choose a trigger entity", BROWSER)
 
     def test_release_history_includes_v013103(self):
-        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.103")
+        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.104")
 
 
 if __name__ == "__main__":

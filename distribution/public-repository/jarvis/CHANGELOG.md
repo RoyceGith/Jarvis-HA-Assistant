@@ -1,5 +1,11 @@
 # Change log
 
+## 0.13.105
+
+- Rendered every decision branch as a visible lane containing its actual tasks.
+- Added drag assignment from linear actions and direct toolbox insertion into branches.
+- Added in-branch reordering and clearly marked unassigned tasks as not executed.
+
 ## 0.13.104
 
 - Added exact-position insertion when toolbox blocks are dropped between cards.

@@ -52,16 +52,37 @@
     if(item.task_template==="toggle")return [item.entity_id?entityName(item.entity_id):"Choose a device","Toggle power state"];
     return [item.entity_id?entityName(item.entity_id):"Choose an action entity",text(item.service,"Configure a service action")];
   }
+  function branchStage(branches,entityName){
+    const section=document.createElement("section");section.className=`automation-flow-stage is-decision is-branching${branches.length>2?" is-dense":""}`;section.dataset.flowCount=String(branches.length);
+    const heading=document.createElement("div");heading.className="automation-flow-stage-heading";heading.textContent="CHOOSE THE FIRST MATCHING PATH";
+    const grid=document.createElement("div");grid.className="automation-flow-branch-grid";
+    branches.forEach((branch,branchIndex)=>{
+      const lane=document.createElement("section");lane.className="automation-flow-branch-lane";lane.dataset.flowBranchDrop=String(branchIndex);
+      lane.append(node("decision",branchIndex,branchIndex===branches.length-1&&!(branch.conditions||[]).length?"ELSE":`PATH ${branchIndex+1}`,text(branch.name,`Branch ${branchIndex+1}`),`${(branch.conditions||[]).length} condition${(branch.conditions||[]).length===1?"":"s"}`),verticalConnector());
+      const tasks=document.createElement("div");tasks.className="automation-flow-branch-actions";tasks.setAttribute("aria-label",`${text(branch.name,`Branch ${branchIndex+1}`)} tasks`);
+      const actions=(branch.actions||[]).filter(item=>item&&typeof item==="object");
+      if(actions.length){actions.forEach((item,itemIndex)=>{const [title,detail]=actionLabel(item,entityName),card=node("branch-action",itemIndex,`TASK ${itemIndex+1}`,title,detail);card.dataset.flowBranchIndex=String(branchIndex);card.dataset.flowItemIndex=String(itemIndex);tasks.append(card)})}
+      else{const empty=document.createElement("span");empty.className="automation-flow-branch-empty";empty.textContent="Drop an Action here";tasks.append(empty)}
+      lane.append(tasks);grid.append(lane);
+    });section.append(heading,grid);return section;
+  }
   function create(automation={},entityName=value=>value){
     const flow=document.createElement("div");flow.className="automation-flow";flow.setAttribute("role","group");flow.setAttribute("aria-label",`${text(automation.name,"Automation")} visual flow`);const interactive=Boolean(automation.studio_visual_draft);
     let triggers=Array.isArray(automation.triggers)?automation.triggers.filter(item=>item&&typeof item==="object"):[];if(!triggers.length)triggers=[{kind:"entity",entity_id:automation.trigger_entity,operator:automation.trigger_operator,value:automation.trigger_value,for_seconds:automation.trigger_for_seconds}];
     flow.append(stage("trigger","WHEN THIS HAPPENS",triggers.map((item,index)=>triggerCard(item,index,entityName)),automation.trigger_mode,interactive));
     const contextNodes=[];if(automation.presence_entity)contextNodes.push(node("context",contextNodes.length,"CONTEXT",entityName(automation.presence_entity),"Presence must be confirmed"));for(const entityId of (automation.signal_entities||[]).filter(Boolean))contextNodes.push(node("context",contextNodes.length,"SIGNAL",entityName(entityId),"Supporting context signal"));for(const condition of (automation.conditions||[]).filter(item=>item&&typeof item==="object"))contextNodes.push(conditionCard(condition,contextNodes.length,entityName));if(!contextNodes.length)contextNodes.push(node("context",0,"CONTEXT","No extra condition","Continue when an event matches"));
     flow.append(verticalConnector(),stage("context","CHECK THESE CONDITIONS",contextNodes,automation.condition_mode,false));
-    const branches=(automation.branches||[]).filter(item=>item&&typeof item==="object"),decisionNodes=branches.length?branches.map((branch,index)=>node("decision",index,index===branches.length-1&&!(branch.conditions||[]).length?"ELSE":`PATH ${index+1}`,text(branch.name,`Branch ${index+1}`),`${(branch.conditions||[]).length} condition${(branch.conditions||[]).length===1?"":"s"} · ${(branch.actions||[]).length} task${(branch.actions||[]).length===1?"":"s"}`)):[node("decision",0,"PROCESS",text(automation.proposal_template,text(automation.objective,"Record the match")),`${Math.round(Number(automation.confidence_threshold??.75)*100)}% confidence · ${text(automation.execution_policy,"suggest").replaceAll("_"," ")}`)];
-    flow.append(verticalConnector(),stage("decision",branches.length?"CHOOSE THE FIRST MATCHING PATH":"RUN THIS PROCESS",decisionNodes));
-    let actions=(automation.actions||[]).filter(item=>item&&typeof item==="object");if(!actions.length&&automation.action_entity&&automation.action_service)actions=[{kind:"service",entity_id:automation.action_entity,service:automation.action_service}];const actionNodes=actions.length?actions.map((item,index)=>{const [title,detail]=actionLabel(item,entityName);return node("action",index,`TASK ${index+1}`,title,detail)}):[node("action",0,"TASK","Suggestion only","No Home Assistant service call")];
-    flow.append(verticalConnector(),stage("action","DO THESE TASKS",actionNodes));return flow;
+    const branches=(automation.branches||[]).filter(item=>item&&typeof item==="object");
+    if(branches.length){
+      flow.append(verticalConnector(),branchStage(branches,entityName));
+      let unassigned=(automation.actions||[]).filter(item=>item&&typeof item==="object");if(!unassigned.length&&automation.action_entity&&automation.action_service)unassigned=[{kind:"service",entity_id:automation.action_entity,service:automation.action_service}];
+      if(unassigned.length){const nodes=unassigned.map((item,index)=>{const [title,detail]=actionLabel(item,entityName);return node("action",index,`UNASSIGNED ${index+1}`,title,detail)});flow.append(verticalConnector(),stage("action","UNASSIGNED TASKS — NOT RUN",nodes))}
+    }
+    else{
+      flow.append(verticalConnector(),stage("decision","RUN THIS PROCESS",[node("decision",0,"PROCESS",text(automation.proposal_template,text(automation.objective,"Record the match")),`${Math.round(Number(automation.confidence_threshold??.75)*100)}% confidence · ${text(automation.execution_policy,"suggest").replaceAll("_"," ")}`)]));
+      let actions=(automation.actions||[]).filter(item=>item&&typeof item==="object");if(!actions.length&&automation.action_entity&&automation.action_service)actions=[{kind:"service",entity_id:automation.action_entity,service:automation.action_service}];const actionNodes=actions.length?actions.map((item,index)=>{const [title,detail]=actionLabel(item,entityName);return node("action",index,`TASK ${index+1}`,title,detail)}):[node("action",0,"TASK","Suggestion only","No Home Assistant service call")];
+      flow.append(verticalConnector(),stage("action","DO THESE TASKS",actionNodes));
+    }return flow;
   }
   function render(root,automation,entityName){if(root)root.replaceChildren(create(automation,entityName))}
   window.zbranoAutomationFlow={create,render};

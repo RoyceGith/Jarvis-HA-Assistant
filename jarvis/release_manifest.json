@@ -1,9 +1,9 @@
 {
-  "version": "0.13.104",
+  "version": "0.13.105",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/ZBRANO_Core main",
-  "summary": "Add exact-position Automation Studio insertion, same-stage card reordering, and discreet duplication with Undo/Redo recovery.",
+  "summary": "Render decision branches as direct task lanes with drag assignment, in-branch ordering, and explicit unassigned-task behavior.",
   "history_backfill": [
     {
       "version": "0.13.0",
@@ -420,24 +420,30 @@
     {
       "version": "0.13.103",
       "summary": "Added discreet hover/focus deletion to real Automation Studio cards with exact removal, Undo recovery, and responsive canvas containment."
+    },
+    {
+      "version": "0.13.104",
+      "summary": "Added exact-position Automation Studio insertion, same-stage card reordering, and discreet duplication with Undo/Redo recovery."
     }
   ],
   "release_entry": {
     "features": [
-      "Insert toolbox blocks at an exact before-or-after position between existing cards.",
-      "Reorder configured cards by dragging them within the same flow stage.",
-      "Reveal a discreet duplicate control beside delete for repeatable flow cards."
+      "Render each decision path as a visible lane containing its real ordered task cards.",
+      "Move linear actions into a selected branch and reorder tasks inside or between branches.",
+      "Drop new Action blocks directly into an exact branch task position."
     ],
     "fixes": [
-      "Preserve primary trigger and action configuration when cards cross the first position.",
-      "Keep unique presence context fixed and keep signal and condition ordering semantically separate.",
-      "Record insertion, movement, duplication, and deletion in the existing Undo/Redo history."
+      "Mark linear tasks as unassigned and not executed whenever branch selection controls runtime actions.",
+      "Map branch task selection, duplication, deletion, validation, and dry-run state to the correct inspector entry.",
+      "Preserve drag payloads across browser drag lifecycle boundaries and retain Undo/Redo recovery."
     ],
     "validation": [
-      "Exact insertion, card duplication, same-stage reordering, primary-field preservation, Undo restoration, browser smoke, regression suite, release manifest, README alignment, and v0.13.104 release coverage"
+      "Branch-lane rendering, linear-to-branch movement, in-branch ordering, direct insertion, duplicate/delete/Undo behavior, browser smoke, regression suite, release manifest, README alignment, and v0.13.105 release coverage"
     ]
   },
   "features": [
+    "Render decision branches as visible lanes with their real ordered task cards.",
+    "Assign, insert, reorder, duplicate, and delete branch tasks directly on the canvas.",
     "Insert Automation Studio blocks at exact positions and reorder cards within their stage.",
     "Duplicate repeatable flow cards from a discreet hover/focus control with Undo recovery.",
     "Add discreet hover/focus delete controls to real Automation Studio flow cards.",

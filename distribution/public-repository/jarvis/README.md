@@ -6,8 +6,8 @@ connections.
 
 ## Automation Studio
 
-Version 0.13.104 adds exact-position block insertion, same-stage card reordering,
-and discreet duplicate/delete controls with Undo/Redo recovery. The full Advanced editor remains available, existing stored automations are preserved, and
+Version 0.13.105 adds visible decision-path task lanes, direct action assignment to
+branches, in-branch ordering, and clear non-running status for unassigned tasks. The full Advanced editor remains available, existing stored automations are preserved, and
 repeatable OR triggers, grouped conditions, ordered actions, and IF/ELSE branches
 are supported, together with dedicated Delay and bounded Wait Until steps. Each
 automation can use the global operating default or select its own lower authority,
