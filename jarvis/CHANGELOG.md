@@ -1,5 +1,11 @@
 # Change log
 
+## 0.13.108
+
+- Added direct decision-path creation on the visual canvas.
+- Added Entity State, Time Window, Weekdays, and Sun State branch condition presets.
+- Kept new paths before a trailing ELSE fallback and focused each new condition's settings.
+
 ## 0.13.107
 
 - Added direct IF condition controls inside every decision path.
