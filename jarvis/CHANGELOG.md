@@ -1,5 +1,11 @@
 # Change log
 
+## 0.13.102
+
+- Added installation-aware Set Temperature and Set Brightness task blocks.
+- Added focused target controls backed by real Home Assistant service data.
+- Preserved preset identity and visual editing behavior after save and reopen.
+
 ## 0.13.101
 
 - Added an AppSheet-style ready-made task palette to the Action inspector.

@@ -6,10 +6,9 @@ connections.
 
 ## Automation Studio
 
-Version 0.13.101 adds an AppSheet-style task palette with Power On, Power Off,
-Toggle, Notification, Delay, Wait Until, and Custom Service blocks. Each preset
-creates a real task card with focused settings, and notification delivery is enabled
-only for detected Home Assistant notify channels. The full Advanced editor remains available, existing stored automations are preserved, and
+Version 0.13.102 adds installation-aware Set Temperature and Set Brightness task
+blocks. Focused target values become real Home Assistant service data, update the
+visual flow immediately, and remain specialized after save and reopen. The full Advanced editor remains available, existing stored automations are preserved, and
 repeatable OR triggers, grouped conditions, ordered actions, and IF/ELSE branches
 are supported, together with dedicated Delay and bounded Wait Until steps. Each
 automation can use the global operating default or select its own lower authority,
