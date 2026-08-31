@@ -128,6 +128,7 @@ class AutomationConditionRequest(BaseModel):
 
 class AutomationActionRequest(BaseModel):
     kind: str = Field(default="service", pattern="^(service|notification|delay|wait_state)$")
+    task_template: str = Field(default="service", pattern="^(service|turn_on|turn_off|toggle|set_temperature|set_brightness|notification|delay|wait)$")
     entity_id: str = Field(default="", max_length=255, pattern=r"^(|[a-z0-9_]+\.[a-z0-9_]+)$")
     service: str = Field(default="", max_length=120, pattern=r"^(|[a-z0-9_]+\.[a-z0-9_]+)$")
     service_data: dict[str, Any] = Field(default_factory=dict)

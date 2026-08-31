@@ -1,4 +1,4 @@
-# ZBRANO v0.13.101
+# ZBRANO v0.13.102
 
 Automation Studio provides a graphical building-block workflow for Home Assistant
 automations. Use the toolbox to select or drag Trigger, Context, Decision, and
@@ -6,11 +6,10 @@ Action blocks onto the canvas, then edit only that block in the settings inspect
 Natural-language creation, templates, saved automation compatibility, and the full
 Advanced editor remain available.
 
-Version 0.13.101 adds a visual task palette to the Action inspector. Power On,
-Power Off, Toggle, Notification, Delay, and Wait Until presets add real workflow
-cards with only their relevant settings; Custom Service remains the advanced
-fallback. Notification tasks are offered only when a Home Assistant notify channel
-is available and run through the established Notification Center delivery path.
+Version 0.13.102 adds focused Set Temperature and Set Brightness blocks when the
+installation exposes compatible climate or light entities. Their target values are
+stored as real service data, reflected immediately in the visual flow, and retain
+their specialized editor when a saved automation is reopened.
 
 The visual editor supports linear and branching workflows without silently changing
 the behavior of existing stored rules.

@@ -517,6 +517,7 @@ def _automation_payload(request):
     payload["conditions"] = [_automation_normalize_condition(item) for item in payload.get("conditions") or []]
     payload["actions"] = [{
         "kind": str(item.get("kind") or "service"),
+        "task_template": str(item.get("task_template") or "service"),
         "entity_id": str(item.get("entity_id") or "").strip().lower(),
         "service": str(item.get("service") or "").strip().lower(),
         "service_data": dict(item.get("service_data") or {}),
@@ -534,6 +535,7 @@ def _automation_payload(request):
         "conditions": [_automation_normalize_condition(item) for item in branch.get("conditions") or []],
         "actions": [{
             "kind": str(item.get("kind") or "service"),
+            "task_template": str(item.get("task_template") or "service"),
             "entity_id": str(item.get("entity_id") or "").strip().lower(),
             "service": str(item.get("service") or "").strip().lower(),
             "service_data": dict(item.get("service_data") or {}),

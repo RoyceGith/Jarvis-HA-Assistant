@@ -1,9 +1,9 @@
 {
-  "version": "0.13.101",
+  "version": "0.13.102",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/ZBRANO_Core main",
-  "summary": "Add an AppSheet-style action task palette with executable device, notification, timing, wait-state, and custom Home Assistant tasks.",
+  "summary": "Add installation-aware Set Temperature and Set Brightness tasks with focused controls and persistent preset identity.",
   "history_backfill": [
     {
       "version": "0.13.0",
@@ -408,23 +408,29 @@
     {
       "version": "0.13.100",
       "summary": "Compacted Automation Studio stages containing more than two cards and kept OR/AND relationship values fully visible."
+    },
+    {
+      "version": "0.13.101",
+      "summary": "Added an AppSheet-style task palette with executable device, notification, timing, wait-state, and custom Home Assistant tasks."
     }
   ],
   "release_entry": {
     "features": [
-      "Choose ready-made Power On, Power Off, Toggle, Notification, Delay, Wait Until, and Custom Service task blocks.",
-      "Deliver notification tasks through detected Home Assistant notify channels.",
-      "Derive safe Home Assistant power service names from the selected target entity."
+      "Choose focused Set Temperature and Set Brightness task blocks when compatible Home Assistant entities are installed.",
+      "Store target temperature and brightness as real Home Assistant service data.",
+      "Preserve each preset's visual identity and focused settings after saving and reopening an automation."
     ],
     "fixes": [
-      "Keep unavailable notification delivery visibly disabled instead of creating an unusable workflow task.",
-      "Validate, preview, persist, dry-run, and execute notification tasks as first-class automation steps."
+      "Disable thermostat or brightness presets when the installation has no compatible entity.",
+      "Keep the visual flow preview synchronized while editing nested service values."
     ],
     "validation": [
-      "Action palette interaction, derived device services, notification channel/message workflow, backend action validation and execution coverage, browser smoke, regression suite, release manifest, README alignment, and v0.13.101 release coverage"
+      "Installation-aware task availability, temperature service-data editing, visual flow synchronization, preset persistence, browser smoke, regression suite, release manifest, README alignment, and v0.13.102 release coverage"
     ]
   },
   "features": [
+    "Add installation-aware Set Temperature and Set Brightness tasks to Automation Studio.",
+    "Persist task-template identity and focused service-data controls across automation edits.",
     "Add a ready-made task palette to the Automation Studio Action inspector.",
     "Support first-class Home Assistant notification actions with channel, title, message, and severity settings.",
     "Compact Automation Studio stages automatically when they contain more than two cards.",

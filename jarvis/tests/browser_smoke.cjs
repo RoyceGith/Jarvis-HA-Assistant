@@ -46,7 +46,11 @@ function entityFixture(index) {
   };
 }
 
-const entities = Array.from({length: 48}, (_, index) => entityFixture(index + 1));
+const entities = [
+  ...Array.from({length: 48}, (_, index) => entityFixture(index + 1)),
+  {entity_id:"climate.browser_thermostat",friendly_name:"Browser Thermostat",domain:"climate",state:"cool",available:true,risk:"low_risk_control_proposed",auto_approved:true},
+  {entity_id:"light.browser_light",friendly_name:"Browser Light",domain:"light",state:"off",available:true,risk:"low_risk_control_proposed",auto_approved:true},
+];
 const automationFixture = {
   settings: {
     operating_mode: "suggest_only",
@@ -114,7 +118,7 @@ function apiFixture(url, method = "GET") {
   if (pathname === "/api/health") {
     return {
       status: "ok",
-      version: "0.13.101",
+      version: "0.13.102",
       speech_provider: "openai",
       speech_providers: {openai: {configured: true}, elevenlabs: {configured: false}},
     };
@@ -130,7 +134,7 @@ function apiFixture(url, method = "GET") {
     };
   }
   if (pathname === "/api/ha/entities") {
-    return {entities, count: entities.length, domains: ["sensor"], source: "browser fixture"};
+    return {entities, count: entities.length, domains: ["sensor", "climate", "light"], source: "browser fixture"};
   }
   if (pathname === "/api/ha/approved") {
     return {policy: {}, read_entities: [], control_entities: []};
@@ -161,7 +165,7 @@ function apiFixture(url, method = "GET") {
   if (pathname === "/api/plugins") return {plugins: []};
   if (pathname === "/api/files/shared") return {files: [], count: 0};
   if (pathname === "/api/release-memory-sync") {
-    return {enabled: false, state: "disabled", version: "0.13.101", task_active: false};
+    return {enabled: false, state: "disabled", version: "0.13.102", task_active: false};
   }
   if (pathname === "/api/tab-activity") return {revisions: {}};
   if (pathname === "/api/grinder-monitor/status") return {enabled: false, connected: false};
@@ -357,7 +361,7 @@ async function main() {
     assert.match(await page.locator('#automation-flow-preview [data-flow-kind="action"]').innerText(), /Configure a service action/i);
     assert.equal(await page.locator('#automation-flow-preview [data-flow-kind="action"]').count(), 1);
     assert.match(await page.locator("#automation-studio-state").innerText(), /Action block added/i);
-    assert.equal(await page.locator(".automation-task-palette [data-action-template]").count(), 7);
+    assert.equal(await page.locator(".automation-task-palette [data-action-template]").count(), 9);
     assert.equal(await page.locator('[data-action-template="notification"]').isEnabled(), true);
     await page.locator('[data-action-template="turn_on"]').click();
     await page.locator('[data-workflow-index="1"][data-action-field="entity_id"]').fill("light.browser_fixture");
@@ -367,6 +371,11 @@ async function main() {
     await page.locator('[data-workflow-index="2"][data-action-field="notification_message"]').fill("Automation finished");
     assert.match(await page.locator('#automation-flow-preview [data-flow-kind="action"]').nth(2).innerText(), /Automation finished/i);
     await page.locator('[data-workflow-remove="2"]').click();
+    await page.locator('[data-workflow-remove="1"]').click();
+    await page.locator('[data-action-template="set_temperature"]').click();
+    await page.locator('[data-workflow-index="1"][data-action-field="entity_id"]').fill("climate.browser_thermostat");
+    await page.locator('[data-workflow-index="1"][data-action-data-field="temperature"]').fill("23.5");
+    assert.match(await page.locator('#automation-flow-preview [data-flow-kind="action"]').nth(1).innerText(), /Set to 23.5°/i);
     await page.locator('[data-workflow-remove="1"]').click();
     assert.equal(await page.locator(".automation-workflow-step").count(), 1);
     assert.equal(await page.locator("#automation-studio-dirty").isVisible(), true);
