@@ -1,14 +1,14 @@
-## ZBRANO v0.13.106
+## ZBRANO v0.13.107
 
 ZBRANO combines Home Assistant chat, voice, entity control, memory, notifications,
 calendar tools, plugins, and evidence-based automations. Automation Studio now uses
 a visual building-block toolbox, interactive node canvas, and contextual inspector;
 the established automation engine and stored definitions remain compatible.
 
-Version 0.13.106 makes every decision-path condition a visible IF card with direct
-AND/OR controls. Context blocks can be inserted at an exact position, conditions
-can be reordered within or between paths, and duplicate/delete operations remain
-recoverable with Undo/Redo. Empty final paths stay clearly identified as ELSE.
+Version 0.13.107 makes every decision path self-contained. Add IF conditions and
+ready-made Power, Climate, Lighting, Notification, Delay, Wait Until, or Custom
+Service tasks directly inside a path without dragging. New blocks are inserted
+after the selected card and their exact settings open automatically.
 
 The application source and post-split build history are maintained in the private
 core repository. Public Home Assistant repositories contain only the five-file

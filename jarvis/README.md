@@ -1,4 +1,4 @@
-# ZBRANO v0.13.106
+# ZBRANO v0.13.107
 
 Automation Studio provides a graphical building-block workflow for Home Assistant
 automations. Use the toolbox to select or drag Trigger, Context, Decision, and
@@ -6,10 +6,10 @@ Action blocks onto the canvas, then edit only that block in the settings inspect
 Natural-language creation, templates, saved automation compatibility, and the full
 Advanced editor remain available.
 
-Version 0.13.106 renders each decision-path condition as a visible IF card. Branch
-AND/OR logic is editable on the canvas, Context blocks can be inserted at exact
-positions, and conditions can be reordered within or between paths. Duplicate,
-delete, and Undo/Redo remain available, while an empty final path is shown as ELSE.
+Version 0.13.107 adds direct IF and Task controls inside every decision path. Its
+branch-aware task menu offers Power, Climate, Lighting, Notification, Delay, Wait
+Until, and Custom Service presets. New blocks are inserted after the selected card
+and their exact inspector settings receive focus automatically.
 
 The visual editor supports linear and branching workflows without silently changing
 the behavior of existing stored rules.

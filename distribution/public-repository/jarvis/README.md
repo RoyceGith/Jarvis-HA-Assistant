@@ -6,8 +6,8 @@ connections.
 
 ## Automation Studio
 
-Version 0.13.106 adds visible IF condition cards, direct AND/OR controls, exact
-Context insertion, and condition ordering within or between decision paths. The full Advanced editor remains available, existing stored automations are preserved, and
+Version 0.13.107 adds direct IF and preset Task controls inside every decision path,
+with selected-position insertion and automatic focus on the exact new settings. The full Advanced editor remains available, existing stored automations are preserved, and
 repeatable OR triggers, grouped conditions, ordered actions, and IF/ELSE branches
 are supported, together with dedicated Delay and bounded Wait Until steps. Each
 automation can use the global operating default or select its own lower authority,

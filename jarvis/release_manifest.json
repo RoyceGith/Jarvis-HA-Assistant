@@ -1,9 +1,9 @@
 {
-  "version": "0.13.106",
+  "version": "0.13.107",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/ZBRANO_Core main",
-  "summary": "Render branch conditions as direct IF cards with visible logic, exact insertion, cross-path ordering, and recoverable editing.",
+  "summary": "Add self-contained branch quick building with direct IF controls, branch-aware task presets, and focused settings handoff.",
   "history_backfill": [
     {
       "version": "0.13.0",
@@ -428,24 +428,30 @@
     {
       "version": "0.13.105",
       "summary": "Rendered decision branches as direct task lanes with drag assignment, in-branch ordering, and explicit unassigned-task behavior."
+    },
+    {
+      "version": "0.13.106",
+      "summary": "Rendered branch conditions as direct IF cards with visible logic, exact insertion, cross-path ordering, and recoverable editing."
     }
   ],
   "release_entry": {
     "features": [
-      "Render each branch condition as a visible IF card instead of hiding it behind a count.",
-      "Show and edit AND or OR relationships directly between a path's condition cards.",
-      "Drop new Context blocks into an exact branch condition position and reorder conditions within or between paths."
+      "Add a direct IF condition control inside every decision path.",
+      "Add a branch-local task menu with Power, Climate, Lighting, Notification, Delay, Wait Until, and Custom Service presets.",
+      "Insert quick-built blocks after the selected card or at the end of their path."
     ],
     "fixes": [
-      "Map branch condition selection directly to its exact settings row in the decision inspector.",
-      "Apply discreet duplicate and delete controls to branch conditions with Undo/Redo recovery.",
-      "Keep empty final paths visibly identified as ELSE fallbacks."
+      "Focus the exact branch settings row immediately after adding a condition or preset task.",
+      "Label each path's IF/OTHERWISE and THEN sections clearly without changing runtime branch semantics.",
+      "Keep drag-and-drop available while providing complete click-based building for touch and mobile use."
     ],
     "validation": [
-      "Branch-condition rendering, AND/OR editing, direct insertion, cross-path ordering, duplicate/delete/Undo behavior, browser smoke, regression suite, release manifest, README alignment, and v0.13.106 release coverage"
+      "Branch-local condition controls, task preset insertion, selected-position placement, focused settings, click-only workflow, browser smoke, regression suite, release manifest, README alignment, and v0.13.107 release coverage"
     ]
   },
   "features": [
+    "Build decision paths without dragging through direct IF and branch-local preset Task controls.",
+    "Insert new branch blocks after the selected card and focus their exact settings automatically.",
     "Render decision-path conditions as visible IF cards with direct AND or OR relationship controls.",
     "Insert, reorder, duplicate, and delete branch conditions directly on the Automation Studio canvas.",
     "Render decision branches as visible lanes with their real ordered task cards.",
