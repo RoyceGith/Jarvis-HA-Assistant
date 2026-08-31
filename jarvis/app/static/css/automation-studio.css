@@ -96,6 +96,10 @@
 .automation-flow-branch-lane { display:grid; justify-items:center; align-content:start; min-width:0; padding:.55rem; border:1px dashed color-mix(in srgb,#c29cff 40%,var(--line)); border-radius:14px; background:color-mix(in srgb,#c29cff 4%,var(--surface)); transition:border-color .14s ease,background .14s ease; }
 .automation-flow-branch-lane.is-branch-drop-target { border-color:#c29cff; background:color-mix(in srgb,#c29cff 10%,var(--surface)); }
 .automation-flow-branch-lane > .automation-flow-node { width:100%; }
+.automation-flow-branch-conditions { display:grid; justify-items:center; gap:.32rem; width:100%; min-height:54px; }
+.automation-flow-branch-conditions .automation-flow-node { width:100%; border-color:color-mix(in srgb,#4f9cff 42%,var(--line)); }
+.automation-flow-branch-conditions.is-branch-drop-target { padding:.25rem; border-radius:11px; outline:2px dashed color-mix(in srgb,#4f9cff 70%,transparent); background:color-mix(in srgb,#4f9cff 8%,transparent); }
+.automation-flow-branch-conditions .automation-flow-logic { margin:.04rem 0; }
 .automation-flow-branch-actions { display:grid; gap:.4rem; width:100%; min-height:54px; }
 .automation-flow-branch-actions .automation-flow-node { width:100%; }
 .automation-flow-branch-empty { display:grid; place-items:center; min-height:54px; padding:.55rem; border:1px dashed var(--line); border-radius:10px; color:var(--text-muted); font-size:.7rem; text-align:center; }

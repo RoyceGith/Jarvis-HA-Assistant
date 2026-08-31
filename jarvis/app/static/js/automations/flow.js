@@ -12,10 +12,10 @@
     element.append(kicker,heading,description);return element;
   }
   function verticalConnector(){const element=document.createElement("span");element.className="automation-flow-stage-connector";element.setAttribute("aria-hidden","true");return element}
-  function logicConnector(mode,interactive,type="trigger"){
+  function logicConnector(mode,interactive,type="trigger",branchIndex=null){
     const element=document.createElement("span");element.className="automation-flow-logic";const normalized=mode==="all"?"all":"any";
     if(!interactive){element.textContent=normalized==="all"?"AND":"OR";return element}
-    const select=document.createElement("select");select.className="automation-flow-logic-select";select.dataset[type==="trigger"?"triggerLogic":"conditionLogic"]="";select.setAttribute("aria-label",type==="trigger"?"Relationship between triggers":"Relationship between conditions");
+    const select=document.createElement("select");select.className="automation-flow-logic-select";select.dataset[type==="trigger"?"triggerLogic":type==="branch"?"branchConditionLogic":"conditionLogic"]="";if(type==="branch"&&branchIndex!=null)select.dataset.flowBranchIndex=String(branchIndex);select.setAttribute("aria-label",type==="trigger"?"Relationship between triggers":type==="branch"?"Relationship between conditions in this path":"Relationship between conditions");
     for(const [value,label] of [["any","OR"],["all","AND"]]){const option=document.createElement("option");option.value=value;option.textContent=label;option.selected=normalized===value;select.append(option)}element.append(select);return element;
   }
   function stage(kind,title,nodes,joinMode="",interactive=false){
@@ -58,8 +58,13 @@
     const grid=document.createElement("div");grid.className="automation-flow-branch-grid";
     branches.forEach((branch,branchIndex)=>{
       const lane=document.createElement("section");lane.className="automation-flow-branch-lane";lane.dataset.flowBranchDrop=String(branchIndex);
-      lane.append(node("decision",branchIndex,branchIndex===branches.length-1&&!(branch.conditions||[]).length?"ELSE":`PATH ${branchIndex+1}`,text(branch.name,`Branch ${branchIndex+1}`),`${(branch.conditions||[]).length} condition${(branch.conditions||[]).length===1?"":"s"}`),verticalConnector());
-      const tasks=document.createElement("div");tasks.className="automation-flow-branch-actions";tasks.setAttribute("aria-label",`${text(branch.name,`Branch ${branchIndex+1}`)} tasks`);
+      const conditions=(branch.conditions||[]).filter(item=>item&&typeof item==="object"),isElse=branchIndex===branches.length-1&&!conditions.length;
+      lane.append(node("decision",branchIndex,isElse?"ELSE":`PATH ${branchIndex+1}`,text(branch.name,`Branch ${branchIndex+1}`),conditions.length?`${conditions.length} visible condition${conditions.length===1?"":"s"}`:"Fallback path"));
+      const conditionLane=document.createElement("div");conditionLane.className="automation-flow-branch-conditions";conditionLane.dataset.flowBranchConditionDrop=String(branchIndex);conditionLane.setAttribute("aria-label",`${text(branch.name,`Branch ${branchIndex+1}`)} conditions`);
+      if(conditions.length){conditions.forEach((item,itemIndex)=>{if(itemIndex)conditionLane.append(logicConnector(branch.condition_mode,true,"branch",branchIndex));const card=conditionCard(item,itemIndex,entityName);card.classList.remove("is-context");card.classList.add("is-branch-condition");card.dataset.flowKind="branch-condition";card.dataset.flowBranchIndex=String(branchIndex);card.dataset.flowItemIndex=String(itemIndex);card.querySelector(".automation-flow-kicker").textContent=`IF ${itemIndex+1}`;conditionLane.append(card)})}
+      else{const empty=document.createElement("span");empty.className="automation-flow-branch-empty is-condition-empty";empty.textContent="ELSE — no conditions";conditionLane.append(empty)}
+      lane.append(verticalConnector(),conditionLane,verticalConnector());
+      const tasks=document.createElement("div");tasks.className="automation-flow-branch-actions";tasks.dataset.flowBranchActionDrop=String(branchIndex);tasks.setAttribute("aria-label",`${text(branch.name,`Branch ${branchIndex+1}`)} tasks`);
       const actions=(branch.actions||[]).filter(item=>item&&typeof item==="object");
       if(actions.length){actions.forEach((item,itemIndex)=>{const [title,detail]=actionLabel(item,entityName),card=node("branch-action",itemIndex,`TASK ${itemIndex+1}`,title,detail);card.dataset.flowBranchIndex=String(branchIndex);card.dataset.flowItemIndex=String(itemIndex);tasks.append(card)})}
       else{const empty=document.createElement("span");empty.className="automation-flow-branch-empty";empty.textContent="Drop an Action here";tasks.append(empty)}

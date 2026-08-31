@@ -15,10 +15,10 @@ MANIFEST = json.loads((ROOT / "jarvis/release_manifest.json").read_text(encoding
 
 class DenseAutomationStageReleaseTests(unittest.TestCase):
     def test_release_markers_are_aligned(self):
-        self.assertIn('version: "0.13.105"', CONFIG)
-        self.assertIn('version="0.13.105"', MAIN)
-        self.assertIn("HUD 0.13.105", HTML)
-        self.assertEqual(MANIFEST["version"], "0.13.105")
+        self.assertIn('version: "0.13.106"', CONFIG)
+        self.assertIn('version="0.13.106"', MAIN)
+        self.assertIn("HUD 0.13.106", HTML)
+        self.assertEqual(MANIFEST["version"], "0.13.106")
 
     def test_more_than_two_cards_enable_dense_layout(self):
         self.assertIn('nodes.length>2?" is-dense":""', FLOW)
@@ -32,7 +32,7 @@ class DenseAutomationStageReleaseTests(unittest.TestCase):
         self.assertIn('["OR", "AND"]', BROWSER)
 
     def test_release_history_includes_v01399(self):
-        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.104")
+        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.105")
 
 
 if __name__ == "__main__":

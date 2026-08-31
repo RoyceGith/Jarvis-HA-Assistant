@@ -1,5 +1,11 @@
 # Change log
 
+## 0.13.106
+
+- Rendered branch conditions as visible IF cards with direct AND/OR controls.
+- Added exact Context insertion and condition ordering within or between paths.
+- Added direct branch-condition selection, duplication, deletion, and Undo/Redo recovery.
+
 ## 0.13.105
 
 - Rendered every decision branch as a visible lane containing its actual tasks.

@@ -19,10 +19,10 @@ class OwnerExtensionIsolationReleaseTests(unittest.TestCase):
         grinder_intents.configure_grinder_intents(grinder_monitor_tools=[])
 
     def test_release_markers_are_aligned(self):
-        self.assertIn('version: "0.13.105"', CONFIG)
-        self.assertIn('version="0.13.105"', MAIN)
-        self.assertIn("HUD 0.13.105", HTML)
-        self.assertEqual(MANIFEST["version"], "0.13.105")
+        self.assertIn('version: "0.13.106"', CONFIG)
+        self.assertIn('version="0.13.106"', MAIN)
+        self.assertIn("HUD 0.13.106", HTML)
+        self.assertEqual(MANIFEST["version"], "0.13.106")
 
     def test_disabled_extension_has_no_chat_intent_or_tools(self):
         grinder_intents.configure_grinder_intents(grinder_monitor_tools=[])
@@ -49,7 +49,7 @@ class OwnerExtensionIsolationReleaseTests(unittest.TestCase):
         self.assertIn("monitorAvailable !== false", HUD)
 
     def test_release_history_includes_v01392(self):
-        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.104")
+        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.105")
 
 
 if __name__ == "__main__":

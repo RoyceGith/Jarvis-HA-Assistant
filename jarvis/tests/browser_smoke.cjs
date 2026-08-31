@@ -118,7 +118,7 @@ function apiFixture(url, method = "GET") {
   if (pathname === "/api/health") {
     return {
       status: "ok",
-      version: "0.13.105",
+      version: "0.13.106",
       speech_provider: "openai",
       speech_providers: {openai: {configured: true}, elevenlabs: {configured: false}},
     };
@@ -165,7 +165,7 @@ function apiFixture(url, method = "GET") {
   if (pathname === "/api/plugins") return {plugins: []};
   if (pathname === "/api/files/shared") return {files: [], count: 0};
   if (pathname === "/api/release-memory-sync") {
-    return {enabled: false, state: "disabled", version: "0.13.105", task_active: false};
+    return {enabled: false, state: "disabled", version: "0.13.106", task_active: false};
   }
   if (pathname === "/api/tab-activity") return {revisions: {}};
   if (pathname === "/api/grinder-monitor/status") return {enabled: false, connected: false};
@@ -493,6 +493,27 @@ async function main() {
     await page.locator('[data-branch-collection="actions"][data-item-index="1"][data-action-field="wait_value"]').fill("25");
     assert.match(await page.locator("#automation-flow-preview").innerText(), /PATH 1|Branch 1/i);
     assert.equal(await page.locator('#automation-flow-preview [data-flow-branch-drop="0"]').count(), 1);
+    assert.equal(await page.locator('#automation-flow-preview [data-flow-kind="branch-condition"]').count(), 1);
+    await page.evaluate(()=>{const source=document.querySelector('.automation-studio-toolbox [data-studio-node="context"]'),lane=document.querySelector('#automation-flow-preview [data-flow-branch-condition-drop="0"]'),dataTransfer=new DataTransfer();source.dispatchEvent(new DragEvent("dragstart",{bubbles:true,dataTransfer}));lane.dispatchEvent(new DragEvent("dragover",{bubbles:true,cancelable:true,dataTransfer}));lane.dispatchEvent(new DragEvent("drop",{bubbles:true,cancelable:true,dataTransfer}));source.dispatchEvent(new DragEvent("dragend",{bubbles:true,dataTransfer}))});
+    assert.equal(await page.locator('#automation-flow-preview [data-flow-kind="branch-condition"]').count(), 2);
+    await page.locator('[data-branch-collection="conditions"][data-item-index="1"][data-condition-field="entity_id"]').fill("sensor.browser_fixture_5");
+    await page.locator('#automation-flow-preview [data-branch-condition-logic]').selectOption("any");
+    assert.equal(await page.locator('[data-branch-mode="0"]').inputValue(), "any");
+    await page.evaluate(()=>{const cards=document.querySelectorAll('#automation-flow-preview [data-flow-kind="branch-condition"]'),source=cards[1],target=cards[0],dataTransfer=new DataTransfer(),rect=target.getBoundingClientRect();source.dispatchEvent(new DragEvent("dragstart",{bubbles:true,dataTransfer}));target.dispatchEvent(new DragEvent("dragover",{bubbles:true,cancelable:true,dataTransfer,clientY:rect.top+1}));target.dispatchEvent(new DragEvent("drop",{bubbles:true,cancelable:true,dataTransfer,clientY:rect.top+1}))});
+    assert.match(await page.locator('#automation-flow-preview [data-flow-kind="branch-condition"]').first().innerText(), /Browser Fixture 5/i);
+    const firstBranchCondition=page.locator('#automation-flow-preview [data-flow-kind="branch-condition"]').first();await firstBranchCondition.hover();await firstBranchCondition.locator(".automation-flow-card-duplicate").click();
+    assert.equal(await page.locator('#automation-flow-preview [data-flow-kind="branch-condition"]').count(), 3);
+    await page.locator("#automation-studio-undo").click();
+    assert.equal(await page.locator('#automation-flow-preview [data-flow-kind="branch-condition"]').count(), 2);
+    await page.locator("[data-branch-add]").click();
+    await page.evaluate(()=>{const source=document.querySelector('#automation-flow-preview [data-flow-kind="branch-condition"]'),lane=document.querySelector('#automation-flow-preview [data-flow-branch-condition-drop="1"]'),dataTransfer=new DataTransfer();source.dispatchEvent(new DragEvent("dragstart",{bubbles:true,dataTransfer}));lane.dispatchEvent(new DragEvent("dragover",{bubbles:true,cancelable:true,dataTransfer}));lane.dispatchEvent(new DragEvent("drop",{bubbles:true,cancelable:true,dataTransfer}))});
+    assert.equal(await page.locator('#automation-flow-preview [data-flow-kind="branch-condition"][data-flow-branch-index="1"]').count(), 1);
+    await page.evaluate(()=>{const source=document.querySelector('#automation-flow-preview [data-flow-kind="branch-condition"][data-flow-branch-index="1"]'),lane=document.querySelector('#automation-flow-preview [data-flow-branch-condition-drop="0"]'),dataTransfer=new DataTransfer();source.dispatchEvent(new DragEvent("dragstart",{bubbles:true,dataTransfer}));lane.dispatchEvent(new DragEvent("dragover",{bubbles:true,cancelable:true,dataTransfer}));lane.dispatchEvent(new DragEvent("drop",{bubbles:true,cancelable:true,dataTransfer}))});
+    assert.equal(await page.locator('#automation-flow-preview [data-flow-kind="branch-condition"][data-flow-branch-index="0"]').count(), 2);
+    const removableBranchCondition=page.locator('#automation-flow-preview [data-flow-kind="branch-condition"]').last();await removableBranchCondition.hover();await removableBranchCondition.locator(".automation-flow-card-delete").click();
+    assert.equal(await page.locator('#automation-flow-preview [data-flow-kind="branch-condition"]').count(), 1);
+    await page.locator("#automation-studio-undo").click();
+    assert.equal(await page.locator('#automation-flow-preview [data-flow-kind="branch-condition"]').count(), 2);
     assert.equal(await page.locator('#automation-flow-preview [data-flow-kind="branch-action"]').count(), 2);
     assert.match(await page.locator('#automation-flow-preview .automation-flow-stage.is-action').innerText(), /UNASSIGNED TASKS|Delay 2s/i);
     await page.evaluate(()=>{const source=document.querySelector('#automation-flow-preview [data-flow-kind="action"]'),target=document.querySelector('#automation-flow-preview [data-flow-kind="branch-action"]:last-child'),dataTransfer=new DataTransfer(),rect=target.getBoundingClientRect();source.dispatchEvent(new DragEvent("dragstart",{bubbles:true,dataTransfer}));target.dispatchEvent(new DragEvent("dragover",{bubbles:true,cancelable:true,dataTransfer,clientY:rect.bottom-1}));target.dispatchEvent(new DragEvent("drop",{bubbles:true,cancelable:true,dataTransfer,clientY:rect.bottom-1}))});
