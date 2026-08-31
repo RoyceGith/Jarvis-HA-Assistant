@@ -1,5 +1,11 @@
 # Change log
 
+## 0.13.103
+
+- Added discreet hover and keyboard-focus delete controls to real flow cards.
+- Mapped deletion to exact triggers, context items, branches, and tasks with Undo recovery.
+- Kept dense card groups and their controls inside the responsive canvas.
+
 ## 0.13.102
 
 - Added installation-aware Set Temperature and Set Brightness task blocks.
