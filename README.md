@@ -19,8 +19,9 @@ storage, and `ghcr.io/roycegith/jarvis-ha-assistant` update image.
 
 ## Current experience
 
-Version 0.13.106 adds visible IF condition cards, direct AND/OR controls, exact
-Context insertion, and condition ordering within or between decision paths.
+Version 0.13.107 adds direct IF and preset Task controls inside every decision path,
+including click-based Power, Climate, Lighting, Notification, Delay, Wait Until,
+and Custom Service building for touch and mobile use.
 Incomplete blocks remain protected by validation, and existing automation
 definitions and Home Assistant data remain compatible across updates.
 Conversational creation now reuses known Home Assistant Area-to-Zone links and

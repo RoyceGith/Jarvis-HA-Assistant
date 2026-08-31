@@ -1,5 +1,11 @@
 # Change log
 
+## 0.13.107
+
+- Added direct IF condition controls inside every decision path.
+- Added branch-local Power, Climate, Lighting, Notification, Delay, Wait Until, and Custom Service task presets.
+- Added selected-position insertion and automatic focus on each new branch block's settings.
+
 ## 0.13.106
 
 - Rendered branch conditions as visible IF cards with direct AND/OR controls.
