@@ -1,4 +1,4 @@
-# ZBRANO v0.13.103
+# ZBRANO v0.13.104
 
 Automation Studio provides a graphical building-block workflow for Home Assistant
 automations. Use the toolbox to select or drag Trigger, Context, Decision, and
@@ -6,9 +6,9 @@ Action blocks onto the canvas, then edit only that block in the settings inspect
 Natural-language creation, templates, saved automation compatibility, and the full
 Advanced editor remain available.
 
-Version 0.13.103 adds discreet hover and keyboard-focus deletion to every real
-visual flow card. Deletion maps to the exact trigger, context item, branch, or task,
-remains recoverable with Undo, and dense layouts stay inside the usable canvas.
+Version 0.13.104 adds exact-position canvas insertion and same-stage card reordering,
+plus a discreet duplicate control beside delete. Reordered primary triggers and
+actions retain their configuration, and every structural edit supports Undo/Redo.
 
 The visual editor supports linear and branching workflows without silently changing
 the behavior of existing stored rules.

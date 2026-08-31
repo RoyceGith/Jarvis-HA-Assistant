@@ -118,7 +118,7 @@ function apiFixture(url, method = "GET") {
   if (pathname === "/api/health") {
     return {
       status: "ok",
-      version: "0.13.103",
+      version: "0.13.104",
       speech_provider: "openai",
       speech_providers: {openai: {configured: true}, elevenlabs: {configured: false}},
     };
@@ -165,7 +165,7 @@ function apiFixture(url, method = "GET") {
   if (pathname === "/api/plugins") return {plugins: []};
   if (pathname === "/api/files/shared") return {files: [], count: 0};
   if (pathname === "/api/release-memory-sync") {
-    return {enabled: false, state: "disabled", version: "0.13.103", task_active: false};
+    return {enabled: false, state: "disabled", version: "0.13.104", task_active: false};
   }
   if (pathname === "/api/tab-activity") return {revisions: {}};
   if (pathname === "/api/grinder-monitor/status") return {enabled: false, connected: false};
@@ -360,6 +360,23 @@ async function main() {
     assert.match(await page.locator("#automation-studio-state").innerText(), /Use Undo to restore/i);
     await page.locator("#automation-studio-undo").click();
     assert.equal(await page.locator('#automation-flow-preview [data-flow-kind="trigger"]').count(), 3);
+    await page.locator("#studio-automation-trigger-entity").fill("sensor.primary_trigger");
+    await page.locator('[data-workflow-index="0"][data-trigger-field="entity_id"]').fill("sensor.middle_trigger");
+    await page.locator('[data-workflow-index="1"][data-trigger-field="entity_id"]').fill("sensor.last_trigger");
+    const middleTriggerCard=page.locator('#automation-flow-preview [data-flow-kind="trigger"]').nth(1);await middleTriggerCard.hover();
+    assert.equal(await middleTriggerCard.locator(".automation-flow-card-duplicate").isVisible(), true);
+    await middleTriggerCard.locator(".automation-flow-card-duplicate").click();
+    assert.equal(await page.locator('#automation-flow-preview [data-flow-kind="trigger"]').count(), 4);
+    assert.match(await page.locator('#automation-flow-preview [data-flow-kind="trigger"]').nth(2).innerText(), /middle_trigger/i);
+    assert.match(await page.locator("#automation-studio-state").innerText(), /Flow card duplicated/i);
+    await page.locator("#automation-studio-undo").click();
+    assert.equal(await page.locator('#automation-flow-preview [data-flow-kind="trigger"]').count(), 3);
+    await page.evaluate(()=>{const cards=document.querySelectorAll('#automation-flow-preview [data-flow-kind="trigger"]'),source=cards[cards.length-1],target=cards[0],dataTransfer=new DataTransfer(),rect=target.getBoundingClientRect();source.dispatchEvent(new DragEvent("dragstart",{bubbles:true,dataTransfer}));target.dispatchEvent(new DragEvent("dragover",{bubbles:true,cancelable:true,dataTransfer,clientX:rect.left+1}));target.dispatchEvent(new DragEvent("drop",{bubbles:true,cancelable:true,dataTransfer,clientX:rect.left+1}))});
+    assert.match(await page.locator('#automation-flow-preview [data-flow-kind="trigger"]').first().innerText(), /last_trigger/i);
+    assert.match(await page.locator("#automation-studio-state").innerText(), /Flow card moved/i);
+    await page.evaluate(()=>{const source=document.querySelector('.automation-studio-toolbox [data-studio-node="trigger"]'),target=document.querySelectorAll('#automation-flow-preview [data-flow-kind="trigger"]')[1],dataTransfer=new DataTransfer(),rect=target.getBoundingClientRect();source.dispatchEvent(new DragEvent("dragstart",{bubbles:true,dataTransfer}));target.dispatchEvent(new DragEvent("dragover",{bubbles:true,cancelable:true,dataTransfer,clientX:rect.left+1}));target.dispatchEvent(new DragEvent("drop",{bubbles:true,cancelable:true,dataTransfer,clientX:rect.left+1}));source.dispatchEvent(new DragEvent("dragend",{bubbles:true,dataTransfer}))});
+    assert.equal(await page.locator('#automation-flow-preview [data-flow-kind="trigger"]').count(), 4);
+    assert.match(await page.locator('#automation-flow-preview [data-flow-kind="trigger"]').nth(1).innerText(), /Choose a trigger entity/i);
     await dropStudioBlock("context");
     assert.equal(await page.locator('#automation-flow-preview [data-flow-kind="context"]').count(), 1);
     await dropStudioBlock("decision");

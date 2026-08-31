@@ -1,14 +1,14 @@
-## ZBRANO v0.13.103
+## ZBRANO v0.13.104
 
 ZBRANO combines Home Assistant chat, voice, entity control, memory, notifications,
 calendar tools, plugins, and evidence-based automations. Automation Studio now uses
 a visual building-block toolbox, interactive node canvas, and contextual inspector;
 the established automation engine and stored definitions remain compatible.
 
-Version 0.13.103 adds a discreet delete control to every real visual flow card. It
-appears only on hover or keyboard focus, removes the exact workflow item, and is
-immediately recoverable with Undo. Responsive containment keeps dense card groups
-and their controls accessible instead of allowing them beneath the inspector.
+Version 0.13.104 makes Automation Studio cards directly rearrangeable. Cards can be
+dragged to an exact position within their stage, toolbox blocks can be inserted
+between existing cards, and a discreet hover control duplicates reusable cards.
+Every move, insertion, duplication, and deletion remains recoverable with Undo.
 
 The application source and post-split build history are maintained in the private
 core repository. Public Home Assistant repositories contain only the five-file

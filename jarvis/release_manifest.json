@@ -1,9 +1,9 @@
 {
-  "version": "0.13.103",
+  "version": "0.13.104",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/ZBRANO_Core main",
-  "summary": "Add discreet hover/focus deletion to real Automation Studio cards with exact removal, Undo recovery, and responsive canvas containment.",
+  "summary": "Add exact-position Automation Studio insertion, same-stage card reordering, and discreet duplication with Undo/Redo recovery.",
   "history_backfill": [
     {
       "version": "0.13.0",
@@ -416,23 +416,30 @@
     {
       "version": "0.13.102",
       "summary": "Added installation-aware Set Temperature and Set Brightness tasks with focused controls and persistent preset identity."
+    },
+    {
+      "version": "0.13.103",
+      "summary": "Added discreet hover/focus deletion to real Automation Studio cards with exact removal, Undo recovery, and responsive canvas containment."
     }
   ],
   "release_entry": {
     "features": [
-      "Reveal a discreet delete control only when a real flow card is hovered or keyboard-focused.",
-      "Remove the exact trigger, context item, decision branch, or task represented by the selected card.",
-      "Keep every card removal recoverable through the existing Undo control."
+      "Insert toolbox blocks at an exact before-or-after position between existing cards.",
+      "Reorder configured cards by dragging them within the same flow stage.",
+      "Reveal a discreet duplicate control beside delete for repeatable flow cards."
     ],
     "fixes": [
-      "Prevent dense canvas cards and their controls from extending beneath the inspector.",
-      "Focus the matching inspector control when a specific visual card is selected."
+      "Preserve primary trigger and action configuration when cards cross the first position.",
+      "Keep unique presence context fixed and keep signal and condition ordering semantically separate.",
+      "Record insertion, movement, duplication, and deletion in the existing Undo/Redo history."
     ],
     "validation": [
-      "Hover and keyboard delete visibility, exact trigger/task removal, Undo restoration, compact-width containment, browser smoke, regression suite, release manifest, README alignment, and v0.13.103 release coverage"
+      "Exact insertion, card duplication, same-stage reordering, primary-field preservation, Undo restoration, browser smoke, regression suite, release manifest, README alignment, and v0.13.104 release coverage"
     ]
   },
   "features": [
+    "Insert Automation Studio blocks at exact positions and reorder cards within their stage.",
+    "Duplicate repeatable flow cards from a discreet hover/focus control with Undo recovery.",
     "Add discreet hover/focus delete controls to real Automation Studio flow cards.",
     "Map visual card selection and deletion back to its exact workflow item with Undo recovery.",
     "Add installation-aware Set Temperature and Set Brightness tasks to Automation Studio.",

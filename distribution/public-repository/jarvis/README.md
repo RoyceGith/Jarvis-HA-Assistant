@@ -6,9 +6,8 @@ connections.
 
 ## Automation Studio
 
-Version 0.13.103 adds discreet delete controls to real flow cards on hover or
-keyboard focus. Removal targets the exact workflow item, remains recoverable with
-Undo, and responsive sizing keeps dense cards accessible. The full Advanced editor remains available, existing stored automations are preserved, and
+Version 0.13.104 adds exact-position block insertion, same-stage card reordering,
+and discreet duplicate/delete controls with Undo/Redo recovery. The full Advanced editor remains available, existing stored automations are preserved, and
 repeatable OR triggers, grouped conditions, ordered actions, and IF/ELSE branches
 are supported, together with dedicated Delay and bounded Wait Until steps. Each
 automation can use the global operating default or select its own lower authority,

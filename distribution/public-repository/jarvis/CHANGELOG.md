@@ -1,5 +1,11 @@
 # Change log
 
+## 0.13.104
+
+- Added exact-position insertion when toolbox blocks are dropped between cards.
+- Added same-stage drag reordering while preserving trigger and action configuration.
+- Added discreet card duplication beside delete with Undo/Redo recovery.
+
 ## 0.13.103
 
 - Added discreet hover and keyboard-focus delete controls to real flow cards.

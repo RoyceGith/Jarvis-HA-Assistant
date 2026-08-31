@@ -15,10 +15,10 @@ MANIFEST = json.loads((ROOT / "jarvis/release_manifest.json").read_text(encoding
 
 class DirectFlowCardDeletionReleaseTests(unittest.TestCase):
     def test_release_markers_are_aligned(self):
-        self.assertIn('version: "0.13.103"', CONFIG)
-        self.assertIn('version="0.13.103"', MAIN)
-        self.assertIn("HUD 0.13.103", HTML)
-        self.assertEqual(MANIFEST["version"], "0.13.103")
+        self.assertIn('version: "0.13.104"', CONFIG)
+        self.assertIn('version="0.13.104"', MAIN)
+        self.assertIn("HUD 0.13.104", HTML)
+        self.assertEqual(MANIFEST["version"], "0.13.104")
 
     def test_exact_cards_have_direct_delete_controls(self):
         for marker in (
@@ -36,10 +36,10 @@ class DirectFlowCardDeletionReleaseTests(unittest.TestCase):
 
     def test_deletion_is_recoverable_and_accessible(self):
         self.assertIn("Use Undo to restore it.", WORKSPACE)
-        self.assertIn('button.setAttribute("aria-label",`Delete ${kind} card ${index+1}`)', WORKSPACE)
+        self.assertIn('remove.setAttribute("aria-label",`Delete ${kind} card ${index+1}`)', WORKSPACE)
         self.assertIn(".automation-flow-card-delete", STYLES)
         self.assertIn("opacity:0", STYLES)
-        self.assertIn("focus-within .automation-flow-card-delete", STYLES)
+        self.assertIn("focus-within .automation-flow-card-actions", STYLES)
 
     def test_dense_and_narrow_canvases_keep_controls_reachable(self):
         self.assertIn("min-width:90px", STYLES)
@@ -52,7 +52,7 @@ class DirectFlowCardDeletionReleaseTests(unittest.TestCase):
         self.assertIn('temperatureCard.locator(".automation-flow-card-delete").click()', BROWSER)
 
     def test_release_history_includes_v013102(self):
-        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.102")
+        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.103")
 
 
 if __name__ == "__main__":

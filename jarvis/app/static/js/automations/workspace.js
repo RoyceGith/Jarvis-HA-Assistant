@@ -11,6 +11,7 @@
   let selectedFlowCard={kind:"trigger",index:0};
   let workflowDraft={triggers:[],trigger_mode:"any",conditions:[],condition_mode:"all",actions:[],branches:[]};
   let draggedStudioNode="";
+  let draggedFlowCard=null;
   let editorHistory=[],editorHistoryIndex=-1,editorHistoryTimer=0,restoringEditorHistory=false;
   let editorHistoryBaseline="";
   const localDraftKey="zbrano.automation-studio.unsaved.v1",localDraftMaxAge=7*24*60*60*1000,localDraftMaxBytes=100000;
@@ -242,6 +243,33 @@
   function clearPrimaryTrigger(){
     $("automation-trigger-kind").value="entity";$("automation-trigger-entity").value="";$("automation-trigger-operator").value="changes_to";$("automation-trigger-value").value="";$("automation-trigger-for").value="0";$("automation-trigger-at").value="";$("automation-trigger-weekdays").value="";$("automation-trigger-sun-event").value="sunrise";$("automation-trigger-sun-offset").value="0";$("automation-trigger-interval").value="5";$("automation-trigger-one-time").value="";
   }
+  function primaryTriggerValue(){return {kind:$("automation-trigger-kind").value,entity_id:$("automation-trigger-entity").value.trim(),operator:$("automation-trigger-operator").value,value:$("automation-trigger-value").value.trim(),for_seconds:Number($("automation-trigger-for").value||0),at:$("automation-trigger-at").value,weekdays:parseWeekdays($("automation-trigger-weekdays").value),sun_event:$("automation-trigger-sun-event").value,offset_minutes:Number($("automation-trigger-sun-offset").value||0),interval_minutes:Number($("automation-trigger-interval").value||5),one_time_at:$("automation-trigger-one-time").value}}
+  function writePrimaryTrigger(item={}){$("automation-trigger-kind").value=item.kind||"entity";$("automation-trigger-entity").value=item.entity_id||"";$("automation-trigger-operator").value=item.operator||"changes_to";$("automation-trigger-value").value=item.value||"";$("automation-trigger-for").value=String(item.for_seconds||0);$("automation-trigger-at").value=item.at||"";$("automation-trigger-weekdays").value=formatWeekdays(item.weekdays);$("automation-trigger-sun-event").value=item.sun_event||"sunrise";$("automation-trigger-sun-offset").value=String(item.offset_minutes||0);$("automation-trigger-interval").value=String(item.interval_minutes||5);$("automation-trigger-one-time").value=item.one_time_at||""}
+  function primaryActionValue(){let serviceData={};try{serviceData=JSON.parse($("automation-action-data").value||"{}")||{}}catch(_error){}return {kind:"service",entity_id:$("automation-action-entity").value.trim(),service:$("automation-action-service").value.trim(),service_data:serviceData,delay_seconds:0,wait_operator:"equals",wait_value:"",timeout_seconds:30}}
+  function clearPrimaryAction(){$("automation-action-entity").value="";$("automation-action-service").value="";$("automation-action-data").value="{}"}
+  function visualFlowItems(kind){
+    if(kind==="trigger")return [primaryTriggerValue(),...cloneEditorValue(workflowDraft.triggers)];
+    if(kind==="decision")return cloneEditorValue(workflowDraft.branches);
+    if(kind==="action"){const primary=primaryActionValue();return [...(primary.entity_id||primary.service?[primary]:[]),...cloneEditorValue(workflowDraft.actions)]}
+    return [];
+  }
+  function writeFlowSequence(kind,items){
+    const next=cloneEditorValue(items);
+    if(kind==="trigger"){writePrimaryTrigger(next.shift()||{});workflowDraft.triggers=next}
+    else if(kind==="decision")workflowDraft.branches=next;
+    else if(kind==="action"){
+      const first=next[0],canBePrimary=(first?.kind||"service")==="service"&&(!first.task_template||first.task_template==="service")&&Boolean(first.entity_id||first.service);
+      if(canBePrimary){$("automation-action-entity").value=first.entity_id||"";$("automation-action-service").value=first.service||"";$("automation-action-data").value=JSON.stringify(first.service_data||{});next.shift()}else clearPrimaryAction();
+      workflowDraft.actions=next;
+    }
+  }
+  function contextFlowSource(index){
+    const presence=$("automation-presence").value.trim(),signals=$("automation-signals").value.split(/[,\n]/).map(value=>value.trim()).filter(Boolean);
+    if(presence&&index===0)return {type:"presence",item:presence,index:0,signals};
+    const offset=presence?1:0,signalIndex=index-offset;
+    if(signalIndex>=0&&signalIndex<signals.length)return {type:"signal",item:signals[signalIndex],index:signalIndex,signals};
+    return {type:"condition",item:workflowDraft.conditions[signalIndex-signals.length],index:signalIndex-signals.length,signals};
+  }
   function deleteFlowCard(kind,index){
     if(kind==="trigger"){if(index===0)clearPrimaryTrigger();else workflowDraft.triggers.splice(index-1,1)}
     else if(kind==="context"){
@@ -255,22 +283,46 @@
     }else return;
     selectedFlowCard={kind,index:Math.max(0,index-1)};renderStudioInspector();renderEditorFlow();commitEditorHistory();$("automation-studio-state").textContent="Flow card removed. Use Undo to restore it.";
   }
-  function addStudioBlock(kind){
+  function duplicateFlowCard(kind,index){
+    const limits={trigger:10,decision:10,action:20},items=kind==="context"?null:visualFlowItems(kind);
+    if(items&&items.length>=limits[kind]){$("automation-studio-state").textContent=`This stage already has its maximum of ${limits[kind]} cards.`;return}
+    if(kind==="context"){
+      const source=contextFlowSource(index);
+      if(source.type==="presence"){$("automation-studio-state").textContent="Presence is a unique context rule and cannot be duplicated.";return}
+      if(source.type==="condition"&&workflowDraft.conditions.length>=20){$("automation-studio-state").textContent="This stage already has its maximum of 20 conditions.";return}
+      if(source.type==="signal"){source.signals.splice(source.index+1,0,source.item);$("automation-signals").value=source.signals.join(", ")}
+      else if(source.item)workflowDraft.conditions.splice(source.index+1,0,cloneEditorValue(source.item));else return;
+    }else{const item=items[index];if(!item)return;items.splice(index+1,0,cloneEditorValue(item));writeFlowSequence(kind,items)}
+    selectedFlowCard={kind,index:index+1};renderStudioInspector();renderEditorFlow();commitEditorHistory();$("automation-studio-state").textContent="Flow card duplicated. Use Undo to restore the previous flow.";
+  }
+  function moveFlowCard(kind,fromIndex,insertionIndex){
+    if(kind==="context"){
+      const source=contextFlowSource(fromIndex),presence=$("automation-presence").value.trim()?1:0;
+      if(source.type==="presence"){$("automation-studio-state").textContent="Presence stays first because it is the flow's unique occupancy gate.";return false}
+      const items=source.type==="signal"?source.signals:workflowDraft.conditions,prefix=source.type==="signal"?presence:presence+source.signals.length;
+      if(!source.item||insertionIndex<prefix||insertionIndex>prefix+items.length){$("automation-studio-state").textContent="Signals and conditions keep their own order so their meaning remains clear.";return false}
+      const boundary=insertionIndex-prefix,moved=items.splice(source.index,1)[0],adjusted=boundary>source.index?boundary-1:boundary;items.splice(Math.max(0,Math.min(adjusted,items.length)),0,moved);if(source.type==="signal")$("automation-signals").value=items.join(", ");
+    }else{
+      const items=visualFlowItems(kind);if(fromIndex<0||fromIndex>=items.length)return false;const moved=items.splice(fromIndex,1)[0],adjusted=insertionIndex>fromIndex?insertionIndex-1:insertionIndex;items.splice(Math.max(0,Math.min(adjusted,items.length)),0,moved);writeFlowSequence(kind,items);
+    }
+    selectedFlowCard={kind,index:Math.max(0,insertionIndex-(insertionIndex>fromIndex?1:0))};renderStudioInspector();renderEditorFlow();commitEditorHistory();$("automation-studio-state").textContent="Flow card moved. Use Undo to restore the previous order.";return true;
+  }
+  function addStudioBlock(kind,insertionIndex=null){
     const trigger=()=>({kind:"entity",entity_id:"",operator:"changes_to",value:"",for_seconds:0,weekdays:[],at:"",sun_event:"sunrise",offset_minutes:0,interval_minutes:5,one_time_at:""});
     const condition=()=>({kind:"entity",entity_id:"",operator:"equals",value:"",for_seconds:0,weekdays:[],start_time:"",end_time:"",sun_state:"below_horizon"});
     const action=()=>({kind:"service",entity_id:"",service:"",service_data:{},delay_seconds:0,wait_operator:"equals",wait_value:"",timeout_seconds:30});
     if(kind==="trigger"){
       if(workflowDraft.triggers.length>=9){$("automation-studio-state").textContent="A flow supports up to 10 triggers including the primary trigger.";return}
-      workflowDraft.triggers.push(trigger());
+      const items=visualFlowItems("trigger"),target=insertionIndex==null?items.length:Math.max(0,Math.min(insertionIndex,items.length));items.splice(target,0,trigger());writeFlowSequence("trigger",items);selectedFlowCard={kind,index:target};
     }else if(kind==="context"){
       if(workflowDraft.conditions.length>=20){$("automation-studio-state").textContent="A flow supports up to 20 context conditions.";return}
-      workflowDraft.conditions.push(condition());
+      const presence=$("automation-presence").value.trim()?1:0,signals=$("automation-signals").value.split(/[,\n]/).map(value=>value.trim()).filter(Boolean).length,target=insertionIndex==null?workflowDraft.conditions.length:Math.max(0,Math.min(insertionIndex-presence-signals,workflowDraft.conditions.length));workflowDraft.conditions.splice(target,0,condition());selectedFlowCard={kind,index:presence+signals+target};
     }else if(kind==="decision"){
       if(workflowDraft.branches.length>=10){$("automation-studio-state").textContent="A flow supports up to 10 decision branches.";return}
-      workflowDraft.branches.push({name:`Branch ${workflowDraft.branches.length+1}`,condition_mode:"all",conditions:[condition()],actions:[action()]});
+      const target=insertionIndex==null?workflowDraft.branches.length:Math.max(0,Math.min(insertionIndex,workflowDraft.branches.length));workflowDraft.branches.splice(target,0,{name:`Branch ${workflowDraft.branches.length+1}`,condition_mode:"all",conditions:[condition()],actions:[action()]});selectedFlowCard={kind,index:target};
     }else if(kind==="action"){
       if(workflowDraft.actions.length>=19){$("automation-studio-state").textContent="A flow supports up to 20 actions including the primary action.";return}
-      workflowDraft.actions.push(action());
+      const items=visualFlowItems("action"),target=insertionIndex==null?items.length:Math.max(0,Math.min(insertionIndex,items.length));items.splice(target,0,action());writeFlowSequence("action",items);selectedFlowCard={kind,index:target};
     }else{
       selectStudioNode("details");$("automation-studio-state").textContent="Automation details are already part of this flow.";return
     }
@@ -463,7 +515,12 @@
     const actualContextCount=(snapshot.presence_entity?1:0)+(snapshot.signal_entities||[]).length+(visualSnapshot.conditions||[]).length,actualDecisionCount=(visualSnapshot.branches||[]).length,actualActionCount=(visualSnapshot.actions||[]).length;
     for(const card of root?.querySelectorAll("[data-flow-kind]")||[]){
       const kind=card.dataset.flowKind,index=Number(card.dataset.flowIndex),deletable=kind==="trigger"?(index>0||primaryTrigger.kind!=="entity"||Boolean(primaryTrigger.entity_id)):kind==="context"?index<actualContextCount:kind==="decision"?index<actualDecisionCount:kind==="action"?index<actualActionCount:false;
-      if(deletable){const button=document.createElement("button");button.type="button";button.className="automation-flow-card-delete";button.dataset.flowDeleteKind=kind;button.dataset.flowDeleteIndex=String(index);button.setAttribute("aria-label",`Delete ${kind} card ${index+1}`);button.title="Delete card";button.textContent="×";card.append(button)}
+      if(deletable){
+        card.draggable=true;card.setAttribute("aria-grabbed","false");
+        const controls=document.createElement("span");controls.className="automation-flow-card-actions";
+        const duplicate=document.createElement("button");duplicate.type="button";duplicate.className="automation-flow-card-duplicate";duplicate.dataset.flowDuplicateKind=kind;duplicate.dataset.flowDuplicateIndex=String(index);duplicate.setAttribute("aria-label",`Duplicate ${kind} card ${index+1}`);duplicate.title=kind==="context"&&contextFlowSource(index).type==="presence"?"Presence is unique":"Duplicate card";duplicate.textContent="⧉";if(kind==="context"&&contextFlowSource(index).type==="presence")duplicate.disabled=true;
+        const remove=document.createElement("button");remove.type="button";remove.className="automation-flow-card-delete";remove.dataset.flowDeleteKind=kind;remove.dataset.flowDeleteIndex=String(index);remove.setAttribute("aria-label",`Delete ${kind} card ${index+1}`);remove.title="Delete card";remove.textContent="×";controls.append(duplicate,remove);card.append(controls);
+      }
       if(kind===selectedFlowCard.kind&&index===selectedFlowCard.index)card.classList.add("is-selected");
     }
     $("automation-studio-flow-name").textContent=snapshot.name;
@@ -531,9 +588,10 @@
   $("automation-library-sort").addEventListener("change",()=>{persistLibraryPrefs();renderLibrary()});
   $("automation-library-layout").addEventListener("change",()=>{persistLibraryPrefs();renderLibrary()});
   $("automation-library-summary").addEventListener("click",event=>{const button=event.target.closest("[data-library-quick-filter]");if(!button)return;$("automation-library-filter").value=button.dataset.libraryQuickFilter;persistLibraryPrefs();renderLibrary()});
-  panel.addEventListener("pointerdown",event=>{if(event.target.closest("[data-flow-delete-kind]"))return;const block=event.target.closest(".automation-studio-preview [data-flow-kind]");if(block)selectStudioNode(block.dataset.flowKind,Number(block.dataset.flowIndex))},{capture:true});
+  panel.addEventListener("pointerdown",event=>{if(event.target.closest(".automation-flow-card-actions"))return;const block=event.target.closest(".automation-studio-preview [data-flow-kind]");if(block)selectStudioNode(block.dataset.flowKind,Number(block.dataset.flowIndex))},{capture:true});
   panel.addEventListener("click",async event=>{
     const deleteCard=event.target.closest("[data-flow-delete-kind]");if(deleteCard){event.preventDefault();event.stopPropagation();deleteFlowCard(deleteCard.dataset.flowDeleteKind,Number(deleteCard.dataset.flowDeleteIndex));return}
+    const duplicateCard=event.target.closest("[data-flow-duplicate-kind]");if(duplicateCard){event.preventDefault();event.stopPropagation();duplicateFlowCard(duplicateCard.dataset.flowDuplicateKind,Number(duplicateCard.dataset.flowDuplicateIndex));return}
     const validationIssue=event.target.closest("[data-validation-kind]");if(validationIssue){focusEditorIssue({kind:validationIssue.dataset.validationKind,field:validationIssue.dataset.validationField});return}
     const studioBlock=event.target.closest(".automation-studio-preview [data-studio-node],.automation-studio-preview [data-flow-kind]");if(studioBlock){selectStudioNode(studioBlock.dataset.studioNode||studioBlock.dataset.flowKind,studioBlock.hasAttribute("data-flow-index")?Number(studioBlock.dataset.flowIndex):null);return}
     const templateButton=event.target.closest("[data-auto-template]");if(templateButton){if(confirmEditorReplacement("load this template"))template(templateButton.dataset.autoTemplate);return}
@@ -583,13 +641,17 @@
   $("automation-studio-test").addEventListener("click",async()=>{const status=$("automation-studio-state"),results=$("automation-studio-test-results"),issues=renderEditorValidation();if(issues.length){focusEditorIssue(issues[0]);status.textContent=`Review ${issues.length} incomplete item${issues.length===1?"":"s"} before testing.`;return}status.textContent="Testing safely…";try{const result=await api("api/automations/test-flow",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(automationRequestBody())});renderTestTrace(result);status.textContent=`Dry run: ${String(result.status||"complete").replaceAll("_"," ")} · 0 actions executed`}catch(error){results.hidden=true;status.textContent=`Test failed: ${error.message||error}`}});
   $("automation-studio-save").addEventListener("click",()=>{const issues=renderEditorValidation();if(issues.length){focusEditorIssue(issues[0]);$("automation-draft-state").textContent=`Review ${issues.length} incomplete item${issues.length===1?"":"s"} before saving.`;$("automation-studio-state").textContent=$("automation-draft-state").textContent;return}$("automation-draft-form").requestSubmit()});
   $("automation-studio-advanced").addEventListener("click",()=>{const advanced=document.querySelector(".automation-advanced");advanced?.setAttribute("open","");advanced?.scrollIntoView({behavior:"smooth",block:"start"})});
-  $("automation-studio-canvas").addEventListener("dragover",event=>{event.preventDefault();event.currentTarget.classList.add("is-drop-target")});
-  $("automation-studio-canvas").addEventListener("dragleave",event=>event.currentTarget.classList.remove("is-drop-target"));
-  $("automation-studio-canvas").addEventListener("drop",event=>{event.preventDefault();event.currentTarget.classList.remove("is-drop-target");const kind=event.dataTransfer?.getData("text/studio-node")||event.dataTransfer?.getData("text/plain")||draggedStudioNode;draggedStudioNode="";addStudioBlock(kind)});
+  function clearFlowDropTarget(){for(const card of $("automation-flow-preview").querySelectorAll(".is-drop-before,.is-drop-after"))card.classList.remove("is-drop-before","is-drop-after");$("automation-studio-canvas").classList.remove("is-drop-target")}
+  function flowDropPosition(event){const card=event.target.closest?.("[data-flow-kind]");if(!card)return null;const rect=card.getBoundingClientRect(),after=event.clientX>rect.left+rect.width/2;return {kind:card.dataset.flowKind,index:Number(card.dataset.flowIndex)+(after?1:0),card,after}}
+  $("automation-studio-canvas").addEventListener("dragover",event=>{event.preventDefault();clearFlowDropTarget();event.currentTarget.classList.add("is-drop-target");const target=flowDropPosition(event);if(target&&(draggedFlowCard?.kind===target.kind||draggedStudioNode===target.kind))target.card.classList.add(target.after?"is-drop-after":"is-drop-before")});
+  $("automation-studio-canvas").addEventListener("dragleave",event=>{if(!event.currentTarget.contains(event.relatedTarget))clearFlowDropTarget()});
+  $("automation-studio-canvas").addEventListener("drop",event=>{event.preventDefault();const target=flowDropPosition(event),source=draggedFlowCard,kind=event.dataTransfer?.getData("text/studio-node")||draggedStudioNode;clearFlowDropTarget();draggedStudioNode="";draggedFlowCard=null;if(source){if(target&&source.kind===target.kind)moveFlowCard(source.kind,source.index,target.index);else $("automation-studio-state").textContent="Move cards within the same flow stage.";return}addStudioBlock(kind,target&&target.kind===kind?target.index:null)});
   $("automation-flow-preview").addEventListener("change",event=>{const logic=event.target.closest("[data-trigger-logic]");if(!logic)return;workflowDraft.trigger_mode=logic.value==="all"?"all":"any";renderStudioInspector();renderEditorFlow();commitEditorHistory()});
   panel.querySelector(".automation-studio-toolbox")?.addEventListener("dragstart",event=>{const block=event.target.closest("[data-studio-node]");if(!block)return;draggedStudioNode=block.dataset.studioNode;event.dataTransfer?.setData("text/studio-node",draggedStudioNode);event.dataTransfer?.setData("text/plain",draggedStudioNode);if(event.dataTransfer)event.dataTransfer.effectAllowed="copy"});
   panel.querySelector(".automation-studio-toolbox")?.addEventListener("dragend",()=>{draggedStudioNode=""});
-  $("automation-flow-preview").addEventListener("keydown",event=>{if(event.target.closest("[data-flow-delete-kind]")||!["Enter"," "].includes(event.key))return;const block=event.target.closest("[data-flow-kind]");if(block){event.preventDefault();selectStudioNode(block.dataset.flowKind,Number(block.dataset.flowIndex))}});
+  $("automation-flow-preview").addEventListener("dragstart",event=>{if(event.target.closest(".automation-flow-card-actions")){event.preventDefault();return}const card=event.target.closest("[data-flow-kind][draggable=true]");if(!card)return;draggedFlowCard={kind:card.dataset.flowKind,index:Number(card.dataset.flowIndex)};card.setAttribute("aria-grabbed","true");event.dataTransfer?.setData("application/x-zbrano-flow-card",JSON.stringify(draggedFlowCard));if(event.dataTransfer)event.dataTransfer.effectAllowed="move"});
+  $("automation-flow-preview").addEventListener("dragend",event=>{event.target.closest("[data-flow-kind]")?.setAttribute("aria-grabbed","false");draggedFlowCard=null;clearFlowDropTarget()});
+  $("automation-flow-preview").addEventListener("keydown",event=>{if(event.target.closest(".automation-flow-card-actions")||!["Enter"," "].includes(event.key))return;const block=event.target.closest("[data-flow-kind]");if(block){event.preventDefault();selectStudioNode(block.dataset.flowKind,Number(block.dataset.flowIndex))}});
   document.addEventListener("keydown",event=>{if(panel.classList.contains("hidden")||!panel.classList.contains("studio-active")||!(event.ctrlKey||event.metaKey)||event.altKey)return;const key=event.key.toLowerCase();if(key==="z"){event.preventDefault();if(event.shiftKey)redoEditor();else undoEditor()}else if(key==="y"){event.preventDefault();redoEditor()}});
   window.addEventListener("pagehide",commitEditorHistory);
   $("autonomy-settings-form").addEventListener("submit",async event=>{
