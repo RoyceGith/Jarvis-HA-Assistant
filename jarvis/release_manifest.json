@@ -1,9 +1,9 @@
 {
-  "version": "0.13.107",
+  "version": "0.13.108",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/ZBRANO_Core main",
-  "summary": "Add self-contained branch quick building with direct IF controls, branch-aware task presets, and focused settings handoff.",
+  "summary": "Add direct decision-path creation and branch condition presets for entity, time-window, weekday, and sun logic.",
   "history_backfill": [
     {
       "version": "0.13.0",
@@ -432,24 +432,30 @@
     {
       "version": "0.13.106",
       "summary": "Rendered branch conditions as direct IF cards with visible logic, exact insertion, cross-path ordering, and recoverable editing."
+    },
+    {
+      "version": "0.13.107",
+      "summary": "Added self-contained branch quick building with direct IF controls, branch-aware task presets, and focused settings handoff."
     }
   ],
   "release_entry": {
     "features": [
-      "Add a direct IF condition control inside every decision path.",
-      "Add a branch-local task menu with Power, Climate, Lighting, Notification, Delay, Wait Until, and Custom Service presets.",
-      "Insert quick-built blocks after the selected card or at the end of their path."
+      "Create a new decision path directly from the visual branch stage.",
+      "Choose Entity State, Time Window, Weekdays, or Sun State from each path's IF menu.",
+      "Insert condition presets after the selected IF card and open their focused settings."
     ],
     "fixes": [
-      "Focus the exact branch settings row immediately after adding a condition or preset task.",
-      "Label each path's IF/OTHERWISE and THEN sections clearly without changing runtime branch semantics.",
-      "Keep drag-and-drop available while providing complete click-based building for touch and mobile use."
+      "Insert new paths before a trailing ELSE fallback so first-match ordering remains safe.",
+      "Give every new path a configurable starter condition instead of creating an accidental second fallback.",
+      "Preserve Advanced-editor compatibility, Undo/Redo, validation, and existing stored branch definitions."
     ],
     "validation": [
-      "Branch-local condition controls, task preset insertion, selected-position placement, focused settings, click-only workflow, browser smoke, regression suite, release manifest, README alignment, and v0.13.107 release coverage"
+      "Direct path creation, fallback ordering, typed condition presets, selected-position placement, focused settings, browser smoke, regression suite, release manifest, README alignment, and v0.13.108 release coverage"
     ]
   },
   "features": [
+    "Create decision paths directly on the Automation Studio canvas while preserving a trailing ELSE fallback.",
+    "Add Entity State, Time Window, Weekdays, and Sun State IF presets inside each branch.",
     "Build decision paths without dragging through direct IF and branch-local preset Task controls.",
     "Insert new branch blocks after the selected card and focus their exact settings automatically.",
     "Render decision-path conditions as visible IF cards with direct AND or OR relationship controls.",

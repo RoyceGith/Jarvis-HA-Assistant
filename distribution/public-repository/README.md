@@ -19,9 +19,8 @@ storage, and `ghcr.io/roycegith/jarvis-ha-assistant` update image.
 
 ## Current experience
 
-Version 0.13.107 adds direct IF and preset Task controls inside every decision path,
-including click-based Power, Climate, Lighting, Notification, Delay, Wait Until,
-and Custom Service building for touch and mobile use.
+Version 0.13.108 adds direct Path creation plus Entity State, Time Window, Weekdays,
+and Sun State IF presets, while retaining safe first-match and trailing-ELSE order.
 Incomplete blocks remain protected by validation, and existing automation
 definitions and Home Assistant data remain compatible across updates.
 Conversational creation now reuses known Home Assistant Area-to-Zone links and

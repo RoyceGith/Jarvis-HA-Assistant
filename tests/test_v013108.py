@@ -14,39 +14,45 @@ BROWSER = (ROOT / "jarvis/tests/browser_smoke.cjs").read_text(encoding="utf-8")
 MANIFEST = json.loads((ROOT / "jarvis/release_manifest.json").read_text(encoding="utf-8"))
 
 
-class VisualBranchConditionReleaseTests(unittest.TestCase):
+class BranchConditionPresetReleaseTests(unittest.TestCase):
     def test_release_markers_are_aligned(self):
         self.assertIn('version: "0.13.108"', CONFIG)
         self.assertIn('version="0.13.108"', MAIN)
         self.assertIn("HUD 0.13.108", HTML)
         self.assertEqual(MANIFEST["version"], "0.13.108")
 
-    def test_branch_conditions_are_visible_flow_cards(self):
+    def test_canvas_offers_direct_path_creation(self):
+        self.assertIn("flowAddBranch", FLOW)
+        self.assertIn("automation-flow-add-path", FLOW)
+        self.assertIn("function addBranchPath()", WORKSPACE)
+        self.assertIn("fallbackIndex", WORKSPACE)
+        self.assertIn("data-flow-add-branch", BROWSER)
+
+    def test_if_menu_offers_typed_condition_presets(self):
         for marker in (
-            "automation-flow-branch-conditions",
-            'card.dataset.flowKind="branch-condition"',
-            "branchConditionLogic",
-            "ELSE — no conditions",
+            '["entity","Entity state"]',
+            '["time_window","Time window"]',
+            '["weekday","Weekdays"]',
+            '["sun","Sun state"]',
+            "flowBranchConditionTemplate",
         ):
             self.assertIn(marker, FLOW)
 
-    def test_branch_conditions_support_direct_editing(self):
+    def test_presets_preserve_position_and_focus(self):
         for marker in (
-            "moveBranchCondition(source,target)",
+            'newBranchCondition(template="entity")',
             'addBranchCondition(branchIndex,insertionIndex,template="entity")',
-            'kind==="branch-condition"',
-            "Branch condition duplicated",
-            "branch.conditions.splice(index,1)",
+            "branchQuickInsertion(\"branch-condition\",branchIndex)",
+            'focusSelectedFlowEditor("branch-condition",target,branchIndex)',
         ):
             self.assertIn(marker, WORKSPACE)
 
-    def test_branch_condition_drop_targets_are_styled_and_covered(self):
-        self.assertIn("automation-flow-branch-conditions.is-branch-drop-target", STYLES)
-        self.assertIn('data-flow-branch-condition-drop="0"', BROWSER)
-        self.assertIn('data-flow-kind="branch-condition"', BROWSER)
-        self.assertIn("moved into the selected branch", WORKSPACE)
+    def test_condition_menu_and_path_control_are_styled(self):
+        self.assertIn(".automation-flow-add-path", STYLES)
+        self.assertIn(".automation-flow-branch-condition-menu", STYLES)
+        self.assertIn(".automation-flow-branch-condition-choices", STYLES)
 
-    def test_release_history_includes_v013105(self):
+    def test_release_history_includes_v013107(self):
         self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.107")
 
 
