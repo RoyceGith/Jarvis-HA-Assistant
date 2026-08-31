@@ -6,9 +6,9 @@ connections.
 
 ## Automation Studio
 
-Version 0.13.102 adds installation-aware Set Temperature and Set Brightness task
-blocks. Focused target values become real Home Assistant service data, update the
-visual flow immediately, and remain specialized after save and reopen. The full Advanced editor remains available, existing stored automations are preserved, and
+Version 0.13.103 adds discreet delete controls to real flow cards on hover or
+keyboard focus. Removal targets the exact workflow item, remains recoverable with
+Undo, and responsive sizing keeps dense cards accessible. The full Advanced editor remains available, existing stored automations are preserved, and
 repeatable OR triggers, grouped conditions, ordered actions, and IF/ELSE branches
 are supported, together with dedicated Delay and bounded Wait Until steps. Each
 automation can use the global operating default or select its own lower authority,

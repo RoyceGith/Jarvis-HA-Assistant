@@ -1,9 +1,9 @@
 {
-  "version": "0.13.102",
+  "version": "0.13.103",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/ZBRANO_Core main",
-  "summary": "Add installation-aware Set Temperature and Set Brightness tasks with focused controls and persistent preset identity.",
+  "summary": "Add discreet hover/focus deletion to real Automation Studio cards with exact removal, Undo recovery, and responsive canvas containment.",
   "history_backfill": [
     {
       "version": "0.13.0",
@@ -412,23 +412,29 @@
     {
       "version": "0.13.101",
       "summary": "Added an AppSheet-style task palette with executable device, notification, timing, wait-state, and custom Home Assistant tasks."
+    },
+    {
+      "version": "0.13.102",
+      "summary": "Added installation-aware Set Temperature and Set Brightness tasks with focused controls and persistent preset identity."
     }
   ],
   "release_entry": {
     "features": [
-      "Choose focused Set Temperature and Set Brightness task blocks when compatible Home Assistant entities are installed.",
-      "Store target temperature and brightness as real Home Assistant service data.",
-      "Preserve each preset's visual identity and focused settings after saving and reopening an automation."
+      "Reveal a discreet delete control only when a real flow card is hovered or keyboard-focused.",
+      "Remove the exact trigger, context item, decision branch, or task represented by the selected card.",
+      "Keep every card removal recoverable through the existing Undo control."
     ],
     "fixes": [
-      "Disable thermostat or brightness presets when the installation has no compatible entity.",
-      "Keep the visual flow preview synchronized while editing nested service values."
+      "Prevent dense canvas cards and their controls from extending beneath the inspector.",
+      "Focus the matching inspector control when a specific visual card is selected."
     ],
     "validation": [
-      "Installation-aware task availability, temperature service-data editing, visual flow synchronization, preset persistence, browser smoke, regression suite, release manifest, README alignment, and v0.13.102 release coverage"
+      "Hover and keyboard delete visibility, exact trigger/task removal, Undo restoration, compact-width containment, browser smoke, regression suite, release manifest, README alignment, and v0.13.103 release coverage"
     ]
   },
   "features": [
+    "Add discreet hover/focus delete controls to real Automation Studio flow cards.",
+    "Map visual card selection and deletion back to its exact workflow item with Undo recovery.",
     "Add installation-aware Set Temperature and Set Brightness tasks to Automation Studio.",
     "Persist task-template identity and focused service-data controls across automation edits.",
     "Add a ready-made task palette to the Automation Studio Action inspector.",

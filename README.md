@@ -1,14 +1,14 @@
-## ZBRANO v0.13.102
+## ZBRANO v0.13.103
 
 ZBRANO combines Home Assistant chat, voice, entity control, memory, notifications,
 calendar tools, plugins, and evidence-based automations. Automation Studio now uses
 a visual building-block toolbox, interactive node canvas, and contextual inspector;
 the established automation engine and stored definitions remain compatible.
 
-Version 0.13.102 adds installation-aware Set Temperature and Set Brightness task
-blocks. Each exposes only its relevant target value, stores real Home Assistant
-service data, updates the visual card immediately, and retains its preset identity
-after the automation is saved and reopened.
+Version 0.13.103 adds a discreet delete control to every real visual flow card. It
+appears only on hover or keyboard focus, removes the exact workflow item, and is
+immediately recoverable with Undo. Responsive containment keeps dense card groups
+and their controls accessible instead of allowing them beneath the inspector.
 
 The application source and post-split build history are maintained in the private
 core repository. Public Home Assistant repositories contain only the five-file

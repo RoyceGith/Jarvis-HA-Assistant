@@ -31,10 +31,10 @@ def load_ha_control_helpers():
 
 class HomeAssistantServiceBoundaryTests(unittest.TestCase):
     def test_release_markers_are_aligned(self):
-        self.assertIn('version: "0.13.102"', CONFIG)
-        self.assertIn('version="0.13.102"', MAIN)
-        self.assertIn("HUD 0.13.102", HTML)
-        self.assertEqual(MANIFEST["version"], "0.13.102")
+        self.assertIn('version: "0.13.103"', CONFIG)
+        self.assertIn('version="0.13.103"', MAIN)
+        self.assertIn("HUD 0.13.103", HTML)
+        self.assertEqual(MANIFEST["version"], "0.13.103")
 
     def test_both_services_are_outside_composition_root_and_configured(self):
         self.assertNotIn("def load_entity_policy(", MAIN)

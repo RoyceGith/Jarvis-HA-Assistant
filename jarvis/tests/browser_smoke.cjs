@@ -118,7 +118,7 @@ function apiFixture(url, method = "GET") {
   if (pathname === "/api/health") {
     return {
       status: "ok",
-      version: "0.13.102",
+      version: "0.13.103",
       speech_provider: "openai",
       speech_providers: {openai: {configured: true}, elevenlabs: {configured: false}},
     };
@@ -165,7 +165,7 @@ function apiFixture(url, method = "GET") {
   if (pathname === "/api/plugins") return {plugins: []};
   if (pathname === "/api/files/shared") return {files: [], count: 0};
   if (pathname === "/api/release-memory-sync") {
-    return {enabled: false, state: "disabled", version: "0.13.102", task_active: false};
+    return {enabled: false, state: "disabled", version: "0.13.103", task_active: false};
   }
   if (pathname === "/api/tab-activity") return {revisions: {}};
   if (pathname === "/api/grinder-monitor/status") return {enabled: false, connected: false};
@@ -353,6 +353,13 @@ async function main() {
     assert.equal(await page.locator('#automation-flow-preview [data-flow-kind="trigger"]').count(), 3);
     assert.equal(await page.locator('#automation-flow-preview .automation-flow-stage.is-trigger.is-dense').count(), 1);
     assert.deepEqual(await page.locator('#automation-flow-preview [data-trigger-logic]').first().locator("option").allTextContents(), ["OR", "AND"]);
+    const lastTriggerCard=page.locator('#automation-flow-preview [data-flow-kind="trigger"]').last();await lastTriggerCard.hover();
+    assert.equal(await lastTriggerCard.locator(".automation-flow-card-delete").isVisible(), true);
+    await lastTriggerCard.locator(".automation-flow-card-delete").click();
+    assert.equal(await page.locator('#automation-flow-preview [data-flow-kind="trigger"]').count(), 2);
+    assert.match(await page.locator("#automation-studio-state").innerText(), /Use Undo to restore/i);
+    await page.locator("#automation-studio-undo").click();
+    assert.equal(await page.locator('#automation-flow-preview [data-flow-kind="trigger"]').count(), 3);
     await dropStudioBlock("context");
     assert.equal(await page.locator('#automation-flow-preview [data-flow-kind="context"]').count(), 1);
     await dropStudioBlock("decision");
@@ -376,7 +383,8 @@ async function main() {
     await page.locator('[data-workflow-index="1"][data-action-field="entity_id"]').fill("climate.browser_thermostat");
     await page.locator('[data-workflow-index="1"][data-action-data-field="temperature"]').fill("23.5");
     assert.match(await page.locator('#automation-flow-preview [data-flow-kind="action"]').nth(1).innerText(), /Set to 23.5°/i);
-    await page.locator('[data-workflow-remove="1"]').click();
+    const temperatureCard=page.locator('#automation-flow-preview [data-flow-kind="action"]').nth(1);await temperatureCard.hover();await temperatureCard.locator(".automation-flow-card-delete").click();
+    assert.equal(await page.locator('#automation-flow-preview [data-flow-kind="action"]').count(), 1);
     assert.equal(await page.locator(".automation-workflow-step").count(), 1);
     assert.equal(await page.locator("#automation-studio-dirty").isVisible(), true);
     const droppedBlocksReset=page.waitForEvent("dialog"),droppedBlocksNewFlow=page.locator("#automation-studio-new").click();
