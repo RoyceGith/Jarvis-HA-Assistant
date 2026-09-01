@@ -19,12 +19,10 @@ storage, and `ghcr.io/roycegith/jarvis-ha-assistant` update image.
 
 ## Current experience
 
-Version 0.13.113 adds persistent one-click deletion to the top-bar notification
-inbox through a discreet control shown when an item is hovered. The inbox remains
-open, its unread badge updates immediately, and Notification Center logs stay in
-sync. Actionable Automation notifications also expose the established Approve action,
-Not now, and applicable Never suggest decisions without leaving the current screen.
-Birthday records and reminders remain unchanged.
+Version 0.13.114 makes climate entities more informative in Entity Inventory by
+showing the HVAC mode and configured target temperature together, such as
+`cool · set to 25 °C`. Current temperature and active HVAC action are retained as
+detail without changing Home Assistant control or stored-data behavior.
 Incomplete blocks remain protected by validation, and existing automation
 definitions and Home Assistant data remain compatible across updates.
 Conversational creation now reuses known Home Assistant Area-to-Zone links and

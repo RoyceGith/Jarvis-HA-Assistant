@@ -1,5 +1,11 @@
 # Change log
 
+## 0.13.114
+
+- Displayed climate HVAC mode and configured target temperature together in Entity Inventory.
+- Added current temperature and active HVAC action as concise climate detail.
+- Preserved existing entity state, control permissions, and stored data.
+
 ## 0.13.113
 
 - Added a discreet delete control that appears when a top-bar notification is hovered.
