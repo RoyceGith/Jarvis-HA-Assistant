@@ -6,6 +6,9 @@ connections.
 
 ## Automation Studio
 
+Version 0.13.116 adds branch-specific suggestions and live entity-to-attribute
+conditions so multi-outcome behavior can remain in one Automation Studio flow.
+
 Version 0.13.115 restores entity loading in Automation Studio's WHEN-card
 inspector and synchronizes the selected Home Assistant entity into the workflow.
 

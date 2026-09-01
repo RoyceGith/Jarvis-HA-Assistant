@@ -1,5 +1,12 @@
 # Change log
 
+## 0.13.116
+
+- Added a distinct suggestion message to each Automation Studio decision path.
+- Added live entity-state comparisons against another entity's state or attribute.
+- Added a Compare entities building block and visual condition summary.
+- Preserved existing automation definitions and first-match branch behavior.
+
 ## 0.13.115
 
 - Restored the searchable Home Assistant entity picker in the WHEN-card inspector.
