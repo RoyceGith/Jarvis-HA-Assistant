@@ -691,7 +691,7 @@ ha_ws = HomeAssistantWebSocketClient(
 
 app = FastAPI(
     title="ZBRANO",
-    version="0.13.113",
+    version="0.13.114",
     docs_url="/api/docs",
     openapi_url="/api/openapi.json",
 )
@@ -2755,7 +2755,7 @@ async def health() -> dict[str, Any]:
     configured_speech_provider = SPEECH_PROVIDER if SPEECH_PROVIDER in {"openai", "elevenlabs"} else "openai"
     return {
         "status": "ok",
-        "version": "0.13.113",
+        "version": "0.13.114",
         "home_assistant_configured": bool(SUPERVISOR_TOKEN),
         "workshop_memory_configured": bool(WORKSHOP_MEMORY_URL),
         "workshop_memory_cost_guard": workshop_cost_guard_status(),
@@ -5445,6 +5445,12 @@ async def list_ha_entities(refresh: bool = False) -> dict[str, Any]:
             "available": state not in {"unavailable", "unknown", None},
             "device_class": device_class,
             "unit": attributes.get("unit_of_measurement"),
+            "target_temperature": attributes.get("temperature"),
+            "target_temperature_low": attributes.get("target_temp_low"),
+            "target_temperature_high": attributes.get("target_temp_high"),
+            "current_temperature": attributes.get("current_temperature"),
+            "temperature_unit": attributes.get("temperature_unit") or attributes.get("unit_of_measurement"),
+            "hvac_action": attributes.get("hvac_action"),
             "icon": attributes.get("icon"),
             "risk": risk,
             "auto_approved": risk == "low_risk_control_proposed",

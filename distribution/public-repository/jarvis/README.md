@@ -6,11 +6,10 @@ connections.
 
 ## Automation Studio
 
-Version 0.13.113 adds a discreet hover delete control to each top-bar notification.
-Deletion is persisted, the unread badge updates immediately, the dropdown stays open,
-and Notification Center logs remain synchronized. Actionable Automation notifications
-also expose Approve action, Not now, and applicable Never suggest decisions. Birthday
-records remain unchanged. The full Advanced editor remains available, existing stored automations are preserved, and
+Version 0.13.114 shows a climate entity's HVAC mode and configured target temperature
+together in Entity Inventory, such as `cool · set to 25 °C`. Current temperature and
+active HVAC action remain available as detail without changing entity controls or
+stored data. The full Advanced editor remains available, existing stored automations are preserved, and
 repeatable OR triggers, grouped conditions, ordered actions, and IF/ELSE branches
 are supported, together with dedicated Delay and bounded Wait Until steps. Each
 automation can use the global operating default or select its own lower authority,

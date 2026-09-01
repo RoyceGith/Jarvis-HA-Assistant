@@ -1,4 +1,4 @@
-# ZBRANO v0.13.113
+# ZBRANO v0.13.114
 
 Automation Studio provides a graphical building-block workflow for Home Assistant
 automations. Use the toolbox to select or drag Trigger, Context, Decision, and
@@ -6,11 +6,10 @@ Action blocks onto the canvas, then edit only that block in the settings inspect
 Natural-language creation, templates, saved automation compatibility, and the full
 Advanced editor remain available.
 
-Version 0.13.113 adds a discreet hover delete control to each notification in the
-top-bar inbox. Deletion is persisted, the unread badge updates immediately, the
-dropdown stays open, and the full Notification Center refreshes to match. Automation
-suggestions expose Approve action, Not now, and applicable Never suggest decisions
-without opening Studio. Birthday records and reminders remain unchanged.
+Version 0.13.114 shows climate HVAC mode and configured temperature together in
+Entity Inventory, for example `cool · set to 25 °C`. It also exposes current room
+temperature and active HVAC action as detail while preserving the existing Home
+Assistant state, controls, permissions, and stored data.
 
 The visual editor supports linear and branching workflows without silently changing
 the behavior of existing stored rules.

@@ -1647,6 +1647,25 @@ function entityMatches(entity) {
   return matchesSearch && matchesDomain;
 }
 
+function formatEntityTemperature(value, unit) {
+  if (value === null || value === undefined || value === "") return "";
+  const numeric = Number(value);
+  const text = Number.isFinite(numeric) ? String(Number(numeric.toFixed(2))) : String(value);
+  return unit ? `${text} ${unit}` : `${text}°`;
+}
+
+function entityStateLabel(entity) {
+  const state = entity.state ?? "—";
+  if (entity.domain !== "climate") return String(state);
+  const unit = entity.temperature_unit || entity.unit || "";
+  const target = formatEntityTemperature(entity.target_temperature, unit);
+  if (target) return `${state} · set to ${target}`;
+  const low = formatEntityTemperature(entity.target_temperature_low, unit);
+  const high = formatEntityTemperature(entity.target_temperature_high, unit);
+  if (low && high) return `${state} · set to ${low}–${high}`;
+  return String(state);
+}
+
 function ensureReview(entity) {
   if (!entityReview.has(entity.entity_id)) {
     entityReview.set(entity.entity_id, {
@@ -1801,7 +1820,11 @@ function renderEntities() {
 
     const stateCell = document.createElement("td");
     stateCell.classList.add(entity.available ? "available" : "unavailable");
-    stateCell.textContent = entity.state ?? "—";
+    stateCell.textContent = entityStateLabel(entity);
+    if (entity.domain === "climate") {
+      const current = formatEntityTemperature(entity.current_temperature, entity.temperature_unit || entity.unit || "");
+      stateCell.title = [current ? `Current ${current}` : "", entity.hvac_action ? `Action ${entity.hvac_action}` : ""].filter(Boolean).join(" · ");
+    }
     row.appendChild(stateCell);
 
     const classCell = document.createElement("td");

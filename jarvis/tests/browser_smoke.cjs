@@ -48,7 +48,7 @@ function entityFixture(index) {
 
 const entities = [
   ...Array.from({length: 48}, (_, index) => entityFixture(index + 1)),
-  {entity_id:"climate.browser_thermostat",friendly_name:"Browser Thermostat",domain:"climate",state:"cool",available:true,risk:"low_risk_control_proposed",auto_approved:true},
+  {entity_id:"climate.browser_thermostat",friendly_name:"Browser Thermostat",domain:"climate",state:"cool",target_temperature:25,current_temperature:26.2,temperature_unit:"°C",hvac_action:"cooling",available:true,risk:"low_risk_control_proposed",auto_approved:true},
   {entity_id:"light.browser_light",friendly_name:"Browser Light",domain:"light",state:"off",available:true,risk:"low_risk_control_proposed",auto_approved:true},
 ];
 const automationFixture = {
@@ -129,7 +129,7 @@ function apiFixture(url, method = "GET") {
   if (pathname === "/api/health") {
     return {
       status: "ok",
-      version: "0.13.113",
+      version: "0.13.114",
       speech_provider: "openai",
       speech_providers: {openai: {configured: true}, elevenlabs: {configured: false}},
     };
@@ -201,7 +201,7 @@ function apiFixture(url, method = "GET") {
   if (pathname === "/api/plugins") return {plugins: []};
   if (pathname === "/api/files/shared") return {files: [], count: 0};
   if (pathname === "/api/release-memory-sync") {
-    return {enabled: false, state: "disabled", version: "0.13.113", task_active: false};
+    return {enabled: false, state: "disabled", version: "0.13.114", task_active: false};
   }
   if (pathname === "/api/tab-activity") return {revisions: {}};
   if (pathname === "/api/grinder-monitor/status") return {enabled: false, connected: false};
@@ -285,6 +285,9 @@ async function main() {
     await page.locator("#entities-tab").click();
     await page.locator("#entities-panel:not(.hidden)").waitFor();
     await page.locator("#entity-rows tr").nth(47).waitFor();
+    const thermostatRow = page.locator("#entity-rows tr").filter({hasText:"Browser Thermostat"});
+    assert.equal(await thermostatRow.locator("td").nth(7).innerText(), "cool · set to 25 °C");
+    assert.match(await thermostatRow.locator("td").nth(7).getAttribute("title"), /Current 26.2 °C · Action cooling/);
     const scrollState = await page.locator("#entities-panel .table-wrap").evaluate(element => {
       element.scrollTop = element.scrollHeight;
       element.scrollLeft = element.scrollWidth;
