@@ -19,8 +19,9 @@ storage, and `ghcr.io/roycegith/jarvis-ha-assistant` update image.
 
 ## Current experience
 
-Version 0.13.110 removes per-character forced layout from the chat composer for
-smoother typing while preserving automatic multiline sizing.
+Version 0.13.111 adds a dedicated Birthday center with annual local records,
+personal notes, gift ideas, configurable reminders, and conversational access. It
+also adds a top-bar notification inbox with persistent unread counts.
 Incomplete blocks remain protected by validation, and existing automation
 definitions and Home Assistant data remain compatible across updates.
 Conversational creation now reuses known Home Assistant Area-to-Zone links and
