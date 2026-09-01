@@ -49,6 +49,8 @@ from .domains.notifications import (
     _notification_quiet_now,
     _notification_save,
     notification_channels,
+    notification_inbox,
+    mark_notification_deliveries_read,
     notification_store,
     notification_watch_worker,
     notification_watches,
@@ -56,14 +58,21 @@ from .domains.notifications import (
 
 from .domains.calendar import (
     configure_calendar_domain,
+    BIRTHDAY_STORAGE_PATH,
     CALENDAR_REMINDER_OFFSETS,
     CALENDAR_STORAGE_PATH,
+    _create_birthday,
+    _delete_birthday,
+    _update_birthday,
+    _birthday_save,
     _calendar_save,
     _cancel_calendar_appointment,
     _create_calendar_appointment,
     _update_calendar_reminders,
     calendar_reminder_worker,
     calendar_store,
+    birthday_store,
+    list_birthdays,
     list_calendar_appointments,
 )
 from .domains.google_calendar import (
@@ -225,6 +234,8 @@ from .schemas import (
     NotificationTestRequest,
     NotificationWatchRequest,
     NotificationWatchStateRequest,
+    BirthdayRequest,
+    BirthdayUpdateRequest,
     CalendarAppointmentRequest,
     CalendarRemindersUpdateRequest,
     GoogleCalendarSyncSettingsRequest,
@@ -238,6 +249,7 @@ from .schemas import (
     EntityCatalogDraftRequest,
     EntityPolicyUpdate,
     NotificationDeliveryDeleteRequest,
+    NotificationReadRequest,
     SharedFilesDeleteRequest,
     DeveloperModeRequest,
     DeveloperInvestigationRequest,
@@ -679,7 +691,7 @@ ha_ws = HomeAssistantWebSocketClient(
 
 app = FastAPI(
     title="ZBRANO",
-    version="0.13.110",
+    version="0.13.111",
     docs_url="/api/docs",
     openapi_url="/api/openapi.json",
 )
@@ -700,6 +712,50 @@ app = FastAPI(
 
 
 WORKSHOP_TOOLS: list[dict[str, Any]] = [
+    {
+        "type": "function",
+        "name": "create_birthday",
+        "description": "Save a person's annually recurring birthday locally in ZBRANO after the user asks. Ask only for the name and month/day when missing; year, relationship, reminders, notes, and gift ideas are optional.",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "name": {"type": "string", "description": "Person's name."},
+                "birthday": {"type": "string", "description": "Month and day as MM-DD."},
+                "birth_year": {"type": ["integer", "null"], "description": "Birth year when known, otherwise null."},
+                "relationship": {"type": "string", "description": "Optional relationship or category."},
+                "reminder_days_before": {"type": "array", "items": {"type": "integer"}, "description": "Days before the birthday; use [7,1,0] when the user accepts defaults."},
+                "destination": {"type": "string", "description": "Optional notify entity; blank uses the Notification Center default."},
+                "notes": {"type": "string", "description": "Optional personal notes."},
+                "gift_ideas": {"type": "string", "description": "Optional gift ideas or preferences."}
+            },
+            "required": ["name", "birthday", "birth_year", "relationship", "reminder_days_before", "destination", "notes", "gift_ideas"],
+            "additionalProperties": False
+        },
+        "strict": True
+    },
+    {
+        "type": "function",
+        "name": "list_birthdays",
+        "description": "List upcoming birthdays, ages, notes, and gift ideas stored locally in ZBRANO. Use a blank query for all people or a name/relationship to filter.",
+        "parameters": {"type": "object", "properties": {"query": {"type": "string"}}, "required": ["query"], "additionalProperties": False},
+        "strict": True
+    },
+    {
+        "type": "function",
+        "name": "update_birthday_details",
+        "description": "Replace notes and gift ideas on an existing birthday after listing birthdays to resolve the exact ID. Preserve existing text unless the user asks to remove it.",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "birthday_id": {"type": "string"},
+                "notes": {"type": "string"},
+                "gift_ideas": {"type": "string"}
+            },
+            "required": ["birthday_id", "notes", "gift_ideas"],
+            "additionalProperties": False
+        },
+        "strict": True
+    },
     {
         "type": "function",
         "name": "update_calendar_reminders",
@@ -1520,6 +1576,16 @@ async def execute_tool_calls(
                     result = list_calendar_appointments(bool(arguments.get("include_past")))
                 elif name == "cancel_calendar_appointment":
                     result = _cancel_calendar_appointment(str(arguments.get("appointment_id") or ""))
+                elif name == "create_birthday":
+                    result = await _create_birthday(BirthdayRequest(**arguments), source="chat")
+                elif name == "list_birthdays":
+                    result = list_birthdays(str(arguments.get("query") or ""))
+                elif name == "update_birthday_details":
+                    result = await _update_birthday(
+                        str(arguments.get("birthday_id") or ""),
+                        BirthdayUpdateRequest(notes=str(arguments.get("notes") or ""), gift_ideas=str(arguments.get("gift_ideas") or "")),
+                        source="chat",
+                    )
                 elif name == "get_grinder_diagnostic_status":
                     result = grinder_monitor_status()
                 elif name == "list_grinder_incidents":
@@ -2689,7 +2755,7 @@ async def health() -> dict[str, Any]:
     configured_speech_provider = SPEECH_PROVIDER if SPEECH_PROVIDER in {"openai", "elevenlabs"} else "openai"
     return {
         "status": "ok",
-        "version": "0.13.110",
+        "version": "0.13.111",
         "home_assistant_configured": bool(SUPERVISOR_TOKEN),
         "workshop_memory_configured": bool(WORKSHOP_MEMORY_URL),
         "workshop_memory_cost_guard": workshop_cost_guard_status(),
@@ -3702,6 +3768,28 @@ async def cancel_calendar_appointment(appointment_id: str) -> dict[str, Any]:
     return _cancel_calendar_appointment(appointment_id)
 
 
+@app.get("/api/birthdays")
+async def read_birthdays(query: str = "") -> dict[str, Any]:
+    result = list_birthdays(query)
+    result["default_destination"] = str(notification_store()["settings"].get("default_channel") or "")
+    return result
+
+
+@app.post("/api/birthdays")
+async def create_birthday(request: BirthdayRequest) -> dict[str, Any]:
+    return await _create_birthday(request)
+
+
+@app.put("/api/birthdays/{birthday_id}")
+async def update_birthday(birthday_id: str, request: BirthdayUpdateRequest) -> dict[str, Any]:
+    return await _update_birthday(birthday_id, request)
+
+
+@app.delete("/api/birthdays/{birthday_id}")
+async def delete_birthday(birthday_id: str) -> dict[str, Any]:
+    return _delete_birthday(birthday_id)
+
+
 NOTIFICATION_WATCH_TASK: asyncio.Task[Any] | None = None
 AUTOMATION_SCHEDULE_TASK: asyncio.Task[Any] | None = None
 
@@ -3763,6 +3851,18 @@ async def read_notification_activity() -> dict[str, Any]:
         "latest_at": float(newest.get("created_at") or 0.0),
         "count": len(deliveries),
     }
+
+
+@app.get("/api/notifications/inbox")
+async def read_notification_inbox(limit: int = 10) -> dict[str, Any]:
+    return notification_inbox(limit)
+
+
+@app.put("/api/notifications/inbox/read")
+async def mark_notification_inbox_read(request: NotificationReadRequest) -> dict[str, Any]:
+    if not request.all and not request.ids:
+        raise HTTPException(status_code=400, detail="Choose notifications to mark as read")
+    return mark_notification_deliveries_read(request.ids, request.all)
 
 
 @app.delete("/api/notifications/deliveries")
@@ -3850,7 +3950,7 @@ async def test_notification_channel(request: NotificationTestRequest) -> dict[st
         await ha_ws.call_service(service_domain, "send_message", body)
         delivery = _notification_delivery(
             data, target=request.target, severity=request.severity,
-            title=title, status="delivered",
+            title=title, status="delivered", message=message,
             detail=(
                 "Sent through telegram via Home Assistant WebSocket"
                 if channel["platform"] == "telegram"
@@ -3862,7 +3962,7 @@ async def test_notification_channel(request: NotificationTestRequest) -> dict[st
     except (RuntimeError, OSError, asyncio.TimeoutError, ConnectionClosed) as exc:
         delivery = _notification_delivery(
             data, target=request.target, severity=request.severity,
-            title=title, status="failed", detail=str(exc),
+            title=title, status="failed", detail=str(exc), message=message,
         )
         _notification_save(data)
         raise HTTPException(status_code=502, detail=f"Notification delivery failed: {exc}") from exc
@@ -4225,6 +4325,7 @@ async def export_settings_backup() -> Response:
         "automations": automation_store(),
         "notifications": notification_store(),
         "calendar": calendar_store(),
+        "birthdays": birthday_store(),
         "fast_memory": export_fast_memory(),
     }
     # Secrets are environment-backed and are intentionally absent from this file.
@@ -4246,6 +4347,7 @@ async def restore_settings_backup(request: SettingsRestoreRequest) -> dict[str, 
     automations = backup.get("automations")
     notifications = backup.get("notifications")
     calendar = backup.get("calendar")
+    birthdays = backup.get("birthdays")
     fast_memory = backup.get("fast_memory")
     if not isinstance(settings, dict) or not isinstance(chats, dict) or not isinstance(policy, dict):
         raise HTTPException(status_code=400, detail="Backup is missing required sections")
@@ -4270,6 +4372,11 @@ async def restore_settings_backup(request: SettingsRestoreRequest) -> dict[str, 
         or not isinstance(calendar.get("appointments", []), list)
     ):
         raise HTTPException(status_code=400, detail="Backup calendar data is malformed")
+    if birthdays is not None and (
+        not isinstance(birthdays, dict)
+        or not isinstance(birthdays.get("birthdays", []), list)
+    ):
+        raise HTTPException(status_code=400, detail="Backup birthday data is malformed")
     if fast_memory is not None and (
         not isinstance(fast_memory, dict)
         or not isinstance(fast_memory.get("memories", []), list)
@@ -4285,6 +4392,8 @@ async def restore_settings_backup(request: SettingsRestoreRequest) -> dict[str, 
         _notification_save(notifications)
     if calendar is not None:
         _calendar_save(calendar)
+    if birthdays is not None:
+        _birthday_save(birthdays)
     if fast_memory is not None:
         restore_fast_memory(fast_memory)
     load_chat_sessions()
@@ -5929,6 +6038,7 @@ configure_tab_activity_service(
         "oauth": PLUGIN_OAUTH_PATH,
         "notifications": NOTIFICATION_STORAGE_PATH,
         "calendar": CALENDAR_STORAGE_PATH,
+        "birthdays": BIRTHDAY_STORAGE_PATH,
         "settings": SETTINGS_STORAGE_PATH,
         "developer": DEVELOPER_STATE_PATH,
     },

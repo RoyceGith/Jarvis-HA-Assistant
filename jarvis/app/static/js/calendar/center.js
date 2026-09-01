@@ -5,7 +5,7 @@
   if (!tab || !panel || !quick) return;
   const $ = id => document.getElementById(id);
   const esc = value => String(value ?? "").replace(/[&<>"']/g, char => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"})[char]);
-  let state = {appointments:[], default_destination:""};
+  let state = {appointments:[], birthdays:[], default_destination:""};
   let reminderFilter = "all";
 
   async function api(path, options={}) {
@@ -186,9 +186,33 @@
     badge.setAttribute("aria-label", `${count} upcoming appointment${count === 1 ? "" : "s"}`);
   }
 
+  function birthdayWhen(item) {
+    const date = new Date(`${item.next_occurrence}T12:00:00`);
+    if (Number(item.days_until) === 0) return "Today";
+    if (Number(item.days_until) === 1) return "Tomorrow";
+    return `${date.toLocaleDateString([], {weekday:"short", month:"long", day:"numeric"})} · in ${item.days_until} days`;
+  }
+
+  function birthdayCard(item, detailed=false) {
+    const age = item.turning_age ? `Turning ${item.turning_age}` : "Age not stored";
+    const details = [item.relationship, age].filter(Boolean).map(value => `<span>${esc(value)}</span>`).join("");
+    const notes = detailed && item.notes ? `<p>${esc(item.notes)}</p>` : "";
+    const gifts = detailed && item.gift_ideas ? `<p class="birthday-gifts"><strong>Gift ideas</strong> ${esc(item.gift_ideas)}</p>` : "";
+    return `<article class="birthday-card"><div class="birthday-card-head"><div class="birthday-avatar" aria-hidden="true">${esc(item.name.slice(0,1).toUpperCase())}</div><div><h4>${esc(item.name)}</h4><p>${esc(birthdayWhen(item))}</p></div><div class="birthday-card-actions"><button type="button" data-birthday-edit="${esc(item.id)}">Edit</button><button type="button" data-birthday-delete="${esc(item.id)}">Delete</button></div></div><div class="calendar-meta">${details}</div>${notes}${gifts}</article>`;
+  }
+
+  function renderBirthdays() {
+    const birthdays = state.birthdays || [];
+    const upcoming = birthdays.filter(item => Number(item.days_until) <= 90);
+    $("birthday-upcoming-summary").textContent = upcoming.length ? `${upcoming.length} birthday${upcoming.length === 1 ? "" : "s"} in the next 90 days` : "No birthdays in the next 90 days.";
+    $("birthday-people-summary").textContent = `${birthdays.length} ${birthdays.length === 1 ? "person" : "people"} stored locally`;
+    $("birthday-upcoming-list").innerHTML = upcoming.map(item => birthdayCard(item)).join("") || '<div class="calendar-empty">No upcoming birthdays. Add one here or ask ZBRANO in chat.</div>';
+    $("birthday-people-list").innerHTML = birthdays.map(item => birthdayCard(item, true)).join("") || '<div class="calendar-empty">No birthdays saved yet.</div>';
+  }
+
   async function loadChannels() {
     const notification = await api("api/notifications");
-    for (const select of [$("calendar-destination"), $("calendar-reminder-destination")]) {
+    for (const select of [$("calendar-destination"), $("calendar-reminder-destination"), $("birthday-destination")]) {
       select.replaceChildren(new Option("Notification Center default", ""));
       for (const channel of notification.channels || []) {
         const label = `${channel.platform === "telegram" ? "Telegram · " : ""}${channel.friendly_name}`;
@@ -198,17 +222,19 @@
   }
 
   async function loadCalendar() {
-    const complete = await api("api/calendar?include_past=true");
+    const [complete, birthdayData] = await Promise.all([api("api/calendar?include_past=true"), api("api/birthdays")]);
     const now = Date.now() / 1000;
     state = {
       ...complete,
       allAppointments: complete.appointments || [],
       appointments: (complete.appointments || []).filter(item => Number(item.end_timestamp || item.start_timestamp || 0) >= now),
+      birthdays: birthdayData.birthdays || [],
     };
     renderMonthCalendar();
     renderAppointments();
     renderReminders();
     renderBadge();
+    renderBirthdays();
     window.zbranoClearTabChanged?.("calendar-tab");
   }
 
@@ -289,6 +315,43 @@
       button.setAttribute("aria-selected", String(active));
     }
     for (const view of panel.querySelectorAll("[data-calendar-panel]")) view.classList.toggle("hidden", view.dataset.calendarPanel !== name);
+  }
+
+  function showBirthdayView(name) {
+    for (const button of panel.querySelectorAll("[data-birthday-view]")) {
+      const active = button.dataset.birthdayView === name;
+      button.classList.toggle("active", active);
+      button.setAttribute("aria-selected", String(active));
+    }
+    for (const view of panel.querySelectorAll("[data-birthday-panel]")) view.classList.toggle("hidden", view.dataset.birthdayPanel !== name);
+  }
+
+  function resetBirthdayForm() {
+    $("birthday-form").reset();
+    $("birthday-id").value = "";
+    $("birthday-form-title").textContent = "Add birthday";
+    $("birthday-form-cancel").hidden = true;
+    for (const input of panel.querySelectorAll(".birthday-reminder-options input")) input.checked = [7,1,0].includes(Number(input.value));
+  }
+
+  function editBirthday(id) {
+    const item = (state.birthdays || []).find(entry => entry.id === id);
+    if (!item) return;
+    const [month, day] = item.birthday.split("-");
+    $("birthday-id").value = item.id;
+    $("birthday-name").value = item.name || "";
+    $("birthday-month").value = month;
+    $("birthday-day").value = String(Number(day));
+    $("birthday-year").value = item.birth_year || "";
+    $("birthday-relationship").value = item.relationship || "";
+    $("birthday-destination").value = item.destination || "";
+    $("birthday-notes").value = item.notes || "";
+    $("birthday-gift-ideas").value = item.gift_ideas || "";
+    const reminders = new Set((item.reminder_days_before || []).map(Number));
+    for (const input of panel.querySelectorAll(".birthday-reminder-options input")) input.checked = reminders.has(Number(input.value));
+    $("birthday-form-title").textContent = `Edit ${item.name}`;
+    $("birthday-form-cancel").hidden = false;
+    showBirthdayView("add");
   }
 
 
@@ -378,6 +441,10 @@
     const button = event.target.closest("[data-calendar-view]");
     if (button) showView(button.dataset.calendarView);
   });
+  panel.querySelector(".birthday-toolbar").addEventListener("click", event => {
+    const button = event.target.closest("[data-birthday-view]");
+    if (button) showBirthdayView(button.dataset.birthdayView);
+  });
 
   $("calendar-month-previous").addEventListener("click", () => {
     monthCursor = new Date(monthCursor.getFullYear(), monthCursor.getMonth() - 1, 1);
@@ -420,7 +487,7 @@
     const status = $("calendar-form-status");
     const localStart = new Date(`${$("calendar-date").value}T${$("calendar-time").value}:00`);
     if (!Number.isFinite(localStart.getTime())) { status.textContent = "Choose a valid date and time."; return; }
-    const offsets = [...panel.querySelectorAll('.calendar-reminder-options input:checked')].map(node => Number(node.value));
+    const offsets = [...$("calendar-form").querySelectorAll('.calendar-reminder-options input:checked')].map(node => Number(node.value));
     const body = {
       title: $("calendar-title").value.trim(), start_at: localStart.toISOString(),
       duration_minutes: Number($("calendar-duration").value || 60), location: $("calendar-location").value.trim(),
@@ -433,10 +500,49 @@
       status.textContent = result.deduplicated ? "This appointment already exists." : "Appointment and reminders added.";
       event.currentTarget.reset();
       $("calendar-duration").value = "60";
-      for (const input of panel.querySelectorAll('.calendar-reminder-options input')) input.checked = [1440,120].includes(Number(input.value));
+      for (const input of $("calendar-form").querySelectorAll('.calendar-reminder-options input')) input.checked = [1440,120].includes(Number(input.value));
       await loadCalendar();
     } catch (error) { status.textContent = `Could not add appointment: ${error.message || error}`; }
   });
+
+  $("birthday-form").addEventListener("submit", async event => {
+    event.preventDefault();
+    const status = $("birthday-form-status");
+    const month = $("birthday-month").value;
+    const day = String(Number($("birthday-day").value || 0)).padStart(2, "0");
+    const year = $("birthday-year").value ? Number($("birthday-year").value) : null;
+    const body = {
+      name: $("birthday-name").value.trim(), birthday: `${month}-${day}`, birth_year: year,
+      relationship: $("birthday-relationship").value.trim(),
+      reminder_days_before: [...panel.querySelectorAll(".birthday-reminder-options input:checked")].map(input => Number(input.value)),
+      destination: $("birthday-destination").value, notes: $("birthday-notes").value.trim(),
+      gift_ideas: $("birthday-gift-ideas").value.trim(),
+    };
+    const birthdayId = $("birthday-id").value;
+    status.textContent = birthdayId ? "Updating birthday…" : "Saving birthday…";
+    try {
+      const result = await api(birthdayId ? `api/birthdays/${encodeURIComponent(birthdayId)}` : "api/birthdays", {
+        method: birthdayId ? "PUT" : "POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify(body),
+      });
+      status.textContent = result.deduplicated ? "That person is already saved." : "Birthday saved.";
+      resetBirthdayForm();
+      await loadCalendar();
+      showBirthdayView("upcoming");
+    } catch (error) { status.textContent = `Could not save birthday: ${error.message || error}`; }
+  });
+  $("birthday-form-cancel").addEventListener("click", () => { resetBirthdayForm(); showBirthdayView("people"); });
+  for (const listId of ["birthday-upcoming-list", "birthday-people-list"]) {
+    $(listId).addEventListener("click", async event => {
+      const edit = event.target.closest("[data-birthday-edit]");
+      if (edit) { editBirthday(edit.dataset.birthdayEdit); return; }
+      const remove = event.target.closest("[data-birthday-delete]");
+      if (!remove || !confirm("Delete this birthday and its reminders?")) return;
+      remove.disabled = true;
+      try { await api(`api/birthdays/${encodeURIComponent(remove.dataset.birthdayDelete)}`, {method:"DELETE"}); await loadCalendar(); }
+      catch (error) { $("birthday-upcoming-summary").textContent = `Delete failed: ${error.message || error}`; }
+      finally { remove.disabled = false; }
+    });
+  }
 
   $("calendar-appointments").addEventListener("click", async event => {
     const edit = event.target.closest("[data-calendar-edit-reminders]");

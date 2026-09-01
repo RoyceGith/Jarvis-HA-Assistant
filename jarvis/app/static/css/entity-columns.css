@@ -102,6 +102,26 @@
     #calendar-reminder-form label span { color:var(--text-muted); font-size:.68rem; }
     #calendar-reminder-remove-all { border-color:rgba(239,118,95,.42); color:#ef765f; }
 
+    .birthday-toolbar { display:flex; gap:.35rem; margin-bottom:.7rem; }
+    .birthday-toolbar button { border-color:transparent; background:transparent; }
+    .birthday-toolbar button:hover,.birthday-toolbar button.active { border-color:var(--cyan); color:var(--cyan); }
+    [data-birthday-panel].hidden { display:none; }
+    #birthday-form { display:grid; gap:.62rem; max-width:54rem; margin-top:.75rem; }
+    #birthday-form > label { display:grid; gap:.28rem; }
+    #birthday-form input,#birthday-form select,#birthday-form textarea { box-sizing:border-box; width:100%; min-width:0; max-width:32rem; }
+    #birthday-form .birthday-date-row { max-width:42rem; }
+    .birthday-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(17rem,1fr)); gap:.65rem; margin-top:.75rem; }
+    .birthday-card { display:grid; gap:.5rem; min-width:0; padding:.75rem; border:1px solid var(--line); border-radius:9px; background:color-mix(in srgb,var(--surface-strong) 74%,transparent); }
+    .birthday-card-head { display:grid; grid-template-columns:auto minmax(0,1fr) auto; align-items:start; gap:.6rem; }
+    .birthday-card h4,.birthday-card p { margin:0; }
+    .birthday-avatar { display:grid; place-items:center; width:2.35rem; height:2.35rem; border-radius:50%; background:color-mix(in srgb,var(--cyan) 18%,var(--surface)); color:var(--cyan); font-weight:750; }
+    .birthday-card-actions { display:flex; gap:.3rem; opacity:0; transition:opacity .15s ease; }
+    .birthday-card:hover .birthday-card-actions,.birthday-card:focus-within .birthday-card-actions { opacity:1; }
+    .birthday-card-actions button { padding:.28rem .42rem; font-size:.68rem; }
+    .birthday-card-actions button[data-birthday-delete] { color:#ef765f; }
+    .birthday-gifts { padding:.45rem .55rem; border-left:2px solid var(--cyan); background:color-mix(in srgb,var(--cyan) 7%,transparent); }
+    @media(max-width:620px) { .birthday-card-actions { opacity:1; } .birthday-grid { grid-template-columns:1fr; } }
+
     /* v0.12.73 visual monthly calendar. */
     .calendar-month-layout { display:grid; grid-template-columns:minmax(0,1.65fr) minmax(17rem,.65fr); gap:.75rem; }
     .calendar-month-toolbar { display:grid; grid-template-columns:auto minmax(0,1fr) auto; align-items:center; gap:.6rem; margin-bottom:.65rem; }
@@ -178,6 +198,28 @@
     .runtime-status-stack #health { padding:.28rem .55rem; font-size:.7rem; white-space:nowrap; }
     .runtime-status-stack .developer-mode-indicator { padding:.22rem .48rem; font-size:.62rem; }
     .runtime-status-stack .calendar-quick-open { width:1.8rem; min-width:1.8rem; height:1.8rem; }
+    .notification-inbox-shell { position:relative; flex:0 0 auto; }
+    .notification-inbox-toggle { position:relative; display:grid; place-items:center; width:1.8rem; min-width:1.8rem; height:1.8rem; padding:.3rem; border-color:transparent; border-radius:50%; background:transparent; color:var(--text-muted); }
+    .notification-inbox-toggle:hover,.notification-inbox-toggle[aria-expanded="true"] { border-color:color-mix(in srgb,var(--cyan) 42%,var(--line)); color:var(--cyan); background:color-mix(in srgb,var(--cyan) 8%,transparent); }
+    .notification-inbox-toggle svg { width:1.05rem; height:1.05rem; fill:none; stroke:currentColor; stroke-width:1.7; stroke-linecap:round; stroke-linejoin:round; }
+    #notification-inbox-count { position:absolute; top:-.28rem; right:-.38rem; display:grid; place-items:center; min-width:1.05rem; height:1.05rem; padding:0 .2rem; border:2px solid var(--surface); border-radius:999px; background:#ef765f; color:#fff; font-size:.56rem; font-weight:750; line-height:1; }
+    #notification-inbox-count[hidden] { display:none; }
+    .notification-inbox-popover { position:absolute; z-index:260; top:calc(100% + .5rem); right:0; width:min(23rem,calc(100vw - 1rem)); overflow:hidden; border:1px solid var(--line); border-radius:11px; background:var(--surface-strong); box-shadow:0 1rem 2.5rem rgba(0,0,0,.35); color:var(--text); }
+    .notification-inbox-popover[hidden] { display:none; }
+    .notification-inbox-head { display:flex; align-items:center; justify-content:space-between; gap:.65rem; padding:.7rem .75rem; border-bottom:1px solid var(--line); }
+    .notification-inbox-head button { padding:.25rem .4rem; border-color:transparent; background:transparent; color:var(--cyan); font-size:.68rem; }
+    .notification-inbox-list { display:grid; max-height:min(26rem,60vh); overflow:auto; overscroll-behavior:contain; }
+    .notification-inbox-item { display:grid; grid-template-columns:auto minmax(0,1fr); gap:.55rem; padding:.65rem .75rem; border-bottom:1px solid color-mix(in srgb,var(--line) 68%,transparent); text-align:left; }
+    .notification-inbox-item[data-unread="true"] { background:color-mix(in srgb,var(--cyan) 7%,transparent); }
+    .notification-inbox-dot { width:.48rem; height:.48rem; margin-top:.32rem; border-radius:50%; background:var(--line); }
+    .notification-inbox-item[data-unread="true"] .notification-inbox-dot { background:var(--cyan); box-shadow:0 0 .5rem color-mix(in srgb,var(--cyan) 48%,transparent); }
+    .notification-inbox-item[data-severity="warning"] .notification-inbox-dot,.notification-inbox-item[data-severity="critical"] .notification-inbox-dot { background:#ef765f; }
+    .notification-inbox-copy { min-width:0; }
+    .notification-inbox-copy strong,.notification-inbox-copy span,.notification-inbox-copy time { display:block; overflow-wrap:anywhere; }
+    .notification-inbox-copy span { margin-top:.12rem; color:var(--text-muted); font-size:.7rem; line-height:1.35; }
+    .notification-inbox-copy time { margin-top:.25rem; color:var(--text-muted); font-size:.62rem; }
+    .notification-inbox-empty { padding:1.2rem .75rem; color:var(--text-muted); text-align:center; }
+    .notification-inbox-open-center { width:100%; padding:.65rem .75rem; border:0; border-radius:0; border-top:1px solid var(--line); background:transparent; color:var(--cyan); text-align:center; }
     .runtime-status-stack .grinder-connection-indicator { min-height:1.35rem; padding:.16rem .48rem; font-size:.64rem; }
     nav { gap:.34rem; margin:.4rem 0; }
     nav button { min-height:2rem; padding:.36rem .6rem; font-size:.76rem; line-height:1.1; }
@@ -214,6 +256,7 @@
       header { gap:.4rem; }
       .hud-version-label { display:none; }
       .runtime-status-stack { margin-left:auto; }
+      .notification-inbox-popover { position:fixed; top:3.4rem; right:.5rem; }
       .runtime-status-stack .grinder-connection-indicator { font-size:.58rem; }
       nav { gap:.25rem; }
       nav button { padding:.32rem .45rem; font-size:.68rem; }

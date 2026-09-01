@@ -56,7 +56,7 @@ def _notification_save(data: dict[str, Any]) -> None:
 
 def _notification_delivery(
     data: dict[str, Any], *, target: str, severity: str, title: str,
-    status: str, detail: str = "",
+    status: str, detail: str = "", message: str = "",
 ) -> dict[str, Any]:
     import secrets
 
@@ -65,12 +65,40 @@ def _notification_delivery(
         "target": str(target)[:255],
         "severity": str(severity)[:24],
         "title": str(title)[:120],
+        "message": str(message)[:2000],
         "status": str(status)[:24],
         "detail": str(detail)[:500],
         "created_at": time.time(),
+        "read_at": 0.0,
     }
     data.setdefault("deliveries", []).insert(0, delivery)
     return delivery
+
+def notification_inbox(limit: int = 10) -> dict[str, Any]:
+    deliveries = notification_store().get("deliveries") or []
+    unread = [item for item in deliveries if "read_at" in item and not float(item.get("read_at") or 0)]
+    return {
+        "notifications": deliveries[:max(1, min(int(limit), 25))],
+        "unread_count": len(unread),
+        "total": len(deliveries),
+        "generated_at": time.time(),
+    }
+
+def mark_notification_deliveries_read(ids: list[str], mark_all: bool = False) -> dict[str, Any]:
+    requested = {str(item).strip() for item in ids if str(item).strip()}
+    data = notification_store()
+    changed = 0
+    now = time.time()
+    for delivery in data.get("deliveries") or []:
+        if "read_at" not in delivery or float(delivery.get("read_at") or 0) > 0:
+            continue
+        if mark_all or str(delivery.get("id") or "") in requested:
+            delivery["read_at"] = now
+            changed += 1
+    if changed:
+        _notification_save(data)
+    remaining = sum(1 for item in data.get("deliveries") or [] if "read_at" in item and not float(item.get("read_at") or 0))
+    return {"marked_read": changed, "unread_count": remaining}
 
 async def notification_channels() -> list[dict[str, Any]]:
     payload = await list_ha_entities()
@@ -285,6 +313,7 @@ async def notification_watch_worker() -> None:
                 _notification_delivery(
                     notice, target=str(watch.get("destination") or ""), severity=str(watch.get("severity") or "information"),
                     title=str(watch.get("title") or "ZBRANO notification"), status="suppressed", detail="Matched during configured quiet hours",
+                    message=str(watch.get("message") or watch.get("objective") or "Notification condition matched."),
                 )
                 _notification_save(notice)
                 watch["last_triggered_at"] = now

@@ -33,9 +33,20 @@
   <header>
     <div class="brand-line">
       <h1>ZBRANO</h1>
-      <div class="status hud-version-label">Workshop Intelligence Interface · HUD 0.13.110</div>
+      <div class="status hud-version-label">Workshop Intelligence Interface · HUD 0.13.111</div>
     </div>
     <div class="runtime-status-stack">
+      <div id="notification-inbox-shell" class="notification-inbox-shell">
+        <button id="notification-inbox-toggle" class="notification-inbox-toggle" type="button" aria-label="Open notifications" aria-expanded="false" aria-controls="notification-inbox-popover" title="Notifications">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9Z"/><path d="M10 21h4"/></svg>
+          <span id="notification-inbox-count" hidden>0</span>
+        </button>
+        <aside id="notification-inbox-popover" class="notification-inbox-popover" hidden aria-label="Recent notifications">
+          <div class="notification-inbox-head"><strong>Notifications</strong><button id="notification-inbox-mark-all" type="button">Mark all read</button></div>
+          <div id="notification-inbox-list" class="notification-inbox-list"><div class="notification-inbox-empty">No notifications yet.</div></div>
+          <button id="notification-inbox-open-center" class="notification-inbox-open-center" type="button">Open Notification Center</button>
+        </aside>
+      </div>
       <button id="calendar-quick-open" class="calendar-quick-open" type="button" aria-label="Open ZBRANO Calendar" title="Open Calendar">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 2v3M17 2v3M3.5 9h17M5.5 4h13a2 2 0 0 1 2 2v13a2 2 0 0 1-2 2h-13a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2Z"/><path d="M8 13h3v3H8z"/></svg>
         <span id="calendar-quick-count" aria-label="No upcoming appointments">0</span>
@@ -531,6 +542,7 @@
       <div class="calendar-subtabs" role="tablist" aria-label="Calendar views">
         <button class="active" type="button" data-calendar-view="month" role="tab" aria-selected="true">Month</button>
         <button type="button" data-calendar-view="upcoming" role="tab" aria-selected="false">Upcoming</button>
+        <button type="button" data-calendar-view="birthdays" role="tab" aria-selected="false">Birthdays</button>
         <button type="button" data-calendar-view="reminders" role="tab" aria-selected="false">Reminders</button>
         <button type="button" data-calendar-view="sync" role="tab" aria-selected="false">Google Sync</button>
       </div>
@@ -610,6 +622,52 @@
           <p id="calendar-reminder-summary" class="calendar-reminder-summary">Loading reminder status…</p>
           <div id="calendar-reminders" class="calendar-reminder-list"></div>
         </article>
+      </section>
+
+      <section data-calendar-panel="birthdays" class="hidden">
+        <div class="birthday-toolbar" role="tablist" aria-label="Birthday views">
+          <button class="active" type="button" data-birthday-view="upcoming" role="tab" aria-selected="true">Upcoming</button>
+          <button type="button" data-birthday-view="people" role="tab" aria-selected="false">People</button>
+          <button type="button" data-birthday-view="add" role="tab" aria-selected="false">Add Birthday</button>
+        </div>
+        <section data-birthday-panel="upcoming">
+          <article class="calendar-card birthday-feature-card">
+            <div class="calendar-card-head"><div><h3>Upcoming birthdays</h3><p id="birthday-upcoming-summary">Loading birthdays…</p></div></div>
+            <div id="birthday-upcoming-list" class="birthday-grid"></div>
+          </article>
+        </section>
+        <section data-birthday-panel="people" class="hidden">
+          <article class="calendar-card">
+            <div class="calendar-card-head"><div><h3>People</h3><p id="birthday-people-summary">Your locally stored birthday directory.</p></div></div>
+            <div id="birthday-people-list" class="birthday-grid"></div>
+          </article>
+        </section>
+        <section data-birthday-panel="add" class="hidden">
+          <article class="calendar-card birthday-editor-card">
+            <div class="calendar-card-head"><div><h3 id="birthday-form-title">Add birthday</h3><p>Stored locally and repeated every year. Birth year is optional.</p></div></div>
+            <form id="birthday-form">
+              <input id="birthday-id" type="hidden">
+              <label>Name<input id="birthday-name" maxlength="160" required placeholder="Person's name"></label>
+              <div class="calendar-form-row birthday-date-row">
+                <label>Month<select id="birthday-month" required><option value="">Choose month</option><option value="01">January</option><option value="02">February</option><option value="03">March</option><option value="04">April</option><option value="05">May</option><option value="06">June</option><option value="07">July</option><option value="08">August</option><option value="09">September</option><option value="10">October</option><option value="11">November</option><option value="12">December</option></select></label>
+                <label>Day<input id="birthday-day" type="number" min="1" max="31" required></label>
+                <label>Birth year <span>optional</span><input id="birthday-year" type="number" min="1900" max="2200" placeholder="e.g. 1988"></label>
+              </div>
+              <label>Relationship or category<input id="birthday-relationship" maxlength="100" placeholder="Family, friend, colleague…"></label>
+              <fieldset class="calendar-reminder-options birthday-reminder-options">
+                <legend>Remind me</legend>
+                <label><input type="checkbox" value="30"> 30 days before</label>
+                <label><input type="checkbox" value="7" checked> One week before</label>
+                <label><input type="checkbox" value="1" checked> One day before</label>
+                <label><input type="checkbox" value="0" checked> On the birthday</label>
+              </fieldset>
+              <label>Notification channel<select id="birthday-destination"><option value="">Notification Center default</option></select></label>
+              <label>Notes<textarea id="birthday-notes" rows="2" maxlength="3000" placeholder="Preferences or useful details"></textarea></label>
+              <label>Gift ideas<textarea id="birthday-gift-ideas" rows="2" maxlength="3000" placeholder="Ideas, sizes, favorite things…"></textarea></label>
+              <div class="calendar-form-actions"><button type="submit">Save birthday</button><button id="birthday-form-cancel" type="button" hidden>Cancel edit</button><span id="birthday-form-status" role="status"></span></div>
+            </form>
+          </article>
+        </section>
       </section>
 
       <section data-calendar-panel="sync" class="hidden">
@@ -942,6 +1000,7 @@
 
 
 <script id="zbrano-v01243-notification-center" src="js/notifications/center.js"></script>
+<script id="zbrano-v013111-notification-inbox" src="js/notifications/inbox.js"></script>
 
 <script id="zbrano-v01251-semantic-tab-activity" src="js/ui/tab-activity.js"></script>
 

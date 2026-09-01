@@ -1,5 +1,14 @@
 # Change log
 
+## 0.13.111
+
+- Added dedicated Upcoming, People, and Add Birthday views inside Calendar.
+- Added annual local birthday records with optional ages, relationships, notes, and gift ideas.
+- Added configurable Notification Center reminders plus chat save, lookup, and gift-detail workflows.
+- Included birthdays in backup, restore, activity tracking, and browser validation.
+- Added a top-bar notification bell with an unread badge and in-place recent-delivery dropdown.
+- Added persistent mark-read state, Mark all read, and a shortcut to full delivery logs.
+
 ## 0.13.110
 
 - Removed synchronous textarea measurement from every typed character.

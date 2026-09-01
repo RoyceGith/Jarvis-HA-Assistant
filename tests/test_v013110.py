@@ -15,10 +15,10 @@ MANIFEST = json.loads((ROOT / "jarvis/release_manifest.json").read_text(encoding
 
 class ResponsiveComposerReleaseTests(unittest.TestCase):
     def test_release_markers_are_aligned(self):
-        self.assertIn('version: "0.13.110"', CONFIG)
-        self.assertIn('version="0.13.110"', MAIN)
-        self.assertIn("HUD 0.13.110", HTML)
-        self.assertEqual(MANIFEST["version"], "0.13.110")
+        self.assertIn('version: "0.13.111"', CONFIG)
+        self.assertIn('version="0.13.111"', MAIN)
+        self.assertIn("HUD 0.13.111", HTML)
+        self.assertEqual(MANIFEST["version"], "0.13.111")
 
     def test_modern_browsers_use_native_content_sizing(self):
         self.assertIn('CSS?.supports?.("field-sizing", "content")', CORE)
@@ -43,7 +43,7 @@ class ResponsiveComposerReleaseTests(unittest.TestCase):
         self.assertIn("with a second visual line", BROWSER)
 
     def test_release_history_includes_v013109(self):
-        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.109")
+        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.110")
 
 
 if __name__ == "__main__":

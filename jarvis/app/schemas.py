@@ -256,6 +256,26 @@ class CalendarRemindersUpdateRequest(BaseModel):
     destination: str = Field(default="", max_length=255, pattern=r"^(|notify\.[a-z0-9_]+)$")
     reminder_offsets_minutes: list[int] = Field(default_factory=list, max_length=8)
 
+class BirthdayRequest(BaseModel):
+    name: str = Field(min_length=1, max_length=160)
+    birthday: str = Field(pattern=r"^(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])$")
+    birth_year: int | None = Field(default=None, ge=1900, le=2200)
+    relationship: str = Field(default="", max_length=100)
+    reminder_days_before: list[int] = Field(default_factory=lambda: [7, 1, 0], max_length=8)
+    destination: str = Field(default="", max_length=255, pattern=r"^(|notify\.[a-z0-9_]+)$")
+    notes: str = Field(default="", max_length=3000)
+    gift_ideas: str = Field(default="", max_length=3000)
+
+class BirthdayUpdateRequest(BaseModel):
+    name: str | None = Field(default=None, min_length=1, max_length=160)
+    birthday: str | None = Field(default=None, pattern=r"^(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])$")
+    birth_year: int | None = Field(default=None, ge=1900, le=2200)
+    relationship: str | None = Field(default=None, max_length=100)
+    reminder_days_before: list[int] | None = Field(default=None, max_length=8)
+    destination: str | None = Field(default=None, max_length=255, pattern=r"^(|notify\.[a-z0-9_]+)$")
+    notes: str | None = Field(default=None, max_length=3000)
+    gift_ideas: str | None = Field(default=None, max_length=3000)
+
 class GoogleCalendarSyncSettingsRequest(BaseModel):
     calendar_id: str = Field(default="primary", min_length=1, max_length=1024)
     enabled: bool = False
@@ -319,6 +339,10 @@ class EntityPolicyUpdate(BaseModel):
 
 class NotificationDeliveryDeleteRequest(BaseModel):
     ids: list[str] = Field(min_length=1, max_length=100)
+
+class NotificationReadRequest(BaseModel):
+    ids: list[str] = Field(default_factory=list, max_length=100)
+    all: bool = False
 
 class SharedFilesDeleteRequest(BaseModel): file_ids:list[str]=Field(default_factory=list,max_length=100)
 

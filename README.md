@@ -1,13 +1,14 @@
-## ZBRANO v0.13.110
+## ZBRANO v0.13.111
 
 ZBRANO combines Home Assistant chat, voice, entity control, memory, notifications,
 calendar tools, plugins, and evidence-based automations. Automation Studio now uses
 a visual building-block toolbox, interactive node canvas, and contextual inspector;
 the established automation engine and stored definitions remain compatible.
 
-Version 0.13.110 removes the chat composer's per-character forced layout work.
-Modern browsers size the prompt naturally, while older browsers use a frame-batched
-fallback, preserving multiline growth and the existing 12-rem height limit.
+Version 0.13.111 adds a dedicated Birthday center inside Calendar plus a top-bar
+notification bell. Birthdays remain local with optional personal context and annual
+reminders; the bell shows recent deliveries and a persistent unread count without
+leaving the current screen.
 
 The application source and post-split build history are maintained in the private
 core repository. Public Home Assistant repositories contain only the five-file

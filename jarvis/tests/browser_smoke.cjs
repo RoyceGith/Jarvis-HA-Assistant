@@ -113,12 +113,21 @@ const automationFixture = {
   engine: {status: "active"},
 };
 
+const notificationInboxFixture = {
+  notifications: [{
+    id: "notice-browser-1", title: "Workshop temperature", message: "The office is above 26°C.",
+    target: "notify.browser_phone", severity: "suggestion", status: "delivered", created_at: 1788300000, read_at: 0,
+  }],
+  unread_count: 1,
+  total: 1,
+};
+
 function apiFixture(url, method = "GET") {
   const pathname = new URL(url).pathname;
   if (pathname === "/api/health") {
     return {
       status: "ok",
-      version: "0.13.110",
+      version: "0.13.111",
       speech_provider: "openai",
       speech_providers: {openai: {configured: true}, elevenlabs: {configured: false}},
     };
@@ -162,10 +171,25 @@ function apiFixture(url, method = "GET") {
   if (pathname === "/api/notifications") {
     return {settings: {}, channels: [{entity_id: "notify.browser_phone", friendly_name: "Browser Phone", platform: "home_assistant", available: true}], watches: [], deliveries: [], telegram_channels: 0};
   }
+  if (pathname === "/api/notifications/inbox") {
+    if (method === "PUT") {
+      notificationInboxFixture.unread_count = 0;
+      notificationInboxFixture.notifications[0].read_at = 1788300001;
+      return {marked_read: 1, unread_count: 0};
+    }
+    return notificationInboxFixture;
+  }
+  if (pathname === "/api/calendar") return {appointments: [], default_destination: "notify.browser_phone"};
+  if (pathname === "/api/birthdays") return {birthdays: [{
+    id: "birthday-fixture", name: "Alex", birthday: "09-12", birth_year: 1990,
+    relationship: "Friend", reminder_days_before: [7, 1, 0], destination: "notify.browser_phone",
+    notes: "Likes books", gift_ideas: "A new novel", next_occurrence: "2026-09-12", days_until: 11, turning_age: 36,
+  }]};
+  if (pathname === "/api/calendar/google/status") return {connected: false, enabled: false, pending_local_changes: 0};
   if (pathname === "/api/plugins") return {plugins: []};
   if (pathname === "/api/files/shared") return {files: [], count: 0};
   if (pathname === "/api/release-memory-sync") {
-    return {enabled: false, state: "disabled", version: "0.13.110", task_active: false};
+    return {enabled: false, state: "disabled", version: "0.13.111", task_active: false};
   }
   if (pathname === "/api/tab-activity") return {revisions: {}};
   if (pathname === "/api/grinder-monitor/status") return {enabled: false, connected: false};
@@ -520,7 +544,7 @@ async function main() {
     await page.locator('[data-flow-branch-action="next"][data-flow-branch-index="0"]').click();
     await page.locator('[data-flow-branch-action="previous"][data-flow-branch-index="1"]').click();
     assert.match(await page.locator('[data-flow-branch-drop="0"] [data-flow-kind="decision"]').innerText(), /Branch 1/i);
-    const starterPathCondition=page.locator('#automation-flow-preview [data-flow-kind="branch-condition"][data-flow-branch-index="1"]');await starterPathCondition.hover();await starterPathCondition.locator(".automation-flow-card-delete").click();
+    const starterPathCondition=page.locator('#automation-flow-preview [data-flow-kind="branch-condition"][data-flow-branch-index="1"]');await starterPathCondition.hover();await starterPathCondition.locator(".automation-flow-card-delete").click({force:true});
     await page.evaluate(()=>{const source=document.querySelector('#automation-flow-preview [data-flow-kind="branch-condition"]'),lane=document.querySelector('#automation-flow-preview [data-flow-branch-condition-drop="1"]'),dataTransfer=new DataTransfer();source.dispatchEvent(new DragEvent("dragstart",{bubbles:true,dataTransfer}));lane.dispatchEvent(new DragEvent("dragover",{bubbles:true,cancelable:true,dataTransfer}));lane.dispatchEvent(new DragEvent("drop",{bubbles:true,cancelable:true,dataTransfer}))});
     assert.equal(await page.locator('#automation-flow-preview [data-flow-kind="branch-condition"][data-flow-branch-index="1"]').count(), 1);
     await page.evaluate(()=>{const source=document.querySelector('#automation-flow-preview [data-flow-kind="branch-condition"][data-flow-branch-index="1"]'),lane=document.querySelector('#automation-flow-preview [data-flow-branch-condition-drop="0"]'),dataTransfer=new DataTransfer();source.dispatchEvent(new DragEvent("dragstart",{bubbles:true,dataTransfer}));lane.dispatchEvent(new DragEvent("dragover",{bubbles:true,cancelable:true,dataTransfer}));lane.dispatchEvent(new DragEvent("drop",{bubbles:true,cancelable:true,dataTransfer}))});
@@ -553,6 +577,27 @@ async function main() {
     await page.locator("#automation-studio-undo").click();
     assert.equal(await page.locator('#automation-flow-preview [data-flow-kind="branch-action"]').count(), 3);
 
+    await page.locator("#notification-inbox-count:not([hidden])").waitFor();
+    assert.equal(await page.locator("#notification-inbox-count").innerText(), "1");
+    await page.locator("#notification-inbox-toggle").click();
+    await page.locator("#notification-inbox-popover:not([hidden])").waitFor();
+    assert.match(await page.locator("#notification-inbox-list").innerText(), /Workshop temperature/);
+    assert.match(await page.locator("#notification-inbox-list").innerText(), /above 26°C/);
+    await page.locator("#notification-inbox-count").waitFor({state:"hidden", timeout:3000});
+    await page.locator("#notification-inbox-open-center").click();
+    await page.locator('[data-auto-panel="notifications"]:not(.hidden)').waitFor();
+
+    await page.locator("#calendar-tab").click();
+    await page.locator("#calendar-panel:not(.hidden)").waitFor();
+    await page.locator('[data-calendar-view="birthdays"]').click();
+    assert.match(await page.locator("#birthday-upcoming-list").innerText(), /Alex/);
+    assert.match(await page.locator("#birthday-upcoming-list").innerText(), /in 11 days/i);
+    await page.locator('[data-birthday-view="people"]').click();
+    assert.match(await page.locator("#birthday-people-list").innerText(), /A new novel/);
+    await page.locator('#birthday-people-list [data-birthday-edit="birthday-fixture"]').click({force:true});
+    assert.equal(await page.locator("#birthday-name").inputValue(), "Alex");
+    assert.equal(await page.locator("#birthday-year").inputValue(), "1990");
+
     await page.locator("#settings-tab").click();
     await page.locator("#settings-panel:not(.hidden)").waitFor();
     const settingsLayout = await page.locator("#settings-panel .settings-stack").evaluate(element => ({
@@ -574,7 +619,7 @@ async function main() {
     assert.equal(voiceScroll.scrollable, true, "Voice settings must exceed and scroll within the panel at compact viewport heights");
     assert.equal(voiceScroll.moved, true, "Voice settings panel must accept vertical scrolling");
 
-    console.log("Browser smoke passed: New Chat, navigation, Entity scrolling, modern Settings, Automation Library filtering, Studio safety, validation, recovery, and branching workflows");
+    console.log("Browser smoke passed: New Chat, navigation, Entity scrolling, notification inbox, Calendar birthdays, modern Settings, Automation Library filtering, Studio safety, validation, recovery, and branching workflows");
   } finally {
     await browser.close();
     await new Promise(resolve => server.close(resolve));

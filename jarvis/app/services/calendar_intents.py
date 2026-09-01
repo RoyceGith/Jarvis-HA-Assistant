@@ -6,7 +6,7 @@ from typing import Any
 
 CALENDAR_INTENT_TERMS = (
     "calendar", "appointment", "dentist", "doctor", "meeting", "reservation",
-    "schedule", "reschedule", "agenda", "remind me on", "remind me at",
+    "schedule", "reschedule", "agenda", "remind me on", "remind me at", "birthday", "birthdays", "gift idea",
 )
 
 _workshop_tools: list[dict[str, Any]] = []
@@ -30,6 +30,7 @@ def calendar_priority_tools() -> list[dict[str, Any]]:
     names = {
         "create_calendar_appointment", "list_calendar_appointments",
         "update_calendar_reminders", "cancel_calendar_appointment",
+        "create_birthday", "list_birthdays", "update_birthday_details",
     }
     return [tool for tool in _workshop_tools if str(tool.get("name") or "") in names]
 
@@ -51,4 +52,11 @@ for schedule questions and before cancelling an ambiguous event. When the user a
 list the appointments if necessary, then call update_calendar_reminders with the complete replacement schedule. An empty
 offset list removes all reminders. Preserve delivered reminders at an unchanged offset so they are never resent accidentally.
 Calendar reminders are delivered through the Notification Center default channel, including Telegram when configured.
+
+BIRTHDAY WORKFLOW.
+Birthdays are annual local records, separate from appointments. When the user asks to save a birthday, require only
+the person's name and month/day. Birth year, relationship, notes, gift ideas, and reminder timing are optional. Use
+the default reminder schedule [7, 1, 0] when the user does not specify one and a Notification Center destination is
+available. Use list_birthdays for upcoming-birthday questions and before changing notes or gift ideas. Never create
+a normal calendar appointment for a birthday, and never claim birthday details were saved unless the tool succeeds.
 """.strip()

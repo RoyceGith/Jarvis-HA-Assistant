@@ -131,6 +131,7 @@
       renderChannels(); renderSettings(); renderWatchlist(); renderDeliveries();
       $("notification-credential-boundary").textContent = state.credential_boundary || "";
       status.textContent = `${state.channels.length} channel(s); ${state.telegram_channels || 0} Telegram`;
+      window.dispatchEvent(new Event("zbrano-notification-inbox-refresh"));
     } catch (error) { status.textContent = `Load failed: ${error.message || error}`; }
   }
 

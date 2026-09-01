@@ -1,9 +1,9 @@
 {
-  "version": "0.13.110",
+  "version": "0.13.111",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/ZBRANO_Core main",
-  "summary": "Remove per-character forced layout from the chat composer with native content sizing and a frame-batched fallback.",
+  "summary": "Add a dedicated local Birthday center and a persistent top-bar notification inbox with unread state.",
   "history_backfill": [
     {
       "version": "0.13.0",
@@ -444,24 +444,34 @@
     {
       "version": "0.13.109",
       "summary": "Added direct whole-path duplicate, reorder, and delete controls with protected trailing ELSE behavior."
+    },
+    {
+      "version": "0.13.110",
+      "summary": "Removed per-character forced layout from the chat composer with native content sizing and a frame-batched fallback."
     }
   ],
   "release_entry": {
     "features": [
-      "Use native content-aware sizing for the chat prompt on supported browsers.",
-      "Retain automatic multiline growth through a frame-batched compatibility fallback.",
-      "Preserve the established compact minimum and bounded maximum composer height."
+      "Add dedicated Upcoming, People, and Add Birthday views inside Calendar.",
+      "Store annual birthdays locally with optional birth year, relationship, notes, and gift ideas.",
+      "Deliver configurable birthday reminders through the existing Notification Center.",
+      "Let ZBRANO save, find, and enrich birthdays conversationally.",
+      "Show recent notifications from a top-bar bell without leaving the current workspace.",
+      "Persist unread state, badge counts, mark-read controls, and a shortcut to full delivery logs."
     ],
     "fixes": [
-      "Stop resetting textarea height and reading scrollHeight synchronously on every character.",
-      "Eliminate resizeComposer as an identified forced-reflow source in Chrome performance tracing.",
-      "Keep prompt history, programmatic clearing, voice transcription, and submission sizing compatible."
+      "Keep birthdays separate from one-time appointments and Google Calendar synchronization.",
+      "Handle annual rollover and February 29 safely without duplicate reminder delivery.",
+      "Include birthday records in settings backup, restore, and Calendar activity tracking.",
+      "Treat pre-inbox delivery history as already read so upgrades do not produce a false unread backlog."
     ],
     "validation": [
-      "Before-and-after Chrome interaction traces, forced-reflow attribution, native and fallback composer sizing, multiline browser smoke, regression suite, release manifest, README alignment, and v0.13.110 release coverage"
+      "Birthday storage, annual occurrence, delivery deduplication, CRUD API, chat routing, notification inbox persistence, unread behavior, dropdown navigation, backup and restore, responsive interface, browser smoke, regression suite, release manifest, README alignment, and v0.13.111 release coverage"
     ]
   },
   "features": [
+    "Review recent notifications from a top-bar bell with a persistent unread badge and in-place dropdown.",
+    "Save and manage annually recurring birthdays with reminder schedules, personal notes, and gift ideas.",
     "Size the chat composer without synchronous per-character layout measurement.",
     "Duplicate, reorder, and delete complete Automation Studio decision paths directly on the canvas.",
     "Keep the trailing ELSE path safe while editing first-match branch order.",

@@ -69,7 +69,10 @@ def tab_activity_revisions() -> dict[str, str]:
             "timeline": automation_data.get("timeline", []),
         }),
         "notifications": _tab_activity_revision(_revision_paths["notifications"]),
-        "calendar": _tab_activity_revision(_revision_paths["calendar"]),
+        "calendar": ":".join((
+            _tab_activity_revision(_revision_paths["calendar"]),
+            _tab_activity_revision(_revision_paths.get("birthdays", _revision_paths["calendar"])),
+        )),
         "settings": _tab_activity_revision(_revision_paths["settings"]),
         "developer": _tab_activity_revision(_revision_paths["developer"]),
     }
