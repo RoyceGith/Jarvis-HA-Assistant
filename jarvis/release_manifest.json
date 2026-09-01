@@ -1,9 +1,9 @@
 {
-  "version": "0.13.109",
+  "version": "0.13.110",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/ZBRANO_Core main",
-  "summary": "Add direct whole-path duplicate, reorder, and delete controls with protected trailing ELSE behavior.",
+  "summary": "Remove per-character forced layout from the chat composer with native content sizing and a frame-batched fallback.",
   "history_backfill": [
     {
       "version": "0.13.0",
@@ -440,24 +440,29 @@
     {
       "version": "0.13.108",
       "summary": "Added direct decision-path creation and branch condition presets for entity, time-window, weekday, and sun logic."
+    },
+    {
+      "version": "0.13.109",
+      "summary": "Added direct whole-path duplicate, reorder, and delete controls with protected trailing ELSE behavior."
     }
   ],
   "release_entry": {
     "features": [
-      "Duplicate complete decision paths with their ordered IF conditions and tasks.",
-      "Move paths left or right directly from each visual lane.",
-      "Delete whole paths from explicit, accessible canvas controls."
+      "Use native content-aware sizing for the chat prompt on supported browsers.",
+      "Retain automatic multiline growth through a frame-batched compatibility fallback.",
+      "Preserve the established compact minimum and bounded maximum composer height."
     ],
     "fixes": [
-      "Keep a trailing ELSE fallback fixed at the end of first-match evaluation.",
-      "Convert a duplicated ELSE fallback into a configurable conditional path instead of creating two fallbacks.",
-      "Protect the last remaining path and preserve Undo/Redo, validation, and stored definitions."
+      "Stop resetting textarea height and reading scrollHeight synchronously on every character.",
+      "Eliminate resizeComposer as an identified forced-reflow source in Chrome performance tracing.",
+      "Keep prompt history, programmatic clearing, voice transcription, and submission sizing compatible."
     ],
     "validation": [
-      "Whole-path controls, duplication, reordering, deletion, ELSE protection, focused settings, browser smoke, regression suite, release manifest, README alignment, and v0.13.109 release coverage"
+      "Before-and-after Chrome interaction traces, forced-reflow attribution, native and fallback composer sizing, multiline browser smoke, regression suite, release manifest, README alignment, and v0.13.110 release coverage"
     ]
   },
   "features": [
+    "Size the chat composer without synchronous per-character layout measurement.",
     "Duplicate, reorder, and delete complete Automation Studio decision paths directly on the canvas.",
     "Keep the trailing ELSE path safe while editing first-match branch order.",
     "Create decision paths directly on the Automation Studio canvas while preserving a trailing ELSE fallback.",

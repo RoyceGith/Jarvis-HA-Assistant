@@ -1,14 +1,13 @@
-## ZBRANO v0.13.109
+## ZBRANO v0.13.110
 
 ZBRANO combines Home Assistant chat, voice, entity control, memory, notifications,
 calendar tools, plugins, and evidence-based automations. Automation Studio now uses
 a visual building-block toolbox, interactive node canvas, and contextual inspector;
 the established automation engine and stored definitions remain compatible.
 
-Version 0.13.109 adds direct controls to duplicate, reorder, and delete complete
-decision paths on the Automation Studio canvas. The ELSE fallback remains last,
-copying it creates a configurable conditional path, and every operation supports
-Undo/Redo without changing stored automation compatibility.
+Version 0.13.110 removes the chat composer's per-character forced layout work.
+Modern browsers size the prompt naturally, while older browsers use a frame-batched
+fallback, preserving multiline growth and the existing 12-rem height limit.
 
 The application source and post-split build history are maintained in the private
 core repository. Public Home Assistant repositories contain only the five-file

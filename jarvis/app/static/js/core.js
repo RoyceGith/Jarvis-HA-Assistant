@@ -721,12 +721,24 @@ function finishOpenToolActivities(state = "completed") {
   updateToolTimelineClock();
 }
 
+const nativeComposerSizing = globalThis.CSS?.supports?.("field-sizing", "content") === true;
+let composerResizeFrame = 0;
+
 function resizeComposer() {
-  input.style.height = "auto";
-  input.style.height = `${Math.min(input.scrollHeight, 192)}px`;
+  if (nativeComposerSizing) {
+    input.style.height = "";
+    return;
+  }
+  if (composerResizeFrame) return;
+  composerResizeFrame = requestAnimationFrame(() => {
+    composerResizeFrame = 0;
+    input.style.height = "auto";
+    const nextHeight = Math.min(input.scrollHeight, 192);
+    input.style.height = `${nextHeight}px`;
+  });
 }
 
-input.addEventListener("input", resizeComposer);
+input.addEventListener("input", resizeComposer, {passive: true});
 resizeComposer();
 
 function rememberPrompt(prompt) {

@@ -6,8 +6,8 @@ connections.
 
 ## Automation Studio
 
-Version 0.13.109 adds direct duplicate, reorder, and delete controls for complete
-decision paths while protecting trailing-ELSE order. The full Advanced editor remains available, existing stored automations are preserved, and
+Version 0.13.110 removes per-character forced layout from the chat composer for
+smoother typing while preserving multiline sizing. The full Advanced editor remains available, existing stored automations are preserved, and
 repeatable OR triggers, grouped conditions, ordered actions, and IF/ELSE branches
 are supported, together with dedicated Delay and bounded Wait Until steps. Each
 automation can use the global operating default or select its own lower authority,

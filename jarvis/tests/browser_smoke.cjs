@@ -118,7 +118,7 @@ function apiFixture(url, method = "GET") {
   if (pathname === "/api/health") {
     return {
       status: "ok",
-      version: "0.13.109",
+      version: "0.13.110",
       speech_provider: "openai",
       speech_providers: {openai: {configured: true}, elevenlabs: {configured: false}},
     };
@@ -165,7 +165,7 @@ function apiFixture(url, method = "GET") {
   if (pathname === "/api/plugins") return {plugins: []};
   if (pathname === "/api/files/shared") return {files: [], count: 0};
   if (pathname === "/api/release-memory-sync") {
-    return {enabled: false, state: "disabled", version: "0.13.109", task_active: false};
+    return {enabled: false, state: "disabled", version: "0.13.110", task_active: false};
   }
   if (pathname === "/api/tab-activity") return {revisions: {}};
   if (pathname === "/api/grinder-monitor/status") return {enabled: false, connected: false};
@@ -237,7 +237,10 @@ async function main() {
     await page.waitForFunction(() => typeof window.createNewChat === "function");
     await page.waitForFunction(() => !document.getElementById("chat-list")?.textContent.includes("Loading"));
 
-    await page.locator("#message").fill("discard this draft");
+    const composerStartHeight = await page.locator("#message").evaluate(element => element.getBoundingClientRect().height);
+    assert.equal(await page.locator("#message").evaluate(element => getComputedStyle(element).fieldSizing), "content");
+    await page.locator("#message").fill("discard this draft\nwith a second visual line");
+    assert.ok(await page.locator("#message").evaluate(element => element.getBoundingClientRect().height) > composerStartHeight);
     await page.locator("#new-chat-button").click();
     assert.equal(await page.locator("#message").inputValue(), "");
     await page.locator('#chat-list .chat-list-item[data-draft="true"]').waitFor();
