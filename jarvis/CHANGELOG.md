@@ -1,5 +1,11 @@
 # Change log
 
+## 0.13.110
+
+- Removed synchronous textarea measurement from every typed character.
+- Added native content sizing with a frame-batched fallback for older browsers.
+- Preserved multiline composer growth and its existing maximum height.
+
 ## 0.13.109
 
 - Added direct duplicate, reorder, and delete controls for complete decision paths.

@@ -19,8 +19,8 @@ storage, and `ghcr.io/roycegith/jarvis-ha-assistant` update image.
 
 ## Current experience
 
-Version 0.13.109 adds direct duplicate, reorder, and delete controls for complete
-Automation Studio decision paths while protecting trailing-ELSE order.
+Version 0.13.110 removes per-character forced layout from the chat composer for
+smoother typing while preserving automatic multiline sizing.
 Incomplete blocks remain protected by validation, and existing automation
 definitions and Home Assistant data remain compatible across updates.
 Conversational creation now reuses known Home Assistant Area-to-Zone links and
