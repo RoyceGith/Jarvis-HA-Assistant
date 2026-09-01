@@ -19,10 +19,12 @@ storage, and `ghcr.io/roycegith/jarvis-ha-assistant` update image.
 
 ## Current experience
 
-Version 0.13.112 corrects the container backup integration contract for the Birthday
-data introduced in v0.13.111. That release adds a dedicated Birthday center with annual local records,
-personal notes, gift ideas, configurable reminders, and conversational access. It
-also adds a top-bar notification inbox with persistent unread counts.
+Version 0.13.113 adds persistent one-click deletion to the top-bar notification
+inbox through a discreet control shown when an item is hovered. The inbox remains
+open, its unread badge updates immediately, and Notification Center logs stay in
+sync. Actionable Automation notifications also expose the established Approve action,
+Not now, and applicable Never suggest decisions without leaving the current screen.
+Birthday records and reminders remain unchanged.
 Incomplete blocks remain protected by validation, and existing automation
 definitions and Home Assistant data remain compatible across updates.
 Conversational creation now reuses known Home Assistant Area-to-Zone links and

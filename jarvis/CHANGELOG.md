@@ -1,5 +1,12 @@
 # Change log
 
+## 0.13.113
+
+- Added a discreet delete control that appears when a top-bar notification is hovered.
+- Added Approve action, Not now, and applicable Never suggest controls to Automation suggestion notifications.
+- Kept the inbox open and reconciled its persistent unread badge immediately after deletion.
+- Synchronized Notification Center delivery logs and added browser coverage for the workflow.
+
 ## 0.13.112
 
 - Fixed the container-only complete-backup integration contract to include birthdays.
