@@ -6,7 +6,8 @@ connections.
 
 ## Automation Studio
 
-Version 0.13.111 adds a dedicated Birthday center with annual local records,
+Version 0.13.112 restores the container build by extending complete backup validation
+to Birthday data. The v0.13.111 feature adds a dedicated Birthday center with annual local records,
 personal context, gift ideas, reminders, and chat access, plus a top-bar notification
 inbox with unread state. The full Advanced editor remains available, existing stored automations are preserved, and
 repeatable OR triggers, grouped conditions, ordered actions, and IF/ELSE branches

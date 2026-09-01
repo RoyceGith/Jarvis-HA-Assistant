@@ -96,13 +96,13 @@ class ApplicationIntegrationTests(unittest.IsolatedAsyncioTestCase):
             response = await self.client.get("/api/health")
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json()["status"], "ok")
-        self.assertEqual(response.json()["version"], "0.13.111")
+        self.assertEqual(response.json()["version"], "0.13.112")
         self.assertEqual(response.json()["ha_read_entity_count"], 1)
         self.assertEqual(response.json()["ha_control_entity_count"], 1)
 
         frontend = await self.client.get("/")
         self.assertEqual(frontend.status_code, 200)
-        self.assertIn("HUD 0.13.111", frontend.text)
+        self.assertIn("HUD 0.13.112", frontend.text)
         self.assertEqual(
             frontend.headers.get("cache-control"),
             "no-store, no-cache, must-revalidate, max-age=0",
@@ -328,6 +328,20 @@ class ApplicationIntegrationTests(unittest.IsolatedAsyncioTestCase):
                 "status": "scheduled",
             }],
         })
+        calendar._birthday_save({
+            "birthdays": [{
+                "id": "backup-birthday",
+                "name": "Backup Person",
+                "birthday": "09-02",
+                "birth_year": 1990,
+                "relationship": "Friend",
+                "reminder_days_before": [7, 1, 0],
+                "destination": "notify.mobile_app_phone",
+                "notes": "Preserve this birthday.",
+                "gift_ideas": "Books",
+                "deliveries": {},
+            }],
+        })
         fast_memory.upsert_fast_memory({
             "kind": "preference",
             "subject": "Backup preference",
@@ -342,7 +356,7 @@ class ApplicationIntegrationTests(unittest.IsolatedAsyncioTestCase):
         backup = exported.json()
         self.assertEqual(set(backup), {
             "format", "created_at", "settings", "chats", "entity_policy",
-            "automations", "notifications", "calendar", "fast_memory",
+            "automations", "notifications", "calendar", "birthdays", "fast_memory",
         })
 
         settings.save_settings_payload({"version": 3, "general_instructions": "Replace me."})
@@ -354,6 +368,7 @@ class ApplicationIntegrationTests(unittest.IsolatedAsyncioTestCase):
         automations._automation_save(automations._automation_empty_store())
         notifications._notification_save({"settings": {}, "deliveries": []})
         calendar._calendar_save({"appointments": []})
+        calendar._birthday_save({"birthdays": []})
         fast_memory.restore_fast_memory({"version": 1, "memories": []})
 
         restored = await self.client.post("/api/settings/restore", json={"backup": backup})
@@ -367,6 +382,7 @@ class ApplicationIntegrationTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(automations.automation_store()["automations"][0]["id"], "backup-automation")
         self.assertEqual(notifications.notification_store()["deliveries"][0]["id"], "backup-delivery")
         self.assertEqual(calendar.calendar_store()["appointments"][0]["id"], "backup-appointment")
+        self.assertEqual(calendar.birthday_store()["birthdays"][0]["id"], "backup-birthday")
         memories = fast_memory.fast_memory_search("upgrades", limit=10)["memories"]
         self.assertEqual(memories[0]["key"], "backup_round_trip")
 

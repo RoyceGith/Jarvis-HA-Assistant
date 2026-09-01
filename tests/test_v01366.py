@@ -16,10 +16,10 @@ MANIFEST = json.loads((ROOT / "jarvis/release_manifest.json").read_text(encoding
 
 class AdvancedAutomationWorkflowReleaseTests(unittest.TestCase):
     def test_release_markers_are_aligned(self):
-        self.assertIn('version: "0.13.111"', CONFIG)
-        self.assertIn('version="0.13.111"', MAIN)
-        self.assertIn("HUD 0.13.111", HTML)
-        self.assertEqual(MANIFEST["version"], "0.13.111")
+        self.assertIn('version: "0.13.112"', CONFIG)
+        self.assertIn('version="0.13.112"', MAIN)
+        self.assertIn("HUD 0.13.112", HTML)
+        self.assertEqual(MANIFEST["version"], "0.13.112")
 
     def test_bounded_workflow_schema_is_present(self):
         for marker in ("AutomationTriggerRequest", "AutomationConditionRequest", "AutomationActionRequest"):
@@ -42,7 +42,7 @@ class AdvancedAutomationWorkflowReleaseTests(unittest.TestCase):
         self.assertIn("automation-flow-node-row", FLOW)
 
     def test_release_history_includes_v01365(self):
-        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.110")
+        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.111")
 
 
 if __name__ == "__main__":

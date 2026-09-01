@@ -11,26 +11,19 @@ INTEGRATION = (ROOT / "jarvis/tests/test_app_integration.py").read_text(encoding
 MANIFEST = json.loads((ROOT / "jarvis/release_manifest.json").read_text(encoding="utf-8"))
 
 
-class AutomationStudioLifecycleGateReleaseTests(unittest.TestCase):
+class BirthdayBackupBuildFixTests(unittest.TestCase):
     def test_release_markers_are_aligned(self):
         self.assertIn('version: "0.13.112"', CONFIG)
         self.assertIn('version="0.13.112"', MAIN)
         self.assertIn("HUD 0.13.112", HTML)
         self.assertEqual(MANIFEST["version"], "0.13.112")
-
-    def test_build_gate_covers_complete_studio_workflow_lifecycle(self):
-        self.assertIn("test_studio_workflow_persists_activates_and_evaluates_end_to_end", INTEGRATION)
-        for marker in (
-            'self.client.post("/api/automations", json=workflow)',
-            'self.client.post("/api/automations/test-flow", json=workflow)',
-            'self.client.post(f"/api/automations/{automation_id}/activate")',
-            "await automations._automation_evaluate_state_change",
-            'evaluated["suggestions"][0]["action_service"]',
-        ):
-            self.assertIn(marker, INTEGRATION)
-
-    def test_release_history_includes_v01397(self):
         self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.111")
+
+    def test_container_integration_contract_includes_birthdays(self):
+        self.assertIn('"automations", "notifications", "calendar", "birthdays", "fast_memory"', INTEGRATION)
+        self.assertIn('calendar._birthday_save({', INTEGRATION)
+        self.assertIn('"id": "backup-birthday"', INTEGRATION)
+        self.assertIn('calendar.birthday_store()["birthdays"][0]["id"]', INTEGRATION)
 
 
 if __name__ == "__main__":
