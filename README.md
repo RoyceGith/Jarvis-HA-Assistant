@@ -19,6 +19,9 @@ storage, and `ghcr.io/roycegith/jarvis-ha-assistant` update image.
 
 ## Current experience
 
+Version 0.13.115 restores the searchable Home Assistant entity picker in
+Automation Studio's WHEN-card inspector while preserving existing workflow data.
+
 Version 0.13.114 makes climate entities more informative in Entity Inventory by
 showing the HVAC mode and configured target temperature together, such as
 `cool · set to 25 °C`. Current temperature and active HVAC action are retained as

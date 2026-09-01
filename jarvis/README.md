@@ -6,6 +6,9 @@ connections.
 
 ## Automation Studio
 
+Version 0.13.115 restores entity loading in Automation Studio's WHEN-card
+inspector and synchronizes the selected Home Assistant entity into the workflow.
+
 Version 0.13.114 shows a climate entity's HVAC mode and configured target temperature
 together in Entity Inventory, such as `cool · set to 25 °C`. Current temperature and
 active HVAC action remain available as detail without changing entity controls or
