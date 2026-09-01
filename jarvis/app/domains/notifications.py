@@ -56,7 +56,7 @@ def _notification_save(data: dict[str, Any]) -> None:
 
 def _notification_delivery(
     data: dict[str, Any], *, target: str, severity: str, title: str,
-    status: str, detail: str = "", message: str = "",
+    status: str, detail: str = "", message: str = "", suggestion_id: str = "",
 ) -> dict[str, Any]:
     import secrets
 
@@ -71,6 +71,8 @@ def _notification_delivery(
         "created_at": time.time(),
         "read_at": 0.0,
     }
+    if suggestion_id:
+        delivery["suggestion_id"] = str(suggestion_id)[:64]
     data.setdefault("deliveries", []).insert(0, delivery)
     return delivery
 

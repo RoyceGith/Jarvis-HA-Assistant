@@ -1,9 +1,9 @@
 {
-  "version": "0.13.112",
+  "version": "0.13.113",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/ZBRANO_Core main",
-  "summary": "Restore the container build by extending the complete backup integration contract to cover birthday data.",
+  "summary": "Add hover deletion and context-aware Automation suggestion controls directly to the top-bar notification inbox.",
   "history_backfill": [
     {
       "version": "0.13.0",
@@ -452,21 +452,29 @@
     {
       "version": "0.13.111",
       "summary": "Added a dedicated local Birthday center and a persistent top-bar notification inbox with unread state."
+    },
+    {
+      "version": "0.13.112",
+      "summary": "Restored the container build by extending the complete backup integration contract to cover birthday data."
     }
   ],
   "release_entry": {
     "features": [
-      "Preserve the complete v0.13.111 Birthday center and top-bar notification inbox behavior."
+      "Delete individual notifications directly from the top-bar inbox through a discreet hover-only control.",
+      "Respond to actionable Automation suggestions from the bell dropdown with the same Approve action, Not now, and applicable Never suggest decisions used in Automation Studio."
     ],
     "fixes": [
-      "Update the container-only integration test's exact backup section contract to include birthdays.",
-      "Exercise birthday export, clearing, restore, and identity verification in the complete backup round trip."
+      "Keep the inbox open after deletion and immediately reconcile its item list and unread badge.",
+      "Refresh Notification Center delivery logs after an inbox notification is removed.",
+      "Persistently associate notification deliveries with their originating suggestion and suppress controls after that suggestion is resolved."
     ],
     "validation": [
-      "GitHub failure-log diagnosis, complete backup integration source, regression suite, browser smoke, release manifest, README alignment, and v0.13.112 release coverage"
+      "Hover visibility, persistent single-delivery deletion, suggestion association and decisions, empty-state rendering, unread reconciliation, browser smoke, release manifest, README alignment, and v0.13.113 release coverage"
     ]
   },
   "features": [
+    "Respond to actionable Automation suggestions directly from the top-bar notification inbox.",
+    "Delete individual top-bar notifications through a discreet hover control while keeping persistent logs and unread state synchronized.",
     "Review recent notifications from a top-bar bell with a persistent unread badge and in-place dropdown.",
     "Save and manage annually recurring birthdays with reminder schedules, personal notes, and gift ideas.",
     "Size the chat composer without synchronous per-character layout measurement.",

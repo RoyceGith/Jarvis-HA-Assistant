@@ -29,6 +29,24 @@
     return item.message || item.detail || `${item.status || "Notification"} · ${item.target || "ZBRANO"}`;
   }
 
+  async function decideSuggestion(item, verb, button) {
+    button.disabled = true;
+    try {
+      if (verb === "never_suggest") {
+        await api(`api/automations/discoveries/${encodeURIComponent(item.discovery_id)}/feedback`, {
+          method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify({feedback:"never_suggest"}),
+        });
+      } else {
+        await api(`api/automations/suggestions/${encodeURIComponent(item.id)}/${verb}`, {method:"POST"});
+      }
+      await loadInbox();
+      window.dispatchEvent(new Event("zbrano-notification-center-refresh"));
+    } catch (error) {
+      button.disabled = false;
+      button.title = error.message || String(error);
+    }
+  }
+
   function render() {
     list.replaceChildren();
     if (!notifications.length) {
@@ -54,8 +72,60 @@
       const timestamp = document.createElement("time");
       timestamp.dateTime = new Date(Number(item.created_at || 0) * 1000).toISOString();
       timestamp.textContent = new Date(Number(item.created_at || 0) * 1000).toLocaleString();
-      copy.append(title, message, timestamp);
-      row.append(dot, copy);
+      const suggestion = item.automation_suggestion || {};
+      const brain = suggestion.source === "automation_brain";
+      const actionable = ((brain && suggestion.status === "pending") || suggestion.status === "approval_required") && suggestion.action_service && suggestion.action_entity;
+      const dismissible = ["pending", "approval_required"].includes(suggestion.status);
+      if (actionable || dismissible) {
+        const controls = document.createElement("div");
+        controls.className = "notification-inbox-suggestion-actions";
+        if (actionable) {
+          const approve = document.createElement("button");
+          approve.type = "button";
+          approve.textContent = "Approve action";
+          approve.addEventListener("click", event => { event.stopPropagation(); decideSuggestion(suggestion, "approve", approve); });
+          controls.appendChild(approve);
+        }
+        if (dismissible) {
+          const dismiss = document.createElement("button");
+          dismiss.type = "button";
+          dismiss.textContent = "Not now";
+          dismiss.addEventListener("click", event => { event.stopPropagation(); decideSuggestion(suggestion, "dismiss", dismiss); });
+          controls.appendChild(dismiss);
+        }
+        if (brain && suggestion.discovery_id) {
+          const never = document.createElement("button");
+          never.type = "button";
+          never.textContent = "Never suggest";
+          never.addEventListener("click", event => { event.stopPropagation(); decideSuggestion(suggestion, "never_suggest", never); });
+          controls.appendChild(never);
+        }
+        copy.append(title, message, timestamp, controls);
+      } else {
+        copy.append(title, message, timestamp);
+      }
+      const remove = document.createElement("button");
+      remove.type = "button";
+      remove.className = "notification-inbox-delete";
+      remove.setAttribute("aria-label", `Delete ${item.title || "notification"}`);
+      remove.title = "Delete notification";
+      remove.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M9 7V4h6v3m-8 0 1 13h8l1-13M10 11v5m4-5v5"/></svg>';
+      remove.addEventListener("click", async event => {
+        event.stopPropagation();
+        remove.disabled = true;
+        try {
+          await api("api/notifications/deliveries", {
+            method:"DELETE", headers:{"Content-Type":"application/json"}, body:JSON.stringify({ids:[item.id]}),
+          });
+          notifications = notifications.filter(notification => notification.id !== item.id);
+          if ("read_at" in item && !Number(item.read_at || 0)) unreadCount = Math.max(0, unreadCount - 1);
+          render();
+          window.dispatchEvent(new Event("zbrano-notification-center-refresh"));
+        } catch (_error) {
+          remove.disabled = false;
+        }
+      });
+      row.append(dot, copy, remove);
       list.appendChild(row);
     }
     markAll.disabled = unreadCount < 1;

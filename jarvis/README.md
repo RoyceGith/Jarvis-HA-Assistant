@@ -1,4 +1,4 @@
-# ZBRANO v0.13.112
+# ZBRANO v0.13.113
 
 Automation Studio provides a graphical building-block workflow for Home Assistant
 automations. Use the toolbox to select or drag Trigger, Context, Decision, and
@@ -6,12 +6,11 @@ Action blocks onto the canvas, then edit only that block in the settings inspect
 Natural-language creation, templates, saved automation compatibility, and the full
 Advanced editor remain available.
 
-Version 0.13.112 restores the container build by covering Birthday data in the full
-backup integration contract. The v0.13.111 Upcoming, People, and Add Birthday views remain in Calendar. Birthday
-records recur annually, stay in local ZBRANO storage, support optional personal and
-gift context, use configurable Notification Center reminders, and are available to chat.
-A top-bar bell also exposes recent delivery messages, persistent unread counts,
-mark-read controls, and a direct shortcut to the full Notification Center.
+Version 0.13.113 adds a discreet hover delete control to each notification in the
+top-bar inbox. Deletion is persisted, the unread badge updates immediately, the
+dropdown stays open, and the full Notification Center refreshes to match. Automation
+suggestions expose Approve action, Not now, and applicable Never suggest decisions
+without opening Studio. Birthday records and reminders remain unchanged.
 
 The visual editor supports linear and branching workflows without silently changing
 the behavior of existing stored rules.

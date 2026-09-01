@@ -117,6 +117,8 @@ const notificationInboxFixture = {
   notifications: [{
     id: "notice-browser-1", title: "Workshop temperature", message: "The office is above 26°C.",
     target: "notify.browser_phone", severity: "suggestion", status: "delivered", created_at: 1788300000, read_at: 0,
+    suggestion_id: "1234567890abcdef1234",
+    automation_suggestion: {id:"1234567890abcdef1234", status:"approval_required", source:"automation", action_entity:"climate.browser_thermostat", action_service:"climate.turn_on", discovery_id:""},
   }],
   unread_count: 1,
   total: 1,
@@ -127,7 +129,7 @@ function apiFixture(url, method = "GET") {
   if (pathname === "/api/health") {
     return {
       status: "ok",
-      version: "0.13.112",
+      version: "0.13.113",
       speech_provider: "openai",
       speech_providers: {openai: {configured: true}, elevenlabs: {configured: false}},
     };
@@ -179,6 +181,16 @@ function apiFixture(url, method = "GET") {
     }
     return notificationInboxFixture;
   }
+  if (method === "DELETE" && pathname === "/api/notifications/deliveries") {
+    notificationInboxFixture.notifications = [];
+    notificationInboxFixture.unread_count = 0;
+    notificationInboxFixture.total = 0;
+    return {deleted: 1, remaining: 0};
+  }
+  if (method === "POST" && pathname === "/api/automations/suggestions/1234567890abcdef1234/dismiss") {
+    notificationInboxFixture.notifications[0].automation_suggestion.status = "dismissed";
+    return {dismissed: true};
+  }
   if (pathname === "/api/calendar") return {appointments: [], default_destination: "notify.browser_phone"};
   if (pathname === "/api/birthdays") return {birthdays: [{
     id: "birthday-fixture", name: "Alex", birthday: "09-12", birth_year: 1990,
@@ -189,7 +201,7 @@ function apiFixture(url, method = "GET") {
   if (pathname === "/api/plugins") return {plugins: []};
   if (pathname === "/api/files/shared") return {files: [], count: 0};
   if (pathname === "/api/release-memory-sync") {
-    return {enabled: false, state: "disabled", version: "0.13.112", task_active: false};
+    return {enabled: false, state: "disabled", version: "0.13.113", task_active: false};
   }
   if (pathname === "/api/tab-activity") return {revisions: {}};
   if (pathname === "/api/grinder-monitor/status") return {enabled: false, connected: false};
@@ -583,7 +595,17 @@ async function main() {
     await page.locator("#notification-inbox-popover:not([hidden])").waitFor();
     assert.match(await page.locator("#notification-inbox-list").innerText(), /Workshop temperature/);
     assert.match(await page.locator("#notification-inbox-list").innerText(), /above 26°C/);
+    assert.equal(await page.getByRole("button", {name:"Approve action"}).count(), 1);
+    await page.getByRole("button", {name:"Not now"}).click();
+    await page.getByRole("button", {name:"Not now"}).waitFor({state:"detached"});
+    assert.equal(await page.locator("#notification-inbox-popover").isVisible(), true);
     await page.locator("#notification-inbox-count").waitFor({state:"hidden", timeout:3000});
+    const notificationRow = page.locator(".notification-inbox-item");
+    await notificationRow.hover();
+    await notificationRow.locator(".notification-inbox-delete").click();
+    await page.locator("#notification-inbox-list .notification-inbox-empty").waitFor();
+    assert.match(await page.locator("#notification-inbox-list").innerText(), /No notifications yet/i);
+    assert.equal(await page.locator("#notification-inbox-popover").isVisible(), true);
     await page.locator("#notification-inbox-open-center").click();
     await page.locator('[data-auto-panel="notifications"]:not(.hidden)').waitFor();
 

@@ -224,6 +224,7 @@ class NotificationTestRequest(BaseModel):
     severity: str = Field(default="information", pattern="^(information|suggestion|warning|critical)$")
     title: str = Field(default="ZBRANO notification test", max_length=120)
     message: str = Field(min_length=1, max_length=2000)
+    suggestion_id: str = Field(default="", max_length=64, pattern=r"^(|[a-f0-9]{20})$")
 
 class NotificationWatchRequest(BaseModel):
     name: str = Field(min_length=2, max_length=100)

@@ -691,7 +691,7 @@ ha_ws = HomeAssistantWebSocketClient(
 
 app = FastAPI(
     title="ZBRANO",
-    version="0.13.112",
+    version="0.13.113",
     docs_url="/api/docs",
     openapi_url="/api/openapi.json",
 )
@@ -2755,7 +2755,7 @@ async def health() -> dict[str, Any]:
     configured_speech_provider = SPEECH_PROVIDER if SPEECH_PROVIDER in {"openai", "elevenlabs"} else "openai"
     return {
         "status": "ok",
-        "version": "0.13.112",
+        "version": "0.13.113",
         "home_assistant_configured": bool(SUPERVISOR_TOKEN),
         "workshop_memory_configured": bool(WORKSHOP_MEMORY_URL),
         "workshop_memory_cost_guard": workshop_cost_guard_status(),
@@ -3855,7 +3855,25 @@ async def read_notification_activity() -> dict[str, Any]:
 
 @app.get("/api/notifications/inbox")
 async def read_notification_inbox(limit: int = 10) -> dict[str, Any]:
-    return notification_inbox(limit)
+    payload = notification_inbox(limit)
+    suggestions = {
+        str(item.get("id") or ""): item
+        for item in automation_store().get("suggestions", [])
+        if item.get("id")
+    }
+    for notification in payload.get("notifications", []):
+        suggestion = suggestions.get(str(notification.get("suggestion_id") or ""))
+        if not suggestion:
+            continue
+        notification["automation_suggestion"] = {
+            "id": suggestion.get("id"),
+            "status": suggestion.get("status"),
+            "source": suggestion.get("source"),
+            "action_entity": suggestion.get("action_entity"),
+            "action_service": suggestion.get("action_service"),
+            "discovery_id": suggestion.get("discovery_id"),
+        }
+    return payload
 
 
 @app.put("/api/notifications/inbox/read")
@@ -3950,7 +3968,7 @@ async def test_notification_channel(request: NotificationTestRequest) -> dict[st
         await ha_ws.call_service(service_domain, "send_message", body)
         delivery = _notification_delivery(
             data, target=request.target, severity=request.severity,
-            title=title, status="delivered", message=message,
+            title=title, status="delivered", message=message, suggestion_id=request.suggestion_id,
             detail=(
                 "Sent through telegram via Home Assistant WebSocket"
                 if channel["platform"] == "telegram"
@@ -3961,7 +3979,7 @@ async def test_notification_channel(request: NotificationTestRequest) -> dict[st
         return {"delivered": True, "delivery": delivery}
     except (RuntimeError, OSError, asyncio.TimeoutError, ConnectionClosed) as exc:
         delivery = _notification_delivery(
-            data, target=request.target, severity=request.severity,
+            data, target=request.target, severity=request.severity, suggestion_id=request.suggestion_id,
             title=title, status="failed", detail=str(exc), message=message,
         )
         _notification_save(data)

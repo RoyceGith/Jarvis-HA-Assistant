@@ -197,5 +197,6 @@
 
   tab.addEventListener("click", load);
   $("notification-refresh").addEventListener("click", load);
+  window.addEventListener("zbrano-notification-center-refresh", load);
   window.zbranoNotificationCenter = {load, showView:showNotificationView};
 })();

@@ -981,7 +981,7 @@ async def _automation_discover_area(area_id: str) -> None:
             discovery["suggestion_count"] = int(discovery.get("suggestion_count") or 0) + 1
             _automation_event(data, "discovery", f"Automation Brain suggestion: {area_name} lighting", discovery["evidence"])
             _automation_save(data)
-            await _automation_notify(suggestion["title"], detail)
+            await _automation_notify(suggestion["title"], detail, suggestion_id=suggestion["id"])
 
 async def _automation_delayed_area_discovery(area_id: str, delay: int = AUTOMATION_ROOM_OCCUPANCY_SECONDS) -> None:
     try:
@@ -1666,7 +1666,7 @@ def _automation_autonomous_allowed(item: dict[str, Any], settings: dict[str, Any
             return False, "an action service domain is not allowed for autonomous execution"
     return True, f"{policy_detail}; within autonomous authority"
 
-async def _automation_notify(title: str, message: str, *, action: bool = False) -> None:
+async def _automation_notify(title: str, message: str, *, action: bool = False, suggestion_id: str = "") -> None:
     notification = notification_store()
     settings = notification["settings"]
     target = str(settings.get("default_channel") or "")
@@ -1676,6 +1676,7 @@ async def _automation_notify(title: str, message: str, *, action: bool = False) 
     with contextlib.suppress(HTTPException, RuntimeError, ValueError):
         await test_notification_channel(NotificationTestRequest(
             target=target, severity="suggestion", title=title, message=message,
+            suggestion_id=suggestion_id,
         ))
 
 async def _automation_execute_action(data: dict[str, Any], item: dict[str, Any], suggestion: dict[str, Any] | None, source: str, actions_override: list[dict[str, Any]] | None = None) -> dict[str, Any]:
@@ -1936,7 +1937,10 @@ async def _automation_commit_match(automation_id: str, evidence: dict[str, Any])
         if autonomous:
             await _automation_execute_action(data, item, suggestion, "selective_autonomy", selected_actions)
         elif item.get("delivery_ha_push", True):
-            await _automation_notify(suggestion["title"], f"{detail}\n\nEvidence: {evidence_text}")
+            await _automation_notify(
+                suggestion["title"], f"{detail}\n\nEvidence: {evidence_text}",
+                suggestion_id=suggestion["id"],
+            )
 
 async def _automation_delayed_match(automation_id: str, evidence: dict[str, Any], delay: int, pending_key: str) -> None:
     try:

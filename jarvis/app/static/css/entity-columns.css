@@ -209,7 +209,7 @@
     .notification-inbox-head { display:flex; align-items:center; justify-content:space-between; gap:.65rem; padding:.7rem .75rem; border-bottom:1px solid var(--line); }
     .notification-inbox-head button { padding:.25rem .4rem; border-color:transparent; background:transparent; color:var(--cyan); font-size:.68rem; }
     .notification-inbox-list { display:grid; max-height:min(26rem,60vh); overflow:auto; overscroll-behavior:contain; }
-    .notification-inbox-item { display:grid; grid-template-columns:auto minmax(0,1fr); gap:.55rem; padding:.65rem .75rem; border-bottom:1px solid color-mix(in srgb,var(--line) 68%,transparent); text-align:left; }
+    .notification-inbox-item { display:grid; grid-template-columns:auto minmax(0,1fr) auto; gap:.55rem; padding:.65rem .75rem; border-bottom:1px solid color-mix(in srgb,var(--line) 68%,transparent); text-align:left; }
     .notification-inbox-item[data-unread="true"] { background:color-mix(in srgb,var(--cyan) 7%,transparent); }
     .notification-inbox-dot { width:.48rem; height:.48rem; margin-top:.32rem; border-radius:50%; background:var(--line); }
     .notification-inbox-item[data-unread="true"] .notification-inbox-dot { background:var(--cyan); box-shadow:0 0 .5rem color-mix(in srgb,var(--cyan) 48%,transparent); }
@@ -218,6 +218,14 @@
     .notification-inbox-copy strong,.notification-inbox-copy span,.notification-inbox-copy time { display:block; overflow-wrap:anywhere; }
     .notification-inbox-copy span { margin-top:.12rem; color:var(--text-muted); font-size:.7rem; line-height:1.35; }
     .notification-inbox-copy time { margin-top:.25rem; color:var(--text-muted); font-size:.62rem; }
+    .notification-inbox-suggestion-actions { display:flex; flex-wrap:wrap; gap:.3rem; margin-top:.5rem; }
+    .notification-inbox-suggestion-actions button { min-height:1.65rem; padding:.25rem .48rem; border-radius:6px; font-size:.64rem; }
+    .notification-inbox-suggestion-actions button:first-child { border-color:color-mix(in srgb,var(--cyan) 48%,var(--line)); color:var(--cyan); }
+    .notification-inbox-delete { align-self:start; display:grid; place-items:center; width:1.65rem; min-width:1.65rem; height:1.65rem; padding:.28rem; opacity:0; border-color:transparent; border-radius:6px; background:transparent; color:var(--text-muted); transform:translateX(.2rem); transition:opacity .14s ease,transform .14s ease,color .14s ease,background .14s ease; }
+    .notification-inbox-delete svg { width:.9rem; height:.9rem; fill:none; stroke:currentColor; stroke-width:1.7; stroke-linecap:round; stroke-linejoin:round; }
+    .notification-inbox-item:hover .notification-inbox-delete,.notification-inbox-delete:focus-visible { opacity:1; transform:none; }
+    .notification-inbox-delete:hover { color:#ef765f; background:color-mix(in srgb,#ef765f 10%,transparent); }
+    @media (hover:none) { .notification-inbox-delete { opacity:.72; transform:none; } }
     .notification-inbox-empty { padding:1.2rem .75rem; color:var(--text-muted); text-align:center; }
     .notification-inbox-open-center { width:100%; padding:.65rem .75rem; border:0; border-radius:0; border-top:1px solid var(--line); background:transparent; color:var(--cyan); text-align:center; }
     .runtime-status-stack .grinder-connection-indicator { min-height:1.35rem; padding:.16rem .48rem; font-size:.64rem; }
