@@ -1,14 +1,14 @@
-## ZBRANO v0.13.116
+## ZBRANO v0.13.117
 
 ZBRANO combines Home Assistant chat, voice, entity control, memory, notifications,
 calendar tools, plugins, and evidence-based automations. Automation Studio now uses
 a visual building-block toolbox, interactive node canvas, and contextual inspector;
 the established automation engine and stored definitions remain compatible.
 
-Version 0.13.116 adds single-flow conditional suggestions. Decision paths can use
-their own spoken suggestion and compare one Home Assistant entity state with
-another entity's live attribute, such as room temperature versus a thermostat
-target. Existing workflows and stored data remain compatible.
+Version 0.13.117 moves My Automations and Automation Memory into dedicated,
+indented Automation Studio navigation entries. Saved automations now use compact
+rows and keep each visual flow collapsed until its own expand control is opened.
+Existing workflows and stored data remain compatible.
 
 The application source and post-split build history are maintained in the private
 core repository. Public Home Assistant repositories contain only the five-file

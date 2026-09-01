@@ -1,5 +1,12 @@
 # Change log
 
+## 0.13.117
+
+- Moved My Automations and Automation Memory into the Automation Studio left navigation.
+- Replaced the nested create/library switcher with dedicated full-page destinations.
+- Made saved automations compact by default with an independent flow expand control.
+- Preserved existing automation definitions, controls, memory, and stored data.
+
 ## 0.13.116
 
 - Added a distinct suggestion message to each Automation Studio decision path.

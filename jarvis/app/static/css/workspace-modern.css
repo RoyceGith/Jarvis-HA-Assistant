@@ -341,6 +341,16 @@ body > main > nav .primary-labeled-tab svg { width: 1rem; height: 1rem; }
   place-items: center;
   color: #b98fff;
 }
+#automations-panel .autonomy-tabs button.automation-nav-sub {
+  width: calc(100% - 1rem);
+  min-height: 1.95rem;
+  margin-left: 1rem;
+  padding-top: .38rem;
+  padding-bottom: .38rem;
+  font-size: .72rem;
+}
+#automations-panel .autonomy-tabs button.automation-nav-sub .automation-nav-icon { color: var(--text-muted); }
+#automations-panel .autonomy-tabs button.automation-nav-sub.active .automation-nav-icon { color: #b98fff; }
 #automations-panel .autonomy-view {
   grid-column: 2;
   grid-row: 3;
@@ -411,6 +421,7 @@ body > main > nav .primary-labeled-tab svg { width: 1rem; height: 1rem; }
     border-left: 0;
     border-bottom: 2px solid transparent;
   }
+  #automations-panel .autonomy-tabs button.automation-nav-sub { width: auto; margin-left: 0; }
   #automations-panel .autonomy-tabs button.active { border-bottom-color: #a978ff; }
   #automations-panel .autonomy-view { padding: .7rem; overflow: visible; }
 }

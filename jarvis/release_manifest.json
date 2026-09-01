@@ -1,9 +1,9 @@
 {
-  "version": "0.13.116",
+  "version": "0.13.117",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/ZBRANO_Core main",
-  "summary": "Add branch-specific suggestions and live entity-to-attribute comparisons to single Automation Studio flows.",
+  "summary": "Promote My Automations and Automation Memory into Automation Studio navigation with compact, individually expandable saved flows.",
   "history_backfill": [
     {
       "version": "0.13.0",
@@ -468,23 +468,28 @@
     {
       "version": "0.13.115",
       "summary": "Restored the searchable Home Assistant entity picker in Automation Studio's WHEN-card inspector."
+    },
+    {
+      "version": "0.13.116",
+      "summary": "Added branch-specific suggestions and live entity-to-attribute comparisons to single Automation Studio flows."
     }
   ],
   "release_entry": {
     "features": [
-      "Give every Automation Studio decision path its own suggestion message.",
-      "Compare an entity state with another Home Assistant entity's state or live attribute in a visual condition.",
-      "Re-evaluate sustained multi-path flows through an interval trigger in the same OR trigger stage."
+      "Open My Automations and Automation Memory directly from indented Automation Studio navigation entries.",
+      "Show saved automations as concise rows with an independent flow-diagram disclosure for each rule."
     ],
     "fixes": [
-      "Use the selected branch's suggestion instead of forcing every outcome to share the automation-level message.",
-      "Validate permissions for both sides of an entity comparison and preserve first-match branch behavior."
+      "Remove the nested Create New and My Automations tab switcher from the visual Studio workspace.",
+      "Keep large flow diagrams collapsed until the user explicitly expands the relevant automation."
     ],
     "validation": [
-      "Dynamic thermostat-target comparison, sustained entity-state conditions, per-branch suggestion selection, visual Compare entities editing, real-browser workflow coverage, release manifest, README alignment, and v0.13.116 release coverage"
+      "Left-navigation routing, compact saved rows, per-automation flow disclosure, browser workflow coverage, release manifest, README alignment, and v0.13.117 release coverage"
     ]
   },
   "features": [
+    "Navigate directly between Automation Studio, My Automations, and Automation Memory.",
+    "Keep saved automation flow diagrams collapsed behind per-rule expand controls.",
     "Build single Automation Studio flows with branch-specific suggestions and live entity-to-attribute comparisons.",
     "Search and select Home Assistant trigger entities directly in Automation Studio's WHEN-card inspector.",
     "Show climate HVAC mode and target temperature together in the Home Assistant entity inventory.",

@@ -16,10 +16,10 @@ MANIFEST = json.loads((ROOT / "jarvis/release_manifest.json").read_text(encoding
 
 class BrowserSmokeFoundationTests(unittest.TestCase):
     def test_release_markers_are_aligned(self):
-        self.assertIn('version: "0.13.116"', CONFIG)
-        self.assertIn('version="0.13.116"', MAIN)
-        self.assertIn("HUD 0.13.116", HTML)
-        self.assertEqual(MANIFEST["version"], "0.13.116")
+        self.assertIn('version: "0.13.117"', CONFIG)
+        self.assertIn('version="0.13.117"', MAIN)
+        self.assertIn("HUD 0.13.117", HTML)
+        self.assertEqual(MANIFEST["version"], "0.13.117")
 
     def test_image_build_runs_browser_smoke_after_asgi_tests(self):
         integration = 'python3 -m unittest discover -s ./tests -p "test_*.py"'
@@ -35,7 +35,7 @@ class BrowserSmokeFoundationTests(unittest.TestCase):
             '"Entity Inventory must scroll horizontally"',
             '"Entity Inventory must scroll vertically"',
             'locator("#automations-tab").click()',
-            "data-automation-library-view",
+            'data-auto-view="library"',
         ):
             self.assertIn(marker, BROWSER)
         self.assertIn("real frontend source", TESTING)

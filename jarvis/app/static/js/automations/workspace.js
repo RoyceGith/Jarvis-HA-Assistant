@@ -44,21 +44,20 @@
   }
 
   function readLibraryPrefs(){
-    try{const value=JSON.parse(localStorage.getItem(libraryPrefsKey)||"{}");return {view:["create","saved"].includes(value.view)?value.view:"create",filter:["all","active","attention","disabled","autonomous","watch"].includes(value.filter)?value.filter:"all",sort:["recent","name_asc","name_desc","active","attention"].includes(value.sort)?value.sort:"recent",layout:["detailed","compact"].includes(value.layout)?value.layout:"detailed"}}catch(_error){return {view:"create",filter:"all",sort:"recent",layout:"detailed"}}
+    try{const value=JSON.parse(localStorage.getItem(libraryPrefsKey)||"{}");return {filter:["all","active","attention","disabled","autonomous","watch"].includes(value.filter)?value.filter:"all",sort:["recent","name_asc","name_desc","active","attention"].includes(value.sort)?value.sort:"recent"}}catch(_error){return {filter:"all",sort:"recent"}}
   }
   function persistLibraryPrefs(){
-    try{const active=panel.querySelector('[data-automation-library-view].active')?.dataset.automationLibraryView||"create";localStorage.setItem(libraryPrefsKey,JSON.stringify({view:active,filter:$("automation-library-filter").value,sort:$("automation-library-sort").value,layout:$("automation-library-layout").value}))}catch(_error){}
+    try{localStorage.setItem(libraryPrefsKey,JSON.stringify({filter:$("automation-library-filter").value,sort:$("automation-library-sort").value}))}catch(_error){}
   }
   function showLibraryView(name,persist=true){
-    for(const button of panel.querySelectorAll("[data-automation-library-view]")){const active=button.dataset.automationLibraryView===name;button.classList.toggle("active",active);button.setAttribute("aria-selected",String(active))}
-    for(const view of panel.querySelectorAll("[data-automation-library-panel]")){view.classList.toggle("hidden",view.dataset.automationLibraryPanel!==name)}
+    showView(name==="saved"?"library":"studio");
     if(persist)persistLibraryPrefs();
   }
 
   function openOverviewShortcut(target){
     let destination=null;
     if(target==="drafts"){
-      showView("studio");showLibraryView("saved");
+      showView("library");
       $("automation-library-search").value="";$("automation-library-filter").value="disabled";
       persistLibraryPrefs();renderLibrary();destination=$("automation-library-filter");
     }else if(target==="suggestions"){
@@ -419,7 +418,7 @@
   }
 
   function renderLibrary(){
-    const root=$("automation-library"),all=state.automations||[],query=$("automation-library-search").value.trim().toLowerCase(),filter=$("automation-library-filter").value,sort=$("automation-library-sort").value,layout=$("automation-library-layout").value;root.replaceChildren();root.classList.toggle("is-compact",layout==="compact");
+    const root=$("automation-library"),all=state.automations||[],query=$("automation-library-search").value.trim().toLowerCase(),filter=$("automation-library-filter").value,sort=$("automation-library-sort").value;root.replaceChildren();root.classList.add("is-compact");
     const searchable=item=>[item.name,item.objective,item.trigger_entity,item.action_entity,item.action_service,item.proposal_template,...(item.signal_entities||[]),...(item.triggers||[]).flatMap(part=>[part.entity_id,part.kind]),...(item.conditions||[]).flatMap(part=>[part.entity_id,part.compare_entity_id,part.compare_attribute,part.kind]),...(item.actions||[]).flatMap(part=>[part.entity_id,part.service,part.kind]),...(item.branches||[]).flatMap(branch=>[branch.name,branch.suggestion,...(branch.conditions||[]).flatMap(part=>[part.entity_id,part.compare_entity_id,part.compare_attribute]),...(branch.actions||[]).flatMap(part=>[part.entity_id,part.service])])].filter(Boolean).join(" ").toLowerCase();
     const isAttention=item=>{const recovery=item.recovery_state||{},readiness=item.readiness||{};return Boolean(item.review_required||recovery.circuit_open||readiness.ready===false||["blocked_permission","paused_failure","deferred"].includes(item.status))};
     const matchesFilter=item=>{if(filter==="active")return Boolean(item.enabled);if(filter==="attention")return isAttention(item);if(filter==="disabled")return !item.enabled;if(filter==="autonomous")return item.execution_policy==="autonomous";if(filter==="watch")return item.kind==="notification_watch";return true};
@@ -443,7 +442,8 @@
       const actionSummary=item.action_service&&item.action_entity?`${item.action_service} → ${item.action_entity}`:"No device action";
       row.innerHTML=`<div class="autonomy-draft-head"><div><strong>${esc(item.name)}</strong><div>${esc(item.objective)}</div></div><div class="autonomy-draft-actions">${primaryAction}<button type="button" data-auto-duplicate="${esc(item.id)}">Duplicate</button>${recoverAction}${resetLearning}<button type="button" data-auto-delete="${esc(item.id)}">Delete</button></div></div><div class="autonomy-tags">${tags.map(tag=>`<span>${esc(tag)}</span>`).join("")}</div>`;
       const flow=flowElement(item);
-      if(flow)row.append(flow);else row.insertAdjacentHTML("beforeend",`<small><strong>When:</strong> ${esc(triggerSummary)}<br><strong>Then:</strong> ${esc(item.proposal_template||"Record the match")}<br><strong>Action:</strong> ${esc(actionSummary)}<br><strong>Presence:</strong> ${esc(item.presence_entity||"not required by this rule")}</small>`);
+      const flowDisclosure=document.createElement("details");flowDisclosure.className="automation-library-flow";flowDisclosure.innerHTML='<summary><span class="automation-library-flow-arrow" aria-hidden="true">›</span><span>View flow diagram</span></summary>';
+      if(flow)flowDisclosure.append(flow);else flowDisclosure.insertAdjacentHTML("beforeend",`<small><strong>When:</strong> ${esc(triggerSummary)}<br><strong>Then:</strong> ${esc(item.proposal_template||"Record the match")}<br><strong>Action:</strong> ${esc(actionSummary)}<br><strong>Presence:</strong> ${esc(item.presence_entity||"not required by this rule")}</small>`);row.append(flowDisclosure);
       const reasoning=["deferred","paused_failure","blocked_permission"].includes(item.status)?item.last_deferred_reason:item.status==="satisfied"?item.last_satisfied_reason:"";if(reasoning)row.insertAdjacentHTML("beforeend",`<small><strong>Why ${esc(item.status)}:</strong> ${esc(reasoning)}</small>`);
       const readiness=item.readiness||{};if(readiness.summary)row.insertAdjacentHTML("beforeend",`<small><strong>Live readiness:</strong> ${esc(readiness.ready?"Ready":readiness.summary)}${!readiness.ready?" · Fix entity permissions or HA safety labels before execution.":""}</small>`);
       const episode=item.active_episode;if(episode)row.insertAdjacentHTML("beforeend",`<small><strong>Active episode:</strong> ${esc(episode.trend||"tracking")} · current ${esc(episode.current_value)} · worst ${esc(episode.worst_value)} · ${Number(episode.sample_count||0)} samples</small>`);
@@ -640,11 +640,9 @@
 
   panel.querySelector(".autonomy-tabs")?.addEventListener("click",event=>{const button=event.target.closest("[data-auto-view]");if(button)showView(button.dataset.autoView)});
   panel.querySelector(".autonomy-metrics")?.addEventListener("click",event=>{const button=event.target.closest("[data-automation-overview-target]");if(button)openOverviewShortcut(button.dataset.automationOverviewTarget)});
-  panel.querySelector(".automation-library-tabs")?.addEventListener("click",event=>{const button=event.target.closest("[data-automation-library-view]");if(button)showLibraryView(button.dataset.automationLibraryView)});
   $("automation-library-search").addEventListener("input",renderLibrary);
   $("automation-library-filter").addEventListener("change",()=>{persistLibraryPrefs();renderLibrary()});
   $("automation-library-sort").addEventListener("change",()=>{persistLibraryPrefs();renderLibrary()});
-  $("automation-library-layout").addEventListener("change",()=>{persistLibraryPrefs();renderLibrary()});
   $("automation-library-summary").addEventListener("click",event=>{const button=event.target.closest("[data-library-quick-filter]");if(!button)return;$("automation-library-filter").value=button.dataset.libraryQuickFilter;persistLibraryPrefs();renderLibrary()});
   panel.addEventListener("pointerdown",event=>{if(event.target.closest(".automation-flow-card-actions"))return;const block=event.target.closest(".automation-studio-preview [data-flow-kind]");if(block&&!block.draggable)selectStudioNode(block.dataset.flowKind,Number(block.dataset.flowIndex),block.hasAttribute("data-flow-branch-index")?Number(block.dataset.flowBranchIndex):null)},{capture:true});
   panel.addEventListener("click",async event=>{
@@ -731,6 +729,6 @@
 
   document.addEventListener("click",event=>{const other=event.target.closest?.("#chat-tab,#entities-tab,#settings-tab,#plugins-tab,#files-tab,#calendar-tab,#developer-tab");if(other){panel.classList.add("hidden");tab.classList.remove("active")}},true);
   tab.addEventListener("click",event=>{event.preventDefault();event.stopImmediatePropagation();activate();loadWorkspace().catch(error=>{$("autonomy-context").innerHTML=`<div class="autonomy-empty">Automation workspace unavailable: ${esc(error.message||error)}</div>`})},true);
-  const libraryPrefs=readLibraryPrefs();$("automation-library-filter").value=libraryPrefs.filter;$("automation-library-sort").value=libraryPrefs.sort;$("automation-library-layout").value=libraryPrefs.layout;const localDraftRecovery=readLocalEditorDraft();clearEditor();if(localDraftRecovery)recoverLocalEditorDraft(localDraftRecovery);showLibraryView(libraryPrefs.view,false);
+  const libraryPrefs=readLibraryPrefs();$("automation-library-filter").value=libraryPrefs.filter;$("automation-library-sort").value=libraryPrefs.sort;const localDraftRecovery=readLocalEditorDraft();clearEditor();if(localDraftRecovery)recoverLocalEditorDraft(localDraftRecovery);
   window.zbranoAutomationWorkspace={ready:true,load:loadWorkspace,showView};
 })();

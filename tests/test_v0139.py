@@ -14,10 +14,10 @@ MANIFEST = json.loads((ROOT / "jarvis/release_manifest.json").read_text(encoding
 
 class ProactiveSuggestionSpeechTests(unittest.TestCase):
     def test_release_markers_are_aligned(self):
-        self.assertIn('version: "0.13.116"', CONFIG)
-        self.assertIn('version="0.13.116"', MAIN)
-        self.assertIn("HUD 0.13.116", INDEX)
-        self.assertEqual(MANIFEST["version"], "0.13.116")
+        self.assertIn('version: "0.13.117"', CONFIG)
+        self.assertIn('version="0.13.117"', MAIN)
+        self.assertIn("HUD 0.13.117", INDEX)
+        self.assertEqual(MANIFEST["version"], "0.13.117")
 
     def test_spoken_suggestion_omits_internal_automation_name(self):
         start = INDEX.index("async function announceSuggestion(item)")
@@ -70,8 +70,9 @@ class ProactiveSuggestionSpeechTests(unittest.TestCase):
 
     def test_practical_create_and_library_interface(self):
         for marker in (
-            'data-automation-library-view="create"',
-            'data-automation-library-view="saved"',
+            'data-auto-view="studio"',
+            'data-auto-view="library"',
+            'data-auto-view="memory"',
             'id="automation-chat-builder-form"',
             'id="automation-chat-request"',
             'id="automation-memory-list"',

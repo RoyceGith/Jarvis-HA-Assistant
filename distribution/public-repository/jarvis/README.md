@@ -6,6 +6,10 @@ connections.
 
 ## Automation Studio
 
+Version 0.13.117 moves My Automations and Automation Memory into dedicated,
+indented Studio navigation entries. Saved automations stay compact and expose
+their visual flow only through an independent expand control.
+
 Version 0.13.116 adds branch-specific suggestions and live entity-to-attribute
 conditions so multi-outcome behavior can remain in one Automation Studio flow.
 

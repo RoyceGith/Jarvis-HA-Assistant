@@ -129,7 +129,7 @@ function apiFixture(url, method = "GET") {
   if (pathname === "/api/health") {
     return {
       status: "ok",
-      version: "0.13.116",
+      version: "0.13.117",
       speech_provider: "openai",
       speech_providers: {openai: {configured: true}, elevenlabs: {configured: false}},
     };
@@ -201,7 +201,7 @@ function apiFixture(url, method = "GET") {
   if (pathname === "/api/plugins") return {plugins: []};
   if (pathname === "/api/files/shared") return {files: [], count: 0};
   if (pathname === "/api/release-memory-sync") {
-    return {enabled: false, state: "disabled", version: "0.13.116", task_active: false};
+    return {enabled: false, state: "disabled", version: "0.13.117", task_active: false};
   }
   if (pathname === "/api/tab-activity") return {revisions: {}};
   if (pathname === "/api/grinder-monitor/status") return {enabled: false, connected: false};
@@ -310,8 +310,7 @@ async function main() {
     await page.locator('[data-automation-overview-target="drafts"][aria-label="View 1 automation draft"]').waitFor();
     assert.equal(await page.locator('[data-automation-overview-target="drafts"]').getAttribute("aria-label"), "View 1 automation draft");
     await page.locator('[data-automation-overview-target="drafts"]').click();
-    await page.locator('[data-auto-panel="studio"]:not(.hidden)').waitFor();
-    await page.locator('[data-automation-library-panel="saved"]:not(.hidden)').waitFor();
+    await page.locator('[data-auto-panel="library"]:not(.hidden)').waitFor();
     assert.equal(await page.locator("#automation-library-filter").inputValue(), "disabled");
     assert.equal(await page.locator("#automation-library .autonomy-draft").count(), 1);
     await page.locator("#automation-library-filter").selectOption("all");
@@ -330,8 +329,10 @@ async function main() {
     assert.equal(automationLayout.display, "grid");
     assert.match(automationLayout.columns, /px .*px/);
     assert.equal(automationLayout.navCursor, "pointer");
-    await page.locator('[data-automation-library-view="saved"]').click();
-    await page.locator('[data-automation-library-panel="saved"]:not(.hidden)').waitFor();
+    assert.match(await page.locator('[data-auto-view="library"]').innerText(), /My Automations/);
+    assert.match(await page.locator('[data-auto-view="memory"]').innerText(), /Automation Memory/);
+    await page.locator('[data-auto-view="library"]').click();
+    await page.locator('[data-auto-panel="library"]:not(.hidden)').waitFor();
     assert.equal((await page.locator("#automation-library-count").innerText()).toLowerCase(), "2 automations");
     assert.match(await page.locator("#automation-library .autonomy-draft").first().innerText(), /Active lighting/i);
     await page.locator("#automation-library-search").fill("browser flow");
@@ -359,10 +360,16 @@ async function main() {
     await page.locator("#automation-library-sort").selectOption("active");
     assert.match(await page.locator("#automation-library .autonomy-draft").first().innerText(), /Active lighting/i);
     assert.equal(await page.locator("#automation-library .automation-flow-stage").count(), 8);
-    await page.locator("#automation-library-layout").selectOption("compact");
     assert.equal(await page.locator("#automation-library").evaluate(element => element.classList.contains("is-compact")), true);
-    assert.equal(await page.locator("#automation-library .automation-flow").first().evaluate(element => getComputedStyle(element).display), "none");
-    assert.deepEqual(await page.evaluate(() => JSON.parse(localStorage.getItem("zbrano.automation-studio.library.v1"))), {view: "saved", filter: "all", sort: "active", layout: "compact"});
+    assert.equal(await page.locator("#automation-library .automation-library-flow").first().getAttribute("open"), null);
+    await page.locator("#automation-library .automation-library-flow summary").first().click();
+    assert.equal(await page.locator("#automation-library .automation-library-flow").first().getAttribute("open"), "");
+    assert.equal(await page.locator("#automation-library .automation-flow").first().isVisible(), true);
+    assert.deepEqual(await page.evaluate(() => JSON.parse(localStorage.getItem("zbrano.automation-studio.library.v1"))), {filter: "all", sort: "active"});
+    await page.locator('[data-auto-view="memory"]').click();
+    await page.locator('[data-auto-panel="memory"]:not(.hidden)').waitFor();
+    assert.equal(await page.locator("#automation-memory-list").isVisible(), true);
+    await page.locator('[data-auto-view="library"]').click();
     const pauseDialogPromise=page.waitForEvent("dialog"),pauseClick=page.locator('[data-auto-pause="active-flow"]').click();
     const pauseDialog=await pauseDialogPromise;assert.match(pauseDialog.message(),/Live evaluation and new actions will stop immediately/i);await pauseDialog.accept();await pauseClick;
     await page.locator('[data-auto-activate="active-flow"][data-auto-activation-label="Resume"]').waitFor();
@@ -377,9 +384,8 @@ async function main() {
     assert.match(await page.locator("#automation-studio-state").innerText(), /Independent disabled copy ready/i);
     const duplicateDiscardDialog=page.waitForEvent("dialog"),duplicateDiscardClick=page.locator("#automation-studio-new").click();
     const duplicateDialog=await duplicateDiscardDialog;assert.match(duplicateDialog.message(),/Discard unsaved automation changes/i);await duplicateDialog.accept();await duplicateDiscardClick;
-    await page.locator('[data-automation-library-view="create"]').click();
-    await page.locator('[data-automation-library-panel="create"]:not(.hidden)').waitFor();
-    assert.equal(await page.evaluate(() => JSON.parse(localStorage.getItem("zbrano.automation-studio.library.v1")).view), "create");
+    await page.locator('[data-auto-view="studio"]').click();
+    await page.locator('[data-auto-panel="studio"]:not(.hidden)').waitFor();
     const studioOrder = await page.evaluate(() => ({
       studio: document.querySelector(".automation-studio-preview").getBoundingClientRect().top,
       chat: document.querySelector(".automation-chat-builder").getBoundingClientRect().top,

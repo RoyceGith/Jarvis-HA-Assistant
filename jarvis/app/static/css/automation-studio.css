@@ -4,7 +4,6 @@
 #automations-panel.studio-active .autonomy-header,
 #automations-panel.studio-active .autonomy-boundary { display: none; }
 #automations-panel.studio-active [data-auto-panel="studio"] { min-height: 0; overflow: auto; padding-right: .2rem; }
-#automations-panel.studio-active [data-automation-library-panel="create"] { min-height: 0; }
 #automations-panel.studio-active .automation-studio-preview { min-height: calc(100dvh - 205px); margin-bottom: 0; }
 #automations-panel.studio-active .automation-studio-layout { min-height: calc(100dvh - 285px); }
 .automation-studio-toolbar { padding: .9rem 1rem; border-bottom: 1px solid var(--line); }
@@ -52,11 +51,19 @@
 .automation-library-toolbar input { width: min(100%,340px); }
 .automation-library-toolbar select { width: min(100%,220px); }
 .automation-library-toolbar .automation-state { margin-left: auto; align-self: center; white-space: nowrap; }
-#automation-library.is-compact { grid-template-columns: repeat(auto-fill,minmax(280px,1fr)); align-items: start; }
-#automation-library.is-compact .autonomy-draft { height: 100%; align-content: start; }
-#automation-library.is-compact .autonomy-draft > :is(.automation-flow,small,details) { display: none; }
+#automation-library.is-compact { grid-template-columns: 1fr; align-items: start; }
+#automation-library.is-compact .autonomy-draft { align-content: start; padding: .7rem .8rem; }
+#automation-library.is-compact .autonomy-draft > :is(small,details:not(.automation-library-flow)) { display: none; }
 #automation-library.is-compact .autonomy-draft-head { align-items: start; }
 #automation-library.is-compact .autonomy-draft-actions { justify-content: flex-end; }
+.automation-library-flow { margin-top: .15rem; border-top: 1px solid color-mix(in srgb,var(--line) 72%,transparent); }
+.automation-library-flow > summary { display: inline-flex; align-items: center; gap: .4rem; padding: .5rem .15rem .1rem; color: var(--text-muted); font-size: .7rem; font-weight: 650; cursor: pointer; list-style: none; }
+.automation-library-flow > summary::-webkit-details-marker { display: none; }
+.automation-library-flow > summary:hover { color: var(--cyan); }
+.automation-library-flow-arrow { display: inline-grid; place-items: center; width: 1rem; height: 1rem; transition: transform .16s ease; font-size: 1rem; }
+.automation-library-flow[open] .automation-library-flow-arrow { transform: rotate(90deg); }
+.automation-library-flow > .automation-flow { margin-top: .45rem; padding: .55rem .25rem .7rem; border-radius: 9px; background: color-mix(in srgb,var(--surface-strong) 62%,transparent); }
+.automation-library-flow > small { display: block; padding: .55rem .15rem .2rem; color: var(--text-muted); }
 .automation-studio-inspector { position:relative; z-index:3; overflow:auto; border-left: 1px solid var(--line); }
 .automation-studio-inspector-head { display: flex; align-items: center; justify-content: space-between; gap: .5rem; }
 .automation-studio-inspector h4 { margin: .8rem 0 .25rem; font-size: 1rem; }

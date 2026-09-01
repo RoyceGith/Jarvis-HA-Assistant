@@ -14,10 +14,10 @@ MANIFEST = json.loads((ROOT / "jarvis/release_manifest.json").read_text(encoding
 
 class AutomationLibraryPreferencesReleaseTests(unittest.TestCase):
     def test_release_markers_are_aligned(self):
-        self.assertIn('version: "0.13.116"', CONFIG)
-        self.assertIn('version="0.13.116"', MAIN)
-        self.assertIn("HUD 0.13.116", HTML)
-        self.assertEqual(MANIFEST["version"], "0.13.116")
+        self.assertIn('version: "0.13.117"', CONFIG)
+        self.assertIn('version="0.13.117"', MAIN)
+        self.assertIn("HUD 0.13.117", HTML)
+        self.assertEqual(MANIFEST["version"], "0.13.117")
 
     def test_library_exposes_practical_sort_options(self):
         self.assertIn('id="automation-library-sort"', HTML)
@@ -37,17 +37,18 @@ class AutomationLibraryPreferencesReleaseTests(unittest.TestCase):
         self.assertIn("function readLibraryPrefs()", WORKSPACE)
         self.assertIn("function persistLibraryPrefs()", WORKSPACE)
         self.assertIn("localStorage.setItem(libraryPrefsKey", WORKSPACE)
-        self.assertIn('showLibraryView(libraryPrefs.view,false)', WORKSPACE)
-        self.assertIn('["create","saved"].includes(value.view)', WORKSPACE)
+        self.assertIn('filter:["all","active","attention","disabled","autonomous","watch"].includes(value.filter)', WORKSPACE)
+        self.assertIn('sort:["recent","name_asc","name_desc","active","attention"].includes(value.sort)', WORKSPACE)
+        self.assertNotIn('value.view', WORKSPACE)
 
     def test_browser_exercises_ordering_and_preference_storage(self):
         self.assertIn('selectOption("name_desc")', BROWSER)
         self.assertIn('selectOption("active")', BROWSER)
         self.assertIn('zbrano.automation-studio.library.v1', BROWSER)
-        self.assertIn('{view: "saved", filter: "all", sort: "active", layout: "compact"}', BROWSER)
+        self.assertIn('{filter: "all", sort: "active"}', BROWSER)
 
     def test_release_history_includes_v01385(self):
-        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.115")
+        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.116")
 
 
 if __name__ == "__main__":
