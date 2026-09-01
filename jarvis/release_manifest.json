@@ -1,9 +1,9 @@
 {
-  "version": "0.13.115",
+  "version": "0.13.116",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/ZBRANO_Core main",
-  "summary": "Restore the searchable Home Assistant entity picker in Automation Studio's WHEN-card inspector.",
+  "summary": "Add branch-specific suggestions and live entity-to-attribute comparisons to single Automation Studio flows.",
   "history_backfill": [
     {
       "version": "0.13.0",
@@ -464,22 +464,28 @@
     {
       "version": "0.13.114",
       "summary": "Showed climate mode and configured target temperature together in the Home Assistant entity inventory."
+    },
+    {
+      "version": "0.13.115",
+      "summary": "Restored the searchable Home Assistant entity picker in Automation Studio's WHEN-card inspector."
     }
   ],
   "release_entry": {
     "features": [
-      "Load searchable Home Assistant entities directly in Automation Studio's WHEN-card inspector.",
-      "Keep a selected visual trigger entity synchronized with the canonical automation definition."
+      "Give every Automation Studio decision path its own suggestion message.",
+      "Compare an entity state with another Home Assistant entity's state or live attribute in a visual condition.",
+      "Re-evaluate sustained multi-path flows through an interval trigger in the same OR trigger stage."
     ],
     "fixes": [
-      "Attach the reusable entity picker to the cloned WHEN-card trigger field instead of leaving it without a data source.",
-      "Prevent inactive synthetic field updates from opening stray picker overlays elsewhere in Automation Studio."
+      "Use the selected branch's suggestion instead of forcing every outcome to share the automation-level message.",
+      "Validate permissions for both sides of an entity comparison and preserve first-match branch behavior."
     ],
     "validation": [
-      "WHEN-card entity search and selection, canonical trigger synchronization, picker overlay isolation, real-browser workflow coverage, release manifest, README alignment, and v0.13.115 release coverage"
+      "Dynamic thermostat-target comparison, sustained entity-state conditions, per-branch suggestion selection, visual Compare entities editing, real-browser workflow coverage, release manifest, README alignment, and v0.13.116 release coverage"
     ]
   },
   "features": [
+    "Build single Automation Studio flows with branch-specific suggestions and live entity-to-attribute comparisons.",
     "Search and select Home Assistant trigger entities directly in Automation Studio's WHEN-card inspector.",
     "Show climate HVAC mode and target temperature together in the Home Assistant entity inventory.",
     "Respond to actionable Automation suggestions directly from the top-bar notification inbox.",

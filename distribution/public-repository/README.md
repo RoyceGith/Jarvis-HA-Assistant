@@ -19,6 +19,9 @@ storage, and `ghcr.io/roycegith/jarvis-ha-assistant` update image.
 
 ## Current experience
 
+Version 0.13.116 adds branch-specific suggestions and live entity-to-attribute
+comparisons to single Automation Studio flows.
+
 Version 0.13.115 restores the searchable Home Assistant entity picker in
 Automation Studio's WHEN-card inspector while preserving existing workflow data.
 

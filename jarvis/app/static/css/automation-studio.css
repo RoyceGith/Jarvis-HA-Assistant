@@ -109,6 +109,8 @@
 .automation-flow-branch-conditions .automation-flow-node { width:100%; border-color:color-mix(in srgb,#4f9cff 42%,var(--line)); }
 .automation-flow-branch-conditions.is-branch-drop-target { padding:.25rem; border-radius:11px; outline:2px dashed color-mix(in srgb,#4f9cff 70%,transparent); background:color-mix(in srgb,#4f9cff 8%,transparent); }
 .automation-flow-branch-conditions .automation-flow-logic { margin:.04rem 0; }
+.automation-flow-branch-suggestion { display:grid; gap:.2rem; width:100%; padding:.45rem .55rem; border:1px solid color-mix(in srgb,#c29cff 34%,var(--line)); border-radius:10px; background:color-mix(in srgb,#c29cff 7%,var(--surface)); }
+.automation-flow-branch-suggestion small { color:var(--text); line-height:1.35; }
 .automation-flow-branch-actions { display:grid; gap:.4rem; width:100%; min-height:54px; }
 .automation-flow-branch-actions .automation-flow-node { width:100%; }
 .automation-flow-branch-section-label { justify-self:start; color:var(--text-muted); font-size:.58rem; font-weight:800; letter-spacing:.13em; }

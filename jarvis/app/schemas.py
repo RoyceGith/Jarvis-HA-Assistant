@@ -116,10 +116,12 @@ class AutomationTriggerRequest(BaseModel):
     one_time_at: str = Field(default="", max_length=64)
 
 class AutomationConditionRequest(BaseModel):
-    kind: str = Field(default="entity", pattern="^(entity|time_window|weekday|sun)$")
+    kind: str = Field(default="entity", pattern="^(entity|entity_compare|time_window|weekday|sun)$")
     entity_id: str = Field(default="", max_length=255, pattern=r"^(|[a-z0-9_]+\.[a-z0-9_]+)$")
     operator: str = Field(default="equals", pattern="^(equals|not_equals|above|below)$")
     value: str = Field(default="", max_length=255)
+    compare_entity_id: str = Field(default="", max_length=255, pattern=r"^(|[a-z0-9_]+\.[a-z0-9_]+)$")
+    compare_attribute: str = Field(default="", max_length=120, pattern=r"^[a-zA-Z0-9_.-]*$")
     for_seconds: int = Field(default=0, ge=0, le=86400)
     start_time: str = Field(default="", pattern=r"^(|([01]\d|2[0-3]):[0-5]\d)$")
     end_time: str = Field(default="", pattern=r"^(|([01]\d|2[0-3]):[0-5]\d)$")
@@ -142,6 +144,7 @@ class AutomationActionRequest(BaseModel):
 
 class AutomationBranchRequest(BaseModel):
     name: str = Field(min_length=1, max_length=80)
+    suggestion: str = Field(default="", max_length=1000)
     conditions: list[AutomationConditionRequest] = Field(default_factory=list, max_length=20)
     condition_mode: str = Field(default="all", pattern="^(all|any)$")
     actions: list[AutomationActionRequest] = Field(default_factory=list, max_length=20)

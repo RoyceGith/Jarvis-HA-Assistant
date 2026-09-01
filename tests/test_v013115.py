@@ -15,11 +15,11 @@ MANIFEST = json.loads((ROOT / "jarvis/release_manifest.json").read_text(encoding
 
 class WhenCardEntityPickerReleaseTests(unittest.TestCase):
     def test_release_markers_are_aligned(self):
-        self.assertIn('version: "0.13.115"', CONFIG)
-        self.assertIn('version="0.13.115"', MAIN)
-        self.assertIn("HUD 0.13.115", HTML)
-        self.assertEqual(MANIFEST["version"], "0.13.115")
-        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.114")
+        self.assertIn('version: "0.13.116"', CONFIG)
+        self.assertIn('version="0.13.116"', MAIN)
+        self.assertIn("HUD 0.13.116", HTML)
+        self.assertEqual(MANIFEST["version"], "0.13.116")
+        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.115")
 
     def test_entity_picker_can_attach_to_the_visual_trigger_clone(self):
         self.assertIn("function attach(input)", ENTITY_SEARCH)

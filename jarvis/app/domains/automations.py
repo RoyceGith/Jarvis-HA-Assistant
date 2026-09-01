@@ -485,6 +485,8 @@ def _automation_normalize_condition(item: dict[str, Any]) -> dict[str, Any]:
         "entity_id": str(item.get("entity_id") or "").strip().lower(),
         "operator": str(item.get("operator") or "equals"),
         "value": str(item.get("value") or "").strip(),
+        "compare_entity_id": str(item.get("compare_entity_id") or "").strip().lower(),
+        "compare_attribute": str(item.get("compare_attribute") or "").strip(),
         "for_seconds": max(0, int(item.get("for_seconds") or 0)),
         "start_time": str(item.get("start_time") or ""),
         "end_time": str(item.get("end_time") or ""),
@@ -531,6 +533,7 @@ def _automation_payload(request):
     } for item in payload.get("actions") or []]
     payload["branches"] = [{
         "name": " ".join(str(branch.get("name") or "Branch").split())[:80],
+        "suggestion": str(branch.get("suggestion") or "").strip()[:1000],
         "condition_mode": str(branch.get("condition_mode") or "all"),
         "conditions": [_automation_normalize_condition(item) for item in branch.get("conditions") or []],
         "actions": [{
@@ -585,10 +588,14 @@ def _automation_payload(request):
     all_conditions = [*payload["conditions"], *(item for branch in payload["branches"] for item in branch["conditions"])]
     all_actions = [*payload["actions"], *(item for branch in payload["branches"] for item in branch["actions"])]
     for condition in all_conditions:
-        if condition["kind"] == "entity":
+        if condition["kind"] in {"entity", "entity_compare"}:
             if not condition["entity_id"]:
                 raise HTTPException(status_code=400, detail="An entity condition requires an entity")
             ensure_read_allowed(condition["entity_id"])
+            if condition["kind"] == "entity_compare":
+                if not condition["compare_entity_id"]:
+                    raise HTTPException(status_code=400, detail="An entity comparison requires a comparison entity")
+                ensure_read_allowed(condition["compare_entity_id"])
         elif condition["kind"] == "time_window" and (not condition["start_time"] or not condition["end_time"]):
             raise HTTPException(status_code=400, detail="A time-window condition requires start and end times")
     if payload["presence_entity"]:
@@ -1092,8 +1099,10 @@ def _automation_readiness(
     for condition in [*_automation_conditions(item), *(
         value for branch in _automation_branches(item) for value in _automation_conditions(branch)
     )]:
-        if str(condition.get("kind") or "entity") == "entity":
+        if str(condition.get("kind") or "entity") in {"entity", "entity_compare"}:
             require_read(str(condition.get("entity_id") or ""), "condition_read")
+        if str(condition.get("kind") or "entity") == "entity_compare":
+            require_read(str(condition.get("compare_entity_id") or ""), "condition_compare_read")
     require_read(str(item.get("presence_entity") or ""), "presence_read")
 
     actions = actions_override
@@ -1140,6 +1149,16 @@ def _automation_condition_matches(item: dict[str, Any], old_state: Any, new_stat
         return False
     return current_number > expected_number if operator == "above" else current_number < expected_number
 
+def _automation_record_value(record: dict[str, Any], attribute: str = "") -> Any:
+    if not attribute:
+        return record.get("state")
+    value: Any = record.get("attributes") if isinstance(record.get("attributes"), dict) else {}
+    for part in attribute.split("."):
+        if not isinstance(value, dict) or part not in value:
+            return None
+        value = value[part]
+    return value
+
 def _automation_condition_group_matches(conditions: list[dict[str, Any]], mode: str = "all") -> tuple[bool, str]:
     if not conditions:
         return True, "no conditions"
@@ -1170,7 +1189,16 @@ def _automation_condition_group_matches(conditions: list[dict[str, Any]], mode: 
         entity_id = str(condition.get("entity_id") or "")
         state_record = ha_ws.state_cache.get(entity_id) or {}
         current = state_record.get("state")
-        matched = _automation_condition_matches(condition, current, current)
+        if kind == "entity_compare":
+            compare_entity_id = str(condition.get("compare_entity_id") or "")
+            compare_attribute = str(condition.get("compare_attribute") or "")
+            compare_record = ha_ws.state_cache.get(compare_entity_id) or {}
+            expected = _automation_record_value(compare_record, compare_attribute)
+            matched = _automation_condition_matches({**condition, "value": expected}, current, current)
+        else:
+            compare_entity_id = compare_attribute = ""
+            expected = condition.get("value")
+            matched = _automation_condition_matches(condition, current, current)
         duration = max(0, int(condition.get("for_seconds") or 0))
         if matched and duration:
             try:
@@ -1179,7 +1207,8 @@ def _automation_condition_group_matches(conditions: list[dict[str, Any]], mode: 
             except ValueError:
                 matched = False
         results.append(matched)
-        details.append(f"{entity_id}={current if current is not None else 'unavailable'}{f' for {duration}s' if duration else ''}")
+        comparison = f" compared with {compare_entity_id}{'.' + compare_attribute if compare_attribute else ''}={expected if expected is not None else 'unavailable'}" if kind == "entity_compare" else ""
+        details.append(f"{entity_id}={current if current is not None else 'unavailable'}{comparison}{f' for {duration}s' if duration else ''}")
     return (any(results) if mode == "any" else all(results)), f"{mode.upper()} conditions: " + ", ".join(details)
 
 def _automation_context_conditions_match(item: dict[str, Any]) -> tuple[bool, str]:
@@ -1198,6 +1227,10 @@ def _automation_select_branch(item: dict[str, Any]) -> tuple[bool, str, list[dic
         if matched:
             return True, f"branch {branch.get('name')}: {detail}", _automation_actions(branch), str(branch.get("name") or "")
     return False, "no branch matched; " + "; ".join(evaluations), [], ""
+
+def _automation_branch_suggestion(item: dict[str, Any], branch_name: str) -> str:
+    branch = next((value for value in _automation_branches(item) if str(value.get("name") or "") == branch_name), None)
+    return str(branch.get("suggestion") or "") if branch else ""
 
 def _automation_presence_confirmed(item: dict[str, Any], settings: dict[str, Any], expected_zone: str = "") -> tuple[bool, str]:
     if not settings.get("require_presence"):
@@ -1219,7 +1252,9 @@ def _automation_presence_confirmed(item: dict[str, Any], settings: dict[str, Any
 
 def _automation_expected_zone(data: dict[str, Any], item: dict[str, Any]) -> str:
     branch_parts = [value for branch in _automation_branches(item) for value in [*_automation_actions(branch), *_automation_conditions(branch)]]
-    workflow_entities = [value.get("entity_id") for value in [*_automation_actions(item), *_automation_triggers(item), *_automation_conditions(item), *branch_parts]]
+    workflow_parts = [*_automation_actions(item), *_automation_triggers(item), *_automation_conditions(item), *branch_parts]
+    workflow_entities = [value.get("entity_id") for value in workflow_parts]
+    workflow_entities.extend(value.get("compare_entity_id") for value in workflow_parts if value.get("compare_entity_id"))
     for entity_id in (*workflow_entities, *(item.get("signal_entities") or [])):
         mapping = _automation_area_entity(data, str(entity_id or ""))
         if mapping.get("zone_entity_id"):
@@ -1258,6 +1293,7 @@ def _automation_test_flow(item: dict[str, Any], settings: dict[str, Any], data: 
     presence_ok, presence_detail = _automation_presence_confirmed(item, settings, _automation_expected_zone(data, item))
     context_ok = conditions_ok and presence_ok
     branch_ok, branch_detail, actions, branch_name = _automation_select_branch(item)
+    branch_suggestion = next((str(value.get("suggestion") or "") for value in _automation_branches(item) if str(value.get("name") or "") == branch_name), "")
     policy, policy_detail = _automation_effective_policy(item, settings)
     action_details = []
     for action in actions:
@@ -1279,7 +1315,7 @@ def _automation_test_flow(item: dict[str, Any], settings: dict[str, Any], data: 
         "trace": [
             {"kind": "trigger", "status": trigger_status, "title": "Trigger", "detail": f"{trigger_mode.upper()} logic: " + ("; ".join(result["detail"] for result in trigger_results) or "No trigger configured")},
             {"kind": "context", "status": "pass" if context_ok else "fail", "title": "Context", "detail": f"{conditions_detail}; {presence_detail}"},
-            {"kind": "decision", "status": "pass" if branch_ok else "fail", "title": "Decision", "detail": f"{branch_detail}; {policy_detail}"},
+            {"kind": "decision", "status": "pass" if branch_ok else "fail", "title": "Decision", "detail": f"{branch_detail}; suggestion={branch_suggestion or item.get('proposal_template') or 'default'}; {policy_detail}"},
             {"kind": "action", "status": "info", "title": "Planned actions", "detail": " → ".join(action_details) or "No Home Assistant service action"},
         ],
     }
@@ -1828,6 +1864,7 @@ async def _automation_commit_match(automation_id: str, evidence: dict[str, Any])
             _automation_save(data)
             return
         branch_ok, branch_detail, selected_actions, branch_name = _automation_select_branch(item)
+        branch_suggestion = _automation_branch_suggestion(item, branch_name)
         if not branch_ok:
             item["last_suppressed_at"] = now
             item["status"] = "suppressed"
@@ -1901,7 +1938,7 @@ async def _automation_commit_match(automation_id: str, evidence: dict[str, Any])
             item.pop("dismissal_context", None)
         item["last_matched_at"] = now
         confidence = 1.0
-        detail = str(item.get("proposal_template") or item.get("objective") or "Automation condition matched.")
+        detail = str(branch_suggestion or item.get("proposal_template") or item.get("objective") or "Automation condition matched.")
         trigger_detail = "fired" if trigger_kind != "entity" else f"changed from {evidence.get('old_state')} to {current}"
         evidence_text = f"{trigger_entity} {trigger_detail}; {trigger_group_detail}; {conditions_detail}; {branch_detail}; {presence_detail}; {rate_detail}"
         if policy == "observe":
