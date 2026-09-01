@@ -1,9 +1,9 @@
 {
-  "version": "0.13.114",
+  "version": "0.13.115",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/ZBRANO_Core main",
-  "summary": "Show climate mode and configured target temperature together in the Home Assistant entity inventory.",
+  "summary": "Restore the searchable Home Assistant entity picker in Automation Studio's WHEN-card inspector.",
   "history_backfill": [
     {
       "version": "0.13.0",
@@ -460,22 +460,27 @@
     {
       "version": "0.13.113",
       "summary": "Added hover deletion and context-aware Automation suggestion controls directly to the top-bar notification inbox."
+    },
+    {
+      "version": "0.13.114",
+      "summary": "Showed climate mode and configured target temperature together in the Home Assistant entity inventory."
     }
   ],
   "release_entry": {
     "features": [
-      "Display a climate entity's HVAC mode and configured target temperature together in Entity Inventory.",
-      "Expose current temperature and active HVAC action as concise climate-state detail."
+      "Load searchable Home Assistant entities directly in Automation Studio's WHEN-card inspector.",
+      "Keep a selected visual trigger entity synchronized with the canonical automation definition."
     ],
     "fixes": [
-      "Preserve the Home Assistant climate state as the operating mode instead of incorrectly replacing it with an attribute.",
-      "Support both single target temperatures and low-to-high climate target ranges without changing entity control behavior."
+      "Attach the reusable entity picker to the cloned WHEN-card trigger field instead of leaving it without a data source.",
+      "Prevent inactive synthetic field updates from opening stray picker overlays elsewhere in Automation Studio."
     ],
     "validation": [
-      "Climate attribute normalization, target and range formatting, current-action detail, real-browser entity rendering, release manifest, README alignment, and v0.13.114 release coverage"
+      "WHEN-card entity search and selection, canonical trigger synchronization, picker overlay isolation, real-browser workflow coverage, release manifest, README alignment, and v0.13.115 release coverage"
     ]
   },
   "features": [
+    "Search and select Home Assistant trigger entities directly in Automation Studio's WHEN-card inspector.",
     "Show climate HVAC mode and target temperature together in the Home Assistant entity inventory.",
     "Respond to actionable Automation suggestions directly from the top-bar notification inbox.",
     "Delete individual top-bar notifications through a discreet hover control while keeping persistent logs and unread state synchronized.",

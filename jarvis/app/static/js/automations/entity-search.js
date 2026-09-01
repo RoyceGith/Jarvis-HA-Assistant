@@ -20,11 +20,11 @@
     return loading;
   }
   function queryFor(input){
-    if(input.id!=="automation-signals")return normalize(input.value);
+    if(input.dataset.entityPickerMultiple!=="true"&&input.id!=="automation-signals")return normalize(input.value);
     return normalize(input.value.split(",").pop());
   }
   function choose(input,item){
-    if(input.id==="automation-signals"){
+    if(input.dataset.entityPickerMultiple==="true"||input.id==="automation-signals"){
       const parts=input.value.split(",").map(value=>value.trim()).filter(Boolean);
       if(parts.length&&normalize(parts[parts.length-1])===queryFor(input))parts.pop();
       if(!parts.includes(item.id))parts.push(item.id);
@@ -65,17 +65,26 @@
     picker.active=(picker.active+direction+options.length)%options.length;
     options.forEach((option,index)=>option.dataset.active=String(index===picker.active));options[picker.active].scrollIntoView({block:"nearest"});
   }
-  for(const input of inputs){
+  function attach(input){
+    if(!input||input._zbranoEntityPicker)return input;
     input.removeAttribute("list");input.autocomplete="off";input.setAttribute("role","combobox");input.setAttribute("aria-autocomplete","list");input.setAttribute("aria-expanded","false");
-    input.placeholder=input.id==="automation-signals"?"Type a name or entity ID, then select multiple":"Type a name or entity ID to search";
+    input.placeholder=input.dataset.entityPickerMultiple==="true"||input.id==="automation-signals"?"Type a name or entity ID, then select multiple":"Type a name or entity ID to search";
     const host=input.parentElement;host?.classList.add("automation-entity-picker-host");
     const picker=document.createElement("div");picker.className="automation-entity-results";picker.hidden=true;picker.setAttribute("role","listbox");picker.input=input;picker.active=-1;input._zbranoEntityPicker=picker;host?.appendChild(picker);
-    input.addEventListener("focus",()=>open(input));input.addEventListener("input",()=>{if(entities)render(input);else open(input)});
+    input.addEventListener("focus",()=>open(input));input.addEventListener("input",event=>{
+      if(!event.isTrusted&&document.activeElement!==input)return;
+      const query=queryFor(input),exact=entities?.some(item=>normalize(item.id)===query);
+      if(exact){close(input);return}
+      if(entities)render(input);else open(input)
+    });
     input.addEventListener("keydown",event=>{
       if(event.key==="ArrowDown"||event.key==="ArrowUp"){event.preventDefault();if(picker.hidden)open(input);else move(input,event.key==="ArrowDown"?1:-1);}
       else if(event.key==="Enter"&&!picker.hidden&&picker.active>=0){event.preventDefault();picker.querySelectorAll(".automation-entity-result")[picker.active]?.dispatchEvent(new PointerEvent("pointerdown"));}
       else if(event.key==="Escape")close(input);
     });
+    return input;
   }
+  inputs.forEach(attach);
   document.addEventListener("pointerdown",event=>{if(openPicker&&!openPicker.contains(event.target)&&event.target!==openPicker.input)close()});
+  window.zbranoEntitySearch={attach,load:loadEntities,close:()=>close()};
 })();

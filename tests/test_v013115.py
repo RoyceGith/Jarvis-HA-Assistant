@@ -4,31 +4,33 @@ import unittest
 
 
 ROOT = Path(__file__).resolve().parents[1]
-MAIN = (ROOT / "jarvis/app/main.py").read_text(encoding="utf-8")
 CONFIG = (ROOT / "jarvis/config.yaml").read_text(encoding="utf-8")
+MAIN = (ROOT / "jarvis/app/main.py").read_text(encoding="utf-8")
 HTML = (ROOT / "jarvis/app/static/index.html").read_text(encoding="utf-8")
+ENTITY_SEARCH = (ROOT / "jarvis/app/static/js/automations/entity-search.js").read_text(encoding="utf-8")
 WORKSPACE = (ROOT / "jarvis/app/static/js/automations/workspace.js").read_text(encoding="utf-8")
 BROWSER = (ROOT / "jarvis/tests/browser_smoke.cjs").read_text(encoding="utf-8")
 MANIFEST = json.loads((ROOT / "jarvis/release_manifest.json").read_text(encoding="utf-8"))
 
 
-class ProductDefaultSeparationReleaseTests(unittest.TestCase):
+class WhenCardEntityPickerReleaseTests(unittest.TestCase):
     def test_release_markers_are_aligned(self):
         self.assertIn('version: "0.13.115"', CONFIG)
         self.assertIn('version="0.13.115"', MAIN)
         self.assertIn("HUD 0.13.115", HTML)
         self.assertEqual(MANIFEST["version"], "0.13.115")
-
-    def test_automation_templates_are_installation_derived_and_browser_checked(self):
-        self.assertIn("function inventoryMatches", WORKSPACE)
-        self.assertNotIn("sensor.workshop_temperature", WORKSPACE)
-        self.assertNotIn("binary_sensor.workshop_presence", WORKSPACE)
-        self.assertIn('execution_policy:"approval_required"', WORKSPACE)
-        self.assertIn('locator(\'[data-auto-template="comfort"]\').click()', BROWSER)
-        self.assertIn("sensor.browser_fixture_", BROWSER)
-
-    def test_release_history_includes_previous_release(self):
         self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.114")
+
+    def test_entity_picker_can_attach_to_the_visual_trigger_clone(self):
+        self.assertIn("function attach(input)", ENTITY_SEARCH)
+        self.assertIn("window.zbranoEntitySearch={attach", ENTITY_SEARCH)
+        self.assertIn('entityPickerFieldIds=new Set(["automation-trigger-entity"])', WORKSPACE)
+        self.assertIn("window.zbranoEntitySearch?.attach(input)", WORKSPACE)
+
+    def test_browser_covers_search_selection_and_trigger_sync(self):
+        self.assertIn('fill("Browser Fixture 1")', BROWSER)
+        self.assertIn('hasText:"sensor.browser_fixture_1"', BROWSER)
+        self.assertIn('inputValue(), "sensor.browser_fixture_1"', BROWSER)
 
 
 if __name__ == "__main__":

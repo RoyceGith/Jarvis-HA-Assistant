@@ -1,5 +1,11 @@
 # Change log
 
+## 0.13.115
+
+- Restored the searchable Home Assistant entity picker in the WHEN-card inspector.
+- Synchronized picker selections into the canonical trigger field and saved workflow.
+- Added real-browser regression coverage for loading and selecting a trigger entity.
+
 ## 0.13.114
 
 - Displayed climate HVAC mode and configured target temperature together in Entity Inventory.

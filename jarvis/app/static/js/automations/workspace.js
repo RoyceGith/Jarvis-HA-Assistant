@@ -16,6 +16,7 @@
   let editorHistoryBaseline="";
   const localDraftKey="zbrano.automation-studio.unsaved.v1",localDraftMaxAge=7*24*60*60*1000,localDraftMaxBytes=100000;
   const libraryPrefsKey="zbrano.automation-studio.library.v1";
+  const entityPickerFieldIds=new Set(["automation-trigger-entity"]);
   const studioPanels={
     details:{title:"Automation",help:"Name the behavior and decide whether live evaluation starts after saving.",fields:[["automation-name","Name"],["automation-objective","Objective"],["automation-enabled","Enable after saving"]]},
     trigger:{title:"Trigger",help:"Start from an entity event, local time, sunrise or sunset, repeating interval, or one-time schedule.",fields:[["automation-trigger-kind","Trigger type"],["automation-trigger-entity","Trigger entity"],["automation-trigger-operator","Condition"],["automation-trigger-value","Value"],["automation-trigger-for","Sustain for seconds"],["automation-trigger-at","Local time"],["automation-trigger-weekdays","Selected weekdays"],["automation-trigger-sun-event","Sun event"],["automation-trigger-sun-offset","Sun offset minutes"],["automation-trigger-interval","Repeat every minutes"],["automation-trigger-one-time","One-time local date and time"]]},
@@ -132,6 +133,7 @@
     const saved=new Date(Number(payload.saved_at||0));$("automation-studio-state").textContent=`Recovered unsaved flow from ${saved.toLocaleString()}. New flow discards it.`;
   }
   function renderStudioInspector(){
+    window.zbranoEntitySearch?.close();
     const panelConfig=studioPanels[selectedStudioNode]||studioPanels.trigger;
     $("automation-studio-inspector-title").textContent=panelConfig.title;
     $("automation-studio-inspector-help").textContent=panelConfig.help;
@@ -141,12 +143,14 @@
       const source=$(id);if(!source)continue;
       const label=document.createElement("label"),control=source.cloneNode(true);
       control.id=`studio-${id}`;control.removeAttribute("required");
+      if(entityPickerFieldIds.has(id))control.dataset.entityPicker="true";
       if(source.type==="checkbox"){control.checked=source.checked;label.className="is-check";label.append(control,document.createTextNode(labelText))}
       else{control.value=source.value;const caption=document.createElement("span");caption.textContent=labelText;label.append(caption,control)}
       const synchronize=()=>{if(source.type==="checkbox")source.checked=control.checked;else source.value=control.value;source.dispatchEvent(new Event("input",{bubbles:true}))};
       control.addEventListener("input",synchronize);control.addEventListener("change",synchronize);root.append(label);
     }
     renderWorkflowInspector(root);
+    for(const input of root.querySelectorAll('input[data-entity-picker="true"]'))window.zbranoEntitySearch?.attach(input);
   }
 
   function workflowOperatorOptions(selected,trigger=false){return (trigger?["any_change","changes_to","equals","not_equals","above","below"]:["equals","not_equals","above","below"]).map(value=>`<option value="${value}"${value===selected?" selected":""}>${value.replaceAll("_"," ")}</option>`).join("")}

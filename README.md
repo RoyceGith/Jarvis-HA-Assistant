@@ -1,14 +1,14 @@
-## ZBRANO v0.13.114
+## ZBRANO v0.13.115
 
 ZBRANO combines Home Assistant chat, voice, entity control, memory, notifications,
 calendar tools, plugins, and evidence-based automations. Automation Studio now uses
 a visual building-block toolbox, interactive node canvas, and contextual inspector;
 the established automation engine and stored definitions remain compatible.
 
-Version 0.13.114 makes climate entities readable at a glance. Entity Inventory now
-shows the Home Assistant HVAC mode together with its configured target, such as
-`cool · set to 25 °C`, while current temperature and active HVAC action remain
-available as concise detail. Entity controls and stored data remain unchanged.
+Version 0.13.115 restores the Home Assistant entity picker inside Automation
+Studio's WHEN-card inspector. Trigger entities now load as you type and a selected
+entity is synchronized into the saved automation definition. Existing workflows
+and stored data remain unchanged.
 
 The application source and post-split build history are maintained in the private
 core repository. Public Home Assistant repositories contain only the five-file
