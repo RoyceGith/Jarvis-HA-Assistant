@@ -1,5 +1,11 @@
 # Change log
 
+## 0.13.112
+
+- Fixed the container-only complete-backup integration contract to include birthdays.
+- Added birthday export, clearing, restore, and identity verification to the build gate.
+- Preserved the Birthday center and top-bar notification inbox introduced in v0.13.111.
+
 ## 0.13.111
 
 - Added dedicated Upcoming, People, and Add Birthday views inside Calendar.
