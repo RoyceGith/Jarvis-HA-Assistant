@@ -1,5 +1,12 @@
 # Change log
 
+## 0.13.120
+
+- Replaced generic Google Contacts HTTP 500 failures with actionable setup errors.
+- Skipped malformed individual Google records without aborting the full import.
+- Preserved existing local contact details when Google omits those fields.
+- Added created, updated, and skipped result counts.
+
 ## 0.13.119
 
 - Added a private Contacts tab for rich person and company records.

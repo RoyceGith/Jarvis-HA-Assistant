@@ -6,8 +6,11 @@ connections.
 
 ## Automation Studio
 
-Version 0.13.119 makes Automation Studio inspectors contextual so each trigger
-shows only the settings its selected type and operator actually use.
+Version 0.13.120 repairs Google Contacts imports with actionable Google People API
+errors, per-record resilience, and preservation of local contact details.
+
+Version 0.13.119 adds the private Contacts directory, file and read-only Google
+imports, Birthday linking, and numbered chat disambiguation.
 
 Version 0.13.117 moves My Automations and Automation Memory into dedicated,
 indented Studio navigation entries. Saved automations stay compact and expose
