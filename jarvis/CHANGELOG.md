@@ -1,5 +1,12 @@
 # Change log
 
+## 0.13.127
+
+- Replaced the separate Upcoming Birthday tab with one People directory.
+- Added the nearest birthdays at the top and colored month sections below.
+- Defaulted chat-created birthdays to reminders one week and one day before.
+- Preserved reminder schedules already selected by the user.
+
 ## 0.13.126
 
 - Preserved recurring Birthday cards after reminder delivery.

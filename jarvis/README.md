@@ -6,6 +6,10 @@ connections.
 
 ## Automation Studio
 
+Version 0.13.127 unifies Birthdays into one People view with the nearest birthdays
+first and colored monthly sections below. Chat saves default to seven-day and
+one-day reminders without replacing existing reminder choices.
+
 Version 0.13.126 prevents reminder delivery from losing Birthday data and repairs
 missing Birthday records from linked Contacts.
 
