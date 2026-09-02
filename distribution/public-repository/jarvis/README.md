@@ -6,6 +6,9 @@ connections.
 
 ## Automation Studio
 
+Version 0.13.124 makes Automation Studio read as Check, If, and Do, renames the
+visible Context block to Condition, and displays complete entity names and IDs.
+
 Version 0.13.123 restores searchable Home Assistant entity choices for Context
 presence, Context signals, and Action entities, and moves Contacts after Calendar.
 

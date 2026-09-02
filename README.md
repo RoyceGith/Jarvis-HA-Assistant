@@ -1,9 +1,13 @@
-## ZBRANO v0.13.123
+## ZBRANO v0.13.124
 
 ZBRANO combines Home Assistant chat, voice, entity control, memory, notifications,
 calendar and contact tools, plugins, and evidence-based automations. Automation Studio now uses
 a visual building-block toolbox, interactive node canvas, and contextual inspector;
 the established automation engine and stored definitions remain compatible.
+
+Version 0.13.124 simplifies Automation Studio into plain Check, If, and Do steps,
+renames the visible Context block to Condition, removes explanatory clutter from
+process cards, and shows each entity's complete friendly name and entity ID.
 
 Version 0.13.123 restores searchable Home Assistant entity pickers for Context
 presence, Context signals, and Action entities in Automation Studio. Contacts now

@@ -1,9 +1,9 @@
 {
-  "version": "0.13.123",
+  "version": "0.13.124",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/ZBRANO_Core main",
-  "summary": "Restore Automation Studio Context and Action entity pickers and position Contacts immediately after Calendar.",
+  "summary": "Simplify Automation Studio into clear Check, If, and Do language with complete entity names on flow cards.",
   "history_backfill": [
     {
       "version": "0.13.0",
@@ -496,18 +496,22 @@
     {
       "version": "0.13.122",
       "summary": "Restored Contacts workspace scrolling and added remembered Cards, List, and Compact directory arrangements."
+    },
+    {
+      "version": "0.13.123",
+      "summary": "Restored Automation Studio Context and Action entity pickers and positioned Contacts immediately after Calendar."
     }
   ],
   "release_entry": {
     "features": [
-      "Place Contacts immediately to the right of Calendar in primary navigation."
+      "Show complete friendly names and entity IDs on Automation Studio flow cards."
     ],
     "fixes": [
-      "Attach the searchable Home Assistant entity picker to Automation Studio presence and multi-signal Context fields.",
-      "Attach searchable entity pickers to primary and dynamically generated Action entity fields."
+      "Rename the visible Context building block and inspector to Condition without changing the stored automation schema.",
+      "Reduce flow explanations to direct Check, If, Do, and And task language."
     ],
     "validation": [
-      "Context and Action entity-picker browser smoke, primary navigation order, release manifest, README alignment, and v0.13.123 release coverage"
+      "Automation flow language, complete entity labels, browser smoke, release manifest, README alignment, and v0.13.124 release coverage"
     ]
   },
   "features": [
