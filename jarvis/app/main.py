@@ -84,6 +84,7 @@ from .domains.contacts import (
     delete_contact,
     import_contacts,
     list_contacts,
+    reconcile_birthday_contacts,
     sync_contact_from_birthday,
     update_contact,
 )
@@ -714,7 +715,7 @@ ha_ws = HomeAssistantWebSocketClient(
 
 app = FastAPI(
     title="ZBRANO",
-    version="0.13.125",
+    version="0.13.126",
     docs_url="/api/docs",
     openapi_url="/api/openapi.json",
 )
@@ -2815,7 +2816,7 @@ async def health() -> dict[str, Any]:
     configured_speech_provider = SPEECH_PROVIDER if SPEECH_PROVIDER in {"openai", "elevenlabs"} else "openai"
     return {
         "status": "ok",
-        "version": "0.13.125",
+        "version": "0.13.126",
         "home_assistant_configured": bool(SUPERVISOR_TOKEN),
         "workshop_memory_configured": bool(WORKSHOP_MEMORY_URL),
         "workshop_memory_cost_guard": workshop_cost_guard_status(),
@@ -3839,6 +3840,7 @@ async def cancel_calendar_appointment(appointment_id: str) -> dict[str, Any]:
 
 @app.get("/api/birthdays")
 async def read_birthdays(query: str = "") -> dict[str, Any]:
+    reconcile_birthday_contacts()
     result = list_birthdays(query)
     result["default_destination"] = str(notification_store()["settings"].get("default_channel") or "")
     return result

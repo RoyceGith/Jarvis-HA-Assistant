@@ -67,6 +67,17 @@ def _birthday_save(data: dict[str, Any]) -> None:
     birthdays.sort(key=lambda item: (str(item.get("name") or "").casefold(), str(item.get("id") or "")))
     _plugin_save(BIRTHDAY_STORAGE_PATH, {"version": 1, "birthdays": birthdays})
 
+def _save_birthday_delivery(birthday_id: str, delivery_key: str, delivery: dict[str, Any]) -> bool:
+    """Merge one reminder result into the latest stored birthday data."""
+    data = birthday_store()
+    item = next((entry for entry in data["birthdays"] if entry.get("id") == birthday_id), None)
+    if not item:
+        return False
+    item.setdefault("deliveries", {})[delivery_key] = delivery
+    item["updated_at"] = time.time()
+    _birthday_save(data)
+    return True
+
 def _birthday_date(month_day: str, year: int) -> date:
     month, day = (int(value) for value in str(month_day).split("-", 1))
     last_day = calendar_module.monthrange(year, month)[1]
@@ -354,13 +365,12 @@ async def _process_birthday_reminders(now: float) -> None:
                 if due_date != today:
                     continue
                 delivery_key = f"{occurrence_year}:{int(days_before)}"
-                deliveries = item.setdefault("deliveries", {})
+                deliveries = item.get("deliveries") if isinstance(item.get("deliveries"), dict) else {}
                 previous = deliveries.get(delivery_key) or {}
                 if previous.get("status") in {"delivered", "suppressed"} or now - float(previous.get("at") or 0) < 60 or local_now.hour < 9:
                     continue
                 if _notification_quiet_now("information", now):
-                    deliveries[delivery_key] = {"status": "suppressed", "at": now}
-                    _birthday_save(data)
+                    _save_birthday_delivery(str(item.get("id") or ""), delivery_key, {"status": "suppressed", "at": now})
                     continue
                 age = occurrence_year - int(item["birth_year"]) if item.get("birth_year") else None
                 timing = "today" if int(days_before) == 0 else f"in {int(days_before)} day{'s' if int(days_before) != 1 else ''}"
@@ -374,11 +384,10 @@ async def _process_birthday_reminders(now: float) -> None:
                         target=str(item.get("destination") or ""), severity="information",
                         title=f"Birthday · {item.get('name')}", message=message,
                     ))
-                    deliveries[delivery_key] = {"status": "delivered", "at": time.time()}
+                    delivery = {"status": "delivered", "at": time.time()}
                 except (HTTPException, RuntimeError, OSError, ValueError) as exc:
-                    deliveries[delivery_key] = {"status": "failed", "at": time.time(), "error": str(getattr(exc, "detail", exc))[:500]}
-                item["updated_at"] = time.time()
-                _birthday_save(data)
+                    delivery = {"status": "failed", "at": time.time(), "error": str(getattr(exc, "detail", exc))[:500]}
+                _save_birthday_delivery(str(item.get("id") or ""), delivery_key, delivery)
 
 async def calendar_reminder_worker() -> None:
     while True:

@@ -1,9 +1,13 @@
-## ZBRANO v0.13.125
+## ZBRANO v0.13.126
 
 ZBRANO combines Home Assistant chat, voice, entity control, memory, notifications,
 calendar and contact tools, plugins, and evidence-based automations. Automation Studio now uses
 a visual building-block toolbox, interactive node canvas, and contextual inspector;
 the established automation engine and stored definitions remain compatible.
+
+Version 0.13.126 keeps recurring Birthday cards intact when reminder notifications
+are delivered. Reminder results now merge into current storage, and a linked Contact
+can safely restore a missing Birthday record without losing the Contact.
 
 Version 0.13.125 keeps an automation's Objective separate from its process task.
 New flows now ask for an actual suggestion or task in the Do This card instead of

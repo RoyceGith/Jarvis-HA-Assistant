@@ -112,6 +112,31 @@ def reconcile_birthday_contacts() -> None:
         if linked.get("birthday_id") != birthday.get("id"):
             linked["birthday_id"] = birthday.get("id")
             changed_contacts = True
+    for contact in data["contacts"]:
+        if not contact.get("birthday"):
+            continue
+        linked = next((item for item in birthday_data.get("birthdays") or [] if item.get("id") == contact.get("birthday_id") or item.get("contact_id") == contact.get("id")), None)
+        if not linked:
+            linked = next((item for item in birthday_data.get("birthdays") or [] if str(item.get("name") or "").casefold() == str(contact.get("display_name") or "").casefold()), None)
+        if linked:
+            if contact.get("birthday_id") != linked.get("id"):
+                contact["birthday_id"] = linked.get("id")
+                changed_contacts = True
+            if linked.get("contact_id") != contact.get("id"):
+                linked["contact_id"] = contact.get("id")
+                changed_birthdays = True
+            continue
+        now = time.time()
+        birthday_id = str(contact.get("birthday_id") or secrets.token_hex(12))
+        birthday_data.setdefault("birthdays", []).append({
+            "id": birthday_id, "contact_id": contact.get("id"),
+            "name": contact.get("display_name") or "", "birthday": contact.get("birthday") or "",
+            "birth_year": contact.get("birth_year"), "relationship": contact.get("relationship") or "",
+            "reminder_days_before": [], "destination": "", "notes": "", "gift_ideas": "",
+            "source": "contacts_recovery", "created_at": now, "updated_at": now, "deliveries": {},
+        })
+        contact["birthday_id"] = birthday_id
+        changed_contacts = changed_birthdays = True
     if changed_contacts:
         _contacts_save(data)
     if changed_birthdays:

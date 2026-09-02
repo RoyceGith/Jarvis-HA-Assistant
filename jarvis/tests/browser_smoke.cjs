@@ -130,7 +130,7 @@ function apiFixture(url, method = "GET") {
   if (pathname === "/api/health") {
     return {
       status: "ok",
-      version: "0.13.125",
+      version: "0.13.126",
       speech_provider: "openai",
       speech_providers: {openai: {configured: true}, elevenlabs: {configured: false}},
     };
@@ -213,7 +213,7 @@ function apiFixture(url, method = "GET") {
   if (pathname === "/api/plugins") return {plugins: []};
   if (pathname === "/api/files/shared") return {files: [], count: 0};
   if (pathname === "/api/release-memory-sync") {
-    return {enabled: false, state: "disabled", version: "0.13.125", task_active: false};
+    return {enabled: false, state: "disabled", version: "0.13.126", task_active: false};
   }
   if (pathname === "/api/tab-activity") return {revisions: {}};
   if (pathname === "/api/grinder-monitor/status") return {enabled: false, connected: false};
@@ -661,7 +661,7 @@ async function main() {
     assert.match(await page.locator('#automation-flow-preview [data-flow-kind="branch-action"]').last().innerText(), /Configure a service action/i);
     const newBranchTask=page.locator('#automation-flow-preview [data-flow-kind="branch-action"]').last();await newBranchTask.hover();await newBranchTask.locator(".automation-flow-card-delete").click({force:true});
     assert.equal(await page.locator('#automation-flow-preview [data-flow-kind="branch-action"]').count(), 3);
-    const firstBranchTask=page.locator('#automation-flow-preview [data-flow-kind="branch-action"]').first();await firstBranchTask.hover();await firstBranchTask.locator(".automation-flow-card-duplicate").click();
+    const firstBranchTask=page.locator('#automation-flow-preview [data-flow-kind="branch-action"]').first();await firstBranchTask.hover();await firstBranchTask.locator(".automation-flow-card-duplicate").click({force:true});
     assert.equal(await page.locator('#automation-flow-preview [data-flow-kind="branch-action"]').count(), 4);
     await page.locator("#automation-studio-undo").click();
     assert.equal(await page.locator('#automation-flow-preview [data-flow-kind="branch-action"]').count(), 3);

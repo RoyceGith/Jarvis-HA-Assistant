@@ -1,5 +1,11 @@
 # Change log
 
+## 0.13.126
+
+- Preserved recurring Birthday cards after reminder delivery.
+- Merged delivery status into the latest birthday storage state.
+- Recovered missing Birthday records from linked Contacts.
+
 ## 0.13.125
 
 - Stopped displaying the automation Objective as a Do This task.

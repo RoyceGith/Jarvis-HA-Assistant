@@ -1,9 +1,9 @@
 {
-  "version": "0.13.125",
+  "version": "0.13.126",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/ZBRANO_Core main",
-  "summary": "Keep Automation Studio objectives separate from executable process tasks in new flows.",
+  "summary": "Preserve recurring birthday cards through reminder delivery and repair missing records from linked contacts.",
   "history_backfill": [
     {
       "version": "0.13.0",
@@ -504,18 +504,22 @@
     {
       "version": "0.13.124",
       "summary": "Simplified Automation Studio into clear Check, If, and Do language with complete entity names on flow cards."
+    },
+    {
+      "version": "0.13.125",
+      "summary": "Kept Automation Studio objectives separate from executable process tasks in new flows."
     }
   ],
   "release_entry": {
     "features": [
-      "Show a clear Do This placeholder until a new automation has an actual suggestion or task."
+      "Repair a missing Birthday record automatically when its linked Contact still contains the birthday."
     ],
     "fixes": [
-      "Stop using the automation objective as the fallback content of the Do This process card.",
-      "Prompt for an actual suggestion or task when a new flow has not configured one yet."
+      "Merge birthday reminder delivery results into the latest stored birthday data instead of saving a stale snapshot.",
+      "Keep recurring birthday cards available after their reminder notification is delivered."
     ],
     "validation": [
-      "Objective/task separation, browser smoke, release manifest, README alignment, and v0.13.125 release coverage"
+      "Birthday delivery persistence, Contact recovery, browser smoke, release manifest, README alignment, and v0.13.126 release coverage"
     ]
   },
   "features": [
