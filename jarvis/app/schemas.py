@@ -118,6 +118,7 @@ class AutomationTriggerRequest(BaseModel):
 class AutomationConditionRequest(BaseModel):
     kind: str = Field(default="entity", pattern="^(entity|entity_compare|time_window|weekday|sun)$")
     entity_id: str = Field(default="", max_length=255, pattern=r"^(|[a-z0-9_]+\.[a-z0-9_]+)$")
+    attribute: str = Field(default="", max_length=120, pattern=r"^[a-zA-Z0-9_.-]*$")
     operator: str = Field(default="equals", pattern="^(equals|not_equals|above|below)$")
     value: str = Field(default="", max_length=255)
     compare_entity_id: str = Field(default="", max_length=255, pattern=r"^(|[a-z0-9_]+\.[a-z0-9_]+)$")

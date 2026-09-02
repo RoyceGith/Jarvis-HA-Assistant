@@ -130,7 +130,7 @@ function apiFixture(url, method = "GET") {
   if (pathname === "/api/health") {
     return {
       status: "ok",
-      version: "0.13.129",
+      version: "0.13.130",
       speech_provider: "openai",
       speech_providers: {openai: {configured: true}, elevenlabs: {configured: false}},
     };
@@ -213,7 +213,7 @@ function apiFixture(url, method = "GET") {
   if (pathname === "/api/plugins") return {plugins: []};
   if (pathname === "/api/files/shared") return {files: [], count: 0};
   if (pathname === "/api/release-memory-sync") {
-    return {enabled: false, state: "disabled", version: "0.13.129", task_active: false};
+    return {enabled: false, state: "disabled", version: "0.13.130", task_active: false};
   }
   if (pathname === "/api/tab-activity") return {revisions: {}};
   if (pathname === "/api/grinder-monitor/status") return {enabled: false, connected: false};
@@ -369,13 +369,12 @@ async function main() {
     await page.locator("#studio-automation-trigger-operator").selectOption("above");
     assert.equal(await page.locator("#studio-automation-trigger-value").count(), 1);
     await page.locator("#studio-automation-trigger-operator").selectOption("changes_to");
-    await page.locator('#automation-flow-preview [data-flow-kind="context"]').first().click();
-    await page.locator("#studio-automation-presence").focus();
-    await page.locator("#studio-automation-presence + .automation-entity-results .automation-entity-result").first().waitFor();
-    await page.locator("#studio-automation-presence").press("Escape");
-    await page.locator("#studio-automation-signals").focus();
-    await page.locator("#studio-automation-signals + .automation-entity-results .automation-entity-result").first().waitFor();
-    await page.locator("#studio-automation-signals").press("Escape");
+    await page.locator('.automation-studio-toolbox [data-studio-node="context"]').click();
+    await page.locator('[data-workflow-add="conditions"]').click();
+    const sharedConditionEntity=page.locator('[data-workflow-index="0"][data-condition-field="entity_id"]');
+    await sharedConditionEntity.focus();
+    await page.locator('[data-workflow-index="0"] + .automation-entity-results .automation-entity-result').first().waitFor();
+    await sharedConditionEntity.press("Escape");
     await page.locator('#automation-flow-preview [data-flow-kind="action"]').first().click();
     await page.locator("#studio-automation-action-entity").focus();
     await page.locator("#studio-automation-action-entity + .automation-entity-results .automation-entity-result").first().waitFor();
@@ -412,7 +411,7 @@ async function main() {
     assert.match(await page.locator("#automation-library .autonomy-draft").first().innerText(), /Browser flow/i);
     await page.locator("#automation-library-sort").selectOption("active");
     assert.match(await page.locator("#automation-library .autonomy-draft").first().innerText(), /Active lighting/i);
-    assert.equal(await page.locator("#automation-library .automation-flow-stage").count(), 8);
+    assert.equal(await page.locator("#automation-library .automation-flow-stage").count(), 7);
     assert.equal(await page.locator("#automation-library").evaluate(element => element.classList.contains("is-compact")), true);
     assert.equal(await page.locator("#automation-library .automation-library-flow").first().getAttribute("open"), null);
     await page.locator("#automation-library .automation-library-flow summary").first().click();
@@ -446,10 +445,10 @@ async function main() {
     assert.ok(studioOrder.studio < studioOrder.chat, "Automation Studio must appear before Create with ZBRANO");
     const dropStudioBlock=kind=>page.evaluate(blockKind=>{const source=document.querySelector(`.automation-studio-toolbox [data-studio-node="${blockKind}"]`),canvas=document.querySelector("#automation-studio-canvas"),dataTransfer=new DataTransfer();source.dispatchEvent(new DragEvent("dragstart",{bubbles:true,dataTransfer}));canvas.dispatchEvent(new DragEvent("dragover",{bubbles:true,cancelable:true,dataTransfer}));canvas.dispatchEvent(new DragEvent("drop",{bubbles:true,cancelable:true,dataTransfer}));source.dispatchEvent(new DragEvent("dragend",{bubbles:true,dataTransfer}))},kind);
     await dropStudioBlock("trigger");
-    assert.match(await page.locator("#automation-studio-state").innerText(), /Trigger block added/i);
+    assert.match(await page.locator("#automation-studio-state").innerText(), /When block added/i);
     assert.equal(await page.locator('#automation-flow-preview [data-flow-kind="trigger"]').count(), 2);
     assert.equal(await page.locator('#automation-flow-preview [data-trigger-logic]').count(), 1);
-    assert.match(await page.locator('#automation-flow-preview [data-flow-kind="trigger"]').last().innerText(), /Choose a trigger entity/i);
+    assert.match(await page.locator('#automation-flow-preview [data-flow-kind="trigger"]').last().innerText(), /Choose an entity to monitor/i);
     await dropStudioBlock("trigger");
     assert.equal(await page.locator('#automation-flow-preview [data-flow-kind="trigger"]').count(), 3);
     assert.equal(await page.locator('#automation-flow-preview .automation-flow-stage.is-trigger.is-dense').count(), 1);
@@ -485,7 +484,7 @@ async function main() {
     assert.match(await page.locator("#automation-studio-state").innerText(), /Flow card moved/i);
     await page.evaluate(()=>{const source=document.querySelector('.automation-studio-toolbox [data-studio-node="trigger"]'),target=document.querySelectorAll('#automation-flow-preview [data-flow-kind="trigger"]')[1],dataTransfer=new DataTransfer(),rect=target.getBoundingClientRect();source.dispatchEvent(new DragEvent("dragstart",{bubbles:true,dataTransfer}));target.dispatchEvent(new DragEvent("dragover",{bubbles:true,cancelable:true,dataTransfer,clientX:rect.left+1}));target.dispatchEvent(new DragEvent("drop",{bubbles:true,cancelable:true,dataTransfer,clientX:rect.left+1}));source.dispatchEvent(new DragEvent("dragend",{bubbles:true,dataTransfer}))});
     assert.equal(await page.locator('#automation-flow-preview [data-flow-kind="trigger"]').count(), 4);
-    assert.match(await page.locator('#automation-flow-preview [data-flow-kind="trigger"]').nth(1).innerText(), /Choose a trigger entity/i);
+    assert.match(await page.locator('#automation-flow-preview [data-flow-kind="trigger"]').nth(1).innerText(), /Choose an entity to monitor/i);
     await dropStudioBlock("context");
     assert.equal(await page.locator('#automation-flow-preview [data-flow-kind="context"]').count(), 1);
     await dropStudioBlock("decision");
@@ -535,7 +534,7 @@ async function main() {
     await page.locator("#automation-studio-save").click();
     assert.match(await page.locator("#automation-studio-state").innerText(), /before saving/i);
     await page.locator('[data-validation-kind="trigger"]').first().click();
-    assert.equal(await page.locator("#automation-studio-inspector-title").innerText(), "Trigger");
+    assert.equal(await page.locator("#automation-studio-inspector-title").innerText(), "When");
     await page.locator("#studio-automation-trigger-entity").fill("sensor.browser_fixture_1");
     await page.locator("#studio-automation-trigger-value").fill("27");
     assert.equal(await page.locator("#automation-trigger-value").inputValue(), "27");
@@ -570,7 +569,7 @@ async function main() {
     assert.equal(await page.locator("[data-trigger-mode]").inputValue(), "all");
     await page.locator("#automation-flow-preview [data-trigger-logic]").selectOption("any");
     await page.locator('#automation-flow-preview [data-flow-kind="context"]').first().click();
-    assert.equal(await page.locator("#automation-studio-inspector-title").innerText(), "Condition");
+    assert.equal(await page.locator("#automation-studio-inspector-title").innerText(), "Shared condition");
     await page.waitForTimeout(250);
     await page.evaluate(()=>{document.activeElement?.blur();window.zbranoEntitySearch.close()});
     await page.locator('[data-workflow-add="conditions"]').click();
@@ -599,6 +598,8 @@ async function main() {
     assert.match(await page.locator('#automation-flow-preview .automation-flow-branch-suggestion').first().innerText(), /Check the cooling conditions/i);
     await page.locator('[data-branch-add-item="conditions"]').click();
     await page.locator('[data-branch-collection="conditions"][data-condition-field="entity_id"]').fill("sensor.browser_fixture_4");
+    await page.locator('[data-branch-collection="conditions"][data-condition-field="value"]').fill("off");
+    assert.match(await page.locator('.automation-branch-card').first().innerText(), /Required value/i);
     await page.locator('[data-branch-add-item="actions"]').click();
     await page.locator('[data-branch-collection="actions"][data-action-field="entity_id"]').fill("light.browser_fixture");
     await page.locator('[data-branch-collection="actions"][data-action-field="service"]').fill("light.turn_on");
@@ -613,6 +614,7 @@ async function main() {
     await page.locator('[data-flow-branch-condition-template="entity_compare"][data-flow-branch-index="0"]').click();
     assert.equal(await page.locator('#automation-flow-preview [data-flow-kind="branch-condition"]').count(), 2);
     await page.locator('[data-branch-collection="conditions"][data-item-index="1"][data-condition-field="entity_id"]').fill("sensor.browser_fixture_5");
+    await page.locator('[data-branch-collection="conditions"][data-item-index="1"][data-condition-field="attribute"]').fill("current_temperature");
     await page.locator('[data-branch-collection="conditions"][data-item-index="1"][data-condition-field="compare_entity_id"]').fill("climate.browser_thermostat");
     await page.locator('[data-branch-collection="conditions"][data-item-index="1"][data-condition-field="compare_attribute"]').fill("temperature");
     await page.locator('#automation-flow-preview [data-branch-condition-logic]').selectOption("any");

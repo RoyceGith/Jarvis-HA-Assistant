@@ -1,13 +1,14 @@
-## ZBRANO v0.13.129
+## ZBRANO v0.13.130
 
 ZBRANO combines Home Assistant chat, voice, entity control, memory, notifications,
 calendar and contact tools, plugins, and evidence-based automations. Automation Studio now uses
 a visual building-block toolbox, interactive node canvas, and contextual inspector;
 the established automation engine and stored definitions remain compatible.
 
-Version 0.13.129 hides textbox explanations as soon as a field receives focus.
-If the field remains empty, its explanation returns when focus moves elsewhere;
-entered values are never cleared.
+Version 0.13.130 makes the visual workflow match its real logic: a compact watcher
+stage wakes the automation, followed by explicit IF, ELSE IF, and ELSE paths.
+Every condition now exposes its entity, state or attribute, operator, required or
+comparison value, and sustained duration. Existing saved automations remain compatible.
 
 Version 0.13.128 repairs the container browser gate on slower ARM builders by
 making an Automation Studio delete interaction deterministic. Application behavior

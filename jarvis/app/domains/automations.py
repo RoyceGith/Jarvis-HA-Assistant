@@ -483,6 +483,7 @@ def _automation_normalize_condition(item: dict[str, Any]) -> dict[str, Any]:
     return {
         "kind": str(item.get("kind") or "entity"),
         "entity_id": str(item.get("entity_id") or "").strip().lower(),
+        "attribute": str(item.get("attribute") or "").strip(),
         "operator": str(item.get("operator") or "equals"),
         "value": str(item.get("value") or "").strip(),
         "compare_entity_id": str(item.get("compare_entity_id") or "").strip().lower(),
@@ -1188,7 +1189,12 @@ def _automation_condition_group_matches(conditions: list[dict[str, Any]], mode: 
             continue
         entity_id = str(condition.get("entity_id") or "")
         state_record = ha_ws.state_cache.get(entity_id) or {}
+        attribute = str(condition.get("attribute") or "")
         current = state_record.get("state")
+        if attribute:
+            current = state_record.get("attributes") if isinstance(state_record.get("attributes"), dict) else {}
+            for part in attribute.split("."):
+                current = current.get(part) if isinstance(current, dict) else None
         if kind == "entity_compare":
             compare_entity_id = str(condition.get("compare_entity_id") or "")
             compare_attribute = str(condition.get("compare_attribute") or "")
@@ -1208,7 +1214,8 @@ def _automation_condition_group_matches(conditions: list[dict[str, Any]], mode: 
                 matched = False
         results.append(matched)
         comparison = f" compared with {compare_entity_id}{'.' + compare_attribute if compare_attribute else ''}={expected if expected is not None else 'unavailable'}" if kind == "entity_compare" else ""
-        details.append(f"{entity_id}={current if current is not None else 'unavailable'}{comparison}{f' for {duration}s' if duration else ''}")
+        source = f"{entity_id}{'.' + attribute if attribute else ''}"
+        details.append(f"{source}={current if current is not None else 'unavailable'}{comparison}{f' for {duration}s' if duration else ''}")
     return (any(results) if mode == "any" else all(results)), f"{mode.upper()} conditions: " + ", ".join(details)
 
 def _automation_context_conditions_match(item: dict[str, Any]) -> tuple[bool, str]:

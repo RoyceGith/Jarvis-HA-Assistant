@@ -14,10 +14,10 @@ MANIFEST = json.loads((ROOT / "jarvis/release_manifest.json").read_text(encoding
 
 class CompleteBackupRoundTripReleaseTests(unittest.TestCase):
     def test_release_markers_are_aligned(self):
-        self.assertIn('version: "0.13.129"', CONFIG)
-        self.assertIn('version="0.13.129"', MAIN)
-        self.assertIn("HUD 0.13.129", HTML)
-        self.assertEqual(MANIFEST["version"], "0.13.129")
+        self.assertIn('version: "0.13.130"', CONFIG)
+        self.assertIn('version="0.13.130"', MAIN)
+        self.assertIn("HUD 0.13.130", HTML)
+        self.assertEqual(MANIFEST["version"], "0.13.130")
 
     def test_image_build_gates_complete_backup_round_trip(self):
         self.assertIn('python3 -m unittest discover -s ./tests -p "test_*.py"', DOCKERFILE)
@@ -35,7 +35,7 @@ class CompleteBackupRoundTripReleaseTests(unittest.TestCase):
             self.assertIn(marker, INTEGRATION)
 
     def test_release_history_includes_v01391(self):
-        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.128")
+        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.129")
 
 
 if __name__ == "__main__":

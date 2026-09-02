@@ -99,13 +99,13 @@ class ApplicationIntegrationTests(unittest.IsolatedAsyncioTestCase):
             response = await self.client.get("/api/health")
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json()["status"], "ok")
-        self.assertEqual(response.json()["version"], "0.13.129")
+        self.assertEqual(response.json()["version"], "0.13.130")
         self.assertEqual(response.json()["ha_read_entity_count"], 1)
         self.assertEqual(response.json()["ha_control_entity_count"], 1)
 
         frontend = await self.client.get("/")
         self.assertEqual(frontend.status_code, 200)
-        self.assertIn("HUD 0.13.129", frontend.text)
+        self.assertIn("HUD 0.13.130", frontend.text)
         self.assertEqual(
             frontend.headers.get("cache-control"),
             "no-store, no-cache, must-revalidate, max-age=0",
@@ -454,6 +454,7 @@ class ApplicationIntegrationTests(unittest.IsolatedAsyncioTestCase):
             state_cache = {
                 "sensor.workshop_temperature": {"state": "28", "attributes": {}},
                 "binary_sensor.workshop_occupied": {"state": "on", "attributes": {}},
+                "climate.workshop": {"state": "cool", "attributes": {"hvac_action": "cooling", "temperature": 25}},
                 "light.workshop": {"state": "off", "attributes": {}},
             }
 
@@ -480,6 +481,9 @@ class ApplicationIntegrationTests(unittest.IsolatedAsyncioTestCase):
             "conditions": [{
                 "kind": "entity", "entity_id": "binary_sensor.workshop_occupied",
                 "operator": "equals", "value": "on",
+            }, {
+                "kind": "entity", "entity_id": "climate.workshop", "attribute": "hvac_action",
+                "operator": "equals", "value": "cooling", "for_seconds": 0,
             }],
             "condition_mode": "all",
             "actions": [{
@@ -503,6 +507,7 @@ class ApplicationIntegrationTests(unittest.IsolatedAsyncioTestCase):
             self.assertEqual(persisted["automations"][0]["triggers"][1]["entity_id"], "binary_sensor.workshop_occupied")
             self.assertEqual(persisted["automations"][0]["trigger_mode"], "all")
             self.assertEqual(persisted["automations"][0]["conditions"][0]["entity_id"], "binary_sensor.workshop_occupied")
+            self.assertEqual(persisted["automations"][0]["conditions"][1]["attribute"], "hvac_action")
             self.assertEqual(persisted["automations"][0]["actions"][0]["service"], "light.turn_on")
 
             tested = await self.client.post("/api/automations/test-flow", json=workflow)

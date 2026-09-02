@@ -1,5 +1,12 @@
 # Change log
 
+## 0.13.130
+
+- Reframed trigger cards as the watcher events that wake an automation.
+- Added explicit IF, ELSE IF, and ELSE presentation to decision paths.
+- Added state-or-attribute, operator, value/entity comparison, and duration fields to conditions.
+- Preserved compatibility with existing automation definitions and legacy presence gates.
+
 ## 0.13.129
 
 - Hid textbox placeholder explanations while their field is focused.

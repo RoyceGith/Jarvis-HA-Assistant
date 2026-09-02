@@ -1,9 +1,9 @@
 {
-  "version": "0.13.129",
+  "version": "0.13.130",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/ZBRANO_Core main",
-  "summary": "Hide textbox explanations while editing and restore them when an empty field loses focus.",
+  "summary": "Make Automation Studio conditions executable and explicit with clear watcher, IF, ELSE IF, value, attribute, and duration controls.",
   "history_backfill": [
     {
       "version": "0.13.0",
@@ -520,18 +520,24 @@
     {
       "version": "0.13.128",
       "summary": "Made the container browser gate deterministic on slower ARM image builders."
+    },
+    {
+      "version": "0.13.129",
+      "summary": "Hid textbox explanations while editing and restored them when an empty field lost focus."
     }
   ],
   "release_entry": {
     "features": [
-      "Hide placeholder explanations immediately when a user focuses an input or textarea.",
-      "Restore the explanation automatically when an empty field loses focus."
+      "Present event sources as watchers followed by real IF, ELSE IF, and ELSE decision paths.",
+      "Let each entity condition read either state or a named Home Assistant attribute.",
+      "Expose clearly labelled entity, comparison, required value, and sustained-duration controls."
     ],
     "fixes": [
-      "Keep entered values intact while applying the cleaner focus behavior consistently across ZBRANO."
+      "Stop legacy presence and signal shortcuts from being mistaken for complete value conditions in the visual inspector.",
+      "Evaluate entity-attribute comparisons in the backend while preserving existing state-based automations."
     ],
     "validation": [
-      "Focused placeholder behavior, browser smoke, release manifest, README alignment, and v0.13.129 release coverage"
+      "Automation condition schema, runtime attribute evaluation, visual flow, browser smoke, release manifest, README alignment, and v0.13.130 release coverage"
     ]
   },
   "features": [

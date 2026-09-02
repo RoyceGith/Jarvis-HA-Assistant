@@ -25,12 +25,12 @@
   }
   function triggerCard(item,index,entityName){
     const kind=item.kind||"entity";
-    if(kind==="time")return node("trigger",index,`CHECK ${index+1}`,`Time is ${text(item.at,"not selected")}`,"");
-    if(kind==="sun")return node("trigger",index,`CHECK ${index+1}`,`${item.sun_event||"sunrise"} ${Number(item.offset_minutes||0)>=0?"+":""}${Number(item.offset_minutes||0)} min`,"");
-    if(kind==="interval")return node("trigger",index,`CHECK ${index+1}`,`Every ${Number(item.interval_minutes||5)} min`,"");
-    if(kind==="one_time")return node("trigger",index,`CHECK ${index+1}`,text(item.one_time_at,"Choose a date and time"),"");
+    if(kind==="time")return node("trigger",index,`WATCH ${index+1}`,`Time is ${text(item.at,"not selected")}`,"");
+    if(kind==="sun")return node("trigger",index,`WATCH ${index+1}`,`${item.sun_event||"sunrise"} ${Number(item.offset_minutes||0)>=0?"+":""}${Number(item.offset_minutes||0)} min`,"");
+    if(kind==="interval")return node("trigger",index,`WATCH ${index+1}`,`Every ${Number(item.interval_minutes||5)} min`,"");
+    if(kind==="one_time")return node("trigger",index,`WATCH ${index+1}`,text(item.one_time_at,"Choose a date and time"),"");
     const operator=operatorLabels[item.operator]||text(item.operator,"changes to"),value=text(item.value,"any value"),duration=Number(item.for_seconds||0);
-    return node("trigger",index,`CHECK ${index+1}`,entityName(text(item.entity_id,"Choose a trigger entity")),`${operator} ${value}${duration?` for ${duration} seconds`:""}`);
+    return node("trigger",index,`WATCH ${index+1}`,entityName(text(item.entity_id,"Choose an entity to monitor")),`${operator} ${value}${duration?` for ${duration} seconds`:""}`);
   }
   function conditionCard(item,index,entityName){
     const kind=item.kind||"entity";
@@ -38,10 +38,10 @@
     if(kind==="weekday")return node("context",index,`IF ${index+1}`,Array.isArray(item.weekdays)&&item.weekdays.length?item.weekdays.map(day=>["Mon","Tue","Wed","Thu","Fri","Sat","Sun"][Number(day)]||String(day)).join(", "):"Choose weekdays","");
     if(kind==="sun")return node("context",index,`IF ${index+1}`,`Sun is ${text(item.sun_state,"below horizon").replaceAll("_"," ")}`,"");
     if(kind==="entity_compare"){
-      const operator=operatorLabels[item.operator]||text(item.operator,"equals"),attribute=item.compare_attribute?` · ${item.compare_attribute}`:" · state";
-      return node("context",index,`IF ${index+1}`,entityName(text(item.entity_id,"Choose a source entity")),`${operator} ${entityName(text(item.compare_entity_id,"choose a comparison entity"))}${attribute}`);
+      const operator=operatorLabels[item.operator]||text(item.operator,"equals"),sourceAttribute=item.attribute?` · ${item.attribute}`:" · state",compareAttribute=item.compare_attribute?` · ${item.compare_attribute}`:" · state";
+      return node("context",index,`IF ${index+1}`,`${entityName(text(item.entity_id,"Choose a source entity"))}${sourceAttribute}`,`${operator} ${entityName(text(item.compare_entity_id,"choose a comparison entity"))}${compareAttribute}`);
     }
-    const operator=operatorLabels[item.operator]||text(item.operator,"equals"),duration=Number(item.for_seconds||0);return node("context",index,`IF ${index+1}`,entityName(text(item.entity_id,"Choose a condition entity")),`${operator} ${text(item.value,"a value")}${duration?` for ${duration} seconds`:""}`);
+    const operator=operatorLabels[item.operator]||text(item.operator,"equals"),duration=Number(item.for_seconds||0),attribute=item.attribute?` · ${item.attribute}`:"";return node("context",index,`IF ${index+1}`,`${entityName(text(item.entity_id,"Choose a condition entity"))}${attribute}`,`${operator} ${text(item.value,"a value")}${duration?` for ${duration} seconds`:""}`);
   }
   function actionLabel(item,entityName){
     const kind=item.kind||"service";
@@ -64,14 +64,14 @@
       const lane=document.createElement("section");lane.className="automation-flow-branch-lane";lane.dataset.flowBranchDrop=String(branchIndex);
       const conditions=(branch.conditions||[]).filter(item=>item&&typeof item==="object"),isElse=branchIndex===branches.length-1&&!conditions.length;
       if(interactive){const toolbar=document.createElement("div");toolbar.className="automation-flow-branch-toolbar";const label=document.createElement("span");label.textContent=isElse?"ELSE path":`Path ${branchIndex+1}`;toolbar.append(label);for(const [action,symbol,title,disabled] of [["previous","←",`Move ${label.textContent} left`,branchIndex===0||isElse],["next","→",`Move ${label.textContent} right`,branchIndex===branches.length-1||isElse||(branchIndex===branches.length-2&&!(branches.at(-1)?.conditions||[]).length)],["duplicate","⧉",`Duplicate ${label.textContent}`,branches.length>=10],["delete","×",`Delete ${label.textContent}`,branches.length===1]]){const button=document.createElement("button");button.type="button";button.dataset.flowBranchAction=action;button.dataset.flowBranchIndex=String(branchIndex);button.setAttribute("aria-label",title);button.title=title;button.textContent=symbol;button.disabled=disabled;toolbar.append(button)}lane.append(toolbar)}
-      lane.append(node("decision",branchIndex,isElse?"OR ELSE":`OPTION ${branchIndex+1}`,text(branch.name,`Path ${branchIndex+1}`),""));
+      lane.append(node("decision",branchIndex,isElse?"ELSE":branchIndex===0?"IF":"ELSE IF",text(branch.name,`Path ${branchIndex+1}`),""));
       const conditionLane=document.createElement("div");conditionLane.className="automation-flow-branch-conditions";conditionLane.dataset.flowBranchConditionDrop=String(branchIndex);conditionLane.setAttribute("aria-label",`${text(branch.name,`Branch ${branchIndex+1}`)} conditions`);
       const conditionLabel=document.createElement("span");conditionLabel.className="automation-flow-branch-section-label";conditionLabel.textContent=isElse?"OTHERWISE":"IF";conditionLane.append(conditionLabel);
       if(conditions.length){conditions.forEach((item,itemIndex)=>{if(itemIndex)conditionLane.append(logicConnector(branch.condition_mode,true,"branch",branchIndex));const card=conditionCard(item,itemIndex,entityName);card.classList.remove("is-context");card.classList.add("is-branch-condition");card.dataset.flowKind="branch-condition";card.dataset.flowBranchIndex=String(branchIndex);card.dataset.flowItemIndex=String(itemIndex);card.querySelector(".automation-flow-kicker").textContent=`IF ${itemIndex+1}`;conditionLane.append(card)})}
       else{const empty=document.createElement("span");empty.className="automation-flow-branch-empty is-condition-empty";empty.textContent="ELSE — no conditions";conditionLane.append(empty)}
       if(interactive){const menu=document.createElement("details");menu.className="automation-flow-branch-condition-menu";const summary=document.createElement("summary");summary.textContent="+ IF condition";const choices=document.createElement("div");choices.className="automation-flow-branch-condition-choices";for(const [key,label] of [["entity","Entity state"],["entity_compare","Compare entities"],["time_window","Time window"],["weekday","Weekdays"],["sun","Sun state"]]){const button=document.createElement("button");button.type="button";button.dataset.flowBranchConditionTemplate=key;button.dataset.flowBranchIndex=String(branchIndex);if(key==="entity")button.dataset.flowBranchAddCondition=String(branchIndex);button.textContent=label;choices.append(button)}menu.append(summary,choices);conditionLane.append(menu)}
       lane.append(verticalConnector(),conditionLane,verticalConnector());
-      const suggestion=document.createElement("div");suggestion.className="automation-flow-branch-suggestion";const suggestionLabel=document.createElement("span");suggestionLabel.className="automation-flow-branch-section-label";suggestionLabel.textContent="DO";const suggestionText=document.createElement("small");suggestionText.textContent=text(branch.suggestion,"Use the main suggestion");suggestion.append(suggestionLabel,suggestionText);lane.append(suggestion,verticalConnector());
+      const suggestion=document.createElement("div");suggestion.className="automation-flow-branch-suggestion";const suggestionLabel=document.createElement("span");suggestionLabel.className="automation-flow-branch-section-label";suggestionLabel.textContent="THEN SUGGEST";const suggestionText=document.createElement("small");suggestionText.textContent=text(branch.suggestion,"Use the main suggestion");suggestion.append(suggestionLabel,suggestionText);lane.append(suggestion,verticalConnector());
       const tasks=document.createElement("div");tasks.className="automation-flow-branch-actions";tasks.dataset.flowBranchActionDrop=String(branchIndex);tasks.setAttribute("aria-label",`${text(branch.name,`Branch ${branchIndex+1}`)} tasks`);
       const taskLabel=document.createElement("span");taskLabel.className="automation-flow-branch-section-label";taskLabel.textContent="AND";tasks.append(taskLabel);
       const actions=(branch.actions||[]).filter(item=>item&&typeof item==="object");
@@ -84,9 +84,9 @@
   function create(automation={},entityName=value=>value){
     const flow=document.createElement("div");flow.className="automation-flow";flow.setAttribute("role","group");flow.setAttribute("aria-label",`${text(automation.name,"Automation")} visual flow`);const interactive=Boolean(automation.studio_visual_draft);
     let triggers=Array.isArray(automation.triggers)?automation.triggers.filter(item=>item&&typeof item==="object"):[];if(!triggers.length)triggers=[{kind:"entity",entity_id:automation.trigger_entity,operator:automation.trigger_operator,value:automation.trigger_value,for_seconds:automation.trigger_for_seconds}];
-    flow.append(stage("trigger","CHECK THIS",triggers.map((item,index)=>triggerCard(item,index,entityName)),automation.trigger_mode,interactive));
-    const contextNodes=[];if(automation.presence_entity)contextNodes.push(node("context",contextNodes.length,"IF",entityName(automation.presence_entity),"presence is confirmed"));for(const entityId of (automation.signal_entities||[]).filter(Boolean))contextNodes.push(node("context",contextNodes.length,"IF",entityName(entityId),"signal is active"));for(const condition of (automation.conditions||[]).filter(item=>item&&typeof item==="object"))contextNodes.push(conditionCard(condition,contextNodes.length,entityName));if(!contextNodes.length)contextNodes.push(node("context",0,"IF","No additional condition",""));
-    flow.append(verticalConnector(),stage("context","IF THIS IS TRUE",contextNodes,automation.condition_mode,false));
+    flow.append(stage("trigger","WHEN ANY OF THESE CHANGE",triggers.map((item,index)=>triggerCard(item,index,entityName)),automation.trigger_mode,interactive));
+    const contextNodes=[];if(automation.presence_entity)contextNodes.push(node("context",contextNodes.length,"IF",entityName(automation.presence_entity),"legacy presence gate"));for(const entityId of (automation.signal_entities||[]).filter(Boolean))contextNodes.push(node("context",contextNodes.length,"IF",entityName(entityId),"legacy active-signal gate"));for(const condition of (automation.conditions||[]).filter(item=>item&&typeof item==="object"))contextNodes.push(conditionCard(condition,contextNodes.length,entityName));
+    if(contextNodes.length)flow.append(verticalConnector(),stage("context","REQUIRED FOR EVERY PATH",contextNodes,automation.condition_mode,false));
     const branches=(automation.branches||[]).filter(item=>item&&typeof item==="object");
     if(branches.length){
       flow.append(verticalConnector(),branchStage(branches,entityName,interactive));
