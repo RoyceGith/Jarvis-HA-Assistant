@@ -1,5 +1,10 @@
 # Change log
 
+## 0.13.121
+
+- Made notification read-state validation deterministic in the container browser gate.
+- Preserved application behavior and stored data.
+
 ## 0.13.120
 
 - Replaced generic Google Contacts HTTP 500 failures with actionable setup errors.
