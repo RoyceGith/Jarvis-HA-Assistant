@@ -1,5 +1,11 @@
 # Change log
 
+## 0.13.129
+
+- Hid textbox placeholder explanations while their field is focused.
+- Restored explanations when empty fields lose focus.
+- Preserved all entered and stored field values.
+
 ## 0.13.128
 
 - Stabilized the Automation Studio browser gate on slower ARM builders.

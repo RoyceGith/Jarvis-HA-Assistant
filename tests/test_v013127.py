@@ -49,8 +49,8 @@ class BirthdayDirectoryReleaseTests(unittest.TestCase):
         self.assertIn('.birthday-month-section', CSS)
 
     def test_release_is_aligned(self):
-        self.assertEqual(MANIFEST["version"], "0.13.128")
-        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.127")
+        self.assertEqual(MANIFEST["version"], "0.13.129")
+        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.128")
 
 
 if __name__ == "__main__":

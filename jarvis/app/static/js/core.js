@@ -8,6 +8,19 @@ if (!zbranoInspectionSession) {
   localStorage.setItem("jarvis_chat_session_id", jarvisChatSessionId);
 }
 
+document.addEventListener("focus", event => {
+  const field = event.target;
+  if (!(field instanceof HTMLInputElement || field instanceof HTMLTextAreaElement) || !field.hasAttribute("placeholder")) return;
+  field.dataset.zbranoPlaceholder = field.getAttribute("placeholder") || "";
+  field.setAttribute("placeholder", "");
+}, true);
+document.addEventListener("blur", event => {
+  const field = event.target;
+  if (!(field instanceof HTMLInputElement || field instanceof HTMLTextAreaElement) || !("zbranoPlaceholder" in field.dataset)) return;
+  field.setAttribute("placeholder", field.dataset.zbranoPlaceholder || "");
+  delete field.dataset.zbranoPlaceholder;
+}, true);
+
 const messages = document.getElementById("messages");
 const form = document.getElementById("chat-form");
 const input = document.getElementById("message");

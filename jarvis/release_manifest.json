@@ -1,9 +1,9 @@
 {
-  "version": "0.13.128",
+  "version": "0.13.129",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/ZBRANO_Core main",
-  "summary": "Make the container browser gate deterministic on slower ARM image builders.",
+  "summary": "Hide textbox explanations while editing and restore them when an empty field loses focus.",
   "history_backfill": [
     {
       "version": "0.13.0",
@@ -516,18 +516,22 @@
     {
       "version": "0.13.127",
       "summary": "Defaulted chat-created birthday reminders and organized the Birthday directory into upcoming and colored monthly sections."
+    },
+    {
+      "version": "0.13.128",
+      "summary": "Made the container browser gate deterministic on slower ARM image builders."
     }
   ],
   "release_entry": {
     "features": [
-      "Run the Automation Studio browser gate reliably on slower ARM container builders."
+      "Hide placeholder explanations immediately when a user focuses an input or textarea.",
+      "Restore the explanation automatically when an empty field loses focus."
     ],
     "fixes": [
-      "Prevent a selected Automation Studio card from intercepting the browser gate's delete-button click on slower ARM builders.",
-      "Restore publication of the Home Assistant container image after the v0.13.127 browser-test timeout."
+      "Keep entered values intact while applying the cleaner focus behavior consistently across ZBRANO."
     ],
     "validation": [
-      "Deterministic Automation Studio browser interaction, browser smoke, release manifest, README alignment, and v0.13.128 release coverage"
+      "Focused placeholder behavior, browser smoke, release manifest, README alignment, and v0.13.129 release coverage"
     ]
   },
   "features": [

@@ -130,7 +130,7 @@ function apiFixture(url, method = "GET") {
   if (pathname === "/api/health") {
     return {
       status: "ok",
-      version: "0.13.128",
+      version: "0.13.129",
       speech_provider: "openai",
       speech_providers: {openai: {configured: true}, elevenlabs: {configured: false}},
     };
@@ -213,7 +213,7 @@ function apiFixture(url, method = "GET") {
   if (pathname === "/api/plugins") return {plugins: []};
   if (pathname === "/api/files/shared") return {files: [], count: 0};
   if (pathname === "/api/release-memory-sync") {
-    return {enabled: false, state: "disabled", version: "0.13.128", task_active: false};
+    return {enabled: false, state: "disabled", version: "0.13.129", task_active: false};
   }
   if (pathname === "/api/tab-activity") return {revisions: {}};
   if (pathname === "/api/grinder-monitor/status") return {enabled: false, connected: false};
@@ -690,6 +690,12 @@ async function main() {
 
     await page.locator("#calendar-tab").click();
     await page.locator("#calendar-panel:not(.hidden)").waitFor();
+    await page.locator('[data-calendar-view="upcoming"]').click();
+    const calendarTitle = page.locator("#calendar-title");
+    await calendarTitle.focus();
+    assert.equal(await calendarTitle.getAttribute("placeholder"), "");
+    await calendarTitle.blur();
+    assert.equal(await calendarTitle.getAttribute("placeholder"), "Dentist");
     await page.locator('[data-calendar-view="birthdays"]').click();
     assert.match(await page.locator("#birthday-upcoming-list").innerText(), /Alex/);
     assert.match(await page.locator("#birthday-upcoming-list").innerText(), /in 11 days/i);

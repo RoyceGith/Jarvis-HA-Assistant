@@ -42,10 +42,10 @@ class IntentRoutingBoundaryTests(unittest.TestCase):
         calendar_intents.configure_calendar_intents(workshop_tools=TOOLS)
 
     def test_release_markers_are_aligned(self):
-        self.assertIn('version: "0.13.128"', CONFIG)
-        self.assertIn('version="0.13.128"', MAIN)
-        self.assertIn("HUD 0.13.128", HTML)
-        self.assertEqual(MANIFEST["version"], "0.13.128")
+        self.assertIn('version: "0.13.129"', CONFIG)
+        self.assertIn('version="0.13.129"', MAIN)
+        self.assertIn("HUD 0.13.129", HTML)
+        self.assertEqual(MANIFEST["version"], "0.13.129")
 
     def test_three_services_are_outside_composition_root_and_configured(self):
         self.assertNotIn("def is_automation_intent(", MAIN)
