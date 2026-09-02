@@ -1,9 +1,9 @@
 {
-  "version": "0.13.119",
+  "version": "0.13.120",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/ZBRANO_Core main",
-  "summary": "Add a private Contacts directory with birthday linking, CSV/vCard and read-only Google imports, and numbered chat disambiguation.",
+  "summary": "Repair Google Contacts imports with actionable API errors, resilient record handling, and preservation of existing local details.",
   "history_backfill": [
     {
       "version": "0.13.0",
@@ -480,21 +480,24 @@
     {
       "version": "0.13.118",
       "summary": "Showed only settings relevant to the selected Automation Studio trigger, condition, and action type."
+    },
+    {
+      "version": "0.13.119",
+      "summary": "Added a private Contacts directory with birthday linking, CSV/vCard and read-only Google imports, and numbered chat disambiguation."
     }
   ],
   "release_entry": {
     "features": [
-      "Add a full Contacts tab for people and companies with phones, email, birthdays, notes, addresses, websites, and locally stored bank details.",
-      "Import CSV and vCard files, or connect Google Contacts through explicit read-only OAuth.",
-      "Synchronize contact birthdays with the existing Birthdays directory and reminder engine."
+      "Show the exact Google People API setup remedy when Google OAuth succeeds but Contacts access is unavailable.",
+      "Report created, updated, and skipped Google contact counts after an import."
     ],
     "fixes": [
-      "Resolve duplicate contact names in chat through numbered choices that accept a number-only reply.",
-      "Apply numbered choices consistently to every chat clarification with multiple options.",
-      "Hide company bank details from ordinary contact searches unless explicitly requested."
+      "Return actionable API errors instead of a generic HTTP 500 during Google Contacts import.",
+      "Skip isolated malformed Google records instead of aborting the complete import.",
+      "Preserve existing local notes, birthdays, addresses, phone numbers, emails, and bank details when Google omits them."
     ],
     "validation": [
-      "Contacts persistence and CRUD wiring, birthday reconciliation, file import parsers, read-only Google OAuth boundary, chat tool policy, browser navigation, backup compatibility, release manifest, README alignment, and v0.13.119 release coverage"
+      "Google People error translation, malformed-record isolation, local-field preservation, read-only OAuth boundary, Contacts UI status, release manifest, README alignment, and v0.13.120 release coverage"
     ]
   },
   "features": [

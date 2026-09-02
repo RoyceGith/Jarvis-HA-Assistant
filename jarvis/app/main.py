@@ -714,7 +714,7 @@ ha_ws = HomeAssistantWebSocketClient(
 
 app = FastAPI(
     title="ZBRANO",
-    version="0.13.119",
+    version="0.13.120",
     docs_url="/api/docs",
     openapi_url="/api/openapi.json",
 )
@@ -2815,7 +2815,7 @@ async def health() -> dict[str, Any]:
     configured_speech_provider = SPEECH_PROVIDER if SPEECH_PROVIDER in {"openai", "elevenlabs"} else "openai"
     return {
         "status": "ok",
-        "version": "0.13.119",
+        "version": "0.13.120",
         "home_assistant_configured": bool(SUPERVISOR_TOKEN),
         "workshop_memory_configured": bool(WORKSHOP_MEMORY_URL),
         "workshop_memory_cost_guard": workshop_cost_guard_status(),
@@ -3898,6 +3898,8 @@ async def import_google_contacts_api() -> dict[str, Any]:
         return await import_google_contacts()
     except PermissionError as exc:
         raise HTTPException(status_code=409, detail=str(exc)) from exc
+    except (RuntimeError, httpx.HTTPError) as exc:
+        raise HTTPException(status_code=502, detail=str(exc)[:1000]) from exc
 
 
 NOTIFICATION_WATCH_TASK: asyncio.Task[Any] | None = None

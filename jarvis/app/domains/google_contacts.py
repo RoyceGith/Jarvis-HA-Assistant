@@ -2,11 +2,16 @@ from __future__ import annotations
 
 import contextlib
 import hashlib
+import logging
 from typing import Any, Callable
 
 import httpx
+from fastapi import HTTPException
 
 from ..schemas import ContactRequest, ContactUpdateRequest
+
+
+LOGGER = logging.getLogger(__name__)
 
 
 GOOGLE_CONTACTS_RESOURCE_URL = "https://people.googleapis.com/v1"
@@ -76,7 +81,17 @@ def _google_contact(person: dict[str, Any]) -> dict[str, Any]:
     given = str(name.get("givenName") or "")
     family = str(name.get("familyName") or "")
     display = str(name.get("displayName") or company or " ".join(filter(None, (given, family))))
-    month, day = int(birthday_date.get("month") or 0), int(birthday_date.get("day") or 0)
+    month = day = 0
+    try:
+        month, day = int(birthday_date.get("month") or 0), int(birthday_date.get("day") or 0)
+    except (TypeError, ValueError):
+        pass
+    if not 1 <= month <= 12 or not 1 <= day <= 31:
+        month = day = 0
+    birth_year = None
+    with contextlib.suppress(TypeError, ValueError):
+        candidate_year = int(birthday_date.get("year") or 0)
+        birth_year = candidate_year if 1800 <= candidate_year <= 2200 else None
     return {
         "kind": "company" if company and not (given or family) else "person",
         "display_name": display,
@@ -87,7 +102,7 @@ def _google_contact(person: dict[str, Any]) -> dict[str, Any]:
         "phone_numbers": [str(item.get("value") or "") for item in person.get("phoneNumbers") or []],
         "emails": [str(item.get("value") or "") for item in person.get("emailAddresses") or []],
         "birthday": f"{month:02d}-{day:02d}" if month and day else "",
-        "birth_year": int(birthday_date["year"]) if birthday_date.get("year") else None,
+        "birth_year": birth_year,
         "relationship": "",
         "address": str(address.get("formattedValue") or ""),
         "website": str(url.get("value") or ""),
@@ -116,6 +131,11 @@ async def import_google_contacts() -> dict[str, Any]:
                 detail = ""
                 with contextlib.suppress(ValueError, TypeError):
                     detail = str((response.json().get("error") or {}).get("message") or "")
+                normalized_detail = detail.casefold()
+                if response.status_code == 403 and any(marker in normalized_detail for marker in ("has not been used", "is disabled", "access_not_configured", "service_disabled")):
+                    raise RuntimeError("Google People API is disabled. Enable People API in the same Google Cloud project as ZBRANO's OAuth client, wait a minute, then retry the import.")
+                if response.status_code == 403:
+                    raise RuntimeError(detail or "Google denied Contacts access. Reconnect Google Contacts and approve the read-only Contacts permission.")
                 raise RuntimeError(detail or f"Google People API returned HTTP {response.status_code}")
             payload = response.json()
             people.extend(item for item in payload.get("connections") or [] if isinstance(item, dict))
@@ -123,18 +143,31 @@ async def import_google_contacts() -> dict[str, Any]:
             if not page_token or len(people) >= 2000:
                 break
     created = updated = skipped = 0
+    skipped_reasons: list[str] = []
     for person in people[:2000]:
-        raw = _google_contact(person)
-        if not raw["display_name"]:
+        try:
+            raw = _google_contact(person)
+            if not raw["display_name"]:
+                raise ValueError("missing display name")
+            exact = next((item for item in _list_contacts(raw["display_name"], True).get("contacts", []) if str(item.get("display_name") or "").casefold() == raw["display_name"].casefold()), None)
+            if exact:
+                for key in ("given_name", "family_name", "company_name", "job_title", "birthday", "relationship", "address", "website", "notes"):
+                    if not raw.get(key):
+                        raw[key] = exact.get(key) or ""
+                if raw.get("birth_year") is None:
+                    raw["birth_year"] = exact.get("birth_year")
+                raw["phone_numbers"] = list(dict.fromkeys([*(exact.get("phone_numbers") or []), *raw["phone_numbers"]]))
+                raw["emails"] = list(dict.fromkeys([*(exact.get("emails") or []), *raw["emails"]]))
+                raw["bank_accounts"] = exact.get("bank_accounts") or []
+                _update_contact(exact["id"], ContactUpdateRequest(**raw), source="google_contacts")
+                updated += 1
+            else:
+                _create_contact(ContactRequest(**raw), source="google_contacts")
+                created += 1
+        except (HTTPException, TypeError, ValueError) as exc:
             skipped += 1
-            continue
-        exact = next((item for item in _list_contacts(raw["display_name"], True).get("contacts", []) if str(item.get("display_name") or "").casefold() == raw["display_name"].casefold()), None)
-        if exact:
-            preserved_accounts = exact.get("bank_accounts") or []
-            raw["bank_accounts"] = preserved_accounts
-            _update_contact(exact["id"], ContactUpdateRequest(**raw), source="google_contacts")
-            updated += 1
-        else:
-            _create_contact(ContactRequest(**raw), source="google_contacts")
-            created += 1
-    return {"imported": created + updated, "created": created, "updated": updated, "skipped": skipped}
+            reason = str(exc).replace("\n", " ")[:180]
+            if reason and reason not in skipped_reasons and len(skipped_reasons) < 3:
+                skipped_reasons.append(reason)
+            LOGGER.warning("Skipped invalid Google contact during import: %s", reason)
+    return {"imported": created + updated, "created": created, "updated": updated, "skipped": skipped, "skipped_reasons": skipped_reasons}

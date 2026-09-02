@@ -1,15 +1,17 @@
-## ZBRANO v0.13.119
+## ZBRANO v0.13.120
 
 ZBRANO combines Home Assistant chat, voice, entity control, memory, notifications,
 calendar and contact tools, plugins, and evidence-based automations. Automation Studio now uses
 a visual building-block toolbox, interactive node canvas, and contextual inspector;
 the established automation engine and stored definitions remain compatible.
 
-Version 0.13.119 adds a full Contacts tab for people and companies, including phone,
-email, birthday, notes, addresses, websites, and locally stored bank details.
-CSV and vCard imports are supported, with an optional read-only Google Contacts
-connection. Contact birthdays synchronize with the existing Birthdays system, and
-chat now numbers every ambiguous choice so a number-only answer is sufficient.
+Version 0.13.120 repairs Google Contacts import failures. Google People API or
+permission problems now return an actionable message instead of HTTP 500, malformed
+individual records are skipped without cancelling the whole import, and fields
+already stored locally are preserved when Google does not provide replacements.
+
+Version 0.13.119 adds the Contacts directory, CSV/vCard and read-only Google imports,
+Birthday synchronization, and numbered chat disambiguation.
 
 The application source and post-split build history are maintained in the private
 core repository. Public Home Assistant repositories contain only the five-file

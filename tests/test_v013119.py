@@ -18,9 +18,9 @@ MANIFEST = json.loads((ROOT / "jarvis/release_manifest.json").read_text(encoding
 
 class ContactsReleaseTests(unittest.TestCase):
     def test_release_markers_are_aligned(self):
-        self.assertIn('version="0.13.119"', MAIN)
-        self.assertIn("HUD 0.13.119", HTML)
-        self.assertEqual(MANIFEST["version"], "0.13.119")
+        self.assertIn('version="0.13.120"', MAIN)
+        self.assertIn("HUD 0.13.120", HTML)
+        self.assertEqual(MANIFEST["version"], "0.13.120")
 
     def test_local_contacts_crud_import_and_backup_are_wired(self):
         for marker in ("def contacts_store", "def create_contact", "def update_contact", "def delete_contact", "def import_contacts"):
@@ -40,6 +40,9 @@ class ContactsReleaseTests(unittest.TestCase):
         self.assertIn("def import_google_contacts", GOOGLE)
         self.assertIn("validate_google_contacts_oauth_grant", OAUTH)
         self.assertIn('"contacts" if str(catalog_id) == "google-people-official"', MAIN)
+        self.assertIn("Google People API is disabled", GOOGLE)
+        self.assertIn("skipped_reasons", GOOGLE)
+        self.assertIn("except (RuntimeError, httpx.HTTPError)", MAIN)
 
     def test_contacts_tab_and_sensitive_data_boundary_are_present(self):
         for marker in ('id="contacts-tab"', 'id="contacts-panel"', 'id="contacts-import-file"', 'id="google-contacts-import"'):
