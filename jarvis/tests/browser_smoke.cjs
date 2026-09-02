@@ -50,6 +50,7 @@ const entities = [
   ...Array.from({length: 48}, (_, index) => entityFixture(index + 1)),
   {entity_id:"climate.browser_thermostat",friendly_name:"Browser Thermostat",domain:"climate",state:"cool",target_temperature:25,current_temperature:26.2,temperature_unit:"°C",hvac_action:"cooling",available:true,risk:"low_risk_control_proposed",auto_approved:true},
   {entity_id:"light.browser_light",friendly_name:"Browser Light",domain:"light",state:"off",available:true,risk:"low_risk_control_proposed",auto_approved:true},
+  {entity_id:"light.browser_fixture",friendly_name:"Browser Fixture Light",domain:"light",state:"off",available:true,risk:"low_risk_control_proposed",auto_approved:true},
 ];
 const automationFixture = {
   settings: {
@@ -129,7 +130,7 @@ function apiFixture(url, method = "GET") {
   if (pathname === "/api/health") {
     return {
       status: "ok",
-      version: "0.13.122",
+      version: "0.13.123",
       speech_provider: "openai",
       speech_providers: {openai: {configured: true}, elevenlabs: {configured: false}},
     };
@@ -212,7 +213,7 @@ function apiFixture(url, method = "GET") {
   if (pathname === "/api/plugins") return {plugins: []};
   if (pathname === "/api/files/shared") return {files: [], count: 0};
   if (pathname === "/api/release-memory-sync") {
-    return {enabled: false, state: "disabled", version: "0.13.122", task_active: false};
+    return {enabled: false, state: "disabled", version: "0.13.123", task_active: false};
   }
   if (pathname === "/api/tab-activity") return {revisions: {}};
   if (pathname === "/api/grinder-monitor/status") return {enabled: false, connected: false};
@@ -368,6 +369,19 @@ async function main() {
     await page.locator("#studio-automation-trigger-operator").selectOption("above");
     assert.equal(await page.locator("#studio-automation-trigger-value").count(), 1);
     await page.locator("#studio-automation-trigger-operator").selectOption("changes_to");
+    await page.locator('#automation-flow-preview [data-flow-kind="context"]').first().click();
+    await page.locator("#studio-automation-presence").focus();
+    await page.locator("#studio-automation-presence + .automation-entity-results .automation-entity-result").first().waitFor();
+    await page.locator("#studio-automation-presence").press("Escape");
+    await page.locator("#studio-automation-signals").focus();
+    await page.locator("#studio-automation-signals + .automation-entity-results .automation-entity-result").first().waitFor();
+    await page.locator("#studio-automation-signals").press("Escape");
+    await page.locator('#automation-flow-preview [data-flow-kind="action"]').first().click();
+    await page.locator("#studio-automation-action-entity").focus();
+    await page.locator("#studio-automation-action-entity + .automation-entity-results .automation-entity-result").first().waitFor();
+    await page.locator("#studio-automation-action-entity").press("Escape");
+    const pickerResetDialogPromise=page.waitForEvent("dialog"),pickerResetClick=page.locator("#automation-studio-new").click();
+    const pickerResetDialog=await pickerResetDialogPromise;await pickerResetDialog.accept();await pickerResetClick;
     assert.match(await page.locator('[data-auto-view="library"]').innerText(), /My Automations/);
     assert.match(await page.locator('[data-auto-view="memory"]').innerText(), /Automation Memory/);
     await page.locator('[data-auto-view="library"]').click();
@@ -557,11 +571,15 @@ async function main() {
     await page.locator("#automation-flow-preview [data-trigger-logic]").selectOption("any");
     await page.locator('#automation-flow-preview [data-flow-kind="context"]').first().click();
     assert.equal(await page.locator("#automation-studio-inspector-title").innerText(), "Context");
+    await page.waitForTimeout(250);
+    await page.evaluate(()=>{document.activeElement?.blur();window.zbranoEntitySearch.close()});
     await page.locator('[data-workflow-add="conditions"]').click();
     await page.locator('[data-workflow-index="0"][data-condition-field="entity_id"]').fill("sensor.browser_fixture_3");
     await page.locator("[data-workflow-mode]").selectOption("any");
     assert.match(await page.locator("#automation-flow-preview").innerText(), /Browser Fixture 3/i);
     await page.locator('#automation-flow-preview [data-flow-kind="action"]').click();
+    await page.waitForTimeout(250);
+    await page.evaluate(()=>{document.activeElement?.blur();window.zbranoEntitySearch.close()});
     await page.locator('[data-workflow-add="actions"]').click();
     assert.equal(await page.locator(".automation-workflow-step").count(), 1);
     await page.locator('[data-workflow-index="0"][data-action-field="kind"]').selectOption("delay");

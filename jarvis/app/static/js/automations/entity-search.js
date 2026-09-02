@@ -34,6 +34,10 @@
     close(input);input.focus();
   }
   function close(input){
+    if(!input){
+      document.querySelectorAll(".automation-entity-results").forEach(picker=>{picker.hidden=true;picker.input?.setAttribute("aria-expanded","false")});
+      openPicker=null;return;
+    }
     const picker=input?input._zbranoEntityPicker:openPicker;
     if(!picker)return;
     picker.hidden=true;picker.input.setAttribute("aria-expanded","false");
@@ -58,7 +62,7 @@
     const picker=input._zbranoEntityPicker;picker.hidden=false;picker.replaceChildren();
     const loadingRow=document.createElement("div");loadingRow.className="automation-entity-empty";loadingRow.textContent="Loading entities…";picker.appendChild(loadingRow);
     input.setAttribute("aria-expanded","true");openPicker=picker;
-    try{await loadEntities();render(input)}catch(error){loadingRow.textContent=`Entity list unavailable: ${error.message||error}`}
+    try{await loadEntities();if(openPicker===picker&&!picker.hidden&&picker.isConnected)render(input)}catch(error){if(openPicker===picker&&!picker.hidden&&picker.isConnected)loadingRow.textContent=`Entity list unavailable: ${error.message||error}`}
   }
   function move(input,direction){
     const picker=input._zbranoEntityPicker,options=[...picker.querySelectorAll(".automation-entity-result")];if(!options.length)return;

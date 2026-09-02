@@ -6,6 +6,9 @@ connections.
 
 ## Automation Studio
 
+Version 0.13.123 restores searchable Home Assistant entity choices for Context
+presence, Context signals, and Action entities, and moves Contacts after Calendar.
+
 Version 0.13.122 restores Contacts scrolling and adds Cards, List, and Compact
 directory arrangements that are remembered in the browser.
 

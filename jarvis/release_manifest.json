@@ -1,9 +1,9 @@
 {
-  "version": "0.13.122",
+  "version": "0.13.123",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/ZBRANO_Core main",
-  "summary": "Restore Contacts workspace scrolling and add remembered Cards, List, and Compact directory arrangements.",
+  "summary": "Restore Automation Studio Context and Action entity pickers and position Contacts immediately after Calendar.",
   "history_backfill": [
     {
       "version": "0.13.0",
@@ -492,19 +492,22 @@
     {
       "version": "0.13.121",
       "summary": "Repaired the timing-sensitive notification read-state assertion in the container browser build gate."
+    },
+    {
+      "version": "0.13.122",
+      "summary": "Restored Contacts workspace scrolling and added remembered Cards, List, and Compact directory arrangements."
     }
   ],
   "release_entry": {
     "features": [
-      "Choose Cards, List, or Compact arrangement for the Contacts directory.",
-      "Remember the selected Contacts arrangement in the local browser."
+      "Place Contacts immediately to the right of Calendar in primary navigation."
     ],
     "fixes": [
-      "Constrain the Contacts workspace to the available panel height and restore independent vertical scrolling.",
-      "Keep mobile Contacts scrolling usable through a single responsive scroll owner."
+      "Attach the searchable Home Assistant entity picker to Automation Studio presence and multi-signal Context fields.",
+      "Attach searchable entity pickers to primary and dynamically generated Action entity fields."
     ],
     "validation": [
-      "Contacts overflow and arrangement browser smoke, responsive layout markers, release manifest, README alignment, and v0.13.122 release coverage"
+      "Context and Action entity-picker browser smoke, primary navigation order, release manifest, README alignment, and v0.13.123 release coverage"
     ]
   },
   "features": [

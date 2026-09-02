@@ -14,10 +14,10 @@ MANIFEST = json.loads((ROOT / "jarvis/release_manifest.json").read_text(encoding
 
 class CompactScrollableWorkspaceReleaseTests(unittest.TestCase):
     def test_release_markers_are_aligned(self):
-        self.assertIn('version: "0.13.122"', CONFIG)
-        self.assertIn('version="0.13.122"', MAIN)
-        self.assertIn("HUD 0.13.122", HTML)
-        self.assertEqual(MANIFEST["version"], "0.13.122")
+        self.assertIn('version: "0.13.123"', CONFIG)
+        self.assertIn('version="0.13.123"', MAIN)
+        self.assertIn("HUD 0.13.123", HTML)
+        self.assertEqual(MANIFEST["version"], "0.13.123")
 
     def test_settings_controls_are_compact(self):
         self.assertIn("repeat(2, minmax(220px, 380px))", STYLE)
@@ -37,7 +37,7 @@ class CompactScrollableWorkspaceReleaseTests(unittest.TestCase):
         self.assertIn('Voice settings panel must accept vertical scrolling', BROWSER)
 
     def test_release_history_includes_v01379(self):
-        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.121")
+        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.122")
 
 
 if __name__ == "__main__":

@@ -18,9 +18,9 @@ MANIFEST = json.loads((ROOT / "jarvis/release_manifest.json").read_text(encoding
 
 class ContactsReleaseTests(unittest.TestCase):
     def test_release_markers_are_aligned(self):
-        self.assertIn('version="0.13.122"', MAIN)
-        self.assertIn("HUD 0.13.122", HTML)
-        self.assertEqual(MANIFEST["version"], "0.13.122")
+        self.assertIn('version="0.13.123"', MAIN)
+        self.assertIn("HUD 0.13.123", HTML)
+        self.assertEqual(MANIFEST["version"], "0.13.123")
 
     def test_local_contacts_crud_import_and_backup_are_wired(self):
         for marker in ("def contacts_store", "def create_contact", "def update_contact", "def delete_contact", "def import_contacts"):
@@ -58,6 +58,9 @@ class ContactsReleaseTests(unittest.TestCase):
         self.assertIn("show every plausible match as a numbered list", INTENTS)
         self.assertIn('"name": "list_contacts"', MAIN)
         self.assertIn('"name": "save_contact"', MAIN)
+
+    def test_contacts_follows_calendar_in_primary_navigation(self):
+        self.assertLess(HTML.index('id="calendar-tab"'), HTML.index('id="contacts-tab"'))
 
 
 if __name__ == "__main__":

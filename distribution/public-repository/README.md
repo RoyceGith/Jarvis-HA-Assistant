@@ -19,6 +19,9 @@ storage, and `ghcr.io/roycegith/jarvis-ha-assistant` update image.
 
 ## Current experience
 
+Version 0.13.123 restores entity loading in Automation Studio's Context and Action
+inspectors and places Contacts immediately after Calendar.
+
 Version 0.13.122 restores Contacts scrolling and adds remembered Cards, List,
 and Compact directory arrangements.
 
