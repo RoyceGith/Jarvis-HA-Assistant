@@ -19,6 +19,9 @@ storage, and `ghcr.io/roycegith/jarvis-ha-assistant` update image.
 
 ## Current experience
 
+Version 0.13.129 hides textbox explanations while a field is focused and restores
+them when an empty field loses focus, without clearing entered values.
+
 Version 0.13.128 repairs the slower ARM container browser gate so the Home
 Assistant image can publish. Runtime behavior and stored data are unchanged.
 

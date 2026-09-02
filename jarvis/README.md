@@ -6,6 +6,9 @@ connections.
 
 ## Automation Studio
 
+Version 0.13.129 gives text fields cleaner focus behavior: placeholder explanations
+hide during editing and return after an empty field loses focus.
+
 Version 0.13.128 stabilizes the container browser validation on slower ARM builders
 and restores image publication without changing application behavior.
 
