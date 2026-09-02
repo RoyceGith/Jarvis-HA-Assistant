@@ -19,6 +19,9 @@ storage, and `ghcr.io/roycegith/jarvis-ha-assistant` update image.
 
 ## Current experience
 
+Version 0.13.125 keeps the Objective out of the Do This process card and clearly
+prompts for an actual suggestion or task in new flows.
+
 Version 0.13.124 simplifies Automation Studio flows into direct Check, If, and Do
 steps, renames the visible Context block to Condition, and shows complete entity
 names and IDs on cards.
