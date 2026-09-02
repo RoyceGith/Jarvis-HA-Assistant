@@ -1,5 +1,11 @@
 # Change log
 
+## 0.13.123
+
+- Restored searchable entity loading for Context presence and signal fields.
+- Restored searchable entity loading for Action entity fields.
+- Positioned Contacts immediately to the right of Calendar.
+
 ## 0.13.122
 
 - Restored independent vertical scrolling in the Contacts workspace.
