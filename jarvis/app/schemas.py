@@ -280,6 +280,48 @@ class BirthdayUpdateRequest(BaseModel):
     notes: str | None = Field(default=None, max_length=3000)
     gift_ideas: str | None = Field(default=None, max_length=3000)
 
+class ContactBankAccount(BaseModel):
+    label: str = Field(default="", max_length=100)
+    bank_name: str = Field(default="", max_length=160)
+    account_name: str = Field(default="", max_length=160)
+    iban: str = Field(default="", max_length=64)
+    account_number: str = Field(default="", max_length=100)
+    swift: str = Field(default="", max_length=32)
+
+class ContactRequest(BaseModel):
+    kind: str = Field(default="person", pattern="^(person|company)$")
+    display_name: str = Field(default="", max_length=160)
+    given_name: str = Field(default="", max_length=100)
+    family_name: str = Field(default="", max_length=100)
+    company_name: str = Field(default="", max_length=160)
+    job_title: str = Field(default="", max_length=160)
+    phone_numbers: list[str] = Field(default_factory=list, max_length=20)
+    emails: list[str] = Field(default_factory=list, max_length=20)
+    birthday: str = Field(default="", pattern=r"^(|(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01]))$")
+    birth_year: int | None = Field(default=None, ge=1800, le=2200)
+    relationship: str = Field(default="", max_length=100)
+    address: str = Field(default="", max_length=1000)
+    website: str = Field(default="", max_length=500)
+    notes: str = Field(default="", max_length=5000)
+    bank_accounts: list[ContactBankAccount] = Field(default_factory=list, max_length=10)
+
+class ContactUpdateRequest(BaseModel):
+    kind: str | None = Field(default=None, pattern="^(person|company)$")
+    display_name: str | None = Field(default=None, max_length=160)
+    given_name: str | None = Field(default=None, max_length=100)
+    family_name: str | None = Field(default=None, max_length=100)
+    company_name: str | None = Field(default=None, max_length=160)
+    job_title: str | None = Field(default=None, max_length=160)
+    phone_numbers: list[str] | None = Field(default=None, max_length=20)
+    emails: list[str] | None = Field(default=None, max_length=20)
+    birthday: str | None = Field(default=None, pattern=r"^(|(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01]))$")
+    birth_year: int | None = Field(default=None, ge=1800, le=2200)
+    relationship: str | None = Field(default=None, max_length=100)
+    address: str | None = Field(default=None, max_length=1000)
+    website: str | None = Field(default=None, max_length=500)
+    notes: str | None = Field(default=None, max_length=5000)
+    bank_accounts: list[ContactBankAccount] | None = Field(default=None, max_length=10)
+
 class GoogleCalendarSyncSettingsRequest(BaseModel):
     calendar_id: str = Field(default="primary", min_length=1, max_length=1024)
     enabled: bool = False

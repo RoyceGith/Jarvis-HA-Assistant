@@ -75,6 +75,18 @@ from .domains.calendar import (
     list_birthdays,
     list_calendar_appointments,
 )
+from .domains.contacts import (
+    CONTACT_IMPORT_MAX_BYTES,
+    CONTACTS_STORAGE_PATH,
+    configure_contacts_domain,
+    contacts_store,
+    create_contact,
+    delete_contact,
+    import_contacts,
+    list_contacts,
+    sync_contact_from_birthday,
+    update_contact,
+)
 from .domains.google_calendar import (
     configure_google_calendar_domain,
     GOOGLE_CALENDAR_API_BASE,
@@ -151,6 +163,14 @@ from .domains.settings import (
     save_onboarding_state,
     save_preferences,
     save_settings_payload,
+)
+from .domains.google_contacts import (
+    GOOGLE_CONTACTS_OAUTH_SCOPES,
+    GOOGLE_CONTACTS_RESOURCE_URL,
+    configure_google_contacts_domain,
+    google_contacts_plugin_id,
+    google_contacts_status,
+    import_google_contacts,
 )
 from .domains.conversations import (
     CHAT_CONTEXT_MAX_MESSAGES,
@@ -236,6 +256,8 @@ from .schemas import (
     NotificationWatchStateRequest,
     BirthdayRequest,
     BirthdayUpdateRequest,
+    ContactRequest,
+    ContactUpdateRequest,
     CalendarAppointmentRequest,
     CalendarRemindersUpdateRequest,
     GoogleCalendarSyncSettingsRequest,
@@ -477,6 +499,7 @@ from .services.google_oauth import (
     revoke_rejected_oauth_token as _revoke_rejected_oauth_token,
     validate_gmail_oauth_grant as _validate_gmail_oauth_grant,
     validate_google_calendar_oauth_grant as _validate_google_calendar_oauth_grant,
+    validate_google_contacts_oauth_grant as _validate_google_contacts_oauth_grant,
 )
 from .services.github_device_oauth import (
     GitHubDeviceFlowError,
@@ -691,7 +714,7 @@ ha_ws = HomeAssistantWebSocketClient(
 
 app = FastAPI(
     title="ZBRANO",
-    version="0.13.118",
+    version="0.13.119",
     docs_url="/api/docs",
     openapi_url="/api/openapi.json",
 )
@@ -712,6 +735,34 @@ app = FastAPI(
 
 
 WORKSHOP_TOOLS: list[dict[str, Any]] = [
+    {
+        "type": "function",
+        "name": "list_contacts",
+        "description": "Search ZBRANO's local contacts before saving or answering about a named person or company. Returns all matching identities but hides bank details unless the user explicitly asks for them.",
+        "parameters": {"type": "object", "properties": {"query": {"type": "string"}, "include_sensitive": {"type": "boolean", "description": "True only when the user explicitly requests stored bank details."}}, "required": ["query", "include_sensitive"], "additionalProperties": False},
+        "strict": True,
+    },
+    {
+        "type": "function",
+        "name": "save_contact",
+        "description": "Create a local contact, or update the exact contact_id after resolving the person's or company's identity. Birthday fields are synchronized with ZBRANO Birthdays.",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "contact_id": {"type": "string", "description": "Exact existing ID, or blank to create."},
+                "kind": {"type": "string", "enum": ["person", "company"]},
+                "display_name": {"type": "string"}, "given_name": {"type": "string"}, "family_name": {"type": "string"},
+                "company_name": {"type": "string"}, "job_title": {"type": "string"},
+                "phone_numbers": {"type": "array", "items": {"type": "string"}}, "emails": {"type": "array", "items": {"type": "string"}},
+                "birthday": {"type": "string", "description": "MM-DD or blank."}, "birth_year": {"type": ["integer", "null"]},
+                "relationship": {"type": "string"}, "address": {"type": "string"}, "website": {"type": "string"}, "notes": {"type": "string"},
+                "bank_accounts": {"type": "array", "items": {"type": "object", "properties": {"label": {"type": "string"}, "bank_name": {"type": "string"}, "account_name": {"type": "string"}, "iban": {"type": "string"}, "account_number": {"type": "string"}, "swift": {"type": "string"}}, "required": ["label", "bank_name", "account_name", "iban", "account_number", "swift"], "additionalProperties": False}}
+            },
+            "required": ["contact_id", "kind", "display_name", "given_name", "family_name", "company_name", "job_title", "phone_numbers", "emails", "birthday", "birth_year", "relationship", "address", "website", "notes", "bank_accounts"],
+            "additionalProperties": False,
+        },
+        "strict": True,
+    },
     {
         "type": "function",
         "name": "create_birthday",
@@ -1265,6 +1316,10 @@ equivalent command, or retry unless the user issues the original task again.
 Be direct, technically precise, and concise. Distinguish documented facts
 from proposals and unresolved questions.
 
+Whenever you ask the user to choose between two or more options, prefix every option with a number (1., 2., 3.)
+and accept a reply containing only the selected number. This applies to contacts, Home Assistant entities,
+automation mappings, calendars, files, plugins, and all other clarification choices.
+
 When the user explicitly asks you to save or remember a standing behavior or
 preference, call save_general_instruction with one concise, standalone
 instruction. Do not save ordinary examples, corrections, quoted text, or
@@ -1578,6 +1633,11 @@ async def execute_tool_calls(
                     result = _cancel_calendar_appointment(str(arguments.get("appointment_id") or ""))
                 elif name == "create_birthday":
                     result = await _create_birthday(BirthdayRequest(**arguments), source="chat")
+                elif name == "list_contacts":
+                    result = list_contacts(str(arguments.get("query") or ""), bool(arguments.get("include_sensitive")))
+                elif name == "save_contact":
+                    contact_id = str(arguments.pop("contact_id", "") or "")
+                    result = update_contact(contact_id, ContactUpdateRequest(**arguments), source="chat") if contact_id else create_contact(ContactRequest(**arguments), source="chat")
                 elif name == "list_birthdays":
                     result = list_birthdays(str(arguments.get("query") or ""))
                 elif name == "update_birthday_details":
@@ -2755,7 +2815,7 @@ async def health() -> dict[str, Any]:
     configured_speech_provider = SPEECH_PROVIDER if SPEECH_PROVIDER in {"openai", "elevenlabs"} else "openai"
     return {
         "status": "ok",
-        "version": "0.13.118",
+        "version": "0.13.119",
         "home_assistant_configured": bool(SUPERVISOR_TOKEN),
         "workshop_memory_configured": bool(WORKSHOP_MEMORY_URL),
         "workshop_memory_cost_guard": workshop_cost_guard_status(),
@@ -3095,11 +3155,12 @@ async def _oauth_start_for_target(name, resource_url, redirect_uri, catalog_id="
     google_service = (
         "gmail" if str(catalog_id) == "gmail-official" or str(plugin_id) == _gmail_plugin_id()
         else "calendar" if str(catalog_id) == "google-calendar-official" or str(plugin_id) == _google_calendar_plugin_id()
+        else "contacts" if str(catalog_id) == "google-people-official" or str(plugin_id) == google_contacts_plugin_id()
         else ""
     )
     google_connector = bool(google_service)
     if google_connector:
-        resource_url = GMAIL_MCP_RESOURCE_URL if google_service == "gmail" else GOOGLE_CALENDAR_RESOURCE_URL
+        resource_url = GMAIL_MCP_RESOURCE_URL if google_service == "gmail" else GOOGLE_CALENDAR_RESOURCE_URL if google_service == "calendar" else GOOGLE_CONTACTS_RESOURCE_URL
         resource_metadata = {"resource": ""}
         auth_metadata = {
             "authorization_endpoint": "https://accounts.google.com/o/oauth2/v2/auth",
@@ -3133,7 +3194,7 @@ async def _oauth_start_for_target(name, resource_url, redirect_uri, catalog_id="
         "google_connector": google_connector,
         "google_service": google_service,
         "scope": (
-            " ".join(GMAIL_MCP_OAUTH_SCOPES if google_service == "gmail" else GOOGLE_CALENDAR_OAUTH_SCOPES)
+            " ".join(GMAIL_MCP_OAUTH_SCOPES if google_service == "gmail" else GOOGLE_CALENDAR_OAUTH_SCOPES if google_service == "calendar" else GOOGLE_CONTACTS_OAUTH_SCOPES)
             if google_connector else
             " ".join(
                 str(scope).strip() for scope in (
@@ -3221,6 +3282,8 @@ async def plugin_oauth_callback(
         oauth_account = await _validate_gmail_oauth_grant(flow, token)
         if flow.get("google_service") == "calendar":
             oauth_account = await _validate_google_calendar_oauth_grant(flow, token)
+        elif flow.get("google_service") == "contacts":
+            oauth_account = await _validate_google_contacts_oauth_grant(flow, token)
         access_token = str(token["access_token"])
         if flow.get("google_service") == "gmail":
             tools = gmail_direct_tool_records()
@@ -3228,6 +3291,9 @@ async def plugin_oauth_callback(
         elif flow.get("google_service") == "calendar":
             tools = []
             plugin_id = _google_calendar_plugin_id()
+        elif flow.get("google_service") == "contacts":
+            tools = []
+            plugin_id = google_contacts_plugin_id()
         else:
             tools = await discover_plugin_tools(flow["resource_url"], access_token)
             for tool in tools:
@@ -3243,16 +3309,19 @@ async def plugin_oauth_callback(
             "name": (
                 "Gmail Direct" if flow.get("google_service") == "gmail"
                 else "Google Calendar Direct" if flow.get("google_service") == "calendar"
+                else "Google Contacts Import" if flow.get("google_service") == "contacts"
                 else flow["name"]
             ),
             "url": (
                 "https://gmail.googleapis.com/gmail/v1" if flow.get("google_service") == "gmail"
                 else GOOGLE_CALENDAR_API_BASE if flow.get("google_service") == "calendar"
+                else GOOGLE_CONTACTS_RESOURCE_URL if flow.get("google_service") == "contacts"
                 else flow["resource_url"]
             ),
             "catalog_id": (
                 "gmail-official" if flow.get("google_service") == "gmail"
                 else "google-calendar-official" if flow.get("google_service") == "calendar"
+                else "google-people-official" if flow.get("google_service") == "contacts"
                 else str(flow.get("catalog_id") or "")
             ),
             "enabled": True, "healthy": True, "last_error": None, "last_checked": time.time(),
@@ -3788,6 +3857,47 @@ async def update_birthday(birthday_id: str, request: BirthdayUpdateRequest) -> d
 @app.delete("/api/birthdays/{birthday_id}")
 async def delete_birthday(birthday_id: str) -> dict[str, Any]:
     return _delete_birthday(birthday_id)
+
+
+@app.get("/api/contacts")
+async def read_contacts(query: str = "", include_sensitive: bool = False) -> dict[str, Any]:
+    return list_contacts(query, include_sensitive)
+
+
+@app.post("/api/contacts")
+async def create_contact_api(request: ContactRequest) -> dict[str, Any]:
+    return create_contact(request)
+
+
+@app.put("/api/contacts/{contact_id}")
+async def update_contact_api(contact_id: str, request: ContactUpdateRequest) -> dict[str, Any]:
+    return update_contact(contact_id, request)
+
+
+@app.delete("/api/contacts/{contact_id}")
+async def delete_contact_api(contact_id: str) -> dict[str, Any]:
+    return delete_contact(contact_id)
+
+
+@app.post("/api/contacts/import")
+async def import_contacts_api(file: UploadFile = File(...)) -> dict[str, Any]:
+    filename = str(file.filename or "contacts.csv")
+    if not filename.lower().endswith((".csv", ".vcf", ".vcard")):
+        raise HTTPException(status_code=400, detail="Choose a CSV or vCard contact file")
+    return import_contacts(await file.read(CONTACT_IMPORT_MAX_BYTES + 1), filename)
+
+
+@app.get("/api/contacts/google/status")
+async def read_google_contacts_status() -> dict[str, Any]:
+    return google_contacts_status()
+
+
+@app.post("/api/contacts/google/import")
+async def import_google_contacts_api() -> dict[str, Any]:
+    try:
+        return await import_google_contacts()
+    except PermissionError as exc:
+        raise HTTPException(status_code=409, detail=str(exc)) from exc
 
 
 NOTIFICATION_WATCH_TASK: asyncio.Task[Any] | None = None
@@ -4344,6 +4454,7 @@ async def export_settings_backup() -> Response:
         "notifications": notification_store(),
         "calendar": calendar_store(),
         "birthdays": birthday_store(),
+        "contacts": contacts_store(),
         "fast_memory": export_fast_memory(),
     }
     # Secrets are environment-backed and are intentionally absent from this file.
@@ -4366,6 +4477,7 @@ async def restore_settings_backup(request: SettingsRestoreRequest) -> dict[str, 
     notifications = backup.get("notifications")
     calendar = backup.get("calendar")
     birthdays = backup.get("birthdays")
+    contacts = backup.get("contacts")
     fast_memory = backup.get("fast_memory")
     if not isinstance(settings, dict) or not isinstance(chats, dict) or not isinstance(policy, dict):
         raise HTTPException(status_code=400, detail="Backup is missing required sections")
@@ -4395,6 +4507,8 @@ async def restore_settings_backup(request: SettingsRestoreRequest) -> dict[str, 
         or not isinstance(birthdays.get("birthdays", []), list)
     ):
         raise HTTPException(status_code=400, detail="Backup birthday data is malformed")
+    if contacts is not None and (not isinstance(contacts, dict) or not isinstance(contacts.get("contacts", []), list)):
+        raise HTTPException(status_code=400, detail="Backup contact data is malformed")
     if fast_memory is not None and (
         not isinstance(fast_memory, dict)
         or not isinstance(fast_memory.get("memories", []), list)
@@ -4412,6 +4526,9 @@ async def restore_settings_backup(request: SettingsRestoreRequest) -> dict[str, 
         _calendar_save(calendar)
     if birthdays is not None:
         _birthday_save(birthdays)
+    if contacts is not None:
+        from .domains.contacts import _contacts_save
+        _contacts_save(contacts)
     if fast_memory is not None:
         restore_fast_memory(fast_memory)
     load_chat_sessions()
@@ -6032,6 +6149,7 @@ configure_google_oauth_service(
     timeout=PLUGIN_TIMEOUT,
     gmail_scopes=GMAIL_MCP_OAUTH_SCOPES,
     calendar_scopes=GOOGLE_CALENDAR_OAUTH_SCOPES,
+    contacts_scopes=GOOGLE_CONTACTS_OAUTH_SCOPES,
     gmail_plugin_id_fn=_gmail_plugin_id,
     oauth_records_fn=plugin_oauth_records,
     oauth_scope_set_fn=_oauth_scope_set,
@@ -6063,6 +6181,7 @@ configure_tab_activity_service(
         "notifications": NOTIFICATION_STORAGE_PATH,
         "calendar": CALENDAR_STORAGE_PATH,
         "birthdays": BIRTHDAY_STORAGE_PATH,
+        "contacts": CONTACTS_STORAGE_PATH,
         "settings": SETTINGS_STORAGE_PATH,
         "developer": DEVELOPER_STATE_PATH,
     },
@@ -6144,6 +6263,23 @@ configure_calendar_domain(
     google_sync_store_fn=google_calendar_sync_store,
     notification_quiet_now_fn=_notification_quiet_now,
     notification_test_fn=test_notification_channel,
+    contact_birthday_changed_fn=sync_contact_from_birthday,
+)
+configure_google_contacts_domain(
+    oauth_records_fn=plugin_oauth_records,
+    plugin_secrets_fn=plugin_secrets,
+    plugin_registry_fn=plugin_registry,
+    oauth_scope_set_fn=_oauth_scope_set,
+    refresh_oauth_token_fn=_refresh_plugin_oauth_token,
+    list_contacts_fn=list_contacts,
+    create_contact_fn=create_contact,
+    update_contact_fn=update_contact,
+)
+configure_contacts_domain(
+    plugin_load=_plugin_load,
+    plugin_save=_plugin_save,
+    birthday_store_fn=birthday_store,
+    birthday_save_fn=_birthday_save,
 )
 configure_notification_domain(
     plugin_load=_plugin_load,

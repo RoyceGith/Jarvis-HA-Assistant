@@ -7,6 +7,7 @@ from typing import Any
 CALENDAR_INTENT_TERMS = (
     "calendar", "appointment", "dentist", "doctor", "meeting", "reservation",
     "schedule", "reschedule", "agenda", "remind me on", "remind me at", "birthday", "birthdays", "gift idea",
+    "contact", "contacts", "phone number", "email address", "iban", "bank account",
 )
 
 _workshop_tools: list[dict[str, Any]] = []
@@ -31,6 +32,7 @@ def calendar_priority_tools() -> list[dict[str, Any]]:
         "create_calendar_appointment", "list_calendar_appointments",
         "update_calendar_reminders", "cancel_calendar_appointment",
         "create_birthday", "list_birthdays", "update_birthday_details",
+        "list_contacts", "save_contact",
     }
     return [tool for tool in _workshop_tools if str(tool.get("name") or "") in names]
 
@@ -54,9 +56,19 @@ offset list removes all reminders. Preserve delivered reminders at an unchanged 
 Calendar reminders are delivered through the Notification Center default channel, including Telegram when configured.
 
 BIRTHDAY WORKFLOW.
-Birthdays are annual local records, separate from appointments. When the user asks to save a birthday, require only
-the person's name and month/day. Birth year, relationship, notes, gift ideas, and reminder timing are optional. Use
+Birthdays are annual local records linked to Contacts and separate from appointments. Before saving a birthday, call
+list_contacts with the supplied name. If it returns multiple people, ask the user to choose from a numbered list using
+the returned full names; accept a reply containing only that number. If there is one match, update that contact with
+save_contact so its birthday stays synchronized. If there is no match, create the contact. Require only the person's
+name and month/day. Birth year, relationship, notes, gift ideas, and reminder timing are optional. Use
 the default reminder schedule [7, 1, 0] when the user does not specify one and a Notification Center destination is
 available. Use list_birthdays for upcoming-birthday questions and before changing notes or gift ideas. Never create
 a normal calendar appointment for a birthday, and never claim birthday details were saved unless the tool succeeds.
+
+CONTACT WORKFLOW.
+Contacts are private local records for people and companies. Always call list_contacts before saving details for a named
+identity. When two or more plausible matches exist, never guess: show every plausible match as a numbered list and accept
+the user's numeric reply. Use save_contact only after identity is unique. Ordinary searches must set include_sensitive to
+false. Set it to true only when the user explicitly asks for bank or account details. Never repeat sensitive banking data
+unless explicitly requested in that turn.
 """.strip()

@@ -6,7 +6,7 @@ connections.
 
 ## Automation Studio
 
-Version 0.13.118 makes Automation Studio inspectors contextual so each trigger
+Version 0.13.119 makes Automation Studio inspectors contextual so each trigger
 shows only the settings its selected type and operator actually use.
 
 Version 0.13.117 moves My Automations and Automation Memory into dedicated,

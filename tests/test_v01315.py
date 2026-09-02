@@ -21,10 +21,10 @@ MANIFEST = json.loads((ROOT / "jarvis/release_manifest.json").read_text(encoding
 
 class CanonicalModuleArchitectureTests(unittest.TestCase):
     def test_release_markers_are_aligned(self):
-        self.assertIn('version: "0.13.118"', CONFIG)
-        self.assertIn('version="0.13.118"', MAIN_RAW)
-        self.assertIn("HUD 0.13.118", HTML)
-        self.assertEqual(MANIFEST["version"], "0.13.118")
+        self.assertIn('version: "0.13.119"', CONFIG)
+        self.assertIn('version="0.13.119"', MAIN_RAW)
+        self.assertIn("HUD 0.13.119", HTML)
+        self.assertEqual(MANIFEST["version"], "0.13.119")
 
     def test_frontend_is_directly_split_with_stable_order(self):
         stylesheet_paths = re.findall(r'<link[^>]+href="([^"]+\.css)"', HTML)
@@ -37,8 +37,9 @@ class CanonicalModuleArchitectureTests(unittest.TestCase):
             "css/onboarding.css",
             "css/automation-studio.css",
             "css/workspace-modern.css",
+            "css/contacts.css",
         ])
-        self.assertEqual(len(script_paths), 30)
+        self.assertEqual(len(script_paths), 31)
         self.assertEqual(script_paths[0], "js/core.js")
         self.assertEqual(script_paths[-1], "js/onboarding.js")
         self.assertTrue(all((STATIC / path).is_file() for path in stylesheet_paths + script_paths))
@@ -67,7 +68,7 @@ class CanonicalModuleArchitectureTests(unittest.TestCase):
 
     def test_request_schemas_have_a_dedicated_module(self):
         schemas = (APP / "schemas.py").read_text(encoding="utf-8")
-        self.assertEqual(len(re.findall(r"^class \w+\(BaseModel\)", schemas, re.MULTILINE)), 42)
+        self.assertEqual(len(re.findall(r"^class \w+\(BaseModel\)", schemas, re.MULTILINE)), 45)
         self.assertIn("from .schemas import (", MAIN_RAW)
         self.assertNotIn("class ChatRequest(BaseModel)", MAIN_RAW)
         self.assertIn("class ChatRequest(BaseModel)", BACKEND)

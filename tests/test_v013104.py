@@ -15,10 +15,10 @@ MANIFEST = json.loads((ROOT / "jarvis/release_manifest.json").read_text(encoding
 
 class InteractiveFlowCardReleaseTests(unittest.TestCase):
     def test_release_markers_are_aligned(self):
-        self.assertIn('version: "0.13.118"', CONFIG)
-        self.assertIn('version="0.13.118"', MAIN)
-        self.assertIn("HUD 0.13.118", HTML)
-        self.assertEqual(MANIFEST["version"], "0.13.118")
+        self.assertIn('version: "0.13.119"', CONFIG)
+        self.assertIn('version="0.13.119"', MAIN)
+        self.assertIn("HUD 0.13.119", HTML)
+        self.assertEqual(MANIFEST["version"], "0.13.119")
 
     def test_cards_support_exact_insertion_and_same_stage_movement(self):
         for marker in (
@@ -58,7 +58,7 @@ class InteractiveFlowCardReleaseTests(unittest.TestCase):
         self.assertIn("Choose a trigger entity", BROWSER)
 
     def test_release_history_includes_v013103(self):
-        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.117")
+        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.118")
 
 
 if __name__ == "__main__":

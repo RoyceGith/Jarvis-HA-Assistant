@@ -129,7 +129,7 @@ function apiFixture(url, method = "GET") {
   if (pathname === "/api/health") {
     return {
       status: "ok",
-      version: "0.13.118",
+      version: "0.13.119",
       speech_provider: "openai",
       speech_providers: {openai: {configured: true}, elevenlabs: {configured: false}},
     };
@@ -197,11 +197,18 @@ function apiFixture(url, method = "GET") {
     relationship: "Friend", reminder_days_before: [7, 1, 0], destination: "notify.browser_phone",
     notes: "Likes books", gift_ideas: "A new novel", next_occurrence: "2026-09-12", days_until: 11, turning_age: 36,
   }]};
+  if (pathname === "/api/contacts") return {contacts: [{
+    id:"contact-fixture",kind:"person",display_name:"Alex Morgan",given_name:"Alex",family_name:"Morgan",
+    company_name:"Example Works",job_title:"Designer",phone_numbers:["+357 99123456"],emails:["alex@example.com"],
+    birthday:"09-12",birth_year:1990,relationship:"Friend",address:"Nicosia",website:"https://example.com",
+    notes:"Likes books",has_bank_details:false,
+  }],count:1};
+  if (pathname === "/api/contacts/google/status") return {connected:false,account:""};
   if (pathname === "/api/calendar/google/status") return {connected: false, enabled: false, pending_local_changes: 0};
   if (pathname === "/api/plugins") return {plugins: []};
   if (pathname === "/api/files/shared") return {files: [], count: 0};
   if (pathname === "/api/release-memory-sync") {
-    return {enabled: false, state: "disabled", version: "0.13.118", task_active: false};
+    return {enabled: false, state: "disabled", version: "0.13.119", task_active: false};
   }
   if (pathname === "/api/tab-activity") return {revisions: {}};
   if (pathname === "/api/grinder-monitor/status") return {enabled: false, connected: false};
@@ -288,6 +295,7 @@ async function main() {
     const thermostatRow = page.locator("#entity-rows tr").filter({hasText:"Browser Thermostat"});
     assert.equal(await thermostatRow.locator("td").nth(7).innerText(), "cool · set to 25 °C");
     assert.match(await thermostatRow.locator("td").nth(7).getAttribute("title"), /Current 26.2 °C · Action cooling/);
+
     const scrollState = await page.locator("#entities-panel .table-wrap").evaluate(element => {
       element.scrollTop = element.scrollHeight;
       element.scrollLeft = element.scrollWidth;
@@ -303,6 +311,14 @@ async function main() {
     assert.ok(["auto", "scroll"].includes(scrollState.overflowY));
     assert.equal(scrollState.horizontal, true, "Entity Inventory must scroll horizontally");
     assert.equal(scrollState.vertical, true, "Entity Inventory must scroll vertically");
+
+    await page.locator("#contacts-tab").click();
+    await page.locator("#contacts-panel:not(.hidden)").waitFor();
+    await page.getByText("Alex Morgan", {exact:true}).waitFor();
+    assert.match(await page.locator("#contacts-list").innerText(), /Alex Morgan/);
+    assert.match(await page.locator("#contacts-list").innerText(), /alex@example.com/);
+    await page.locator('[data-contact-view="import"]').click();
+    assert.equal(await page.locator("#contacts-import-upload").isVisible(), true);
 
     await page.locator("#automations-tab").click();
     await page.locator("#automations-panel:not(.hidden)").waitFor();

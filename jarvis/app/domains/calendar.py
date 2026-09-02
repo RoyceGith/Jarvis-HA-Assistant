@@ -13,13 +13,16 @@ from fastapi import HTTPException
 from ..schemas import BirthdayRequest, BirthdayUpdateRequest, CalendarAppointmentRequest, CalendarRemindersUpdateRequest, NotificationTestRequest
 
 
+_contact_birthday_changed = lambda item, deleted=False: None
+
+
 def configure_calendar_domain(
     *, plugin_load, plugin_save, notification_store_fn,
     notification_channels_fn, google_sync_store_fn,
-    notification_quiet_now_fn, notification_test_fn,
+    notification_quiet_now_fn, notification_test_fn, contact_birthday_changed_fn=None,
 ) -> None:
     global _plugin_load, _plugin_save, notification_store, notification_channels
-    global google_calendar_sync_store, _notification_quiet_now, test_notification_channel
+    global google_calendar_sync_store, _notification_quiet_now, test_notification_channel, _contact_birthday_changed
     _plugin_load = plugin_load
     _plugin_save = plugin_save
     notification_store = notification_store_fn
@@ -27,6 +30,7 @@ def configure_calendar_domain(
     google_calendar_sync_store = google_sync_store_fn
     _notification_quiet_now = notification_quiet_now_fn
     test_notification_channel = notification_test_fn
+    _contact_birthday_changed = contact_birthday_changed_fn or (lambda item, deleted=False: None)
 
 
 CALENDAR_STORAGE_PATH = Path("/data/zbrano_calendar.json")
@@ -127,6 +131,7 @@ async def _create_birthday(request: BirthdayRequest, source: str = "interface") 
         "deliveries": {},
     }
     data["birthdays"].append(item)
+    _contact_birthday_changed(item)
     _birthday_save(data)
     return {"created": True, "deduplicated": False, "birthday": _birthday_public(item)}
 
@@ -148,6 +153,7 @@ async def _update_birthday(birthday_id: str, request: BirthdayUpdateRequest, sou
     item["destination"] = destination
     item["updated_at"] = time.time()
     item["updated_by"] = source
+    _contact_birthday_changed(item)
     _birthday_save(data)
     return {"updated": True, "birthday": _birthday_public(item)}
 
@@ -157,6 +163,7 @@ def _delete_birthday(birthday_id: str) -> dict[str, Any]:
     if not item:
         raise HTTPException(status_code=404, detail="Birthday not found")
     data["birthdays"] = [entry for entry in data["birthdays"] if entry.get("id") != birthday_id]
+    _contact_birthday_changed(item, deleted=True)
     _birthday_save(data)
     return {"deleted": True, "birthday": _birthday_public(item)}
 

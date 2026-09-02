@@ -54,10 +54,10 @@ FEATURED_REMOTE_PLUGINS = [
     },
     {
         "id": "google-people-official", "name": "com.google.workspace/people", "title": "Google People",
-        "description": "Official People API remote MCP server for user profiles, contacts, and directory search.",
-        "url": "https://people.googleapis.com/mcp/v1", "category": "productivity", "verified": True,
-        "auth_required": True, "auth_mode": "oauth", "installable": False, "publisher": "Google",
-        "setup_label": "OAuth setup required", "availability": "Developer Preview",
+        "description": "Read-only Google People API import into ZBRANO's private local Contacts directory.",
+        "url": "https://people.googleapis.com/v1", "category": "productivity", "verified": True,
+        "auth_required": True, "auth_mode": "oauth", "installable": False, "oauth_connectable": True, "publisher": "ZBRANO + Google People API",
+        "setup_label": "Connect with Google", "availability": "Standard People API",
         "icon_url": "", "docs_url": "https://developers.google.com/people/v1/configure-mcp-server",
     },
     {

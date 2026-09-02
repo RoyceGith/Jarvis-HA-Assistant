@@ -36,10 +36,10 @@ class ConversationalAutomationContextReleaseTests(unittest.TestCase):
         )
 
     def test_release_markers_are_aligned(self):
-        self.assertIn('version: "0.13.118"', CONFIG)
-        self.assertIn('version="0.13.118"', MAIN)
-        self.assertIn("HUD 0.13.118", HTML)
-        self.assertEqual(MANIFEST["version"], "0.13.118")
+        self.assertIn('version: "0.13.119"', CONFIG)
+        self.assertIn('version="0.13.119"', MAIN)
+        self.assertIn("HUD 0.13.119", HTML)
+        self.assertEqual(MANIFEST["version"], "0.13.119")
 
     def test_location_aware_automation_tool_is_routed(self):
         tools = [
@@ -93,7 +93,7 @@ class ConversationalAutomationContextReleaseTests(unittest.TestCase):
         self.assertIn("person.* or device_tracker.*", context["presence_semantics"])
 
     def test_release_history_includes_v01393(self):
-        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.117")
+        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.118")
 
 
 if __name__ == "__main__":

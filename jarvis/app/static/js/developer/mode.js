@@ -39,10 +39,10 @@
   }
 
   function activateDeveloperPanel() {
-    for (const id of ["chat-panel", "entities-panel", "settings-panel", "plugins-panel", "files-panel", "calendar-panel", "developer-panel"]) {
+    for (const id of ["chat-panel", "entities-panel", "settings-panel", "plugins-panel", "files-panel", "contacts-panel", "calendar-panel", "developer-panel"]) {
       document.getElementById(id)?.classList.toggle("hidden", id !== "developer-panel");
     }
-    for (const id of ["chat-tab", "entities-tab", "settings-tab", "plugins-tab", "files-tab", "calendar-tab", "developer-tab"]) {
+    for (const id of ["chat-tab", "entities-tab", "settings-tab", "plugins-tab", "files-tab", "contacts-tab", "calendar-tab", "developer-tab"]) {
       document.getElementById(id)?.classList.toggle("active", id === "developer-tab");
     }
   }

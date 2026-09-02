@@ -10,7 +10,7 @@ from unittest.mock import AsyncMock, patch
 import httpx
 
 from app import main
-from app.domains import automations, calendar, conversations, fast_memory, notifications, settings
+from app.domains import automations, calendar, contacts, conversations, fast_memory, notifications, settings
 from app.services import entity_policy
 
 
@@ -33,6 +33,7 @@ class ApplicationIntegrationTests(unittest.IsolatedAsyncioTestCase):
         self.original_chat_path = conversations.CHAT_STORAGE_PATH
         self.original_automation_path = automations.AUTOMATION_STORAGE_PATH
         self.original_calendar_path = calendar.CALENDAR_STORAGE_PATH
+        self.original_contacts_path = contacts.CONTACTS_STORAGE_PATH
         self.original_notification_path = notifications.NOTIFICATION_STORAGE_PATH
         self.original_fast_memory_path = fast_memory.FAST_MEMORY_PATH
         self.original_main_chat_path = main.CHAT_STORAGE_PATH
@@ -46,6 +47,7 @@ class ApplicationIntegrationTests(unittest.IsolatedAsyncioTestCase):
         conversations.CHAT_STORAGE_PATH = temporary_root / "chat_sessions.json"
         automations.AUTOMATION_STORAGE_PATH = temporary_root / "autonomous_automations.json"
         calendar.CALENDAR_STORAGE_PATH = temporary_root / "zbrano_calendar.json"
+        contacts.CONTACTS_STORAGE_PATH = temporary_root / "zbrano_contacts.json"
         notifications.NOTIFICATION_STORAGE_PATH = temporary_root / "notification_center.json"
         fast_memory.FAST_MEMORY_PATH = temporary_root / "zbrano_fast_memory.sqlite3"
         main.CHAT_STORAGE_PATH = conversations.CHAT_STORAGE_PATH
@@ -70,6 +72,7 @@ class ApplicationIntegrationTests(unittest.IsolatedAsyncioTestCase):
         conversations.CHAT_STORAGE_PATH = self.original_chat_path
         automations.AUTOMATION_STORAGE_PATH = self.original_automation_path
         calendar.CALENDAR_STORAGE_PATH = self.original_calendar_path
+        contacts.CONTACTS_STORAGE_PATH = self.original_contacts_path
         notifications.NOTIFICATION_STORAGE_PATH = self.original_notification_path
         fast_memory.FAST_MEMORY_PATH = self.original_fast_memory_path
         main.CHAT_STORAGE_PATH = self.original_main_chat_path
@@ -96,13 +99,13 @@ class ApplicationIntegrationTests(unittest.IsolatedAsyncioTestCase):
             response = await self.client.get("/api/health")
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json()["status"], "ok")
-        self.assertEqual(response.json()["version"], "0.13.118")
+        self.assertEqual(response.json()["version"], "0.13.119")
         self.assertEqual(response.json()["ha_read_entity_count"], 1)
         self.assertEqual(response.json()["ha_control_entity_count"], 1)
 
         frontend = await self.client.get("/")
         self.assertEqual(frontend.status_code, 200)
-        self.assertIn("HUD 0.13.118", frontend.text)
+        self.assertIn("HUD 0.13.119", frontend.text)
         self.assertEqual(
             frontend.headers.get("cache-control"),
             "no-store, no-cache, must-revalidate, max-age=0",
@@ -342,6 +345,11 @@ class ApplicationIntegrationTests(unittest.IsolatedAsyncioTestCase):
                 "deliveries": {},
             }],
         })
+        contacts._contacts_save({"contacts": [{
+            "id": "backup-contact", "kind": "person", "display_name": "Backup Person",
+            "phone_numbers": ["+357 99000000"], "emails": ["backup@example.com"],
+            "birthday": "09-02", "birth_year": 1990, "bank_accounts": [],
+        }]})
         fast_memory.upsert_fast_memory({
             "kind": "preference",
             "subject": "Backup preference",
@@ -356,7 +364,7 @@ class ApplicationIntegrationTests(unittest.IsolatedAsyncioTestCase):
         backup = exported.json()
         self.assertEqual(set(backup), {
             "format", "created_at", "settings", "chats", "entity_policy",
-            "automations", "notifications", "calendar", "birthdays", "fast_memory",
+            "automations", "notifications", "calendar", "birthdays", "contacts", "fast_memory",
         })
 
         settings.save_settings_payload({"version": 3, "general_instructions": "Replace me."})
@@ -369,6 +377,7 @@ class ApplicationIntegrationTests(unittest.IsolatedAsyncioTestCase):
         notifications._notification_save({"settings": {}, "deliveries": []})
         calendar._calendar_save({"appointments": []})
         calendar._birthday_save({"birthdays": []})
+        contacts._contacts_save({"contacts": []})
         fast_memory.restore_fast_memory({"version": 1, "memories": []})
 
         restored = await self.client.post("/api/settings/restore", json={"backup": backup})
@@ -383,6 +392,7 @@ class ApplicationIntegrationTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(notifications.notification_store()["deliveries"][0]["id"], "backup-delivery")
         self.assertEqual(calendar.calendar_store()["appointments"][0]["id"], "backup-appointment")
         self.assertEqual(calendar.birthday_store()["birthdays"][0]["id"], "backup-birthday")
+        self.assertEqual(contacts.contacts_store()["contacts"][0]["id"], "backup-contact")
         memories = fast_memory.fast_memory_search("upgrades", limit=10)["memories"]
         self.assertEqual(memories[0]["key"], "backup_round_trip")
 

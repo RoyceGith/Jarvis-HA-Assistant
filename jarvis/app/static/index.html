@@ -27,13 +27,14 @@
 <link id="zbrano-v01359-onboarding-style" rel="stylesheet" href="css/onboarding.css">
 <link id="zbrano-v01363-automation-studio-style" rel="stylesheet" href="css/automation-studio.css">
 <link id="zbrano-v01379-workspace-modern-style" rel="stylesheet" href="css/workspace-modern.css">
+<link id="zbrano-v013119-contacts-style" rel="stylesheet" href="css/contacts.css">
 </head>
 <body>
 <main>
   <header>
     <div class="brand-line">
       <h1>ZBRANO</h1>
-      <div class="status hud-version-label">Workshop Intelligence Interface · HUD 0.13.118</div>
+      <div class="status hud-version-label">Workshop Intelligence Interface · HUD 0.13.119</div>
     </div>
     <div class="runtime-status-stack">
       <div id="notification-inbox-shell" class="notification-inbox-shell">
@@ -65,6 +66,7 @@
     <button id="files-tab">Shared Files</button>
     <button id="automations-tab">Automations</button>
     <button id="entities-tab">Entities</button>
+    <button id="contacts-tab" class="primary-icon-tab primary-labeled-tab" aria-label="Contacts" title="Contacts"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4.5 21a7.5 7.5 0 0 1 15 0"/></svg><span>Contacts</span></button>
     <button id="plugins-tab">Plugins</button>
     <button id="calendar-tab" class="primary-icon-tab primary-labeled-tab" aria-label="Calendar" title="Calendar"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 2v3M17 2v3M3.5 9h17M5.5 4h13a2 2 0 0 1 2 2v13a2 2 0 0 1-2 2h-13a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2Z"/><path d="M8 13h3v3H8z"/></svg><span>Calendar</span></button>
     <button id="settings-tab" class="primary-icon-tab primary-labeled-tab" aria-label="Settings" title="Settings"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 15.4a3.4 3.4 0 1 0 0-6.8 3.4 3.4 0 0 0 0 6.8Z"/><path d="m19.4 15 .1.1 1.4 2.4-2.4 2.4-2.4-1.4-.1-.1a8.4 8.4 0 0 1-2 .8V22H9.6v-2.8a8.4 8.4 0 0 1-2-.8l-.1.1-2.4 1.4-2.4-2.4 1.4-2.4.1-.1a8.4 8.4 0 0 1-.8-2H.6V9.6h2.8a8.4 8.4 0 0 1 .8-2l-.1-.1-1.4-2.4 2.4-2.4 2.4 1.4.1.1a8.4 8.4 0 0 1 2-.8V.6H13v2.8a8.4 8.4 0 0 1 2 .8l.1-.1 2.4-1.4 2.4 2.4-1.4 2.4-.1.1a8.4 8.4 0 0 1 .8 2H22V13h-2.8a8.4 8.4 0 0 1-.8 2Z"/></svg><span>Settings</span></button>
@@ -533,6 +535,48 @@
       </section>
     </div>
   </section>
+  <section id="contacts-panel" class="panel hidden">
+    <div class="contacts-shell">
+      <aside class="contacts-sidebar">
+        <div class="contacts-title"><span class="contacts-title-icon" aria-hidden="true">&#9787;</span><div><h2>CONTACTS</h2><p>People and companies</p></div></div>
+        <button class="active" type="button" data-contact-view="directory">Directory</button>
+        <button type="button" data-contact-view="editor">Add contact</button>
+        <button type="button" data-contact-view="import">Import contacts</button>
+      </aside>
+      <div class="contacts-content">
+        <section data-contact-panel="directory">
+          <div class="contacts-heading"><div><h2>Contacts</h2><p id="contacts-summary">Loading your private local directory&hellip;</p></div><button id="contacts-new" type="button">Add contact</button></div>
+          <div class="contacts-search"><input id="contacts-search" type="search" placeholder="Search people, companies, phone or email" aria-label="Search contacts"><button id="contacts-refresh" type="button">Refresh</button></div>
+          <div id="contacts-list" class="contacts-grid"></div>
+        </section>
+        <section data-contact-panel="editor" class="hidden">
+          <div class="contacts-heading"><div><h2 id="contact-form-title">Add contact</h2><p>Contact information is stored locally inside ZBRANO.</p></div></div>
+          <form id="contact-form" class="contact-form">
+            <input id="contact-id" type="hidden">
+            <div class="contact-form-row"><label>Contact type<select id="contact-kind"><option value="person">Person</option><option value="company">Company</option></select></label><label>Display name<input id="contact-display-name" maxlength="160" required></label></div>
+            <div class="contact-form-row person-fields"><label>First name<input id="contact-given-name" maxlength="100"></label><label>Last name<input id="contact-family-name" maxlength="100"></label></div>
+            <div class="contact-form-row"><label>Company<input id="contact-company-name" maxlength="160"></label><label>Job title<input id="contact-job-title" maxlength="160"></label></div>
+            <div class="contact-form-row"><label>Phone numbers<textarea id="contact-phones" rows="2" placeholder="One per line"></textarea></label><label>Email addresses<textarea id="contact-emails" rows="2" placeholder="One per line"></textarea></label></div>
+            <div class="contact-form-row person-fields"><label>Birthday<input id="contact-birthday" type="date"><span>The year is optional when added through chat or imported.</span></label><label>Relationship or category<input id="contact-relationship" maxlength="100"></label></div>
+            <label>Address<textarea id="contact-address" rows="2" maxlength="1000"></textarea></label>
+            <label>Website<input id="contact-website" type="url" maxlength="500"></label>
+            <label>Notes<textarea id="contact-notes" rows="3" maxlength="5000"></textarea></label>
+            <details id="contact-bank-section" class="contact-bank-section"><summary>Company bank details</summary><p>Sensitive details stay in local ZBRANO storage and are hidden from ordinary chat searches.</p><div id="contact-bank-list"></div><button id="contact-add-bank" type="button">Add bank account</button></details>
+            <div class="contact-form-actions"><button type="submit">Save contact</button><button id="contact-form-cancel" type="button">Cancel</button><span id="contact-form-status" role="status"></span></div>
+          </form>
+        </section>
+        <section data-contact-panel="import" class="hidden">
+          <div class="contacts-heading"><div><h2>Import contacts</h2><p>Bring an existing address book into ZBRANO without replacing current contacts.</p></div></div>
+          <div class="contact-import-grid">
+            <article><h3>CSV or vCard</h3><p>Import a Google export, Outlook CSV, or standard .vcf file. Matching names are updated and birthdays are linked automatically.</p><input id="contacts-import-file" type="file" accept=".csv,.vcf,.vcard,text/csv,text/vcard"><button id="contacts-import-upload" type="button">Import file</button></article>
+            <article><h3>Google Contacts</h3><p>Connect Google with read-only Contacts permission, then copy contacts into ZBRANO's local directory.</p><span id="google-contacts-connection" class="contact-import-badge">Not connected</span><div class="contact-form-actions"><button id="google-contacts-connect" type="button">Connect Google Contacts</button><button id="google-contacts-import" type="button" disabled>Import from Google</button></div></article>
+          </div>
+          <p id="contacts-import-status" role="status"></p>
+        </section>
+      </div>
+    </div>
+  </section>
+
   <section id="calendar-panel" class="panel hidden">
     <div class="calendar-shell">
       <div class="calendar-heading">
@@ -1010,6 +1054,7 @@
 <script id="zbrano-v01266-grinder-hud-indicator" src="js/grinder/hud.js"></script>
 
 <script id="zbrano-v01271-calendar-center" src="js/calendar/center.js"></script>
+<script id="zbrano-v013119-contacts" src="js/contacts.js"></script>
 
 <script id="zbrano-v01274-fast-memory" src="js/memory/fast-memory.js"></script>
 

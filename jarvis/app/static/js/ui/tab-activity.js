@@ -35,7 +35,7 @@
     if (binding && !isViewed(binding.button, binding.panel)) mark(binding.button);
   }
 
-  for (const name of ["chat", "files", "plugins", "entities", "calendar", "automations", "settings", "developer"]) {
+  for (const name of ["chat", "files", "plugins", "entities", "contacts", "calendar", "automations", "settings", "developer"]) {
     bind(document.getElementById(`${name}-tab`), document.getElementById(`${name}-panel`));
   }
   for (const button of document.querySelectorAll("[data-auto-view]")) {
@@ -55,7 +55,7 @@
   window.zbranoClearTabChanged = tabId => clear(document.getElementById(tabId));
   document.addEventListener("click", event => {
     const button = event.target.closest?.(
-      "#chat-tab,#files-tab,#plugins-tab,#entities-tab,#calendar-tab,#automations-tab,#settings-tab,#developer-tab,[data-auto-view],[data-notification-view],.settings-category-tab[data-settings-target],#plugins-installed-tab,#plugins-browse-tab"
+      "#chat-tab,#files-tab,#plugins-tab,#entities-tab,#contacts-tab,#calendar-tab,#automations-tab,#settings-tab,#developer-tab,[data-auto-view],[data-notification-view],.settings-category-tab[data-settings-target],#plugins-installed-tab,#plugins-browse-tab"
     );
     if (!button) return;
     clear(button);
@@ -79,6 +79,7 @@
           markIfUnseen(document.querySelector('[data-auto-view="studio"]'));
         }
         if (path.includes("/api/calendar")) markIfUnseen(document.getElementById("calendar-tab"));
+        if (path.includes("/api/contacts")) markIfUnseen(document.getElementById("contacts-tab"));
         if (path.includes("/api/notifications")) {
           markIfUnseen(document.getElementById("automations-tab"));
           markIfUnseen(document.querySelector('[data-auto-view="notifications"]'));
@@ -103,6 +104,7 @@
     automations: ["#automations-tab", '[data-auto-view="studio"]'],
     notifications: ["#automations-tab", '[data-auto-view="notifications"]', '[data-notification-view="logs"]'],
     calendar: ["#calendar-tab"],
+    contacts: ["#contacts-tab"],
     settings: ["#settings-tab"],
     developer: ["#developer-tab"],
   };

@@ -10,6 +10,7 @@ from typing import Any, Awaitable
 _timeout: Any = 15.0
 _gmail_scopes: tuple[str, ...] = ()
 _calendar_scopes: tuple[str, ...] = ()
+_contacts_scopes: tuple[str, ...] = ()
 _gmail_plugin_id: Callable[[], str] = lambda: ""
 _oauth_records: Callable[[], dict[str, Any]] = lambda: {}
 _oauth_scope_set: Callable[[str], set[str]] = lambda raw: set()
@@ -29,6 +30,7 @@ def configure_google_oauth_service(
     timeout: Any,
     gmail_scopes: tuple[str, ...],
     calendar_scopes: tuple[str, ...],
+    contacts_scopes: tuple[str, ...] = (),
     gmail_plugin_id_fn: Callable[[], str],
     oauth_records_fn: Callable[[], dict[str, Any]],
     oauth_scope_set_fn: Callable[[str], set[str]],
@@ -42,13 +44,14 @@ def configure_google_oauth_service(
     secrets_path: Path,
     oauth_path: Path,
 ) -> None:
-    global _timeout, _gmail_scopes, _calendar_scopes, _gmail_plugin_id
+    global _timeout, _gmail_scopes, _calendar_scopes, _contacts_scopes, _gmail_plugin_id
     global _oauth_records, _oauth_scope_set, _oauth_safe_json, _oauth_validate_url
     global _plugin_registry, _plugin_secrets, _plugin_save, _gmail_tool_records
     global _registry_path, _secrets_path, _oauth_path
     _timeout = timeout
     _gmail_scopes = gmail_scopes
     _calendar_scopes = calendar_scopes
+    _contacts_scopes = contacts_scopes
     _gmail_plugin_id = gmail_plugin_id_fn
     _oauth_records = oauth_records_fn
     _oauth_scope_set = oauth_scope_set_fn
@@ -133,6 +136,25 @@ async def validate_google_calendar_oauth_grant(flow: dict[str, Any], token: dict
         raise ValueError(f"Google Calendar verification returned HTTP {response.status_code}")
     profile = _oauth_safe_json(response, "Google Calendar profile")
     return str(profile.get("summary") or profile.get("id") or "Google Calendar")[:320]
+
+
+async def validate_google_contacts_oauth_grant(flow: dict[str, Any], token: dict[str, Any]) -> str:
+    import httpx
+
+    if flow.get("google_service") != "contacts":
+        return ""
+    required = set(_contacts_scopes)
+    granted = _oauth_scope_set(token.get("scope"))
+    if not required.issubset(granted):
+        await revoke_rejected_oauth_token(flow, token)
+        raise ValueError("Google Contacts authorization is missing required read-only Contacts access")
+    async with httpx.AsyncClient(timeout=_timeout, follow_redirects=False) as client:
+        response = await client.get("https://www.googleapis.com/oauth2/v2/userinfo", headers={"Authorization": f"Bearer {token.get('access_token') or ''}"})
+    if response.is_error:
+        await revoke_rejected_oauth_token(flow, token)
+        raise ValueError(f"Google Contacts identity verification returned HTTP {response.status_code}")
+    profile = _oauth_safe_json(response, "Google Contacts profile")
+    return str(profile.get("email") or "Google Contacts")[:320]
 
 
 async def enforce_stored_gmail_scope_policy() -> None:

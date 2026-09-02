@@ -1442,6 +1442,7 @@ function showPanel(panel) {
   const showFiles = panel === "files";
   const showAutomations = panel === "automations";
   const showCalendar = panel === "calendar";
+  const showContacts = panel === "contacts";
   chatPanel.classList.toggle("hidden", !showChat);
   entitiesPanel.classList.toggle("hidden", !showEntities);
   settingsPanel.classList.toggle("hidden", !showSettings);
@@ -1449,6 +1450,7 @@ function showPanel(panel) {
   document.getElementById("files-panel")?.classList.toggle("hidden", !showFiles);
   document.getElementById("automations-panel")?.classList.toggle("hidden", !showAutomations);
   document.getElementById("calendar-panel")?.classList.toggle("hidden", !showCalendar);
+  document.getElementById("contacts-panel")?.classList.toggle("hidden", !showContacts);
   chatTab.classList.toggle("active", showChat);
   entitiesTab.classList.toggle("active", showEntities);
   settingsTab.classList.toggle("active", showSettings);
@@ -1456,6 +1458,7 @@ function showPanel(panel) {
   document.getElementById("files-tab")?.classList.toggle("active", showFiles);
   document.getElementById("automations-tab")?.classList.toggle("active", showAutomations);
   document.getElementById("calendar-tab")?.classList.toggle("active", showCalendar);
+  document.getElementById("contacts-tab")?.classList.toggle("active", showContacts);
 }
 
 chatTab.addEventListener("click", () => showPanel("chat"));
@@ -1463,6 +1466,7 @@ entitiesTab.addEventListener("click", async () => {
   showPanel("entities");
   if (!inventoryLoaded) await loadEntities();
 });
+document.getElementById("contacts-tab")?.addEventListener("click", () => showPanel("contacts"));
 
 function renderReleaseSyncStatus(status = {}) {
   const state = String(status.state || "pending");

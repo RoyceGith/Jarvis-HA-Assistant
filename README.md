@@ -1,14 +1,15 @@
-## ZBRANO v0.13.118
+## ZBRANO v0.13.119
 
 ZBRANO combines Home Assistant chat, voice, entity control, memory, notifications,
-calendar tools, plugins, and evidence-based automations. Automation Studio now uses
+calendar and contact tools, plugins, and evidence-based automations. Automation Studio now uses
 a visual building-block toolbox, interactive node canvas, and contextual inspector;
 the established automation engine and stored definitions remain compatible.
 
-Version 0.13.118 makes Automation Studio settings contextual. Trigger inspectors
-now show only fields used by the selected entity, time, Sun, interval, or one-time
-type, and Any state change no longer displays an unused value field. Existing
-workflows and stored data remain compatible.
+Version 0.13.119 adds a full Contacts tab for people and companies, including phone,
+email, birthday, notes, addresses, websites, and locally stored bank details.
+CSV and vCard imports are supported, with an optional read-only Google Contacts
+connection. Contact birthdays synchronize with the existing Birthdays system, and
+chat now numbers every ambiguous choice so a number-only answer is sufficient.
 
 The application source and post-split build history are maintained in the private
 core repository. Public Home Assistant repositories contain only the five-file

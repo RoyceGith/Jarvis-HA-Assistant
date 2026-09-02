@@ -14,10 +14,10 @@
   })[char]);
 
   function activateFilesPanel() {
-    for (const id of ["chat-panel", "entities-panel", "settings-panel", "plugins-panel", "files-panel", "calendar-panel"]) {
+    for (const id of ["chat-panel", "entities-panel", "settings-panel", "plugins-panel", "files-panel", "contacts-panel", "calendar-panel"]) {
       document.getElementById(id)?.classList.toggle("hidden", id !== "files-panel");
     }
-    for (const id of ["chat-tab", "entities-tab", "settings-tab", "plugins-tab", "files-tab", "calendar-tab"]) {
+    for (const id of ["chat-tab", "entities-tab", "settings-tab", "plugins-tab", "files-tab", "contacts-tab", "calendar-tab"]) {
       document.getElementById(id)?.classList.toggle("active", id === "files-tab");
     }
   }
