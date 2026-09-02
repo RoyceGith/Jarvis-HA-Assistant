@@ -1,5 +1,10 @@
 # Change log
 
+## 0.13.122
+
+- Restored independent vertical scrolling in the Contacts workspace.
+- Added remembered Cards, List, and Compact contact arrangements.
+
 ## 0.13.121
 
 - Made notification read-state validation deterministic in the container browser gate.

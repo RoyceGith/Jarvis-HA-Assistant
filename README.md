@@ -19,6 +19,9 @@ storage, and `ghcr.io/roycegith/jarvis-ha-assistant` update image.
 
 ## Current experience
 
+Version 0.13.122 restores Contacts scrolling and adds remembered Cards, List,
+and Compact directory arrangements.
+
 Version 0.13.121 repairs a timing-sensitive container browser validation so the
 multi-architecture image build can complete reliably. Runtime behavior is unchanged.
 

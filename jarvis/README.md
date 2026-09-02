@@ -6,6 +6,9 @@ connections.
 
 ## Automation Studio
 
+Version 0.13.122 restores Contacts scrolling and adds Cards, List, and Compact
+directory arrangements that are remembered in the browser.
+
 Version 0.13.121 repairs a timing-sensitive notification assertion in the
 container browser gate. Runtime behavior and stored data are unchanged.
 
