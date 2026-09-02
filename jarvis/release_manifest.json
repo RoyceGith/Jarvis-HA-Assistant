@@ -1,9 +1,9 @@
 {
-  "version": "0.13.121",
+  "version": "0.13.122",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/ZBRANO_Core main",
-  "summary": "Repair the timing-sensitive notification read-state assertion in the container browser build gate.",
+  "summary": "Restore Contacts workspace scrolling and add remembered Cards, List, and Compact directory arrangements.",
   "history_backfill": [
     {
       "version": "0.13.0",
@@ -488,18 +488,23 @@
     {
       "version": "0.13.120",
       "summary": "Repaired Google Contacts imports with actionable API errors, resilient record handling, and preservation of existing local details."
+    },
+    {
+      "version": "0.13.121",
+      "summary": "Repaired the timing-sensitive notification read-state assertion in the container browser build gate."
     }
   ],
   "release_entry": {
     "features": [
-      "Keep the container browser gate deterministic across supported architectures."
+      "Choose Cards, List, or Compact arrangement for the Contacts directory.",
+      "Remember the selected Contacts arrangement in the local browser."
     ],
     "fixes": [
-      "Make the browser smoke test explicitly mark its notification fixture read before asserting that the unread badge is hidden.",
-      "Remove the race between the automatic inbox-read timer and the notification suggestion interaction in container builds."
+      "Constrain the Contacts workspace to the available panel height and restore independent vertical scrolling.",
+      "Keep mobile Contacts scrolling usable through a single responsive scroll owner."
     ],
     "validation": [
-      "Deterministic notification inbox browser smoke, release manifest, README alignment, and v0.13.121 release coverage"
+      "Contacts overflow and arrangement browser smoke, responsive layout markers, release manifest, README alignment, and v0.13.122 release coverage"
     ]
   },
   "features": [

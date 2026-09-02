@@ -129,7 +129,7 @@ function apiFixture(url, method = "GET") {
   if (pathname === "/api/health") {
     return {
       status: "ok",
-      version: "0.13.121",
+      version: "0.13.122",
       speech_provider: "openai",
       speech_providers: {openai: {configured: true}, elevenlabs: {configured: false}},
     };
@@ -202,13 +202,17 @@ function apiFixture(url, method = "GET") {
     company_name:"Example Works",job_title:"Designer",phone_numbers:["+357 99123456"],emails:["alex@example.com"],
     birthday:"09-12",birth_year:1990,relationship:"Friend",address:"Nicosia",website:"https://example.com",
     notes:"Likes books",has_bank_details:false,
-  }],count:1};
+  }, ...Array.from({length:40}, (_, index) => ({
+    id:`contact-fixture-${index}`,kind:"person",display_name:`Fixture Contact ${index + 1}`,given_name:"Fixture",family_name:`Contact ${index + 1}`,
+    company_name:"",job_title:"",phone_numbers:[],emails:[`fixture${index + 1}@example.com`],birthday:"",birth_year:null,
+    relationship:"Test contact",address:"",website:"",notes:"",has_bank_details:false,
+  }))],count:41};
   if (pathname === "/api/contacts/google/status") return {connected:false,account:""};
   if (pathname === "/api/calendar/google/status") return {connected: false, enabled: false, pending_local_changes: 0};
   if (pathname === "/api/plugins") return {plugins: []};
   if (pathname === "/api/files/shared") return {files: [], count: 0};
   if (pathname === "/api/release-memory-sync") {
-    return {enabled: false, state: "disabled", version: "0.13.121", task_active: false};
+    return {enabled: false, state: "disabled", version: "0.13.122", task_active: false};
   }
   if (pathname === "/api/tab-activity") return {revisions: {}};
   if (pathname === "/api/grinder-monitor/status") return {enabled: false, connected: false};
@@ -317,6 +321,13 @@ async function main() {
     await page.getByText("Alex Morgan", {exact:true}).waitFor();
     assert.match(await page.locator("#contacts-list").innerText(), /Alex Morgan/);
     assert.match(await page.locator("#contacts-list").innerText(), /alex@example.com/);
+    const contactsScroll = await page.locator(".contacts-content").evaluate(element => {element.scrollTop=element.scrollHeight;return {overflowY:getComputedStyle(element).overflowY,vertical:element.scrollTop>0};});
+    assert.equal(contactsScroll.overflowY, "auto");
+    assert.equal(contactsScroll.vertical, true, "Contacts must scroll inside its full-height workspace");
+    await page.locator("#contacts-layout").selectOption("list");
+    assert.equal(await page.locator("#contacts-list").getAttribute("data-layout"), "list");
+    await page.locator("#contacts-layout").selectOption("compact");
+    assert.equal(await page.locator("#contacts-list").getAttribute("data-layout"), "compact");
     await page.locator('[data-contact-view="import"]').click();
     assert.equal(await page.locator("#contacts-import-upload").isVisible(), true);
 

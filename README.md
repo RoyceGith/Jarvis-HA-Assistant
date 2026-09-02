@@ -1,9 +1,12 @@
-## ZBRANO v0.13.121
+## ZBRANO v0.13.122
 
 ZBRANO combines Home Assistant chat, voice, entity control, memory, notifications,
 calendar and contact tools, plugins, and evidence-based automations. Automation Studio now uses
 a visual building-block toolbox, interactive node canvas, and contextual inspector;
 the established automation engine and stored definitions remain compatible.
+
+Version 0.13.122 restores independent Contacts scrolling and adds remembered
+Cards, List, and Compact directory arrangements without changing contact data.
 
 Version 0.13.121 makes the container browser gate deterministic by explicitly
 marking the exercised notification as read before asserting the unread badge.

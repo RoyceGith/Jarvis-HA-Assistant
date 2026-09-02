@@ -3,13 +3,17 @@
   const panel = $("contacts-panel");
   const tab = $("contacts-tab");
   if (!panel || !tab) return;
-  const state = {contacts: []};
+  const allowedLayouts = new Set(["cards", "list", "compact"]);
+  const savedLayout = localStorage.getItem("zbrano-contacts-layout");
+  const state = {contacts: [], layout: allowedLayouts.has(savedLayout) ? savedLayout : "cards"};
   const esc = value => String(value ?? "").replace(/[&<>"']/g, char => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"})[char]);
   async function api(path, options={}) { const response=await fetch(path,{cache:"no-store",...options}); const data=await response.json().catch(()=>({})); if(!response.ok) throw new Error(typeof data.detail==="string"?data.detail:`HTTP ${response.status}`); return data; }
   function showView(name) { panel.querySelectorAll("[data-contact-view]").forEach(button=>{const active=button.dataset.contactView===name;button.classList.toggle("active",active);button.setAttribute("aria-selected",String(active));});panel.querySelectorAll("[data-contact-panel]").forEach(view=>view.classList.toggle("hidden",view.dataset.contactPanel!==name)); }
   function initials(item) { const words=String(item.display_name||"?").trim().split(/\s+/); return (words[0]?.[0]||"")+(words.length>1?(words.at(-1)?.[0]||""):""); }
   function render() {
     $("contacts-summary").textContent = `${state.contacts.length} contact${state.contacts.length===1?"":"s"} stored locally`;
+    $("contacts-list").dataset.layout = state.layout;
+    $("contacts-layout").value = state.layout;
     $("contacts-list").innerHTML = state.contacts.length ? state.contacts.map(item=>`<article class="contact-card"><span class="contact-avatar" aria-hidden="true">${esc(initials(item).toUpperCase())}</span><div class="contact-card-meta"><h3>${esc(item.display_name)}</h3><p>${esc(item.kind==="company"?"Company":[item.job_title,item.company_name].filter(Boolean).join(" · ")||item.relationship||"Person")}</p>${item.phone_numbers?.length?`<p>${esc(item.phone_numbers.join(" · "))}</p>`:""}${item.emails?.length?`<p>${esc(item.emails.join(" · "))}</p>`:""}${item.birthday?`<p>Birthday · ${esc(item.birthday)}${item.birth_year?` · ${esc(item.birth_year)}`:""}</p>`:""}${item.has_bank_details?"<p>Bank details saved privately</p>":""}</div><div class="contact-card-actions"><button type="button" data-contact-edit="${esc(item.id)}">Edit</button><button type="button" data-contact-delete="${esc(item.id)}">Delete</button></div></article>`).join("") : '<div class="calendar-empty">No matching contacts. Add one or import an address book.</div>';
   }
   async function loadContacts() { const data=await api(`api/contacts?query=${encodeURIComponent($("contacts-search").value.trim())}`);state.contacts=data.contacts||[];render(); }
@@ -22,6 +26,7 @@
   tab.addEventListener("click",()=>loadContacts().catch(error=>$("contacts-summary").textContent=error.message));
   $("contacts-new").addEventListener("click",()=>{resetForm();showView("editor");});
   $("contacts-refresh").addEventListener("click",()=>loadContacts());
+  $("contacts-layout").addEventListener("change",event=>{state.layout=allowedLayouts.has(event.target.value)?event.target.value:"cards";localStorage.setItem("zbrano-contacts-layout",state.layout);render();});
   let searchTimer;$("contacts-search").addEventListener("input",()=>{clearTimeout(searchTimer);searchTimer=setTimeout(()=>loadContacts().catch(()=>{}),180);});
   $("contacts-list").addEventListener("click",async event=>{const edit=event.target.closest("[data-contact-edit]");if(edit){await editContact(edit.dataset.contactEdit);return;}const remove=event.target.closest("[data-contact-delete]");if(remove&&confirm("Delete this contact and its linked birthday?")){await api(`api/contacts/${encodeURIComponent(remove.dataset.contactDelete)}`,{method:"DELETE"});await loadContacts();}});
   $("contact-add-bank").addEventListener("click",()=>addBankRow());$("contact-bank-list").addEventListener("click",event=>event.target.closest("[data-bank-remove]")?.closest(".contact-bank-row")?.remove());

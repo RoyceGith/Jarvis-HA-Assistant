@@ -1,10 +1,13 @@
-# ZBRANO v0.13.121
+# ZBRANO v0.13.122
 
 Automation Studio provides a graphical building-block workflow for Home Assistant
 automations. Use the toolbox to select or drag Trigger, Context, Decision, and
 Action blocks onto the canvas, then edit only that block in the settings inspector.
 Natural-language creation, templates, saved automation compatibility, and the full
 Advanced editor remain available.
+
+Version 0.13.122 restores independent scrolling throughout Contacts and adds
+remembered Cards, List, and Compact directory arrangements.
 
 Version 0.13.121 repairs the container browser gate by making its notification
 read-state check deterministic. Runtime behavior and stored data are unchanged.

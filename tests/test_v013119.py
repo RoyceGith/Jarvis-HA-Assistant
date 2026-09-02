@@ -18,9 +18,9 @@ MANIFEST = json.loads((ROOT / "jarvis/release_manifest.json").read_text(encoding
 
 class ContactsReleaseTests(unittest.TestCase):
     def test_release_markers_are_aligned(self):
-        self.assertIn('version="0.13.121"', MAIN)
-        self.assertIn("HUD 0.13.121", HTML)
-        self.assertEqual(MANIFEST["version"], "0.13.121")
+        self.assertIn('version="0.13.122"', MAIN)
+        self.assertIn("HUD 0.13.122", HTML)
+        self.assertEqual(MANIFEST["version"], "0.13.122")
 
     def test_local_contacts_crud_import_and_backup_are_wired(self):
         for marker in ("def contacts_store", "def create_contact", "def update_contact", "def delete_contact", "def import_contacts"):
@@ -45,10 +45,13 @@ class ContactsReleaseTests(unittest.TestCase):
         self.assertIn("except (RuntimeError, httpx.HTTPError)", MAIN)
 
     def test_contacts_tab_and_sensitive_data_boundary_are_present(self):
-        for marker in ('id="contacts-tab"', 'id="contacts-panel"', 'id="contacts-import-file"', 'id="google-contacts-import"'):
+        for marker in ('id="contacts-tab"', 'id="contacts-panel"', 'id="contacts-import-file"', 'id="google-contacts-import"', 'id="contacts-layout"'):
             self.assertIn(marker, HTML)
         self.assertIn("include_sensitive=true", SCRIPT)
         self.assertIn(".contacts-shell", STYLES)
+        self.assertIn('localStorage.getItem("zbrano-contacts-layout")', SCRIPT)
+        self.assertIn('#contacts-panel{padding:0;overflow:hidden}', STYLES)
+        self.assertIn('.contacts-content{min-width:0;min-height:0', STYLES)
 
     def test_chat_requires_numbered_identity_disambiguation(self):
         self.assertIn("prefix every option with a number", MAIN)
