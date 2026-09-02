@@ -6,6 +6,9 @@ connections.
 
 ## Automation Studio
 
+Version 0.13.118 makes Automation Studio inspectors contextual so each trigger
+shows only the settings its selected type and operator actually use.
+
 Version 0.13.117 moves My Automations and Automation Memory into dedicated,
 indented Studio navigation entries. Saved automations stay compact and expose
 their visual flow only through an independent expand control.
