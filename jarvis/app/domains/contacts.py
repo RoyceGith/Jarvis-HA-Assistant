@@ -154,9 +154,9 @@ def list_contacts(query: str = "", include_sensitive: bool = False) -> dict[str,
     return {"contacts": matches, "count": len(matches), "query": query}
 
 
-def _sync_contact_birthday(contact: dict[str, Any]) -> None:
+def _sync_contact_birthday(contact: dict[str, Any], default_reminders: list[int] | None = None) -> None:
     birthday_data = _birthday_store()
-    birthdays = birthday_data.get("birthdays") or []
+    birthdays = birthday_data.setdefault("birthdays", [])
     linked = next((item for item in birthdays if item.get("contact_id") == contact["id"]), None)
     if not linked:
         linked = next((item for item in birthdays if str(item.get("name") or "").casefold() == contact["display_name"].casefold()), None)
@@ -169,8 +169,10 @@ def _sync_contact_birthday(contact: dict[str, Any]) -> None:
     now = time.time()
     if linked:
         linked.update({"name": contact["display_name"], "birthday": contact["birthday"], "birth_year": contact.get("birth_year"), "relationship": contact.get("relationship") or linked.get("relationship", ""), "contact_id": contact["id"], "updated_at": now, "updated_by": "contacts"})
+        if default_reminders is not None and not linked.get("reminder_days_before"):
+            linked["reminder_days_before"] = list(default_reminders)
     else:
-        linked = {"id": secrets.token_hex(12), "contact_id": contact["id"], "name": contact["display_name"], "birthday": contact["birthday"], "birth_year": contact.get("birth_year"), "relationship": contact.get("relationship", ""), "reminder_days_before": [], "destination": "", "notes": "", "gift_ideas": "", "source": "contacts", "created_at": now, "updated_at": now, "deliveries": {}}
+        linked = {"id": secrets.token_hex(12), "contact_id": contact["id"], "name": contact["display_name"], "birthday": contact["birthday"], "birth_year": contact.get("birth_year"), "relationship": contact.get("relationship", ""), "reminder_days_before": list(default_reminders or []), "destination": "", "notes": "", "gift_ideas": "", "source": "contacts", "created_at": now, "updated_at": now, "deliveries": {}}
         birthdays.append(linked)
     contact["birthday_id"] = linked["id"]
     _birthday_save(birthday_data)
@@ -184,7 +186,7 @@ def create_contact(request: ContactRequest, source: str = "interface") -> dict[s
         return {"created": False, "deduplicated": True, "contact": _public_contact(duplicate, True)}
     now = time.time()
     item.update({"id": secrets.token_hex(12), "source": source, "created_at": now, "updated_at": now})
-    _sync_contact_birthday(item)
+    _sync_contact_birthday(item, [7, 1] if source == "chat" and item.get("birthday") else None)
     data["contacts"].append(item)
     _contacts_save(data)
     return {"created": True, "deduplicated": False, "contact": _public_contact(item, True)}
@@ -195,10 +197,11 @@ def update_contact(contact_id: str, request: ContactUpdateRequest, source: str =
     current = next((item for item in data["contacts"] if item.get("id") == contact_id), None)
     if not current:
         raise HTTPException(status_code=404, detail="Contact not found")
-    updated = _normalize_contact(request.model_dump(exclude_unset=True), current)
+    changes = request.model_dump(exclude_unset=True)
+    updated = _normalize_contact(changes, current)
     updated["updated_at"] = time.time()
     updated["updated_by"] = source
-    _sync_contact_birthday(updated)
+    _sync_contact_birthday(updated, [7, 1] if source == "chat" and changes.get("birthday") else None)
     current.clear()
     current.update(updated)
     _contacts_save(data)

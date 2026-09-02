@@ -1,9 +1,14 @@
-## ZBRANO v0.13.126
+## ZBRANO v0.13.127
 
 ZBRANO combines Home Assistant chat, voice, entity control, memory, notifications,
 calendar and contact tools, plugins, and evidence-based automations. Automation Studio now uses
 a visual building-block toolbox, interactive node canvas, and contextual inspector;
 the established automation engine and stored definitions remain compatible.
+
+Version 0.13.127 turns Birthdays into a single People directory with the next
+birthdays at the top and colored month sections below. Birthdays saved through
+chat now default to reminders one week and one day before, including saves made
+through a linked Contact; existing reminder choices are preserved.
 
 Version 0.13.126 keeps recurring Birthday cards intact when reminder notifications
 are delivered. Reminder results now merge into current storage, and a linked Contact

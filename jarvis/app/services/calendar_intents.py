@@ -61,7 +61,7 @@ list_contacts with the supplied name. If it returns multiple people, ask the use
 the returned full names; accept a reply containing only that number. If there is one match, update that contact with
 save_contact so its birthday stays synchronized. If there is no match, create the contact. Require only the person's
 name and month/day. Birth year, relationship, notes, gift ideas, and reminder timing are optional. Use
-the default reminder schedule [7, 1, 0] when the user does not specify one and a Notification Center destination is
+the default reminder schedule [7, 1] when the user does not specify one and a Notification Center destination is
 available. Use list_birthdays for upcoming-birthday questions and before changing notes or gift ideas. Never create
 a normal calendar appointment for a birthday, and never claim birthday details were saved unless the tool succeeds.
 

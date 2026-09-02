@@ -18,10 +18,10 @@ MANIFEST = json.loads((ROOT / "jarvis/release_manifest.json").read_text(encoding
 
 class ReleaseNotesModuleBoundaryTests(unittest.TestCase):
     def test_release_markers_are_aligned(self):
-        self.assertIn('version: "0.13.126"', CONFIG)
-        self.assertIn('version="0.13.126"', MAIN)
-        self.assertIn("HUD 0.13.126", HTML)
-        self.assertEqual(MANIFEST["version"], "0.13.126")
+        self.assertIn('version: "0.13.127"', CONFIG)
+        self.assertIn('version="0.13.127"', MAIN)
+        self.assertIn("HUD 0.13.127", HTML)
+        self.assertEqual(MANIFEST["version"], "0.13.127")
 
     def test_release_note_constants_live_with_their_consumers(self):
         for name in ("CURRENT_VERSION_LABELS", "CURRENT_RELEASE_BLOCK_START", "CURRENT_RELEASE_BLOCK_END"):
@@ -32,12 +32,12 @@ class ReleaseNotesModuleBoundaryTests(unittest.TestCase):
         functions = runpy.run_path(str(RELEASE_NOTES_PATH))
         reconciled = functions["reconcile_explicit_current_versions"](
             "# Project\n\n- **Current version:** 0.13.18\n",
-            "0.13.126",
+            "0.13.127",
         )
-        self.assertIn("**Current version:** 0.13.126", reconciled)
+        self.assertIn("**Current version:** 0.13.127", reconciled)
         block = functions["render_current_release_truth"](MANIFEST, release_log=False)
         self.assertIn("<!-- zbrano-current-release:start -->", block)
-        self.assertIn("Source and runtime version:** 0.13.126", block)
+        self.assertIn("Source and runtime version:** 0.13.127", block)
 
     def test_all_extracted_backend_modules_declare_their_globals(self):
         builtin_names = set(dir(builtins))

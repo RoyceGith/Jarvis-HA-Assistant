@@ -715,7 +715,7 @@ ha_ws = HomeAssistantWebSocketClient(
 
 app = FastAPI(
     title="ZBRANO",
-    version="0.13.126",
+    version="0.13.127",
     docs_url="/api/docs",
     openapi_url="/api/openapi.json",
 )
@@ -767,7 +767,7 @@ WORKSHOP_TOOLS: list[dict[str, Any]] = [
     {
         "type": "function",
         "name": "create_birthday",
-        "description": "Save a person's annually recurring birthday locally in ZBRANO after the user asks. Ask only for the name and month/day when missing; year, relationship, reminders, notes, and gift ideas are optional.",
+        "description": "Save a person's annually recurring birthday locally in ZBRANO after the user asks. Ask only for the name and month/day when missing; year, relationship, notes, and gift ideas are optional. Default reminders to one week and one day before.",
         "parameters": {
             "type": "object",
             "properties": {
@@ -775,7 +775,7 @@ WORKSHOP_TOOLS: list[dict[str, Any]] = [
                 "birthday": {"type": "string", "description": "Month and day as MM-DD."},
                 "birth_year": {"type": ["integer", "null"], "description": "Birth year when known, otherwise null."},
                 "relationship": {"type": "string", "description": "Optional relationship or category."},
-                "reminder_days_before": {"type": "array", "items": {"type": "integer"}, "description": "Days before the birthday; use [7,1,0] when the user accepts defaults."},
+                "reminder_days_before": {"type": "array", "items": {"type": "integer"}, "description": "Days before the birthday. Use [7,1] by default."},
                 "destination": {"type": "string", "description": "Optional notify entity; blank uses the Notification Center default."},
                 "notes": {"type": "string", "description": "Optional personal notes."},
                 "gift_ideas": {"type": "string", "description": "Optional gift ideas or preferences."}
@@ -1633,7 +1633,10 @@ async def execute_tool_calls(
                 elif name == "cancel_calendar_appointment":
                     result = _cancel_calendar_appointment(str(arguments.get("appointment_id") or ""))
                 elif name == "create_birthday":
-                    result = await _create_birthday(BirthdayRequest(**arguments), source="chat")
+                    birthday_arguments = dict(arguments)
+                    if not birthday_arguments.get("reminder_days_before"):
+                        birthday_arguments["reminder_days_before"] = [7, 1]
+                    result = await _create_birthday(BirthdayRequest(**birthday_arguments), source="chat")
                 elif name == "list_contacts":
                     result = list_contacts(str(arguments.get("query") or ""), bool(arguments.get("include_sensitive")))
                 elif name == "save_contact":
@@ -2816,7 +2819,7 @@ async def health() -> dict[str, Any]:
     configured_speech_provider = SPEECH_PROVIDER if SPEECH_PROVIDER in {"openai", "elevenlabs"} else "openai"
     return {
         "status": "ok",
-        "version": "0.13.126",
+        "version": "0.13.127",
         "home_assistant_configured": bool(SUPERVISOR_TOKEN),
         "workshop_memory_configured": bool(WORKSHOP_MEMORY_URL),
         "workshop_memory_cost_guard": workshop_cost_guard_status(),

@@ -120,6 +120,14 @@
     .birthday-card-actions button { padding:.28rem .42rem; font-size:.68rem; }
     .birthday-card-actions button[data-birthday-delete] { color:#ef765f; }
     .birthday-gifts { padding:.45rem .55rem; border-left:2px solid var(--cyan); background:color-mix(in srgb,var(--cyan) 7%,transparent); }
+    .birthday-directory-card { margin-top:.75rem; }
+    .birthday-month-list { display:grid; gap:.75rem; margin-top:.75rem; }
+    .birthday-month-section { --month-hue:calc((var(--birthday-month) - 1) * 29); padding:.75rem; border:1px solid hsl(var(--month-hue) 55% 55% / .35); border-radius:10px; background:linear-gradient(135deg,hsl(var(--month-hue) 60% 50% / .11),transparent 52%); }
+    .birthday-month-section > header { display:flex; align-items:center; justify-content:space-between; gap:.75rem; padding-bottom:.5rem; border-bottom:1px solid hsl(var(--month-hue) 55% 55% / .28); }
+    .birthday-month-section > header h4 { margin:0; color:hsl(var(--month-hue) 72% 68%); font-size:1rem; }
+    .birthday-month-section > header span { color:var(--text-muted); font-size:.72rem; }
+    .birthday-month-section .birthday-card { border-color:hsl(var(--month-hue) 48% 55% / .28); }
+    :root[data-theme="light"] .birthday-month-section > header h4 { color:hsl(var(--month-hue) 62% 34%); }
     @media(max-width:620px) { .birthday-card-actions { opacity:1; } .birthday-grid { grid-template-columns:1fr; } }
 
     /* v0.12.73 visual monthly calendar. */

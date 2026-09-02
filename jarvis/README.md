@@ -1,10 +1,15 @@
-# ZBRANO v0.13.126
+# ZBRANO v0.13.127
 
 Automation Studio provides a graphical building-block workflow for Home Assistant
 automations. Use the toolbox to select or drag Trigger, Condition, Decision, and
 Action blocks onto the canvas, then edit only that block in the settings inspector.
 Natural-language creation, templates, saved automation compatibility, and the full
 Advanced editor remain available.
+
+Version 0.13.127 replaces the separate Upcoming Birthday view with a unified
+People directory: the next birthdays appear first, followed by colored monthly
+sections. Chat-created birthdays now default to reminders seven and one days
+before without replacing reminder choices already saved by the user.
 
 Version 0.13.126 preserves recurring Birthday cards through reminder delivery,
 merges delivery status into the latest saved data, and repairs missing birthdays

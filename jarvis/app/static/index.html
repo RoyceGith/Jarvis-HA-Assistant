@@ -34,7 +34,7 @@
   <header>
     <div class="brand-line">
       <h1>ZBRANO</h1>
-      <div class="status hud-version-label">Workshop Intelligence Interface · HUD 0.13.126</div>
+      <div class="status hud-version-label">Workshop Intelligence Interface · HUD 0.13.127</div>
     </div>
     <div class="runtime-status-stack">
       <div id="notification-inbox-shell" class="notification-inbox-shell">
@@ -670,20 +670,17 @@
 
       <section data-calendar-panel="birthdays" class="hidden">
         <div class="birthday-toolbar" role="tablist" aria-label="Birthday views">
-          <button class="active" type="button" data-birthday-view="upcoming" role="tab" aria-selected="true">Upcoming</button>
-          <button type="button" data-birthday-view="people" role="tab" aria-selected="false">People</button>
+          <button class="active" type="button" data-birthday-view="people" role="tab" aria-selected="true">People</button>
           <button type="button" data-birthday-view="add" role="tab" aria-selected="false">Add Birthday</button>
         </div>
-        <section data-birthday-panel="upcoming">
+        <section data-birthday-panel="people">
           <article class="calendar-card birthday-feature-card">
-            <div class="calendar-card-head"><div><h3>Upcoming birthdays</h3><p id="birthday-upcoming-summary">Loading birthdays…</p></div></div>
+            <div class="calendar-card-head"><div><h3>Next birthdays</h3><p id="birthday-upcoming-summary">Loading birthdays…</p></div></div>
             <div id="birthday-upcoming-list" class="birthday-grid"></div>
           </article>
-        </section>
-        <section data-birthday-panel="people" class="hidden">
-          <article class="calendar-card">
-            <div class="calendar-card-head"><div><h3>People</h3><p id="birthday-people-summary">Your locally stored birthday directory.</p></div></div>
-            <div id="birthday-people-list" class="birthday-grid"></div>
+          <article class="calendar-card birthday-directory-card">
+            <div class="calendar-card-head"><div><h3>Birthdays by month</h3><p id="birthday-people-summary">Your locally stored birthday directory.</p></div></div>
+            <div id="birthday-people-list" class="birthday-month-list"></div>
           </article>
         </section>
         <section data-birthday-panel="add" class="hidden">

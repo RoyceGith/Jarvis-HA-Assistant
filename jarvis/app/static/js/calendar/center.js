@@ -203,11 +203,18 @@
 
   function renderBirthdays() {
     const birthdays = state.birthdays || [];
-    const upcoming = birthdays.filter(item => Number(item.days_until) <= 90);
-    $("birthday-upcoming-summary").textContent = upcoming.length ? `${upcoming.length} birthday${upcoming.length === 1 ? "" : "s"} in the next 90 days` : "No birthdays in the next 90 days.";
+    const upcoming = birthdays.slice(0, 5);
+    const months = Array.from({length:12}, (_, index) => new Date(2024, index, 1).toLocaleDateString([], {month:"long"}));
+    const grouped = new Map();
+    for (const item of birthdays) {
+      const month = Math.max(1, Math.min(12, Number(String(item.birthday || "").split("-")[0]) || 1));
+      if (!grouped.has(month)) grouped.set(month, []);
+      grouped.get(month).push(item);
+    }
+    $("birthday-upcoming-summary").textContent = upcoming.length ? `The next ${upcoming.length} birthday${upcoming.length === 1 ? "" : "s"} from everyone saved` : "No birthdays saved yet.";
     $("birthday-people-summary").textContent = `${birthdays.length} ${birthdays.length === 1 ? "person" : "people"} stored locally`;
-    $("birthday-upcoming-list").innerHTML = upcoming.map(item => birthdayCard(item)).join("") || '<div class="calendar-empty">No upcoming birthdays. Add one here or ask ZBRANO in chat.</div>';
-    $("birthday-people-list").innerHTML = birthdays.map(item => birthdayCard(item, true)).join("") || '<div class="calendar-empty">No birthdays saved yet.</div>';
+    $("birthday-upcoming-list").innerHTML = upcoming.map(item => birthdayCard(item)).join("") || '<div class="calendar-empty">Add a birthday here or ask ZBRANO in chat.</div>';
+    $("birthday-people-list").innerHTML = [...grouped.entries()].sort((a,b) => a[0] - b[0]).map(([month, items]) => `<section class="birthday-month-section" style="--birthday-month:${month}" data-birthday-month="${month}"><header><h4>${esc(months[month - 1])}</h4><span>${items.length} ${items.length === 1 ? "birthday" : "birthdays"}</span></header><div class="birthday-grid">${items.map(item => birthdayCard(item, true)).join("")}</div></section>`).join("") || '<div class="calendar-empty">No birthdays saved yet.</div>';
   }
 
   async function loadChannels() {
@@ -318,6 +325,7 @@
   }
 
   function showBirthdayView(name) {
+    if (name === "upcoming") name = "people";
     for (const button of panel.querySelectorAll("[data-birthday-view]")) {
       const active = button.dataset.birthdayView === name;
       button.classList.toggle("active", active);
@@ -527,7 +535,7 @@
       status.textContent = result.deduplicated ? "That person is already saved." : "Birthday saved.";
       resetBirthdayForm();
       await loadCalendar();
-      showBirthdayView("upcoming");
+      showBirthdayView("people");
     } catch (error) { status.textContent = `Could not save birthday: ${error.message || error}`; }
   });
   $("birthday-form-cancel").addEventListener("click", () => { resetBirthdayForm(); showBirthdayView("people"); });

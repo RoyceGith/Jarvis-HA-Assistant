@@ -1,9 +1,9 @@
 {
-  "version": "0.13.126",
+  "version": "0.13.127",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/ZBRANO_Core main",
-  "summary": "Preserve recurring birthday cards through reminder delivery and repair missing records from linked contacts.",
+  "summary": "Default chat-created birthday reminders and organize the Birthday directory into upcoming and colored monthly sections.",
   "history_backfill": [
     {
       "version": "0.13.0",
@@ -508,18 +508,23 @@
     {
       "version": "0.13.125",
       "summary": "Kept Automation Studio objectives separate from executable process tasks in new flows."
+    },
+    {
+      "version": "0.13.126",
+      "summary": "Preserved recurring birthday cards through reminder delivery and repaired missing records from linked contacts."
     }
   ],
   "release_entry": {
     "features": [
-      "Repair a missing Birthday record automatically when its linked Contact still contains the birthday."
+      "Show the next birthdays above a colored month-by-month People directory.",
+      "Default birthdays saved through chat to reminders one week and one day before."
     ],
     "fixes": [
-      "Merge birthday reminder delivery results into the latest stored birthday data instead of saving a stale snapshot.",
-      "Keep recurring birthday cards available after their reminder notification is delivered."
+      "Apply chat reminder defaults whether the birthday is saved directly or through its linked Contact.",
+      "Preserve existing reminder choices when chat updates a Contact that already has a Birthday record."
     ],
     "validation": [
-      "Birthday delivery persistence, Contact recovery, browser smoke, release manifest, README alignment, and v0.13.126 release coverage"
+      "Chat birthday reminder defaults, monthly Birthday directory, browser smoke, release manifest, README alignment, and v0.13.127 release coverage"
     ]
   },
   "features": [

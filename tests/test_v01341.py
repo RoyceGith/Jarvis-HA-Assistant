@@ -36,10 +36,10 @@ class GitHubDeviceFlowBoundaryTests(unittest.TestCase):
         )
 
     def test_release_markers_are_aligned(self):
-        self.assertIn('version: "0.13.126"', CONFIG)
-        self.assertIn('version="0.13.126"', MAIN)
-        self.assertIn("HUD 0.13.126", HTML)
-        self.assertEqual(MANIFEST["version"], "0.13.126")
+        self.assertIn('version: "0.13.127"', CONFIG)
+        self.assertIn('version="0.13.127"', MAIN)
+        self.assertIn("HUD 0.13.127", HTML)
+        self.assertEqual(MANIFEST["version"], "0.13.127")
 
     def test_device_flow_implementation_is_outside_main(self):
         self.assertNotIn("GITHUB_DEVICE_FLOWS = {}", MAIN)

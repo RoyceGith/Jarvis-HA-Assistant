@@ -19,6 +19,10 @@ storage, and `ghcr.io/roycegith/jarvis-ha-assistant` update image.
 
 ## Current experience
 
+Version 0.13.127 shows the nearest birthdays above a colored month-by-month People
+directory. Birthdays saved through chat default to reminders one week and one day
+before while existing reminder choices remain unchanged.
+
 Version 0.13.126 preserves recurring Birthday cards after notifications and repairs
 a missing Birthday record from its linked Contact.
 
