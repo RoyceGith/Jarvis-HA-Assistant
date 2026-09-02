@@ -6,6 +6,9 @@ connections.
 
 ## Automation Studio
 
+Version 0.13.128 stabilizes the container browser validation on slower ARM builders
+and restores image publication without changing application behavior.
+
 Version 0.13.127 unifies Birthdays into one People view with the nearest birthdays
 first and colored monthly sections below. Chat saves default to seven-day and
 one-day reminders without replacing existing reminder choices.
