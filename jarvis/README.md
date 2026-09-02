@@ -6,6 +6,9 @@ connections.
 
 ## Automation Studio
 
+Version 0.13.126 prevents reminder delivery from losing Birthday data and repairs
+missing Birthday records from linked Contacts.
+
 Version 0.13.125 keeps automation Objectives separate from Do This tasks and uses
 a clear placeholder until a suggestion or task is configured.
 

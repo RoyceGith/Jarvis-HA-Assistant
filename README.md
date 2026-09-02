@@ -19,6 +19,9 @@ storage, and `ghcr.io/roycegith/jarvis-ha-assistant` update image.
 
 ## Current experience
 
+Version 0.13.126 preserves recurring Birthday cards after notifications and repairs
+a missing Birthday record from its linked Contact.
+
 Version 0.13.125 keeps the Objective out of the Do This process card and clearly
 prompts for an actual suggestion or task in new flows.
 
