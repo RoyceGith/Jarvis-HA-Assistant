@@ -1,9 +1,13 @@
-## ZBRANO v0.13.127
+## ZBRANO v0.13.128
 
 ZBRANO combines Home Assistant chat, voice, entity control, memory, notifications,
 calendar and contact tools, plugins, and evidence-based automations. Automation Studio now uses
 a visual building-block toolbox, interactive node canvas, and contextual inspector;
 the established automation engine and stored definitions remain compatible.
+
+Version 0.13.128 repairs the container browser gate on slower ARM builders by
+making an Automation Studio delete interaction deterministic. Application behavior
+and stored data are unchanged from v0.13.127.
 
 Version 0.13.127 turns Birthdays into a single People directory with the next
 birthdays at the top and colored month sections below. Birthdays saved through

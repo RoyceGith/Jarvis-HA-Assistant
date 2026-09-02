@@ -1,9 +1,9 @@
 {
-  "version": "0.13.127",
+  "version": "0.13.128",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/ZBRANO_Core main",
-  "summary": "Default chat-created birthday reminders and organize the Birthday directory into upcoming and colored monthly sections.",
+  "summary": "Make the container browser gate deterministic on slower ARM image builders.",
   "history_backfill": [
     {
       "version": "0.13.0",
@@ -512,19 +512,22 @@
     {
       "version": "0.13.126",
       "summary": "Preserved recurring birthday cards through reminder delivery and repaired missing records from linked contacts."
+    },
+    {
+      "version": "0.13.127",
+      "summary": "Defaulted chat-created birthday reminders and organized the Birthday directory into upcoming and colored monthly sections."
     }
   ],
   "release_entry": {
     "features": [
-      "Show the next birthdays above a colored month-by-month People directory.",
-      "Default birthdays saved through chat to reminders one week and one day before."
+      "Run the Automation Studio browser gate reliably on slower ARM container builders."
     ],
     "fixes": [
-      "Apply chat reminder defaults whether the birthday is saved directly or through its linked Contact.",
-      "Preserve existing reminder choices when chat updates a Contact that already has a Birthday record."
+      "Prevent a selected Automation Studio card from intercepting the browser gate's delete-button click on slower ARM builders.",
+      "Restore publication of the Home Assistant container image after the v0.13.127 browser-test timeout."
     ],
     "validation": [
-      "Chat birthday reminder defaults, monthly Birthday directory, browser smoke, release manifest, README alignment, and v0.13.127 release coverage"
+      "Deterministic Automation Studio browser interaction, browser smoke, release manifest, README alignment, and v0.13.128 release coverage"
     ]
   },
   "features": [

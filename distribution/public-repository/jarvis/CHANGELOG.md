@@ -1,5 +1,11 @@
 # Change log
 
+## 0.13.128
+
+- Stabilized the Automation Studio browser gate on slower ARM builders.
+- Restored publication of the Home Assistant image after the v0.13.127 timeout.
+- Kept application behavior and stored data unchanged.
+
 ## 0.13.127
 
 - Replaced the separate Upcoming Birthday tab with one People directory.

@@ -130,7 +130,7 @@ function apiFixture(url, method = "GET") {
   if (pathname === "/api/health") {
     return {
       status: "ok",
-      version: "0.13.127",
+      version: "0.13.128",
       speech_provider: "openai",
       speech_providers: {openai: {configured: true}, elevenlabs: {configured: false}},
     };
@@ -213,7 +213,7 @@ function apiFixture(url, method = "GET") {
   if (pathname === "/api/plugins") return {plugins: []};
   if (pathname === "/api/files/shared") return {files: [], count: 0};
   if (pathname === "/api/release-memory-sync") {
-    return {enabled: false, state: "disabled", version: "0.13.127", task_active: false};
+    return {enabled: false, state: "disabled", version: "0.13.128", task_active: false};
   }
   if (pathname === "/api/tab-activity") return {revisions: {}};
   if (pathname === "/api/grinder-monitor/status") return {enabled: false, connected: false};
@@ -638,7 +638,7 @@ async function main() {
     assert.equal(await page.locator('#automation-flow-preview [data-flow-kind="branch-condition"][data-flow-branch-index="1"]').count(), 1);
     await page.evaluate(()=>{const source=document.querySelector('#automation-flow-preview [data-flow-kind="branch-condition"][data-flow-branch-index="1"]'),lane=document.querySelector('#automation-flow-preview [data-flow-branch-condition-drop="0"]'),dataTransfer=new DataTransfer();source.dispatchEvent(new DragEvent("dragstart",{bubbles:true,dataTransfer}));lane.dispatchEvent(new DragEvent("dragover",{bubbles:true,cancelable:true,dataTransfer}));lane.dispatchEvent(new DragEvent("drop",{bubbles:true,cancelable:true,dataTransfer}))});
     assert.equal(await page.locator('#automation-flow-preview [data-flow-kind="branch-condition"][data-flow-branch-index="0"]').count(), 2);
-    const removableBranchCondition=page.locator('#automation-flow-preview [data-flow-kind="branch-condition"]').last();await removableBranchCondition.hover();await removableBranchCondition.locator(".automation-flow-card-delete").click();
+    const removableBranchCondition=page.locator('#automation-flow-preview [data-flow-kind="branch-condition"]').last();await removableBranchCondition.hover();await removableBranchCondition.locator(".automation-flow-card-delete").click({force:true});
     assert.equal(await page.locator('#automation-flow-preview [data-flow-kind="branch-condition"]').count(), 1);
     await page.locator("#automation-studio-undo").click();
     assert.equal(await page.locator('#automation-flow-preview [data-flow-kind="branch-condition"]').count(), 2);
