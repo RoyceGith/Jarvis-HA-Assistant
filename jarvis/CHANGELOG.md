@@ -1,5 +1,12 @@
 # Change log
 
+## 0.13.124
+
+- Renamed the visible Automation Studio Context block to Condition.
+- Simplified flow wording to direct Check, If, Do, and And steps.
+- Displayed complete friendly names and entity IDs on flow cards.
+- Removed confidence and operating-mode descriptions from process cards.
+
 ## 0.13.123
 
 - Restored searchable entity loading for Context presence and signal fields.
