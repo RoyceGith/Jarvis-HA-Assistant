@@ -1,5 +1,12 @@
 # Change log
 
+## 0.13.118
+
+- Showed only settings relevant to the selected Automation Studio trigger type.
+- Hid the unused target-value field for Any state change triggers.
+- Refreshed contextual controls immediately after trigger type or operator changes.
+- Preserved existing automation definitions and stored data.
+
 ## 0.13.117
 
 - Moved My Automations and Automation Memory into the Automation Studio left navigation.

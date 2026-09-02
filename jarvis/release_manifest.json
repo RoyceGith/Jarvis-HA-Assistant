@@ -1,9 +1,9 @@
 {
-  "version": "0.13.117",
+  "version": "0.13.118",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/ZBRANO_Core main",
-  "summary": "Promote My Automations and Automation Memory into Automation Studio navigation with compact, individually expandable saved flows.",
+  "summary": "Show only settings relevant to the selected Automation Studio trigger, condition, and action type.",
   "history_backfill": [
     {
       "version": "0.13.0",
@@ -472,22 +472,27 @@
     {
       "version": "0.13.116",
       "summary": "Added branch-specific suggestions and live entity-to-attribute comparisons to single Automation Studio flows."
+    },
+    {
+      "version": "0.13.117",
+      "summary": "Promoted My Automations and Automation Memory into Automation Studio navigation with compact, individually expandable saved flows."
     }
   ],
   "release_entry": {
     "features": [
-      "Open My Automations and Automation Memory directly from indented Automation Studio navigation entries.",
-      "Show saved automations as concise rows with an independent flow-diagram disclosure for each rule."
+      "Filter the primary Trigger inspector according to entity, time, Sun, interval, or one-time trigger type.",
+      "Hide the trigger value when Any state change is selected because that operator does not use a target value."
     ],
     "fixes": [
-      "Remove the nested Create New and My Automations tab switcher from the visual Studio workspace.",
-      "Keep large flow diagrams collapsed until the user explicitly expands the relevant automation."
+      "Prevent unrelated Sun, schedule, interval, entity, and duration controls from appearing together.",
+      "Refresh contextual fields immediately when the trigger type or operator changes."
     ],
     "validation": [
-      "Left-navigation routing, compact saved rows, per-automation flow disclosure, browser workflow coverage, release manifest, README alignment, and v0.13.117 release coverage"
+      "Contextual trigger inspector states, conditional value visibility, existing dynamic condition and action editors, browser workflow coverage, release manifest, README alignment, and v0.13.118 release coverage"
     ]
   },
   "features": [
+    "See only the Automation Studio settings required by the selected block type.",
     "Navigate directly between Automation Studio, My Automations, and Automation Memory.",
     "Keep saved automation flow diagrams collapsed behind per-rule expand controls.",
     "Build single Automation Studio flows with branch-specific suggestions and live entity-to-attribute comparisons.",

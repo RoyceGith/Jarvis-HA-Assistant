@@ -131,6 +131,19 @@
     restoringEditorHistory=true;applyEditorHistoryState(payload.state);restoringEditorHistory=false;commitEditorHistory();
     const saved=new Date(Number(payload.saved_at||0));$("automation-studio-state").textContent=`Recovered unsaved flow from ${saved.toLocaleString()}. New flow discards it.`;
   }
+  function inspectorFields(panelConfig){
+    if(selectedStudioNode!=="trigger")return panelConfig.fields;
+    const kind=$("automation-trigger-kind").value||"entity",operator=$("automation-trigger-operator").value||"changes_to";
+    const fields={
+      entity:new Set(["automation-trigger-kind","automation-trigger-entity","automation-trigger-operator","automation-trigger-for"]),
+      time:new Set(["automation-trigger-kind","automation-trigger-at","automation-trigger-weekdays"]),
+      sun:new Set(["automation-trigger-kind","automation-trigger-sun-event","automation-trigger-sun-offset","automation-trigger-weekdays"]),
+      interval:new Set(["automation-trigger-kind","automation-trigger-interval"]),
+      one_time:new Set(["automation-trigger-kind","automation-trigger-one-time"]),
+    }[kind]||new Set(["automation-trigger-kind"]);
+    if(kind==="entity"&&operator!=="any_change")fields.add("automation-trigger-value");
+    return panelConfig.fields.filter(([id])=>fields.has(id));
+  }
   function renderStudioInspector(){
     window.zbranoEntitySearch?.close();
     const panelConfig=studioPanels[selectedStudioNode]||studioPanels.trigger;
@@ -138,14 +151,14 @@
     $("automation-studio-inspector-help").textContent=panelConfig.help;
     const root=$("automation-studio-inspector-fields");root.replaceChildren();
     if(selectedStudioNode==="action")renderActionTaskPalette(root);
-    for(const [id,labelText] of panelConfig.fields){
+    for(const [id,labelText] of inspectorFields(panelConfig)){
       const source=$(id);if(!source)continue;
       const label=document.createElement("label"),control=source.cloneNode(true);
       control.id=`studio-${id}`;control.removeAttribute("required");
       if(entityPickerFieldIds.has(id))control.dataset.entityPicker="true";
       if(source.type==="checkbox"){control.checked=source.checked;label.className="is-check";label.append(control,document.createTextNode(labelText))}
       else{control.value=source.value;const caption=document.createElement("span");caption.textContent=labelText;label.append(caption,control)}
-      const synchronize=()=>{if(source.type==="checkbox")source.checked=control.checked;else source.value=control.value;source.dispatchEvent(new Event("input",{bubbles:true}))};
+      const synchronize=()=>{if(source.type==="checkbox")source.checked=control.checked;else source.value=control.value;source.dispatchEvent(new Event("input",{bubbles:true}));if(id==="automation-trigger-kind"||id==="automation-trigger-operator")renderStudioInspector()};
       control.addEventListener("input",synchronize);control.addEventListener("change",synchronize);root.append(label);
     }
     renderWorkflowInspector(root);

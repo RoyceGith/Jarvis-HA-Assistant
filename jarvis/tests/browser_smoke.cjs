@@ -129,7 +129,7 @@ function apiFixture(url, method = "GET") {
   if (pathname === "/api/health") {
     return {
       status: "ok",
-      version: "0.13.117",
+      version: "0.13.118",
       speech_provider: "openai",
       speech_providers: {openai: {configured: true}, elevenlabs: {configured: false}},
     };
@@ -201,7 +201,7 @@ function apiFixture(url, method = "GET") {
   if (pathname === "/api/plugins") return {plugins: []};
   if (pathname === "/api/files/shared") return {files: [], count: 0};
   if (pathname === "/api/release-memory-sync") {
-    return {enabled: false, state: "disabled", version: "0.13.117", task_active: false};
+    return {enabled: false, state: "disabled", version: "0.13.118", task_active: false};
   }
   if (pathname === "/api/tab-activity") return {revisions: {}};
   if (pathname === "/api/grinder-monitor/status") return {enabled: false, connected: false};
@@ -329,6 +329,18 @@ async function main() {
     assert.equal(automationLayout.display, "grid");
     assert.match(automationLayout.columns, /px .*px/);
     assert.equal(automationLayout.navCursor, "pointer");
+    assert.equal(await page.locator("#studio-automation-trigger-entity").count(), 1);
+    assert.equal(await page.locator("#studio-automation-trigger-sun-event").count(), 0);
+    await page.locator("#studio-automation-trigger-kind").selectOption("sun");
+    assert.equal(await page.locator("#studio-automation-trigger-sun-event").count(), 1);
+    assert.equal(await page.locator("#studio-automation-trigger-entity").count(), 0);
+    assert.equal(await page.locator("#studio-automation-trigger-at").count(), 0);
+    await page.locator("#studio-automation-trigger-kind").selectOption("entity");
+    await page.locator("#studio-automation-trigger-operator").selectOption("any_change");
+    assert.equal(await page.locator("#studio-automation-trigger-value").count(), 0);
+    await page.locator("#studio-automation-trigger-operator").selectOption("above");
+    assert.equal(await page.locator("#studio-automation-trigger-value").count(), 1);
+    await page.locator("#studio-automation-trigger-operator").selectOption("changes_to");
     assert.match(await page.locator('[data-auto-view="library"]').innerText(), /My Automations/);
     assert.match(await page.locator('[data-auto-view="memory"]').innerText(), /Automation Memory/);
     await page.locator('[data-auto-view="library"]').click();

@@ -14,11 +14,11 @@ MANIFEST = json.loads((ROOT / "jarvis/release_manifest.json").read_text(encoding
 
 class ClimateEntityStateReleaseTests(unittest.TestCase):
     def test_release_markers_are_aligned(self):
-        self.assertIn('version: "0.13.117"', CONFIG)
-        self.assertIn('version="0.13.117"', MAIN)
-        self.assertIn("HUD 0.13.117", HTML)
-        self.assertEqual(MANIFEST["version"], "0.13.117")
-        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.116")
+        self.assertIn('version: "0.13.118"', CONFIG)
+        self.assertIn('version="0.13.118"', MAIN)
+        self.assertIn("HUD 0.13.118", HTML)
+        self.assertEqual(MANIFEST["version"], "0.13.118")
+        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.117")
 
     def test_climate_attributes_are_normalized_for_inventory(self):
         for marker in (
