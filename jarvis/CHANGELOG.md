@@ -1,5 +1,13 @@
 # Change log
 
+## 0.13.119
+
+- Added a private Contacts tab for rich person and company records.
+- Added CSV, vCard, and read-only Google Contacts import options.
+- Linked contact birthdays to the existing Birthday reminder system.
+- Added numbered chat choices for ambiguous contacts and all other clarifications.
+- Kept sensitive bank fields out of ordinary contact search results.
+
 ## 0.13.118
 
 - Showed only settings relevant to the selected Automation Studio trigger type.
