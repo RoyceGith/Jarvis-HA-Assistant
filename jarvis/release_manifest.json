@@ -1,9 +1,9 @@
 {
-  "version": "0.13.124",
+  "version": "0.13.125",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/ZBRANO_Core main",
-  "summary": "Simplify Automation Studio into clear Check, If, and Do language with complete entity names on flow cards.",
+  "summary": "Keep Automation Studio objectives separate from executable process tasks in new flows.",
   "history_backfill": [
     {
       "version": "0.13.0",
@@ -500,18 +500,22 @@
     {
       "version": "0.13.123",
       "summary": "Restored Automation Studio Context and Action entity pickers and positioned Contacts immediately after Calendar."
+    },
+    {
+      "version": "0.13.124",
+      "summary": "Simplified Automation Studio into clear Check, If, and Do language with complete entity names on flow cards."
     }
   ],
   "release_entry": {
     "features": [
-      "Show complete friendly names and entity IDs on Automation Studio flow cards."
+      "Show a clear Do This placeholder until a new automation has an actual suggestion or task."
     ],
     "fixes": [
-      "Rename the visible Context building block and inspector to Condition without changing the stored automation schema.",
-      "Reduce flow explanations to direct Check, If, Do, and And task language."
+      "Stop using the automation objective as the fallback content of the Do This process card.",
+      "Prompt for an actual suggestion or task when a new flow has not configured one yet."
     ],
     "validation": [
-      "Automation flow language, complete entity labels, browser smoke, release manifest, README alignment, and v0.13.124 release coverage"
+      "Objective/task separation, browser smoke, release manifest, README alignment, and v0.13.125 release coverage"
     ]
   },
   "features": [

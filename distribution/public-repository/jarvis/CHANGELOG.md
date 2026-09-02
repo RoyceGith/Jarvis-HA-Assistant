@@ -1,5 +1,10 @@
 # Change log
 
+## 0.13.125
+
+- Stopped displaying the automation Objective as a Do This task.
+- Added a clear placeholder until a real suggestion or task is configured.
+
 ## 0.13.124
 
 - Renamed the visible Automation Studio Context block to Condition.

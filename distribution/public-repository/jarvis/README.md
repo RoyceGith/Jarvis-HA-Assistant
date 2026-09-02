@@ -6,6 +6,9 @@ connections.
 
 ## Automation Studio
 
+Version 0.13.125 keeps automation Objectives separate from Do This tasks and uses
+a clear placeholder until a suggestion or task is configured.
+
 Version 0.13.124 makes Automation Studio read as Check, If, and Do, renames the
 visible Context block to Condition, and displays complete entity names and IDs.
 

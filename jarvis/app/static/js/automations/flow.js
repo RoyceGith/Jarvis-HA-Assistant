@@ -94,7 +94,7 @@
       if(unassigned.length){const nodes=unassigned.map((item,index)=>{const [title,detail]=actionLabel(item,entityName);return node("action",index,`UNASSIGNED ${index+1}`,title,detail)});flow.append(verticalConnector(),stage("action","UNASSIGNED TASKS — NOT RUN",nodes))}
     }
     else{
-      flow.append(verticalConnector(),stage("decision","DO THIS",[node("decision",0,"DO",text(automation.proposal_template,text(automation.objective,"Record the match")),"")]));
+      flow.append(verticalConnector(),stage("decision","DO THIS",[node("decision",0,"DO",text(automation.proposal_template,"Choose a suggestion or task"),"")]));
       let actions=(automation.actions||[]).filter(item=>item&&typeof item==="object");if(!actions.length&&automation.action_entity&&automation.action_service)actions=[{kind:"service",entity_id:automation.action_entity,service:automation.action_service}];const actionNodes=actions.length?actions.map((item,index)=>{const [title,detail]=actionLabel(item,entityName);return node("action",index,`TASK ${index+1}`,title,detail)}):[node("action",0,"TASK","Suggestion only","No Home Assistant service call")];
       flow.append(verticalConnector(),stage("action","AND THESE TASKS",actionNodes));
     }return flow;
