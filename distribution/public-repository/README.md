@@ -19,8 +19,11 @@ storage, and `ghcr.io/roycegith/jarvis-ha-assistant` update image.
 
 ## Current experience
 
-Version 0.13.120 makes Automation Studio inspectors contextual so each trigger
-shows only the settings its selected type and operator actually use.
+Version 0.13.121 repairs a timing-sensitive container browser validation so the
+multi-architecture image build can complete reliably. Runtime behavior is unchanged.
+
+Version 0.13.120 repairs Google Contacts imports with actionable Google People
+API errors and resilient per-contact handling.
 
 Version 0.13.117 moves My Automations and Automation Memory into dedicated,
 indented Studio navigation entries. Saved automations stay compact and expose

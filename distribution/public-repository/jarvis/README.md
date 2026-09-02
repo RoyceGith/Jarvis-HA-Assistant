@@ -6,6 +6,9 @@ connections.
 
 ## Automation Studio
 
+Version 0.13.121 repairs a timing-sensitive notification assertion in the
+container browser gate. Runtime behavior and stored data are unchanged.
+
 Version 0.13.120 repairs Google Contacts imports with actionable Google People API
 errors, per-record resilience, and preservation of local contact details.
 

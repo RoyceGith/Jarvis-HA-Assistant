@@ -129,7 +129,7 @@ function apiFixture(url, method = "GET") {
   if (pathname === "/api/health") {
     return {
       status: "ok",
-      version: "0.13.120",
+      version: "0.13.121",
       speech_provider: "openai",
       speech_providers: {openai: {configured: true}, elevenlabs: {configured: false}},
     };
@@ -208,7 +208,7 @@ function apiFixture(url, method = "GET") {
   if (pathname === "/api/plugins") return {plugins: []};
   if (pathname === "/api/files/shared") return {files: [], count: 0};
   if (pathname === "/api/release-memory-sync") {
-    return {enabled: false, state: "disabled", version: "0.13.120", task_active: false};
+    return {enabled: false, state: "disabled", version: "0.13.121", task_active: false};
   }
   if (pathname === "/api/tab-activity") return {revisions: {}};
   if (pathname === "/api/grinder-monitor/status") return {enabled: false, connected: false};
@@ -647,6 +647,8 @@ async function main() {
     await page.getByRole("button", {name:"Not now"}).click();
     await page.getByRole("button", {name:"Not now"}).waitFor({state:"detached"});
     assert.equal(await page.locator("#notification-inbox-popover").isVisible(), true);
+    const markAllNotifications = page.locator("#notification-inbox-mark-all");
+    if (await markAllNotifications.isEnabled()) await markAllNotifications.click();
     await page.locator("#notification-inbox-count").waitFor({state:"hidden", timeout:3000});
     const notificationRow = page.locator(".notification-inbox-item");
     await notificationRow.hover();

@@ -1,9 +1,13 @@
-## ZBRANO v0.13.120
+## ZBRANO v0.13.121
 
 ZBRANO combines Home Assistant chat, voice, entity control, memory, notifications,
 calendar and contact tools, plugins, and evidence-based automations. Automation Studio now uses
 a visual building-block toolbox, interactive node canvas, and contextual inspector;
 the established automation engine and stored definitions remain compatible.
+
+Version 0.13.121 makes the container browser gate deterministic by explicitly
+marking the exercised notification as read before asserting the unread badge.
+Application behavior and stored data are unchanged.
 
 Version 0.13.120 repairs Google Contacts import failures. Google People API or
 permission problems now return an actionable message instead of HTTP 500, malformed

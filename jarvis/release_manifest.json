@@ -1,9 +1,9 @@
 {
-  "version": "0.13.120",
+  "version": "0.13.121",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/ZBRANO_Core main",
-  "summary": "Repair Google Contacts imports with actionable API errors, resilient record handling, and preservation of existing local details.",
+  "summary": "Repair the timing-sensitive notification read-state assertion in the container browser build gate.",
   "history_backfill": [
     {
       "version": "0.13.0",
@@ -484,20 +484,22 @@
     {
       "version": "0.13.119",
       "summary": "Added a private Contacts directory with birthday linking, CSV/vCard and read-only Google imports, and numbered chat disambiguation."
+    },
+    {
+      "version": "0.13.120",
+      "summary": "Repaired Google Contacts imports with actionable API errors, resilient record handling, and preservation of existing local details."
     }
   ],
   "release_entry": {
     "features": [
-      "Show the exact Google People API setup remedy when Google OAuth succeeds but Contacts access is unavailable.",
-      "Report created, updated, and skipped Google contact counts after an import."
+      "Keep the container browser gate deterministic across supported architectures."
     ],
     "fixes": [
-      "Return actionable API errors instead of a generic HTTP 500 during Google Contacts import.",
-      "Skip isolated malformed Google records instead of aborting the complete import.",
-      "Preserve existing local notes, birthdays, addresses, phone numbers, emails, and bank details when Google omits them."
+      "Make the browser smoke test explicitly mark its notification fixture read before asserting that the unread badge is hidden.",
+      "Remove the race between the automatic inbox-read timer and the notification suggestion interaction in container builds."
     ],
     "validation": [
-      "Google People error translation, malformed-record isolation, local-field preservation, read-only OAuth boundary, Contacts UI status, release manifest, README alignment, and v0.13.120 release coverage"
+      "Deterministic notification inbox browser smoke, release manifest, README alignment, and v0.13.121 release coverage"
     ]
   },
   "features": [
