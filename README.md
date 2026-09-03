@@ -1,9 +1,14 @@
-## ZBRANO v0.13.130
+## ZBRANO v0.13.131
 
 ZBRANO combines Home Assistant chat, voice, entity control, memory, notifications,
 calendar and contact tools, plugins, and evidence-based automations. Automation Studio now uses
 a visual building-block toolbox, interactive node canvas, and contextual inspector;
 the established automation engine and stored definitions remain compatible.
+
+Version 0.13.131 replaces the remaining green interface palette with the same
+theme-aware blue used by the Talk button. Primary accents, glows, controls,
+background tints, status highlights, and the animated neural backdrop now use one
+consistent blue family across dark, light, and gray themes.
 
 Version 0.13.130 makes the visual workflow match its real logic: a compact watcher
 stage wakes the automation, followed by explicit IF, ELSE IF, and ELSE paths.

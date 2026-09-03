@@ -209,15 +209,15 @@ body > main > nav .primary-labeled-tab svg { width: 1rem; height: 1rem; }
   background: var(--settings-accent);
   content: "";
 }
-#settings-panel .settings-card[data-settings-category="setup"] { --settings-accent: #34c77b; }
+#settings-panel .settings-card[data-settings-category="setup"] { --settings-accent: var(--cyan); }
 #settings-panel .settings-card[data-settings-category="appearance"] { --settings-accent: #3f9cff; }
 #settings-panel .settings-card[data-settings-category="voice"] { --settings-accent: #a978ff; }
-#settings-panel .settings-card[data-settings-category="responses"] { --settings-accent: #43c7bd; }
+#settings-panel .settings-card[data-settings-category="responses"] { --settings-accent: var(--cyan); }
 #settings-panel .settings-card[data-settings-category="playback"] { --settings-accent: #ffae57; }
 #settings-panel .settings-card[data-settings-category="instructions"] { --settings-accent: #d179ff; }
 #settings-panel .settings-card[data-settings-category="search"] { --settings-accent: #42b8eb; }
 #settings-panel .settings-card[data-settings-category="memory"] { --settings-accent: #e29063; }
-#settings-panel .settings-card[data-settings-category="updates"] { --settings-accent: #58c57b; }
+#settings-panel .settings-card[data-settings-category="updates"] { --settings-accent: var(--cyan); }
 #settings-panel .settings-card h2 { color: var(--settings-accent); }
 #settings-panel .settings-stack > .settings-actions {
   align-self: start;

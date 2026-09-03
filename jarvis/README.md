@@ -1,10 +1,14 @@
-# ZBRANO v0.13.130
+# ZBRANO v0.13.131
 
 Automation Studio provides a graphical building-block workflow for Home Assistant
 automations. Use the toolbox to select or drag Trigger, Condition, Decision, and
 Action blocks onto the canvas, then edit only that block in the settings inspector.
 Natural-language creation, templates, saved automation compatibility, and the full
 Advanced editor remain available.
+
+Version 0.13.131 unifies the interface around the Talk button's theme-aware blue,
+removing the remaining green accents, glows, tints, and neural-network colors in
+dark, light, and gray themes.
 
 Version 0.13.130 separates event watchers from executable conditions in the visual
 flow. IF and ELSE IF cards now provide labelled state, attribute, operator, value,

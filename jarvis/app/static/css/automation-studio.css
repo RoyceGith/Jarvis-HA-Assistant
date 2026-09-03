@@ -21,11 +21,11 @@
 .automation-studio-validation strong { margin-right: .2rem; color: #f0b35b; font-size: .76rem; }
 .automation-studio-validation button { padding: .35rem .55rem; border-color: color-mix(in srgb,#f0b35b 52%,var(--line)); background: transparent; font-size: .7rem; }
 .automation-studio-test-step { display: grid; gap: .2rem; min-width: 0; padding: .55rem; border: 1px solid var(--line); border-radius: 9px; }
-.automation-studio-test-step[data-status="pass"] { border-color: color-mix(in srgb,#65d98c 60%,var(--line)); }
+.automation-studio-test-step[data-status="pass"] { border-color: color-mix(in srgb,var(--cyan) 60%,var(--line)); }
 .automation-studio-test-step[data-status="fail"] { border-color: color-mix(in srgb,#ff766d 65%,var(--line)); }
 .automation-studio-test-step[data-status="waiting"] { border-color: color-mix(in srgb,#f0b35b 65%,var(--line)); }
 .automation-studio-test-step small { color: var(--text-muted); overflow-wrap: anywhere; }
-.automation-flow-node.is-test-pass { border-color:#65d98c; }
+.automation-flow-node.is-test-pass { border-color:var(--cyan); }
 .automation-flow-node.is-test-fail { border-color:#ff766d; }
 .automation-flow-node.is-test-waiting { border-color:#f0b35b; }
 .automation-studio-layout { display: grid; grid-template-columns: minmax(145px,180px) minmax(0,1fr) minmax(230px,290px); min-height: 560px; }
@@ -161,7 +161,7 @@
 .automation-flow-node strong { margin: .28rem 0; overflow-wrap: anywhere; }
 .automation-flow-node small { color: var(--text-muted); line-height: 1.35; }
 .automation-flow-kicker { color: var(--cyan); font-size: .66rem; letter-spacing: .1em; }
-.automation-flow-node.is-context { box-shadow: inset 3px 0 color-mix(in srgb,#a7d46f 62%,transparent),0 8px 24px rgba(0,0,0,.12); }
+.automation-flow-node.is-context { box-shadow: inset 3px 0 color-mix(in srgb,var(--cyan) 62%,transparent),0 8px 24px rgba(0,0,0,.12); }
 .automation-flow-node.is-decision { box-shadow: inset 3px 0 color-mix(in srgb,#c29cff 62%,transparent),0 8px 24px rgba(0,0,0,.12); }
 .automation-flow-node.is-action { box-shadow: inset 3px 0 color-mix(in srgb,#f0b35b 66%,transparent),0 8px 24px rgba(0,0,0,.12); }
 .automation-flow-stage-connector { position: relative; display: block; width: 2px; height: 28px; background: color-mix(in srgb,var(--cyan) 58%,var(--line)); pointer-events: none; }

@@ -1,9 +1,9 @@
 {
-  "version": "0.13.130",
+  "version": "0.13.131",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/ZBRANO_Core main",
-  "summary": "Make Automation Studio conditions executable and explicit with clear watcher, IF, ELSE IF, value, attribute, and duration controls.",
+  "summary": "Unify the interface around the Talk button's theme-aware blue and remove the remaining green palette from every theme.",
   "history_backfill": [
     {
       "version": "0.13.0",
@@ -524,20 +524,23 @@
     {
       "version": "0.13.129",
       "summary": "Hid textbox explanations while editing and restored them when an empty field lost focus."
+    },
+    {
+      "version": "0.13.130",
+      "summary": "Made Automation Studio conditions executable and explicit with clear watcher, IF, ELSE IF, value, attribute, comparison, and duration controls."
     }
   ],
   "release_entry": {
     "features": [
-      "Present event sources as watchers followed by real IF, ELSE IF, and ELSE decision paths.",
-      "Let each entity condition read either state or a named Home Assistant attribute.",
-      "Expose clearly labelled entity, comparison, required value, and sustained-duration controls."
+      "Use the Talk button's theme-aware blue as the single primary interface accent.",
+      "Apply the unified blue palette consistently across dark, light, and gray themes."
     ],
     "fixes": [
-      "Stop legacy presence and signal shortcuts from being mistaken for complete value conditions in the visual inspector.",
-      "Evaluate entity-attribute comparisons in the backend while preserving existing state-based automations."
+      "Remove remaining green accents, glows, surface tints, status highlights, and neural backdrop colors.",
+      "Preserve red and amber warning and error semantics while consolidating positive interface states onto blue."
     ],
     "validation": [
-      "Automation condition schema, runtime attribute evaluation, visual flow, browser smoke, release manifest, README alignment, and v0.13.130 release coverage"
+      "Theme palette contract, CSS source validation, browser smoke, release manifest, README alignment, and v0.13.131 release coverage"
     ]
   },
   "features": [

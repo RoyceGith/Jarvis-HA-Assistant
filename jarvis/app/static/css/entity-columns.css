@@ -66,19 +66,19 @@
     .calendar-appointment-time { color:var(--cyan); font-size:.82rem; }
     .calendar-meta,.calendar-reminder-badges { display:flex; flex-wrap:wrap; gap:.35rem; color:var(--text-muted); font-size:.72rem; }
     .calendar-reminder-badge { padding:.14rem .42rem; border:1px solid var(--line); border-radius:999px; }
-    .calendar-reminder-badge[data-status="delivered"] { color:#39d6a1; }
+    .calendar-reminder-badge[data-status="delivered"] { color:var(--cyan); }
     .calendar-reminder-badge[data-status="failed"],.calendar-reminder-badge[data-status="missed"],.calendar-reminder-badge[data-status="suppressed"] { color:#ef765f; }
     .calendar-reminder-status { display:grid; grid-template-columns:repeat(4,minmax(100px,1fr)); gap:.5rem; margin-top:.85rem; }
     .calendar-reminder-status button { display:flex; align-items:center; justify-content:space-between; gap:.5rem; min-height:42px; padding:.5rem .65rem; text-align:left; }
     .calendar-reminder-status button strong { font-size:1rem; font-weight:650; }
     .calendar-reminder-status button[data-reminder-filter="pending"] strong { color:#e7a449; }
-    .calendar-reminder-status button[data-reminder-filter="completed"] strong { color:#39d6a1; }
+    .calendar-reminder-status button[data-reminder-filter="completed"] strong { color:var(--cyan); }
     .calendar-reminder-status button[data-reminder-filter="attention"] strong { color:#ef765f; }
     .calendar-reminder-status button.active { border-color:var(--cyan); box-shadow:0 0 0 1px color-mix(in srgb,var(--cyan) 28%,transparent); }
     .calendar-reminder-summary { margin:.65rem 0 0; color:var(--text-muted); }
     .calendar-reminder-state { text-transform:capitalize; }
     .calendar-reminder-state[data-state="pending"] { color:#e7a449; }
-    .calendar-reminder-state[data-state="completed"] { color:#39d6a1; }
+    .calendar-reminder-state[data-state="completed"] { color:var(--cyan); }
     .calendar-reminder-state[data-state="attention"] { color:#ef765f; }
     @media (max-width:620px) { .calendar-reminder-status { grid-template-columns:repeat(2,minmax(0,1fr)); } }
     .calendar-cancel { flex:0 0 auto; padding:.32rem .5rem; font-size:.72rem; }
@@ -152,7 +152,7 @@
     .calendar-day-event-title { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
     .calendar-month-reminder-state { grid-column:1 / -1; width:max-content; max-width:100%; padding:.06rem .25rem; border:1px solid var(--line); border-radius:999px; font-size:.52rem; font-style:normal; font-weight:650; letter-spacing:.025em; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
     .calendar-month-reminder-state[data-state="pending"] { color:#e7a449; border-color:color-mix(in srgb,#e7a449 55%,var(--line)); }
-    .calendar-month-reminder-state[data-state="completed"] { color:#39d6a1; border-color:color-mix(in srgb,#39d6a1 55%,var(--line)); }
+    .calendar-month-reminder-state[data-state="completed"] { color:var(--cyan); border-color:color-mix(in srgb,var(--cyan) 55%,var(--line)); }
     .calendar-month-reminder-state[data-state="attention"] { color:#ef765f; border-color:color-mix(in srgb,#ef765f 55%,var(--line)); }
     .calendar-month-reminder-state[data-state="none"] { color:var(--text-muted); }
     .calendar-day-more { color:var(--text-muted); font-size:.62rem; }
@@ -327,9 +327,9 @@
     :root[data-theme="light"] .calendar-reminder-status button[data-reminder-filter="completed"] strong,
     :root[data-theme="light"] .calendar-reminder-state[data-state="completed"],
     :root[data-theme="light"] .calendar-month-reminder-state[data-state="completed"],
-    :root[data-theme="light"] .calendar-reminder-badge[data-status="delivered"] { color:#126b3a; border-color:#2b7d50; }
+    :root[data-theme="light"] .calendar-reminder-badge[data-status="delivered"] { color:var(--cyan); border-color:var(--cyan-dim); }
     .automation-state { width:max-content; padding:.14rem .4rem; border:1px solid var(--line); border-radius:999px; color:var(--cyan); font-size:.66rem; text-transform:capitalize; }
-    .automation-state[data-state="executed"] { color:#39d6a1; }
+    .automation-state[data-state="executed"] { color:var(--cyan); }
     .automation-state[data-state="approval_required"] { color:#e7a449; }
 
     /* v0.12.91 searchable Home Assistant entity pickers. */
