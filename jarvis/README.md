@@ -6,6 +6,10 @@ connections.
 
 ## Automation Studio
 
+Version 0.13.131 replaces the remaining green interface palette with the Talk
+button's theme-aware blue across controls, accents, glows, surfaces, and the neural
+backdrop.
+
 Version 0.13.130 separates watcher events from IF / ELSE IF decisions and gives
 each condition complete, clearly labelled value, attribute, comparison, and
 duration controls.

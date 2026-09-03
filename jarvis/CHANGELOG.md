@@ -1,5 +1,11 @@
 # Change log
 
+## 0.13.131
+
+- Unified the interface around the Talk button's theme-aware blue.
+- Replaced remaining green accents, glows, surface tints, and neural backdrop colors.
+- Preserved red and amber warning/error semantics across dark, light, and gray themes.
+
 ## 0.13.130
 
 - Reframed trigger cards as the watcher events that wake an automation.

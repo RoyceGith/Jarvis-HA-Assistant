@@ -19,6 +19,10 @@ storage, and `ghcr.io/roycegith/jarvis-ha-assistant` update image.
 
 ## Current experience
 
+Version 0.13.131 unifies the interface around the Talk button's theme-aware blue,
+replacing the remaining green accents, glows, surface tints, and neural backdrop
+colors across all themes.
+
 Version 0.13.130 clarifies Automation Studio as watcher events followed by executable
 IF, ELSE IF, and ELSE paths, with complete value, attribute, comparison, and
 duration controls on every condition.
