@@ -6,6 +6,9 @@ connections.
 
 ## Automation Studio
 
+Version 0.13.135 adds a compact bright destination flash and discreet expanding halo
+when a neural signal reaches a neuron.
+
 Version 0.13.134 makes connection impulses and arrival flashes clearly visible above
 the neuron bodies and slightly neutralizes the blue tint inside each node.
 
