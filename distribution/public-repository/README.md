@@ -19,6 +19,10 @@ storage, and `ghcr.io/roycegith/jarvis-ha-assistant` update image.
 
 ## Current experience
 
+Version 0.13.134 makes neural firing clearly visible above the node bodies while
+keeping it discreet, and reduces the blue tint inside neurons with a more neutral
+charcoal center.
+
 Version 0.13.133 adds sparse, discreet neural firing signals that travel along active
 connections and briefly illuminate destination nodes without running during paused
 chat states.

@@ -1,5 +1,11 @@
 # Change log
 
+## 0.13.134
+
+- Moved neural firing impulses above neuron bodies so they remain visible.
+- Increased signal cadence and arrival-flash clarity while keeping the effect bounded.
+- Shifted neuron interiors toward neutral charcoal to reduce their blue tint.
+
 ## 0.13.133
 
 - Added sparse, faint impulses that travel along neural connections.

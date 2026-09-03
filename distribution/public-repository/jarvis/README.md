@@ -6,6 +6,9 @@ connections.
 
 ## Automation Studio
 
+Version 0.13.134 makes connection impulses and arrival flashes clearly visible above
+the neuron bodies and slightly neutralizes the blue tint inside each node.
+
 Version 0.13.133 adds subtle connection impulses and destination-node flashes to the
 active neural backdrop while preserving all animation pause rules.
 

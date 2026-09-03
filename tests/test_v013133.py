@@ -10,20 +10,21 @@ MANIFEST = json.loads((ROOT / "jarvis" / "release_manifest.json").read_text(enco
 
 class V013133NeuralSignalTests(unittest.TestCase):
     def test_release_is_aligned(self):
-        self.assertEqual(MANIFEST["version"], "0.13.133")
-        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.132")
+        self.assertEqual(MANIFEST["version"], "0.13.134")
+        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.133")
 
     def test_neural_signals_are_sparse_and_bounded(self):
         self.assertIn("let neuralSignals = [];", CORE)
-        self.assertIn("Math.floor(links.length / 9)", CORE)
-        self.assertIn(".slice(0, 9)", CORE)
-        self.assertIn("cycle: 5200 + index * 470", CORE)
-        self.assertIn("activeShare: .16 + (index % 3) * .018", CORE)
+        self.assertIn("Math.floor(links.length / 12)", CORE)
+        self.assertIn(".slice(0, 12)", CORE)
+        self.assertIn("cycle: 4100 + index * 310", CORE)
+        self.assertIn("activeShare: .2 + (index % 3) * .015", CORE)
 
     def test_signal_and_arrival_flash_render_only_while_active(self):
-        self.assertIn("if (shouldAnimate()) {\n      for (const signal of neuralSignals)", CORE)
+        self.assertIn("if (shouldAnimate()) {", CORE)
+        self.assertIn("for (const signal of neuralSignals)", CORE)
         self.assertIn("const signalX = from.x + (to.x - from.x) * progress", CORE)
-        self.assertIn("if (progress > .78)", CORE)
+        self.assertIn("if (progress > .74)", CORE)
         self.assertIn("const arrival = Math.sin", CORE)
         self.assertIn("if (redraw || animate || wasRunning) draw", CORE)
 
