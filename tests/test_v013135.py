@@ -10,15 +10,15 @@ MANIFEST = json.loads((ROOT / "jarvis" / "release_manifest.json").read_text(enco
 
 class V013135NeuralArrivalFlashTests(unittest.TestCase):
     def test_release_is_aligned(self):
-        self.assertEqual(MANIFEST["version"], "0.13.136")
-        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.135")
+        self.assertEqual(MANIFEST["version"], "0.13.137")
+        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.136")
 
-    def test_arrival_has_a_distinct_core_and_halo(self):
+    def test_arrival_has_a_distinct_non_circular_spark(self):
         self.assertIn("if (progress > .68)", CORE)
-        self.assertIn("const flashRadius = Math.max(1.8, to.perspective * 2.8)", CORE)
-        self.assertIn("rgba(255, 255, 245, ${arrival * .92})", CORE)
-        self.assertIn("context.shadowBlur = 10", CORE)
-        self.assertIn("flashRadius + arrivalPhase * 2.2", CORE)
+        self.assertIn("const sparkExtent = Math.max(1.5, to.perspective * 2.4)", CORE)
+        self.assertIn("rgba(255, 255, 245, ${arrival * .95})", CORE)
+        self.assertIn("context.shadowBlur = 8", CORE)
+        self.assertIn("const diagonalExtent = sparkExtent * .55", CORE)
         self.assertIn("context.stroke()", CORE)
 
 

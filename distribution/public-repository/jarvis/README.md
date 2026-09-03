@@ -6,6 +6,9 @@ connections.
 
 ## Automation Studio
 
+Version 0.13.137 removes circular arrival rings and uses a brief four-point electrical
+sparkle when a moving signal reaches its destination neuron.
+
 Version 0.13.136 makes resting neuron interiors fully neutral grayscale in every
 theme while retaining the blue neural network and firing effects.
 

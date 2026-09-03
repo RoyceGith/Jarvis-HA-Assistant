@@ -2474,17 +2474,21 @@ function startBrainNetwork() {
         if (progress > .68) {
           const arrivalPhase = (progress - .68) / .32;
           const arrival = Math.pow(Math.sin(arrivalPhase * Math.PI), 2);
-          const flashRadius = Math.max(1.8, to.perspective * 2.8);
-          context.fillStyle = `rgba(255, 255, 245, ${arrival * .92})`;
+          const sparkExtent = Math.max(1.5, to.perspective * 2.4);
           context.shadowColor = `rgba(${edgeRgb}, ${arrival * .95})`;
-          context.shadowBlur = 10;
+          context.shadowBlur = 8;
+          context.strokeStyle = `rgba(255, 255, 245, ${arrival * .95})`;
+          context.lineWidth = Math.max(.7, to.perspective * .85);
           context.beginPath();
-          context.arc(to.x, to.y, flashRadius, 0, Math.PI * 2);
-          context.fill();
-          context.strokeStyle = `rgba(${edgeRgb}, ${arrival * .8})`;
-          context.lineWidth = .8;
-          context.beginPath();
-          context.arc(to.x, to.y, flashRadius + arrivalPhase * 2.2, 0, Math.PI * 2);
+          context.moveTo(to.x - sparkExtent, to.y);
+          context.lineTo(to.x + sparkExtent, to.y);
+          context.moveTo(to.x, to.y - sparkExtent);
+          context.lineTo(to.x, to.y + sparkExtent);
+          const diagonalExtent = sparkExtent * .55;
+          context.moveTo(to.x - diagonalExtent, to.y - diagonalExtent);
+          context.lineTo(to.x + diagonalExtent, to.y + diagonalExtent);
+          context.moveTo(to.x + diagonalExtent, to.y - diagonalExtent);
+          context.lineTo(to.x - diagonalExtent, to.y + diagonalExtent);
           context.stroke();
         }
       }

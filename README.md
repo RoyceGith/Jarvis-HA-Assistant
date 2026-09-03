@@ -1,9 +1,13 @@
-## ZBRANO v0.13.136
+## ZBRANO v0.13.137
 
 ZBRANO combines Home Assistant chat, voice, entity control, memory, notifications,
 calendar and contact tools, plugins, and evidence-based automations. Automation Studio now uses
 a visual building-block toolbox, interactive node canvas, and contextual inspector;
 the established automation engine and stored definitions remain compatible.
+
+Version 0.13.137 replaces circular arrival halos with brief electrical sparkles.
+Signals now finish as a tiny four-point flash centered on the destination neuron,
+without drawing extra circles or rings around it.
 
 Version 0.13.136 removes the remaining blue tint from resting neuron interiors.
 Every theme now uses an equal-channel neutral grayscale core, while blue remains

@@ -13,11 +13,11 @@ MANIFEST = json.loads((ROOT / "jarvis/release_manifest.json").read_text(encoding
 
 class BirthdayBackupBuildFixTests(unittest.TestCase):
     def test_release_markers_are_aligned(self):
-        self.assertIn('version: "0.13.136"', CONFIG)
-        self.assertIn('version="0.13.136"', MAIN)
-        self.assertIn("HUD 0.13.136", HTML)
-        self.assertEqual(MANIFEST["version"], "0.13.136")
-        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.135")
+        self.assertIn('version: "0.13.137"', CONFIG)
+        self.assertIn('version="0.13.137"', MAIN)
+        self.assertIn("HUD 0.13.137", HTML)
+        self.assertEqual(MANIFEST["version"], "0.13.137")
+        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.136")
 
     def test_container_integration_contract_includes_birthdays(self):
         self.assertIn('"automations", "notifications", "calendar", "birthdays", "contacts", "fast_memory"', INTEGRATION)

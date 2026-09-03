@@ -19,6 +19,9 @@ storage, and `ghcr.io/roycegith/jarvis-ha-assistant` update image.
 
 ## Current experience
 
+Version 0.13.137 replaces circular neural arrival effects with tiny electrical
+sparkles, so signals flash at destination neurons without producing rings.
+
 Version 0.13.136 removes the remaining blue tint from resting neuron interiors while
 retaining blue connections, signal motion, outlines, and arrival halos.
 

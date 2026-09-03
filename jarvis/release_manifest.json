@@ -1,9 +1,9 @@
 {
-  "version": "0.13.136",
+  "version": "0.13.137",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/ZBRANO_Core main",
-  "summary": "Remove the remaining blue tint from resting neuron interiors while preserving blue neural activity effects.",
+  "summary": "Replace circular neural arrival effects with brief electrical sparkles centered on destination neurons.",
   "history_backfill": [
     {
       "version": "0.13.0",
@@ -548,19 +548,23 @@
     {
       "version": "0.13.135",
       "summary": "Gave arriving neural signals a distinct compact neuron flash and discreet expanding halo."
+    },
+    {
+      "version": "0.13.136",
+      "summary": "Removed the remaining blue tint from resting neuron interiors while preserving blue neural activity effects."
     }
   ],
   "release_entry": {
     "features": [
-      "Use equal red, green, and blue channel values for resting neuron cores in every theme.",
-      "Keep blue limited to the neural connections, outlines, moving signals, and arrival halos."
+      "Render a brief four-point electrical sparkle when a neural signal reaches its destination.",
+      "Keep the arrival flash centered on the neuron without adding circular geometry."
     ],
     "fixes": [
-      "Remove the final cool-blue bias from dark, light, and gray neuron interiors.",
-      "Preserve the distinct destination flash and all animation pause behavior."
+      "Remove the bubble-like circular rings and halos from signal arrivals.",
+      "Preserve neutral resting neuron interiors, moving signals, and animation pause behavior."
     ],
     "validation": [
-      "Equal-channel neutral neuron cores, blue activity-effect preservation, animation pause behavior, browser smoke, release manifest, README alignment, and v0.13.136 release coverage"
+      "Non-circular destination sparkle rendering, neutral neuron cores, blue activity-effect preservation, animation pause behavior, browser smoke, release manifest, README alignment, and v0.13.137 release coverage"
     ]
   },
   "features": [

@@ -14,10 +14,10 @@ MANIFEST = json.loads((ROOT / "jarvis/release_manifest.json").read_text(encoding
 
 class ProactiveSuggestionSpeechTests(unittest.TestCase):
     def test_release_markers_are_aligned(self):
-        self.assertIn('version: "0.13.136"', CONFIG)
-        self.assertIn('version="0.13.136"', MAIN)
-        self.assertIn("HUD 0.13.136", INDEX)
-        self.assertEqual(MANIFEST["version"], "0.13.136")
+        self.assertIn('version: "0.13.137"', CONFIG)
+        self.assertIn('version="0.13.137"', MAIN)
+        self.assertIn("HUD 0.13.137", INDEX)
+        self.assertEqual(MANIFEST["version"], "0.13.137")
 
     def test_spoken_suggestion_omits_internal_automation_name(self):
         start = INDEX.index("async function announceSuggestion(item)")
