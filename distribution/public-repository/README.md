@@ -19,6 +19,10 @@ storage, and `ghcr.io/roycegith/jarvis-ha-assistant` update image.
 
 ## Current experience
 
+Version 0.13.133 adds sparse, discreet neural firing signals that travel along active
+connections and briefly illuminate destination nodes without running during paused
+chat states.
+
 Version 0.13.132 stops the neural backdrop animation after a chat begins, while chat
 text is selected, and when the chat is hidden. The configured static backdrop remains
 visible and empty new-chat screens retain their ambient animation.

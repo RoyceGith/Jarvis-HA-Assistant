@@ -1,0 +1,32 @@
+import json
+import unittest
+from pathlib import Path
+
+
+ROOT = Path(__file__).resolve().parents[1]
+CORE = (ROOT / "jarvis" / "app" / "static" / "js" / "core.js").read_text(encoding="utf-8")
+MANIFEST = json.loads((ROOT / "jarvis" / "release_manifest.json").read_text(encoding="utf-8"))
+
+
+class V013133NeuralSignalTests(unittest.TestCase):
+    def test_release_is_aligned(self):
+        self.assertEqual(MANIFEST["version"], "0.13.133")
+        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.132")
+
+    def test_neural_signals_are_sparse_and_bounded(self):
+        self.assertIn("let neuralSignals = [];", CORE)
+        self.assertIn("Math.floor(links.length / 9)", CORE)
+        self.assertIn(".slice(0, 9)", CORE)
+        self.assertIn("cycle: 5200 + index * 470", CORE)
+        self.assertIn("activeShare: .16 + (index % 3) * .018", CORE)
+
+    def test_signal_and_arrival_flash_render_only_while_active(self):
+        self.assertIn("if (shouldAnimate()) {\n      for (const signal of neuralSignals)", CORE)
+        self.assertIn("const signalX = from.x + (to.x - from.x) * progress", CORE)
+        self.assertIn("if (progress > .78)", CORE)
+        self.assertIn("const arrival = Math.sin", CORE)
+        self.assertIn("if (redraw || animate || wasRunning) draw", CORE)
+
+
+if __name__ == "__main__":
+    unittest.main()

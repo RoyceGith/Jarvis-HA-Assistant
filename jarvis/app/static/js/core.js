@@ -2283,6 +2283,7 @@ function startBrainNetwork() {
     document.documentElement.dataset.reducedMotion === "true";
   let nodes = [];
   let links = [];
+  let neuralSignals = [];
   let width = 0;
   let height = 0;
   let frame = 0;
@@ -2346,6 +2347,15 @@ function startBrainNetwork() {
         }
       });
     });
+    neuralSignals = links
+      .filter((_, index) => index % Math.max(1, Math.floor(links.length / 9)) === 0)
+      .slice(0, 9)
+      .map((link, index) => ({
+        link,
+        cycle: 5200 + index * 470,
+        offset: index * 1370 + Math.random() * 900,
+        activeShare: .16 + (index % 3) * .018,
+      }));
   }
 
   function resize() {
@@ -2422,6 +2432,35 @@ function startBrainNetwork() {
     }
     context.shadowBlur = 0;
 
+    if (shouldAnimate()) {
+      for (const signal of neuralSignals) {
+        const cyclePosition = ((now + signal.offset) % signal.cycle) / signal.cycle;
+        if (cyclePosition > signal.activeShare) continue;
+        const progress = cyclePosition / signal.activeShare;
+        const from = projected[signal.link.from];
+        const to = projected[signal.link.to];
+        const pulseAlpha = Math.sin(progress * Math.PI) * .34;
+        const signalX = from.x + (to.x - from.x) * progress;
+        const signalY = from.y + (to.y - from.y) * progress;
+        context.fillStyle = `rgba(${edgeRgb}, ${pulseAlpha})`;
+        context.shadowColor = `rgba(${edgeRgb}, ${pulseAlpha * .72})`;
+        context.shadowBlur = 4;
+        context.beginPath();
+        context.arc(signalX, signalY, .72, 0, Math.PI * 2);
+        context.fill();
+        if (progress > .78) {
+          const arrival = Math.sin(((progress - .78) / .22) * Math.PI) * .28;
+          context.fillStyle = `rgba(${edgeRgb}, ${arrival})`;
+          context.shadowColor = `rgba(${edgeRgb}, ${arrival * .8})`;
+          context.shadowBlur = 5;
+          context.beginPath();
+          context.arc(to.x, to.y, Math.max(.9, to.perspective * 1.35), 0, Math.PI * 2);
+          context.fill();
+        }
+      }
+      context.shadowBlur = 0;
+    }
+
     projected.sort((left, right) => left.z - right.z);
     for (const [pointIndex, point] of projected.entries()) {
       if (neuralStyleName === "minimal" && pointIndex % 3 !== 0) continue;
@@ -2455,11 +2494,12 @@ function startBrainNetwork() {
 
   function refreshAnimation(redraw = false) {
     const animate = shouldAnimate();
+    const wasRunning = Boolean(frame);
     if (Boolean(frame) === animate && !redraw) return;
     if (frame) window.cancelAnimationFrame(frame);
     frame = 0;
     canvas.dataset.animationState = animate ? "running" : "paused";
-    if (redraw || animate) draw(performance.now(), true);
+    if (redraw || animate || wasRunning) draw(performance.now(), true);
   }
 
   const resizeObserver = new ResizeObserver(() => {

@@ -1,10 +1,14 @@
-# ZBRANO v0.13.132
+# ZBRANO v0.13.133
 
 Automation Studio provides a graphical building-block workflow for Home Assistant
 automations. Use the toolbox to select or drag Trigger, Condition, Decision, and
 Action blocks onto the canvas, then edit only that block in the settings inspector.
 Natural-language creation, templates, saved automation compatibility, and the full
 Advanced editor remain available.
+
+Version 0.13.133 adds sparse, faint impulses that travel along active neural
+connections and produce a small arrival flash inside the destination node. The
+effect remains off whenever neural animation is paused.
 
 Version 0.13.132 keeps the configured neural backdrop visible but stops its animation
 after chat begins, while chat text is selected, and while the chat workspace is

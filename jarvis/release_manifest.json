@@ -1,9 +1,9 @@
 {
-  "version": "0.13.132",
+  "version": "0.13.133",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/ZBRANO_Core main",
-  "summary": "Stop neural animation after chat begins and during text selection while retaining the configured static backdrop.",
+  "summary": "Add sparse neural firing impulses and discreet destination-node flashes while the backdrop animation is active.",
   "history_backfill": [
     {
       "version": "0.13.0",
@@ -532,19 +532,23 @@
     {
       "version": "0.13.131",
       "summary": "Unified the interface around the Talk button's theme-aware blue and removed the remaining green palette from every theme."
+    },
+    {
+      "version": "0.13.132",
+      "summary": "Stopped neural animation after chat began and during text selection while retaining the configured static backdrop."
     }
   ],
   "release_entry": {
     "features": [
-      "Keep an empty new-chat screen's ambient neural animation while making active conversations static.",
-      "Retain the configured neural visibility and static image when animation is paused."
+      "Send a small number of faint firing impulses along existing neural connections.",
+      "Briefly illuminate the destination node when each connection impulse arrives."
     ],
     "fixes": [
-      "Stop continuous neural canvas work after a chat begins and whenever the chat workspace is hidden.",
-      "Pause neural animation during chat-text selection so canvas rendering cannot compete with selection painting."
+      "Keep connection flashes sparse and bounded so the visual remains discreet.",
+      "Render no firing signals whenever the neural backdrop animation is paused."
     ],
     "validation": [
-      "Neural animation state controller, chat and selection pause behavior, browser smoke, release manifest, README alignment, and v0.13.132 release coverage"
+      "Bounded neural signal schedule, active-only rendering, animation pause behavior, browser smoke, release manifest, README alignment, and v0.13.133 release coverage"
     ]
   },
   "features": [
