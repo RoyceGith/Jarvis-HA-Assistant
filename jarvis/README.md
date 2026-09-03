@@ -6,6 +6,9 @@ connections.
 
 ## Automation Studio
 
+Version 0.13.133 adds subtle connection impulses and destination-node flashes to the
+active neural backdrop while preserving all animation pause rules.
+
 Version 0.13.132 keeps the configured neural backdrop visible but pauses its animation
 after chat begins, during chat-text selection, and whenever the chat workspace is
 hidden.

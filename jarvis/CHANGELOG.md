@@ -1,5 +1,11 @@
 # Change log
 
+## 0.13.133
+
+- Added sparse, faint impulses that travel along neural connections.
+- Added a discreet arrival flash inside each impulse's destination node.
+- Kept neural firing effects disabled whenever backdrop animation is paused.
+
 ## 0.13.132
 
 - Stopped neural animation after a chat begins while retaining the configured static backdrop.
