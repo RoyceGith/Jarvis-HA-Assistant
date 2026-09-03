@@ -1,5 +1,11 @@
 # Change log
 
+## 0.13.132
+
+- Stopped neural animation after a chat begins while retaining the configured static backdrop.
+- Paused neural rendering during chat-text selection and while the chat workspace is hidden.
+- Retained ambient animation on an empty new-chat screen.
+
 ## 0.13.131
 
 - Unified the interface around the Talk button's theme-aware blue.

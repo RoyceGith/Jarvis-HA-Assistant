@@ -6,6 +6,10 @@ connections.
 
 ## Automation Studio
 
+Version 0.13.132 keeps the configured neural backdrop visible but pauses its animation
+after chat begins, during chat-text selection, and whenever the chat workspace is
+hidden.
+
 Version 0.13.131 replaces the remaining green interface palette with the Talk
 button's theme-aware blue across controls, accents, glows, surfaces, and the neural
 backdrop.
