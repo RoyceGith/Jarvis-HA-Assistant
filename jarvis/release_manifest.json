@@ -1,9 +1,9 @@
 {
-  "version": "0.13.134",
+  "version": "0.13.135",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/ZBRANO_Core main",
-  "summary": "Make neural firing clearly visible above neutralized neuron bodies while keeping the active effect discreet and bounded.",
+  "summary": "Give arriving neural signals a distinct compact neuron flash and discreet expanding halo.",
   "history_backfill": [
     {
       "version": "0.13.0",
@@ -540,19 +540,23 @@
     {
       "version": "0.13.133",
       "summary": "Added sparse neural firing impulses and discreet destination-node flashes while the backdrop animation was active."
+    },
+    {
+      "version": "0.13.134",
+      "summary": "Made neural firing clearly visible above neutralized neuron bodies while keeping the active effect discreet and bounded."
     }
   ],
   "release_entry": {
     "features": [
-      "Render connection impulses above neuron bodies with a clearer destination-node arrival flash.",
-      "Use a more neutral charcoal neuron center while retaining blue connections and signals."
+      "Render a compact warm-white flash inside the destination neuron when a connection impulse arrives.",
+      "Add a small expanding blue halo that distinguishes arrival flashes from moving signals."
     ],
     "fixes": [
-      "Prevent neuron rendering from painting over the firing effect.",
-      "Increase bounded signal cadence and contrast enough to remain visible through the configured canvas opacity."
+      "Make destination flashes readable without restoring the resting node's blue tint.",
+      "Preserve animation pause behavior during active chats, text selection, and hidden chat views."
     ],
     "validation": [
-      "Visible neural signal layering, bounded cadence, neutral node centers, animation pause behavior, browser smoke, release manifest, README alignment, and v0.13.134 release coverage"
+      "Destination flash core and halo rendering, neutral resting node centers, animation pause behavior, browser smoke, release manifest, README alignment, and v0.13.135 release coverage"
     ]
   },
   "features": [

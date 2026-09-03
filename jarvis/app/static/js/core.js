@@ -2471,14 +2471,21 @@ function startBrainNetwork() {
         context.beginPath();
         context.arc(signalX, signalY, 1.05, 0, Math.PI * 2);
         context.fill();
-        if (progress > .74) {
-          const arrival = Math.sin(((progress - .74) / .26) * Math.PI) * .62;
-          context.fillStyle = `rgba(225, 247, 250, ${arrival})`;
-          context.shadowColor = `rgba(${edgeRgb}, ${arrival * .72})`;
-          context.shadowBlur = 6;
+        if (progress > .68) {
+          const arrivalPhase = (progress - .68) / .32;
+          const arrival = Math.pow(Math.sin(arrivalPhase * Math.PI), 2);
+          const flashRadius = Math.max(1.8, to.perspective * 2.8);
+          context.fillStyle = `rgba(255, 255, 245, ${arrival * .92})`;
+          context.shadowColor = `rgba(${edgeRgb}, ${arrival * .95})`;
+          context.shadowBlur = 10;
           context.beginPath();
-          context.arc(to.x, to.y, Math.max(.78, to.perspective * 1.05), 0, Math.PI * 2);
+          context.arc(to.x, to.y, flashRadius, 0, Math.PI * 2);
           context.fill();
+          context.strokeStyle = `rgba(${edgeRgb}, ${arrival * .8})`;
+          context.lineWidth = .8;
+          context.beginPath();
+          context.arc(to.x, to.y, flashRadius + arrivalPhase * 2.2, 0, Math.PI * 2);
+          context.stroke();
         }
       }
       context.shadowBlur = 0;

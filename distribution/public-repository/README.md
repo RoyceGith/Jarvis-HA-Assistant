@@ -19,6 +19,9 @@ storage, and `ghcr.io/roycegith/jarvis-ha-assistant` update image.
 
 ## Current experience
 
+Version 0.13.135 makes each neural signal visibly flash inside its destination node
+with a compact bright core and discreet halo.
+
 Version 0.13.134 makes neural firing clearly visible above the node bodies while
 keeping it discreet, and reduces the blue tint inside neurons with a more neutral
 charcoal center.

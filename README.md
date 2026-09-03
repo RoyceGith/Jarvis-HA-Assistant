@@ -1,9 +1,13 @@
-## ZBRANO v0.13.134
+## ZBRANO v0.13.135
 
 ZBRANO combines Home Assistant chat, voice, entity control, memory, notifications,
 calendar and contact tools, plugins, and evidence-based automations. Automation Studio now uses
 a visual building-block toolbox, interactive node canvas, and contextual inspector;
 the established automation engine and stored definitions remain compatible.
+
+Version 0.13.135 gives each arriving neural signal a distinct destination flash.
+The neuron briefly lights with a compact warm-white core and a small blue halo,
+making the firing event readable without brightening the resting node interior.
 
 Version 0.13.134 makes neural firing visible without making the backdrop noisy.
 Connection impulses now render above the neuron bodies, arrive more regularly, and

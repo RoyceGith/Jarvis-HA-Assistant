@@ -1,5 +1,11 @@
 # Change log
 
+## 0.13.135
+
+- Added a compact warm-white flash inside each destination neuron.
+- Added a discreet expanding blue halo so arrivals read separately from moving signals.
+- Preserved subdued resting neuron interiors and existing animation pause behavior.
+
 ## 0.13.134
 
 - Moved neural firing impulses above neuron bodies so they remain visible.
