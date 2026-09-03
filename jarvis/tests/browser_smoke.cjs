@@ -130,7 +130,7 @@ function apiFixture(url, method = "GET") {
   if (pathname === "/api/health") {
     return {
       status: "ok",
-      version: "0.13.131",
+      version: "0.13.132",
       speech_provider: "openai",
       speech_providers: {openai: {configured: true}, elevenlabs: {configured: false}},
     };
@@ -213,7 +213,7 @@ function apiFixture(url, method = "GET") {
   if (pathname === "/api/plugins") return {plugins: []};
   if (pathname === "/api/files/shared") return {files: [], count: 0};
   if (pathname === "/api/release-memory-sync") {
-    return {enabled: false, state: "disabled", version: "0.13.131", task_active: false};
+    return {enabled: false, state: "disabled", version: "0.13.132", task_active: false};
   }
   if (pathname === "/api/tab-activity") return {revisions: {}};
   if (pathname === "/api/grinder-monitor/status") return {enabled: false, connected: false};
@@ -293,6 +293,21 @@ async function main() {
     assert.equal(await page.locator("#message").inputValue(), "");
     await page.locator('#chat-list .chat-list-item[data-draft="true"]').waitFor();
     assert.match(await page.locator("#messages").innerText(), /intelligence core online/i);
+    await page.waitForFunction(() => document.getElementById("brain-network")?.dataset.animationState === "running");
+    await page.evaluate(() => setNeuronIntensity(false));
+    await page.waitForFunction(() => document.getElementById("brain-network")?.dataset.animationState === "paused");
+    await page.evaluate(() => setNeuronIntensity(true));
+    await page.waitForFunction(() => document.getElementById("brain-network")?.dataset.animationState === "running");
+    await page.locator("#messages .message").evaluate(element => {
+      const selection = document.getSelection();
+      const range = document.createRange();
+      range.selectNodeContents(element);
+      selection.removeAllRanges();
+      selection.addRange(range);
+    });
+    await page.waitForFunction(() => document.getElementById("brain-network")?.dataset.animationState === "paused");
+    await page.evaluate(() => document.getSelection()?.removeAllRanges());
+    await page.waitForFunction(() => document.getElementById("brain-network")?.dataset.animationState === "running");
 
     await page.locator("#entities-tab").click();
     await page.locator("#entities-panel:not(.hidden)").waitFor();

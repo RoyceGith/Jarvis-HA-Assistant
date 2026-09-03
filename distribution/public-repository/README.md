@@ -19,6 +19,10 @@ storage, and `ghcr.io/roycegith/jarvis-ha-assistant` update image.
 
 ## Current experience
 
+Version 0.13.132 stops the neural backdrop animation after a chat begins, while chat
+text is selected, and when the chat is hidden. The configured static backdrop remains
+visible and empty new-chat screens retain their ambient animation.
+
 Version 0.13.131 unifies the interface around the Talk button's theme-aware blue,
 replacing the remaining green accents, glows, surface tints, and neural backdrop
 colors across all themes.

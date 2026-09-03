@@ -1126,7 +1126,9 @@ function renderMessageContent(item, text) {
 }
 
 function setNeuronIntensity(intense) {
-  document.querySelector(".core-stage")?.classList.toggle("neuron-intense", Boolean(intense));
+  const enabled = Boolean(intense);
+  document.querySelector(".core-stage")?.classList.toggle("neuron-intense", enabled);
+  window.dispatchEvent(new CustomEvent("zbrano-neural-intensity-change", {detail: {enabled}}));
 }
 
 function isNearMessagesBottom(threshold = 72) {
@@ -2274,6 +2276,8 @@ form.addEventListener("submit", async (event) => {
 function startBrainNetwork() {
   const canvas = document.getElementById("brain-network");
   const context = canvas.getContext("2d");
+  const stage = canvas.closest(".core-stage");
+  const chatPanel = canvas.closest("#chat-panel");
   const prefersReducedMotion = () =>
     window.matchMedia("(prefers-reduced-motion: reduce)").matches ||
     document.documentElement.dataset.reducedMotion === "true";
@@ -2283,6 +2287,23 @@ function startBrainNetwork() {
   let height = 0;
   let frame = 0;
   let lastFrame = 0;
+  let selectionGesture = false;
+
+  function selectionTouchesMessages() {
+    const selection = document.getSelection();
+    if (!selection || selection.isCollapsed) return false;
+    const inside = node => Boolean(node && (node === messages || messages.contains(node.nodeType === Node.TEXT_NODE ? node.parentElement : node)));
+    return inside(selection.anchorNode) || inside(selection.focusNode);
+  }
+
+  function shouldAnimate() {
+    return !prefersReducedMotion() &&
+      !document.hidden &&
+      !chatPanel?.classList.contains("hidden") &&
+      stage?.classList.contains("neuron-intense") &&
+      !selectionGesture &&
+      !selectionTouchesMessages();
+  }
 
   function cssRgb(name) {
     return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
@@ -2340,6 +2361,11 @@ function startBrainNetwork() {
   }
 
   function draw(now = performance.now(), force = false) {
+    if (!force && !shouldAnimate()) {
+      frame = 0;
+      canvas.dataset.animationState = "paused";
+      return;
+    }
     if (!force && now - lastFrame < 32) {
       frame = window.requestAnimationFrame(draw);
       return;
@@ -2418,7 +2444,22 @@ function startBrainNetwork() {
       context.arc(point.x - nodeRadius * .28, point.y - nodeRadius * .3, Math.max(.28, nodeRadius * .22), 0, Math.PI * 2);
       context.fill();
     }
-    if (!reducedMotion) frame = window.requestAnimationFrame(draw);
+    if (shouldAnimate()) {
+      canvas.dataset.animationState = "running";
+      frame = window.requestAnimationFrame(draw);
+    } else {
+      canvas.dataset.animationState = "paused";
+      frame = 0;
+    }
+  }
+
+  function refreshAnimation(redraw = false) {
+    const animate = shouldAnimate();
+    if (Boolean(frame) === animate && !redraw) return;
+    if (frame) window.cancelAnimationFrame(frame);
+    frame = 0;
+    canvas.dataset.animationState = animate ? "running" : "paused";
+    if (redraw || animate) draw(performance.now(), true);
   }
 
   const resizeObserver = new ResizeObserver(() => {
@@ -2427,13 +2468,30 @@ function startBrainNetwork() {
   });
   resizeObserver.observe(canvas.parentElement);
   window.addEventListener("jarvis-theme-change", () => {
-    if (frame) window.cancelAnimationFrame(frame);
-    draw(performance.now(), true);
+    refreshAnimation(true);
   });
   window.addEventListener("zbrano-neural-change", () => {
-    if (frame) window.cancelAnimationFrame(frame);
-    draw(performance.now(), true);
+    refreshAnimation(true);
   });
+  window.addEventListener("zbrano-neural-intensity-change", () => refreshAnimation(false));
+  document.addEventListener("visibilitychange", () => refreshAnimation(false));
+  messages.addEventListener("pointerdown", event => {
+    if (event.button !== 0) return;
+    selectionGesture = true;
+    refreshAnimation(false);
+  });
+  window.addEventListener("pointerup", () => {
+    if (!selectionGesture) return;
+    selectionGesture = false;
+    refreshAnimation(false);
+  });
+  window.addEventListener("pointercancel", () => {
+    if (!selectionGesture) return;
+    selectionGesture = false;
+    refreshAnimation(false);
+  });
+  document.addEventListener("selectionchange", () => refreshAnimation(false));
+  if (chatPanel) new MutationObserver(() => refreshAnimation(false)).observe(chatPanel, {attributes: true, attributeFilter: ["class"]});
   resize();
 }
 

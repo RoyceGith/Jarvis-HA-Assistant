@@ -1,9 +1,9 @@
 {
-  "version": "0.13.131",
+  "version": "0.13.132",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/ZBRANO_Core main",
-  "summary": "Unify the interface around the Talk button's theme-aware blue and remove the remaining green palette from every theme.",
+  "summary": "Stop neural animation after chat begins and during text selection while retaining the configured static backdrop.",
   "history_backfill": [
     {
       "version": "0.13.0",
@@ -528,19 +528,23 @@
     {
       "version": "0.13.130",
       "summary": "Made Automation Studio conditions executable and explicit with clear watcher, IF, ELSE IF, value, attribute, comparison, and duration controls."
+    },
+    {
+      "version": "0.13.131",
+      "summary": "Unified the interface around the Talk button's theme-aware blue and removed the remaining green palette from every theme."
     }
   ],
   "release_entry": {
     "features": [
-      "Use the Talk button's theme-aware blue as the single primary interface accent.",
-      "Apply the unified blue palette consistently across dark, light, and gray themes."
+      "Keep an empty new-chat screen's ambient neural animation while making active conversations static.",
+      "Retain the configured neural visibility and static image when animation is paused."
     ],
     "fixes": [
-      "Remove remaining green accents, glows, surface tints, status highlights, and neural backdrop colors.",
-      "Preserve red and amber warning and error semantics while consolidating positive interface states onto blue."
+      "Stop continuous neural canvas work after a chat begins and whenever the chat workspace is hidden.",
+      "Pause neural animation during chat-text selection so canvas rendering cannot compete with selection painting."
     ],
     "validation": [
-      "Theme palette contract, CSS source validation, browser smoke, release manifest, README alignment, and v0.13.131 release coverage"
+      "Neural animation state controller, chat and selection pause behavior, browser smoke, release manifest, README alignment, and v0.13.132 release coverage"
     ]
   },
   "features": [

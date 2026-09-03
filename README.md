@@ -1,9 +1,14 @@
-## ZBRANO v0.13.131
+## ZBRANO v0.13.132
 
 ZBRANO combines Home Assistant chat, voice, entity control, memory, notifications,
 calendar and contact tools, plugins, and evidence-based automations. Automation Studio now uses
 a visual building-block toolbox, interactive node canvas, and contextual inspector;
 the established automation engine and stored definitions remain compatible.
+
+Version 0.13.132 stops the neural backdrop animation as soon as a chat begins and
+the nodes return to their configured visibility. It also pauses the animation while
+chat text is selected and whenever the chat is hidden, eliminating competing canvas
+work without removing the static neural image.
 
 Version 0.13.131 replaces the remaining green interface palette with the same
 theme-aware blue used by the Talk button. Primary accents, glows, controls,
