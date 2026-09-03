@@ -1,5 +1,11 @@
 # Change log
 
+## 0.13.137
+
+- Removed circular rings and halos from neural signal arrival flashes.
+- Replaced them with a brief four-point electrical sparkle at the destination neuron.
+- Preserved neutral resting neuron interiors and blue connection activity.
+
 ## 0.13.136
 
 - Removed the remaining blue tint from resting neuron interiors.
