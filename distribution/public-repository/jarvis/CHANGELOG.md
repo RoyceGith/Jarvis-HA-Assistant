@@ -1,5 +1,11 @@
 # Change log
 
+## 0.13.136
+
+- Removed the remaining blue tint from resting neuron interiors.
+- Used equal RGB channels for neuron cores in dark, light, and gray themes.
+- Preserved blue connections, outlines, moving signals, and arrival halos.
+
 ## 0.13.135
 
 - Added a compact warm-white flash inside each destination neuron.

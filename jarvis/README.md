@@ -1,10 +1,13 @@
-# ZBRANO v0.13.135
+# ZBRANO v0.13.136
 
 Automation Studio provides a graphical building-block workflow for Home Assistant
 automations. Use the toolbox to select or drag Trigger, Condition, Decision, and
 Action blocks onto the canvas, then edit only that block in the settings inspector.
 Natural-language creation, templates, saved automation compatibility, and the full
 Advanced editor remain available.
+
+Version 0.13.136 removes blue tint from resting neuron interiors across every theme.
+Blue remains on the connection network, moving signals, outlines, and arrival halos.
 
 Version 0.13.135 adds a distinct compact flash and expanding halo at the destination
 neuron when a moving neural signal arrives, while leaving resting nodes subdued.

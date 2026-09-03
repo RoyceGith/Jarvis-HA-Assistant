@@ -13,7 +13,7 @@
       --surface-strong: rgba(2,9,12,.94);
       --text-muted: #8faeb3;
       --shadow: rgba(0,0,0,.52);
-      --node-core: 8, 9, 10;
+      --node-core: 9, 9, 9;
       --node-edge: 92, 236, 255;
       --node-link: 92, 236, 255;
     }
@@ -31,7 +31,7 @@
       --surface-strong: rgba(255, 255, 255, .98);
       --text-muted: #5f6d76;
       --shadow: rgba(31, 42, 49, .14);
-      --node-core: 20, 20, 21;
+      --node-core: 20, 20, 20;
       --node-edge: 0, 109, 130;
       --node-link: 0, 109, 130;
     }
@@ -49,7 +49,7 @@
       --surface-strong: rgba(21, 26, 32, .7);
       --text-muted: #a4adb7;
       --shadow: rgba(0, 0, 0, .36);
-      --node-core: 9, 9, 10;
+      --node-core: 9, 9, 9;
       --node-edge: 159, 201, 213;
       --node-link: 159, 201, 213;
     }

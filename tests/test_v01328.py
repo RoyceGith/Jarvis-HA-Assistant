@@ -37,10 +37,10 @@ def load_playwright_functions(*names: str) -> dict[str, Any]:
 
 class PlaywrightAndWebSearchBoundaryTests(unittest.TestCase):
     def test_release_markers_are_aligned(self):
-        self.assertIn('version: "0.13.135"', CONFIG)
-        self.assertIn('version="0.13.135"', MAIN)
-        self.assertIn("HUD 0.13.135", HTML)
-        self.assertEqual(MANIFEST["version"], "0.13.135")
+        self.assertIn('version: "0.13.136"', CONFIG)
+        self.assertIn('version="0.13.136"', MAIN)
+        self.assertIn("HUD 0.13.136", HTML)
+        self.assertEqual(MANIFEST["version"], "0.13.136")
 
     def test_both_services_are_outside_composition_root(self):
         self.assertNotIn("def _playwright_local_url(", MAIN)

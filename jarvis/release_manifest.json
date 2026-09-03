@@ -1,9 +1,9 @@
 {
-  "version": "0.13.135",
+  "version": "0.13.136",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/ZBRANO_Core main",
-  "summary": "Give arriving neural signals a distinct compact neuron flash and discreet expanding halo.",
+  "summary": "Remove the remaining blue tint from resting neuron interiors while preserving blue neural activity effects.",
   "history_backfill": [
     {
       "version": "0.13.0",
@@ -544,19 +544,23 @@
     {
       "version": "0.13.134",
       "summary": "Made neural firing clearly visible above neutralized neuron bodies while keeping the active effect discreet and bounded."
+    },
+    {
+      "version": "0.13.135",
+      "summary": "Gave arriving neural signals a distinct compact neuron flash and discreet expanding halo."
     }
   ],
   "release_entry": {
     "features": [
-      "Render a compact warm-white flash inside the destination neuron when a connection impulse arrives.",
-      "Add a small expanding blue halo that distinguishes arrival flashes from moving signals."
+      "Use equal red, green, and blue channel values for resting neuron cores in every theme.",
+      "Keep blue limited to the neural connections, outlines, moving signals, and arrival halos."
     ],
     "fixes": [
-      "Make destination flashes readable without restoring the resting node's blue tint.",
-      "Preserve animation pause behavior during active chats, text selection, and hidden chat views."
+      "Remove the final cool-blue bias from dark, light, and gray neuron interiors.",
+      "Preserve the distinct destination flash and all animation pause behavior."
     ],
     "validation": [
-      "Destination flash core and halo rendering, neutral resting node centers, animation pause behavior, browser smoke, release manifest, README alignment, and v0.13.135 release coverage"
+      "Equal-channel neutral neuron cores, blue activity-effect preservation, animation pause behavior, browser smoke, release manifest, README alignment, and v0.13.136 release coverage"
     ]
   },
   "features": [

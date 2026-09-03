@@ -19,6 +19,9 @@ storage, and `ghcr.io/roycegith/jarvis-ha-assistant` update image.
 
 ## Current experience
 
+Version 0.13.136 removes the remaining blue tint from resting neuron interiors while
+retaining blue connections, signal motion, outlines, and arrival halos.
+
 Version 0.13.135 makes each neural signal visibly flash inside its destination node
 with a compact bright core and discreet halo.
 
