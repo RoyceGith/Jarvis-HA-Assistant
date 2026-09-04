@@ -19,6 +19,9 @@ storage, and `ghcr.io/roycegith/jarvis-ha-assistant` update image.
 
 ## Current experience
 
+Version 0.13.138 fixes Automation Studio entity loading when a second or later Trigger
+card is selected by focusing and opening the correct trigger-specific field.
+
 Version 0.13.137 replaces circular neural arrival effects with tiny electrical
 sparkles, so signals flash at destination neurons without producing rings.
 

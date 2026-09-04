@@ -6,6 +6,9 @@ connections.
 
 ## Automation Studio
 
+Version 0.13.138 fixes additional Automation Studio Trigger cards so selecting one
+loads its own Home Assistant entity picker or focuses its relevant schedule field.
+
 Version 0.13.137 removes circular arrival rings and uses a brief four-point electrical
 sparkle when a moving signal reaches its destination neuron.
 

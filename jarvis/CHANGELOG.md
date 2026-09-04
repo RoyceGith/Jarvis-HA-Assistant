@@ -1,5 +1,11 @@
 # Change log
 
+## 0.13.138
+
+- Fixed Home Assistant entities not loading when a second or later Trigger card was selected.
+- Focused each selected Trigger's own entity field so its picker opens immediately.
+- Focused the relevant time, sun, interval, or one-time field for schedule triggers.
+
 ## 0.13.137
 
 - Removed circular rings and halos from neural signal arrival flashes.
