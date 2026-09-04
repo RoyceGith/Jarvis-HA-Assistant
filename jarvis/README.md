@@ -6,6 +6,10 @@ connections.
 
 ## Automation Studio
 
+Version 0.13.141 turns the five numbered Automation Studio steps into a live
+completion guide and replaces technical validation, library, and activation
+language with common-user wording. The complete visual flow remains available.
+
 Version 0.13.140 labels every repeatable trigger, check, and task in everyday
 language, groups fine-tuning and safety controls into expandable sections, and
 uses Outcome terminology consistently. The complete visual flow and all settings

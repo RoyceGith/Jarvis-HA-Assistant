@@ -1,5 +1,11 @@
 # Change log
 
+## 0.13.141
+
+- Added live Ready, Needs attention, Optional, and item-count states to the numbered Studio guide.
+- Added discreet blue completion checks and clear attention styling.
+- Replaced technical validation, saved-automation, and activation wording with everyday language.
+
 ## 0.13.140
 
 - Labelled every repeatable trigger, check, and task field in everyday language.
