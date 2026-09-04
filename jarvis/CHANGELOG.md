@@ -1,5 +1,11 @@
 # Change log
 
+## 0.13.143
+
+- Made new Then steps start with icon-based, ready-made task choices.
+- Moved custom Home Assistant commands behind a clear Advanced disclosure.
+- Replaced raw command names in flow cards, saved summaries, and activation confirmation.
+
 ## 0.13.142
 
 - Started every new Automation Studio draft at Step 1: Name it.
