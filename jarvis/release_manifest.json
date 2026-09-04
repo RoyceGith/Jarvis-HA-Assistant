@@ -1,9 +1,9 @@
 {
-  "version": "0.13.144",
+  "version": "0.13.145",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/ZBRANO_Core main",
-  "summary": "Stabilize ARM image validation by synchronizing the Studio Undo test with persisted debounced editor history.",
+  "summary": "Make Automation Studio's optional different-results step understandable through a plain question, When / Then editing, and explicit fallback behavior.",
   "history_backfill": [
     {
       "version": "0.13.0",
@@ -580,19 +580,23 @@
     {
       "version": "0.13.143",
       "summary": "Made the Then step task-first with icon-based common actions, advanced custom commands, and friendly action labels."
+    },
+    {
+      "version": "0.13.144",
+      "summary": "Stabilized ARM image validation by synchronizing the Studio Undo test with persisted debounced editor history."
     }
   ],
   "release_entry": {
     "features": [
-      "Wait for the persisted Automation Studio edit snapshot before exercising Undo in the browser release gate.",
-      "Keep ARM and local browser validation aligned without changing editor behavior."
+      "Start the optional final Studio step with a plain question instead of immediately exposing branching controls.",
+      "Present different results with readable When / Then sections, plain all/any choices, and explicit fallback behavior."
     ],
     "fixes": [
-      "Remove the fixed-delay race that could test Undo before the 220 ms history debounce committed on slower builders.",
-      "Preserve all v0.13.143 user-facing behavior and compatibility."
+      "Replace technical Outcome and IF / OTHERWISE wording on the guided result editor and visual flow.",
+      "Preserve the complete branching engine, graphical editing, advanced settings, and existing saved automation schema."
     ],
     "validation": [
-      "Persisted-history synchronization, ARM browser smoke, regression suite, release manifest, README alignment, and v0.13.144 release coverage"
+      "Friendly result-choice and When / Then contracts, browser branching workflow, regression suite, release manifest, README alignment, and v0.13.145 release coverage"
     ]
   },
   "features": [

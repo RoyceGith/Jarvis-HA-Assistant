@@ -123,6 +123,13 @@
 .automation-workflow-step :is(input,select,textarea) { width: 100%; }
 .automation-workflow-empty { color: var(--text-muted); }
 .automation-branch-card { display: grid; gap: .5rem; padding: .65rem; border: 1px solid color-mix(in srgb,var(--cyan) 30%,var(--line)); border-radius: 12px; background: color-mix(in srgb,var(--panel) 82%,transparent); }
+.automation-outcome-choice { display:grid; justify-items:center; gap:.55rem; padding:1rem .8rem; border:1px dashed color-mix(in srgb,#c29cff 42%,var(--line)); border-radius:14px; background:color-mix(in srgb,#c29cff 5%,var(--surface)); text-align:center; }
+.automation-outcome-choice-icon { display:grid; place-items:center; width:2.25rem; height:2.25rem; border-radius:11px; background:color-mix(in srgb,#c29cff 15%,var(--surface)); color:#c29cff; font-size:1.2rem; }
+.automation-outcome-choice small { max-width:34rem; color:var(--text-muted); line-height:1.4; }
+.automation-outcome-choice button { padding:.52rem .75rem; border-color:color-mix(in srgb,#c29cff 55%,var(--line)); color:#c29cff; cursor:pointer; }
+.automation-outcome-choice button:hover,.automation-outcome-choice button:focus-visible { background:color-mix(in srgb,#c29cff 13%,var(--surface)); outline:none; }
+.automation-outcome-name { flex:1; display:grid; gap:.22rem; color:var(--text-muted); font-size:.66rem; font-weight:700; }
+.automation-outcome-name input { width:100%; }
 .automation-branch-card > strong { margin-top: .25rem; color: var(--cyan); font-size: .76rem; letter-spacing: .04em; }
 .automation-branch-card > small { color: var(--text-muted); line-height: 1.35; }
 .automation-branch-path-label { justify-self:start; padding:.22rem .48rem; border-radius:999px; background:color-mix(in srgb,#c29cff 14%,var(--surface)); color:#c29cff; font-size:.62rem; font-weight:800; letter-spacing:.08em; }

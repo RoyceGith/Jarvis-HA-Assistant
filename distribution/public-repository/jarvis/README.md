@@ -6,6 +6,10 @@ connections.
 
 ## Automation Studio
 
+Version 0.13.145 makes the optional final Studio step a plain Different results
+question. Each result uses readable When / Then language with an explained
+fallback, while the visual flow and saved automation format remain compatible.
+
 Version 0.13.144 stabilizes the ARM image browser gate by waiting for the actual
 persisted Studio history snapshot before testing Undo. User-facing behavior is
 unchanged from v0.13.143.

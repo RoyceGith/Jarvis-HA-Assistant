@@ -1,5 +1,11 @@
 # Change log
 
+## 0.13.145
+
+- Replaced the technical Outcomes step with an optional Different results question.
+- Presented each result with plain When / Then language and a clearly explained fallback.
+- Preserved the interactive flow, branching engine, advanced settings, and saved automations.
+
 ## 0.13.144
 
 - Removed a builder-speed race from the ARM Chromium Undo validation.
