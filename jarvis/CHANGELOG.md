@@ -1,5 +1,11 @@
 # Change log
 
+## 0.13.140
+
+- Labelled every repeatable trigger, check, and task field in everyday language.
+- Grouped confidence tuning and safety controls into discreet expandable sections while preserving every setting.
+- Used Outcome terminology consistently and renamed toolbar actions to explain what they do.
+
 ## 0.13.139
 
 - Kept the interactive Automation Studio flow and added a numbered step-by-step guide.
