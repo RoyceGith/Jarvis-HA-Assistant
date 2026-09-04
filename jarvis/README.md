@@ -1,9 +1,13 @@
-# ZBRANO v0.13.145
+# ZBRANO v0.13.146
 
 Automation Studio provides a graphical, step-by-step workflow for Home Assistant
 automations. Use Name it, When, Only if, Then, and optional Outcomes beside the
 interactive flow canvas. Natural-language creation, templates, drag-and-drop,
 saved automation compatibility, and the full Advanced editor remain available.
+
+Version 0.13.146 aligns the guided name and purpose checks with the server's
+save requirements and translates structured validation failures into readable,
+field-specific explanations instead of `[object Object]`.
 
 Version 0.13.145 replaces the technical Outcomes setup with an optional
 Different results question. When enabled, each result is edited with direct

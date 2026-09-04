@@ -1,9 +1,9 @@
 {
-  "version": "0.13.145",
+  "version": "0.13.146",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/ZBRANO_Core main",
-  "summary": "Make Automation Studio's optional different-results step understandable through a plain question, When / Then editing, and explicit fallback behavior.",
+  "summary": "Repair Automation Studio saving by aligning guided validation with server requirements and translating structured failures into readable field-specific messages.",
   "history_backfill": [
     {
       "version": "0.13.0",
@@ -584,19 +584,23 @@
     {
       "version": "0.13.144",
       "summary": "Stabilized ARM image validation by synchronizing the Studio Undo test with persisted debounced editor history."
+    },
+    {
+      "version": "0.13.145",
+      "summary": "Made Automation Studio's optional different-results step understandable through a plain question, When / Then editing, and explicit fallback behavior."
     }
   ],
   "release_entry": {
     "features": [
-      "Start the optional final Studio step with a plain question instead of immediately exposing branching controls.",
-      "Present different results with readable When / Then sections, plain all/any choices, and explicit fallback behavior."
+      "Validate the automation name and purpose against the server's minimum lengths before submission.",
+      "Translate structured API validation details into readable field-specific save messages."
     ],
     "fixes": [
-      "Replace technical Outcome and IF / OTHERWISE wording on the guided result editor and visual flow.",
-      "Preserve the complete branching engine, graphical editing, advanced settings, and existing saved automation schema."
+      "Prevent valid-looking guided steps from failing later because their text is shorter than the server accepts.",
+      "Remove opaque [object Object] save feedback while preserving the API and stored automation schema."
     ],
     "validation": [
-      "Friendly result-choice and When / Then contracts, browser branching workflow, regression suite, release manifest, README alignment, and v0.13.145 release coverage"
+      "Minimum-length browser validation, structured API error rendering, regression suite, release manifest, README alignment, and v0.13.146 release coverage"
     ]
   },
   "features": [

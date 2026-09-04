@@ -27,10 +27,21 @@
   const studioStepOrder=["details","trigger","context","action","decision"];
   const studioStepNames={details:"Name it",trigger:"When",context:"Only if",action:"Then",decision:"Different results"};
 
+  function apiErrorMessage(detail,status){
+    if(typeof detail==="string"&&detail.trim())return detail.trim();
+    if(Array.isArray(detail)){
+      const fieldNames={name:"Automation name",objective:"What should it help with?",trigger_entity:"When device or sensor",trigger_operator:"When comparison",action_entity:"Task device",action_service:"Task action",cooldown_minutes:"Wait before offering again",confidence_threshold:"How sure should ZBRANO be?",max_actions_per_hour:"Hourly action limit"};
+      const messages=detail.map(issue=>{if(!issue||typeof issue!=="object")return String(issue||"").trim();const path=(issue.loc||[]).filter(part=>part!=="body"),rawField=String(path.at(-1)||""),field=fieldNames[rawField]||rawField.replaceAll("_"," ")||"Automation";return `${field}: ${String(issue.msg||"has an invalid value")}`}).filter(Boolean);
+      if(messages.length)return messages.join(" · ");
+    }
+    if(detail&&typeof detail==="object")return String(detail.message||detail.error||"").trim()||`The automation could not be saved (HTTP ${status})`;
+    return `The automation could not be saved (HTTP ${status})`;
+  }
+
   async function api(path,options={}){
     const response=await fetch(path,{cache:"no-store",...options});
     const data=await response.json().catch(()=>({}));
-    if(!response.ok)throw new Error(data.detail||`HTTP ${response.status}`);
+    if(!response.ok)throw new Error(apiErrorMessage(data.detail,response.status));
     return data;
   }
 
@@ -605,8 +616,9 @@
 
   function editorValidationIssues(){
     const issues=[],add=(kind,message,field)=>issues.push({kind,message,field});
-    if(!$("automation-name").value.trim())add("details","Give this automation a name","automation-name");
-    if(!$("automation-objective").value.trim())add("details","Say what you want this automation to help with","automation-objective");
+    const name=$("automation-name").value.trim(),objective=$("automation-objective").value.trim();
+    if(name.length<2)add("details",name?"Use at least 2 characters for the automation name":"Give this automation a name","automation-name");
+    if(objective.length<3)add("details",objective?"Use at least 3 characters to describe what it should help with":"Say what you want this automation to help with","automation-objective");
     const validateTrigger=(item,primary=false)=>{const kind=item.kind||"entity",prefix=primary?"When":"Another When step";if(kind==="entity"&&!item.entity_id)add("trigger",`${prefix}: choose a device or sensor`,primary?"automation-trigger-entity":null);else if(kind==="time"&&!item.at)add("trigger",`${prefix}: choose a time`,primary?"automation-trigger-at":null);else if(kind==="interval"&&Number(item.interval_minutes)<1)add("trigger",`${prefix}: choose how often it repeats`,primary?"automation-trigger-interval":null);else if(kind==="one_time"&&!item.one_time_at)add("trigger",`${prefix}: choose a date and time`,primary?"automation-trigger-one-time":null)};
     validateTrigger({kind:$("automation-trigger-kind").value,entity_id:$("automation-trigger-entity").value.trim(),at:$("automation-trigger-at").value,interval_minutes:Number($("automation-trigger-interval").value||0),one_time_at:$("automation-trigger-one-time").value},true);
     for(const trigger of workflowDraft.triggers)validateTrigger(trigger);
