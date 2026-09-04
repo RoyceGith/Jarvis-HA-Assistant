@@ -1,9 +1,9 @@
 {
-  "version": "0.13.142",
+  "version": "0.13.143",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/ZBRANO_Core main",
-  "summary": "Guide common users through Automation Studio with gated Back and Next navigation while retaining direct canvas and drag-and-drop editing.",
+  "summary": "Make Automation Studio's Then step task-first with icon-based actions and friendly command names while retaining advanced custom control.",
   "history_backfill": [
     {
       "version": "0.13.0",
@@ -572,20 +572,24 @@
     {
       "version": "0.13.141",
       "summary": "Added live completion states to the numbered guide and replaced technical validation, summary, and activation wording with everyday language."
+    },
+    {
+      "version": "0.13.142",
+      "summary": "Added gated Back and Next navigation through all five Studio steps with a final safe-test and save handoff."
     }
   ],
   "release_entry": {
     "features": [
-      "Start every new automation at Step 1 and show the current position in the five-step setup.",
-      "Provide clear Back, Next, and Review and finish controls beside the selected step settings.",
-      "Guide users toward safe testing or saving after all required information is ready."
+      "Lead new Then steps with icon-based Turn on, Turn off, Set temperature, Set brightness, Notification, and Wait tasks.",
+      "Keep custom Home Assistant commands available through a clearly labelled Advanced disclosure.",
+      "Translate known action commands into readable labels on flow cards, saved summaries, and activation confirmation."
     ],
     "fixes": [
-      "Stop forward navigation on incomplete required information and explain exactly what is missing.",
-      "Retain direct step selection, full flow editing, advanced configuration, drag-and-drop, and stored schema compatibility."
+      "Hide blank legacy entity, command, and JSON fields from the common new-automation path.",
+      "Retain legacy action editing, advanced configuration, drag-and-drop, and stored schema compatibility."
     ],
     "validation": [
-      "Guided step navigation, required-field gating, final review handoff, browser smoke, regression suite, release manifest, README alignment, and v0.13.142 release coverage"
+      "Task-first Then workflow, advanced custom-action disclosure, friendly action labels, browser smoke, regression suite, release manifest, README alignment, and v0.13.143 release coverage"
     ]
   },
   "features": [

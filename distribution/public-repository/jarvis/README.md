@@ -6,6 +6,11 @@ connections.
 
 ## Automation Studio
 
+Version 0.13.143 makes the Then step task-first. New automations use icon-based
+choices such as Turn on, Set temperature, Notify, and Wait instead of raw Home
+Assistant command fields. Custom actions remain under an Advanced disclosure,
+and saved flow cards and confirmation messages use readable action names.
+
 Version 0.13.142 adds Back and Next navigation to the five Automation Studio
 steps. New drafts begin at Name it, required information is explained before
 moving on, and the final step points users to safe testing or saving without

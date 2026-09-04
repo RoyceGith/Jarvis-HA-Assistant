@@ -10,8 +10,8 @@ MANIFEST = json.loads((ROOT / "jarvis" / "release_manifest.json").read_text(enco
 
 class V013137NonCircularNeuralFlashTests(unittest.TestCase):
     def test_release_is_aligned(self):
-        self.assertEqual(MANIFEST["version"], "0.13.142")
-        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.141")
+        self.assertEqual(MANIFEST["version"], "0.13.143")
+        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.142")
 
     def test_arrival_uses_crossed_spark_lines_without_a_ring(self):
         arrival = CORE[CORE.index("if (progress > .68)"):CORE.index("context.shadowBlur = 0", CORE.index("if (progress > .68)"))]

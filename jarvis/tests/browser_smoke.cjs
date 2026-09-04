@@ -130,7 +130,7 @@ function apiFixture(url, method = "GET") {
   if (pathname === "/api/health") {
     return {
       status: "ok",
-      version: "0.13.142",
+      version: "0.13.143",
       speech_provider: "openai",
       speech_providers: {openai: {configured: true}, elevenlabs: {configured: false}},
     };
@@ -213,7 +213,7 @@ function apiFixture(url, method = "GET") {
   if (pathname === "/api/plugins") return {plugins: []};
   if (pathname === "/api/files/shared") return {files: [], count: 0};
   if (pathname === "/api/release-memory-sync") {
-    return {enabled: false, state: "disabled", version: "0.13.142", task_active: false};
+    return {enabled: false, state: "disabled", version: "0.13.143", task_active: false};
   }
   if (pathname === "/api/tab-activity") return {revisions: {}};
   if (pathname === "/api/grinder-monitor/status") return {enabled: false, connected: false};
@@ -401,9 +401,12 @@ async function main() {
     await page.locator('[data-workflow-index="0"] + .automation-entity-results .automation-entity-result').first().waitFor();
     await sharedConditionEntity.press("Escape");
     await page.locator('#automation-flow-preview [data-flow-kind="action"]').first().click();
-    await page.locator("#studio-automation-action-entity").focus();
-    await page.locator("#studio-automation-action-entity + .automation-entity-results .automation-entity-result").first().waitFor();
-    await page.locator("#studio-automation-action-entity").press("Escape");
+    assert.equal(await page.locator("#studio-automation-action-service").count(), 0);
+    await page.locator('[data-action-template="turn_on"]').click();
+    const friendlyActionEntity=page.locator('[data-workflow-index="0"][data-action-field="entity_id"]');
+    await friendlyActionEntity.focus();
+    await page.locator('[data-workflow-index="0"] + .automation-entity-results .automation-entity-result').first().waitFor();
+    await friendlyActionEntity.press("Escape");
     const pickerResetDialogPromise=page.waitForEvent("dialog"),pickerResetClick=page.locator("#automation-studio-new").click();
     const pickerResetDialog=await pickerResetDialogPromise;await pickerResetDialog.accept();await pickerResetClick;
     assert.match(await page.locator('[data-auto-view="library"]').innerText(), /My Automations/);
@@ -532,7 +535,7 @@ async function main() {
     assert.equal(await page.locator('[data-action-template="notification"]').isEnabled(), true);
     await page.locator('[data-action-template="turn_on"]').click();
     await page.locator('[data-workflow-index="1"][data-action-field="entity_id"]').fill("light.browser_fixture");
-    assert.match(await page.locator('#automation-flow-preview [data-flow-kind="action"]').nth(1).innerText(), /Power on/i);
+    assert.match(await page.locator('#automation-flow-preview [data-flow-kind="action"]').nth(1).innerText(), /Turn on/i);
     await page.locator('[data-action-template="notification"]').click();
     assert.equal(await page.locator('[data-workflow-index="2"][data-action-field="entity_id"]').inputValue(), "notify.browser_phone");
     await page.locator('[data-workflow-index="2"][data-action-field="notification_message"]').fill("Automation finished");
@@ -623,9 +626,8 @@ async function main() {
     await page.locator('#automation-flow-preview [data-flow-kind="action"]').click();
     await page.waitForTimeout(250);
     await page.evaluate(()=>{document.activeElement?.blur();window.zbranoEntitySearch.close()});
-    await page.locator('[data-workflow-add="actions"]').click();
+    await page.locator('[data-action-template="delay"]').click();
     assert.equal(await page.locator(".automation-workflow-step").count(), 1);
-    await page.locator('[data-workflow-index="0"][data-action-field="kind"]').selectOption("delay");
     await page.locator('[data-workflow-index="0"][data-action-field="delay_seconds"]').fill("2");
     assert.match(await page.locator("#automation-flow-preview").innerText(), /Wait 2 sec/i);
     await page.locator('#automation-flow-preview [data-flow-kind="decision"]').click();

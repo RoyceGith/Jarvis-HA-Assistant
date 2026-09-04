@@ -34,7 +34,7 @@
   <header>
     <div class="brand-line">
       <h1>ZBRANO</h1>
-      <div class="status hud-version-label">Workshop Intelligence Interface · HUD 0.13.142</div>
+      <div class="status hud-version-label">Workshop Intelligence Interface · HUD 0.13.143</div>
     </div>
     <div class="runtime-status-stack">
       <div id="notification-inbox-shell" class="notification-inbox-shell">
@@ -853,9 +853,9 @@
                 <label class="check wide"><input id="automation-enabled" type="checkbox"> Enable live evaluation after saving</label>
                 <label class="wide">Condition notes<textarea id="automation-context-notes" rows="3" maxlength="3000" placeholder="Optional notes about what should be checked before this automation continues."></textarea></label>
                 <label class="wide">Suggestion wording<textarea id="automation-proposal" rows="2" maxlength="1000" placeholder="It is getting a little hot in the room. Would you like me to turn on the air conditioner?"></textarea></label>
-                <label>Proposed action entity<input id="automation-action-entity" list="automation-entity-options" maxlength="255" placeholder="climate.room"></label>
-                <label>Proposed HA service<input id="automation-action-service" maxlength="120" placeholder="climate.set_hvac_mode"></label>
-                <label class="wide">Action service data (JSON)<textarea id="automation-action-data" rows="2" maxlength="4000" placeholder='{"hvac_mode":"cool"}'>{}</textarea></label>
+                <label>Advanced action device<input id="automation-action-entity" list="automation-entity-options" maxlength="255" placeholder="climate.room"></label>
+                <label>Advanced action command<input id="automation-action-service" maxlength="120" placeholder="climate.set_hvac_mode"></label>
+                <label class="wide">Advanced action details (JSON)<textarea id="automation-action-data" rows="2" maxlength="4000" placeholder='{"hvac_mode":"cool"}'>{}</textarea></label>
                 <label>Cooldown (minutes)<input id="automation-cooldown" type="number" min="1" max="1440" value="30"></label>
                 <label>Suggestion response window (minutes)<input id="automation-suggestion-timeout" type="number" min="1" max="1440" value="30"></label>
                 <label>Reconsider after worsening by<input id="automation-reoffer-delta" type="number" min="0" max="100000" step="0.1" value="0" title="0 uses ZBRANO's automatic margin"></label>
