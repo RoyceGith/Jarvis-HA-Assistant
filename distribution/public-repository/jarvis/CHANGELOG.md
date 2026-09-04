@@ -1,5 +1,11 @@
 # Change log
 
+## 0.13.149
+
+- Added dedicated Sensor, Power on, Power off, Time, Sun, Repeat, and One time choices for When blocks.
+- Changed the inspector to show only the selected When block's settings.
+- Removed Say cards and message controls from automatic flows so the canvas contains only connected behavior.
+
 ## 0.13.148
 
 - Made the aarch64 Automation Studio Undo check independent of intermediate navigation history.

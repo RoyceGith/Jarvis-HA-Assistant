@@ -12,8 +12,8 @@ MANIFEST = json.loads((ROOT / "jarvis" / "release_manifest.json").read_text(enco
 
 class V013140AutomationStudioUsabilityTests(unittest.TestCase):
     def test_release_is_aligned(self):
-        self.assertEqual(MANIFEST["version"], "0.13.148")
-        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.147")
+        self.assertEqual(MANIFEST["version"], "0.13.149")
+        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.148")
 
     def test_repeatable_cards_explain_their_fields(self):
         for label in (

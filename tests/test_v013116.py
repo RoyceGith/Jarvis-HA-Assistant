@@ -39,11 +39,11 @@ def load_automation_functions(states):
 
 class SingleFlowConditionalSuggestionReleaseTests(unittest.TestCase):
     def test_release_markers_are_aligned(self):
-        self.assertIn('version: "0.13.148"', CONFIG)
-        self.assertIn('version="0.13.148"', MAIN)
-        self.assertIn("HUD 0.13.148", HTML)
-        self.assertEqual(MANIFEST["version"], "0.13.148")
-        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.147")
+        self.assertIn('version: "0.13.149"', CONFIG)
+        self.assertIn('version="0.13.149"', MAIN)
+        self.assertIn("HUD 0.13.149", HTML)
+        self.assertEqual(MANIFEST["version"], "0.13.149")
+        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.148")
 
     def test_live_temperature_can_be_compared_with_thermostat_target(self):
         now = time.time()

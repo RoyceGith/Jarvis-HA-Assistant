@@ -149,16 +149,20 @@
   }
   function inspectorFields(panelConfig){
     if(selectedStudioNode==="action"&&!$("automation-action-entity").value.trim()&&!$("automation-action-service").value.trim())return panelConfig.fields.filter(([id])=>!["automation-action-entity","automation-action-service","automation-action-data"].includes(id));
+    if(selectedStudioNode==="decision"&&$("automation-execution-policy").value==="autonomous")return panelConfig.fields.filter(([id])=>!["automation-proposal","automation-delivery-voice","automation-delivery-center","automation-delivery-push"].includes(id));
     if(selectedStudioNode!=="trigger")return panelConfig.fields;
+    if(selectedFlowCard.kind==="trigger"&&selectedFlowCard.index>0)return [];
     const kind=$("automation-trigger-kind").value||"entity",operator=$("automation-trigger-operator").value||"changes_to";
     const fields={
-      entity:new Set(["automation-trigger-kind","automation-trigger-entity","automation-trigger-operator","automation-trigger-for"]),
-      time:new Set(["automation-trigger-kind","automation-trigger-at","automation-trigger-weekdays"]),
-      sun:new Set(["automation-trigger-kind","automation-trigger-sun-event","automation-trigger-sun-offset","automation-trigger-weekdays"]),
-      interval:new Set(["automation-trigger-kind","automation-trigger-interval"]),
-      one_time:new Set(["automation-trigger-kind","automation-trigger-one-time"]),
-    }[kind]||new Set(["automation-trigger-kind"]);
-    if(kind==="entity"&&operator!=="any_change")fields.add("automation-trigger-value");
+      entity:new Set(["automation-trigger-entity","automation-trigger-operator","automation-trigger-for"]),
+      time:new Set(["automation-trigger-at","automation-trigger-weekdays"]),
+      sun:new Set(["automation-trigger-sun-event","automation-trigger-sun-offset","automation-trigger-weekdays"]),
+      interval:new Set(["automation-trigger-interval"]),
+      one_time:new Set(["automation-trigger-one-time"]),
+    }[kind]||new Set();
+    const preset=triggerPreset(primaryTriggerValue());
+    if(kind==="entity"&&preset.startsWith("power_"))fields.delete("automation-trigger-operator");
+    else if(kind==="entity"&&operator!=="any_change")fields.add("automation-trigger-value");
     return panelConfig.fields.filter(([id])=>fields.has(id));
   }
   function renderStudioInspector(){
@@ -167,6 +171,7 @@
     $("automation-studio-inspector-title").textContent=panelConfig.title;
     $("automation-studio-inspector-help").textContent=panelConfig.help;
     const root=$("automation-studio-inspector-fields");root.replaceChildren();
+    if(selectedStudioNode==="trigger")renderTriggerPresetPicker(root);
     if(selectedStudioNode==="action")renderActionTaskPalette(root);
     const groupedIds=selectedStudioNode==="decision"?new Set(["automation-confidence","automation-cooldown","automation-suggestion-timeout","automation-reoffer-delta","automation-reset-delta"]):selectedStudioNode==="action"?new Set(["automation-action-data","automation-failure-limit","automation-failure-window"]):new Set();
     let optionalGroup=null,optionalFields=null;
@@ -176,13 +181,13 @@
       if(selectedStudioNode==="details"&&id==="automation-execution-policy"){
         const guide=document.createElement("div");guide.className="automation-rule-safety-guide";guide.innerHTML='<span class="automation-rule-safety-icon" aria-hidden="true">&#128737;</span><div><strong>Authority for this automation</strong><small>This choice applies only to this rule. Built-in protection may reduce its authority when an action is unsafe, but it can never grant more.</small></div>';root.append(guide);
       }
-      const label=document.createElement("label"),control=source.cloneNode(true);
+      const displayLabel=id==="automation-trigger-entity"&&triggerPreset(primaryTriggerValue()).startsWith("power_")?"Power device":labelText,label=document.createElement("label"),control=source.cloneNode(true);
       control.id=`studio-${id}`;control.removeAttribute("required");
       if(entityPickerFieldIds.has(id))control.dataset.entityPicker="true";
       if(id==="automation-signals")control.dataset.entityPickerMultiple="true";
-      if(source.type==="checkbox"){control.checked=source.checked;label.className="is-check";label.append(control,document.createTextNode(labelText))}
-      else{control.value=source.value;const caption=document.createElement("span");caption.textContent=labelText;label.append(caption,control)}
-      const synchronize=()=>{if(source.type==="checkbox")source.checked=control.checked;else source.value=control.value;source.dispatchEvent(new Event("input",{bubbles:true}));if(id==="automation-trigger-kind"||id==="automation-trigger-operator")renderStudioInspector()};
+      if(source.type==="checkbox"){control.checked=source.checked;label.className="is-check";label.append(control,document.createTextNode(displayLabel))}
+      else{control.value=source.value;const caption=document.createElement("span");caption.textContent=displayLabel;label.append(caption,control)}
+      const synchronize=()=>{if(source.type==="checkbox")source.checked=control.checked;else source.value=control.value;source.dispatchEvent(new Event("input",{bubbles:true}));if(id==="automation-trigger-kind"||id==="automation-trigger-operator"||id==="automation-execution-policy")renderStudioInspector()};
       control.addEventListener("input",synchronize);control.addEventListener("change",synchronize);(groupedIds.has(id)?optionalFields:root).append(label);
     }
     if(optionalGroup)root.append(optionalGroup);
@@ -214,11 +219,36 @@
   const weekdayNames=["Mon","Tue","Wed","Thu","Fri","Sat","Sun"];
   function parseWeekdays(value){return [...new Set(String(value||"").split(/[,\s]+/).map(part=>weekdayNames.findIndex(day=>day.toLowerCase()===part.slice(0,3).toLowerCase())).filter(index=>index>=0))]}
   function formatWeekdays(values){return (values||[]).map(value=>weekdayNames[Number(value)]).filter(Boolean).join(", ")}
-  function friendlyTriggerStepHtml(item,attributes){
+  function triggerPreset(item={}){
+    const kind=item.kind||"entity";
+    if(kind!=="entity")return kind;
+    const id=String(item.entity_id||""),domain=String(entityVisual(id).domain||id.split(".",1)[0]||"").toLowerCase(),value=String(item.value||"").toLowerCase(),operator=item.operator||"changes_to",powerDomain=["switch","light","fan","input_boolean"].includes(domain),unassignedPower=!id&&["on","off"].includes(value);
+    if((powerDomain||unassignedPower)&&["changes_to","equals"].includes(operator)&&value==="on")return"power_on";
+    if((powerDomain||unassignedPower)&&["changes_to","equals"].includes(operator)&&value==="off")return"power_off";
+    return"sensor";
+  }
+  function selectedTriggerValue(){return selectedFlowCard.kind==="trigger"&&selectedFlowCard.index>0?workflowDraft.triggers[selectedFlowCard.index-1]:primaryTriggerValue()}
+  function applyTriggerPreset(preset){
+    const current=cloneEditorValue(selectedTriggerValue()||{}),wasPower=triggerPreset(current).startsWith("power_");
+    if(preset==="power_on"||preset==="power_off")Object.assign(current,{kind:"entity",operator:"changes_to",value:preset==="power_on"?"on":"off"});
+    else if(preset==="sensor")Object.assign(current,{kind:"entity",operator:wasPower?"above":current.operator||"above",value:wasPower?"":current.value||""});
+    else if(["time","sun","interval","one_time"].includes(preset))current.kind=preset;
+    if(selectedFlowCard.kind==="trigger"&&selectedFlowCard.index>0)workflowDraft.triggers[selectedFlowCard.index-1]=current;else writePrimaryTrigger(current);
+    renderStudioInspector();renderEditorFlow();commitEditorHistory();
+  }
+  function renderTriggerPresetPicker(root){
+    const item=selectedTriggerValue()||{},active=triggerPreset(item),section=document.createElement("section");section.className="automation-trigger-palette";
+    const choices=[["sensor","&#128202;","Sensor reading","Temperature, motion, humidity or another value"],["power_on","&#9211;","Power turns on","A switch, light or device becomes on"],["power_off","&#9711;","Power turns off","A switch, light or device becomes off"],["time","&#9201;","Time","At a chosen time"],["sun","&#9728;","Sun","At sunrise or sunset"],["interval","&#8635;","Repeat","Every few minutes"],["one_time","&#128197;","One time","At one date and time"]];
+    section.innerHTML=`<div class="automation-task-palette-head"><strong>What does this When block watch?</strong><small>Choose the card that matches the event.</small></div><div class="automation-trigger-palette-grid">${choices.map(([key,icon,title,detail])=>`<button type="button" data-trigger-preset="${key}" aria-pressed="${key===active}"><span aria-hidden="true">${icon}</span><strong>${title}</strong><small>${detail}</small></button>`).join("")}</div>`;
+    section.addEventListener("click",event=>{const button=event.target.closest("[data-trigger-preset]");if(button)applyTriggerPreset(button.dataset.triggerPreset)});root.append(section);
+  }
+  function friendlyTriggerStepHtml(item,attributes,includeType=true){
     const kind=item.kind||"entity",attr=field=>`${attributes} data-trigger-field="${field}"`;
     const labelled=(label,control)=>`<label><span>${label}</span>${control}</label>`;
-    const type=labelled("Start when",`<select ${attr("kind")}><option value="entity"${kind==="entity"?" selected":""}>A device or sensor changes</option><option value="time"${kind==="time"?" selected":""}>It is a specific time</option><option value="sun"${kind==="sun"?" selected":""}>The sun rises or sets</option><option value="interval"${kind==="interval"?" selected":""}>A set time passes</option><option value="one_time"${kind==="one_time"?" selected":""}>A one-time date arrives</option></select>`);
+    const type=includeType?labelled("Start when",`<select ${attr("kind")}><option value="entity"${kind==="entity"?" selected":""}>A device or sensor changes</option><option value="time"${kind==="time"?" selected":""}>It is a specific time</option><option value="sun"${kind==="sun"?" selected":""}>The sun rises or sets</option><option value="interval"${kind==="interval"?" selected":""}>A set time passes</option><option value="one_time"${kind==="one_time"?" selected":""}>A one-time date arrives</option></select>`):"";
     if(kind==="entity"){
+      const preset=triggerPreset(item),powerState=preset==="power_on"?"on":"off";
+      if(preset.startsWith("power_"))return `${type}${labelled("Power device",`<input ${attr("entity_id")} list="automation-entity-options" value="${esc(item.entity_id||"")}" placeholder="Choose a switch, light or powered device">`)}${labelled(`Keep it ${powerState} for (seconds)`,`<input ${attr("for_seconds")} type="number" min="0" max="86400" value="${Number(item.for_seconds||0)}">`)}`;
       const comparison=item.operator==="any_change"?"":labelled("Compared with",`<input ${attr("value")} value="${esc(item.value||"")}" placeholder="For example: 26, home, off">`);
       return `${type}${labelled("Device or sensor",`<input ${attr("entity_id")} list="automation-entity-options" value="${esc(item.entity_id||"")}" placeholder="Choose a device or sensor">`)}${labelled("Change to watch for",`<select ${attr("operator")}>${workflowOperatorOptions(item.operator,true)}</select>`)}${comparison}${labelled("Keep this state for (seconds)",`<input ${attr("for_seconds")} type="number" min="0" max="86400" value="${Number(item.for_seconds||0)}">`)}`;
     }
@@ -283,6 +313,16 @@
   }
   function renderWorkflowInspector(root){
     if(selectedStudioNode==="decision"){renderBranchInspector(root);return}
+    if(selectedStudioNode==="trigger"){
+      const items=workflowDraft.triggers,selectedIndex=selectedFlowCard.kind==="trigger"?Number(selectedFlowCard.index||0):0,workflowIndex=selectedIndex-1,total=items.length+1,section=document.createElement("section");section.className="automation-workflow-steps automation-selected-block-settings";
+      const selected=workflowIndex>=0&&items[workflowIndex]?`<div class="automation-workflow-head"><strong>This When block</strong><button type="button" data-workflow-remove="${workflowIndex}">Remove block</button></div><div class="automation-workflow-step">${friendlyTriggerStepHtml(items[workflowIndex],`data-workflow-index="${workflowIndex}"`,false)}</div>`:"";
+      const mode=total>1?`<label class="automation-trigger-connection">How this block connects<select data-trigger-mode><option value="any"${workflowDraft.trigger_mode!=="all"?" selected":""}>OR â€” either event can start it</option><option value="all"${workflowDraft.trigger_mode==="all"?" selected":""}>AND â€” both must be true</option></select></label>`:"";
+      section.innerHTML=`${selected}${mode}<button class="automation-add-when" type="button" data-workflow-add="triggers">+ Add another When block</button>`;root.append(section);
+      section.addEventListener("input",event=>{const field=event.target.dataset.triggerField,index=Number(event.target.dataset.workflowIndex);if(!field||!items[index])return;items[index][field]=field==="weekdays"?parseWeekdays(event.target.value):field.endsWith("seconds")||field.endsWith("minutes")?Number(event.target.value||0):event.target.value;renderEditorFlow();scheduleEditorHistory()});
+      section.addEventListener("change",event=>{if(event.target.hasAttribute("data-trigger-mode")){workflowDraft.trigger_mode=event.target.value==="all"?"all":"any";renderEditorFlow();scheduleEditorHistory()}});
+      section.addEventListener("click",event=>{const add=event.target.closest("[data-workflow-add]"),remove=event.target.closest("[data-workflow-remove]");if(add){items.push({kind:"entity",entity_id:"",operator:"above",value:"",for_seconds:0,weekdays:[],at:"",sun_event:"sunrise",offset_minutes:0,interval_minutes:5,one_time_at:""});selectedFlowCard={kind:"trigger",index:items.length,branchIndex:null}}else if(remove){items.splice(Number(remove.dataset.workflowRemove),1);selectedFlowCard={kind:"trigger",index:0,branchIndex:null}}else return;renderStudioInspector();renderEditorFlow();commitEditorHistory()});
+      return;
+    }
     const specs=selectedStudioNode==="trigger"?["triggers","More ways to start"]:selectedStudioNode==="context"?["conditions","Extra checks"]:selectedStudioNode==="action"?["actions","More things to do"]:null;
     if(!specs)return;
     const [collection,title]=specs,items=workflowDraft[collection];
@@ -301,6 +341,7 @@
 
   function renderBranchInspector(root){
     const section=document.createElement("section");section.className="automation-workflow-steps automation-branch-editor";
+    if($("automation-execution-policy").value==="autonomous")section.classList.add("is-automatic");
     const cards=workflowDraft.branches.map((branch,branchIndex)=>{
       const conditions=(branch.conditions||[]).map((item,index)=>`<div class="automation-workflow-step">${conditionStepHtml(item,`data-branch-collection="conditions" data-branch-index="${branchIndex}" data-item-index="${index}"`)}<button type="button" data-branch-remove-item="conditions" data-branch-index="${branchIndex}" data-item-index="${index}">Remove</button></div>`).join("");
       const actions=(branch.actions||[]).map((item,index)=>`<div class="automation-workflow-step">${actionStepHtml(item,`data-branch-collection="actions" data-branch-index="${branchIndex}" data-item-index="${index}"`)}<button type="button" data-branch-remove-item="actions" data-branch-index="${branchIndex}" data-item-index="${index}">Remove</button></div>`).join("");

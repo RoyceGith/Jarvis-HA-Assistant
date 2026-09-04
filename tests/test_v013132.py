@@ -10,8 +10,8 @@ MANIFEST = json.loads((ROOT / "jarvis" / "release_manifest.json").read_text(enco
 
 class V013132NeuralPauseTests(unittest.TestCase):
     def test_release_is_aligned(self):
-        self.assertEqual(MANIFEST["version"], "0.13.148")
-        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.147")
+        self.assertEqual(MANIFEST["version"], "0.13.149")
+        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.148")
 
     def test_active_chat_and_selection_pause_animation(self):
         self.assertIn('window.dispatchEvent(new CustomEvent("zbrano-neural-intensity-change"', CORE)

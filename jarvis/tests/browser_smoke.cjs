@@ -130,7 +130,7 @@ function apiFixture(url, method = "GET") {
   if (pathname === "/api/health") {
     return {
       status: "ok",
-      version: "0.13.148",
+      version: "0.13.149",
       speech_provider: "openai",
       speech_providers: {openai: {configured: true}, elevenlabs: {configured: false}},
     };
@@ -213,7 +213,7 @@ function apiFixture(url, method = "GET") {
   if (pathname === "/api/plugins") return {plugins: []};
   if (pathname === "/api/files/shared") return {files: [], count: 0};
   if (pathname === "/api/release-memory-sync") {
-    return {enabled: false, state: "disabled", version: "0.13.148", task_active: false};
+    return {enabled: false, state: "disabled", version: "0.13.149", task_active: false};
   }
   if (pathname === "/api/tab-activity") return {revisions: {}};
   if (pathname === "/api/grinder-monitor/status") return {enabled: false, connected: false};
@@ -387,13 +387,15 @@ async function main() {
     await page.locator("#automation-studio-step-next").click();
     assert.equal(await page.locator("#automation-studio-inspector-title").innerText(), "2. When");
     assert.equal(await page.locator("#automation-studio-current-step").innerText(), "Step 2 of 5");
+    assert.equal(await page.locator('.automation-trigger-palette [data-trigger-preset]').count(), 7);
+    assert.equal(await page.locator('.automation-trigger-palette [data-trigger-preset="sensor"]').getAttribute("aria-pressed"), "true");
     assert.equal(await page.locator("#studio-automation-trigger-entity").count(), 1);
     assert.equal(await page.locator("#studio-automation-trigger-sun-event").count(), 0);
-    await page.locator("#studio-automation-trigger-kind").selectOption("sun");
+    await page.locator('[data-trigger-preset="sun"]').click();
     assert.equal(await page.locator("#studio-automation-trigger-sun-event").count(), 1);
     assert.equal(await page.locator("#studio-automation-trigger-entity").count(), 0);
     assert.equal(await page.locator("#studio-automation-trigger-at").count(), 0);
-    await page.locator("#studio-automation-trigger-kind").selectOption("entity");
+    await page.locator('[data-trigger-preset="sensor"]').click();
     await page.locator("#studio-automation-trigger-operator").selectOption("any_change");
     assert.equal(await page.locator("#studio-automation-trigger-value").count(), 0);
     await page.locator("#studio-automation-trigger-operator").selectOption("above");
@@ -444,7 +446,7 @@ async function main() {
     assert.match(await page.locator("#automation-library .autonomy-draft").first().innerText(), /Browser flow/i);
     await page.locator("#automation-library-sort").selectOption("active");
     assert.match(await page.locator("#automation-library .autonomy-draft").first().innerText(), /Active lighting/i);
-    assert.equal(await page.locator("#automation-library .automation-flow-stage").count(), 7);
+    assert.equal(await page.locator("#automation-library .automation-flow-stage").count(), 6);
     assert.equal(await page.locator("#automation-library").evaluate(element => element.classList.contains("is-compact")), true);
     assert.equal(await page.locator("#automation-library .automation-library-flow").first().getAttribute("open"), null);
     await page.locator("#automation-library .automation-library-flow summary").first().click();
@@ -501,6 +503,7 @@ async function main() {
     assert.match(await page.locator("#automation-studio-state").innerText(), /Use Undo to restore/i);
     await page.locator("#automation-studio-undo").click();
     assert.equal(await page.locator('#automation-flow-preview [data-flow-kind="trigger"]').count(), 3);
+    await page.locator('#automation-flow-preview [data-flow-kind="trigger"]').first().click();
     const studioTriggerEntity = page.locator("#studio-automation-trigger-entity");
     await studioTriggerEntity.fill("Browser Fixture 1");
     const studioTriggerResult = page.locator("#automation-studio-inspector-fields .automation-entity-result").filter({hasText:"sensor.browser_fixture_1"}).first();
@@ -509,7 +512,13 @@ async function main() {
     assert.equal(await page.locator("#automation-trigger-entity").inputValue(), "sensor.browser_fixture_1");
     await studioTriggerEntity.fill("sensor.primary_trigger");
     await studioTriggerEntity.press("Escape");
+    await page.locator('#automation-flow-preview [data-flow-kind="trigger"]').nth(1).focus();
+    await page.locator('#automation-flow-preview [data-flow-kind="trigger"]').nth(1).press("Enter");
+    assert.equal(await page.locator('#automation-flow-preview [data-flow-kind="trigger"]').nth(1).evaluate(node=>node.classList.contains("is-selected")), true);
     await page.locator('[data-workflow-index="0"][data-trigger-field="entity_id"]').fill("sensor.middle_trigger");
+    await page.locator('#automation-flow-preview [data-flow-kind="trigger"]').nth(2).focus();
+    await page.locator('#automation-flow-preview [data-flow-kind="trigger"]').nth(2).press("Enter");
+    assert.equal(await page.locator('#automation-flow-preview [data-flow-kind="trigger"]').nth(2).evaluate(node=>node.classList.contains("is-selected")), true);
     await page.locator('[data-workflow-index="1"][data-trigger-field="entity_id"]').fill("sensor.last_trigger");
     await page.waitForTimeout(260);
     const middleTriggerCard=page.locator('#automation-flow-preview [data-flow-kind="trigger"]').nth(1);await middleTriggerCard.hover();
@@ -634,12 +643,22 @@ async function main() {
     assert.equal(await page.locator("#automation-trigger-value").inputValue(), "27");
     await page.locator('[data-studio-node="trigger"]').click();
     await page.locator('[data-workflow-add="triggers"]').click();
-    assert.match(await page.locator('.automation-workflow-step').first().innerText(), /Start when|Device or sensor|Change to watch for/i);
-    await page.locator('[data-workflow-index="0"][data-trigger-field="kind"]').selectOption("time");
+    assert.equal(await page.locator('.automation-workflow-step').count(), 1);
+    assert.equal(await page.locator('#studio-automation-trigger-entity').count(), 0);
+    await page.locator('[data-trigger-preset="time"]').click();
     await page.locator('[data-workflow-index="0"][data-trigger-field="at"]').fill("18:30");
     await page.locator('[data-workflow-index="0"][data-trigger-field="weekdays"]').fill("Mon, Wed, Fri");
     assert.equal(await page.locator('[data-workflow-index="0"][data-trigger-field="at"]').inputValue(), "18:30");
+    await page.locator('[data-trigger-preset="power_off"]').click();
+    await page.locator('[data-workflow-index="0"][data-trigger-field="entity_id"]').fill("light.browser_fixture");
+    assert.match(await page.locator('#automation-flow-preview [data-flow-kind="trigger"]').nth(1).innerText(), /POWER OFF|Turns off/i);
     assert.equal(await page.locator('#automation-flow-preview [data-flow-kind="trigger"]').count(), 2);
+    await page.locator('#automation-flow-preview [data-flow-kind="trigger"]').first().click();
+    assert.equal(await page.locator('.automation-workflow-step').count(), 0);
+    assert.equal(await page.locator('#studio-automation-trigger-entity').count(), 1);
+    await page.locator('#automation-flow-preview [data-flow-kind="trigger"]').nth(1).click();
+    assert.equal(await page.locator('.automation-workflow-step').count(), 1);
+    assert.equal(await page.locator('#studio-automation-trigger-entity').count(), 0);
     assert.equal(await page.locator("#automation-flow-preview [data-trigger-logic]").inputValue(), "any");
     await page.locator("#automation-flow-preview [data-trigger-logic]").selectOption("all");
     assert.equal(await page.locator("[data-trigger-mode]").inputValue(), "all");
@@ -666,20 +685,21 @@ async function main() {
     assert.equal(await page.locator("#studio-automation-execution-policy").inputValue(), "approval_required");
     await page.locator("#studio-automation-execution-policy").selectOption("autonomous");
     assert.equal(await page.locator("#automation-execution-policy").inputValue(), "autonomous");
+    assert.equal(await page.locator('#automation-flow-preview [data-flow-kind="decision"]').count(), 0);
     await page.locator("#studio-automation-risk").selectOption("low");
     assert.equal(await page.locator("#automation-risk").inputValue(), "low");
     await page.locator("#studio-automation-max-actions").fill("3");
     assert.equal(await page.locator("#automation-max-actions").inputValue(), "3");
-    await page.locator('#automation-flow-preview [data-flow-kind="decision"]').click();
-    await page.locator("#studio-automation-delivery-voice").uncheck();
-    assert.equal(await page.locator("#automation-delivery-voice").isChecked(), false);
+    await page.locator('.automation-studio-toolbox [data-studio-node="decision"]').click();
+    assert.equal(await page.locator("#studio-automation-proposal").count(), 0);
+    assert.equal(await page.locator("#studio-automation-delivery-voice").count(), 0);
     await page.locator("#automation-studio-test").click();
     await page.locator("#automation-studio-test-results:not([hidden])").waitFor();
     assert.equal(await page.locator("#automation-studio-test-results .automation-studio-test-step").count(), 4);
     assert.match(await page.locator("#automation-studio-state").innerText(), /0 actions executed/i);
     await page.locator("[data-branch-add]").click();
-    await page.locator('[data-branch-suggestion="0"]').fill("Check the cooling conditions for this path.");
-    assert.match(await page.locator('#automation-flow-preview .automation-flow-branch-suggestion').first().innerText(), /Check the cooling conditions/i);
+    assert.equal(await page.locator("[data-branch-suggestion]").isVisible(), false);
+    assert.equal(await page.locator("#automation-flow-preview .automation-flow-branch-suggestion").count(), 0);
     await page.locator('[data-branch-collection="conditions"][data-item-index="0"][data-condition-field="entity_id"]').fill("sensor.browser_fixture_4");
     await page.locator('[data-branch-collection="conditions"][data-item-index="0"][data-condition-field="value"]').fill("off");
     assert.match(await page.locator('.automation-branch-card').first().innerText(), /Compared with/i);

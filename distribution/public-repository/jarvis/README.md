@@ -6,6 +6,10 @@ connections.
 
 ## Automation Studio
 
+Version 0.13.149 adds dedicated event cards to the When step, limits the
+inspector to the selected trigger, and removes Say content from automatic flows
+where it is no longer connected.
+
 Version 0.13.148 makes the aarch64 image browser validation deterministic by
 testing Undo against a deliberately persisted edit. Application behavior is
 unchanged from v0.13.147.

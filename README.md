@@ -1,9 +1,14 @@
-## ZBRANO v0.13.148
+## ZBRANO v0.13.149
 
 ZBRANO combines Home Assistant chat, voice, entity control, memory, notifications,
 calendar and contact tools, plugins, and evidence-based automations. Automation Studio now uses
 a visual building-block toolbox, interactive node canvas, and contextual inspector;
 the established automation engine and stored definitions remain compatible.
+
+Version 0.13.149 gives every When block a clear event type: Sensor, Power on,
+Power off, Time, Sun, Repeat, or One time. Selecting a flow card now shows only
+that block's settings. Automatic automations no longer display disconnected Say
+cards or message controls.
 
 Version 0.13.148 stabilizes the aarch64 image build by testing Undo against a
 deliberately committed edit and waiting for persisted recovery state instead

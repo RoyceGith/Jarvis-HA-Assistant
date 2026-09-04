@@ -1,9 +1,9 @@
 {
-  "version": "0.13.148",
+  "version": "0.13.149",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/ZBRANO_Core main",
-  "summary": "Stabilize the aarch64 image browser gate by testing Undo against a deliberately committed edit instead of CPU-dependent intermediate history.",
+  "summary": "Make When blocks instantly recognizable, edit only the selected trigger, and remove disconnected Say content from automatic flows.",
   "history_backfill": [
     {
       "version": "0.13.0",
@@ -596,19 +596,23 @@
     {
       "version": "0.13.147",
       "summary": "Moved per-automation authority and safety choices into Step 1 and removed the global authority screen from normal navigation."
+    },
+    {
+      "version": "0.13.148",
+      "summary": "Stabilized the aarch64 image browser gate by testing Undo against a deliberately committed edit and observed persisted recovery state."
     }
   ],
   "release_entry": {
     "features": [
-      "Retain the complete per-automation Step 1 authority and safety experience introduced in v0.13.147.",
-      "Exercise Undo and Redo against an explicitly persisted trigger-value change on every builder architecture."
+      "Add dedicated Sensor, Power on, Power off, Time, Sun, Repeat, and One time choices for every When block.",
+      "Label power-event cards explicitly and show only the selected When block's editable fields in the inspector."
     ],
     "fixes": [
-      "Remove an aarch64 browser-test race where navigation history could be mistaken for the field edit being undone.",
-      "Replace the fixed recovery delay with an observed persisted-state condition so slow builders remain deterministic."
+      "Remove the Say card and all message settings when an automation is configured to act automatically.",
+      "Keep automatic outcome flows free of disconnected result-message cards and controls."
     ],
     "validation": [
-      "Deterministic Undo and recovery browser coverage, full regression suite, release manifest, README alignment, and v0.13.148 release coverage"
+      "Selected-card inspector, trigger palette, power-off visualization, automatic flow connectivity, full regression suite, and v0.13.149 release coverage"
     ]
   },
   "features": [
