@@ -1,5 +1,11 @@
 # Change log
 
+## 0.13.146
+
+- Aligned guided name and purpose validation with the server's save requirements.
+- Replaced `[object Object]` save failures with readable field-specific messages.
+- Added browser and release regression coverage for the failed-save path.
+
 ## 0.13.145
 
 - Replaced the technical Outcomes step with an optional Different results question.

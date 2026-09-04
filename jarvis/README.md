@@ -6,6 +6,9 @@ connections.
 
 ## Automation Studio
 
+Version 0.13.146 prevents undersized names and purposes from reaching the server
+and shows readable field-specific explanations for any server validation error.
+
 Version 0.13.145 makes the optional final Studio step a plain Different results
 question. Each result uses readable When / Then language with an explained
 fallback, while the visual flow and saved automation format remain compatible.
