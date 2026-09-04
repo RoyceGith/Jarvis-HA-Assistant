@@ -17,8 +17,8 @@ MANIFEST = json.loads((ROOT / "jarvis/release_manifest.json").read_text(encoding
 
 class ExplicitAutomationConditionReleaseTests(unittest.TestCase):
     def test_release_is_aligned(self):
-        self.assertEqual(MANIFEST["version"], "0.13.139")
-        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.138")
+        self.assertEqual(MANIFEST["version"], "0.13.140")
+        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.139")
 
     def test_condition_schema_and_runtime_support_source_attributes(self):
         self.assertIn('attribute: str = Field(default="", max_length=120', SCHEMAS)
@@ -46,15 +46,15 @@ class ExplicitAutomationConditionReleaseTests(unittest.TestCase):
 
     def test_condition_editor_exposes_complete_labelled_comparisons(self):
         for label in (
-            "Condition type",
-            "Entity",
-            "Read",
-            "Comparison",
-            "Required value",
-            "Must remain true for seconds",
-            "Left entity",
-            "Right entity",
-            "Right value",
+            "Check",
+            "Device or sensor",
+            "Which value?",
+            "Must be",
+            "Compared with",
+            "Keep true for (seconds)",
+            "First device or sensor",
+            "Other device or sensor",
+            "Its value",
         ):
             self.assertIn(label, WORKSPACE)
         self.assertIn('data-condition-field="${field}"', WORKSPACE)

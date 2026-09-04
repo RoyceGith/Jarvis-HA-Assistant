@@ -1,9 +1,9 @@
 {
-  "version": "0.13.139",
+  "version": "0.13.140",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/ZBRANO_Core main",
-  "summary": "Load the correct entity picker when selecting second and later Automation Studio Trigger cards.",
+  "summary": "Make Automation Studio repeatable steps, outcomes, advanced controls, and toolbar actions understandable without technical automation vocabulary.",
   "history_backfill": [
     {
       "version": "0.13.0",
@@ -560,20 +560,24 @@
     {
       "version": "0.13.138",
       "summary": "Made additional Trigger cards focus their own relevant field and immediately load the Home Assistant entity picker."
+    },
+    {
+      "version": "0.13.139",
+      "summary": "Kept the interactive flow while adding numbered steps, device icons, symbolic comparisons, and plain-language IF / OTHERWISE outcomes."
     }
   ],
   "release_entry": {
     "features": [
-      "Keep the interactive Automation Studio flow while adding a numbered Name, When, Only if, Then, and Outcomes guide.",
-      "Show device-aware SVG icons, friendly entity names, and compact comparison symbols on flow cards.",
-      "Present optional branches as understandable IF, OTHERWISE IF, and OTHERWISE outcomes."
+      "Label every repeatable trigger, check, and task field with direct everyday language.",
+      "Group confidence tuning and safety limits into discreet expandable sections without removing any settings.",
+      "Use Outcome naming consistently when users add, copy, move, or remove alternate paths."
     ],
     "fixes": [
-      "Replace technical inspector labels with everyday questions while preserving every existing setting.",
-      "Remove WATCH numbering and raw entity-ID clutter from the normal visual flow."
+      "Rename the main toolbar actions to New automation, Try it safely, and Save automation.",
+      "Keep entity pickers, flow editing, drag-and-drop, stored schema fields, and advanced configuration compatible."
     ],
     "validation": [
-      "Numbered Studio steps, device icons, symbolic comparisons, plain-language outcomes, drag-and-drop branching, browser smoke, release manifest, README alignment, and v0.13.139 release coverage"
+      "Labelled repeatable cards, progressive disclosure, outcome naming, browser smoke, regression suite, release manifest, README alignment, and v0.13.140 release coverage"
     ]
   },
   "features": [

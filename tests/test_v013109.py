@@ -16,10 +16,10 @@ MANIFEST = json.loads((ROOT / "jarvis/release_manifest.json").read_text(encoding
 
 class BranchPathManagementReleaseTests(unittest.TestCase):
     def test_release_markers_are_aligned(self):
-        self.assertIn('version: "0.13.139"', CONFIG)
-        self.assertIn('version="0.13.139"', MAIN)
-        self.assertIn("HUD 0.13.139", HTML)
-        self.assertEqual(MANIFEST["version"], "0.13.139")
+        self.assertIn('version: "0.13.140"', CONFIG)
+        self.assertIn('version="0.13.140"', MAIN)
+        self.assertIn("HUD 0.13.140", HTML)
+        self.assertEqual(MANIFEST["version"], "0.13.140")
 
     def test_canvas_exposes_complete_path_controls(self):
         for marker in (
@@ -43,9 +43,9 @@ class BranchPathManagementReleaseTests(unittest.TestCase):
             self.assertIn(marker, WORKSPACE)
 
     def test_else_path_remains_safe(self):
-        self.assertIn('"The ELSE fallback stays last so path evaluation remains safe."', WORKSPACE)
+        self.assertIn('"The OTHERWISE outcome stays last so the flow remains predictable."', WORKSPACE)
         self.assertIn("if(sourceIsFallback)copy.conditions=[newBranchCondition()]", WORKSPACE)
-        self.assertIn('"Keep at least one decision path, or remove branching from Advanced settings."', WORKSPACE)
+        self.assertIn('"Keep at least one outcome, or turn off outcomes in Advanced settings."', WORKSPACE)
 
     def test_controls_are_styled_and_browser_exercised(self):
         self.assertIn(".automation-flow-branch-toolbar", STYLES)
@@ -53,7 +53,7 @@ class BranchPathManagementReleaseTests(unittest.TestCase):
             self.assertIn(f'data-flow-branch-action="{action}"', BROWSER)
 
     def test_release_history_includes_v013108(self):
-        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.138")
+        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.139")
 
 
 if __name__ == "__main__":

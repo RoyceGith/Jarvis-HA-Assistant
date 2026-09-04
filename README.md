@@ -1,9 +1,15 @@
-## ZBRANO v0.13.139
+## ZBRANO v0.13.140
 
 ZBRANO combines Home Assistant chat, voice, entity control, memory, notifications,
 calendar and contact tools, plugins, and evidence-based automations. Automation Studio now uses
 a visual building-block toolbox, interactive node canvas, and contextual inspector;
 the established automation engine and stored definitions remain compatible.
+
+Version 0.13.140 continues the Automation Studio usability reconstruction. Every
+additional When, Only if, and Then card now explains each field in everyday
+language. Confidence tuning and safety limits stay available inside discreet
+expandable sections, alternate paths are consistently called Outcomes, and the
+main actions now say New automation, Try it safely, and Save automation.
 
 Version 0.13.139 begins the Automation Studio usability reconstruction without
 removing its flow. A numbered Name → When → Only if → Then → Outcomes guide now

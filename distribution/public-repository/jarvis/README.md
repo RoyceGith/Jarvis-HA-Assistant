@@ -6,6 +6,11 @@ connections.
 
 ## Automation Studio
 
+Version 0.13.140 labels every repeatable trigger, check, and task in everyday
+language, groups fine-tuning and safety controls into expandable sections, and
+uses Outcome terminology consistently. The complete visual flow and all settings
+remain available.
+
 Version 0.13.139 keeps the interactive flow and adds a numbered, icon-led,
 plain-language building experience for common users.
 

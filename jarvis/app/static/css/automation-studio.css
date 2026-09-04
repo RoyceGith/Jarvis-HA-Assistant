@@ -88,10 +88,16 @@
 .automation-task-palette-grid button:disabled { opacity:.52; cursor:not-allowed; }
 .automation-task-kind { display:inline-flex; justify-self:start; padding:.25rem .48rem; border-radius:999px; background:color-mix(in srgb,#f0b35b 13%,var(--surface)); color:#f0b35b; font-size:.66rem; font-weight:700; }
 .automation-task-derived { color:var(--text-muted); overflow-wrap:anywhere; }
+.automation-inspector-more { margin-top:.75rem; padding:.15rem .65rem .65rem; border:1px solid color-mix(in srgb,var(--cyan) 18%,var(--line)); border-radius:11px; background:color-mix(in srgb,var(--surface-strong) 64%,transparent); }
+.automation-inspector-more > summary { padding:.55rem 0; color:var(--text-muted); font-size:.72rem; font-weight:700; cursor:pointer; }
+.automation-inspector-more > summary:hover,.automation-inspector-more > summary:focus-visible { color:var(--cyan); }
+.automation-inspector-more-fields { display:grid; gap:.65rem; padding-top:.25rem; }
 .automation-workflow-steps { display: grid; gap: .55rem; margin-top: .8rem; padding-top: .75rem; border-top: 1px solid var(--line); }
 .automation-workflow-head { display: flex; align-items: center; justify-content: space-between; gap: .5rem; }
 .automation-workflow-head button,.automation-workflow-step button { padding: .4rem .55rem; }
 .automation-workflow-step { display: grid; gap: .4rem; padding: .55rem; border: 1px solid var(--line); border-radius: 10px; background: color-mix(in srgb,var(--surface-strong) 82%,transparent); }
+.automation-workflow-step > label { display:grid; gap:.24rem; color:var(--text-muted); font-size:.66rem; font-weight:700; }
+.automation-workflow-step > label > span { letter-spacing:.01em; }
 .automation-workflow-step :is(input,select,textarea) { width: 100%; }
 .automation-workflow-empty { color: var(--text-muted); }
 .automation-branch-card { display: grid; gap: .5rem; padding: .65rem; border: 1px solid color-mix(in srgb,var(--cyan) 30%,var(--line)); border-radius: 12px; background: color-mix(in srgb,var(--panel) 82%,transparent); }
