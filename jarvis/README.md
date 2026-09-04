@@ -1,10 +1,13 @@
-# ZBRANO v0.13.137
+# ZBRANO v0.13.138
 
 Automation Studio provides a graphical building-block workflow for Home Assistant
 automations. Use the toolbox to select or drag Trigger, Condition, Decision, and
 Action blocks onto the canvas, then edit only that block in the settings inspector.
 Natural-language creation, templates, saved automation compatibility, and the full
 Advanced editor remain available.
+
+Version 0.13.138 makes second and later Trigger cards open their own populated entity
+picker when selected, with schedule triggers focusing their relevant schedule field.
 
 Version 0.13.137 replaces circular signal-arrival effects with a brief four-point
 electrical sparkle inside the destination neuron, eliminating extra rings.

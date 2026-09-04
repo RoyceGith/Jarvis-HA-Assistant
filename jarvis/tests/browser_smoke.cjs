@@ -130,7 +130,7 @@ function apiFixture(url, method = "GET") {
   if (pathname === "/api/health") {
     return {
       status: "ok",
-      version: "0.13.137",
+      version: "0.13.138",
       speech_provider: "openai",
       speech_providers: {openai: {configured: true}, elevenlabs: {configured: false}},
     };
@@ -213,7 +213,7 @@ function apiFixture(url, method = "GET") {
   if (pathname === "/api/plugins") return {plugins: []};
   if (pathname === "/api/files/shared") return {files: [], count: 0};
   if (pathname === "/api/release-memory-sync") {
-    return {enabled: false, state: "disabled", version: "0.13.137", task_active: false};
+    return {enabled: false, state: "disabled", version: "0.13.138", task_active: false};
   }
   if (pathname === "/api/tab-activity") return {revisions: {}};
   if (pathname === "/api/grinder-monitor/status") return {enabled: false, connected: false};
@@ -464,6 +464,11 @@ async function main() {
     assert.equal(await page.locator('#automation-flow-preview [data-flow-kind="trigger"]').count(), 2);
     assert.equal(await page.locator('#automation-flow-preview [data-trigger-logic]').count(), 1);
     assert.match(await page.locator('#automation-flow-preview [data-flow-kind="trigger"]').last().innerText(), /Choose an entity to monitor/i);
+    await page.locator('#automation-flow-preview [data-flow-kind="trigger"]').last().click();
+    const secondTriggerEntity=page.locator('[data-workflow-index="0"][data-trigger-field="entity_id"]');
+    await page.waitForFunction(()=>document.activeElement?.matches('[data-workflow-index="0"][data-trigger-field="entity_id"]'));
+    await secondTriggerEntity.locator('xpath=..').locator('.automation-entity-results .automation-entity-result').first().waitFor();
+    await secondTriggerEntity.press("Escape");
     await dropStudioBlock("trigger");
     assert.equal(await page.locator('#automation-flow-preview [data-flow-kind="trigger"]').count(), 3);
     assert.equal(await page.locator('#automation-flow-preview .automation-flow-stage.is-trigger.is-dense').count(), 1);

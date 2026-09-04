@@ -32,10 +32,10 @@ def load_functions(source: str, names: set[str], namespace: dict[str, Any]) -> d
 
 class GmailAndTelegramDomainBoundaryTests(unittest.TestCase):
     def test_release_markers_are_aligned(self):
-        self.assertIn('version: "0.13.137"', CONFIG)
-        self.assertIn('version="0.13.137"', MAIN)
-        self.assertIn("HUD 0.13.137", HTML)
-        self.assertEqual(MANIFEST["version"], "0.13.137")
+        self.assertIn('version: "0.13.138"', CONFIG)
+        self.assertIn('version="0.13.138"', MAIN)
+        self.assertIn("HUD 0.13.138", HTML)
+        self.assertEqual(MANIFEST["version"], "0.13.138")
 
     def test_both_engines_are_outside_composition_root(self):
         self.assertNotIn("def gmail_direct_tool_records(", MAIN)

@@ -1,9 +1,13 @@
-## ZBRANO v0.13.137
+## ZBRANO v0.13.138
 
 ZBRANO combines Home Assistant chat, voice, entity control, memory, notifications,
 calendar and contact tools, plugins, and evidence-based automations. Automation Studio now uses
 a visual building-block toolbox, interactive node canvas, and contextual inspector;
 the established automation engine and stored definitions remain compatible.
+
+Version 0.13.138 fixes entity selection for additional Automation Studio triggers.
+Clicking a second or later Trigger card now focuses that trigger's relevant field
+and loads its Home Assistant entity picker instead of focusing the generic type selector.
 
 Version 0.13.137 replaces circular arrival halos with brief electrical sparkles.
 Signals now finish as a tiny four-point flash centered on the destination neuron,

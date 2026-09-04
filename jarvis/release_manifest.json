@@ -1,9 +1,9 @@
 {
-  "version": "0.13.137",
+  "version": "0.13.138",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/ZBRANO_Core main",
-  "summary": "Replace circular neural arrival effects with brief electrical sparkles centered on destination neurons.",
+  "summary": "Load the correct entity picker when selecting second and later Automation Studio Trigger cards.",
   "history_backfill": [
     {
       "version": "0.13.0",
@@ -552,19 +552,23 @@
     {
       "version": "0.13.136",
       "summary": "Removed the remaining blue tint from resting neuron interiors while preserving blue neural activity effects."
+    },
+    {
+      "version": "0.13.137",
+      "summary": "Replaced circular neural arrival effects with brief electrical sparkles centered on destination neurons."
     }
   ],
   "release_entry": {
     "features": [
-      "Render a brief four-point electrical sparkle when a neural signal reaches its destination.",
-      "Keep the arrival flash centered on the neuron without adding circular geometry."
+      "Focus an additional entity Trigger's own entity field when its flow card is selected.",
+      "Focus the relevant schedule field for time, sun, interval, and one-time Trigger cards."
     ],
     "fixes": [
-      "Remove the bubble-like circular rings and halos from signal arrivals.",
-      "Preserve neutral resting neuron interiors, moving signals, and animation pause behavior."
+      "Prevent second and later Trigger selections from stopping at the generic event-type control.",
+      "Open the attached Home Assistant entity picker immediately through normal focus behavior."
     ],
     "validation": [
-      "Non-circular destination sparkle rendering, neutral neuron cores, blue activity-effect preservation, animation pause behavior, browser smoke, release manifest, README alignment, and v0.13.137 release coverage"
+      "Additional Trigger field mapping, populated entity picker focus, schedule-field focus, browser smoke, release manifest, README alignment, and v0.13.138 release coverage"
     ]
   },
   "features": [

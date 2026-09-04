@@ -260,7 +260,13 @@
   function focusSelectedFlowEditor(kind,index,branchIndex=null){
     const root=$("automation-studio-inspector-fields");if(!root)return;
     let target=null;
-    if(kind==="trigger")target=index===0?$("studio-automation-trigger-entity"):root.querySelector(`[data-workflow-index="${index-1}"]`);
+    if(kind==="trigger"){
+      if(index===0)target=$("studio-automation-trigger-entity");
+      else{
+        const workflowIndex=index-1,item=workflowDraft.triggers[workflowIndex]||{},preferredField=({entity:"entity_id",time:"at",sun:"sun_event",interval:"interval_minutes",one_time:"one_time_at"})[item.kind||"entity"]||"kind";
+        target=root.querySelector(`[data-workflow-index="${workflowIndex}"][data-trigger-field="${preferredField}"]`)||root.querySelector(`[data-workflow-index="${workflowIndex}"]`);
+      }
+    }
     else if(kind==="context"){const hasPresence=Boolean($("automation-presence").value.trim()),signalCount=$("automation-signals").value.split(/[,\n]/).map(value=>value.trim()).filter(Boolean).length,offset=(hasPresence?1:0)+signalCount;if(hasPresence&&index===0)target=$("studio-automation-presence");else if(index<offset)target=$("studio-automation-signals");else target=root.querySelector(`[data-workflow-index="${index-offset}"]`)}
     else if(kind==="action"){const primary=Boolean($("automation-action-entity").value.trim()||$("automation-action-service").value.trim());target=primary&&index===0?$("studio-automation-action-entity"):root.querySelector(`[data-workflow-index="${index-(primary?1:0)}"]`)}
     else if(kind==="decision")target=root.querySelector(`[data-branch-name="${index}"]`);
