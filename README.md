@@ -1,5 +1,7 @@
 # ZBRANO for Home Assistant
 
+Current release: **0.13.139**
+
 This is the public Home Assistant installation and update repository for ZBRANO.
 The application is delivered as a prebuilt container image. The current repository
 tree contains no application source. Legacy commits that were already public and

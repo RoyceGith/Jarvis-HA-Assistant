@@ -6,6 +6,9 @@ connections.
 
 ## Automation Studio
 
+Version 0.13.139 keeps the interactive flow and adds a numbered, icon-led,
+plain-language building experience for common users.
+
 Version 0.13.138 fixes additional Automation Studio Trigger cards so selecting one
 loads its own Home Assistant entity picker or focuses its relevant schedule field.
 

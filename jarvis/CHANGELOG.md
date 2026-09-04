@@ -1,5 +1,11 @@
 # Change log
 
+## 0.13.139
+
+- Kept the interactive Automation Studio flow and added a numbered step-by-step guide.
+- Added device-aware icons, friendly names, and compact comparison symbols to flow cards.
+- Replaced technical settings and Decision branches with plain-language questions and IF / OTHERWISE outcomes.
+
 ## 0.13.138
 
 - Fixed Home Assistant entities not loading when a second or later Trigger card was selected.
