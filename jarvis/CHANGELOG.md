@@ -1,5 +1,11 @@
 # Change log
 
+## 0.13.142
+
+- Started every new Automation Studio draft at Step 1: Name it.
+- Added clear Back, Next, progress, and final review controls to the five-step guide.
+- Explained incomplete required information before advancing while preserving direct flow editing.
+
 ## 0.13.141
 
 - Added live Ready, Needs attention, Optional, and item-count states to the numbered Studio guide.
