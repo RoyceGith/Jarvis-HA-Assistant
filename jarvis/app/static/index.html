@@ -34,7 +34,7 @@
   <header>
     <div class="brand-line">
       <h1>ZBRANO</h1>
-      <div class="status hud-version-label">Workshop Intelligence Interface · HUD 0.13.141</div>
+      <div class="status hud-version-label">Workshop Intelligence Interface · HUD 0.13.142</div>
     </div>
     <div class="runtime-status-stack">
       <div id="notification-inbox-shell" class="notification-inbox-shell">
@@ -784,6 +784,10 @@
           <div class="automation-studio-layout">
             <aside class="automation-studio-toolbox" aria-label="Automation steps">
               <span class="automation-studio-label">BUILD STEP BY STEP</span>
+              <div class="automation-studio-guide-progress" aria-live="polite">
+                <div><strong id="automation-studio-current-step">Step 1 of 5</strong><small id="automation-studio-required-progress">2 required steps to complete</small></div>
+                <span id="automation-studio-progressbar" role="progressbar" aria-label="Automation setup progress" aria-valuemin="1" aria-valuemax="5" aria-valuenow="1"><i></i></span>
+              </div>
               <button type="button" draggable="true" data-studio-node="details"><span class="automation-step-icon" aria-hidden="true">1</span><span><strong>Name it</strong><small data-studio-step-status="details">Add a name and purpose</small></span></button>
               <button type="button" draggable="true" data-studio-node="trigger"><span class="automation-step-icon" aria-hidden="true">2</span><span><strong>When</strong><small data-studio-step-status="trigger">Choose what starts it</small></span></button>
               <button type="button" draggable="true" data-studio-node="context"><span class="automation-step-icon" aria-hidden="true">3</span><span><strong>Only if</strong><small data-studio-step-status="context">Optional</small></span></button>
@@ -800,6 +804,10 @@
               <h4 id="automation-studio-inspector-title">Trigger</h4>
               <p id="automation-studio-inspector-help">Choose what starts this automation.</p>
               <div id="automation-studio-inspector-fields" class="automation-studio-inspector-fields"></div>
+              <div class="automation-studio-step-navigation" aria-label="Step navigation">
+                <button id="automation-studio-step-back" type="button">Back</button>
+                <button id="automation-studio-step-next" type="button">Next: When</button>
+              </div>
             </aside>
           </div>
         </article>

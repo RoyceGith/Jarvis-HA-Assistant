@@ -6,6 +6,11 @@ connections.
 
 ## Automation Studio
 
+Version 0.13.142 adds Back and Next navigation to the five Automation Studio
+steps. New drafts begin at Name it, required information is explained before
+moving on, and the final step points users to safe testing or saving without
+removing the interactive flow, direct step selection, or drag-and-drop editing.
+
 Version 0.13.141 turns the five numbered Automation Studio steps into a live
 completion guide and replaces technical validation, library, and activation
 language with common-user wording. The complete visual flow remains available.

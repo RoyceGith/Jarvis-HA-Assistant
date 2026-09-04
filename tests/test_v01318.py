@@ -14,10 +14,10 @@ MANIFEST = json.loads((ROOT / "jarvis/release_manifest.json").read_text(encoding
 
 class ReleaseSyncTerminalStateTests(unittest.TestCase):
     def test_release_markers_are_aligned(self):
-        self.assertIn('version: "0.13.141"', CONFIG)
-        self.assertIn('version="0.13.141"', MAIN)
-        self.assertIn("HUD 0.13.141", HTML)
-        self.assertEqual(MANIFEST["version"], "0.13.141")
+        self.assertIn('version: "0.13.142"', CONFIG)
+        self.assertIn('version="0.13.142"', MAIN)
+        self.assertIn("HUD 0.13.142", HTML)
+        self.assertEqual(MANIFEST["version"], "0.13.142")
 
     def test_worker_has_bounded_total_runtime_and_unexpected_exception_recovery(self):
         self.assertIn("RELEASE_SYNC_WORKER_TIMEOUT_SECONDS = 300", RELEASE_SYNC)

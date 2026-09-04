@@ -24,6 +24,8 @@
     decision:{title:"5. Outcomes",help:"Optional: make different IF / OTHERWISE paths. The first matching path is used.",fields:[["automation-proposal","What should ZBRANO say?"],["automation-confidence","How sure should ZBRANO be?"],["automation-cooldown","Wait before offering again (minutes)"],["automation-suggestion-timeout","How long can I answer? (minutes)"],["automation-reoffer-delta","Offer again if it gets worse by"],["automation-reset-delta","Consider it normal again when within"],["automation-risk","How sensitive is this action?"],["automation-execution-policy","What should ZBRANO do?"],["automation-delivery-voice","Say it aloud"],["automation-delivery-center","Show it in ZBRANO"],["automation-delivery-push","Send it to my Home Assistant app"]]},
     action:{title:"4. Then",help:"Choose what ZBRANO should do. Start with a ready-made task or configure your own.",fields:[["automation-action-entity","Which device?"],["automation-action-service","What should it do?"],["automation-action-data","Extra details (advanced)"],["automation-max-actions","Most times this can run in one hour"],["automation-failure-limit","Pause after this many failed attempts"],["automation-failure-window","Count failed attempts for this many minutes"],["automation-notify-action","Tell me after it runs"],["automation-reversible-only","Only run actions that can be undone"]]},
   };
+  const studioStepOrder=["details","trigger","context","action","decision"];
+  const studioStepNames={details:"Name it",trigger:"When",context:"Only if",action:"Then",decision:"Outcomes"};
 
   async function api(path,options={}){
     const response=await fetch(path,{cache:"no-store",...options});
@@ -170,6 +172,26 @@
     if(optionalGroup)root.append(optionalGroup);
     renderWorkflowInspector(root);
     for(const input of root.querySelectorAll('input[data-entity-picker="true"],input[list="automation-entity-options"]'))window.zbranoEntitySearch?.attach(input);
+    updateStudioNavigation();
+  }
+
+  function updateStudioNavigation(){
+    const index=Math.max(0,studioStepOrder.indexOf(selectedStudioNode)),step=index+1,progress=$("automation-studio-progressbar"),back=$("automation-studio-step-back"),next=$("automation-studio-step-next");
+    $("automation-studio-current-step").textContent=`Step ${step} of ${studioStepOrder.length}`;
+    progress.setAttribute("aria-valuenow",String(step));progress.querySelector("i").style.width=`${step/studioStepOrder.length*100}%`;
+    back.disabled=index===0;
+    next.textContent=index===studioStepOrder.length-1?"Review and finish":`Next: ${studioStepNames[studioStepOrder[index+1]]}`;
+  }
+
+  function moveThroughStudio(direction){
+    const index=Math.max(0,studioStepOrder.indexOf(selectedStudioNode));
+    if(direction<0){selectStudioNode(studioStepOrder[Math.max(0,index-1)]);requestAnimationFrame(()=>$("automation-studio-inspector-fields").querySelector("input,select,textarea")?.focus());return}
+    const currentIssues=editorValidationIssues().filter(issue=>issue.kind===selectedStudioNode);
+    if(currentIssues.length){focusEditorIssue(currentIssues[0]);$("automation-studio-state").textContent=`Complete this step first: ${currentIssues[0].message}.`;return}
+    if(index<studioStepOrder.length-1){selectStudioNode(studioStepOrder[index+1]);requestAnimationFrame(()=>$("automation-studio-inspector-fields").querySelector("input,select,textarea,button")?.focus());return}
+    const issues=renderEditorValidation();
+    if(issues.length){focusEditorIssue(issues[0]);$("automation-studio-state").textContent=`Almost ready — complete ${issues.length} highlighted item${issues.length===1?"":"s"}.`;return}
+    $("automation-studio-state").textContent="Everything required is ready. Try it safely, or save the automation.";$("automation-studio-test").focus();$("automation-studio-test").scrollIntoView({behavior:"smooth",block:"nearest"});
   }
 
   function workflowOperatorOptions(selected,trigger=false){const labels={any_change:"Changes at all",changes_to:"Becomes →",equals:"Is =",not_equals:"Is not ≠",above:"Is above >",below:"Is below <"};return (trigger?["any_change","changes_to","equals","not_equals","above","below"]:["equals","not_equals","above","below"]).map(value=>`<option value="${value}"${value===selected?" selected":""}>${labels[value]}</option>`).join("")}
@@ -617,6 +639,7 @@
       decision:needs.has("decision")?["Needs attention",false,true]:[workflowDraft.branches.length?`${workflowDraft.branches.length} outcome${workflowDraft.branches.length===1?"":"s"}`:"Optional",Boolean(workflowDraft.branches.length),false],
     };
     for(const button of panel.querySelectorAll(".automation-studio-toolbox [data-studio-node]")){const [message,complete,attention]=states[button.dataset.studioNode]||["Optional",false,false],status=button.querySelector("[data-studio-step-status]");if(status)status.textContent=message;button.classList.toggle("is-complete",complete);button.classList.toggle("is-needs-attention",attention);button.setAttribute("aria-label",`${button.querySelector("strong")?.textContent||"Step"}: ${message}`)}
+    const requiredMissing=["details","trigger"].filter(kind=>needs.has(kind)).length;$("automation-studio-required-progress").textContent=requiredMissing?`${requiredMissing} required step${requiredMissing===1?"":"s"} left`:`Required steps ready`;
   }
   function focusEditorIssue(issue){selectStudioNode(issue.kind);const field=issue.field?$("studio-"+issue.field):null;(field||$("automation-studio-inspector-fields").querySelector("input,select,textarea"))?.focus()}
 
@@ -650,7 +673,7 @@
     $("automation-failure-limit").value="3";$("automation-failure-window").value="60";
     $("automation-reoffer-delta").value="0";$("automation-reset-delta").value="0";
     $("automation-trigger-kind").value="entity";$("automation-trigger-at").value="";$("automation-trigger-weekdays").value="";$("automation-trigger-sun-event").value="sunrise";$("automation-trigger-sun-offset").value="0";$("automation-trigger-interval").value="5";$("automation-trigger-one-time").value="";
-    workflowDraft={triggers:[],trigger_mode:"any",conditions:[],condition_mode:"all",actions:[],branches:[]};selectedStudioNode="trigger";selectedFlowCard={kind:"trigger",index:0};renderEditorFlow();renderStudioInspector();resetEditorHistory();
+    workflowDraft={triggers:[],trigger_mode:"any",conditions:[],condition_mode:"all",actions:[],branches:[]};selectedStudioNode="details";selectedFlowCard={kind:"details",index:0};renderEditorFlow();renderStudioInspector();resetEditorHistory();
   }
 
   function fillEditor(item){
@@ -754,6 +777,8 @@
   $("automation-draft-form").addEventListener("change",()=>{renderEditorFlow();scheduleEditorHistory()});
   $("automation-studio-undo").addEventListener("click",undoEditor);
   $("automation-studio-redo").addEventListener("click",redoEditor);
+  $("automation-studio-step-back").addEventListener("click",()=>moveThroughStudio(-1));
+  $("automation-studio-step-next").addEventListener("click",()=>moveThroughStudio(1));
   $("automation-studio-new").addEventListener("click",()=>{if(!confirmEditorReplacement("start a new flow"))return;$("automation-studio-state").textContent="";clearEditor()});
   $("automation-studio-test").addEventListener("click",async()=>{const status=$("automation-studio-state"),results=$("automation-studio-test-results"),issues=renderEditorValidation();if(issues.length){focusEditorIssue(issues[0]);status.textContent=`Review ${issues.length} incomplete item${issues.length===1?"":"s"} before testing.`;return}status.textContent="Testing safely…";try{const result=await api("api/automations/test-flow",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(automationRequestBody())});renderTestTrace(result);status.textContent=`Dry run: ${String(result.status||"complete").replaceAll("_"," ")} · 0 actions executed`}catch(error){results.hidden=true;status.textContent=`Test failed: ${error.message||error}`}});
   $("automation-studio-save").addEventListener("click",()=>{const issues=renderEditorValidation();if(issues.length){focusEditorIssue(issues[0]);$("automation-draft-state").textContent=`Review ${issues.length} incomplete item${issues.length===1?"":"s"} before saving.`;$("automation-studio-state").textContent=$("automation-draft-state").textContent;return}$("automation-draft-form").requestSubmit()});

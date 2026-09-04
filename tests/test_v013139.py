@@ -12,8 +12,8 @@ MANIFEST = json.loads((ROOT / "jarvis" / "release_manifest.json").read_text(enco
 
 class V013139FriendlyAutomationStudioTests(unittest.TestCase):
     def test_release_is_aligned(self):
-        self.assertEqual(MANIFEST["version"], "0.13.141")
-        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.140")
+        self.assertEqual(MANIFEST["version"], "0.13.142")
+        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.141")
 
     def test_flow_remains_central_with_numbered_steps(self):
         self.assertIn('id="automation-studio-canvas"', HTML)

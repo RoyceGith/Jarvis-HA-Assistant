@@ -130,7 +130,7 @@ function apiFixture(url, method = "GET") {
   if (pathname === "/api/health") {
     return {
       status: "ok",
-      version: "0.13.141",
+      version: "0.13.142",
       speech_provider: "openai",
       speech_providers: {openai: {configured: true}, elevenlabs: {configured: false}},
     };
@@ -213,7 +213,7 @@ function apiFixture(url, method = "GET") {
   if (pathname === "/api/plugins") return {plugins: []};
   if (pathname === "/api/files/shared") return {files: [], count: 0};
   if (pathname === "/api/release-memory-sync") {
-    return {enabled: false, state: "disabled", version: "0.13.141", task_active: false};
+    return {enabled: false, state: "disabled", version: "0.13.142", task_active: false};
   }
   if (pathname === "/api/tab-activity") return {revisions: {}};
   if (pathname === "/api/grinder-monitor/status") return {enabled: false, connected: false};
@@ -372,6 +372,16 @@ async function main() {
     assert.equal(automationLayout.display, "grid");
     assert.match(automationLayout.columns, /px .*px/);
     assert.equal(automationLayout.navCursor, "pointer");
+    assert.equal(await page.locator("#automation-studio-inspector-title").innerText(), "1. Name it");
+    assert.equal(await page.locator("#automation-studio-current-step").innerText(), "Step 1 of 5");
+    assert.equal(await page.locator("#automation-studio-step-back").isDisabled(), true);
+    await page.locator("#automation-studio-step-next").click();
+    assert.match(await page.locator("#automation-studio-state").innerText(), /Complete this step first/i);
+    await page.locator("#studio-automation-name").fill("Guided browser flow");
+    await page.locator("#studio-automation-objective").fill("Verify the guided setup path");
+    await page.locator("#automation-studio-step-next").click();
+    assert.equal(await page.locator("#automation-studio-inspector-title").innerText(), "2. When");
+    assert.equal(await page.locator("#automation-studio-current-step").innerText(), "Step 2 of 5");
     assert.equal(await page.locator("#studio-automation-trigger-entity").count(), 1);
     assert.equal(await page.locator("#studio-automation-trigger-sun-event").count(), 0);
     await page.locator("#studio-automation-trigger-kind").selectOption("sun");
@@ -567,6 +577,11 @@ async function main() {
     assert.equal(await page.locator("#automation-trigger-value").inputValue(), "27");
     assert.equal(await page.locator("#automation-studio-validation").isHidden(), true);
     assert.equal(await page.locator('[data-studio-node="trigger"]').getAttribute("aria-label"), "When: Ready");
+    await page.locator("#automation-studio-step-next").click();
+    assert.equal(await page.locator("#automation-studio-inspector-title").innerText(), "3. Only if");
+    assert.equal(await page.locator("#automation-studio-current-step").innerText(), "Step 3 of 5");
+    await page.locator("#automation-studio-step-back").click();
+    assert.equal(await page.locator("#automation-studio-inspector-title").innerText(), "2. When");
     await page.waitForTimeout(260);
     assert.equal(await page.locator("#automation-studio-undo").isEnabled(), true);
     await page.locator("#automation-studio-undo").click();

@@ -31,6 +31,12 @@
 .automation-studio-layout { display: grid; grid-template-columns: minmax(190px,220px) minmax(0,1fr) minmax(250px,310px); min-height: 560px; }
 .automation-studio-toolbox,.automation-studio-inspector { padding: .85rem; background: color-mix(in srgb,var(--surface) 86%,transparent); }
 .automation-studio-toolbox { display: flex; flex-direction: column; gap: .5rem; border-right: 1px solid var(--line); }
+.automation-studio-guide-progress { display:grid; gap:.42rem; margin:.05rem 0 .2rem; padding:.62rem; border:1px solid color-mix(in srgb,var(--cyan) 24%,var(--line)); border-radius:11px; background:color-mix(in srgb,var(--cyan) 5%,var(--surface-strong)); }
+.automation-studio-guide-progress > div { display:grid; gap:.12rem; }
+.automation-studio-guide-progress strong { font-size:.72rem; }
+.automation-studio-guide-progress small { color:var(--text-muted); font-size:.62rem; }
+.automation-studio-guide-progress > span { display:block; height:3px; overflow:hidden; border-radius:999px; background:color-mix(in srgb,var(--cyan) 14%,var(--line)); }
+.automation-studio-guide-progress i { display:block; height:100%; border-radius:inherit; background:var(--cyan); transition:width .18s ease; }
 .automation-studio-toolbox button { display: grid; grid-template-columns:2rem minmax(0,1fr); align-items:center; gap: .55rem; padding: .65rem; text-align: left; cursor: grab; }
 .automation-studio-toolbox button > span:last-child { display:grid; gap:.15rem; min-width:0; }
 .automation-studio-toolbox button small { color: var(--text-muted); }
@@ -82,6 +88,10 @@
 .automation-studio-inspector-fields label.is-check { display: flex; align-items: center; gap: .45rem; }
 .automation-studio-inspector-fields :is(input,select,textarea) { width: 100%; }
 .automation-studio-inspector-fields label.is-check input { width: auto; }
+.automation-studio-step-navigation { display:flex; align-items:center; justify-content:space-between; gap:.5rem; margin-top:1rem; padding-top:.75rem; border-top:1px solid var(--line); }
+.automation-studio-step-navigation button { min-width:0; padding:.52rem .68rem; }
+.automation-studio-step-navigation button:last-child { margin-left:auto; border-color:var(--cyan); background:color-mix(in srgb,var(--cyan) 13%,var(--surface-strong)); color:var(--cyan); font-weight:750; }
+.automation-studio-step-navigation button:disabled { opacity:.4; cursor:not-allowed; }
 .automation-task-palette { display:grid; gap:.55rem; margin:.1rem 0 .8rem; padding:.7rem; border:1px solid color-mix(in srgb,var(--cyan) 30%,var(--line)); border-radius:12px; background:color-mix(in srgb,var(--cyan) 5%,var(--surface-strong)); }
 .automation-task-palette-head { display:grid; gap:.1rem; }
 .automation-task-palette-head small { color:var(--text-muted); }
@@ -205,7 +215,7 @@
   .automation-studio-toolbar { display: grid; }
   .automation-studio-layout { grid-template-columns: 1fr; }
   .automation-studio-toolbox { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); border-right: 0; border-bottom: 1px solid var(--line); }
-  .automation-studio-toolbox .automation-studio-label { grid-column: 1 / -1; }
+  .automation-studio-toolbox .automation-studio-label,.automation-studio-guide-progress { grid-column: 1 / -1; }
   .automation-studio-inspector { grid-column: auto; }
   .automation-studio-inspector-fields { grid-template-columns: 1fr; }
   .automation-task-palette-grid { grid-template-columns:1fr; }
@@ -226,4 +236,4 @@
   .automation-library-toolbar label,.automation-library-toolbar input,.automation-library-toolbar select { width: 100%; max-width: none; }
   .automation-library-toolbar .automation-state { margin-left: 0; justify-self: start; }
 }
-@media (prefers-reduced-motion:reduce) { .automation-flow-node { transition: none; } }
+@media (prefers-reduced-motion:reduce) { .automation-flow-node,.automation-studio-guide-progress i { transition: none; } }

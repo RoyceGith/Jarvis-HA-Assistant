@@ -1,9 +1,9 @@
 {
-  "version": "0.13.141",
+  "version": "0.13.142",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/ZBRANO_Core main",
-  "summary": "Turn Automation Studio's numbered steps into a live completion guide and remove technical vocabulary from validation, library summaries, and activation confirmation.",
+  "summary": "Guide common users through Automation Studio with gated Back and Next navigation while retaining direct canvas and drag-and-drop editing.",
   "history_backfill": [
     {
       "version": "0.13.0",
@@ -568,20 +568,24 @@
     {
       "version": "0.13.140",
       "summary": "Labelled repeatable triggers, checks, and tasks, grouped advanced controls, clarified toolbar actions, and used Outcome terminology consistently."
+    },
+    {
+      "version": "0.13.141",
+      "summary": "Added live completion states to the numbered guide and replaced technical validation, summary, and activation wording with everyday language."
     }
   ],
   "release_entry": {
     "features": [
-      "Show Ready, Needs attention, Optional, and live item counts in the numbered Studio guide.",
-      "Mark completed steps with discreet theme-blue checks and attention states with clear amber styling.",
-      "Describe saved automation certainty, repeat timing, risk, and activation behavior in everyday language."
+      "Start every new automation at Step 1 and show the current position in the five-step setup.",
+      "Provide clear Back, Next, and Review and finish controls beside the selected step settings.",
+      "Guide users toward safe testing or saving after all required information is ready."
     ],
     "fixes": [
-      "Replace entity, service, condition, branch, confidence, cooldown, and authority wording in common-user messages.",
-      "Retain full flow editing, advanced configuration, entity pickers, drag-and-drop, and stored schema compatibility."
+      "Stop forward navigation on incomplete required information and explain exactly what is missing.",
+      "Retain direct step selection, full flow editing, advanced configuration, drag-and-drop, and stored schema compatibility."
     ],
     "validation": [
-      "Live step guide, plain-language validation and summaries, browser smoke, regression suite, release manifest, README alignment, and v0.13.141 release coverage"
+      "Guided step navigation, required-field gating, final review handoff, browser smoke, regression suite, release manifest, README alignment, and v0.13.142 release coverage"
     ]
   },
   "features": [
