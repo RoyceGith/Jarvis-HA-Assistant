@@ -1,9 +1,9 @@
 {
-  "version": "0.13.140",
+  "version": "0.13.141",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/ZBRANO_Core main",
-  "summary": "Make Automation Studio repeatable steps, outcomes, advanced controls, and toolbar actions understandable without technical automation vocabulary.",
+  "summary": "Turn Automation Studio's numbered steps into a live completion guide and remove technical vocabulary from validation, library summaries, and activation confirmation.",
   "history_backfill": [
     {
       "version": "0.13.0",
@@ -564,20 +564,24 @@
     {
       "version": "0.13.139",
       "summary": "Kept the interactive flow while adding numbered steps, device icons, symbolic comparisons, and plain-language IF / OTHERWISE outcomes."
+    },
+    {
+      "version": "0.13.140",
+      "summary": "Labelled repeatable triggers, checks, and tasks, grouped advanced controls, clarified toolbar actions, and used Outcome terminology consistently."
     }
   ],
   "release_entry": {
     "features": [
-      "Label every repeatable trigger, check, and task field with direct everyday language.",
-      "Group confidence tuning and safety limits into discreet expandable sections without removing any settings.",
-      "Use Outcome naming consistently when users add, copy, move, or remove alternate paths."
+      "Show Ready, Needs attention, Optional, and live item counts in the numbered Studio guide.",
+      "Mark completed steps with discreet theme-blue checks and attention states with clear amber styling.",
+      "Describe saved automation certainty, repeat timing, risk, and activation behavior in everyday language."
     ],
     "fixes": [
-      "Rename the main toolbar actions to New automation, Try it safely, and Save automation.",
-      "Keep entity pickers, flow editing, drag-and-drop, stored schema fields, and advanced configuration compatible."
+      "Replace entity, service, condition, branch, confidence, cooldown, and authority wording in common-user messages.",
+      "Retain full flow editing, advanced configuration, entity pickers, drag-and-drop, and stored schema compatibility."
     ],
     "validation": [
-      "Labelled repeatable cards, progressive disclosure, outcome naming, browser smoke, regression suite, release manifest, README alignment, and v0.13.140 release coverage"
+      "Live step guide, plain-language validation and summaries, browser smoke, regression suite, release manifest, README alignment, and v0.13.141 release coverage"
     ]
   },
   "features": [

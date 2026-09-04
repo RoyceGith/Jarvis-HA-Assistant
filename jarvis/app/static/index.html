@@ -34,7 +34,7 @@
   <header>
     <div class="brand-line">
       <h1>ZBRANO</h1>
-      <div class="status hud-version-label">Workshop Intelligence Interface · HUD 0.13.140</div>
+      <div class="status hud-version-label">Workshop Intelligence Interface · HUD 0.13.141</div>
     </div>
     <div class="runtime-status-stack">
       <div id="notification-inbox-shell" class="notification-inbox-shell">
@@ -784,11 +784,11 @@
           <div class="automation-studio-layout">
             <aside class="automation-studio-toolbox" aria-label="Automation steps">
               <span class="automation-studio-label">BUILD STEP BY STEP</span>
-              <button type="button" draggable="true" data-studio-node="details"><span class="automation-step-icon" aria-hidden="true">1</span><span><strong>Name it</strong><small>What is this automation for?</small></span></button>
-              <button type="button" draggable="true" data-studio-node="trigger"><span class="automation-step-icon" aria-hidden="true">2</span><span><strong>When</strong><small>What should start it?</small></span></button>
-              <button type="button" draggable="true" data-studio-node="context"><span class="automation-step-icon" aria-hidden="true">3</span><span><strong>Only if</strong><small>Optional checks</small></span></button>
-              <button type="button" draggable="true" data-studio-node="action"><span class="automation-step-icon" aria-hidden="true">4</span><span><strong>Then</strong><small>What should happen?</small></span></button>
-              <button type="button" draggable="true" data-studio-node="decision"><span class="automation-step-icon" aria-hidden="true">5</span><span><strong>Outcomes</strong><small>Optional IF / OTHERWISE paths</small></span></button>
+              <button type="button" draggable="true" data-studio-node="details"><span class="automation-step-icon" aria-hidden="true">1</span><span><strong>Name it</strong><small data-studio-step-status="details">Add a name and purpose</small></span></button>
+              <button type="button" draggable="true" data-studio-node="trigger"><span class="automation-step-icon" aria-hidden="true">2</span><span><strong>When</strong><small data-studio-step-status="trigger">Choose what starts it</small></span></button>
+              <button type="button" draggable="true" data-studio-node="context"><span class="automation-step-icon" aria-hidden="true">3</span><span><strong>Only if</strong><small data-studio-step-status="context">Optional</small></span></button>
+              <button type="button" draggable="true" data-studio-node="action"><span class="automation-step-icon" aria-hidden="true">4</span><span><strong>Then</strong><small data-studio-step-status="action">Optional</small></span></button>
+              <button type="button" draggable="true" data-studio-node="decision"><span class="automation-step-icon" aria-hidden="true">5</span><span><strong>Outcomes</strong><small data-studio-step-status="decision">Optional</small></span></button>
             </aside>
             <section id="automation-studio-canvas" class="automation-studio-canvas" aria-label="Automation flow canvas">
               <div class="automation-studio-canvas-head"><span>YOUR FLOW</span><strong id="automation-studio-flow-name">New automation</strong></div>
@@ -796,7 +796,7 @@
               <small class="automation-studio-canvas-hint">Click any card to change it. You can also drag steps and cards to build or reorder the flow.</small>
             </section>
             <aside class="automation-studio-inspector" aria-label="Selected block settings">
-              <div class="automation-studio-inspector-head"><span class="automation-studio-label">SET UP THIS STEP</span><button id="automation-studio-advanced" type="button">Advanced</button></div>
+              <div class="automation-studio-inspector-head"><span class="automation-studio-label">SET UP THIS STEP</span><button id="automation-studio-advanced" type="button">All settings</button></div>
               <h4 id="automation-studio-inspector-title">Trigger</h4>
               <p id="automation-studio-inspector-help">Choose what starts this automation.</p>
               <div id="automation-studio-inspector-fields" class="automation-studio-inspector-fields"></div>
@@ -811,7 +811,7 @@
           </form>
         </article>
         <details class="automation-advanced">
-          <summary>Advanced manual editor and templates</summary>
+          <summary>All settings and ready-made designs</summary>
         <div class="autonomy-library-grid">
           <article class="autonomy-card">
             <h3>Quick-start designs</h3><p>Templates prefill a disabled rule. Review its entities, trigger, action, and authority before enabling it.</p>

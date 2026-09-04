@@ -1,9 +1,14 @@
-## ZBRANO v0.13.140
+## ZBRANO v0.13.141
 
 ZBRANO combines Home Assistant chat, voice, entity control, memory, notifications,
 calendar and contact tools, plugins, and evidence-based automations. Automation Studio now uses
 a visual building-block toolbox, interactive node canvas, and contextual inspector;
 the established automation engine and stored definitions remain compatible.
+
+Version 0.13.141 turns the numbered Automation Studio steps into a live guide.
+Required steps show Ready or Needs attention, while optional steps show their
+current check, task, or outcome count. Validation, saved-automation summaries,
+and activation confirmation now use everyday language instead of internal terms.
 
 Version 0.13.140 continues the Automation Studio usability reconstruction. Every
 additional When, Only if, and Then card now explains each field in everyday

@@ -15,10 +15,10 @@ MANIFEST = json.loads((ROOT / "jarvis/release_manifest.json").read_text(encoding
 
 class AutomationStudioLiveValidationReleaseTests(unittest.TestCase):
     def test_release_markers_are_aligned(self):
-        self.assertIn('version: "0.13.140"', CONFIG)
-        self.assertIn('version="0.13.140"', MAIN)
-        self.assertIn("HUD 0.13.140", HTML)
-        self.assertEqual(MANIFEST["version"], "0.13.140")
+        self.assertIn('version: "0.13.141"', CONFIG)
+        self.assertIn('version="0.13.141"', MAIN)
+        self.assertIn("HUD 0.13.141", HTML)
+        self.assertEqual(MANIFEST["version"], "0.13.141")
 
     def test_validation_surface_and_canvas_markers_exist(self):
         self.assertIn('id="automation-studio-validation"', HTML)
@@ -28,7 +28,7 @@ class AutomationStudioLiveValidationReleaseTests(unittest.TestCase):
 
     def test_draft_structure_is_validated_and_actionless_flows_remain_valid(self):
         self.assertIn("function editorValidationIssues()", WORKSPACE)
-        self.assertIn("Action service data must be a JSON object", WORKSPACE)
+        self.assertIn("The extra action details have an invalid format", WORKSPACE)
         self.assertIn("Boolean(primaryEntity)!==Boolean(primaryService)", WORKSPACE)
         self.assertNotIn('if(!primaryEntity&&!primaryService)add(', WORKSPACE)
 
@@ -47,7 +47,7 @@ class AutomationStudioLiveValidationReleaseTests(unittest.TestCase):
         self.assertIn('/before saving/i', BROWSER)
 
     def test_release_history_includes_v01382(self):
-        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.139")
+        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.140")
 
 
 if __name__ == "__main__":

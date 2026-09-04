@@ -130,7 +130,7 @@ function apiFixture(url, method = "GET") {
   if (pathname === "/api/health") {
     return {
       status: "ok",
-      version: "0.13.140",
+      version: "0.13.141",
       speech_provider: "openai",
       speech_providers: {openai: {configured: true}, elevenlabs: {configured: false}},
     };
@@ -213,7 +213,7 @@ function apiFixture(url, method = "GET") {
   if (pathname === "/api/plugins") return {plugins: []};
   if (pathname === "/api/files/shared") return {files: [], count: 0};
   if (pathname === "/api/release-memory-sync") {
-    return {enabled: false, state: "disabled", version: "0.13.140", task_active: false};
+    return {enabled: false, state: "disabled", version: "0.13.141", task_active: false};
   }
   if (pathname === "/api/tab-activity") return {revisions: {}};
   if (pathname === "/api/grinder-monitor/status") return {enabled: false, connected: false};
@@ -553,7 +553,9 @@ async function main() {
     assert.equal(await page.locator("#automation-flow-preview .automation-flow-stage").count(), 4);
     assert.match(await page.locator("#automation-flow-preview").innerText(), /Comfort advisor|Record the match|room is becoming uncomfortable/i);
     await page.locator("#automation-studio-validation:not([hidden])").waitFor();
-    assert.match(await page.locator("#automation-studio-validation").innerText(), /trigger: choose an entity/i);
+    assert.match(await page.locator("#automation-studio-validation").innerText(), /When: choose a device or sensor/i);
+    assert.equal(await page.locator('[data-studio-node="trigger"]').getAttribute("aria-label"), "When: Needs attention");
+    assert.match(await page.locator('[data-studio-step-status="details"]').innerText(), /Ready/i);
     await page.locator("#automation-studio-test").click();
     assert.match(await page.locator("#automation-studio-state").innerText(), /before testing/i);
     await page.locator("#automation-studio-save").click();
@@ -564,6 +566,7 @@ async function main() {
     await page.locator("#studio-automation-trigger-value").fill("27");
     assert.equal(await page.locator("#automation-trigger-value").inputValue(), "27");
     assert.equal(await page.locator("#automation-studio-validation").isHidden(), true);
+    assert.equal(await page.locator('[data-studio-node="trigger"]').getAttribute("aria-label"), "When: Ready");
     await page.waitForTimeout(260);
     assert.equal(await page.locator("#automation-studio-undo").isEnabled(), true);
     await page.locator("#automation-studio-undo").click();
@@ -681,7 +684,7 @@ async function main() {
     assert.equal(await page.locator('#automation-flow-preview [data-flow-kind="action"]').count(), 0);
     assert.equal(await page.locator('#automation-flow-preview [data-flow-kind="branch-action"]').count(), 3);
     assert.match(await page.locator('#automation-flow-preview [data-flow-kind="branch-action"]').last().innerText(), /Wait 2 sec/i);
-    assert.match(await page.locator("#automation-studio-state").innerText(), /moved into the selected branch/i);
+    assert.match(await page.locator("#automation-studio-state").innerText(), /moved into the selected outcome/i);
     await page.evaluate(()=>{const cards=document.querySelectorAll('#automation-flow-preview [data-flow-kind="branch-action"]'),source=cards[cards.length-1],target=cards[0],dataTransfer=new DataTransfer(),rect=target.getBoundingClientRect();source.dispatchEvent(new DragEvent("dragstart",{bubbles:true,dataTransfer}));target.dispatchEvent(new DragEvent("dragover",{bubbles:true,cancelable:true,dataTransfer,clientY:rect.top+1}));target.dispatchEvent(new DragEvent("drop",{bubbles:true,cancelable:true,dataTransfer,clientY:rect.top+1}))});
     assert.match(await page.locator('#automation-flow-preview [data-flow-kind="branch-action"]').first().innerText(), /Wait 2 sec/i);
     await page.evaluate(()=>{const source=document.querySelector('.automation-studio-toolbox [data-studio-node="action"]'),lane=document.querySelector('#automation-flow-preview [data-flow-branch-drop="0"]'),dataTransfer=new DataTransfer();source.dispatchEvent(new DragEvent("dragstart",{bubbles:true,dataTransfer}));lane.dispatchEvent(new DragEvent("dragover",{bubbles:true,cancelable:true,dataTransfer}));lane.dispatchEvent(new DragEvent("drop",{bubbles:true,cancelable:true,dataTransfer}));source.dispatchEvent(new DragEvent("dragend",{bubbles:true,dataTransfer}))});

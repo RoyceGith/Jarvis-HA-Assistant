@@ -35,6 +35,12 @@
 .automation-studio-toolbox button > span:last-child { display:grid; gap:.15rem; min-width:0; }
 .automation-studio-toolbox button small { color: var(--text-muted); }
 .automation-studio-toolbox button.active { border-color: var(--cyan); color: var(--cyan); }
+.automation-studio-toolbox button.is-complete small { color:var(--cyan); }
+.automation-studio-toolbox button.is-complete .automation-step-icon { position:relative; }
+.automation-studio-toolbox button.is-complete .automation-step-icon::after { content:"✓"; position:absolute; right:-.28rem; bottom:-.22rem; display:grid; place-items:center; width:.92rem; height:.92rem; border:2px solid var(--surface); border-radius:50%; background:var(--cyan); color:var(--surface); font-size:.55rem; font-weight:900; }
+.automation-studio-toolbox button.is-needs-attention { border-color:color-mix(in srgb,#f0b35b 56%,var(--line)); }
+.automation-studio-toolbox button.is-needs-attention small { color:#f0b35b; }
+.automation-studio-toolbox button.is-needs-attention .automation-step-icon { border-color:#f0b35b; color:#f0b35b; }
 .automation-step-icon { display:grid; place-items:center; width:2rem; height:2rem; border:1px solid color-mix(in srgb,var(--cyan) 42%,var(--line)); border-radius:50%; background:color-mix(in srgb,var(--cyan) 8%,var(--surface-strong)); color:var(--cyan); font-size:.72rem; font-weight:800; }
 .automation-studio-toolbox button.active .automation-step-icon { border-color:var(--cyan); background:var(--cyan); color:var(--surface); box-shadow:0 0 0 3px color-mix(in srgb,var(--cyan) 14%,transparent); }
 .automation-studio-label { color: var(--text-muted); font-size: .65rem; letter-spacing: .12em; }
