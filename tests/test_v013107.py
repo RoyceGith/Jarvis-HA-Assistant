@@ -16,29 +16,29 @@ MANIFEST = json.loads((ROOT / "jarvis/release_manifest.json").read_text(encoding
 
 class BranchQuickBuilderReleaseTests(unittest.TestCase):
     def test_release_markers_are_aligned(self):
-        self.assertIn('version: "0.13.138"', CONFIG)
-        self.assertIn('version="0.13.138"', MAIN)
-        self.assertIn("HUD 0.13.138", HTML)
-        self.assertEqual(MANIFEST["version"], "0.13.138")
+        self.assertIn('version: "0.13.139"', CONFIG)
+        self.assertIn('version="0.13.139"', MAIN)
+        self.assertIn("HUD 0.13.139", HTML)
+        self.assertEqual(MANIFEST["version"], "0.13.139")
 
     def test_each_interactive_path_has_direct_build_controls(self):
         for marker in (
             "flowBranchAddCondition",
             "automation-flow-branch-task-menu",
             "flowBranchTaskTemplate",
-            'taskLabel.textContent="AND"',
-            'conditionLabel.textContent=isElse?"OTHERWISE":"IF"',
+            'taskLabel.textContent="THEN DO"',
+            'checkLabel.textContent=fallback?"FALLBACK":"USE THIS WHEN"',
         ):
             self.assertIn(marker, FLOW)
 
     def test_branch_task_menu_exposes_supported_presets(self):
         for marker in (
-            '["turn_on","Power on"]',
+            '["turn_on","Turn on"]',
             '["set_temperature","Set temperature"]',
-            '["notification","Notification"]',
-            '["delay","Delay"]',
+            '["notification","Send notification"]',
+            '["delay","Wait"]',
             '["wait","Wait until"]',
-            '["service","Custom service"]',
+            '["service","Custom action"]',
         ):
             self.assertIn(marker, FLOW)
 
@@ -59,7 +59,7 @@ class BranchQuickBuilderReleaseTests(unittest.TestCase):
         self.assertIn("cursor:pointer", STYLES)
 
     def test_release_history_includes_v013106(self):
-        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.137")
+        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.138")
 
 
 if __name__ == "__main__":

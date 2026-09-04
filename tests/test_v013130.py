@@ -17,8 +17,8 @@ MANIFEST = json.loads((ROOT / "jarvis/release_manifest.json").read_text(encoding
 
 class ExplicitAutomationConditionReleaseTests(unittest.TestCase):
     def test_release_is_aligned(self):
-        self.assertEqual(MANIFEST["version"], "0.13.138")
-        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.137")
+        self.assertEqual(MANIFEST["version"], "0.13.139")
+        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.138")
 
     def test_condition_schema_and_runtime_support_source_attributes(self):
         self.assertIn('attribute: str = Field(default="", max_length=120', SCHEMAS)
@@ -60,13 +60,13 @@ class ExplicitAutomationConditionReleaseTests(unittest.TestCase):
         self.assertIn('data-condition-field="${field}"', WORKSPACE)
 
     def test_canvas_separates_watchers_from_decision_logic(self):
-        self.assertIn("WHEN ANY OF THESE CHANGE", FLOW)
-        self.assertIn('branchIndex===0?"IF":"ELSE IF"', FLOW)
-        self.assertIn('suggestionLabel.textContent="THEN SUGGEST"', FLOW)
+        self.assertIn("WHEN THIS HAPPENS", FLOW)
+        self.assertIn('fallback?"OTHERWISE":bi?"OTHERWISE IF":"IF"', FLOW)
+        self.assertIn('sayLabel.textContent="THEN SAY"', FLOW)
         self.assertNotIn('stage("trigger","CHECK THIS"', FLOW)
 
     def test_empty_shared_condition_stage_is_not_rendered(self):
-        self.assertIn('if(contextNodes.length)flow.append', FLOW)
+        self.assertIn('if(checks.length)flow.append', FLOW)
         self.assertNotIn('"No additional condition"', FLOW)
 
 

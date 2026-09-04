@@ -1,5 +1,5 @@
 {
-  "version": "0.13.138",
+  "version": "0.13.139",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/ZBRANO_Core main",
@@ -556,19 +556,24 @@
     {
       "version": "0.13.137",
       "summary": "Replaced circular neural arrival effects with brief electrical sparkles centered on destination neurons."
+    },
+    {
+      "version": "0.13.138",
+      "summary": "Made additional Trigger cards focus their own relevant field and immediately load the Home Assistant entity picker."
     }
   ],
   "release_entry": {
     "features": [
-      "Focus an additional entity Trigger's own entity field when its flow card is selected.",
-      "Focus the relevant schedule field for time, sun, interval, and one-time Trigger cards."
+      "Keep the interactive Automation Studio flow while adding a numbered Name, When, Only if, Then, and Outcomes guide.",
+      "Show device-aware SVG icons, friendly entity names, and compact comparison symbols on flow cards.",
+      "Present optional branches as understandable IF, OTHERWISE IF, and OTHERWISE outcomes."
     ],
     "fixes": [
-      "Prevent second and later Trigger selections from stopping at the generic event-type control.",
-      "Open the attached Home Assistant entity picker immediately through normal focus behavior."
+      "Replace technical inspector labels with everyday questions while preserving every existing setting.",
+      "Remove WATCH numbering and raw entity-ID clutter from the normal visual flow."
     ],
     "validation": [
-      "Additional Trigger field mapping, populated entity picker focus, schedule-field focus, browser smoke, release manifest, README alignment, and v0.13.138 release coverage"
+      "Numbered Studio steps, device icons, symbolic comparisons, plain-language outcomes, drag-and-drop branching, browser smoke, release manifest, README alignment, and v0.13.139 release coverage"
     ]
   },
   "features": [

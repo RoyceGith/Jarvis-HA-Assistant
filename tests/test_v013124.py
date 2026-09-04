@@ -12,23 +12,23 @@ MANIFEST = json.loads((ROOT / "jarvis/release_manifest.json").read_text(encoding
 
 class ClearAutomationFlowReleaseTests(unittest.TestCase):
     def test_release_is_aligned(self):
-        self.assertEqual(MANIFEST["version"], "0.13.138")
-        self.assertIn("HUD 0.13.138", HTML)
+        self.assertEqual(MANIFEST["version"], "0.13.139")
+        self.assertIn("HUD 0.13.139", HTML)
 
     def test_visible_context_block_is_condition(self):
-        self.assertIn('data-studio-node="context"><strong>Condition</strong>', HTML)
-        self.assertIn('context:{title:"Shared condition"', WORKSPACE)
+        self.assertIn('data-studio-node="context"', HTML)
+        self.assertIn('context:{title:"3. Only if"', WORKSPACE)
 
     def test_flow_uses_plain_task_language(self):
-        for label in ("WHEN ANY OF THESE CHANGE", "DO THIS", "AND THESE TASKS"):
+        for label in ("WHEN THIS HAPPENS", "THEN", "THEN DO"):
             self.assertIn(f'"{label}"', FLOW)
         self.assertNotIn("% confidence", FLOW)
 
-    def test_flow_entity_labels_include_name_and_id(self):
-        self.assertIn('`${name} · ${id}`', WORKSPACE)
+    def test_flow_entity_labels_prefer_the_friendly_name(self):
+        self.assertIn('return name&&name!==id?name:id', WORKSPACE)
 
     def test_previous_release_is_in_history(self):
-        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.137")
+        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.138")
 
 
 if __name__ == "__main__":

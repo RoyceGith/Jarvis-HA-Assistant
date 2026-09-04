@@ -16,10 +16,10 @@ MANIFEST = json.loads((ROOT / "jarvis/release_manifest.json").read_text(encoding
 
 class BranchConditionPresetReleaseTests(unittest.TestCase):
     def test_release_markers_are_aligned(self):
-        self.assertIn('version: "0.13.138"', CONFIG)
-        self.assertIn('version="0.13.138"', MAIN)
-        self.assertIn("HUD 0.13.138", HTML)
-        self.assertEqual(MANIFEST["version"], "0.13.138")
+        self.assertIn('version: "0.13.139"', CONFIG)
+        self.assertIn('version="0.13.139"', MAIN)
+        self.assertIn("HUD 0.13.139", HTML)
+        self.assertEqual(MANIFEST["version"], "0.13.139")
 
     def test_canvas_offers_direct_path_creation(self):
         self.assertIn("flowAddBranch", FLOW)
@@ -30,10 +30,10 @@ class BranchConditionPresetReleaseTests(unittest.TestCase):
 
     def test_if_menu_offers_typed_condition_presets(self):
         for marker in (
-            '["entity","Entity state"]',
-            '["time_window","Time window"]',
-            '["weekday","Weekdays"]',
-            '["sun","Sun state"]',
+            '["entity","Device or sensor"]',
+            '["time_window","Time of day"]',
+            '["weekday","Day of week"]',
+            '["sun","Sunrise / sunset"]',
             "flowBranchConditionTemplate",
         ):
             self.assertIn(marker, FLOW)
@@ -53,7 +53,7 @@ class BranchConditionPresetReleaseTests(unittest.TestCase):
         self.assertIn(".automation-flow-branch-condition-choices", STYLES)
 
     def test_release_history_includes_v013107(self):
-        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.137")
+        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.138")
 
 
 if __name__ == "__main__":

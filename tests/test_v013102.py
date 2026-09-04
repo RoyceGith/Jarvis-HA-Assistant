@@ -17,10 +17,10 @@ MANIFEST = json.loads((ROOT / "jarvis/release_manifest.json").read_text(encoding
 
 class FocusedAutomationTaskReleaseTests(unittest.TestCase):
     def test_release_markers_are_aligned(self):
-        self.assertIn('version: "0.13.138"', CONFIG)
-        self.assertIn('version="0.13.138"', MAIN)
-        self.assertIn("HUD 0.13.138", HTML)
-        self.assertEqual(MANIFEST["version"], "0.13.138")
+        self.assertIn('version: "0.13.139"', CONFIG)
+        self.assertIn('version="0.13.139"', MAIN)
+        self.assertIn("HUD 0.13.139", HTML)
+        self.assertEqual(MANIFEST["version"], "0.13.139")
 
     def test_task_identity_is_bounded_and_persisted(self):
         self.assertIn("task_template: str = Field", SCHEMAS)
@@ -32,8 +32,8 @@ class FocusedAutomationTaskReleaseTests(unittest.TestCase):
                        'data-action-data-field="temperature"', 'data-action-data-field="brightness_pct"',
                        'climate.set_temperature', 'light.turn_on'):
             self.assertIn(marker, WORKSPACE)
-        self.assertIn('item.task_template==="set_temperature"', FLOW)
-        self.assertIn('item.task_template==="set_brightness"', FLOW)
+        self.assertIn('templates={set_temperature:', FLOW)
+        self.assertIn('set_brightness:[', FLOW)
 
     def test_presets_are_installation_aware_and_browser_covered(self):
         self.assertIn('hasDomain("climate")', WORKSPACE)
@@ -43,7 +43,7 @@ class FocusedAutomationTaskReleaseTests(unittest.TestCase):
         self.assertIn('Set to 23.5°', BROWSER)
 
     def test_release_history_includes_v013101(self):
-        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.137")
+        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.138")
 
 
 if __name__ == "__main__":

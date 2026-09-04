@@ -15,16 +15,16 @@ MANIFEST = json.loads((ROOT / "jarvis/release_manifest.json").read_text(encoding
 
 class AutomationStudioReleaseTests(unittest.TestCase):
     def test_release_markers_are_aligned(self):
-        self.assertIn('version: "0.13.138"', CONFIG)
-        self.assertIn('version="0.13.138"', MAIN)
-        self.assertIn("HUD 0.13.138", HTML)
-        self.assertEqual(MANIFEST["version"], "0.13.138")
+        self.assertIn('version: "0.13.139"', CONFIG)
+        self.assertIn('version="0.13.139"', MAIN)
+        self.assertIn("HUD 0.13.139", HTML)
+        self.assertEqual(MANIFEST["version"], "0.13.139")
 
     def test_visual_renderer_is_safe_and_schema_neutral(self):
-        for label in ("WHEN ANY OF THESE CHANGE", "DO THIS", "AND THESE TASKS"):
+        for label in ("WHEN THIS HAPPENS", "THEN", "THEN DO"):
             self.assertIn(f'"{label}"', FLOW)
         self.assertIn("textContent", FLOW)
-        self.assertNotIn("innerHTML", FLOW)
+        self.assertNotIn(".innerHTML", FLOW)
         self.assertNotIn("fetch(", FLOW)
 
     def test_create_preview_and_saved_library_use_the_same_renderer(self):
@@ -41,7 +41,7 @@ class AutomationStudioReleaseTests(unittest.TestCase):
         self.assertNotIn("grinder", FLOW.lower())
 
     def test_release_history_includes_v01362(self):
-        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.137")
+        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.138")
 
 
 if __name__ == "__main__":

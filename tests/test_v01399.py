@@ -16,10 +16,10 @@ MANIFEST = json.loads((ROOT / "jarvis/release_manifest.json").read_text(encoding
 
 class AppSheetStyleAutomationStudioReleaseTests(unittest.TestCase):
     def test_release_markers_are_aligned(self):
-        self.assertIn('version: "0.13.138"', CONFIG)
-        self.assertIn('version="0.13.138"', MAIN)
-        self.assertIn("HUD 0.13.138", HTML)
-        self.assertEqual(MANIFEST["version"], "0.13.138")
+        self.assertIn('version: "0.13.139"', CONFIG)
+        self.assertIn('version="0.13.139"', MAIN)
+        self.assertIn("HUD 0.13.139", HTML)
+        self.assertEqual(MANIFEST["version"], "0.13.139")
 
     def test_canvas_renders_independent_staged_cards_and_logic_control(self):
         for marker in (
@@ -27,9 +27,9 @@ class AppSheetStyleAutomationStudioReleaseTests(unittest.TestCase):
             "automation-flow-node-row",
             "automation-flow-logic-select",
             "dataset.flowIndex",
-            '"WHEN ANY OF THESE CHANGE"',
-            '"DO THIS"',
-            '"AND THESE TASKS"',
+            '"WHEN THIS HAPPENS"',
+            '"THEN"',
+            '"THEN DO"',
         ):
             self.assertIn(marker, FLOW)
         self.assertIn('workflowDraft.trigger_mode=triggerLogic.value==="all"?"all":"any"', WORKSPACE)
@@ -41,7 +41,7 @@ class AppSheetStyleAutomationStudioReleaseTests(unittest.TestCase):
         self.assertIn('self.assertEqual(reloaded["trigger_mode"], "all")', INTEGRATION)
 
     def test_release_history_includes_v01398(self):
-        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.137")
+        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.138")
 
 
 if __name__ == "__main__":
