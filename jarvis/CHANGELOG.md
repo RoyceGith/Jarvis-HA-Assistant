@@ -1,5 +1,11 @@
 # Change log
 
+## 0.13.144
+
+- Removed a builder-speed race from the ARM Chromium Undo validation.
+- Waited for the persisted debounced history state instead of a fixed delay.
+- Preserved all v0.13.143 application behavior.
+
 ## 0.13.143
 
 - Made new Then steps start with icon-based, ready-made task choices.
