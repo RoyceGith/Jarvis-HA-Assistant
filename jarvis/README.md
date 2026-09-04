@@ -6,6 +6,10 @@ connections.
 
 ## Automation Studio
 
+Version 0.13.148 makes the aarch64 image browser validation deterministic by
+testing Undo against a deliberately persisted edit. Application behavior is
+unchanged from v0.13.147.
+
 Version 0.13.147 puts authority and safety in the first step of each automation.
 Each rule separately chooses whether ZBRANO watches, suggests, asks first, or
 acts automatically, together with its impact and safety limits. The global

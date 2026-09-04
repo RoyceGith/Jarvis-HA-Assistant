@@ -1,5 +1,11 @@
 # Change log
 
+## 0.13.148
+
+- Made the aarch64 Automation Studio Undo check independent of intermediate navigation history.
+- Replaced a fixed recovery delay with an observed persisted-state condition.
+- Preserved all v0.13.147 application behavior and per-automation safety controls.
+
 ## 0.13.147
 
 - Moved authority, impact, hourly limits, reversibility, and notification choices into Step 1 of each automation.
