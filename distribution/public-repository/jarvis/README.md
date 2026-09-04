@@ -6,6 +6,10 @@ connections.
 
 ## Automation Studio
 
+Version 0.13.144 stabilizes the ARM image browser gate by waiting for the actual
+persisted Studio history snapshot before testing Undo. User-facing behavior is
+unchanged from v0.13.143.
+
 Version 0.13.143 makes the Then step task-first. New automations use icon-based
 choices such as Turn on, Set temperature, Notify, and Wait instead of raw Home
 Assistant command fields. Custom actions remain under an Advanced disclosure,

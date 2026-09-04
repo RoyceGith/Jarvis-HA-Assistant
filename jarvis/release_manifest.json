@@ -1,9 +1,9 @@
 {
-  "version": "0.13.143",
+  "version": "0.13.144",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/ZBRANO_Core main",
-  "summary": "Make Automation Studio's Then step task-first with icon-based actions and friendly command names while retaining advanced custom control.",
+  "summary": "Stabilize ARM image validation by synchronizing the Studio Undo test with persisted debounced editor history.",
   "history_backfill": [
     {
       "version": "0.13.0",
@@ -576,20 +576,23 @@
     {
       "version": "0.13.142",
       "summary": "Added gated Back and Next navigation through all five Studio steps with a final safe-test and save handoff."
+    },
+    {
+      "version": "0.13.143",
+      "summary": "Made the Then step task-first with icon-based common actions, advanced custom commands, and friendly action labels."
     }
   ],
   "release_entry": {
     "features": [
-      "Lead new Then steps with icon-based Turn on, Turn off, Set temperature, Set brightness, Notification, and Wait tasks.",
-      "Keep custom Home Assistant commands available through a clearly labelled Advanced disclosure.",
-      "Translate known action commands into readable labels on flow cards, saved summaries, and activation confirmation."
+      "Wait for the persisted Automation Studio edit snapshot before exercising Undo in the browser release gate.",
+      "Keep ARM and local browser validation aligned without changing editor behavior."
     ],
     "fixes": [
-      "Hide blank legacy entity, command, and JSON fields from the common new-automation path.",
-      "Retain legacy action editing, advanced configuration, drag-and-drop, and stored schema compatibility."
+      "Remove the fixed-delay race that could test Undo before the 220 ms history debounce committed on slower builders.",
+      "Preserve all v0.13.143 user-facing behavior and compatibility."
     ],
     "validation": [
-      "Task-first Then workflow, advanced custom-action disclosure, friendly action labels, browser smoke, regression suite, release manifest, README alignment, and v0.13.143 release coverage"
+      "Persisted-history synchronization, ARM browser smoke, regression suite, release manifest, README alignment, and v0.13.144 release coverage"
     ]
   },
   "features": [
