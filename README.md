@@ -1,9 +1,13 @@
-## ZBRANO v0.13.147
+## ZBRANO v0.13.148
 
 ZBRANO combines Home Assistant chat, voice, entity control, memory, notifications,
 calendar and contact tools, plugins, and evidence-based automations. Automation Studio now uses
 a visual building-block toolbox, interactive node canvas, and contextual inspector;
 the established automation engine and stored definitions remain compatible.
+
+Version 0.13.148 stabilizes the aarch64 image build by testing Undo against a
+deliberately committed edit and waiting for persisted recovery state instead
+of CPU-dependent timing. Application behavior is unchanged from v0.13.147.
 
 Version 0.13.147 puts safety and authority directly in Step 1 of every
 automation. Each rule now clearly chooses whether ZBRANO watches, suggests,

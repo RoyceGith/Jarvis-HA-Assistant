@@ -1,9 +1,14 @@
-# ZBRANO v0.13.147
+# ZBRANO v0.13.148
 
 Automation Studio provides a graphical, step-by-step workflow for Home Assistant
 automations. Use Setup &amp; safety, When, Only if, Then, and optional Outcomes beside the
 interactive flow canvas. Natural-language creation, templates, drag-and-drop,
 saved automation compatibility, and the full Advanced editor remain available.
+
+Version 0.13.148 makes the aarch64 image browser gate deterministic by applying
+and persisting a dedicated edit before testing Undo and Redo. Recovery now
+waits for observed persisted state rather than a fixed CPU-speed delay.
+Application behavior remains the same as v0.13.147.
 
 Version 0.13.147 moves authority and safety into the first step of each
 automation. Watch, suggest, approval, or automatic behavior is selected for

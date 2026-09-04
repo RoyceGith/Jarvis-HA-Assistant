@@ -1,9 +1,9 @@
 {
-  "version": "0.13.147",
+  "version": "0.13.148",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/ZBRANO_Core main",
-  "summary": "Put authority and safety choices in Step 1 of every automation and remove the global authority screen from normal navigation.",
+  "summary": "Stabilize the aarch64 image browser gate by testing Undo against a deliberately committed edit instead of CPU-dependent intermediate history.",
   "history_backfill": [
     {
       "version": "0.13.0",
@@ -592,19 +592,23 @@
     {
       "version": "0.13.146",
       "summary": "Repaired Automation Studio saving by matching client validation to server requirements and translating structured failures into readable messages."
+    },
+    {
+      "version": "0.13.147",
+      "summary": "Moved per-automation authority and safety choices into Step 1 and removed the global authority screen from normal navigation."
     }
   ],
   "release_entry": {
     "features": [
-      "Show each automation's authority, impact level, hourly limit, reversibility, and action notification choices directly in Step 1.",
-      "Default new rules to an explicit Suggest it to me authority while retaining compatibility with existing inherited rules."
+      "Retain the complete per-automation Step 1 authority and safety experience introduced in v0.13.147.",
+      "Exercise Undo and Redo against an explicitly persisted trigger-value change on every builder architecture."
     ],
     "fixes": [
-      "Remove the global Safety and Authority screen from normal Automation Studio navigation and describe authority as per automation.",
-      "Keep hard built-in safety ceilings underneath per-rule choices so an automation cannot grant itself more authority."
+      "Remove an aarch64 browser-test race where navigation history could be mistaken for the field edit being undone.",
+      "Replace the fixed recovery delay with an observed persisted-state condition so slow builders remain deterministic."
     ],
     "validation": [
-      "Per-automation Step 1 authority browser coverage, hidden global navigation regression coverage, full regression suite, release manifest, README alignment, and v0.13.147 release coverage"
+      "Deterministic Undo and recovery browser coverage, full regression suite, release manifest, README alignment, and v0.13.148 release coverage"
     ]
   },
   "features": [
