@@ -11,6 +11,7 @@
 .automation-studio-status { display: flex; flex-wrap: wrap; justify-content: flex-end; align-items: center; gap: .4rem; color: var(--text-muted); font-size: .72rem; }
 .automation-studio-dirty { padding: .2rem .42rem; border: 1px solid color-mix(in srgb,#f0b35b 55%,var(--line)); border-radius: 999px; color: #f0b35b; background: color-mix(in srgb,#f0b35b 9%,transparent); font-weight: 650; }
 .automation-studio-dirty[hidden] { display: none; }
+#automations-panel .autonomy-tabs button[hidden] { display:none !important; }
 .automation-studio-history-controls { display: inline-flex; align-items: center; gap: .2rem; padding-right: .35rem; border-right: 1px solid var(--line); }
 .automation-studio-history-controls button { min-width: 2rem; padding: .38rem .5rem; font-size: 1rem; line-height: 1; }
 .automation-studio-history-controls button:disabled { opacity: .38; cursor: default; }
@@ -88,6 +89,11 @@
 .automation-studio-inspector-fields label.is-check { display: flex; align-items: center; gap: .45rem; }
 .automation-studio-inspector-fields :is(input,select,textarea) { width: 100%; }
 .automation-studio-inspector-fields label.is-check input { width: auto; }
+.automation-rule-safety-guide { display:flex; align-items:flex-start; gap:.65rem; margin-top:.15rem; padding:.7rem; border:1px solid color-mix(in srgb,var(--accent) 32%,var(--line)); border-radius:.7rem; background:color-mix(in srgb,var(--accent) 8%,var(--surface)); color:var(--text); }
+.automation-rule-safety-guide .automation-rule-safety-icon { display:grid; place-items:center; flex:0 0 1.75rem; width:1.75rem; height:1.75rem; border-radius:.55rem; background:color-mix(in srgb,var(--accent) 18%,transparent); font-size:.95rem; }
+.automation-rule-safety-guide div { display:grid; gap:.2rem; }
+.automation-rule-safety-guide strong { font-size:.76rem; }
+.automation-rule-safety-guide small { color:var(--text-muted); font-size:.68rem; line-height:1.4; }
 .automation-studio-step-navigation { display:flex; align-items:center; justify-content:space-between; gap:.5rem; margin-top:1rem; padding-top:.75rem; border-top:1px solid var(--line); }
 .automation-studio-step-navigation button { min-width:0; padding:.52rem .68rem; }
 .automation-studio-step-navigation button:last-child { margin-left:auto; border-color:var(--cyan); background:color-mix(in srgb,var(--cyan) 13%,var(--surface-strong)); color:var(--cyan); font-weight:750; }

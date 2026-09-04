@@ -18,14 +18,14 @@
   const libraryPrefsKey="zbrano.automation-studio.library.v1";
   const entityPickerFieldIds=new Set(["automation-trigger-entity","automation-presence","automation-signals","automation-action-entity"]);
   const studioPanels={
-    details:{title:"1. Name it",help:"Give this automation a clear name and say what you want it to help with.",fields:[["automation-name","Automation name"],["automation-objective","What should it help with?"],["automation-enabled","Turn it on after saving"]]},
+    details:{title:"1. Setup & safety",help:"Name this automation, then choose exactly how much authority this rule has.",fields:[["automation-name","Automation name"],["automation-objective","What should it help with?"],["automation-execution-policy","What may ZBRANO do?"],["automation-risk","What does this automation affect?"],["automation-max-actions","Most times this may run in one hour"],["automation-reversible-only","Only allow automatic actions that can be undone"],["automation-notify-action","Tell me after it runs"],["automation-enabled","Turn it on after saving"]]},
     trigger:{title:"2. When",help:"Choose the event that should start this automation. Add more events below if needed.",fields:[["automation-trigger-kind","What kind of event?"],["automation-trigger-entity","Which device or sensor?"],["automation-trigger-operator","What should it do?"],["automation-trigger-value","Compared with what value?"],["automation-trigger-for","For how many seconds?"],["automation-trigger-at","At what time?"],["automation-trigger-weekdays","On which days?"],["automation-trigger-sun-event","Sunrise or sunset?"],["automation-trigger-sun-offset","How many minutes before or after?"],["automation-trigger-interval","How often, in minutes?"],["automation-trigger-one-time","Choose the date and time"]]},
     context:{title:"3. Only if",help:"Optional: add checks that must be true before anything happens.",fields:[["automation-context-notes","Notes for this check (optional)"]]},
-    decision:{title:"5. Different results",help:"Optional: use this only when the same start should lead to different results in different situations.",fields:[["automation-proposal","Main message from ZBRANO"],["automation-confidence","How sure should ZBRANO be?"],["automation-cooldown","Wait before offering again (minutes)"],["automation-suggestion-timeout","How long can I answer? (minutes)"],["automation-reoffer-delta","Offer again if the reading worsens by"],["automation-reset-delta","Ready for a new alert after the reading improves by"],["automation-risk","How sensitive is this action?"],["automation-execution-policy","What should ZBRANO do?"],["automation-delivery-voice","Say it aloud"],["automation-delivery-center","Show it in ZBRANO"],["automation-delivery-push","Send it to my Home Assistant app"]]},
-    action:{title:"4. Then",help:"Choose what ZBRANO should do. Start with a ready-made task or configure your own.",fields:[["automation-action-entity","Which device?"],["automation-action-service","What should it do?"],["automation-action-data","Extra details (advanced)"],["automation-max-actions","Most times this can run in one hour"],["automation-failure-limit","Pause after this many failed attempts"],["automation-failure-window","Count failed attempts for this many minutes"],["automation-notify-action","Tell me after it runs"],["automation-reversible-only","Only run actions that can be undone"]]},
+    decision:{title:"5. Different results",help:"Optional: use this only when the same start should lead to different results in different situations.",fields:[["automation-proposal","Main message from ZBRANO"],["automation-confidence","How sure should ZBRANO be?"],["automation-cooldown","Wait before offering again (minutes)"],["automation-suggestion-timeout","How long can I answer? (minutes)"],["automation-reoffer-delta","Offer again if the reading worsens by"],["automation-reset-delta","Ready for a new alert after the reading improves by"],["automation-delivery-voice","Say it aloud"],["automation-delivery-center","Show it in ZBRANO"],["automation-delivery-push","Send it to my Home Assistant app"]]},
+    action:{title:"4. Then",help:"Choose what ZBRANO should do. Start with a ready-made task or configure your own.",fields:[["automation-action-entity","Which device?"],["automation-action-service","What should it do?"],["automation-action-data","Extra details (advanced)"],["automation-failure-limit","Pause after this many failed attempts"],["automation-failure-window","Count failed attempts for this many minutes"]]},
   };
   const studioStepOrder=["details","trigger","context","action","decision"];
-  const studioStepNames={details:"Name it",trigger:"When",context:"Only if",action:"Then",decision:"Different results"};
+  const studioStepNames={details:"Setup & safety",trigger:"When",context:"Only if",action:"Then",decision:"Different results"};
 
   function apiErrorMessage(detail,status){
     if(typeof detail==="string"&&detail.trim())return detail.trim();
@@ -80,7 +80,7 @@
   }
 
   function modeLabel(value){return ({observe_only:"Observe only",suggest_only:"Suggest only",approval_gated:"Approval-gated",selective_autonomy:"Selective autonomy"})[value]||"Suggest only"}
-  function authorityLabel(value){return ({inherit:"Use global default",observe:"Observe only",suggest:"Suggest only",approval_required:"Ask for approval",autonomous:"Automatic"})[value]||"Use global default"}
+  function authorityLabel(value){return ({inherit:"Protected default",observe:"Watch only",suggest:"Suggest it to me",approval_required:"Ask before doing it",autonomous:"Do it automatically"})[value]||"Protected default"}
   function riskLabel(value){return ({informational:"Information only",low:"Low-impact action",controlled:"Controls a device",high:"Extra-sensitive action"})[value]||"Controls a device"}
   function entityLabel(id){const entity=entityMap.get(id),name=String(entity?.friendly_name||"").trim();return name&&name!==id?name:id}
   function actionLabel(service){const value=String(service||"");const labels={"climate.set_temperature":"Set temperature","climate.set_hvac_mode":"Set heating or cooling mode","cover.open_cover":"Open","cover.close_cover":"Close","cover.stop_cover":"Stop","lock.lock":"Lock","lock.unlock":"Unlock","button.press":"Press","vacuum.start":"Start cleaning","vacuum.return_to_base":"Return to base","media_player.media_play":"Play","media_player.media_pause":"Pause"};if(labels[value])return labels[value];if(value.endsWith(".turn_on"))return value.startsWith("scene.")?"Activate scene":value.startsWith("script.")?"Run":"Turn on";if(value.endsWith(".turn_off"))return"Turn off";if(value.endsWith(".toggle"))return"Change power";return value?"Custom action":"Only show the message"}
@@ -168,11 +168,14 @@
     $("automation-studio-inspector-help").textContent=panelConfig.help;
     const root=$("automation-studio-inspector-fields");root.replaceChildren();
     if(selectedStudioNode==="action")renderActionTaskPalette(root);
-    const groupedIds=selectedStudioNode==="decision"?new Set(["automation-confidence","automation-cooldown","automation-suggestion-timeout","automation-reoffer-delta","automation-reset-delta"]):selectedStudioNode==="action"?new Set(["automation-action-data","automation-max-actions","automation-failure-limit","automation-failure-window","automation-notify-action","automation-reversible-only"]):new Set();
+    const groupedIds=selectedStudioNode==="decision"?new Set(["automation-confidence","automation-cooldown","automation-suggestion-timeout","automation-reoffer-delta","automation-reset-delta"]):selectedStudioNode==="action"?new Set(["automation-action-data","automation-failure-limit","automation-failure-window"]):new Set();
     let optionalGroup=null,optionalFields=null;
     if(groupedIds.size){optionalGroup=document.createElement("details");optionalGroup.className="automation-inspector-more";const summary=document.createElement("summary");summary.textContent=selectedStudioNode==="decision"?"Fine-tune timing and confidence":"Safety limits and advanced details";optionalFields=document.createElement("div");optionalFields.className="automation-inspector-more-fields";optionalGroup.append(summary,optionalFields)}
     for(const [id,labelText] of inspectorFields(panelConfig)){
       const source=$(id);if(!source)continue;
+      if(selectedStudioNode==="details"&&id==="automation-execution-policy"){
+        const guide=document.createElement("div");guide.className="automation-rule-safety-guide";guide.innerHTML='<span class="automation-rule-safety-icon" aria-hidden="true">&#128737;</span><div><strong>Authority for this automation</strong><small>This choice applies only to this rule. Built-in protection may reduce its authority when an action is unsafe, but it can never grant more.</small></div>';root.append(guide);
+      }
       const label=document.createElement("label"),control=source.cloneNode(true);
       control.id=`studio-${id}`;control.removeAttribute("required");
       if(entityPickerFieldIds.has(id))control.dataset.entityPicker="true";
@@ -466,8 +469,8 @@
   }
   function renderSummary(){
     $("autonomy-engine-status").textContent=state.engine?.status==="active"?"Live":state.engine?.status==="waiting_for_home_assistant"?"Waiting for HA":"Unavailable";
-    $("autonomy-mode-summary").textContent=modeLabel(state.settings?.operating_mode);
-    $("autonomy-mode-detail").textContent=state.settings?.operating_mode==="selective_autonomy"?`Autonomous up to ${state.settings?.autonomous_risk_ceiling||"low"} risk`:"Per-automation authority limited by global policy";
+    $("autonomy-mode-summary").textContent="Per automation";
+    $("autonomy-mode-detail").textContent="Chosen separately in Step 1";
     const draftCount=(state.automations||[]).filter(item=>!item.enabled).length;
     const suggestionCount=(state.suggestions||[]).filter(item=>["pending","approval_required"].includes(item.status)&&item.delivery_notification_center!==false).length;
     $("autonomy-draft-count").textContent=String(draftCount);
@@ -684,7 +687,7 @@
 
   function clearEditor(){
     $("automation-studio-test-results").hidden=true;
-    $("automation-draft-form").reset();$("automation-edit-id").value="";$("automation-editor-title").textContent="New automation draft";$("automation-cancel-edit").hidden=true;$("automation-cooldown").value=String(state.settings?.default_cooldown_minutes||30);$("automation-confidence").value=String(state.settings?.minimum_confidence||0.75);$("automation-risk").value="controlled";$("automation-execution-policy").value="inherit";$("automation-max-actions").value="2";$("automation-trigger-operator").value="changes_to";$("automation-trigger-for").value="0";$("automation-action-data").value="{}";$("automation-enabled").checked=false;$("automation-notify-action").checked=true;$("automation-reversible-only").checked=true;$("automation-delivery-voice").checked=true;$("automation-delivery-center").checked=true;$("automation-delivery-push").checked=true;$("automation-draft-state").textContent="";
+    $("automation-draft-form").reset();$("automation-edit-id").value="";$("automation-editor-title").textContent="New automation draft";$("automation-cancel-edit").hidden=true;$("automation-cooldown").value=String(state.settings?.default_cooldown_minutes||30);$("automation-confidence").value=String(state.settings?.minimum_confidence||0.75);$("automation-risk").value="controlled";$("automation-execution-policy").value="suggest";$("automation-max-actions").value="2";$("automation-trigger-operator").value="changes_to";$("automation-trigger-for").value="0";$("automation-action-data").value="{}";$("automation-enabled").checked=false;$("automation-notify-action").checked=true;$("automation-reversible-only").checked=true;$("automation-delivery-voice").checked=true;$("automation-delivery-center").checked=true;$("automation-delivery-push").checked=true;$("automation-draft-state").textContent="";
     $("automation-suggestion-timeout").value="30";
     $("automation-failure-limit").value="3";$("automation-failure-window").value="60";
     $("automation-reoffer-delta").value="0";$("automation-reset-delta").value="0";

@@ -130,7 +130,7 @@ function apiFixture(url, method = "GET") {
   if (pathname === "/api/health") {
     return {
       status: "ok",
-      version: "0.13.146",
+      version: "0.13.147",
       speech_provider: "openai",
       speech_providers: {openai: {configured: true}, elevenlabs: {configured: false}},
     };
@@ -213,7 +213,7 @@ function apiFixture(url, method = "GET") {
   if (pathname === "/api/plugins") return {plugins: []};
   if (pathname === "/api/files/shared") return {files: [], count: 0};
   if (pathname === "/api/release-memory-sync") {
-    return {enabled: false, state: "disabled", version: "0.13.146", task_active: false};
+    return {enabled: false, state: "disabled", version: "0.13.147", task_active: false};
   }
   if (pathname === "/api/tab-activity") return {revisions: {}};
   if (pathname === "/api/grinder-monitor/status") return {enabled: false, connected: false};
@@ -372,9 +372,10 @@ async function main() {
     assert.equal(automationLayout.display, "grid");
     assert.match(automationLayout.columns, /px .*px/);
     assert.equal(automationLayout.navCursor, "pointer");
-    assert.equal(await page.locator("#automation-studio-inspector-title").innerText(), "1. Name it");
+    assert.equal(await page.locator("#automation-studio-inspector-title").innerText(), "1. Setup & safety");
     assert.equal(await page.locator("#automation-studio-current-step").innerText(), "Step 1 of 5");
     assert.equal(await page.locator("#automation-studio-step-back").isDisabled(), true);
+    assert.equal(await page.locator("#studio-automation-execution-policy").inputValue(), "suggest");
     await page.locator("#automation-studio-step-next").click();
     assert.match(await page.locator("#automation-studio-state").innerText(), /Complete this step first/i);
     await page.locator("#studio-automation-name").fill("A");
@@ -641,9 +642,18 @@ async function main() {
     assert.equal(await page.locator(".automation-workflow-step").count(), 1);
     await page.locator('[data-workflow-index="0"][data-action-field="delay_seconds"]').fill("2");
     assert.match(await page.locator("#automation-flow-preview").innerText(), /Wait 2 sec/i);
+    await page.locator('[data-studio-node="details"]').click();
+    assert.equal(await page.locator("#automation-studio-inspector-title").innerText(), "1. Setup & safety");
+    assert.equal(await page.locator('.automation-rule-safety-guide').count(), 1);
+    assert.equal(await page.locator('[data-auto-view="safety"]').isHidden(), true);
+    assert.equal(await page.locator("#studio-automation-execution-policy").inputValue(), "approval_required");
+    await page.locator("#studio-automation-execution-policy").selectOption("autonomous");
+    assert.equal(await page.locator("#automation-execution-policy").inputValue(), "autonomous");
+    await page.locator("#studio-automation-risk").selectOption("low");
+    assert.equal(await page.locator("#automation-risk").inputValue(), "low");
+    await page.locator("#studio-automation-max-actions").fill("3");
+    assert.equal(await page.locator("#automation-max-actions").inputValue(), "3");
     await page.locator('#automation-flow-preview [data-flow-kind="decision"]').click();
-    await page.locator("#studio-automation-execution-policy").selectOption("inherit");
-    assert.equal(await page.locator("#automation-execution-policy").inputValue(), "inherit");
     await page.locator("#studio-automation-delivery-voice").uncheck();
     assert.equal(await page.locator("#automation-delivery-voice").isChecked(), false);
     await page.locator("#automation-studio-test").click();

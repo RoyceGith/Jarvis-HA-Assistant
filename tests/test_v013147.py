@@ -1,0 +1,47 @@
+import json
+import unittest
+from pathlib import Path
+
+
+ROOT = Path(__file__).resolve().parents[1]
+HTML = (ROOT / "jarvis" / "app" / "static" / "index.html").read_text(encoding="utf-8")
+WORKSPACE = (ROOT / "jarvis" / "app" / "static" / "js" / "automations" / "workspace.js").read_text(encoding="utf-8")
+STYLES = (ROOT / "jarvis" / "app" / "static" / "css" / "automation-studio.css").read_text(encoding="utf-8")
+BROWSER = (ROOT / "jarvis" / "tests" / "browser_smoke.cjs").read_text(encoding="utf-8")
+MANIFEST = json.loads((ROOT / "jarvis" / "release_manifest.json").read_text(encoding="utf-8"))
+
+
+class V013147PerAutomationAuthorityTests(unittest.TestCase):
+    def test_release_is_aligned(self):
+        self.assertEqual(MANIFEST["version"], "0.13.147")
+        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.146")
+
+    def test_setup_step_owns_each_rules_authority_and_safety(self):
+        details = WORKSPACE.split('details:{title:"1. Setup & safety"', 1)[1].split("trigger:{", 1)[0]
+        for field in (
+            "automation-execution-policy",
+            "automation-risk",
+            "automation-max-actions",
+            "automation-reversible-only",
+            "automation-notify-action",
+        ):
+            self.assertIn(field, details)
+        self.assertIn('$("automation-execution-policy").value="suggest"', WORKSPACE)
+        self.assertIn("Authority for this automation", WORKSPACE)
+        self.assertIn("applies only to this rule", WORKSPACE)
+
+    def test_global_authority_screen_is_not_part_of_normal_navigation(self):
+        self.assertIn('data-auto-view="safety" role="tab" aria-selected="false" hidden', HTML)
+        self.assertIn(".autonomy-tabs button[hidden]", STYLES)
+        self.assertIn("Authority model", HTML)
+        self.assertIn('textContent="Per automation"', WORKSPACE)
+
+    def test_browser_exercises_per_rule_controls_in_step_one(self):
+        self.assertIn('"1. Setup & safety"', BROWSER)
+        self.assertIn('#studio-automation-execution-policy', BROWSER)
+        self.assertIn('#studio-automation-risk', BROWSER)
+        self.assertIn('#studio-automation-max-actions', BROWSER)
+
+
+if __name__ == "__main__":
+    unittest.main()

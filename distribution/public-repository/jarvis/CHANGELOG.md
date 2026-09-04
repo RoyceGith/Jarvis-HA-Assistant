@@ -1,5 +1,11 @@
 # Change log
 
+## 0.13.147
+
+- Moved authority, impact, hourly limits, reversibility, and notification choices into Step 1 of each automation.
+- Defaulted new rules to an explicit Suggest it to me authority while preserving existing rules.
+- Removed the global authority tab from normal navigation while retaining hard built-in safety ceilings.
+
 ## 0.13.146
 
 - Aligned guided name and purpose validation with the server's save requirements.

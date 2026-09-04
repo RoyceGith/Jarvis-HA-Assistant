@@ -34,10 +34,10 @@ def load_functions(names, states=None):
 
 class TimeScheduleAutomationReleaseTests(unittest.TestCase):
     def test_release_markers_are_aligned(self):
-        self.assertIn('version: "0.13.146"', CONFIG)
-        self.assertIn('version="0.13.146"', MAIN)
-        self.assertIn("HUD 0.13.146", HTML)
-        self.assertEqual(MANIFEST["version"], "0.13.146")
+        self.assertIn('version: "0.13.147"', CONFIG)
+        self.assertIn('version="0.13.147"', MAIN)
+        self.assertIn("HUD 0.13.147", HTML)
+        self.assertEqual(MANIFEST["version"], "0.13.147")
 
     def test_schedule_triggers_fire_once_per_slot(self):
         schedule_due = load_functions({"_automation_schedule_due"})["_automation_schedule_due"]
@@ -88,7 +88,7 @@ class TimeScheduleAutomationReleaseTests(unittest.TestCase):
         self.assertIn("AutomationConditionRequest", SCHEMAS)
 
     def test_release_history_includes_v01370(self):
-        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.145")
+        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.146")
 
 
 if __name__ == "__main__":
