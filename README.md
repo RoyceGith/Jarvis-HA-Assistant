@@ -1,6 +1,6 @@
 # ZBRANO for Home Assistant
 
-Current release: **0.13.146**
+Current release: **0.13.147**
 
 This is the public Home Assistant installation and update repository for ZBRANO.
 The application is delivered as a prebuilt container image. The current repository
@@ -20,6 +20,11 @@ Existing ZBRANO installations retain the same add-on slug, configuration, `/data
 storage, and `ghcr.io/roycegith/jarvis-ha-assistant` update image.
 
 ## Current experience
+
+Version 0.13.147 puts authority and safety in Step 1 of each automation. Every
+rule chooses its own watch, suggest, approval, or automatic behavior together
+with its impact and safety limits. The global authority tab is removed from
+normal navigation while built-in protections remain enforced underneath.
 
 Version 0.13.138 fixes Automation Studio entity loading when a second or later Trigger
 card is selected by focusing and opening the correct trigger-specific field.

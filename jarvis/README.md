@@ -6,6 +6,11 @@ connections.
 
 ## Automation Studio
 
+Version 0.13.147 puts authority and safety in the first step of each automation.
+Each rule separately chooses whether ZBRANO watches, suggests, asks first, or
+acts automatically, together with its impact and safety limits. The global
+authority tab is no longer shown in normal navigation.
+
 Version 0.13.146 prevents undersized names and purposes from reaching the server
 and shows readable field-specific explanations for any server validation error.
 
