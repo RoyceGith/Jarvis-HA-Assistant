@@ -1,5 +1,12 @@
 # Change log
 
+## 0.13.158
+
+- Removed redundant editable IF and ELSE IF title cards.
+- Started each branch directly with its own device or sensor condition.
+- Gave each speaking branch its own message and removed messages from Monitor silently.
+- Opened bottom task menus upward so all choices remain visible.
+
 ## 0.13.157
 
 - Restored current readings in Automation Studio entity dropdowns.
