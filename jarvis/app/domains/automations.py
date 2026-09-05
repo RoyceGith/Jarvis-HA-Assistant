@@ -1322,7 +1322,7 @@ def _automation_test_flow(item: dict[str, Any], settings: dict[str, Any], data: 
         "trace": [
             {"kind": "trigger", "status": trigger_status, "title": "Trigger", "detail": f"{trigger_mode.upper()} logic: " + ("; ".join(result["detail"] for result in trigger_results) or "No trigger configured")},
             {"kind": "context", "status": "pass" if context_ok else "fail", "title": "Context", "detail": f"{conditions_detail}; {presence_detail}"},
-            {"kind": "decision", "status": "pass" if branch_ok else "fail", "title": "Decision", "detail": f"{branch_detail}; suggestion={branch_suggestion or item.get('proposal_template') or 'default'}; {policy_detail}"},
+            {"kind": "decision", "status": "pass" if branch_ok else "fail", "title": "Decision", "detail": f"{branch_detail}; suggestion={branch_suggestion or ('not configured' if _automation_branches(item) else item.get('proposal_template')) or 'default'}; {policy_detail}"},
             {"kind": "action", "status": "info", "title": "Planned actions", "detail": " → ".join(action_details) or "No Home Assistant service action"},
         ],
     }
@@ -1945,7 +1945,7 @@ async def _automation_commit_match(automation_id: str, evidence: dict[str, Any])
             item.pop("dismissal_context", None)
         item["last_matched_at"] = now
         confidence = 1.0
-        detail = str(branch_suggestion or item.get("proposal_template") or item.get("objective") or "Automation condition matched.")
+        detail = str(branch_suggestion or ("" if _automation_branches(item) else item.get("proposal_template")) or item.get("objective") or "Automation condition matched.")
         trigger_detail = "fired" if trigger_kind != "entity" else f"changed from {evidence.get('old_state')} to {current}"
         evidence_text = f"{trigger_entity} {trigger_detail}; {trigger_group_detail}; {conditions_detail}; {branch_detail}; {presence_detail}; {rate_detail}"
         if policy == "observe":

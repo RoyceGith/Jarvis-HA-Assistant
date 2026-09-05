@@ -148,7 +148,6 @@
 .automation-workflow-step > label { display:grid; gap:.24rem; color:var(--text-muted); font-size:.66rem; font-weight:700; }
 .automation-workflow-step > label > span { letter-spacing:.01em; }
 .automation-workflow-step :is(input,select,textarea) { width: 100%; }
-.automation-branch-editor.is-automatic label:has([data-branch-suggestion]) { display:none; }
 .automation-workflow-empty { color: var(--text-muted); }
 .automation-branch-card { display: grid; gap: .5rem; padding: .65rem; border: 1px solid color-mix(in srgb,var(--cyan) 30%,var(--line)); border-radius: 12px; background: color-mix(in srgb,var(--panel) 82%,transparent); }
 .automation-outcome-choice { display:grid; justify-items:center; gap:.55rem; padding:1rem .8rem; border:1px dashed color-mix(in srgb,#c29cff 42%,var(--line)); border-radius:14px; background:color-mix(in srgb,#c29cff 5%,var(--surface)); text-align:center; }
@@ -195,6 +194,10 @@
 .automation-flow-branch-task-menu,.automation-flow-branch-condition-menu { position:relative; width:100%; }
 .automation-flow-branch-task-menu > summary::-webkit-details-marker,.automation-flow-branch-condition-menu > summary::-webkit-details-marker { display:none; }
 .automation-flow-branch-task-choices,.automation-flow-branch-condition-choices { position:absolute; z-index:8; left:0; right:0; top:calc(100% + .3rem); display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:.25rem; padding:.4rem; border:1px solid var(--line); border-radius:11px; background:var(--surface-strong); box-shadow:0 14px 34px rgba(0,0,0,.24); }
+.automation-flow-branch-task-menu[open] { z-index:20; }
+.automation-flow-branch-task-menu .automation-flow-branch-task-choices { top:auto; bottom:calc(100% + .3rem); max-height:min(18rem,45vh); overflow:auto; }
+.automation-flow-branch-suggestion[data-flow-kind="decision"] { cursor:pointer; }
+.automation-flow-branch-suggestion[data-flow-kind="decision"]:hover,.automation-flow-branch-suggestion[data-flow-kind="decision"]:focus-visible { border-color:var(--cyan); outline:none; }
 .automation-flow-branch-task-choices button,.automation-flow-branch-condition-choices button { min-width:0; padding:.42rem .35rem; border:1px solid var(--line); border-radius:8px; background:var(--surface); color:var(--text); font-size:.63rem; cursor:pointer; }
 .automation-flow-branch-task-choices button:hover,.automation-flow-branch-task-choices button:focus-visible,.automation-flow-branch-condition-choices button:hover,.automation-flow-branch-condition-choices button:focus-visible { border-color:var(--cyan); color:var(--cyan); outline:none; }
 .automation-flow-branch-empty { display:grid; place-items:center; min-height:54px; padding:.55rem; border:1px dashed var(--line); border-radius:10px; color:var(--text-muted); font-size:.7rem; text-align:center; }

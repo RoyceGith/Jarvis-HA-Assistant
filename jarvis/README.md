@@ -1,9 +1,14 @@
-# ZBRANO v0.13.157
+# ZBRANO v0.13.158
 
 Automation Studio provides a graphical, step-by-step workflow for Home Assistant
 automations. Use Setup &amp; safety, When, Only if, Then, and optional Outcomes beside the
 interactive flow canvas. Natural-language creation, templates, drag-and-drop,
 saved automation compatibility, and the full Advanced editor remain available.
+
+Version 0.13.158 makes IF and ELSE IF lanes begin with the condition that defines
+them, without redundant editable branch-name cards. Each speaking path owns its
+message, silent monitoring hides messages completely, and bottom task menus open
+upward so their choices stay visible.
 
 Version 0.13.157 shows each device or sensor's current value directly in entity
 selection results. Readings include units, and climate devices prefer their live

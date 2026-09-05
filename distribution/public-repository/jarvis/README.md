@@ -6,6 +6,10 @@ connections.
 
 ## Automation Studio
 
+Version 0.13.158 starts each IF and ELSE IF branch with its own condition, gives
+each speaking branch a separate message, hides messages for silent monitoring,
+and keeps bottom task menus visible by opening them upward.
+
 Version 0.13.157 shows current device and sensor readings beside entity names and
 IDs throughout Automation Studio selection dropdowns.
 

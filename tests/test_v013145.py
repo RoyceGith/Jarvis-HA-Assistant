@@ -13,8 +13,8 @@ MANIFEST = json.loads((ROOT / "jarvis" / "release_manifest.json").read_text(enco
 
 class V013145FriendlyResultsTests(unittest.TestCase):
     def test_release_is_aligned(self):
-        self.assertEqual(MANIFEST["version"], "0.13.157")
-        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.156")
+        self.assertEqual(MANIFEST["version"], "0.13.158")
+        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.157")
 
     def test_optional_step_starts_with_a_plain_choice(self):
         self.assertIn("ELSE IF", HTML)
@@ -28,7 +28,7 @@ class V013145FriendlyResultsTests(unittest.TestCase):
             "IF / ELSE IF paths",
             "Every check below is true",
             "At least one check below is true",
-            "Path label",
+            "Message for this path",
             "Add THEN task",
         ):
             self.assertIn(phrase, WORKSPACE)

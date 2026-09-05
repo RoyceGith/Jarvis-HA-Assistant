@@ -1,9 +1,9 @@
 {
-  "version": "0.13.157",
+  "version": "0.13.158",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/ZBRANO_Core main",
-  "summary": "Restore current device and sensor readings throughout Automation Studio entity dropdowns.",
+  "summary": "Make IF and ELSE IF paths start with their own condition and keep messages independent.",
   "history_backfill": [
     {
       "version": "0.13.0",
@@ -632,19 +632,23 @@
     {
       "version": "0.13.156",
       "summary": "Used the selected device state by default in IF and ELSE IF checks and hid optional attributes."
+    },
+    {
+      "version": "0.13.157",
+      "summary": "Restored current device and sensor readings throughout Automation Studio entity dropdowns."
     }
   ],
   "release_entry": {
     "features": [
-      "Show a clear current-value badge beside every device and sensor in Automation Studio entity dropdowns.",
-      "Include measurement units and prefer live climate temperature readings when available."
+      "Start every IF and ELSE IF lane directly with its own device or sensor condition.",
+      "Give every speaking branch its own editable message and keep Monitor silently message-free."
     ],
     "fixes": [
-      "Restore the device or sensor reading that became unclear in the latest condition editor.",
-      "Keep entity search matching current readings as well as names, IDs, and raw states."
+      "Remove redundant editable IF and ELSE IF title cards that duplicated each branch condition.",
+      "Open branch task menus upward so choices remain visible at the bottom of the Studio window."
     ],
     "validation": [
-      "Sensor value and unit badges, climate current-temperature badges, entity search, ELSE IF selection, browser smoke, full regression suite, and v0.13.157 release coverage"
+      "Condition-first lanes, independent branch messages, silent-mode message removal, upward task menus, backend fallback isolation, browser smoke, full regression suite, and v0.13.158 release coverage"
     ]
   },
   "features": [

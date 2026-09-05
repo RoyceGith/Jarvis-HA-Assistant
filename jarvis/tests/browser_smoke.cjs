@@ -130,7 +130,7 @@ function apiFixture(url, method = "GET") {
   if (pathname === "/api/health") {
     return {
       status: "ok",
-      version: "0.13.157",
+      version: "0.13.158",
       speech_provider: "openai",
       speech_providers: {openai: {configured: true}, elevenlabs: {configured: false}},
     };
@@ -213,7 +213,7 @@ function apiFixture(url, method = "GET") {
   if (pathname === "/api/plugins") return {plugins: []};
   if (pathname === "/api/files/shared") return {files: [], count: 0};
   if (pathname === "/api/release-memory-sync") {
-    return {enabled: false, state: "disabled", version: "0.13.157", task_active: false};
+    return {enabled: false, state: "disabled", version: "0.13.158", task_active: false};
   }
   if (pathname === "/api/tab-activity") return {revisions: {}};
   if (pathname === "/api/grinder-monitor/status") return {enabled: false, connected: false};
@@ -568,8 +568,8 @@ async function main() {
     assert.equal(await page.locator('#automation-flow-preview [data-flow-kind="context"]').count(), 1);
     await dropStudioBlock("decision");
     assert.equal(await page.locator('#automation-flow-preview [data-flow-kind="decision"]').count(), 2);
-    assert.match(await page.locator('#automation-flow-preview [data-flow-kind="decision"]').nth(0).innerText(), /^IF/i);
-    assert.match(await page.locator('#automation-flow-preview [data-flow-kind="decision"]').nth(1).innerText(), /^ELSE IF/i);
+    assert.equal(await page.locator('#automation-flow-preview .automation-flow-node.is-decision').count(), 0);
+    assert.deepEqual(await page.locator('#automation-flow-preview .automation-flow-branch-lane').evaluateAll(lanes=>lanes.map(lane=>lane.querySelector('[data-flow-kind="branch-condition"] .automation-flow-kicker')?.textContent)), ["IF", "ELSE IF"]);
     const timingDetails=page.locator(".automation-inspector-more").filter({hasText:"Fine-tune timing and confidence"});
     assert.match(await timingDetails.locator(":scope > summary").innerText(), /Fine-tune timing and confidence/i);
     assert.equal(await timingDetails.getAttribute("open"), null);
@@ -744,12 +744,26 @@ async function main() {
     await page.locator('.automation-studio-toolbox [data-studio-node="decision"]').click();
     await page.locator("[data-branch-add]").click();
     assert.equal(await page.locator("#automation-flow-preview .automation-flow-branch-lane").count(), 2);
-    assert.deepEqual(await page.locator("#automation-flow-preview [data-flow-kind=\"decision\"] .automation-flow-kicker").allTextContents(), ["IF", "ELSE IF"]);
+    assert.equal(await page.locator('#automation-flow-preview .automation-flow-node.is-decision').count(), 0);
+    assert.deepEqual(await page.locator('#automation-flow-preview .automation-flow-branch-lane').evaluateAll(lanes=>lanes.map(lane=>lane.querySelector('[data-flow-kind="branch-condition"] .automation-flow-kicker')?.textContent)), ["IF", "ELSE IF"]);
     assert.equal(await page.locator('#automation-flow-preview [data-flow-kind="action"]').count(), 0);
     assert.match(await page.locator('[data-flow-branch-drop="0"]').innerText(), /Browser Fixture 3/i);
     assert.match(await page.locator('[data-flow-branch-drop="0"]').innerText(), /Wait 2 sec/i);
+    assert.equal(await page.locator('[data-flow-branch-drop="0"] .automation-flow-branch-suggestion').innerText().then(text=>text.includes("Choose a message for this path")), false);
+    assert.match(await page.locator('[data-flow-branch-drop="1"] .automation-flow-branch-suggestion').innerText(), /Choose a message for this path/i);
     assert.equal(await page.locator("[data-branch-suggestion]").count(), 1);
     assert.equal(await page.locator("[data-branch-suggestion]").evaluateAll(nodes=>nodes.every(node=>node.offsetParent!==null)), true);
+    await page.locator('[data-studio-node="details"]').click();
+    await page.locator("#studio-automation-execution-policy").selectOption("observe");
+    await page.locator('.automation-studio-toolbox [data-studio-node="decision"]').click();
+    assert.equal(await page.locator('#automation-flow-preview .automation-flow-branch-suggestion').count(), 0);
+    assert.equal(await page.locator('[data-branch-suggestion]').count(), 0);
+    assert.equal(await page.locator('#studio-automation-proposal').count(), 0);
+    assert.equal(await page.locator('#studio-automation-delivery-voice').count(), 0);
+    await page.locator('[data-studio-node="details"]').click();
+    await page.locator("#studio-automation-execution-policy").selectOption("suggest");
+    await page.locator('.automation-studio-toolbox [data-studio-node="decision"]').click();
+    await page.locator('[data-flow-branch-drop="1"] .automation-flow-branch-suggestion').click();
     const elseIfEntity=page.locator('[data-branch-collection="conditions"][data-branch-index="1"][data-item-index="0"][data-condition-field="entity_id"]'),elseIfAttribute=page.locator('[data-branch-collection="conditions"][data-branch-index="1"][data-item-index="0"][data-condition-field="attribute"]');
     await elseIfEntity.fill("Browser Thermostat");
     const thermostatResult=page.locator("#automation-studio-inspector-fields .automation-entity-result").filter({hasText:"climate.browser_thermostat"}).first();
@@ -763,6 +777,12 @@ async function main() {
     await page.locator('[data-branch-collection="conditions"][data-branch-index="1"][data-item-index="0"][data-condition-field="value"]').fill("on");
     await page.locator('[data-branch-collection="conditions"][data-branch-index="1"][data-item-index="0"][data-condition-field="for_seconds"]').fill("1200");
     await page.locator('[data-branch-suggestion="1"]').fill("Check whether a window is open.");
+    const taskMenu=page.locator('[data-flow-branch-drop="1"] .automation-flow-branch-task-menu');
+    await taskMenu.locator('summary').click();
+    const taskSummaryBox=await taskMenu.locator('summary').boundingBox(),taskChoicesBox=await taskMenu.locator('.automation-flow-branch-task-choices').boundingBox();
+    assert.ok(taskSummaryBox&&taskChoicesBox&&taskChoicesBox.y<taskSummaryBox.y);
+    assert.ok(taskChoicesBox.y+taskChoicesBox.height<=page.viewportSize().height);
+    await taskMenu.locator('summary').click();
     await page.locator('[data-branch-add-item="actions"][data-branch-index="1"]').click();
     await page.locator('[data-branch-collection="actions"][data-branch-index="1"][data-item-index="0"][data-action-field="entity_id"]').fill("light.browser_fixture");
     await page.locator('[data-branch-collection="actions"][data-branch-index="1"][data-item-index="0"][data-action-field="service"]').fill("light.turn_off");

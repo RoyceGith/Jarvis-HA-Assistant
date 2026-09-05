@@ -1,0 +1,46 @@
+import json
+import unittest
+from pathlib import Path
+
+
+ROOT = Path(__file__).resolve().parents[1]
+FLOW = (ROOT / "jarvis/app/static/js/automations/flow.js").read_text(encoding="utf-8")
+WORKSPACE = (ROOT / "jarvis/app/static/js/automations/workspace.js").read_text(encoding="utf-8")
+CSS = (ROOT / "jarvis/app/static/css/automation-studio.css").read_text(encoding="utf-8")
+AUTOMATIONS = (ROOT / "jarvis/app/domains/automations.py").read_text(encoding="utf-8")
+BROWSER = (ROOT / "jarvis/tests/browser_smoke.cjs").read_text(encoding="utf-8")
+MANIFEST = json.loads((ROOT / "jarvis/release_manifest.json").read_text(encoding="utf-8"))
+
+
+class IndependentAutomationBranchesReleaseTests(unittest.TestCase):
+    def test_release_is_aligned(self):
+        self.assertEqual(MANIFEST["version"], "0.13.158")
+        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.157")
+
+    def test_branch_title_cards_are_removed_and_conditions_identify_paths(self):
+        self.assertIn("if(result)result.remove()", FLOW)
+        self.assertIn('conditionIndex?"AND":fallback?"ELSE":index?"ELSE IF":"IF"', FLOW)
+        self.assertIn("firstChecks.length?firstChecks:[newBranchCondition()]", WORKSPACE)
+        self.assertIn("conditions:[newBranchCondition()]", WORKSPACE)
+
+    def test_each_speaking_path_owns_its_message(self):
+        self.assertIn("suggestion:firstMessage", WORKSPACE)
+        self.assertIn("Message for this path", WORKSPACE)
+        self.assertIn("branchMessagesRequired", WORKSPACE)
+        self.assertNotIn("Leave blank to use the main message", WORKSPACE)
+        self.assertIn('"" if _automation_branches(item) else item.get("proposal_template")', AUTOMATIONS)
+
+    def test_silent_modes_remove_messages(self):
+        self.assertGreaterEqual(FLOW.count('["observe","autonomous"]'), 1)
+        self.assertGreaterEqual(WORKSPACE.count('["observe","autonomous"]'), 3)
+        self.assertIn("automation-flow-branch-suggestion').count(), 0", BROWSER)
+        self.assertIn("[data-branch-suggestion]').count(), 0", BROWSER)
+
+    def test_task_menu_opens_upward_and_is_browser_checked(self):
+        self.assertIn(".automation-flow-branch-task-menu .automation-flow-branch-task-choices", CSS)
+        self.assertIn("bottom:calc(100% + .3rem)", CSS)
+        self.assertIn("taskChoicesBox.y<taskSummaryBox.y", BROWSER)
+
+
+if __name__ == "__main__":
+    unittest.main()

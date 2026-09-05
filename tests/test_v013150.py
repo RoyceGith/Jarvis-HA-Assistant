@@ -14,8 +14,8 @@ MANIFEST = json.loads((ROOT / "jarvis/release_manifest.json").read_text(encoding
 
 class PresenceAndElseIfReleaseTests(unittest.TestCase):
     def test_release_is_aligned(self):
-        self.assertEqual(MANIFEST["version"], "0.13.157")
-        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.156")
+        self.assertEqual(MANIFEST["version"], "0.13.158")
+        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.157")
 
     def test_setup_has_per_automation_presence_and_clear_enable_wording(self):
         self.assertIn('id="automation-require-presence"', HTML)

@@ -23,11 +23,16 @@
     [...view.querySelectorAll(".automation-flow-branch-lane")].forEach((lane,index)=>{
       const checks=(branches[index]?.conditions||[]).filter(Boolean),fallback=index===branches.length-1&&!checks.length,toolbar=lane.querySelector(".automation-flow-branch-toolbar span"),result=lane.querySelector(':scope > [data-flow-kind="decision"]'),labels=lane.querySelectorAll(".automation-flow-branch-section-label");
       if(toolbar)toolbar.textContent=fallback?"ELSE":index?"ELSE IF":"IF";
-      if(result){result.querySelector(".automation-flow-kicker").textContent=fallback?"ELSE":index?"ELSE IF":"IF";result.querySelector("strong").textContent=txt(branches[index]?.name,index?"Another path":"First path")}
-      if(labels[0])labels[0].textContent=fallback?"WHEN NO PATH ABOVE MATCHES":"AND";
+      if(result)result.remove();
+      if(labels[0])labels[0].textContent=fallback?"WHEN NO PATH ABOVE MATCHES":"CONDITION";
       if(labels[1])labels[1].textContent=showMessages?"MESSAGE":"THEN";
       if(labels[2])labels[2].textContent="THEN";
-      lane.querySelectorAll('.automation-flow-branch-conditions [data-flow-kind="branch-condition"] .automation-flow-kicker').forEach((label,conditionIndex)=>{label.textContent="AND"});
+      lane.querySelectorAll('.automation-flow-branch-conditions [data-flow-kind="branch-condition"] .automation-flow-kicker').forEach((label,conditionIndex)=>{label.textContent=conditionIndex?"AND":fallback?"ELSE":index?"ELSE IF":"IF"});
+      const message=lane.querySelector(".automation-flow-branch-suggestion");
+      if(message){
+        const copy=message.querySelector("small");if(copy&&!String(branches[index]?.suggestion||"").trim())copy.textContent="Choose a message for this path";
+        if(interactive){message.dataset.flowKind="decision";message.dataset.flowIndex=index;message.tabIndex=0;message.role="button";message.ariaLabel=`Configure ${fallback?"else":index?"else if":"if"} path message`}
+      }
       const conditionEmpty=lane.querySelector(".is-condition-empty");if(conditionEmpty)conditionEmpty.textContent="Used only when no path above matches";
       const taskEmpty=lane.querySelector(".automation-flow-branch-actions .automation-flow-branch-empty");if(taskEmpty)taskEmpty.textContent="Choose a task for this result";
       lane.querySelectorAll("[aria-label$=' outcome']").forEach(button=>button.setAttribute("aria-label",button.getAttribute("aria-label").replace(" outcome"," result")));
@@ -36,7 +41,7 @@
   }
   function create(a={},name=v=>v,visual=()=>({})){
     const flow=document.createElement("div");flow.className="automation-flow";flow.role="group";flow.ariaLabel=`${txt(a.name,"Automation")} visual flow`;
-    const interactive=Boolean(a.studio_visual_draft),showMessages=a.execution_policy!=="autonomous";
+    const interactive=Boolean(a.studio_visual_draft),showMessages=!["observe","autonomous"].includes(a.execution_policy);
     let triggers=Array.isArray(a.triggers)?a.triggers.filter(Boolean):[];
     if(!triggers.length)triggers=[{kind:"entity",entity_id:a.trigger_entity,operator:a.trigger_operator,value:a.trigger_value,for_seconds:a.trigger_for_seconds}];
     flow.append(stage("trigger","WHEN THIS HAPPENS",triggers.map((item,i)=>trigger(item,i,name,visual,a.trigger_mode)),a.trigger_mode,interactive));
