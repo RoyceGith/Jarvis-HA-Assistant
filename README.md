@@ -1,9 +1,13 @@
-## ZBRANO v0.13.152
+## ZBRANO v0.13.153
 
 ZBRANO combines Home Assistant chat, voice, entity control, memory, notifications,
 calendar and contact tools, plugins, and evidence-based automations. Automation Studio now uses
 a visual building-block toolbox, interactive node canvas, and contextual inspector;
 the established automation engine and stored definitions remain compatible.
+
+Version 0.13.153 moves Automation Studio's block toolbox above the canvas and
+groups shortcuts into WHEN Events, IF Conditions, THEN Actions, and ELSE IF
+Paths. IF starts a condition group; AND/OR connects additional conditions.
 
 Version 0.13.152 adapts response choices to the selected device type. Sensor
 devices offer Monitor silently or Notify me; Control devices offer Ask me first

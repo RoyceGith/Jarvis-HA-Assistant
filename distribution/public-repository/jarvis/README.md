@@ -6,6 +6,9 @@ connections.
 
 ## Automation Studio
 
+Version 0.13.153 introduces a categorized top block bar and a wider automation
+canvas. IF begins conditions, while AND/OR connects additional checks.
+
 Version 0.13.152 gives Sensor devices read-only response choices and Control
 devices approval-gated or automatic choices without overlapping wording.
 

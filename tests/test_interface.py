@@ -26,8 +26,8 @@ class InterfaceTests(unittest.TestCase):
     def test_hud_graph_and_versions(self):
         self.assertIn('id="brain-network"', INDEX)
         self.assertIn("prefers-reduced-motion: reduce", INDEX)
-        self.assertIn('version: "0.13.152"', CONFIG)
-        self.assertIn('version="0.13.152"', MAIN)
+        self.assertIn('version: "0.13.153"', CONFIG)
+        self.assertIn('version="0.13.153"', MAIN)
 
     def test_public_defaults_and_saved_app_options(self):
         self.assertNotIn("192.168.178.49", CONFIG)

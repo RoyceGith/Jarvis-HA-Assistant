@@ -12,15 +12,15 @@ MANIFEST = json.loads((ROOT / "jarvis" / "release_manifest.json").read_text(enco
 
 class V013141AutomationStudioGuideTests(unittest.TestCase):
     def test_release_is_aligned(self):
-        self.assertEqual(MANIFEST["version"], "0.13.152")
-        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.151")
+        self.assertEqual(MANIFEST["version"], "0.13.153")
+        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.152")
 
     def test_numbered_steps_have_live_completion_states(self):
         for kind in ("details", "trigger", "context", "action", "decision"):
             self.assertIn(f'data-studio-step-status="{kind}"', HTML)
         for phrase in ("Needs attention", "Ready", "Optional — message only", "updateStudioGuide"):
             self.assertIn(phrase, WORKSPACE)
-        self.assertIn("is-complete .automation-step-icon::after", CSS)
+        self.assertIn("button[data-studio-node].is-complete small", CSS)
         self.assertIn("is-needs-attention", CSS)
 
     def test_common_messages_avoid_internal_vocabulary(self):

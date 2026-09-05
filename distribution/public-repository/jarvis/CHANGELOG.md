@@ -1,5 +1,12 @@
 # Change log
 
+## 0.13.153
+
+- Moved Automation Studio blocks from the left column into a top bar.
+- Grouped blocks as WHEN Events, IF Conditions, THEN Actions, and ELSE IF Paths.
+- Added direct typed-block shortcuts for common events, conditions, and actions.
+- Made IF the first condition and retained AND/OR between additional conditions.
+
 ## 0.13.152
 
 - Sensor devices now offer Monitor silently or Notify me.

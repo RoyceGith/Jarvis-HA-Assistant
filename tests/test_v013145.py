@@ -13,13 +13,13 @@ MANIFEST = json.loads((ROOT / "jarvis" / "release_manifest.json").read_text(enco
 
 class V013145FriendlyResultsTests(unittest.TestCase):
     def test_release_is_aligned(self):
-        self.assertEqual(MANIFEST["version"], "0.13.152")
-        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.151")
+        self.assertEqual(MANIFEST["version"], "0.13.153")
+        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.152")
 
     def test_optional_step_starts_with_a_plain_choice(self):
-        self.assertIn("Else if", HTML)
+        self.assertIn("ELSE IF", HTML)
         self.assertIn("Add an ELSE IF path", WORKSPACE)
-        self.assertIn("current And checks and Then tasks become the first IF path", WORKSPACE)
+        self.assertIn("current IF conditions and THEN actions become the first path", WORKSPACE)
         self.assertIn("Add ELSE IF", WORKSPACE)
         self.assertIn("automation-outcome-choice", CSS)
 

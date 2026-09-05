@@ -12,12 +12,12 @@ MANIFEST = json.loads((ROOT / "jarvis" / "release_manifest.json").read_text(enco
 
 class V013139FriendlyAutomationStudioTests(unittest.TestCase):
     def test_release_is_aligned(self):
-        self.assertEqual(MANIFEST["version"], "0.13.152")
-        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.151")
+        self.assertEqual(MANIFEST["version"], "0.13.153")
+        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.152")
 
     def test_flow_remains_central_with_numbered_steps(self):
         self.assertIn('id="automation-studio-canvas"', HTML)
-        for label in ("Setup &amp; safety", "When", "And", "Then", "Else if"):
+        for label in ("Setup &amp; safety", "WHEN · Events", "IF · Conditions", "THEN · Actions", "ELSE IF"):
             self.assertIn(f"<strong>{label}</strong>", HTML)
         self.assertIn("Click any card to change it", HTML)
 

@@ -13,8 +13,8 @@ MANIFEST = json.loads((ROOT / "jarvis" / "release_manifest.json").read_text(enco
 
 class V013147PerAutomationAuthorityTests(unittest.TestCase):
     def test_release_is_aligned(self):
-        self.assertEqual(MANIFEST["version"], "0.13.152")
-        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.151")
+        self.assertEqual(MANIFEST["version"], "0.13.153")
+        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.152")
 
     def test_setup_step_owns_each_rules_authority_and_safety(self):
         details = WORKSPACE.split('details:{title:"1. Setup & safety"', 1)[1].split("trigger:{", 1)[0]

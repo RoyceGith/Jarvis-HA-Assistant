@@ -130,7 +130,7 @@ function apiFixture(url, method = "GET") {
   if (pathname === "/api/health") {
     return {
       status: "ok",
-      version: "0.13.152",
+      version: "0.13.153",
       speech_provider: "openai",
       speech_providers: {openai: {configured: true}, elevenlabs: {configured: false}},
     };
@@ -213,7 +213,7 @@ function apiFixture(url, method = "GET") {
   if (pathname === "/api/plugins") return {plugins: []};
   if (pathname === "/api/files/shared") return {files: [], count: 0};
   if (pathname === "/api/release-memory-sync") {
-    return {enabled: false, state: "disabled", version: "0.13.152", task_active: false};
+    return {enabled: false, state: "disabled", version: "0.13.153", task_active: false};
   }
   if (pathname === "/api/tab-activity") return {revisions: {}};
   if (pathname === "/api/grinder-monitor/status") return {enabled: false, connected: false};
@@ -372,6 +372,12 @@ async function main() {
     assert.equal(automationLayout.display, "grid");
     assert.match(automationLayout.columns, /px .*px/);
     assert.equal(automationLayout.navCursor, "pointer");
+    const blockBarBox=await page.locator(".automation-studio-toolbox").boundingBox(),flowCanvasBox=await page.locator("#automation-studio-canvas").boundingBox();
+    assert.ok(blockBarBox.y < flowCanvasBox.y);
+    assert.equal(await page.locator(".automation-block-category").count(), 5);
+    assert.equal(await page.locator("[data-tool-trigger]").count(), 7);
+    assert.equal(await page.locator("[data-tool-condition]").count(), 5);
+    assert.equal(await page.locator("[data-tool-action]").count(), 5);
     assert.equal(await page.locator("#automation-studio-inspector-title").innerText(), "1. Setup & safety");
     assert.equal(await page.locator("#automation-studio-current-step").innerText(), "Step 1 of 5");
     assert.equal(await page.locator("#automation-studio-step-back").isDisabled(), true);
@@ -412,15 +418,12 @@ async function main() {
     await page.locator("#studio-automation-trigger-operator").selectOption("above");
     assert.equal(await page.locator("#studio-automation-trigger-value").count(), 1);
     await page.locator("#studio-automation-trigger-operator").selectOption("changes_to");
-    await page.locator('.automation-studio-toolbox [data-studio-node="context"]').click();
-    await page.locator('[data-workflow-add="conditions"]').click();
+    await page.locator('[data-tool-condition="entity"]').click();
     const sharedConditionEntity=page.locator('[data-workflow-index="0"][data-condition-field="entity_id"]');
     await sharedConditionEntity.focus();
     await page.locator('[data-workflow-index="0"] + .automation-entity-results .automation-entity-result').first().waitFor();
     await sharedConditionEntity.press("Escape");
-    await page.locator('#automation-flow-preview [data-flow-kind="action"]').first().click();
-    assert.equal(await page.locator("#studio-automation-action-service").count(), 0);
-    await page.locator('[data-action-template="turn_on"]').click();
+    await page.locator('[data-tool-action="turn_on"]').click();
     const friendlyActionEntity=page.locator('[data-workflow-index="0"][data-action-field="entity_id"]');
     await friendlyActionEntity.focus();
     await page.locator('[data-workflow-index="0"] + .automation-entity-results .automation-entity-result').first().waitFor();
@@ -594,7 +597,7 @@ async function main() {
     assert.match(await page.locator("#automation-flow-preview").innerText(), /Comfort advisor|Record the match|room is becoming uncomfortable/i);
     await page.locator("#automation-studio-validation:not([hidden])").waitFor();
     assert.match(await page.locator("#automation-studio-validation").innerText(), /When: choose a device or sensor/i);
-    assert.equal(await page.locator('[data-studio-node="trigger"]').getAttribute("aria-label"), "When: Needs attention");
+    assert.equal(await page.locator('[data-studio-node="trigger"]').getAttribute("aria-label"), "WHEN · Events: Needs attention");
     assert.match(await page.locator('[data-studio-step-status="details"]').innerText(), /Ready/i);
     await page.locator("#automation-studio-test").click();
     assert.match(await page.locator("#automation-studio-state").innerText(), /before testing/i);
@@ -606,9 +609,9 @@ async function main() {
     await page.locator("#studio-automation-trigger-value").fill("27");
     assert.equal(await page.locator("#automation-trigger-value").inputValue(), "27");
     assert.equal(await page.locator("#automation-studio-validation").isHidden(), true);
-    assert.equal(await page.locator('[data-studio-node="trigger"]').getAttribute("aria-label"), "When: Ready");
+    assert.equal(await page.locator('[data-studio-node="trigger"]').getAttribute("aria-label"), "WHEN · Events: Ready");
     await page.locator("#automation-studio-step-next").click();
-    assert.equal(await page.locator("#automation-studio-inspector-title").innerText(), "3. And");
+    assert.equal(await page.locator("#automation-studio-inspector-title").innerText(), "3. IF conditions");
     assert.equal(await page.locator("#automation-studio-current-step").innerText(), "Step 3 of 5");
     await page.locator("#automation-studio-step-back").click();
     assert.equal(await page.locator("#automation-studio-inspector-title").innerText(), "2. When");
@@ -677,7 +680,7 @@ async function main() {
     assert.equal(await page.locator("[data-trigger-mode]").inputValue(), "all");
     await page.locator("#automation-flow-preview [data-trigger-logic]").selectOption("any");
     await page.locator('#automation-flow-preview [data-flow-kind="context"]').first().click();
-    assert.equal(await page.locator("#automation-studio-inspector-title").innerText(), "3. And");
+    assert.equal(await page.locator("#automation-studio-inspector-title").innerText(), "3. IF conditions");
     await page.waitForTimeout(250);
     await page.evaluate(()=>{document.activeElement?.blur();window.zbranoEntitySearch.close()});
     await page.locator('[data-workflow-add="conditions"]').click();
