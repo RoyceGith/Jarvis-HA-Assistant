@@ -1,6 +1,6 @@
 # ZBRANO for Home Assistant
 
-Current release: **0.13.156**
+Current release: **0.13.157**
 
 This is the public Home Assistant installation and update repository for ZBRANO.
 The application is delivered as a prebuilt container image. The current repository
@@ -20,6 +20,9 @@ Existing ZBRANO installations retain the same add-on slug, configuration, `/data
 storage, and `ghcr.io/roycegith/jarvis-ha-assistant` update image.
 
 ## Current experience
+
+Version 0.13.157 restores current device and sensor readings in Automation Studio
+selection dropdowns, including units and current climate temperatures.
 
 Version 0.13.156 uses a selected device's state by default in IF and ELSE IF,
 placing optional device attributes in a collapsed advanced section.

@@ -1,5 +1,12 @@
 # Change log
 
+## 0.13.157
+
+- Restored current readings in Automation Studio entity dropdowns.
+- Added clear value badges beside entity names and IDs.
+- Included sensor measurement units and current climate temperatures.
+- Made current readings searchable alongside entity names and states.
+
 ## 0.13.156
 
 - Defaulted IF and ELSE IF checks to the selected device or sensor state.
