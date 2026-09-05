@@ -1,5 +1,12 @@
 # Change log
 
+## 0.13.156
+
+- Defaulted IF and ELSE IF checks to the selected device or sensor state.
+- Removed the visible Which value field from ordinary checks.
+- Moved optional device attributes into a collapsed advanced section.
+- Automatically reveal attributes already used by saved automations.
+
 ## 0.13.155
 
 - Moved Setup & safety out of the Automation Studio block palette.

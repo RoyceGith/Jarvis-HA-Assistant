@@ -6,6 +6,9 @@ connections.
 
 ## Automation Studio
 
+Version 0.13.156 defaults IF and ELSE IF checks to the selected device state and
+moves optional attribute selection into a collapsed advanced section.
+
 Version 0.13.155 reserves the Automation Studio top palette for real flow blocks,
 moves setup and progress into a slim guide line, and reduces action-button size.
 
