@@ -6,6 +6,9 @@ connections.
 
 ## Automation Studio
 
+Version 0.13.157 shows current device and sensor readings beside entity names and
+IDs throughout Automation Studio selection dropdowns.
+
 Version 0.13.156 defaults IF and ELSE IF checks to the selected device state and
 moves optional attribute selection into a collapsed advanced section.
 

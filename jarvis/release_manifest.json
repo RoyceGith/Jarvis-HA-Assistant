@@ -1,9 +1,9 @@
 {
-  "version": "0.13.156",
+  "version": "0.13.157",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/ZBRANO_Core main",
-  "summary": "Use the selected device state by default in IF and ELSE IF checks and hide optional attributes.",
+  "summary": "Restore current device and sensor readings throughout Automation Studio entity dropdowns.",
   "history_backfill": [
     {
       "version": "0.13.0",
@@ -628,19 +628,23 @@
     {
       "version": "0.13.155",
       "summary": "Slimmed Automation Studio controls and kept setup guidance outside the flow-block palette."
+    },
+    {
+      "version": "0.13.156",
+      "summary": "Used the selected device state by default in IF and ELSE IF checks and hid optional attributes."
     }
   ],
   "release_entry": {
     "features": [
-      "Default ordinary IF and ELSE IF device checks to the selected entity's current state.",
-      "Keep optional Home Assistant attribute selection in a collapsed advanced section."
+      "Show a clear current-value badge beside every device and sensor in Automation Studio entity dropdowns.",
+      "Include measurement units and prefer live climate temperature readings when available."
     ],
     "fixes": [
-      "Remove the confusing visible Which value field after a device or sensor has been selected.",
-      "Automatically reveal saved attribute settings when reopening an automation that uses them."
+      "Restore the device or sensor reading that became unclear in the latest condition editor.",
+      "Keep entity search matching current readings as well as names, IDs, and raw states."
     ],
     "validation": [
-      "Default entity-state checks, collapsed optional attributes, stored attribute preservation, ELSE IF browser workflow, full regression suite, and v0.13.156 release coverage"
+      "Sensor value and unit badges, climate current-temperature badges, entity search, ELSE IF selection, browser smoke, full regression suite, and v0.13.157 release coverage"
     ]
   },
   "features": [

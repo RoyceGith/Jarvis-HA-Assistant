@@ -4,6 +4,12 @@
   if(!inputs.length)return;
   let entities=null,loading=null,openPicker=null;
   const normalize=value=>String(value??"").trim().toLowerCase();
+  const readingFor=item=>{
+    const temperature=item.current_temperature,value=temperature??item.state,unit=temperature!=null?item.temperature_unit:item.unit;
+    if(value===""||value==null)return "No value";
+    const text=String(value),suffix=String(unit||"").trim();
+    return suffix&&!text.includes(suffix)?`${text} ${suffix}`:text;
+  };
   async function loadEntities(){
     if(entities)return entities;
     if(loading)return loading;
@@ -14,6 +20,9 @@
         id:String(item.entity_id||""),
         name:String(item.friendly_name||item.attributes?.friendly_name||item.entity_id||""),
         state:String(item.state??""),
+        unit:String(item.unit||item.unit_of_measurement||item.attributes?.unit_of_measurement||""),
+        current_temperature:item.current_temperature??item.attributes?.current_temperature??null,
+        temperature_unit:String(item.temperature_unit||item.attributes?.temperature_unit||item.unit||item.attributes?.unit_of_measurement||""),
       })).filter(item=>item.id).sort((a,b)=>a.name.localeCompare(b.name)||a.id.localeCompare(b.id));
       return entities;
     }).finally(()=>{loading=null});
@@ -46,14 +55,16 @@
   function render(input){
     const picker=input._zbranoEntityPicker;if(!picker||!entities)return;
     const query=queryFor(input);
-    const matches=entities.filter(item=>!query||normalize(`${item.name} ${item.id} ${item.state}`).includes(query)).slice(0,40);
+    const matches=entities.filter(item=>!query||normalize(`${item.name} ${item.id} ${item.state} ${readingFor(item)}`).includes(query)).slice(0,40);
     picker.replaceChildren();picker.active=-1;
     if(!matches.length){const empty=document.createElement("div");empty.className="automation-entity-empty";empty.textContent="No matching Home Assistant entities.";picker.appendChild(empty);}
     for(const item of matches){
       const option=document.createElement("button");option.type="button";option.className="automation-entity-result";option.setAttribute("role","option");option.dataset.entityId=item.id;
+      const copy=document.createElement("span");copy.className="automation-entity-result-copy";
       const name=document.createElement("strong");name.textContent=item.name;
-      const detail=document.createElement("small");detail.textContent=`${item.id}${item.state?` · ${item.state}`:""}`;
-      option.append(name,detail);option.addEventListener("pointerdown",event=>{event.preventDefault();choose(input,item)});picker.appendChild(option);
+      const detail=document.createElement("small");detail.textContent=item.id;
+      const reading=document.createElement("span");reading.className="automation-entity-reading";reading.textContent=readingFor(item);reading.title=`Current value: ${reading.textContent}`;
+      copy.append(name,detail);option.append(copy,reading);option.addEventListener("pointerdown",event=>{event.preventDefault();choose(input,item)});picker.appendChild(option);
     }
     picker.hidden=false;input.setAttribute("aria-expanded","true");openPicker=picker;
   }

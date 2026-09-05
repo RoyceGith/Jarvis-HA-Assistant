@@ -130,7 +130,7 @@ function apiFixture(url, method = "GET") {
   if (pathname === "/api/health") {
     return {
       status: "ok",
-      version: "0.13.156",
+      version: "0.13.157",
       speech_provider: "openai",
       speech_providers: {openai: {configured: true}, elevenlabs: {configured: false}},
     };
@@ -213,7 +213,7 @@ function apiFixture(url, method = "GET") {
   if (pathname === "/api/plugins") return {plugins: []};
   if (pathname === "/api/files/shared") return {files: [], count: 0};
   if (pathname === "/api/release-memory-sync") {
-    return {enabled: false, state: "disabled", version: "0.13.156", task_active: false};
+    return {enabled: false, state: "disabled", version: "0.13.157", task_active: false};
   }
   if (pathname === "/api/tab-activity") return {revisions: {}};
   if (pathname === "/api/grinder-monitor/status") return {enabled: false, connected: false};
@@ -536,6 +536,7 @@ async function main() {
     await studioTriggerEntity.fill("Browser Fixture 1");
     const studioTriggerResult = page.locator("#automation-studio-inspector-fields .automation-entity-result").filter({hasText:"sensor.browser_fixture_1"}).first();
     await studioTriggerResult.waitFor();
+    assert.match(await studioTriggerResult.locator(".automation-entity-reading").innerText(), /20\.1\s*°C/i);
     await studioTriggerResult.click();
     assert.equal(await page.locator("#automation-trigger-entity").inputValue(), "sensor.browser_fixture_1");
     await studioTriggerEntity.fill("sensor.primary_trigger");
@@ -750,7 +751,11 @@ async function main() {
     assert.equal(await page.locator("[data-branch-suggestion]").count(), 1);
     assert.equal(await page.locator("[data-branch-suggestion]").evaluateAll(nodes=>nodes.every(node=>node.offsetParent!==null)), true);
     const elseIfEntity=page.locator('[data-branch-collection="conditions"][data-branch-index="1"][data-item-index="0"][data-condition-field="entity_id"]'),elseIfAttribute=page.locator('[data-branch-collection="conditions"][data-branch-index="1"][data-item-index="0"][data-condition-field="attribute"]');
-    await elseIfEntity.fill("climate.browser_thermostat");
+    await elseIfEntity.fill("Browser Thermostat");
+    const thermostatResult=page.locator("#automation-studio-inspector-fields .automation-entity-result").filter({hasText:"climate.browser_thermostat"}).first();
+    await thermostatResult.waitFor();
+    assert.match(await thermostatResult.locator(".automation-entity-reading").innerText(), /26\.2\s*°C/i);
+    await thermostatResult.click();
     const elseIfAdvanced=elseIfAttribute.locator("xpath=ancestor::details[1]");
     assert.doesNotMatch(await elseIfAdvanced.innerText(), /Which value\?/i);
     assert.equal(await elseIfAdvanced.getAttribute("open"), null);

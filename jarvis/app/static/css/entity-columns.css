@@ -336,10 +336,12 @@
     .automation-entity-picker-host { position:relative; }
     .automation-entity-results { position:absolute; z-index:90; top:calc(100% + .25rem); left:0; right:0; display:grid; max-height:15rem; overflow:auto; padding:.28rem; border:1px solid var(--cyan-dim); border-radius:7px; background:var(--surface-strong); box-shadow:0 .65rem 1.7rem rgba(0,0,0,.24); }
     .automation-entity-results[hidden] { display:none; }
-    .automation-entity-result { display:grid; gap:.08rem; width:100%; padding:.42rem .5rem; border:0; border-radius:5px; background:transparent; color:var(--text); text-align:left; }
+    .automation-entity-result { display:grid; grid-template-columns:minmax(0,1fr) auto; align-items:center; gap:.5rem; width:100%; padding:.42rem .5rem; border:0; border-radius:5px; background:transparent; color:var(--text); text-align:left; }
     .automation-entity-result:hover,.automation-entity-result:focus,.automation-entity-result[data-active="true"] { background:color-mix(in srgb,var(--cyan) 13%,transparent); outline:none; }
+    .automation-entity-result-copy { display:grid; gap:.08rem; min-width:0; }
     .automation-entity-result strong { overflow-wrap:anywhere; font-size:.75rem; font-weight:620; }
     .automation-entity-result small { overflow-wrap:anywhere; color:var(--text-muted); font-size:.66rem; }
+    .automation-entity-reading { justify-self:end; max-width:8rem; overflow:hidden; padding:.2rem .38rem; border:1px solid color-mix(in srgb,var(--cyan) 28%,var(--line)); border-radius:999px; background:color-mix(in srgb,var(--cyan) 8%,transparent); color:var(--cyan); font-size:.65rem; font-weight:720; text-overflow:ellipsis; white-space:nowrap; }
     .automation-entity-empty { padding:.55rem; color:var(--text-muted); font-size:.72rem; }
 
     /* v0.12.94 proactive voice and wake phrase. */

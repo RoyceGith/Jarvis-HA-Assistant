@@ -1,9 +1,13 @@
-## ZBRANO v0.13.156
+## ZBRANO v0.13.157
 
 ZBRANO combines Home Assistant chat, voice, entity control, memory, notifications,
 calendar and contact tools, plugins, and evidence-based automations. Automation Studio now uses
 a visual building-block toolbox, interactive node canvas, and contextual inspector;
 the established automation engine and stored definitions remain compatible.
+
+Version 0.13.157 restores current readings in every Automation Studio device
+dropdown. Results show the entity name and ID beside a clear state or measured
+value badge, including sensor units and current climate temperatures.
 
 Version 0.13.156 makes IF and ELSE IF device checks use the selected entity's
 state by default. Optional Home Assistant attributes are preserved in a collapsed
