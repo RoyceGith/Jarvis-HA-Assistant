@@ -206,6 +206,7 @@
 .automation-flow-branch-task-choices button:hover,.automation-flow-branch-task-choices button:focus-visible,.automation-flow-branch-condition-choices button:hover,.automation-flow-branch-condition-choices button:focus-visible { border-color:var(--cyan); color:var(--cyan); outline:none; }
 .automation-flow-branch-empty { display:grid; place-items:center; min-height:54px; padding:.55rem; border:1px dashed var(--line); border-radius:10px; color:var(--text-muted); font-size:.7rem; text-align:center; }
 .automation-flow-node.is-branch-action { box-shadow:inset 3px 0 color-mix(in srgb,#f0b35b 66%,transparent),0 8px 24px rgba(0,0,0,.12); }
+.automation-flow-node.is-branch-message { box-shadow:inset 3px 0 color-mix(in srgb,#b993ff 70%,transparent),0 8px 24px rgba(0,0,0,.12); }
 .automation-flow-node-row { display: flex; align-items: center; justify-content: center; gap: .45rem; min-width: 0; }
 .automation-flow-node-row .automation-flow-node { width: clamp(175px,20vw,250px); flex: 0 0 auto; }
 .automation-studio-canvas .automation-flow-node-row { flex-wrap: wrap; }

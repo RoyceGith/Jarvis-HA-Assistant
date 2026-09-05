@@ -146,6 +146,7 @@ class AutomationActionRequest(BaseModel):
 class AutomationBranchRequest(BaseModel):
     name: str = Field(min_length=1, max_length=80)
     suggestion: str = Field(default="", max_length=1000)
+    message_enabled: bool | None = None
     delivery_voice: bool | None = None
     delivery_notification_center: bool | None = None
     delivery_ha_push: bool | None = None

@@ -1,5 +1,11 @@
 # Change log
 
+## 0.13.161
+
+- Added Message as an optional task in each IF and ELSE IF branch.
+- Removed the default empty message from new ELSE IF branches.
+- Made message-only branches notify without an action approval.
+
 ## 0.13.160
 
 - Fixed entity selection inside nested branch tasks.

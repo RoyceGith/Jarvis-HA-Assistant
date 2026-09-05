@@ -6,6 +6,9 @@ connections.
 
 ## Automation Studio
 
+Version 0.13.161 makes branch messages optional task blocks and supports outcomes
+that only send a message without requesting approval for a nonexistent action.
+
 Version 0.13.160 keeps nested branch task selections synchronized and displays
 the complete Home Assistant friendly name instead of partial search text.
 

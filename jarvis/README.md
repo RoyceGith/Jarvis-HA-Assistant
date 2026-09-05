@@ -1,9 +1,13 @@
-# ZBRANO v0.13.160
+# ZBRANO v0.13.161
 
 Automation Studio provides a graphical, step-by-step workflow for Home Assistant
 automations. Use Setup &amp; safety, When, Only if, Then, and optional Outcomes beside the
 interactive flow canvas. Natural-language creation, templates, drag-and-drop,
 saved automation compatibility, and the full Advanced editor remain available.
+
+Version 0.13.161 makes branch messages optional task blocks. A new ELSE IF path
+contains no message by default, and message-only outcomes notify normally without
+offering approval for an action that does not exist.
 
 Version 0.13.160 synchronizes device choices in nested branch tasks and shows
 the complete Home Assistant friendly name on the task card. Partial search text

@@ -1,9 +1,9 @@
 {
-  "version": "0.13.160",
+  "version": "0.13.161",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/ZBRANO_Core main",
-  "summary": "Keep branch task entity selections synchronized and show complete device names.",
+  "summary": "Make branch messages optional task blocks and support message-only outcomes.",
   "history_backfill": [
     {
       "version": "0.13.0",
@@ -644,19 +644,23 @@
     {
       "version": "0.13.159",
       "summary": "Gave every automation branch its own clearly named message-delivery settings."
+    },
+    {
+      "version": "0.13.160",
+      "summary": "Kept branch task entity selections synchronized and showed complete device names."
     }
   ],
   "release_entry": {
     "features": [
-      "Show the complete Home Assistant friendly name in branch task cards after selecting a device.",
-      "Treat partial device searches as incomplete until a real entity is selected."
+      "Add Message as an optional task in every IF and ELSE IF outcome.",
+      "Allow an outcome to contain only a message, only device tasks, or both."
     ],
     "fixes": [
-      "Synchronize entity-search selections into nested branch conditions and tasks using the input event expected by the visual editor.",
-      "Prevent partial search text such as livin from being stored or displayed as a configured task device."
+      "Stop inserting an empty message template into every new ELSE IF outcome.",
+      "Treat message-only outcomes as notifications instead of approval requests with no executable action."
     ],
     "validation": [
-      "Nested entity selection synchronization, partial-ID validation, full friendly-name rendering, browser smoke, full regression suite, and v0.13.160 release coverage"
+      "Optional branch message blocks, independent delivery settings, message-only runtime semantics, browser smoke, full regression suite, and v0.13.161 release coverage"
     ]
   },
   "features": [

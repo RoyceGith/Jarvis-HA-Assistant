@@ -1,9 +1,14 @@
-## ZBRANO v0.13.160
+## ZBRANO v0.13.161
 
 ZBRANO combines Home Assistant chat, voice, entity control, memory, notifications,
 calendar and contact tools, plugins, and evidence-based automations. Automation Studio now uses
 a visual building-block toolbox, interactive node canvas, and contextual inspector;
 the established automation engine and stored definitions remain compatible.
+
+Version 0.13.161 turns each branch message into an optional task block. New ELSE
+IF paths start empty, and a path can contain a message only, device tasks only,
+or both. Message-only paths notify without asking for approval for a nonexistent
+device action.
 
 Version 0.13.160 fixes nested task device selection so choosing a Home Assistant
 entity replaces the partial search text and the flow card displays its complete

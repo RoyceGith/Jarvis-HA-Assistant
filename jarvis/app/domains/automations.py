@@ -535,6 +535,7 @@ def _automation_payload(request):
     payload["branches"] = [{
         "name": " ".join(str(branch.get("name") or "Branch").split())[:80],
         "suggestion": str(branch.get("suggestion") or "").strip()[:1000],
+        "message_enabled": (bool(str(branch.get("suggestion") or "").strip()) if branch.get("message_enabled") is None else branch.get("message_enabled")) is not False,
         "delivery_voice": (payload.get("delivery_voice", True) if branch.get("delivery_voice") is None else branch.get("delivery_voice")) is not False,
         "delivery_notification_center": (payload.get("delivery_notification_center", True) if branch.get("delivery_notification_center") is None else branch.get("delivery_notification_center")) is not False,
         "delivery_ha_push": (payload.get("delivery_ha_push", True) if branch.get("delivery_ha_push") is None else branch.get("delivery_ha_push")) is not False,
@@ -1240,7 +1241,7 @@ def _automation_select_branch(item: dict[str, Any]) -> tuple[bool, str, list[dic
 
 def _automation_branch_suggestion(item: dict[str, Any], branch_name: str) -> str:
     branch = next((value for value in _automation_branches(item) if str(value.get("name") or "") == branch_name), None)
-    return str(branch.get("suggestion") or "") if branch else ""
+    return str(branch.get("suggestion") or "") if branch and branch.get("message_enabled", bool(branch.get("suggestion"))) else ""
 
 def _automation_branch_delivery(item: dict[str, Any], branch_name: str, key: str) -> bool:
     branch = next((value for value in _automation_branches(item) if str(value.get("name") or "") == branch_name), None)
@@ -1963,17 +1964,18 @@ async def _automation_commit_match(automation_id: str, evidence: dict[str, Any])
             return
         autonomous, authority_detail = _automation_autonomous_allowed(item, data["settings"], selected_actions)
         first_action = next((action for action in selected_actions if str(action.get("kind") or "service") == "service"), {})
+        has_executable_action = bool(selected_actions)
         suggestion = {
             "id": secrets.token_hex(10), "automation_id": automation_id,
             "title": str(item.get("name") or "ZBRANO suggestion")[:160], "detail": detail[:1000],
             "evidence": evidence_text[:1000], "confidence": confidence,
-            "status": "executing" if autonomous else "approval_required" if policy in {"approval_required", "autonomous"} else "pending",
+            "status": "executing" if autonomous else "approval_required" if has_executable_action and policy in {"approval_required", "autonomous"} else "pending",
             "action_entity": str(first_action.get("entity_id") or ""), "action_service": str(first_action.get("service") or ""),
             "actions": selected_actions, "branch": branch_name,
             "trigger_kind": trigger_kind, "trigger_entity": trigger_entity,
             "trigger_operator": str(trigger.get("operator") or ""), "trigger_value": str(trigger.get("value") or ""),
             "observed_value": str(current if current is not None else ""),
-            "execution_policy": "autonomous" if autonomous else "approval_required" if policy in {"approval_required", "autonomous"} else "suggest",
+            "execution_policy": "autonomous" if autonomous else "approval_required" if has_executable_action and policy in {"approval_required", "autonomous"} else "suggest",
             "delivery_voice": _automation_branch_delivery(item, branch_name, "delivery_voice"),
             "delivery_notification_center": _automation_branch_delivery(item, branch_name, "delivery_notification_center"),
             "delivery_ha_push": _automation_branch_delivery(item, branch_name, "delivery_ha_push"),

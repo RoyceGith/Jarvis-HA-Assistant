@@ -14,8 +14,8 @@ MANIFEST = json.loads((ROOT / "jarvis/release_manifest.json").read_text(encoding
 
 class IndependentAutomationBranchesReleaseTests(unittest.TestCase):
     def test_release_is_aligned(self):
-        self.assertEqual(MANIFEST["version"], "0.13.160")
-        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.159")
+        self.assertEqual(MANIFEST["version"], "0.13.161")
+        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.160")
 
     def test_branch_title_cards_are_removed_and_conditions_identify_paths(self):
         self.assertIn("if(result)result.remove()", FLOW)
@@ -25,15 +25,16 @@ class IndependentAutomationBranchesReleaseTests(unittest.TestCase):
 
     def test_each_speaking_path_owns_its_message(self):
         self.assertIn("suggestion:firstMessage", WORKSPACE)
-        self.assertIn("Message for this path", WORKSPACE)
-        self.assertIn("branchMessagesRequired", WORKSPACE)
+        self.assertIn("message_enabled:Boolean(firstMessage)", WORKSPACE)
+        self.assertIn("function branchMessageEditor", WORKSPACE)
+        self.assertIn("message task: write its message", WORKSPACE)
         self.assertNotIn("Leave blank to use the main message", WORKSPACE)
         self.assertIn('"" if _automation_branches(item) else item.get("proposal_template")', AUTOMATIONS)
 
     def test_silent_modes_remove_messages(self):
         self.assertGreaterEqual(FLOW.count('["observe","autonomous"]'), 1)
-        self.assertGreaterEqual(WORKSPACE.count('["observe","autonomous"]'), 3)
-        self.assertIn("automation-flow-branch-suggestion').count(), 0", BROWSER)
+        self.assertGreaterEqual(WORKSPACE.count('["observe","autonomous"]'), 2)
+        self.assertIn('branch-message', BROWSER)
         self.assertIn("[data-branch-suggestion]').count(), 0", BROWSER)
 
     def test_task_menu_opens_upward_and_is_browser_checked(self):
