@@ -14,10 +14,10 @@ MANIFEST = json.loads((ROOT / "jarvis/release_manifest.json").read_text(encoding
 
 class ReleaseContractReleaseTests(unittest.TestCase):
     def test_release_markers_are_aligned(self):
-        self.assertIn('version: "0.13.158"', CONFIG)
-        self.assertIn('version="0.13.158"', MAIN)
-        self.assertIn("HUD 0.13.158", HTML)
-        self.assertEqual(MANIFEST["version"], "0.13.158")
+        self.assertIn('version: "0.13.159"', CONFIG)
+        self.assertIn('version="0.13.159"', MAIN)
+        self.assertIn("HUD 0.13.159", HTML)
+        self.assertEqual(MANIFEST["version"], "0.13.159")
 
     def test_release_contract_runs_before_build_metadata(self):
         command = "python3 jarvis/validate_release_contract.py"
@@ -34,7 +34,7 @@ class ReleaseContractReleaseTests(unittest.TestCase):
             self.assertIn(marker, VALIDATOR)
 
     def test_release_history_includes_previous_release(self):
-        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.157")
+        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.158")
 
 
 if __name__ == "__main__":

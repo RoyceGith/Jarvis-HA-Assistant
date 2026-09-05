@@ -146,6 +146,9 @@ class AutomationActionRequest(BaseModel):
 class AutomationBranchRequest(BaseModel):
     name: str = Field(min_length=1, max_length=80)
     suggestion: str = Field(default="", max_length=1000)
+    delivery_voice: bool | None = None
+    delivery_notification_center: bool | None = None
+    delivery_ha_push: bool | None = None
     conditions: list[AutomationConditionRequest] = Field(default_factory=list, max_length=20)
     condition_mode: str = Field(default="all", pattern="^(all|any)$")
     actions: list[AutomationActionRequest] = Field(default_factory=list, max_length=20)

@@ -535,6 +535,9 @@ def _automation_payload(request):
     payload["branches"] = [{
         "name": " ".join(str(branch.get("name") or "Branch").split())[:80],
         "suggestion": str(branch.get("suggestion") or "").strip()[:1000],
+        "delivery_voice": (payload.get("delivery_voice", True) if branch.get("delivery_voice") is None else branch.get("delivery_voice")) is not False,
+        "delivery_notification_center": (payload.get("delivery_notification_center", True) if branch.get("delivery_notification_center") is None else branch.get("delivery_notification_center")) is not False,
+        "delivery_ha_push": (payload.get("delivery_ha_push", True) if branch.get("delivery_ha_push") is None else branch.get("delivery_ha_push")) is not False,
         "condition_mode": str(branch.get("condition_mode") or "all"),
         "conditions": [_automation_normalize_condition(item) for item in branch.get("conditions") or []],
         "actions": [{
@@ -1238,6 +1241,10 @@ def _automation_select_branch(item: dict[str, Any]) -> tuple[bool, str, list[dic
 def _automation_branch_suggestion(item: dict[str, Any], branch_name: str) -> str:
     branch = next((value for value in _automation_branches(item) if str(value.get("name") or "") == branch_name), None)
     return str(branch.get("suggestion") or "") if branch else ""
+
+def _automation_branch_delivery(item: dict[str, Any], branch_name: str, key: str) -> bool:
+    branch = next((value for value in _automation_branches(item) if str(value.get("name") or "") == branch_name), None)
+    return (branch.get(key, item.get(key, True)) if branch else item.get(key, True)) is not False
 
 def _automation_presence_confirmed(item: dict[str, Any], settings: dict[str, Any], expected_zone: str = "") -> tuple[bool, str]:
     if not settings.get("require_presence"):
@@ -1967,9 +1974,9 @@ async def _automation_commit_match(automation_id: str, evidence: dict[str, Any])
             "trigger_operator": str(trigger.get("operator") or ""), "trigger_value": str(trigger.get("value") or ""),
             "observed_value": str(current if current is not None else ""),
             "execution_policy": "autonomous" if autonomous else "approval_required" if policy in {"approval_required", "autonomous"} else "suggest",
-            "delivery_voice": item.get("delivery_voice", True),
-            "delivery_notification_center": item.get("delivery_notification_center", True),
-            "delivery_ha_push": item.get("delivery_ha_push", True),
+            "delivery_voice": _automation_branch_delivery(item, branch_name, "delivery_voice"),
+            "delivery_notification_center": _automation_branch_delivery(item, branch_name, "delivery_notification_center"),
+            "delivery_ha_push": _automation_branch_delivery(item, branch_name, "delivery_ha_push"),
             "created_at": now,
             "expires_at": now + max(1, min(1440, int(item.get("suggestion_timeout_minutes") or 30))) * 60,
         }
@@ -1980,7 +1987,7 @@ async def _automation_commit_match(automation_id: str, evidence: dict[str, Any])
         _automation_save(data)
         if autonomous:
             await _automation_execute_action(data, item, suggestion, "selective_autonomy", selected_actions)
-        elif item.get("delivery_ha_push", True):
+        elif suggestion["delivery_ha_push"]:
             await _automation_notify(
                 suggestion["title"], f"{detail}\n\nEvidence: {evidence_text}",
                 suggestion_id=suggestion["id"],

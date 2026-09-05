@@ -13,8 +13,8 @@ MANIFEST = json.loads((ROOT / "jarvis" / "release_manifest.json").read_text(enco
 
 class V013145FriendlyResultsTests(unittest.TestCase):
     def test_release_is_aligned(self):
-        self.assertEqual(MANIFEST["version"], "0.13.158")
-        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.157")
+        self.assertEqual(MANIFEST["version"], "0.13.159")
+        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.158")
 
     def test_optional_step_starts_with_a_plain_choice(self):
         self.assertIn("ELSE IF", HTML)
@@ -26,10 +26,9 @@ class V013145FriendlyResultsTests(unittest.TestCase):
     def test_results_use_when_then_language_without_changing_schema(self):
         for phrase in (
             "IF / ELSE IF paths",
-            "Every check below is true",
-            "At least one check below is true",
             "Message for this path",
-            "Add THEN task",
+            "Send this message",
+            "Show in ZBRANO notifications",
         ):
             self.assertIn(phrase, WORKSPACE)
         for phrase in ("IF / ELSE IF — FIRST MATCH RUNS", "WHEN NO PATH ABOVE MATCHES"):

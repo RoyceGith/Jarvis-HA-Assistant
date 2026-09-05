@@ -25,7 +25,7 @@ def load_automation_functions(states):
         "_automation_condition_matches", "_automation_record_value",
         "_automation_condition_group_matches", "_automation_conditions",
         "_automation_actions", "_automation_branches", "_automation_select_branch",
-        "_automation_branch_suggestion",
+        "_automation_branch_suggestion", "_automation_branch_delivery",
     }
     tree = ast.parse(AUTOMATIONS)
     selected = [node for node in tree.body if isinstance(node, ast.FunctionDef) and node.name in names]
@@ -39,11 +39,11 @@ def load_automation_functions(states):
 
 class SingleFlowConditionalSuggestionReleaseTests(unittest.TestCase):
     def test_release_markers_are_aligned(self):
-        self.assertIn('version: "0.13.158"', CONFIG)
-        self.assertIn('version="0.13.158"', MAIN)
-        self.assertIn("HUD 0.13.158", HTML)
-        self.assertEqual(MANIFEST["version"], "0.13.158")
-        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.157")
+        self.assertIn('version: "0.13.159"', CONFIG)
+        self.assertIn('version="0.13.159"', MAIN)
+        self.assertIn("HUD 0.13.159", HTML)
+        self.assertEqual(MANIFEST["version"], "0.13.159")
+        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.158")
 
     def test_live_temperature_can_be_compared_with_thermostat_target(self):
         now = time.time()
@@ -87,6 +87,23 @@ class SingleFlowConditionalSuggestionReleaseTests(unittest.TestCase):
         self.assertIn('txt(branch.suggestion', FLOW)
         self.assertIn('data-condition-field="for_seconds"', BROWSER)
         self.assertIn('fill("1200")', BROWSER)
+
+    def test_each_path_can_choose_its_own_message_delivery(self):
+        delivery = load_automation_functions({})["_automation_branch_delivery"]
+        automation = {
+            "delivery_voice": True,
+            "delivery_notification_center": False,
+            "delivery_ha_push": True,
+            "branches": [
+                {"name": "Quiet", "delivery_voice": False, "delivery_notification_center": True, "delivery_ha_push": False},
+                {"name": "Legacy"},
+            ],
+        }
+        self.assertFalse(delivery(automation, "Quiet", "delivery_voice"))
+        self.assertTrue(delivery(automation, "Quiet", "delivery_notification_center"))
+        self.assertFalse(delivery(automation, "Quiet", "delivery_ha_push"))
+        self.assertTrue(delivery(automation, "Legacy", "delivery_voice"))
+        self.assertFalse(delivery(automation, "Legacy", "delivery_notification_center"))
 
 
 if __name__ == "__main__":

@@ -130,7 +130,7 @@ function apiFixture(url, method = "GET") {
   if (pathname === "/api/health") {
     return {
       status: "ok",
-      version: "0.13.158",
+      version: "0.13.159",
       speech_provider: "openai",
       speech_providers: {openai: {configured: true}, elevenlabs: {configured: false}},
     };
@@ -213,7 +213,7 @@ function apiFixture(url, method = "GET") {
   if (pathname === "/api/plugins") return {plugins: []};
   if (pathname === "/api/files/shared") return {files: [], count: 0};
   if (pathname === "/api/release-memory-sync") {
-    return {enabled: false, state: "disabled", version: "0.13.158", task_active: false};
+    return {enabled: false, state: "disabled", version: "0.13.159", task_active: false};
   }
   if (pathname === "/api/tab-activity") return {revisions: {}};
   if (pathname === "/api/grinder-monitor/status") return {enabled: false, connected: false};
@@ -764,6 +764,12 @@ async function main() {
     await page.locator("#studio-automation-execution-policy").selectOption("suggest");
     await page.locator('.automation-studio-toolbox [data-studio-node="decision"]').click();
     await page.locator('[data-flow-branch-drop="1"] .automation-flow-branch-suggestion').click();
+    assert.equal(await page.locator('[data-branch-delivery]').count(), 3);
+    assert.doesNotMatch(await page.locator('#automation-studio-inspector-fields').innerText(), /This path runs when/i);
+    await page.locator('[data-branch-delivery="delivery_voice"]').uncheck();
+    await page.locator('[data-flow-branch-drop="0"] .automation-flow-branch-suggestion').click();
+    assert.equal(await page.locator('[data-branch-delivery="delivery_voice"]').isChecked(), true);
+    await page.locator('[data-flow-branch-drop="1"] [data-flow-kind="branch-condition"]').click();
     const elseIfEntity=page.locator('[data-branch-collection="conditions"][data-branch-index="1"][data-item-index="0"][data-condition-field="entity_id"]'),elseIfAttribute=page.locator('[data-branch-collection="conditions"][data-branch-index="1"][data-item-index="0"][data-condition-field="attribute"]');
     await elseIfEntity.fill("Browser Thermostat");
     const thermostatResult=page.locator("#automation-studio-inspector-fields .automation-entity-result").filter({hasText:"climate.browser_thermostat"}).first();
@@ -776,14 +782,14 @@ async function main() {
     assert.equal(await elseIfAttribute.isVisible(), false);
     await page.locator('[data-branch-collection="conditions"][data-branch-index="1"][data-item-index="0"][data-condition-field="value"]').fill("on");
     await page.locator('[data-branch-collection="conditions"][data-branch-index="1"][data-item-index="0"][data-condition-field="for_seconds"]').fill("1200");
+    await page.locator('[data-flow-branch-drop="1"] .automation-flow-branch-suggestion').click();
     await page.locator('[data-branch-suggestion="1"]').fill("Check whether a window is open.");
     const taskMenu=page.locator('[data-flow-branch-drop="1"] .automation-flow-branch-task-menu');
     await taskMenu.locator('summary').click();
     const taskSummaryBox=await taskMenu.locator('summary').boundingBox(),taskChoicesBox=await taskMenu.locator('.automation-flow-branch-task-choices').boundingBox();
     assert.ok(taskSummaryBox&&taskChoicesBox&&taskChoicesBox.y<taskSummaryBox.y);
     assert.ok(taskChoicesBox.y+taskChoicesBox.height<=page.viewportSize().height);
-    await taskMenu.locator('summary').click();
-    await page.locator('[data-branch-add-item="actions"][data-branch-index="1"]').click();
+    await taskMenu.locator('[data-flow-branch-task-template="service"]').click();
     await page.locator('[data-branch-collection="actions"][data-branch-index="1"][data-item-index="0"][data-action-field="entity_id"]').fill("light.browser_fixture");
     await page.locator('[data-branch-collection="actions"][data-branch-index="1"][data-item-index="0"][data-action-field="service"]').fill("light.turn_off");
     assert.match(await page.locator('[data-flow-branch-drop="1"]').innerText(), /ELSE IF/i);
@@ -797,7 +803,7 @@ async function main() {
     await page.locator('#automation-flow-preview [data-flow-kind="branch-action"][data-flow-branch-index="1"]').click();
     assert.equal(await page.locator('[data-branch-collection="actions"][data-branch-index="1"]').count(), 4);
     assert.equal(await page.locator('[data-branch-collection="conditions"]').count(), 0);
-    assert.match(await page.locator("#automation-studio-state").innerText(), /ELSE IF path added/i);
+    assert.match(await page.locator("#automation-studio-state").innerText(), /Custom action task added/i);
     await page.locator("#notification-inbox-count:not([hidden])").waitFor();
     assert.equal(await page.locator("#notification-inbox-count").innerText(), "1");
     await page.locator("#notification-inbox-toggle").click();

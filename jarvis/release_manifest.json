@@ -1,9 +1,9 @@
 {
-  "version": "0.13.158",
+  "version": "0.13.159",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/ZBRANO_Core main",
-  "summary": "Make IF and ELSE IF paths start with their own condition and keep messages independent.",
+  "summary": "Give every automation branch its own clearly named message-delivery settings.",
   "history_backfill": [
     {
       "version": "0.13.0",
@@ -636,19 +636,23 @@
     {
       "version": "0.13.157",
       "summary": "Restored current device and sensor readings throughout Automation Studio entity dropdowns."
+    },
+    {
+      "version": "0.13.158",
+      "summary": "Made IF and ELSE IF paths start with their own condition and kept messages independent."
     }
   ],
   "release_entry": {
     "features": [
-      "Start every IF and ELSE IF lane directly with its own device or sensor condition.",
-      "Give every speaking branch its own editable message and keep Monitor silently message-free."
+      "Configure speech, ZBRANO notifications, and Home Assistant notifications separately for every branch message.",
+      "Keep branch-message controls isolated from the condition and task inspectors."
     ],
     "fixes": [
-      "Remove redundant editable IF and ELSE IF title cards that duplicated each branch condition.",
-      "Open branch task menus upward so choices remain visible at the bottom of the Studio window."
+      "Remove the redundant This path runs when selector and make branch checks consistently use AND.",
+      "Preserve global delivery behavior for older saved branches that do not yet contain per-branch choices."
     ],
     "validation": [
-      "Condition-first lanes, independent branch messages, silent-mode message removal, upward task menus, backend fallback isolation, browser smoke, full regression suite, and v0.13.158 release coverage"
+      "Per-branch delivery schema and runtime routing, legacy fallback, message-only inspector, fixed-AND branches, browser smoke, full regression suite, and v0.13.159 release coverage"
     ]
   },
   "features": [

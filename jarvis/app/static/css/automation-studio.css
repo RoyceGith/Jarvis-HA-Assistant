@@ -159,6 +159,10 @@
 .automation-outcome-name input { width:100%; }
 .automation-branch-card > strong { margin-top: .25rem; color: var(--cyan); font-size: .76rem; letter-spacing: .04em; }
 .automation-branch-card > small { color: var(--text-muted); line-height: 1.35; }
+.automation-branch-delivery { display:grid; gap:.42rem; padding:.58rem; border:1px solid var(--line); border-radius:10px; background:color-mix(in srgb,var(--surface-strong) 76%,transparent); }
+.automation-branch-delivery > strong { color:var(--text-muted); font-size:.68rem; }
+.automation-branch-delivery .is-check { display:flex; align-items:center; gap:.45rem; color:var(--text); font-size:.72rem; font-weight:600; }
+.automation-branch-delivery input { width:auto; margin:0; }
 .automation-branch-path-label { justify-self:start; padding:.22rem .48rem; border-radius:999px; background:color-mix(in srgb,#c29cff 14%,var(--surface)); color:#c29cff; font-size:.62rem; font-weight:800; letter-spacing:.08em; }
 .automation-flow { display: grid; justify-items: center; gap: .25rem; margin-top: .7rem; overflow-x: auto; padding: .35rem .2rem .65rem; }
 .automation-studio-canvas .automation-flow { width: 100%; overflow: visible; padding: .8rem 0; }

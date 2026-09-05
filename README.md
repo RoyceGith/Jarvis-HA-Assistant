@@ -1,9 +1,14 @@
-## ZBRANO v0.13.158
+## ZBRANO v0.13.159
 
 ZBRANO combines Home Assistant chat, voice, entity control, memory, notifications,
 calendar and contact tools, plugins, and evidence-based automations. Automation Studio now uses
 a visual building-block toolbox, interactive node canvas, and contextual inspector;
 the established automation engine and stored definitions remain compatible.
+
+Version 0.13.159 moves message delivery into each IF and ELSE IF branch. Every
+branch can independently say its message aloud, show it in ZBRANO notifications,
+or send it through Home Assistant notifications. The redundant This path runs
+when selector is removed; all checks inside a branch are joined with AND.
 
 Version 0.13.158 removes the duplicate editable IF and ELSE IF title cards, so
 each branch begins directly with its own device or sensor condition. Speaking

@@ -12,8 +12,8 @@ MANIFEST = json.loads((ROOT / "jarvis/release_manifest.json").read_text(encoding
 
 class AdaptiveAutomationResponseReleaseTests(unittest.TestCase):
     def test_release_is_aligned(self):
-        self.assertEqual(MANIFEST["version"], "0.13.158")
-        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.157")
+        self.assertEqual(MANIFEST["version"], "0.13.159")
+        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.158")
 
     def test_plain_response_wording_replaces_overlapping_labels(self):
         self.assertIn("How should ZBRANO respond?", HTML)
