@@ -1,5 +1,12 @@
 # Change log
 
+## 0.13.154
+
+- Kept Power turns on/off selected after choosing any entity with an on/off state.
+- Removed the redundant action and comparison fields from power-event settings.
+- Kept both primary and additional When cards visually classified as power events.
+- Cleared stale on/off values when switching a timed event back to a sensor.
+
 ## 0.13.153
 
 - Moved Automation Studio blocks from the left column into a top bar.

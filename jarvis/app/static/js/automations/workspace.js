@@ -230,16 +230,16 @@
   function triggerPreset(item={}){
     const kind=item.kind||"entity";
     if(kind!=="entity")return kind;
-    const id=String(item.entity_id||""),domain=String(entityVisual(id).domain||id.split(".",1)[0]||"").toLowerCase(),value=String(item.value||"").toLowerCase(),operator=item.operator||"changes_to",powerDomain=["switch","light","fan","input_boolean"].includes(domain),unassignedPower=!id&&["on","off"].includes(value);
-    if((powerDomain||unassignedPower)&&["changes_to","equals"].includes(operator)&&value==="on")return"power_on";
-    if((powerDomain||unassignedPower)&&["changes_to","equals"].includes(operator)&&value==="off")return"power_off";
+    const value=String(item.value||"").toLowerCase(),operator=item.operator||"changes_to",isPowerState=["changes_to","equals"].includes(operator)&&["on","off"].includes(value);
+    if(isPowerState&&value==="on")return"power_on";
+    if(isPowerState&&value==="off")return"power_off";
     return"sensor";
   }
   function selectedTriggerValue(){return selectedFlowCard.kind==="trigger"&&selectedFlowCard.index>0?workflowDraft.triggers[selectedFlowCard.index-1]:primaryTriggerValue()}
   function applyTriggerPreset(preset){
     const current=cloneEditorValue(selectedTriggerValue()||{}),wasPower=triggerPreset(current).startsWith("power_");
     if(preset==="power_on"||preset==="power_off")Object.assign(current,{kind:"entity",operator:"changes_to",value:preset==="power_on"?"on":"off"});
-    else if(preset==="sensor")Object.assign(current,{kind:"entity",operator:wasPower?"above":current.operator||"above",value:wasPower?"":current.value||""});
+    else if(preset==="sensor"){const resetComparison=wasPower||(current.kind||"entity")!=="entity";Object.assign(current,{kind:"entity",operator:resetComparison?"above":current.operator||"above",value:resetComparison?"":current.value||""})}
     else if(["time","sun","interval","one_time"].includes(preset))current.kind=preset;
     if(selectedFlowCard.kind==="trigger"&&selectedFlowCard.index>0)workflowDraft.triggers[selectedFlowCard.index-1]=current;else writePrimaryTrigger(current);
     renderStudioInspector();renderEditorFlow();commitEditorHistory();

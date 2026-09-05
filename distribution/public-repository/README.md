@@ -1,6 +1,6 @@
 # ZBRANO for Home Assistant
 
-Current release: **0.13.153**
+Current release: **0.13.154**
 
 This is the public Home Assistant installation and update repository for ZBRANO.
 The application is delivered as a prebuilt container image. The current repository
@@ -20,6 +20,9 @@ Existing ZBRANO installations retain the same add-on slug, configuration, `/data
 storage, and `ghcr.io/roycegith/jarvis-ha-assistant` update image.
 
 ## Current experience
+
+Version 0.13.154 keeps Power turns on and Power turns off selected after choosing
+an entity and removes the redundant action and comparison settings for those events.
 
 Version 0.13.153 moves the Automation Studio toolbox above the canvas and groups
 blocks into WHEN Events, IF Conditions, THEN Actions, and ELSE IF Paths.

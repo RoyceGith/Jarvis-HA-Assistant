@@ -1,9 +1,9 @@
 {
-  "version": "0.13.153",
+  "version": "0.13.154",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/ZBRANO_Core main",
-  "summary": "Move Automation Studio blocks into a categorized top bar and give the flow canvas more space.",
+  "summary": "Keep Power turns on/off selected for every compatible entity and remove redundant comparison fields.",
   "history_backfill": [
     {
       "version": "0.13.0",
@@ -616,19 +616,23 @@
     {
       "version": "0.13.152",
       "summary": "Adapted each automation's response choices to Sensor device or Control device behavior."
+    },
+    {
+      "version": "0.13.153",
+      "summary": "Moved Automation Studio blocks into a categorized top bar and gave the flow canvas more space."
     }
   ],
   "release_entry": {
     "features": [
-      "Replace the left block column with a horizontally scrollable top block bar so the canvas gains width.",
-      "Group shortcuts under WHEN Events, IF Conditions, THEN Actions, and ELSE IF Paths."
+      "Treat an explicitly selected Power turns on or Power turns off event as the authoritative When-block type for any entity that reports on/off state.",
+      "Show only the selected power device and optional duration for power events."
     ],
     "fixes": [
-      "Make top-bar event, condition, and action chips add correctly typed blocks to the active flow or branch.",
-      "Present the first global condition as IF and use the existing AND / OR selector between later conditions."
+      "Keep Power turns on/off highlighted after selecting climate and other entity domains.",
+      "Clear stale power comparison state when changing a timed event back to Sensor reading."
     ],
     "validation": [
-      "Top-bar geometry, categorized shortcut counts, direct condition/action insertion, responsive layout, browser smoke, full regression suite, and v0.13.153 release coverage"
+      "Primary and additional power-event selection persistence, hidden comparison controls, climate-entity flow rendering, browser smoke, full regression suite, and v0.13.154 release coverage"
     ]
   },
   "features": [

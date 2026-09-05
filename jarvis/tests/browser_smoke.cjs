@@ -130,7 +130,7 @@ function apiFixture(url, method = "GET") {
   if (pathname === "/api/health") {
     return {
       status: "ok",
-      version: "0.13.153",
+      version: "0.13.154",
       speech_provider: "openai",
       speech_providers: {openai: {configured: true}, elevenlabs: {configured: false}},
     };
@@ -213,7 +213,7 @@ function apiFixture(url, method = "GET") {
   if (pathname === "/api/plugins") return {plugins: []};
   if (pathname === "/api/files/shared") return {files: [], count: 0};
   if (pathname === "/api/release-memory-sync") {
-    return {enabled: false, state: "disabled", version: "0.13.153", task_active: false};
+    return {enabled: false, state: "disabled", version: "0.13.154", task_active: false};
   }
   if (pathname === "/api/tab-activity") return {revisions: {}};
   if (pathname === "/api/grinder-monitor/status") return {enabled: false, connected: false};
@@ -408,6 +408,18 @@ async function main() {
     assert.equal(await page.locator('.automation-trigger-palette [data-trigger-preset="sensor"]').getAttribute("aria-pressed"), "true");
     assert.equal(await page.locator("#studio-automation-trigger-entity").count(), 1);
     assert.equal(await page.locator("#studio-automation-trigger-sun-event").count(), 0);
+    await page.locator('[data-trigger-preset="power_on"]').click();
+    assert.equal(await page.locator('[data-trigger-preset="power_on"]').getAttribute("aria-pressed"), "true");
+    assert.equal(await page.locator("#studio-automation-trigger-operator").count(), 0);
+    assert.equal(await page.locator("#studio-automation-trigger-value").count(), 0);
+    assert.doesNotMatch(await page.locator("#automation-studio-inspector-fields").innerText(), /What should it do\?|Compared with what value\?/i);
+    await page.locator("#studio-automation-trigger-entity").fill("climate.browser_thermostat");
+    await page.locator('#automation-flow-preview [data-flow-kind="trigger"]').first().click();
+    assert.equal(await page.locator('[data-trigger-preset="power_on"]').getAttribute("aria-pressed"), "true");
+    await page.locator('[data-trigger-preset="power_off"]').click();
+    assert.equal(await page.locator('[data-trigger-preset="power_off"]').getAttribute("aria-pressed"), "true");
+    assert.equal(await page.locator("#studio-automation-trigger-operator").count(), 0);
+    assert.equal(await page.locator("#studio-automation-trigger-value").count(), 0);
     await page.locator('[data-trigger-preset="sun"]').click();
     assert.equal(await page.locator("#studio-automation-trigger-sun-event").count(), 1);
     assert.equal(await page.locator("#studio-automation-trigger-entity").count(), 0);
@@ -666,7 +678,11 @@ async function main() {
     await page.locator('[data-workflow-index="0"][data-trigger-field="weekdays"]').fill("Mon, Wed, Fri");
     assert.equal(await page.locator('[data-workflow-index="0"][data-trigger-field="at"]').inputValue(), "18:30");
     await page.locator('[data-trigger-preset="power_off"]').click();
-    await page.locator('[data-workflow-index="0"][data-trigger-field="entity_id"]').fill("light.browser_fixture");
+    await page.locator('[data-workflow-index="0"][data-trigger-field="entity_id"]').fill("climate.browser_fixture");
+    await page.locator('#automation-flow-preview [data-flow-kind="trigger"]').nth(1).click();
+    assert.equal(await page.locator('[data-trigger-preset="power_off"]').getAttribute("aria-pressed"), "true");
+    assert.equal(await page.locator('[data-workflow-index="0"][data-trigger-field="operator"]').count(), 0);
+    assert.equal(await page.locator('[data-workflow-index="0"][data-trigger-field="value"]').count(), 0);
     assert.match(await page.locator('#automation-flow-preview [data-flow-kind="trigger"]').nth(1).innerText(), /POWER OFF|Turns off/i);
     assert.equal(await page.locator('#automation-flow-preview [data-flow-kind="trigger"]').count(), 2);
     await page.locator('#automation-flow-preview [data-flow-kind="trigger"]').first().click();
