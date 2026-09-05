@@ -6,6 +6,9 @@ connections.
 
 ## Automation Studio
 
+Version 0.13.160 keeps nested branch task selections synchronized and displays
+the complete Home Assistant friendly name instead of partial search text.
+
 Version 0.13.159 gives every IF and ELSE IF message separate speech, ZBRANO
 notification, and Home Assistant notification choices. Branch checks now use
 AND without a redundant path-mode selector.

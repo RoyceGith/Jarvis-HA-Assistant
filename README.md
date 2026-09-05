@@ -1,6 +1,6 @@
 # ZBRANO for Home Assistant
 
-Current release: **0.13.159**
+Current release: **0.13.160**
 
 This is the public Home Assistant installation and update repository for ZBRANO.
 The application is delivered as a prebuilt container image. The current repository
@@ -20,6 +20,9 @@ Existing ZBRANO installations retain the same add-on slug, configuration, `/data
 storage, and `ghcr.io/roycegith/jarvis-ha-assistant` update image.
 
 ## Current experience
+
+Version 0.13.160 fixes nested task device selection so cards show the complete
+Home Assistant friendly name instead of retaining partial search text.
 
 Version 0.13.159 gives every IF and ELSE IF message its own speech, ZBRANO, and
 Home Assistant notification choices, and removes the redundant path-mode selector.
