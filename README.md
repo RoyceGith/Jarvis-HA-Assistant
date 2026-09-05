@@ -1,6 +1,6 @@
 # ZBRANO for Home Assistant
 
-Current release: **0.13.149**
+Current release: **0.13.150**
 
 This is the public Home Assistant installation and update repository for ZBRANO.
 The application is delivered as a prebuilt container image. The current repository
@@ -21,9 +21,9 @@ storage, and `ghcr.io/roycegith/jarvis-ha-assistant` update image.
 
 ## Current experience
 
-Version 0.13.149 makes Automation Studio's When blocks immediately readable as
-sensor, power, time, sun, or repeating events. The inspector now edits one
-selected trigger at a time, and automatic flows omit disconnected Say content.
+Version 0.13.150 adds per-automation presence gating and direct IF / ELSE IF
+paths. Existing checks and tasks stay connected when a second path is added,
+and the inspector shows only the selected path, check, or task.
 Application behavior is unchanged from v0.13.147.
 
 Version 0.13.147 puts authority and safety in Step 1 of each automation. Every
