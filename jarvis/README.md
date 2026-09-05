@@ -6,6 +6,9 @@ connections.
 
 ## Automation Studio
 
+Version 0.13.151 uses two clear device categories—Sensor device and Control
+device—and only displays action safety settings when they apply.
+
 Version 0.13.150 adds a Require presence gate to the first step and changes the
 optional final step into a direct IF / ELSE IF path builder. Existing checks
 and tasks remain connected when branching begins.
