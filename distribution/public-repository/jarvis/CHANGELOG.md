@@ -1,5 +1,11 @@
 # Change log
 
+## 0.13.160
+
+- Fixed entity selection inside nested branch tasks.
+- Displayed complete Home Assistant friendly names on task cards.
+- Prevented partial device-search text from being saved as a device.
+
 ## 0.13.159
 
 - Moved message-delivery settings into every IF and ELSE IF branch.

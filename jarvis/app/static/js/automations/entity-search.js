@@ -39,6 +39,7 @@
       if(!parts.includes(item.id))parts.push(item.id);
       input.value=parts.join(", ")+(parts.length?", ":"");
     }else input.value=item.id;
+    input.dispatchEvent(new Event("input",{bubbles:true}));
     input.dispatchEvent(new Event("change",{bubbles:true}));
     close(input);input.focus();
   }

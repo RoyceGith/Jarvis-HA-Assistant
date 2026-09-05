@@ -130,7 +130,7 @@ function apiFixture(url, method = "GET") {
   if (pathname === "/api/health") {
     return {
       status: "ok",
-      version: "0.13.159",
+      version: "0.13.160",
       speech_provider: "openai",
       speech_providers: {openai: {configured: true}, elevenlabs: {configured: false}},
     };
@@ -213,7 +213,7 @@ function apiFixture(url, method = "GET") {
   if (pathname === "/api/plugins") return {plugins: []};
   if (pathname === "/api/files/shared") return {files: [], count: 0};
   if (pathname === "/api/release-memory-sync") {
-    return {enabled: false, state: "disabled", version: "0.13.159", task_active: false};
+    return {enabled: false, state: "disabled", version: "0.13.160", task_active: false};
   }
   if (pathname === "/api/tab-activity") return {revisions: {}};
   if (pathname === "/api/grinder-monitor/status") return {enabled: false, connected: false};
@@ -790,7 +790,12 @@ async function main() {
     assert.ok(taskSummaryBox&&taskChoicesBox&&taskChoicesBox.y<taskSummaryBox.y);
     assert.ok(taskChoicesBox.y+taskChoicesBox.height<=page.viewportSize().height);
     await taskMenu.locator('[data-flow-branch-task-template="service"]').click();
-    await page.locator('[data-branch-collection="actions"][data-branch-index="1"][data-item-index="0"][data-action-field="entity_id"]').fill("light.browser_fixture");
+    const branchActionEntity=page.locator('[data-branch-collection="actions"][data-branch-index="1"][data-item-index="0"][data-action-field="entity_id"]');
+    await branchActionEntity.fill("Browser Fixture Li");
+    assert.match(await page.locator('[data-flow-branch-drop="1"] [data-flow-kind="branch-action"]').innerText(), /Choose a device/i);
+    await page.locator('#automation-studio-inspector-fields .automation-entity-result').filter({hasText:"Browser Fixture Light"}).click();
+    assert.equal(await branchActionEntity.inputValue(), "light.browser_fixture");
+    assert.match(await page.locator('[data-flow-branch-drop="1"] [data-flow-kind="branch-action"]').innerText(), /Browser Fixture Light/i);
     await page.locator('[data-branch-collection="actions"][data-branch-index="1"][data-item-index="0"][data-action-field="service"]').fill("light.turn_off");
     assert.match(await page.locator('[data-flow-branch-drop="1"]').innerText(), /ELSE IF/i);
     assert.match(await page.locator('[data-flow-branch-drop="1"]').innerText(), /20 min|1200 sec/i);

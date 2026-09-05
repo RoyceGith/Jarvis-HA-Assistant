@@ -1,9 +1,9 @@
 {
-  "version": "0.13.159",
+  "version": "0.13.160",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/ZBRANO_Core main",
-  "summary": "Give every automation branch its own clearly named message-delivery settings.",
+  "summary": "Keep branch task entity selections synchronized and show complete device names.",
   "history_backfill": [
     {
       "version": "0.13.0",
@@ -640,19 +640,23 @@
     {
       "version": "0.13.158",
       "summary": "Made IF and ELSE IF paths start with their own condition and kept messages independent."
+    },
+    {
+      "version": "0.13.159",
+      "summary": "Gave every automation branch its own clearly named message-delivery settings."
     }
   ],
   "release_entry": {
     "features": [
-      "Configure speech, ZBRANO notifications, and Home Assistant notifications separately for every branch message.",
-      "Keep branch-message controls isolated from the condition and task inspectors."
+      "Show the complete Home Assistant friendly name in branch task cards after selecting a device.",
+      "Treat partial device searches as incomplete until a real entity is selected."
     ],
     "fixes": [
-      "Remove the redundant This path runs when selector and make branch checks consistently use AND.",
-      "Preserve global delivery behavior for older saved branches that do not yet contain per-branch choices."
+      "Synchronize entity-search selections into nested branch conditions and tasks using the input event expected by the visual editor.",
+      "Prevent partial search text such as livin from being stored or displayed as a configured task device."
     ],
     "validation": [
-      "Per-branch delivery schema and runtime routing, legacy fallback, message-only inspector, fixed-AND branches, browser smoke, full regression suite, and v0.13.159 release coverage"
+      "Nested entity selection synchronization, partial-ID validation, full friendly-name rendering, browser smoke, full regression suite, and v0.13.160 release coverage"
     ]
   },
   "features": [

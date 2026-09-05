@@ -14,10 +14,10 @@ MANIFEST = json.loads((ROOT / "jarvis/release_manifest.json").read_text(encoding
 
 class ContextualAutomationInspectorReleaseTests(unittest.TestCase):
     def test_release_markers_are_aligned(self):
-        self.assertIn('version: "0.13.159"', CONFIG)
-        self.assertIn('version="0.13.159"', MAIN)
-        self.assertIn("HUD 0.13.159", HTML)
-        self.assertEqual(MANIFEST["version"], "0.13.159")
+        self.assertIn('version: "0.13.160"', CONFIG)
+        self.assertIn('version="0.13.160"', MAIN)
+        self.assertIn("HUD 0.13.160", HTML)
+        self.assertEqual(MANIFEST["version"], "0.13.160")
 
     def test_primary_trigger_fields_are_filtered_by_type_and_operator(self):
         self.assertIn("function inspectorFields(panelConfig)", WORKSPACE)
@@ -39,7 +39,7 @@ class ContextualAutomationInspectorReleaseTests(unittest.TestCase):
         self.assertIn('selectOption("any_change")', BROWSER)
 
     def test_release_history_includes_v013117(self):
-        self.assertEqual(MANIFEST["history_backfill"][-42]["version"], "0.13.117")
+        self.assertEqual(MANIFEST["history_backfill"][-43]["version"], "0.13.117")
 
 
 if __name__ == "__main__":
