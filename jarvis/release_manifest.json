@@ -1,9 +1,9 @@
 {
-  "version": "0.13.151",
+  "version": "0.13.152",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/ZBRANO_Core main",
-  "summary": "Replace confusing automation risk levels with clear Sensor device and Control device choices.",
+  "summary": "Adapt each automation's response choices to Sensor device or Control device behavior.",
   "history_backfill": [
     {
       "version": "0.13.0",
@@ -608,19 +608,23 @@
     {
       "version": "0.13.150",
       "summary": "Added per-automation presence gating and direct IF / ELSE IF paths that preserve connected checks and tasks."
+    },
+    {
+      "version": "0.13.151",
+      "summary": "Replaced confusing automation risk levels with clear Sensor device and Control device choices."
     }
   ],
   "release_entry": {
     "features": [
-      "Replace the four abstract automation risk categories with Sensor device and Control device choices.",
-      "Keep existing saved informational, low, controlled, and high risk values compatible when reopened."
+      "Show Monitor silently and Notify me only for read-only Sensor device automations.",
+      "Show Ask me first and Do it automatically only for Control device automations."
     ],
     "fixes": [
-      "Hide action-count and completion-notification settings when a rule cannot control a device.",
-      "Show the reversible-action restriction only for automatic Control device rules, where it can affect execution."
+      "Remove the overlapping Suggest it to me and Ask before doing it wording from the common editor.",
+      "Map older saved authority choices to the safest valid response when their device type is reopened or changed."
     ],
     "validation": [
-      "Two-category device selection, legacy-value normalization, conditional safety controls, browser smoke, full regression suite, and v0.13.151 release coverage"
+      "Adaptive Sensor and Control response menus, safe legacy-policy normalization, browser smoke, full regression suite, and v0.13.152 release coverage"
     ]
   },
   "features": [

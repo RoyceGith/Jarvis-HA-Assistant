@@ -130,7 +130,7 @@ function apiFixture(url, method = "GET") {
   if (pathname === "/api/health") {
     return {
       status: "ok",
-      version: "0.13.151",
+      version: "0.13.152",
       speech_provider: "openai",
       speech_providers: {openai: {configured: true}, elevenlabs: {configured: false}},
     };
@@ -213,7 +213,7 @@ function apiFixture(url, method = "GET") {
   if (pathname === "/api/plugins") return {plugins: []};
   if (pathname === "/api/files/shared") return {files: [], count: 0};
   if (pathname === "/api/release-memory-sync") {
-    return {enabled: false, state: "disabled", version: "0.13.151", task_active: false};
+    return {enabled: false, state: "disabled", version: "0.13.152", task_active: false};
   }
   if (pathname === "/api/tab-activity") return {revisions: {}};
   if (pathname === "/api/grinder-monitor/status") return {enabled: false, connected: false};
@@ -376,6 +376,7 @@ async function main() {
     assert.equal(await page.locator("#automation-studio-current-step").innerText(), "Step 1 of 5");
     assert.equal(await page.locator("#automation-studio-step-back").isDisabled(), true);
     assert.equal(await page.locator("#studio-automation-execution-policy").inputValue(), "suggest");
+    assert.deepEqual(await page.locator("#studio-automation-execution-policy option").allTextContents(), ["Monitor silently", "Notify me"]);
     assert.equal(await page.locator("#studio-automation-require-presence").isChecked(), false);
     assert.equal(await page.locator("#studio-automation-presence").isDisabled(), true);
     await page.locator("#studio-automation-require-presence").check();
@@ -695,6 +696,7 @@ async function main() {
     assert.equal(await page.locator('.automation-rule-safety-guide').count(), 1);
     assert.equal(await page.locator('[data-auto-view="safety"]').isHidden(), true);
     assert.equal(await page.locator("#studio-automation-execution-policy").inputValue(), "approval_required");
+    assert.deepEqual(await page.locator("#studio-automation-execution-policy option").allTextContents(), ["Ask me first", "Do it automatically"]);
     await page.locator("#studio-automation-execution-policy").selectOption("autonomous");
     assert.equal(await page.locator("#automation-execution-policy").inputValue(), "autonomous");
     assert.equal(await page.locator('#automation-flow-preview [data-flow-kind="decision"]').count(), 0);
@@ -710,7 +712,9 @@ async function main() {
     assert.equal(await page.locator("#automation-studio-test-results .automation-studio-test-step").count(), 4);
     assert.match(await page.locator("#automation-studio-state").innerText(), /0 actions executed/i);
     await page.locator('[data-studio-node="details"]').click();
-    await page.locator("#studio-automation-execution-policy").selectOption("suggest");
+    await page.locator("#studio-automation-risk").selectOption("informational");
+    assert.equal(await page.locator("#studio-automation-execution-policy").inputValue(), "suggest");
+    assert.deepEqual(await page.locator("#studio-automation-execution-policy option").allTextContents(), ["Monitor silently", "Notify me"]);
     assert.equal(await page.locator("#studio-automation-max-actions").count(), 0);
     assert.equal(await page.locator("#studio-automation-reversible-only").count(), 0);
     assert.equal(await page.locator("#studio-automation-notify-action").count(), 0);

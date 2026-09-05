@@ -18,7 +18,7 @@
   const libraryPrefsKey="zbrano.automation-studio.library.v1";
   const entityPickerFieldIds=new Set(["automation-trigger-entity","automation-presence","automation-signals","automation-action-entity"]);
   const studioPanels={
-    details:{title:"1. Setup & safety",help:"Name this automation, choose who must be present, then set exactly how much authority this rule has.",fields:[["automation-name","Automation name"],["automation-objective","What should it help with?"],["automation-require-presence","Require presence"],["automation-presence","Who must be present?"],["automation-execution-policy","What may ZBRANO do?"],["automation-risk","Device type"],["automation-max-actions","Most times this may run in one hour"],["automation-reversible-only","Only allow automatic actions that can be undone"],["automation-notify-action","Tell me after it runs"],["automation-enabled","Enable automation on saving"]]},
+    details:{title:"1. Setup & safety",help:"Name this automation, choose who must be present, then choose how ZBRANO should respond.",fields:[["automation-name","Automation name"],["automation-objective","What should it help with?"],["automation-require-presence","Require presence"],["automation-presence","Who must be present?"],["automation-risk","Device type"],["automation-execution-policy","How should ZBRANO respond?"],["automation-max-actions","Most times this may run in one hour"],["automation-reversible-only","Only allow automatic actions that can be undone"],["automation-notify-action","Tell me after it runs"],["automation-enabled","Enable automation on saving"]]},
     trigger:{title:"2. When",help:"Choose the event that should start this automation. Add more events below if needed.",fields:[["automation-trigger-kind","What kind of event?"],["automation-trigger-entity","Which device or sensor?"],["automation-trigger-operator","What should it do?"],["automation-trigger-value","Compared with what value?"],["automation-trigger-for","For how many seconds?"],["automation-trigger-at","At what time?"],["automation-trigger-weekdays","On which days?"],["automation-trigger-sun-event","Sunrise or sunset?"],["automation-trigger-sun-offset","How many minutes before or after?"],["automation-trigger-interval","How often, in minutes?"],["automation-trigger-one-time","Choose the date and time"]]},
     context:{title:"3. And",help:"Optional: add something that must also be true before the Then task runs.",fields:[["automation-context-notes","Notes for this check (optional)"]]},
     decision:{title:"5. Else if",help:"Add another path for the same When event. ZBRANO uses the first path whose checks match.",fields:[["automation-proposal","Main message from ZBRANO"],["automation-confidence","How sure should ZBRANO be?"],["automation-cooldown","Wait before offering again (minutes)"],["automation-suggestion-timeout","How long can I answer? (minutes)"],["automation-reoffer-delta","Offer again if the reading worsens by"],["automation-reset-delta","Ready for a new alert after the reading improves by"],["automation-delivery-voice","Say it aloud"],["automation-delivery-center","Show it in ZBRANO"],["automation-delivery-push","Send it to my Home Assistant app"]]},
@@ -80,8 +80,9 @@
   }
 
   function modeLabel(value){return ({observe_only:"Observe only",suggest_only:"Suggest only",approval_gated:"Approval-gated",selective_autonomy:"Selective autonomy"})[value]||"Suggest only"}
-  function authorityLabel(value){return ({inherit:"Protected default",observe:"Watch only",suggest:"Suggest it to me",approval_required:"Ask before doing it",autonomous:"Do it automatically"})[value]||"Protected default"}
+  function authorityLabel(value){return ({inherit:"Protected default",observe:"Monitor silently",suggest:"Notify me",approval_required:"Ask me first",autonomous:"Do it automatically"})[value]||"Notify me"}
   function riskLabel(value){return value==="informational"?"Sensor device":"Control device"}
+  function normalizeExecutionPolicyForDevice(){const control=$("automation-risk").value!=="informational",allowed=control?["approval_required","autonomous"]:["suggest","observe"],field=$("automation-execution-policy");if(!allowed.includes(field.value))field.value=allowed[0];return allowed}
   function entityLabel(id){const entity=entityMap.get(id),name=String(entity?.friendly_name||"").trim();return name&&name!==id?name:id}
   function actionLabel(service){const value=String(service||"");const labels={"climate.set_temperature":"Set temperature","climate.set_hvac_mode":"Set heating or cooling mode","cover.open_cover":"Open","cover.close_cover":"Close","cover.stop_cover":"Stop","lock.lock":"Lock","lock.unlock":"Unlock","button.press":"Press","vacuum.start":"Start cleaning","vacuum.return_to_base":"Return to base","media_player.media_play":"Play","media_player.media_pause":"Pause"};if(labels[value])return labels[value];if(value.endsWith(".turn_on"))return value.startsWith("scene.")?"Activate scene":value.startsWith("script.")?"Run":"Turn on";if(value.endsWith(".turn_off"))return"Turn off";if(value.endsWith(".toggle"))return"Change power";return value?"Custom action":"Only show the message"}
   function presenceEntity(){return $("automation-require-presence")?.checked?$("automation-presence").value.trim():""}
@@ -172,6 +173,7 @@
     $("automation-studio-inspector-title").textContent=panelConfig.title;
     $("automation-studio-inspector-help").textContent=panelConfig.help;
     const root=$("automation-studio-inspector-fields");root.replaceChildren();
+    const allowedPolicies=selectedStudioNode==="details"?normalizeExecutionPolicyForDevice():null;
     if(selectedStudioNode==="trigger")renderTriggerPresetPicker(root);
     if(selectedStudioNode==="action")renderActionTaskPalette(root);
     const groupedIds=selectedStudioNode==="decision"?new Set(["automation-confidence","automation-cooldown","automation-suggestion-timeout","automation-reoffer-delta","automation-reset-delta"]):selectedStudioNode==="action"?new Set(["automation-action-data","automation-failure-limit","automation-failure-window"]):new Set();
@@ -187,6 +189,7 @@
       }
       const displayLabel=id==="automation-trigger-entity"&&triggerPreset(primaryTriggerValue()).startsWith("power_")?"Power device":labelText,label=document.createElement("label"),control=source.cloneNode(true);
       control.id=`studio-${id}`;control.removeAttribute("required");
+      if(id==="automation-execution-policy")for(const option of [...control.options])if(!allowedPolicies.includes(option.value))option.remove();
       if(id==="automation-presence")control.disabled=!$("automation-require-presence").checked;
       if(entityPickerFieldIds.has(id))control.dataset.entityPicker="true";
       if(id==="automation-signals")control.dataset.entityPickerMultiple="true";

@@ -1,5 +1,12 @@
 # Change log
 
+## 0.13.152
+
+- Sensor devices now offer Monitor silently or Notify me.
+- Control devices now offer Ask me first or Do it automatically.
+- Removed overlapping suggestion and approval wording from the common editor.
+- Safely normalize older authority selections when the device type changes.
+
 ## 0.13.151
 
 - Replaced four abstract risk categories with Sensor device and Control device.
