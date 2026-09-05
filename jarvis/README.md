@@ -6,6 +6,9 @@ connections.
 
 ## Automation Studio
 
+Version 0.13.154 keeps Power turns on and Power turns off selected after choosing
+an entity and removes redundant comparison settings from those When blocks.
+
 Version 0.13.153 introduces a categorized top block bar and a wider automation
 canvas. IF begins conditions, while AND/OR connects additional checks.
 
