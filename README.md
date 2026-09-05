@@ -1,6 +1,6 @@
 # ZBRANO for Home Assistant
 
-Current release: **0.13.152**
+Current release: **0.13.153**
 
 This is the public Home Assistant installation and update repository for ZBRANO.
 The application is delivered as a prebuilt container image. The current repository
@@ -20,6 +20,9 @@ Existing ZBRANO installations retain the same add-on slug, configuration, `/data
 storage, and `ghcr.io/roycegith/jarvis-ha-assistant` update image.
 
 ## Current experience
+
+Version 0.13.153 moves the Automation Studio toolbox above the canvas and groups
+blocks into WHEN Events, IF Conditions, THEN Actions, and ELSE IF Paths.
 
 Version 0.13.152 adapts response choices to device type: Sensor devices can
 Monitor silently or Notify me; Control devices can Ask me first or act automatically.
