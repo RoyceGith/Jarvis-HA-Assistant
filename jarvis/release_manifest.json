@@ -1,9 +1,9 @@
 {
-  "version": "0.13.154",
+  "version": "0.13.155",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/ZBRANO_Core main",
-  "summary": "Keep Power turns on/off selected for every compatible entity and remove redundant comparison fields.",
+  "summary": "Slim Automation Studio controls and keep setup guidance outside the flow-block palette.",
   "history_backfill": [
     {
       "version": "0.13.0",
@@ -620,19 +620,23 @@
     {
       "version": "0.13.153",
       "summary": "Moved Automation Studio blocks into a categorized top bar and gave the flow canvas more space."
+    },
+    {
+      "version": "0.13.154",
+      "summary": "Kept Power turns on/off selected for every compatible entity and removed redundant comparison fields."
     }
   ],
   "release_entry": {
     "features": [
-      "Treat an explicitly selected Power turns on or Power turns off event as the authoritative When-block type for any entity that reports on/off state.",
-      "Show only the selected power device and optional duration for power events."
+      "Move Setup & safety into a compact guidance strip outside the flow-block palette.",
+      "Present the current guided step beside a thin full-width progress line."
     ],
     "fixes": [
-      "Keep Power turns on/off highlighted after selecting climate and other entity domains.",
-      "Clear stale power comparison state when changing a timed event back to Sensor reading."
+      "Reserve the top block bar for WHEN, IF, THEN, and ELSE IF blocks only.",
+      "Reduce the height and padding of New automation, Try it safely, and Save automation controls."
     ],
     "validation": [
-      "Primary and additional power-event selection persistence, hidden comparison controls, climate-entity flow rendering, browser smoke, full regression suite, and v0.13.154 release coverage"
+      "Guide-strip geometry, four-category block palette, setup navigation placement, compact action controls, browser smoke, full regression suite, and v0.13.155 release coverage"
     ]
   },
   "features": [

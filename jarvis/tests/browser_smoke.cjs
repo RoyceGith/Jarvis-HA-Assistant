@@ -130,7 +130,7 @@ function apiFixture(url, method = "GET") {
   if (pathname === "/api/health") {
     return {
       status: "ok",
-      version: "0.13.154",
+      version: "0.13.155",
       speech_provider: "openai",
       speech_providers: {openai: {configured: true}, elevenlabs: {configured: false}},
     };
@@ -213,7 +213,7 @@ function apiFixture(url, method = "GET") {
   if (pathname === "/api/plugins") return {plugins: []};
   if (pathname === "/api/files/shared") return {files: [], count: 0};
   if (pathname === "/api/release-memory-sync") {
-    return {enabled: false, state: "disabled", version: "0.13.154", task_active: false};
+    return {enabled: false, state: "disabled", version: "0.13.155", task_active: false};
   }
   if (pathname === "/api/tab-activity") return {revisions: {}};
   if (pathname === "/api/grinder-monitor/status") return {enabled: false, connected: false};
@@ -372,9 +372,11 @@ async function main() {
     assert.equal(automationLayout.display, "grid");
     assert.match(automationLayout.columns, /px .*px/);
     assert.equal(automationLayout.navCursor, "pointer");
-    const blockBarBox=await page.locator(".automation-studio-toolbox").boundingBox(),flowCanvasBox=await page.locator("#automation-studio-canvas").boundingBox();
-    assert.ok(blockBarBox.y < flowCanvasBox.y);
-    assert.equal(await page.locator(".automation-block-category").count(), 5);
+    const guideStripBox=await page.locator(".automation-studio-guide-strip").boundingBox(),blockBarBox=await page.locator(".automation-studio-toolbox").boundingBox(),flowCanvasBox=await page.locator("#automation-studio-canvas").boundingBox();
+    assert.ok(guideStripBox.y < blockBarBox.y && blockBarBox.y < flowCanvasBox.y);
+    assert.equal(await page.locator(".automation-block-category").count(), 4);
+    assert.equal(await page.locator('.automation-studio-toolbox [data-studio-node="details"]').count(), 0);
+    assert.equal(await page.locator('.automation-studio-guide-strip [data-studio-node="details"]').count(), 1);
     assert.equal(await page.locator("[data-tool-trigger]").count(), 7);
     assert.equal(await page.locator("[data-tool-condition]").count(), 5);
     assert.equal(await page.locator("[data-tool-action]").count(), 5);

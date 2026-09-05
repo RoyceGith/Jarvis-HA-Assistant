@@ -34,7 +34,7 @@
   <header>
     <div class="brand-line">
       <h1>ZBRANO</h1>
-      <div class="status hud-version-label">Workshop Intelligence Interface · HUD 0.13.154</div>
+      <div class="status hud-version-label">Workshop Intelligence Interface · HUD 0.13.155</div>
     </div>
     <div class="runtime-status-stack">
       <div id="notification-inbox-shell" class="notification-inbox-shell">
@@ -782,12 +782,9 @@
           <div id="automation-studio-test-results" class="automation-studio-test-results" hidden aria-live="polite"></div>
           <div id="automation-studio-validation" class="automation-studio-validation" hidden aria-live="polite"></div>
           <div class="automation-studio-layout">
+            <div class="automation-studio-guide-strip"><button class="automation-studio-setup-link" data-studio-node="details"><span aria-hidden="true">&#128737;</span><span><strong>Setup &amp; safety</strong><small data-studio-step-status="details">Name and permissions</small></span></button><div class="automation-studio-guide-progress" aria-live="polite"><div><strong id="automation-studio-current-step">Step 1 of 5</strong><small id="automation-studio-required-progress">2 steps required</small></div><span id="automation-studio-progressbar" role="progressbar" aria-label="Automation setup progress" aria-valuemin="1" aria-valuemax="5" aria-valuenow="1"><i></i></span></div>
+            </div>
             <nav class="automation-studio-toolbox" aria-label="Automation block bar">
-              <div class="automation-studio-guide-progress" aria-live="polite">
-                <div><strong id="automation-studio-current-step">Step 1 of 5</strong><small id="automation-studio-required-progress">2 required steps to complete</small></div>
-                <span id="automation-studio-progressbar" role="progressbar" aria-label="Automation setup progress" aria-valuemin="1" aria-valuemax="5" aria-valuenow="1"><i></i></span>
-              </div>
-              <section class="automation-block-category is-setup"><button data-studio-node="details"><strong>Setup &amp; safety</strong><small data-studio-step-status="details">Name and permissions</small></button></section>
               <section class="automation-block-category"><button type="button" draggable="true" data-studio-node="trigger"><strong>WHEN · Events</strong><small data-studio-step-status="trigger">Choose what starts it</small></button><div class="automation-block-chips"><button data-tool-trigger="sensor">Sensor</button><button data-tool-trigger="power_on">Power on</button><button data-tool-trigger="power_off">Power off</button><button data-tool-trigger="time">Time</button><button data-tool-trigger="sun">Sun</button><button data-tool-trigger="interval">Repeat</button><button data-tool-trigger="one_time">One time</button></div></section>
               <section class="automation-block-category"><button type="button" draggable="true" data-studio-node="context"><strong>IF · Conditions</strong><small data-studio-step-status="context">AND / OR checks</small></button><div class="automation-block-chips"><button data-tool-condition="entity">Device state</button><button data-tool-condition="entity_compare">Compare values</button><button data-tool-condition="time_window">Time window</button><button data-tool-condition="weekday">Day</button><button data-tool-condition="sun">Sun state</button></div></section>
               <section class="automation-block-category"><button type="button" draggable="true" data-studio-node="action"><strong>THEN · Actions</strong><small data-studio-step-status="action">What should happen</small></button><div class="automation-block-chips"><button data-tool-action="turn_on">Turn on</button><button data-tool-action="turn_off">Turn off</button><button data-tool-action="set_temperature">Temperature</button><button data-tool-action="notification">Notify</button><button data-tool-action="delay">Wait</button></div></section>

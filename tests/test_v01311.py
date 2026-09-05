@@ -24,10 +24,10 @@ def load_functions(*names):
 
 class SiteAwareAutomationBrainTests(unittest.TestCase):
     def test_release_markers_are_aligned(self):
-        self.assertIn('version: "0.13.154"', CONFIG)
-        self.assertIn('version="0.13.154"', MAIN)
-        self.assertIn("HUD 0.13.154", INDEX)
-        self.assertEqual(MANIFEST["version"], "0.13.154")
+        self.assertIn('version: "0.13.155"', CONFIG)
+        self.assertIn('version="0.13.155"', MAIN)
+        self.assertIn("HUD 0.13.155", INDEX)
+        self.assertEqual(MANIFEST["version"], "0.13.155")
 
     def test_labels_and_zones_are_imported_without_coordinates(self):
         self.assertIn('"type": "config/label_registry/list"', MAIN)

@@ -1,9 +1,13 @@
-# ZBRANO v0.13.154
+# ZBRANO v0.13.155
 
 Automation Studio provides a graphical, step-by-step workflow for Home Assistant
 automations. Use Setup &amp; safety, When, Only if, Then, and optional Outcomes beside the
 interactive flow canvas. Natural-language creation, templates, drag-and-drop,
 saved automation compatibility, and the full Advanced editor remain available.
+
+Version 0.13.155 moves Setup & safety and step progress out of the block bar
+into a compact guide line. The palette now contains only actual flow blocks,
+while New automation, Try it safely, and Save automation use smaller controls.
 
 Version 0.13.154 keeps Power turns on and Power turns off highlighted after a
 device is selected, including climate entities. These events now ask only for
