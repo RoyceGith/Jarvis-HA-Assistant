@@ -6,6 +6,10 @@ connections.
 
 ## Automation Studio
 
+Version 0.13.159 gives every IF and ELSE IF message separate speech, ZBRANO
+notification, and Home Assistant notification choices. Branch checks now use
+AND without a redundant path-mode selector.
+
 Version 0.13.158 starts each IF and ELSE IF branch with its own condition, gives
 each speaking branch a separate message, hides messages for silent monitoring,
 and keeps bottom task menus visible by opening them upward.

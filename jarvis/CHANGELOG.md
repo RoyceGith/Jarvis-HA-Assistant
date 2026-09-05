@@ -1,5 +1,12 @@
 # Change log
 
+## 0.13.159
+
+- Moved message-delivery settings into every IF and ELSE IF branch.
+- Renamed delivery choices using clear speech and notification wording.
+- Removed the redundant This path runs when selector.
+- Made all checks inside a branch use AND.
+
 ## 0.13.158
 
 - Removed redundant editable IF and ELSE IF title cards.
