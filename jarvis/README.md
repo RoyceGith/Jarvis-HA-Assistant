@@ -6,6 +6,9 @@ connections.
 
 ## Automation Studio
 
+Version 0.13.155 reserves the Automation Studio top palette for real flow blocks,
+moves setup and progress into a slim guide line, and reduces action-button size.
+
 Version 0.13.154 keeps Power turns on and Power turns off selected after choosing
 an entity and removes redundant comparison settings from those When blocks.
 

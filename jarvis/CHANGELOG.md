@@ -1,5 +1,12 @@
 # Change log
 
+## 0.13.155
+
+- Moved Setup & safety out of the Automation Studio block palette.
+- Replaced the boxed step counter with a compact progress line.
+- Reserved the top palette for WHEN, IF, THEN, and ELSE IF flow blocks.
+- Reduced the size of New automation, Try it safely, and Save automation.
+
 ## 0.13.154
 
 - Kept Power turns on/off selected after choosing any entity with an on/off state.
