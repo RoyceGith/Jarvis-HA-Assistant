@@ -6,6 +6,9 @@ connections.
 
 ## Automation Studio
 
+Version 0.13.152 gives Sensor devices read-only response choices and Control
+devices approval-gated or automatic choices without overlapping wording.
+
 Version 0.13.151 uses two clear device categories—Sensor device and Control
 device—and only displays action safety settings when they apply.
 
