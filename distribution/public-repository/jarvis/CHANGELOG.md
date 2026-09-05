@@ -1,5 +1,11 @@
 # Change log
 
+## 0.13.162
+
+- Marked only the exact incomplete IF or ELSE IF card as needing attention.
+- Added per-automation sleep hours and a security override.
+- Derived branch power commands automatically from the selected device.
+
 ## 0.13.161
 
 - Added Message as an optional task in each IF and ELSE IF branch.

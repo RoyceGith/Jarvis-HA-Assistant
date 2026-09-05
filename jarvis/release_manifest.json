@@ -1,9 +1,9 @@
 {
-  "version": "0.13.161",
+  "version": "0.13.162",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/ZBRANO_Core main",
-  "summary": "Make branch messages optional task blocks and support message-only outcomes.",
+  "summary": "Make validation card-specific and add per-automation sleep hours with a security override.",
   "history_backfill": [
     {
       "version": "0.13.0",
@@ -648,19 +648,23 @@
     {
       "version": "0.13.160",
       "summary": "Kept branch task entity selections synchronized and showed complete device names."
+    },
+    {
+      "version": "0.13.161",
+      "summary": "Made branch messages optional task blocks and supported message-only outcomes."
     }
   ],
   "release_entry": {
     "features": [
-      "Add Message as an optional task in every IF and ELSE IF outcome.",
-      "Allow an outcome to contain only a message, only device tasks, or both."
+      "Configure sleep hours separately for each automation.",
+      "Allow security automations to run even during their configured sleep hours."
     ],
     "fixes": [
-      "Stop inserting an empty message template into every new ELSE IF outcome.",
-      "Treat message-only outcomes as notifications instead of approval requests with no executable action."
+      "Mark only the exact incomplete branch card instead of showing Needs attention on every branch card.",
+      "Derive Power on, Power off, and Toggle commands from the selected branch device."
     ],
     "validation": [
-      "Optional branch message blocks, independent delivery settings, message-only runtime semantics, browser smoke, full regression suite, and v0.13.161 release coverage"
+      "Card-specific branch validation, device-service synchronization, sleep-hour runtime behavior, security override, browser smoke, full regression suite, and v0.13.162 release coverage"
     ]
   },
   "features": [

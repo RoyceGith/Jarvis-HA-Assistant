@@ -178,6 +178,10 @@ class AutonomousAutomationRequest(BaseModel):
     max_actions_per_hour: int = Field(default=2, ge=1, le=60)
     failure_limit: int = Field(default=3, ge=1, le=10)
     failure_window_minutes: int = Field(default=60, ge=5, le=1440)
+    sleep_hours_enabled: bool = False
+    sleep_hours_start: str = Field(default="22:00", pattern=r"^([01]\d|2[0-3]):[0-5]\d$")
+    sleep_hours_end: str = Field(default="07:00", pattern=r"^([01]\d|2[0-3]):[0-5]\d$")
+    run_during_sleep_hours: bool = False
     enabled: bool = False
     trigger_entity: str = Field(default="", max_length=255, pattern=r"^(|[a-z0-9_]+\.[a-z0-9_]+)$")
     trigger_operator: str = Field(default="changes_to", pattern="^(any_change|changes_to|equals|not_equals|above|below)$")

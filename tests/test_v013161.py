@@ -14,8 +14,8 @@ MANIFEST = json.loads((ROOT / "jarvis/release_manifest.json").read_text(encoding
 
 class OptionalBranchMessageTaskReleaseTests(unittest.TestCase):
     def test_release_is_aligned(self):
-        self.assertEqual(MANIFEST["version"], "0.13.161")
-        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.160")
+        self.assertEqual(MANIFEST["version"], "0.13.162")
+        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.161")
 
     def test_message_presence_is_persisted_and_legacy_messages_remain_enabled(self):
         self.assertIn("message_enabled: bool | None = None", SCHEMAS)

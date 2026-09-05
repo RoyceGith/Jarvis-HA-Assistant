@@ -1,9 +1,15 @@
-## ZBRANO v0.13.161
+## ZBRANO v0.13.162
 
 ZBRANO combines Home Assistant chat, voice, entity control, memory, notifications,
 calendar and contact tools, plugins, and evidence-based automations. Automation Studio now uses
 a visual building-block toolbox, interactive node canvas, and contextual inspector;
 the established automation engine and stored definitions remain compatible.
+
+Version 0.13.162 makes Automation Studio warnings belong to the exact incomplete
+card, instead of making every IF and ELSE IF card say Needs attention. Each
+automation can now pause during its own sleep hours, while security automations
+can be explicitly allowed to run during those hours. Power tasks also derive the
+correct Home Assistant command from the selected device.
 
 Version 0.13.161 turns each branch message into an optional task block. New ELSE
 IF paths start empty, and a path can contain a message only, device tasks only,

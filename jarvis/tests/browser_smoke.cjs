@@ -130,7 +130,7 @@ function apiFixture(url, method = "GET") {
   if (pathname === "/api/health") {
     return {
       status: "ok",
-      version: "0.13.161",
+      version: "0.13.162",
       speech_provider: "openai",
       speech_providers: {openai: {configured: true}, elevenlabs: {configured: false}},
     };
@@ -213,7 +213,7 @@ function apiFixture(url, method = "GET") {
   if (pathname === "/api/plugins") return {plugins: []};
   if (pathname === "/api/files/shared") return {files: [], count: 0};
   if (pathname === "/api/release-memory-sync") {
-    return {enabled: false, state: "disabled", version: "0.13.161", task_active: false};
+    return {enabled: false, state: "disabled", version: "0.13.162", task_active: false};
   }
   if (pathname === "/api/tab-activity") return {revisions: {}};
   if (pathname === "/api/grinder-monitor/status") return {enabled: false, connected: false};
@@ -720,6 +720,12 @@ async function main() {
     assert.equal(await page.locator('[data-auto-view="safety"]').isHidden(), true);
     assert.equal(await page.locator("#studio-automation-execution-policy").inputValue(), "approval_required");
     assert.deepEqual(await page.locator("#studio-automation-execution-policy option").allTextContents(), ["Ask me first", "Do it automatically"]);
+    assert.equal(await page.locator("#studio-automation-sleep-hours-start").count(), 0);
+    await page.locator("#studio-automation-sleep-hours-enabled").check();
+    assert.equal(await page.locator("#studio-automation-sleep-hours-start").inputValue(), "22:00");
+    assert.equal(await page.locator("#studio-automation-sleep-hours-end").inputValue(), "07:00");
+    await page.locator("#studio-automation-run-during-sleep-hours").check();
+    assert.equal(await page.locator("#automation-run-during-sleep-hours").isChecked(), true);
     await page.locator("#studio-automation-execution-policy").selectOption("autonomous");
     assert.equal(await page.locator("#automation-execution-policy").inputValue(), "autonomous");
     assert.equal(await page.locator('#automation-flow-preview [data-flow-kind="decision"]').count(), 0);
@@ -792,14 +798,17 @@ async function main() {
     const taskSummaryBox=await taskMenu.locator('summary').boundingBox(),taskChoicesBox=await taskMenu.locator('.automation-flow-branch-task-choices').boundingBox();
     assert.ok(taskSummaryBox&&taskChoicesBox&&taskChoicesBox.y<taskSummaryBox.y);
     assert.ok(taskChoicesBox.y+taskChoicesBox.height<=page.viewportSize().height);
-    await taskMenu.locator('[data-flow-branch-task-template="service"]').click();
+    await taskMenu.locator('[data-flow-branch-task-template="turn_off"]').click();
+    assert.equal(await page.locator('#automation-flow-preview [data-flow-kind="branch-action"].has-validation-error').count(), 1);
+    assert.equal(await page.locator('#automation-flow-preview [data-flow-kind="branch-condition"].has-validation-error').count(), 0);
+    assert.equal(await page.locator('#automation-flow-preview [data-flow-kind="branch-message"].has-validation-error').count(), 0);
     const branchActionEntity=page.locator('[data-branch-collection="actions"][data-branch-index="1"][data-item-index="0"][data-action-field="entity_id"]');
     await branchActionEntity.fill("Browser Fixture Li");
     assert.match(await page.locator('[data-flow-branch-drop="1"] [data-flow-kind="branch-action"]').innerText(), /Choose a device/i);
     await page.locator('#automation-studio-inspector-fields .automation-entity-result').filter({hasText:"Browser Fixture Light"}).click();
     assert.equal(await branchActionEntity.inputValue(), "light.browser_fixture");
     assert.match(await page.locator('[data-flow-branch-drop="1"] [data-flow-kind="branch-action"]').innerText(), /Browser Fixture Light/i);
-    await page.locator('[data-branch-collection="actions"][data-branch-index="1"][data-item-index="0"][data-action-field="service"]').fill("light.turn_off");
+    assert.equal(await page.locator('#automation-flow-preview [data-flow-kind="branch-action"].has-validation-error').count(), 0);
     assert.match(await page.locator('[data-flow-branch-drop="1"]').innerText(), /ELSE IF/i);
     assert.match(await page.locator('[data-flow-branch-drop="1"]').innerText(), /20 min|1200 sec/i);
     assert.match(await page.locator('[data-flow-branch-drop="1"]').innerText(), /Check whether a window is open/i);
@@ -809,9 +818,9 @@ async function main() {
     assert.equal(await page.locator('[data-branch-suggestion]').count(), 0);
     assert.equal(await page.locator('[data-branch-collection="actions"]').count(), 0);
     await page.locator('#automation-flow-preview [data-flow-kind="branch-action"][data-flow-branch-index="1"]').click();
-    assert.equal(await page.locator('[data-branch-collection="actions"][data-branch-index="1"]').count(), 4);
+    assert.equal(await page.locator('[data-branch-collection="actions"][data-branch-index="1"]').count(), 2);
     assert.equal(await page.locator('[data-branch-collection="conditions"]').count(), 0);
-    assert.match(await page.locator("#automation-studio-state").innerText(), /Custom action task added/i);
+    assert.match(await page.locator("#automation-studio-state").innerText(), /Power off task added/i);
     await page.locator("#notification-inbox-count:not([hidden])").waitFor();
     assert.equal(await page.locator("#notification-inbox-count").innerText(), "1");
     await page.locator("#notification-inbox-toggle").click();

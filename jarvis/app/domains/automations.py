@@ -509,6 +509,8 @@ def _automation_payload(request):
     payload["action_service"] = payload["action_service"].strip().lower()
     payload["trigger_entity"] = payload["trigger_entity"].strip().lower()
     payload["trigger_value"] = payload["trigger_value"].strip()
+    payload["sleep_hours_start"] = str(payload.get("sleep_hours_start") or "22:00")
+    payload["sleep_hours_end"] = str(payload.get("sleep_hours_end") or "07:00")
     payload["action_service_data"] = dict(payload.get("action_service_data") or {})
     payload["triggers"] = [_automation_normalize_trigger(item) for item in payload.get("triggers") or []]
     payload["trigger_mode"] = "all" if payload.get("trigger_mode") == "all" else "any"
@@ -1247,6 +1249,25 @@ def _automation_branch_delivery(item: dict[str, Any], branch_name: str, key: str
     branch = next((value for value in _automation_branches(item) if str(value.get("name") or "") == branch_name), None)
     return (branch.get(key, item.get(key, True)) if branch else item.get(key, True)) is not False
 
+def _automation_sleep_hours_active(item: dict[str, Any], now: float) -> tuple[bool, str]:
+    if not item.get("sleep_hours_enabled"):
+        return False, "sleep hours are not enabled for this automation"
+    if item.get("run_during_sleep_hours"):
+        return False, "this automation is allowed during sleep hours"
+    start = str(item.get("sleep_hours_start") or "22:00")
+    end = str(item.get("sleep_hours_end") or "07:00")
+    try:
+        start_hour, start_minute = (int(value) for value in start.split(":", 1))
+        end_hour, end_minute = (int(value) for value in end.split(":", 1))
+    except (TypeError, ValueError):
+        return False, "sleep-hour times are invalid"
+    local = time.localtime(now)
+    current_minutes = local.tm_hour * 60 + local.tm_min
+    start_minutes = start_hour * 60 + start_minute
+    end_minutes = end_hour * 60 + end_minute
+    active = current_minutes >= start_minutes or current_minutes < end_minutes if start_minutes > end_minutes else start_minutes <= current_minutes < end_minutes
+    return active, f"sleep hours {start}–{end}; local time {local.tm_hour:02d}:{local.tm_min:02d}"
+
 def _automation_presence_confirmed(item: dict[str, Any], settings: dict[str, Any], expected_zone: str = "") -> tuple[bool, str]:
     if not settings.get("require_presence"):
         return True, "presence not required"
@@ -1859,6 +1880,14 @@ async def _automation_commit_match(automation_id: str, evidence: dict[str, Any])
             _automation_save(data)
         if _automation_expire_stale_suggestions(data, item, now):
             _automation_save(data)
+        sleeping, sleep_detail = _automation_sleep_hours_active(item, now)
+        if sleeping:
+            item["last_suppressed_at"] = now
+            item["status"] = "sleeping"
+            item["last_deferred_reason"] = sleep_detail
+            _automation_record_decision(item, "suppressed_sleep_hours", sleep_detail, evidence=trigger_entity)
+            _automation_save(data)
+            return
         if any(value.get("automation_id") == automation_id and value.get("status") in {"pending", "approval_required", "executing"} for value in data.get("suggestions", [])):
             return
         dismissal_detail = "no active dismissal context"

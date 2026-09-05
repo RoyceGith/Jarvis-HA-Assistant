@@ -1,6 +1,6 @@
 # ZBRANO for Home Assistant
 
-Current release: **0.13.161**
+Current release: **0.13.162**
 
 This is the public Home Assistant installation and update repository for ZBRANO.
 The application is delivered as a prebuilt container image. The current repository
@@ -20,6 +20,10 @@ Existing ZBRANO installations retain the same add-on slug, configuration, `/data
 storage, and `ghcr.io/roycegith/jarvis-ha-assistant` update image.
 
 ## Current experience
+
+Version 0.13.162 gives each incomplete Studio card its own warning, adds
+per-automation sleep hours and a security override, and correctly derives branch
+power commands from the selected device.
 
 Version 0.13.161 makes messages optional branch task blocks, leaves new ELSE IF
 paths empty, and supports message-only outcomes without meaningless approval.
