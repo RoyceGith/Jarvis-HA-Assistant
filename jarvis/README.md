@@ -6,6 +6,10 @@ connections.
 
 ## Automation Studio
 
+Version 0.13.162 makes validation warnings card-specific, adds per-automation
+sleep hours with a security override, and synchronizes branch power tasks with
+the selected device.
+
 Version 0.13.161 makes branch messages optional task blocks and supports outcomes
 that only send a message without requesting approval for a nonexistent action.
 
