@@ -130,7 +130,7 @@ function apiFixture(url, method = "GET") {
   if (pathname === "/api/health") {
     return {
       status: "ok",
-      version: "0.13.155",
+      version: "0.13.156",
       speech_provider: "openai",
       speech_providers: {openai: {configured: true}, elevenlabs: {configured: false}},
     };
@@ -213,7 +213,7 @@ function apiFixture(url, method = "GET") {
   if (pathname === "/api/plugins") return {plugins: []};
   if (pathname === "/api/files/shared") return {files: [], count: 0};
   if (pathname === "/api/release-memory-sync") {
-    return {enabled: false, state: "disabled", version: "0.13.155", task_active: false};
+    return {enabled: false, state: "disabled", version: "0.13.156", task_active: false};
   }
   if (pathname === "/api/tab-activity") return {revisions: {}};
   if (pathname === "/api/grinder-monitor/status") return {enabled: false, connected: false};
@@ -569,8 +569,9 @@ async function main() {
     assert.equal(await page.locator('#automation-flow-preview [data-flow-kind="decision"]').count(), 2);
     assert.match(await page.locator('#automation-flow-preview [data-flow-kind="decision"]').nth(0).innerText(), /^IF/i);
     assert.match(await page.locator('#automation-flow-preview [data-flow-kind="decision"]').nth(1).innerText(), /^ELSE IF/i);
-    assert.match(await page.locator(".automation-inspector-more > summary").innerText(), /Fine-tune timing and confidence/i);
-    assert.equal(await page.locator(".automation-inspector-more").getAttribute("open"), null);
+    const timingDetails=page.locator(".automation-inspector-more").filter({hasText:"Fine-tune timing and confidence"});
+    assert.match(await timingDetails.locator(":scope > summary").innerText(), /Fine-tune timing and confidence/i);
+    assert.equal(await timingDetails.getAttribute("open"), null);
     await dropStudioBlock("action");
     assert.match(await page.locator('#automation-flow-preview [data-flow-kind="action"]').innerText(), /Choose what it should do/i);
     assert.equal(await page.locator('#automation-flow-preview [data-flow-kind="action"]').count(), 1);
@@ -748,7 +749,12 @@ async function main() {
     assert.match(await page.locator('[data-flow-branch-drop="0"]').innerText(), /Wait 2 sec/i);
     assert.equal(await page.locator("[data-branch-suggestion]").count(), 1);
     assert.equal(await page.locator("[data-branch-suggestion]").evaluateAll(nodes=>nodes.every(node=>node.offsetParent!==null)), true);
-    await page.locator('[data-branch-collection="conditions"][data-branch-index="1"][data-item-index="0"][data-condition-field="entity_id"]').fill("climate.browser_thermostat");
+    const elseIfEntity=page.locator('[data-branch-collection="conditions"][data-branch-index="1"][data-item-index="0"][data-condition-field="entity_id"]'),elseIfAttribute=page.locator('[data-branch-collection="conditions"][data-branch-index="1"][data-item-index="0"][data-condition-field="attribute"]');
+    await elseIfEntity.fill("climate.browser_thermostat");
+    const elseIfAdvanced=elseIfAttribute.locator("xpath=ancestor::details[1]");
+    assert.doesNotMatch(await elseIfAdvanced.innerText(), /Which value\?/i);
+    assert.equal(await elseIfAdvanced.getAttribute("open"), null);
+    assert.equal(await elseIfAttribute.isVisible(), false);
     await page.locator('[data-branch-collection="conditions"][data-branch-index="1"][data-item-index="0"][data-condition-field="value"]').fill("on");
     await page.locator('[data-branch-collection="conditions"][data-branch-index="1"][data-item-index="0"][data-condition-field="for_seconds"]').fill("1200");
     await page.locator('[data-branch-suggestion="1"]').fill("Check whether a window is open.");

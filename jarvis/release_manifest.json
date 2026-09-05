@@ -1,9 +1,9 @@
 {
-  "version": "0.13.155",
+  "version": "0.13.156",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/ZBRANO_Core main",
-  "summary": "Slim Automation Studio controls and keep setup guidance outside the flow-block palette.",
+  "summary": "Use the selected device state by default in IF and ELSE IF checks and hide optional attributes.",
   "history_backfill": [
     {
       "version": "0.13.0",
@@ -624,19 +624,23 @@
     {
       "version": "0.13.154",
       "summary": "Kept Power turns on/off selected for every compatible entity and removed redundant comparison fields."
+    },
+    {
+      "version": "0.13.155",
+      "summary": "Slimmed Automation Studio controls and kept setup guidance outside the flow-block palette."
     }
   ],
   "release_entry": {
     "features": [
-      "Move Setup & safety into a compact guidance strip outside the flow-block palette.",
-      "Present the current guided step beside a thin full-width progress line."
+      "Default ordinary IF and ELSE IF device checks to the selected entity's current state.",
+      "Keep optional Home Assistant attribute selection in a collapsed advanced section."
     ],
     "fixes": [
-      "Reserve the top block bar for WHEN, IF, THEN, and ELSE IF blocks only.",
-      "Reduce the height and padding of New automation, Try it safely, and Save automation controls."
+      "Remove the confusing visible Which value field after a device or sensor has been selected.",
+      "Automatically reveal saved attribute settings when reopening an automation that uses them."
     ],
     "validation": [
-      "Guide-strip geometry, four-category block palette, setup navigation placement, compact action controls, browser smoke, full regression suite, and v0.13.155 release coverage"
+      "Default entity-state checks, collapsed optional attributes, stored attribute preservation, ELSE IF browser workflow, full regression suite, and v0.13.156 release coverage"
     ]
   },
   "features": [
