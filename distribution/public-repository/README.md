@@ -21,6 +21,10 @@ storage, and `ghcr.io/roycegith/jarvis-ha-assistant` update image.
 
 ## Current experience
 
+Version 0.13.158 begins each IF and ELSE IF path with its own condition, keeps
+speaking-path messages independent, removes messages from Monitor silently, and
+opens bottom task menus upward so their choices remain visible.
+
 Version 0.13.157 restores current device and sensor readings in Automation Studio
 selection dropdowns, including units and current climate temperatures.
 
