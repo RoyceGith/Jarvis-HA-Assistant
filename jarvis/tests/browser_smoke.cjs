@@ -130,7 +130,7 @@ function apiFixture(url, method = "GET") {
   if (pathname === "/api/health") {
     return {
       status: "ok",
-      version: "0.13.150",
+      version: "0.13.151",
       speech_provider: "openai",
       speech_providers: {openai: {configured: true}, elevenlabs: {configured: false}},
     };
@@ -213,7 +213,7 @@ function apiFixture(url, method = "GET") {
   if (pathname === "/api/plugins") return {plugins: []};
   if (pathname === "/api/files/shared") return {files: [], count: 0};
   if (pathname === "/api/release-memory-sync") {
-    return {enabled: false, state: "disabled", version: "0.13.150", task_active: false};
+    return {enabled: false, state: "disabled", version: "0.13.151", task_active: false};
   }
   if (pathname === "/api/tab-activity") return {revisions: {}};
   if (pathname === "/api/grinder-monitor/status") return {enabled: false, connected: false};
@@ -698,8 +698,8 @@ async function main() {
     await page.locator("#studio-automation-execution-policy").selectOption("autonomous");
     assert.equal(await page.locator("#automation-execution-policy").inputValue(), "autonomous");
     assert.equal(await page.locator('#automation-flow-preview [data-flow-kind="decision"]').count(), 0);
-    await page.locator("#studio-automation-risk").selectOption("low");
-    assert.equal(await page.locator("#automation-risk").inputValue(), "low");
+    await page.locator("#studio-automation-risk").selectOption("controlled");
+    assert.equal(await page.locator("#automation-risk").inputValue(), "controlled");
     await page.locator("#studio-automation-max-actions").fill("3");
     assert.equal(await page.locator("#automation-max-actions").inputValue(), "3");
     await page.locator('.automation-studio-toolbox [data-studio-node="decision"]').click();
@@ -711,6 +711,9 @@ async function main() {
     assert.match(await page.locator("#automation-studio-state").innerText(), /0 actions executed/i);
     await page.locator('[data-studio-node="details"]').click();
     await page.locator("#studio-automation-execution-policy").selectOption("suggest");
+    assert.equal(await page.locator("#studio-automation-max-actions").count(), 0);
+    assert.equal(await page.locator("#studio-automation-reversible-only").count(), 0);
+    assert.equal(await page.locator("#studio-automation-notify-action").count(), 0);
     await page.locator('.automation-studio-toolbox [data-studio-node="decision"]').click();
     await page.locator("[data-branch-add]").click();
     assert.equal(await page.locator("#automation-flow-preview .automation-flow-branch-lane").count(), 2);

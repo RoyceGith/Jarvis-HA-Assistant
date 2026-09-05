@@ -34,7 +34,7 @@
   <header>
     <div class="brand-line">
       <h1>ZBRANO</h1>
-      <div class="status hud-version-label">Workshop Intelligence Interface · HUD 0.13.150</div>
+      <div class="status hud-version-label">Workshop Intelligence Interface · HUD 0.13.151</div>
     </div>
     <div class="runtime-status-stack">
       <div id="notification-inbox-shell" class="notification-inbox-shell">
@@ -862,7 +862,7 @@
                 <label>Reconsider after worsening by<input id="automation-reoffer-delta" type="number" min="0" max="100000" step="0.1" value="0" title="0 uses ZBRANO's automatic margin"></label>
                 <label>Reset margin<input id="automation-reset-delta" type="number" min="0" max="100000" step="0.1" value="0" title="How far back past the threshold ends the episode; 0 resets at the threshold"></label>
                 <label>Minimum confidence<input id="automation-confidence" type="number" min="0.5" max="0.99" step="0.01" value="0.75"></label>
-                <label>What does this automation affect?<select id="automation-risk"><option value="informational">Information only</option><option value="low">A low-impact device</option><option value="controlled" selected>A device that needs care</option><option value="high">A sensitive or security device</option></select></label>
+                <label>Device type<select id="automation-risk"><option value="informational" selected>Sensor device</option><option value="controlled">Control device</option></select></label>
                 <label>What may ZBRANO do?<select id="automation-execution-policy"><option value="inherit">Protected default (existing rules)</option><option value="observe">Watch only</option><option value="suggest" selected>Suggest it to me</option><option value="approval_required">Ask before doing it</option><option value="autonomous">Do it automatically</option></select></label>
                 <label class="check"><input id="automation-delivery-voice" type="checkbox" checked> Speak suggestions</label>
                 <label class="check"><input id="automation-delivery-center" type="checkbox" checked> Show in Studio inbox</label>

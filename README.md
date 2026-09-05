@@ -1,9 +1,13 @@
-## ZBRANO v0.13.150
+## ZBRANO v0.13.151
 
 ZBRANO combines Home Assistant chat, voice, entity control, memory, notifications,
 calendar and contact tools, plugins, and evidence-based automations. Automation Studio now uses
 a visual building-block toolbox, interactive node canvas, and contextual inspector;
 the established automation engine and stored definitions remain compatible.
+
+Version 0.13.151 replaces abstract device-risk levels with two direct choices:
+Sensor device for read-only observation and Control device for automations that
+can change something. Action-only safety settings now appear only when relevant.
 
 Version 0.13.150 adds a per-automation Require presence gate to Setup & safety
 and replaces the optional-results prompt with direct IF / ELSE IF paths. Adding

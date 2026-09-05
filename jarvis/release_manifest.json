@@ -1,9 +1,9 @@
 {
-  "version": "0.13.150",
+  "version": "0.13.151",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/ZBRANO_Core main",
-  "summary": "Add per-automation presence gating and direct IF / ELSE IF paths that preserve connected checks and tasks.",
+  "summary": "Replace confusing automation risk levels with clear Sensor device and Control device choices.",
   "history_backfill": [
     {
       "version": "0.13.0",
@@ -604,19 +604,23 @@
     {
       "version": "0.13.149",
       "summary": "Made When events instantly recognizable, limited the inspector to the selected trigger, and removed disconnected Say content from automatic flows."
+    },
+    {
+      "version": "0.13.150",
+      "summary": "Added per-automation presence gating and direct IF / ELSE IF paths that preserve connected checks and tasks."
     }
   ],
   "release_entry": {
     "features": [
-      "Add a Require presence checkbox and person/device-tracker field directly to each automation's Setup and safety step.",
-      "Replace the optional results question with direct IF / ELSE IF paths and visibly forked canvas arrows."
+      "Replace the four abstract automation risk categories with Sensor device and Control device choices.",
+      "Keep existing saved informational, low, controlled, and high risk values compatible when reopened."
     ],
     "fixes": [
-      "Move existing And checks and Then tasks into the first IF path when branching begins so no behavior becomes disconnected.",
-      "Show only the selected branch, branch check, or branch task in the inspector and rename the save activation choice for clarity."
+      "Hide action-count and completion-notification settings when a rule cannot control a device.",
+      "Show the reversible-action restriction only for automatic Control device rules, where it can affect execution."
     ],
     "validation": [
-      "Presence gating, connected two-path conversion, 20-minute ELSE IF scenario, block-level branch inspector, full regression suite, and v0.13.150 release coverage"
+      "Two-category device selection, legacy-value normalization, conditional safety controls, browser smoke, full regression suite, and v0.13.151 release coverage"
     ]
   },
   "features": [

@@ -1,5 +1,12 @@
 # Change log
 
+## 0.13.151
+
+- Replaced four abstract risk categories with Sensor device and Control device.
+- Kept older saved risk values compatible when reopening automations.
+- Hid action-count and completion settings for rules that cannot control devices.
+- Limited the reversible-action setting to automatic Control device rules.
+
 ## 0.13.150
 
 - Added Require presence and its entity picker to each automation's Setup & safety step.

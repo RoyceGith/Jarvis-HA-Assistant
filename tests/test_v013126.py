@@ -54,8 +54,8 @@ class BirthdayPersistenceReleaseTests(unittest.TestCase):
         self.assertIn("reconcile_birthday_contacts()", route)
 
     def test_release_is_aligned(self):
-        self.assertEqual(MANIFEST["version"], "0.13.150")
-        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.149")
+        self.assertEqual(MANIFEST["version"], "0.13.151")
+        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.150")
 
 
 if __name__ == "__main__":

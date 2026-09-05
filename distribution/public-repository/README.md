@@ -1,6 +1,6 @@
 # ZBRANO for Home Assistant
 
-Current release: **0.13.150**
+Current release: **0.13.151**
 
 This is the public Home Assistant installation and update repository for ZBRANO.
 The application is delivered as a prebuilt container image. The current repository
@@ -20,6 +20,9 @@ Existing ZBRANO installations retain the same add-on slug, configuration, `/data
 storage, and `ghcr.io/roycegith/jarvis-ha-assistant` update image.
 
 ## Current experience
+
+Version 0.13.151 replaces abstract device-risk levels with clear Sensor device
+and Control device choices and hides action-only safety settings when irrelevant.
 
 Version 0.13.150 adds per-automation presence gating and direct IF / ELSE IF
 paths. Existing checks and tasks stay connected when a second path is added,
