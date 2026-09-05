@@ -12,8 +12,8 @@ MANIFEST = json.loads((ROOT / "jarvis" / "release_manifest.json").read_text(enco
 
 class V013140AutomationStudioUsabilityTests(unittest.TestCase):
     def test_release_is_aligned(self):
-        self.assertEqual(MANIFEST["version"], "0.13.149")
-        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.148")
+        self.assertEqual(MANIFEST["version"], "0.13.150")
+        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.149")
 
     def test_repeatable_cards_explain_their_fields(self):
         for label in (
@@ -44,7 +44,7 @@ class V013140AutomationStudioUsabilityTests(unittest.TestCase):
     def test_toolbar_and_paths_use_clear_action_language(self):
         for label in ("New automation", "Try it safely", "Save automation"):
             self.assertIn(f">{label}</button>", HTML)
-        self.assertIn('name:`Outcome ${workflowDraft.branches.length+1}`', WORKSPACE)
+        self.assertIn('name:"ELSE IF"', WORKSPACE)
         self.assertNotIn('name:`Branch ${workflowDraft.branches.length+1}`', WORKSPACE)
 
 

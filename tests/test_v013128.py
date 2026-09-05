@@ -9,13 +9,14 @@ MANIFEST = json.loads((ROOT / "jarvis/release_manifest.json").read_text(encoding
 
 
 class ArmBrowserGateReleaseTests(unittest.TestCase):
-    def test_branch_condition_delete_bypasses_card_interception(self):
-        line = next(value for value in BROWSER.splitlines() if "const removableBranchCondition=" in value)
-        self.assertIn('.automation-flow-card-delete").click({force:true})', line)
+    def test_existing_linear_task_is_connected_when_branching_starts(self):
+        self.assertIn('data-flow-kind="action"]\').count(), 0', BROWSER)
+        self.assertIn('data-flow-branch-drop="0"', BROWSER)
+        self.assertIn("Wait 2 sec", BROWSER)
 
     def test_release_is_aligned(self):
-        self.assertEqual(MANIFEST["version"], "0.13.149")
-        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.148")
+        self.assertEqual(MANIFEST["version"], "0.13.150")
+        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.149")
 
 
 if __name__ == "__main__":

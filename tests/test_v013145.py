@@ -13,26 +13,26 @@ MANIFEST = json.loads((ROOT / "jarvis" / "release_manifest.json").read_text(enco
 
 class V013145FriendlyResultsTests(unittest.TestCase):
     def test_release_is_aligned(self):
-        self.assertEqual(MANIFEST["version"], "0.13.149")
-        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.148")
+        self.assertEqual(MANIFEST["version"], "0.13.150")
+        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.149")
 
     def test_optional_step_starts_with_a_plain_choice(self):
-        self.assertIn("Different results", HTML)
-        self.assertIn("Should this automation do something different in another situation?", WORKSPACE)
-        self.assertIn("Most automations do not need this", WORKSPACE)
-        self.assertIn("Add a different result", WORKSPACE)
+        self.assertIn("Else if", HTML)
+        self.assertIn("Add an ELSE IF path", WORKSPACE)
+        self.assertIn("current And checks and Then tasks become the first IF path", WORKSPACE)
+        self.assertIn("Add ELSE IF", WORKSPACE)
         self.assertIn("automation-outcome-choice", CSS)
 
     def test_results_use_when_then_language_without_changing_schema(self):
         for phrase in (
-            "Your different results",
+            "IF / ELSE IF paths",
             "Every check below is true",
             "At least one check below is true",
-            "Name this result",
-            "Add a task for this result",
+            "Path label",
+            "Add THEN task",
         ):
             self.assertIn(phrase, WORKSPACE)
-        for phrase in ("DIFFERENT RESULTS — FIRST MATCH WINS", "WHEN NO RESULT ABOVE MATCHES"):
+        for phrase in ("IF / ELSE IF — FIRST MATCH RUNS", "WHEN NO PATH ABOVE MATCHES"):
             self.assertIn(phrase, FLOW)
         self.assertIn('conditions:[newBranchCondition()]', WORKSPACE)
         self.assertIn("branches:workflowDraft.branches", WORKSPACE)

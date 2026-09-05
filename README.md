@@ -1,9 +1,14 @@
-## ZBRANO v0.13.149
+## ZBRANO v0.13.150
 
 ZBRANO combines Home Assistant chat, voice, entity control, memory, notifications,
 calendar and contact tools, plugins, and evidence-based automations. Automation Studio now uses
 a visual building-block toolbox, interactive node canvas, and contextual inspector;
 the established automation engine and stored definitions remain compatible.
+
+Version 0.13.150 adds a per-automation Require presence gate to Setup & safety
+and replaces the optional-results prompt with direct IF / ELSE IF paths. Adding
+the first ELSE IF keeps existing And checks and Then tasks connected in the
+first path, while each new path has its own check, message, and task.
 
 Version 0.13.149 gives every When block a clear event type: Sensor, Power on,
 Power off, Time, Sun, Repeat, or One time. Selecting a flow card now shows only

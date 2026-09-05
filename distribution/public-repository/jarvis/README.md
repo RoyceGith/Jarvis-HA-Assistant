@@ -6,6 +6,10 @@ connections.
 
 ## Automation Studio
 
+Version 0.13.150 adds a Require presence gate to the first step and changes the
+optional final step into a direct IF / ELSE IF path builder. Existing checks
+and tasks remain connected when branching begins.
+
 Version 0.13.149 adds dedicated event cards to the When step, limits the
 inspector to the selected trigger, and removes Say content from automatic flows
 where it is no longer connected.

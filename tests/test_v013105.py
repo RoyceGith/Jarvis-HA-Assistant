@@ -16,10 +16,10 @@ MANIFEST = json.loads((ROOT / "jarvis/release_manifest.json").read_text(encoding
 
 class VisualBranchTaskLaneReleaseTests(unittest.TestCase):
     def test_release_markers_are_aligned(self):
-        self.assertIn('version: "0.13.149"', CONFIG)
-        self.assertIn('version="0.13.149"', MAIN)
-        self.assertIn("HUD 0.13.149", HTML)
-        self.assertEqual(MANIFEST["version"], "0.13.149")
+        self.assertIn('version: "0.13.150"', CONFIG)
+        self.assertIn('version="0.13.150"', MAIN)
+        self.assertIn("HUD 0.13.150", HTML)
+        self.assertEqual(MANIFEST["version"], "0.13.150")
 
     def test_branches_render_real_task_lanes(self):
         for marker in (
@@ -50,13 +50,13 @@ class VisualBranchTaskLaneReleaseTests(unittest.TestCase):
 
     def test_browser_covers_branch_assignment_and_reordering(self):
         self.assertIn('data-flow-branch-drop="0"', BROWSER)
-        self.assertIn('data-flow-kind="branch-action"', BROWSER)
-        self.assertIn("moved into the selected outcome", BROWSER)
-        self.assertIn("NOT CONNECTED", BROWSER)
-        self.assertIn("Choose what it should do", BROWSER)
+        self.assertIn('data-branch-collection="actions"', BROWSER)
+        self.assertIn("ELSE IF path added", BROWSER)
+        self.assertIn("Wait 2 sec", BROWSER)
+        self.assertIn('data-flow-kind="action"]\').count(), 0', BROWSER)
 
     def test_release_history_includes_v013104(self):
-        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.148")
+        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.149")
 
 
 if __name__ == "__main__":

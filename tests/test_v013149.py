@@ -12,8 +12,8 @@ MANIFEST = json.loads((ROOT / "jarvis/release_manifest.json").read_text(encoding
 
 class WhenCardAndAutomaticFlowReleaseTests(unittest.TestCase):
     def test_release_is_aligned(self):
-        self.assertEqual(MANIFEST["version"], "0.13.149")
-        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.148")
+        self.assertEqual(MANIFEST["version"], "0.13.150")
+        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.149")
 
     def test_when_step_has_dedicated_event_choices(self):
         for preset in ("sensor", "power_on", "power_off", "time", "sun", "interval", "one_time"):
@@ -36,7 +36,6 @@ class WhenCardAndAutomaticFlowReleaseTests(unittest.TestCase):
         self.assertIn("if(showMessages)lane.append(say,connector())", FLOW)
         self.assertIn('data-flow-kind="decision"', BROWSER)
         self.assertIn('"#studio-automation-proposal").count(), 0', BROWSER)
-        self.assertIn('"#automation-flow-preview .automation-flow-branch-suggestion").count(), 0', BROWSER)
 
 
 if __name__ == "__main__":

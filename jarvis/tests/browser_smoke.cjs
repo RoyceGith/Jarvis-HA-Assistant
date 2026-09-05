@@ -130,7 +130,7 @@ function apiFixture(url, method = "GET") {
   if (pathname === "/api/health") {
     return {
       status: "ok",
-      version: "0.13.149",
+      version: "0.13.150",
       speech_provider: "openai",
       speech_providers: {openai: {configured: true}, elevenlabs: {configured: false}},
     };
@@ -213,7 +213,7 @@ function apiFixture(url, method = "GET") {
   if (pathname === "/api/plugins") return {plugins: []};
   if (pathname === "/api/files/shared") return {files: [], count: 0};
   if (pathname === "/api/release-memory-sync") {
-    return {enabled: false, state: "disabled", version: "0.13.149", task_active: false};
+    return {enabled: false, state: "disabled", version: "0.13.150", task_active: false};
   }
   if (pathname === "/api/tab-activity") return {revisions: {}};
   if (pathname === "/api/grinder-monitor/status") return {enabled: false, connected: false};
@@ -376,6 +376,16 @@ async function main() {
     assert.equal(await page.locator("#automation-studio-current-step").innerText(), "Step 1 of 5");
     assert.equal(await page.locator("#automation-studio-step-back").isDisabled(), true);
     assert.equal(await page.locator("#studio-automation-execution-policy").inputValue(), "suggest");
+    assert.equal(await page.locator("#studio-automation-require-presence").isChecked(), false);
+    assert.equal(await page.locator("#studio-automation-presence").isDisabled(), true);
+    await page.locator("#studio-automation-require-presence").check();
+    assert.equal(await page.locator("#studio-automation-presence").isEnabled(), true);
+    await page.locator("#studio-automation-presence").fill("person.browser_fixture");
+    assert.match(await page.locator('#automation-flow-preview [data-flow-kind="context"]').innerText(), /browser_fixture/i);
+    await page.locator("#studio-automation-require-presence").uncheck();
+    assert.equal(await page.locator("#studio-automation-presence").isDisabled(), true);
+    assert.equal(await page.locator('#automation-flow-preview [data-flow-kind="context"]').count(), 0);
+    assert.match(await page.locator("#automation-studio-inspector-fields").innerText(), /Enable automation on saving/i);
     await page.locator("#automation-studio-step-next").click();
     assert.match(await page.locator("#automation-studio-state").innerText(), /Complete this step first/i);
     await page.locator("#studio-automation-name").fill("A");
@@ -538,7 +548,9 @@ async function main() {
     await dropStudioBlock("context");
     assert.equal(await page.locator('#automation-flow-preview [data-flow-kind="context"]').count(), 1);
     await dropStudioBlock("decision");
-    assert.equal(await page.locator('#automation-flow-preview [data-flow-kind="decision"]').count(), 1);
+    assert.equal(await page.locator('#automation-flow-preview [data-flow-kind="decision"]').count(), 2);
+    assert.match(await page.locator('#automation-flow-preview [data-flow-kind="decision"]').nth(0).innerText(), /^IF/i);
+    assert.match(await page.locator('#automation-flow-preview [data-flow-kind="decision"]').nth(1).innerText(), /^ELSE IF/i);
     assert.match(await page.locator(".automation-inspector-more > summary").innerText(), /Fine-tune timing and confidence/i);
     assert.equal(await page.locator(".automation-inspector-more").getAttribute("open"), null);
     await dropStudioBlock("action");
@@ -595,7 +607,7 @@ async function main() {
     assert.equal(await page.locator("#automation-studio-validation").isHidden(), true);
     assert.equal(await page.locator('[data-studio-node="trigger"]').getAttribute("aria-label"), "When: Ready");
     await page.locator("#automation-studio-step-next").click();
-    assert.equal(await page.locator("#automation-studio-inspector-title").innerText(), "3. Only if");
+    assert.equal(await page.locator("#automation-studio-inspector-title").innerText(), "3. And");
     assert.equal(await page.locator("#automation-studio-current-step").innerText(), "Step 3 of 5");
     await page.locator("#automation-studio-step-back").click();
     assert.equal(await page.locator("#automation-studio-inspector-title").innerText(), "2. When");
@@ -664,7 +676,7 @@ async function main() {
     assert.equal(await page.locator("[data-trigger-mode]").inputValue(), "all");
     await page.locator("#automation-flow-preview [data-trigger-logic]").selectOption("any");
     await page.locator('#automation-flow-preview [data-flow-kind="context"]').first().click();
-    assert.equal(await page.locator("#automation-studio-inspector-title").innerText(), "3. Only if");
+    assert.equal(await page.locator("#automation-studio-inspector-title").innerText(), "3. And");
     await page.waitForTimeout(250);
     await page.evaluate(()=>{document.activeElement?.blur();window.zbranoEntitySearch.close()});
     await page.locator('[data-workflow-add="conditions"]').click();
@@ -697,80 +709,36 @@ async function main() {
     await page.locator("#automation-studio-test-results:not([hidden])").waitFor();
     assert.equal(await page.locator("#automation-studio-test-results .automation-studio-test-step").count(), 4);
     assert.match(await page.locator("#automation-studio-state").innerText(), /0 actions executed/i);
+    await page.locator('[data-studio-node="details"]').click();
+    await page.locator("#studio-automation-execution-policy").selectOption("suggest");
+    await page.locator('.automation-studio-toolbox [data-studio-node="decision"]').click();
     await page.locator("[data-branch-add]").click();
-    assert.equal(await page.locator("[data-branch-suggestion]").isVisible(), false);
-    assert.equal(await page.locator("#automation-flow-preview .automation-flow-branch-suggestion").count(), 0);
-    await page.locator('[data-branch-collection="conditions"][data-item-index="0"][data-condition-field="entity_id"]').fill("sensor.browser_fixture_4");
-    await page.locator('[data-branch-collection="conditions"][data-item-index="0"][data-condition-field="value"]').fill("off");
-    assert.match(await page.locator('.automation-branch-card').first().innerText(), /Compared with/i);
-    await page.locator('[data-branch-add-item="actions"]').click();
-    await page.locator('[data-branch-collection="actions"][data-action-field="entity_id"]').fill("light.browser_fixture");
-    await page.locator('[data-branch-collection="actions"][data-action-field="service"]').fill("light.turn_on");
-    await page.locator('[data-branch-add-item="actions"]').click();
-    await page.locator('[data-branch-collection="actions"][data-item-index="1"][data-action-field="kind"]').selectOption("wait_state");
-    await page.locator('[data-branch-collection="actions"][data-item-index="1"][data-action-field="entity_id"]').fill("sensor.browser_fixture_5");
-    await page.locator('[data-branch-collection="actions"][data-item-index="1"][data-action-field="wait_value"]').fill("25");
-    assert.match(await page.locator("#automation-flow-preview").innerText(), /Result 1/i);
-    assert.equal(await page.locator('#automation-flow-preview [data-flow-branch-drop="0"]').count(), 1);
-    assert.equal(await page.locator('#automation-flow-preview [data-flow-kind="branch-condition"]').count(), 1);
-    await page.locator('[data-flow-branch-drop="0"] .automation-flow-branch-condition-menu > summary').click();
-    await page.locator('[data-flow-branch-condition-template="entity_compare"][data-flow-branch-index="0"]').click();
-    assert.equal(await page.locator('#automation-flow-preview [data-flow-kind="branch-condition"]').count(), 2);
-    await page.locator('[data-branch-collection="conditions"][data-item-index="1"][data-condition-field="entity_id"]').fill("sensor.browser_fixture_5");
-    await page.locator('[data-branch-collection="conditions"][data-item-index="1"][data-condition-field="attribute"]').fill("current_temperature");
-    await page.locator('[data-branch-collection="conditions"][data-item-index="1"][data-condition-field="compare_entity_id"]').fill("climate.browser_thermostat");
-    await page.locator('[data-branch-collection="conditions"][data-item-index="1"][data-condition-field="compare_attribute"]').fill("temperature");
-    await page.locator('#automation-flow-preview [data-branch-condition-logic]').selectOption("any");
-    assert.equal(await page.locator('[data-branch-mode="0"]').inputValue(), "any");
-    await page.evaluate(()=>{const cards=document.querySelectorAll('#automation-flow-preview [data-flow-kind="branch-condition"]'),source=cards[1],target=cards[0],dataTransfer=new DataTransfer(),rect=target.getBoundingClientRect();source.dispatchEvent(new DragEvent("dragstart",{bubbles:true,dataTransfer}));target.dispatchEvent(new DragEvent("dragover",{bubbles:true,cancelable:true,dataTransfer,clientY:rect.top+1}));target.dispatchEvent(new DragEvent("drop",{bubbles:true,cancelable:true,dataTransfer,clientY:rect.top+1}))});
-    assert.match(await page.locator('#automation-flow-preview [data-flow-kind="branch-condition"]').first().innerText(), /Browser Fixture 5/i);
-    const firstBranchCondition=page.locator('#automation-flow-preview [data-flow-kind="branch-condition"]').first();await firstBranchCondition.hover();await firstBranchCondition.locator(".automation-flow-card-duplicate").click();
-    assert.equal(await page.locator('#automation-flow-preview [data-flow-kind="branch-condition"]').count(), 3);
-    await page.locator("#automation-studio-undo").click();
-    assert.equal(await page.locator('#automation-flow-preview [data-flow-kind="branch-condition"]').count(), 2);
-    await page.locator("[data-flow-add-branch]").click();
-    assert.equal(await page.locator('#automation-flow-preview [data-flow-branch-drop="1"]').count(), 1);
-    assert.equal(await page.locator("#automation-flow-preview .automation-flow-branch-toolbar").count(), 2);
-    await page.locator('[data-flow-branch-action="duplicate"][data-flow-branch-index="0"]').click();
-    assert.equal(await page.locator("#automation-flow-preview .automation-flow-branch-lane").count(), 3);
-    await page.locator('[data-flow-branch-action="delete"][data-flow-branch-index="1"]').click();
     assert.equal(await page.locator("#automation-flow-preview .automation-flow-branch-lane").count(), 2);
-    await page.locator('[data-flow-branch-action="next"][data-flow-branch-index="0"]').click();
-    await page.locator('[data-flow-branch-action="previous"][data-flow-branch-index="1"]').click();
-    assert.match(await page.locator('[data-flow-branch-drop="0"] [data-flow-kind="decision"]').innerText(), /Result 1/i);
-    const starterPathCondition=page.locator('#automation-flow-preview [data-flow-kind="branch-condition"][data-flow-branch-index="1"]');await starterPathCondition.hover();await starterPathCondition.locator(".automation-flow-card-delete").click({force:true});
-    await page.evaluate(()=>{const source=document.querySelector('#automation-flow-preview [data-flow-kind="branch-condition"]'),lane=document.querySelector('#automation-flow-preview [data-flow-branch-condition-drop="1"]'),dataTransfer=new DataTransfer();source.dispatchEvent(new DragEvent("dragstart",{bubbles:true,dataTransfer}));lane.dispatchEvent(new DragEvent("dragover",{bubbles:true,cancelable:true,dataTransfer}));lane.dispatchEvent(new DragEvent("drop",{bubbles:true,cancelable:true,dataTransfer}))});
-    assert.equal(await page.locator('#automation-flow-preview [data-flow-kind="branch-condition"][data-flow-branch-index="1"]').count(), 1);
-    await page.evaluate(()=>{const source=document.querySelector('#automation-flow-preview [data-flow-kind="branch-condition"][data-flow-branch-index="1"]'),lane=document.querySelector('#automation-flow-preview [data-flow-branch-condition-drop="0"]'),dataTransfer=new DataTransfer();source.dispatchEvent(new DragEvent("dragstart",{bubbles:true,dataTransfer}));lane.dispatchEvent(new DragEvent("dragover",{bubbles:true,cancelable:true,dataTransfer}));lane.dispatchEvent(new DragEvent("drop",{bubbles:true,cancelable:true,dataTransfer}))});
-    assert.equal(await page.locator('#automation-flow-preview [data-flow-kind="branch-condition"][data-flow-branch-index="0"]').count(), 2);
-    const removableBranchCondition=page.locator('#automation-flow-preview [data-flow-kind="branch-condition"]').last();await removableBranchCondition.hover();await removableBranchCondition.locator(".automation-flow-card-delete").click({force:true});
-    assert.equal(await page.locator('#automation-flow-preview [data-flow-kind="branch-condition"]').count(), 1);
-    await page.locator("#automation-studio-undo").click();
-    assert.equal(await page.locator('#automation-flow-preview [data-flow-kind="branch-condition"]').count(), 2);
-    await page.locator('[data-flow-branch-drop="0"] .automation-flow-branch-task-menu > summary').click();
-    await page.locator('[data-flow-branch-task-template="delay"][data-flow-branch-index="0"]').click();
-    assert.match(await page.locator('#automation-flow-preview [data-flow-kind="branch-action"]').last().innerText(), /Wait 5 sec/i);
-    await page.waitForTimeout(260);
-    const quickBranchTask=page.locator('#automation-flow-preview [data-flow-kind="branch-action"]').last();await quickBranchTask.hover();await quickBranchTask.locator(".automation-flow-card-delete").click({force:true});
-    assert.equal(await page.locator('#automation-flow-preview [data-flow-kind="branch-action"]').count(), 2);
-    assert.match(await page.locator('#automation-flow-preview .automation-flow-stage.is-action').innerText(), /NOT CONNECTED|Wait 2 sec/i);
-    await page.evaluate(()=>{const source=document.querySelector('#automation-flow-preview [data-flow-kind="action"]'),cards=document.querySelectorAll('#automation-flow-preview [data-flow-kind="branch-action"]'),target=cards[cards.length-1],dataTransfer=new DataTransfer(),rect=target.getBoundingClientRect();source.dispatchEvent(new DragEvent("dragstart",{bubbles:true,dataTransfer}));target.dispatchEvent(new DragEvent("dragover",{bubbles:true,cancelable:true,dataTransfer,clientY:rect.bottom-1}));target.dispatchEvent(new DragEvent("drop",{bubbles:true,cancelable:true,dataTransfer,clientY:rect.bottom-1}))});
+    assert.deepEqual(await page.locator("#automation-flow-preview [data-flow-kind=\"decision\"] .automation-flow-kicker").allTextContents(), ["IF", "ELSE IF"]);
     assert.equal(await page.locator('#automation-flow-preview [data-flow-kind="action"]').count(), 0);
-    assert.equal(await page.locator('#automation-flow-preview [data-flow-kind="branch-action"]').count(), 3);
-    assert.match(await page.locator('#automation-flow-preview [data-flow-kind="branch-action"]').last().innerText(), /Wait 2 sec/i);
-    assert.match(await page.locator("#automation-studio-state").innerText(), /moved into the selected outcome/i);
-    await page.evaluate(()=>{const cards=document.querySelectorAll('#automation-flow-preview [data-flow-kind="branch-action"]'),source=cards[cards.length-1],target=cards[0],dataTransfer=new DataTransfer(),rect=target.getBoundingClientRect();source.dispatchEvent(new DragEvent("dragstart",{bubbles:true,dataTransfer}));target.dispatchEvent(new DragEvent("dragover",{bubbles:true,cancelable:true,dataTransfer,clientY:rect.top+1}));target.dispatchEvent(new DragEvent("drop",{bubbles:true,cancelable:true,dataTransfer,clientY:rect.top+1}))});
-    assert.match(await page.locator('#automation-flow-preview [data-flow-kind="branch-action"]').first().innerText(), /Wait 2 sec/i);
-    await page.evaluate(()=>{const source=document.querySelector('.automation-studio-toolbox [data-studio-node="action"]'),lane=document.querySelector('#automation-flow-preview [data-flow-branch-drop="0"]'),dataTransfer=new DataTransfer();source.dispatchEvent(new DragEvent("dragstart",{bubbles:true,dataTransfer}));lane.dispatchEvent(new DragEvent("dragover",{bubbles:true,cancelable:true,dataTransfer}));lane.dispatchEvent(new DragEvent("drop",{bubbles:true,cancelable:true,dataTransfer}));source.dispatchEvent(new DragEvent("dragend",{bubbles:true,dataTransfer}))});
-    assert.equal(await page.locator('#automation-flow-preview [data-flow-kind="branch-action"]').count(), 4);
-    assert.match(await page.locator('#automation-flow-preview [data-flow-kind="branch-action"]').last().innerText(), /Choose what it should do/i);
-    const newBranchTask=page.locator('#automation-flow-preview [data-flow-kind="branch-action"]').last();await newBranchTask.hover();await newBranchTask.locator(".automation-flow-card-delete").click({force:true});
-    assert.equal(await page.locator('#automation-flow-preview [data-flow-kind="branch-action"]').count(), 3);
-    const firstBranchTask=page.locator('#automation-flow-preview [data-flow-kind="branch-action"]').first();await firstBranchTask.hover();await firstBranchTask.locator(".automation-flow-card-duplicate").click({force:true});
-    assert.equal(await page.locator('#automation-flow-preview [data-flow-kind="branch-action"]').count(), 4);
-    await page.locator("#automation-studio-undo").click();
-    assert.equal(await page.locator('#automation-flow-preview [data-flow-kind="branch-action"]').count(), 3);
-
+    assert.match(await page.locator('[data-flow-branch-drop="0"]').innerText(), /Browser Fixture 3/i);
+    assert.match(await page.locator('[data-flow-branch-drop="0"]').innerText(), /Wait 2 sec/i);
+    assert.equal(await page.locator("[data-branch-suggestion]").count(), 1);
+    assert.equal(await page.locator("[data-branch-suggestion]").evaluateAll(nodes=>nodes.every(node=>node.offsetParent!==null)), true);
+    await page.locator('[data-branch-collection="conditions"][data-branch-index="1"][data-item-index="0"][data-condition-field="entity_id"]').fill("climate.browser_thermostat");
+    await page.locator('[data-branch-collection="conditions"][data-branch-index="1"][data-item-index="0"][data-condition-field="value"]').fill("on");
+    await page.locator('[data-branch-collection="conditions"][data-branch-index="1"][data-item-index="0"][data-condition-field="for_seconds"]').fill("1200");
+    await page.locator('[data-branch-suggestion="1"]').fill("Check whether a window is open.");
+    await page.locator('[data-branch-add-item="actions"][data-branch-index="1"]').click();
+    await page.locator('[data-branch-collection="actions"][data-branch-index="1"][data-item-index="0"][data-action-field="entity_id"]').fill("light.browser_fixture");
+    await page.locator('[data-branch-collection="actions"][data-branch-index="1"][data-item-index="0"][data-action-field="service"]').fill("light.turn_off");
+    assert.match(await page.locator('[data-flow-branch-drop="1"]').innerText(), /ELSE IF/i);
+    assert.match(await page.locator('[data-flow-branch-drop="1"]').innerText(), /20 min|1200 sec/i);
+    assert.match(await page.locator('[data-flow-branch-drop="1"]').innerText(), /Check whether a window is open/i);
+    assert.match(await page.locator('[data-flow-branch-drop="1"]').innerText(), /Turn off/i);
+    await page.locator('#automation-flow-preview [data-flow-kind="branch-condition"][data-flow-branch-index="1"]').click();
+    assert.equal(await page.locator('[data-branch-collection="conditions"][data-branch-index="1"]').count(), 6);
+    assert.equal(await page.locator('[data-branch-suggestion]').count(), 0);
+    assert.equal(await page.locator('[data-branch-collection="actions"]').count(), 0);
+    await page.locator('#automation-flow-preview [data-flow-kind="branch-action"][data-flow-branch-index="1"]').click();
+    assert.equal(await page.locator('[data-branch-collection="actions"][data-branch-index="1"]').count(), 4);
+    assert.equal(await page.locator('[data-branch-collection="conditions"]').count(), 0);
+    assert.match(await page.locator("#automation-studio-state").innerText(), /ELSE IF path added/i);
     await page.locator("#notification-inbox-count:not([hidden])").waitFor();
     assert.equal(await page.locator("#notification-inbox-count").innerText(), "1");
     await page.locator("#notification-inbox-toggle").click();

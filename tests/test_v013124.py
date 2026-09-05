@@ -12,12 +12,12 @@ MANIFEST = json.loads((ROOT / "jarvis/release_manifest.json").read_text(encoding
 
 class ClearAutomationFlowReleaseTests(unittest.TestCase):
     def test_release_is_aligned(self):
-        self.assertEqual(MANIFEST["version"], "0.13.149")
-        self.assertIn("HUD 0.13.149", HTML)
+        self.assertEqual(MANIFEST["version"], "0.13.150")
+        self.assertIn("HUD 0.13.150", HTML)
 
     def test_visible_context_block_is_condition(self):
         self.assertIn('data-studio-node="context"', HTML)
-        self.assertIn('context:{title:"3. Only if"', WORKSPACE)
+        self.assertIn('context:{title:"3. And"', WORKSPACE)
 
     def test_flow_uses_plain_task_language(self):
         for label in ("WHEN THIS HAPPENS", "THEN", "THEN DO"):
@@ -28,7 +28,7 @@ class ClearAutomationFlowReleaseTests(unittest.TestCase):
         self.assertIn('return name&&name!==id?name:id', WORKSPACE)
 
     def test_previous_release_is_in_history(self):
-        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.148")
+        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.149")
 
 
 if __name__ == "__main__":

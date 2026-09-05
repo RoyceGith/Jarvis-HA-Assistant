@@ -1,9 +1,9 @@
 {
-  "version": "0.13.149",
+  "version": "0.13.150",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/ZBRANO_Core main",
-  "summary": "Make When blocks instantly recognizable, edit only the selected trigger, and remove disconnected Say content from automatic flows.",
+  "summary": "Add per-automation presence gating and direct IF / ELSE IF paths that preserve connected checks and tasks.",
   "history_backfill": [
     {
       "version": "0.13.0",
@@ -600,19 +600,23 @@
     {
       "version": "0.13.148",
       "summary": "Stabilized the aarch64 image browser gate by testing Undo against a deliberately committed edit and observed persisted recovery state."
+    },
+    {
+      "version": "0.13.149",
+      "summary": "Made When events instantly recognizable, limited the inspector to the selected trigger, and removed disconnected Say content from automatic flows."
     }
   ],
   "release_entry": {
     "features": [
-      "Add dedicated Sensor, Power on, Power off, Time, Sun, Repeat, and One time choices for every When block.",
-      "Label power-event cards explicitly and show only the selected When block's editable fields in the inspector."
+      "Add a Require presence checkbox and person/device-tracker field directly to each automation's Setup and safety step.",
+      "Replace the optional results question with direct IF / ELSE IF paths and visibly forked canvas arrows."
     ],
     "fixes": [
-      "Remove the Say card and all message settings when an automation is configured to act automatically.",
-      "Keep automatic outcome flows free of disconnected result-message cards and controls."
+      "Move existing And checks and Then tasks into the first IF path when branching begins so no behavior becomes disconnected.",
+      "Show only the selected branch, branch check, or branch task in the inspector and rename the save activation choice for clarity."
     ],
     "validation": [
-      "Selected-card inspector, trigger palette, power-off visualization, automatic flow connectivity, full regression suite, and v0.13.149 release coverage"
+      "Presence gating, connected two-path conversion, 20-minute ELSE IF scenario, block-level branch inspector, full regression suite, and v0.13.150 release coverage"
     ]
   },
   "features": [

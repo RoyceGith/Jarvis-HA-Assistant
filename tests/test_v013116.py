@@ -39,11 +39,11 @@ def load_automation_functions(states):
 
 class SingleFlowConditionalSuggestionReleaseTests(unittest.TestCase):
     def test_release_markers_are_aligned(self):
-        self.assertIn('version: "0.13.149"', CONFIG)
-        self.assertIn('version="0.13.149"', MAIN)
-        self.assertIn("HUD 0.13.149", HTML)
-        self.assertEqual(MANIFEST["version"], "0.13.149")
-        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.148")
+        self.assertIn('version: "0.13.150"', CONFIG)
+        self.assertIn('version="0.13.150"', MAIN)
+        self.assertIn("HUD 0.13.150", HTML)
+        self.assertEqual(MANIFEST["version"], "0.13.150")
+        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.149")
 
     def test_live_temperature_can_be_compared_with_thermostat_target(self):
         now = time.time()
@@ -85,7 +85,8 @@ class SingleFlowConditionalSuggestionReleaseTests(unittest.TestCase):
         self.assertIn('data-branch-suggestion=', WORKSPACE)
         self.assertIn('compare_attribute', SCHEMAS)
         self.assertIn('txt(branch.suggestion', FLOW)
-        self.assertIn('data-flow-branch-condition-template="entity_compare"', BROWSER)
+        self.assertIn('data-condition-field="for_seconds"', BROWSER)
+        self.assertIn('fill("1200")', BROWSER)
 
 
 if __name__ == "__main__":

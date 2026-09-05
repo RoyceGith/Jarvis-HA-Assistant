@@ -34,7 +34,7 @@
   <header>
     <div class="brand-line">
       <h1>ZBRANO</h1>
-      <div class="status hud-version-label">Workshop Intelligence Interface · HUD 0.13.149</div>
+      <div class="status hud-version-label">Workshop Intelligence Interface · HUD 0.13.150</div>
     </div>
     <div class="runtime-status-stack">
       <div id="notification-inbox-shell" class="notification-inbox-shell">
@@ -790,9 +790,9 @@
               </div>
               <button type="button" draggable="true" data-studio-node="details"><span class="automation-step-icon" aria-hidden="true">1</span><span><strong>Setup &amp; safety</strong><small data-studio-step-status="details">Name it and choose its authority</small></span></button>
               <button type="button" draggable="true" data-studio-node="trigger"><span class="automation-step-icon" aria-hidden="true">2</span><span><strong>When</strong><small data-studio-step-status="trigger">Choose what starts it</small></span></button>
-              <button type="button" draggable="true" data-studio-node="context"><span class="automation-step-icon" aria-hidden="true">3</span><span><strong>Only if</strong><small data-studio-step-status="context">Optional</small></span></button>
+              <button type="button" draggable="true" data-studio-node="context"><span class="automation-step-icon" aria-hidden="true">3</span><span><strong>And</strong><small data-studio-step-status="context">Optional</small></span></button>
               <button type="button" draggable="true" data-studio-node="action"><span class="automation-step-icon" aria-hidden="true">4</span><span><strong>Then</strong><small data-studio-step-status="action">Optional</small></span></button>
-              <button type="button" draggable="true" data-studio-node="decision"><span class="automation-step-icon" aria-hidden="true">5</span><span><strong>Different results</strong><small data-studio-step-status="decision">Optional</small></span></button>
+              <button type="button" draggable="true" data-studio-node="decision"><span class="automation-step-icon" aria-hidden="true">5</span><span><strong>Else if</strong><small data-studio-step-status="decision">Optional second path</small></span></button>
             </aside>
             <section id="automation-studio-canvas" class="automation-studio-canvas" aria-label="Automation flow canvas">
               <div class="automation-studio-canvas-head"><span>YOUR FLOW</span><strong id="automation-studio-flow-name">New automation</strong></div>
@@ -837,7 +837,8 @@
               <div class="autonomy-form-grid">
                 <label>Name<input id="automation-name" maxlength="100" required placeholder="Room comfort advisor"></label>
                 <label>Objective<input id="automation-objective" maxlength="1000" required placeholder="Notice uncomfortable room conditions while I am present"></label>
-                <label>Presence entity<input id="automation-presence" list="automation-entity-options" maxlength="255" placeholder="person.resident"></label>
+                <label class="check"><input id="automation-require-presence" type="checkbox"> Require presence</label>
+                <label>Who must be present?<input id="automation-presence" list="automation-entity-options" maxlength="255" placeholder="Choose a person or device tracker"></label>
                 <label>Signal entities<input id="automation-signals" maxlength="1500" placeholder="sensor.room_temperature, sensor.outdoor_temperature"></label>
                 <label>Trigger type<select id="automation-trigger-kind"><option value="entity" selected>Entity state</option><option value="time">Specific time</option><option value="sun">Sunrise / sunset</option><option value="interval">Repeating interval</option><option value="one_time">One-time schedule</option></select></label>
                 <label>Trigger entity<input id="automation-trigger-entity" list="automation-entity-options" maxlength="255" placeholder="sensor.room_temperature"></label>

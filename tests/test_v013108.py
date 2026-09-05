@@ -16,17 +16,17 @@ MANIFEST = json.loads((ROOT / "jarvis/release_manifest.json").read_text(encoding
 
 class BranchConditionPresetReleaseTests(unittest.TestCase):
     def test_release_markers_are_aligned(self):
-        self.assertIn('version: "0.13.149"', CONFIG)
-        self.assertIn('version="0.13.149"', MAIN)
-        self.assertIn("HUD 0.13.149", HTML)
-        self.assertEqual(MANIFEST["version"], "0.13.149")
+        self.assertIn('version: "0.13.150"', CONFIG)
+        self.assertIn('version="0.13.150"', MAIN)
+        self.assertIn("HUD 0.13.150", HTML)
+        self.assertEqual(MANIFEST["version"], "0.13.150")
 
     def test_canvas_offers_direct_path_creation(self):
         self.assertIn("flowAddBranch", FLOW)
         self.assertIn("automation-flow-add-path", FLOW)
         self.assertIn("function addBranchPath()", WORKSPACE)
         self.assertIn("fallbackIndex", WORKSPACE)
-        self.assertIn("data-flow-add-branch", BROWSER)
+        self.assertIn('locator("[data-branch-add]")', BROWSER)
 
     def test_if_menu_offers_typed_condition_presets(self):
         for marker in (
@@ -53,7 +53,7 @@ class BranchConditionPresetReleaseTests(unittest.TestCase):
         self.assertIn(".automation-flow-branch-condition-choices", STYLES)
 
     def test_release_history_includes_v013107(self):
-        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.148")
+        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.149")
 
 
 if __name__ == "__main__":

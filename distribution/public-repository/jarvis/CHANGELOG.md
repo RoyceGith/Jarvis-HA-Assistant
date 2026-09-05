@@ -1,5 +1,12 @@
 # Change log
 
+## 0.13.150
+
+- Added Require presence and its entity picker to each automation's Setup & safety step.
+- Replaced the optional-results question with direct IF / ELSE IF paths and visible fork arrows.
+- Kept existing And checks and Then tasks connected in the first IF path when branching begins.
+- Limited the inspector to the selected path, check, or task and renamed the save activation option.
+
 ## 0.13.149
 
 - Added dedicated Sensor, Power on, Power off, Time, Sun, Repeat, and One time choices for When blocks.
