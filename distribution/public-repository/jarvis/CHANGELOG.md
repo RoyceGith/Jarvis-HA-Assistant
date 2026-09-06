@@ -1,5 +1,12 @@
 # Change log
 
+## 0.13.179
+
+- Renamed the onboarding permission step to Device access.
+- Used Sensor device and Control device terminology throughout Setup and its report.
+- Added clear singular and plural selected-device counts.
+- Explained that no-device setup retains chat but cannot read or control the home.
+
 ## 0.13.178
 
 - Put the five essential entity-permission columns before technical details.

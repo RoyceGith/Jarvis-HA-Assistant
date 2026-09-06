@@ -1,5 +1,5 @@
 {
-  "version": "0.13.178",
+  "version": "0.13.179",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/ZBRANO_Core main",
@@ -716,20 +716,24 @@
       {
         "version": "0.13.177",
         "summary": "Kept permission checkboxes, access choices, saved records, summaries, and exports consistent."
+      },
+      {
+        "version": "0.13.178",
+        "summary": "Made Entity Inventory permission-first while preserving advanced columns and custom layouts."
       }
     ],
     "release_entry": {
       "features": [
-        "Put Allow, Device or sensor, Current value, How ZBRANO may use it, and Room first in the entity inventory.",
-        "Rename technical table headings with plain descriptions while retaining every advanced entity detail.",
-        "Preserve deliberately saved custom column orders and make Reset columns return to the new permission-first layout."
+        "Rename the onboarding Entity permissions step to Device access and align it with Sensor device and Control device terminology.",
+        "Show selected sensor and control device counts with correct singular and plural wording.",
+        "Explain that chat remains available when no devices are selected while home reading and control remain unavailable."
       ],
       "fixes": [
-        "Close the permission guide after choosing a category so it cannot crowd the entity controls out of view.",
-        "Reset filtered inventory scrolling to the top-left so the permission controls are immediately visible."
+        "Replace readable, controllable, approved, and entity-policy wording in normal onboarding actions and checks.",
+        "Use the same plain device-access language in the shareable installation report."
       ],
       "validation": [
-        "Column metadata and ordering, custom-layout compatibility, filtered viewport recovery, browser interaction, and v0.13.178 release coverage"
+        "Device-access summary behavior, empty-access guidance, onboarding labels, installation report wording, browser interaction, and v0.13.179 release coverage"
       ]
   },
   "features": [

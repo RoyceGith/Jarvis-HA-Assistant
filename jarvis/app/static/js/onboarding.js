@@ -69,7 +69,7 @@
   }
 
   const actionLabels = {
-    entities: "Choose entities",
+    entities: "Choose devices",
     model: "Configuration help",
     voice: "Open voice test",
     memory: "Open memory",
@@ -80,7 +80,7 @@
   const checkLabels = {
     home_assistant: "Test connection",
     model: "Verify key",
-    entities: "Recheck",
+    entities: "Check choices",
     voice: "Check provider",
     memory: "Check memory",
     plugins: "Check plugins",
@@ -90,7 +90,7 @@
   const stepMeta = {
     home_assistant: {symbol: "HA", eyebrow: "CORE CONNECTION", guidance: "This connection lets ZBRANO see Home Assistant and use only the entities you approve."},
     model: {symbol: "AI", eyebrow: "INTELLIGENCE", guidance: "The AI model powers chat and reasoning. Your key stays in the protected Home Assistant app configuration."},
-    entities: {symbol: "ID", eyebrow: "PERMISSIONS", guidance: "You choose exactly which sensors ZBRANO may read and which devices it may control."},
+    entities: {symbol: "DV", eyebrow: "DEVICE ACCESS", guidance: "Choose Sensor devices for information and Control devices only when you want ZBRANO to perform actions."},
     voice: {symbol: "VO", eyebrow: "VOICE", guidance: "Voice is optional. Configure speech, test playback, and enable the wake word only if you want hands-free use."},
     memory: {symbol: "ME", eyebrow: "MEMORY", guidance: "Fast Memory helps ZBRANO remember useful preferences and context locally between conversations."},
     plugins: {symbol: "PL", eyebrow: "CONNECTIONS", guidance: "Plugins connect optional services. You can skip this now and install only the services you trust later."},

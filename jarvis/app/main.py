@@ -294,6 +294,7 @@ from .services.entity_policy import (
     ensure_control_allowed,
     ensure_read_allowed,
     entity_domain,
+    entity_permission_setup_detail,
     find_approved_entities,
     load_entity_policy,
     normalize_entity_policy_enabled,
@@ -718,7 +719,7 @@ ha_ws = HomeAssistantWebSocketClient(
 
 app = FastAPI(
     title="ZBRANO",
-    version="0.13.178",
+    version="0.13.179",
     docs_url="/api/docs",
     openapi_url="/api/openapi.json",
 )
@@ -2822,7 +2823,7 @@ async def health() -> dict[str, Any]:
     configured_speech_provider = SPEECH_PROVIDER if SPEECH_PROVIDER in {"openai", "elevenlabs"} else "openai"
     return {
         "status": "ok",
-        "version": "0.13.178",
+        "version": "0.13.179",
         "home_assistant_configured": bool(SUPERVISOR_TOKEN),
         "workshop_memory_configured": bool(WORKSHOP_MEMORY_URL),
         "workshop_memory_cost_guard": workshop_cost_guard_status(),
@@ -4209,8 +4210,8 @@ async def onboarding_status_payload() -> dict[str, Any]:
         },
         {
             "id": "entities",
-            "title": "Entity permissions",
-            "description": f"{read_count} readable and {control_count} controllable entities approved" if read_count or control_count else "Choose which Home Assistant entities ZBRANO may read or control",
+            "title": "Device access",
+            "description": entity_permission_setup_detail(read_count, control_count),
             "ready": bool(read_count or control_count),
             "required": False,
             "target": "entities",
@@ -4303,7 +4304,7 @@ async def onboarding_status_payload() -> dict[str, Any]:
         f"Overall: {'Ready' if installation_ready else 'Needs attention'}",
         f"Home Assistant: {'Connected' if steps[0]['ready'] else 'Not connected'}",
         f"AI model: {'Configured' if steps[1]['ready'] else 'Not configured'}",
-        f"Entity permissions: {read_count} read / {control_count} control",
+        f"Device access: {read_count} sensor devices / {control_count} control devices",
         f"Persistent storage: {'Ready' if storage_ready else 'Needs attention'}",
         f"Automations: {len(automation_items)} saved / {permission_blocked} permission issues / {failure_paused} failure pauses",
         f"Optional capabilities ready: {sum(1 for step in steps if not step['required'] and step['ready'])}/{sum(1 for step in steps if not step['required'])}",
@@ -4388,7 +4389,7 @@ async def check_onboarding_step(step_id: str) -> dict[str, Any]:
         read_count = len(approved["read_entities"])
         control_count = len(approved["control_entities"])
         ready = bool(read_count or control_count)
-        detail = f"{read_count} readable and {control_count} controllable entities approved" if ready else "No entity permissions are approved yet"
+        detail = entity_permission_setup_detail(read_count, control_count)
     elif step_id == "voice":
         configured = SPEECH_PROVIDER if SPEECH_PROVIDER in {"openai", "elevenlabs"} else "openai"
         ready = bool(OPENAI_API_KEY) if configured == "openai" else bool(ELEVENLABS_API_KEY and ELEVENLABS_VOICE_ID)

@@ -13,10 +13,10 @@ MANIFEST = json.loads((ROOT / "jarvis/release_manifest.json").read_text(encoding
 
 class ActionableOnboardingReleaseTests(unittest.TestCase):
     def test_release_markers_are_aligned(self):
-        self.assertIn('version: "0.13.178"', CONFIG)
-        self.assertIn('version="0.13.178"', MAIN)
-        self.assertIn("HUD 0.13.178", HTML)
-        self.assertEqual(MANIFEST["version"], "0.13.178")
+        self.assertIn('version: "0.13.179"', CONFIG)
+        self.assertIn('version="0.13.179"', MAIN)
+        self.assertIn("HUD 0.13.179", HTML)
+        self.assertEqual(MANIFEST["version"], "0.13.179")
 
     def test_backend_check_route_has_a_closed_step_allowlist(self):
         section = MAIN[MAIN.index('@app.post("/api/onboarding/check/{step_id}")'):MAIN.index('@app.put("/api/settings")')]
@@ -32,12 +32,12 @@ class ActionableOnboardingReleaseTests(unittest.TestCase):
         self.assertIn('method: "POST"', check_section)
 
     def test_guided_actions_cover_product_setup_without_grinder(self):
-        for label in ("Choose entities", "Configuration help", "Open voice test", "Open memory", "Open plugins", "Open notification test"):
+        for label in ("Choose devices", "Configuration help", "Open voice test", "Open memory", "Open plugins", "Open notification test"):
             self.assertIn(label, ONBOARDING_JS)
         self.assertNotIn("grinder", ONBOARDING_JS.lower())
 
     def test_release_history_includes_v01359(self):
-        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.177")
+        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.178")
 
 
 if __name__ == "__main__":

@@ -107,6 +107,15 @@ def normalize_entity_policy_enabled(enabled: bool, access: str) -> bool:
     return bool(enabled and access != "restricted")
 
 
+def entity_permission_setup_detail(read_count: int, control_count: int) -> str:
+    """Describe device access for setup without exposing policy terminology."""
+    if not read_count and not control_count:
+        return "No devices selected. ZBRANO can chat, but cannot read sensors or control devices yet."
+    sensor_label = "sensor device" if read_count == 1 else "sensor devices"
+    control_label = "control device" if control_count == 1 else "control devices"
+    return f"{read_count} {sensor_label} · {control_count} {control_label} selected"
+
+
 def ensure_read_allowed(entity_id: str) -> None:
     access = effective_entity_access(entity_id)
     if access not in {"read_only", "state_only", "low_risk_control_proposed"}:

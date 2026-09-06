@@ -155,14 +155,14 @@ const onboardingFixture = {
   steps: [
     {id:"home_assistant",title:"Home Assistant",description:"Waiting for the Home Assistant connection",ready:false,required:true,target:"entities",last_check:null,skipped:false},
     {id:"model",title:"AI model",description:"gpt-5-mini is configured",ready:true,required:true,target:"model",last_check:{ready:true,detail:"Key accepted",checked_at:1788300000},skipped:false},
-    {id:"entities",title:"Entity permissions",description:"Choose which entities ZBRANO may use",ready:false,required:false,target:"entities",last_check:null,skipped:false},
+    {id:"entities",title:"Device access",description:"No devices selected. ZBRANO can chat, but cannot read sensors or control devices yet.",ready:false,required:false,target:"entities",last_check:null,skipped:false},
     {id:"voice",title:"Voice and wake word",description:"Configure speech if wanted",ready:false,required:false,target:"voice",last_check:null,skipped:false},
     {id:"memory",title:"Memory",description:"Fast Memory is optional",ready:false,required:false,target:"memory",last_check:null,skipped:false},
     {id:"plugins",title:"Plugins",description:"Plugins are optional",ready:false,required:false,target:"plugins",last_check:null,skipped:false},
     {id:"notifications",title:"Notifications and autonomy",description:"Choose notification delivery",ready:false,required:false,target:"notifications",last_check:null,skipped:false},
   ],
   installation_report: {
-    generated_at: 1788300000, version: "0.13.178", ready: true, attention_count: 0, ready_count: 5,
+    generated_at: 1788300000, version: "0.13.179", ready: true, attention_count: 0, ready_count: 5,
     checks: [
       {id:"home_assistant",title:"Home Assistant",state:"ready",required:true,detail:"Connected to Home Assistant",target:"entities"},
       {id:"model",title:"AI model",state:"ready",required:true,detail:"gpt-5-mini is configured",target:"model"},
@@ -170,7 +170,7 @@ const onboardingFixture = {
       {id:"backup",title:"Backup and restore",state:"ready",required:false,detail:"A portable ZBRANO backup can be exported from Settings",target:"memory"},
       {id:"automation_health",title:"Automation safety",state:"ready",required:false,detail:"2 saved; 0 need permission; 0 paused after failures",target:"automations"},
     ],
-    support_summary: "ZBRANO installation report · v0.13.178\nOverall: Ready\nHome Assistant: Connected\nAI model: Configured\nEntity permissions: 3 read / 1 control\nPersistent storage: Ready\nAutomations: 2 saved / 0 permission issues / 0 failure pauses",
+    support_summary: "ZBRANO installation report · v0.13.179\nOverall: Ready\nHome Assistant: Connected\nAI model: Configured\nDevice access: 3 sensor devices / 1 control devices\nPersistent storage: Ready\nAutomations: 2 saved / 0 permission issues / 0 failure pauses",
   },
 };
 
@@ -179,7 +179,7 @@ function apiFixture(url, method = "GET") {
   if (pathname === "/api/health") {
     return {
       status: "ok",
-      version: "0.13.178",
+      version: "0.13.179",
       speech_provider: "openai",
       speech_providers: {openai: {configured: true}, elevenlabs: {configured: false}},
     };
@@ -266,7 +266,7 @@ function apiFixture(url, method = "GET") {
   if (pathname === "/api/plugins") return {plugins: []};
   if (pathname === "/api/files/shared") return {files: [], count: 0};
   if (pathname === "/api/release-memory-sync") {
-    return {enabled: false, state: "disabled", version: "0.13.178", task_active: false};
+    return {enabled: false, state: "disabled", version: "0.13.179", task_active: false};
   }
   if (pathname === "/api/tab-activity") return {revisions: {}};
   if (pathname === "/api/grinder-monitor/status") return {enabled: false, connected: false};
@@ -993,6 +993,7 @@ async function main() {
     await page.locator('[data-settings-target="setup"]').click();
     await page.locator('.onboarding-step.is-active').waitFor();
     assert.equal(await page.locator('.onboarding-rail-step').count(), 7);
+    assert.match(await page.locator('.onboarding-step-rail').innerText(), /Device access/i);
     assert.equal(await page.locator('.onboarding-step:visible').count(), 1);
     assert.match(await page.locator('.onboarding-step.is-active').innerText(), /CORE CONNECTION/);
     assert.match(await page.locator('.onboarding-step.is-active .onboarding-focus-guidance').innerText(), /only the entities you approve/i);
