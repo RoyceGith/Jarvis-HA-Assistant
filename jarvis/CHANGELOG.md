@@ -1,5 +1,11 @@
 # Change log
 
+## 0.13.165
+
+- Removed all Grinder-specific fields from the general Home Assistant add-on configuration.
+- Stopped exporting owner-specific Grinder settings through the normal startup environment.
+- Preserved private Grinder monitoring through the protected record migrated by v0.13.164.
+
 ## 0.13.164
 
 - Migrated enabled or customized owner-only extension settings into protected persistent storage.
