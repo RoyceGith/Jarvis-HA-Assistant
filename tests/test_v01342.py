@@ -49,10 +49,10 @@ class FinalModularizationBoundaryTests(unittest.TestCase):
         )
 
     def test_release_markers_are_aligned(self):
-        self.assertIn('version: "0.13.182"', CONFIG)
-        self.assertIn('version="0.13.182"', MAIN)
-        self.assertIn("HUD 0.13.182", HTML)
-        self.assertEqual(MANIFEST["version"], "0.13.182")
+        self.assertIn('version: "0.13.183"', CONFIG)
+        self.assertIn('version="0.13.183"', MAIN)
+        self.assertIn("HUD 0.13.183", HTML)
+        self.assertEqual(MANIFEST["version"], "0.13.183")
 
     def test_final_implementations_are_outside_the_composition_root(self):
         for definition in (

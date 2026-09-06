@@ -14,10 +14,10 @@ MANIFEST = json.loads((ROOT / "jarvis/release_manifest.json").read_text(encoding
 
 class IntegrationBuildRepairTests(unittest.TestCase):
     def test_release_markers_are_aligned(self):
-        self.assertIn('version: "0.13.182"', CONFIG)
-        self.assertIn('version="0.13.182"', MAIN)
-        self.assertIn("HUD 0.13.182", HTML)
-        self.assertEqual(MANIFEST["version"], "0.13.182")
+        self.assertIn('version: "0.13.183"', CONFIG)
+        self.assertIn('version="0.13.183"', MAIN)
+        self.assertIn("HUD 0.13.183", HTML)
+        self.assertEqual(MANIFEST["version"], "0.13.183")
 
     def test_synthetic_automation_entity_is_policy_isolated(self):
         self.assertIn(

@@ -13,8 +13,8 @@ MANIFEST = json.loads((ROOT / "jarvis/release_manifest.json").read_text(encoding
 
 class CompactAutomationStudioChromeReleaseTests(unittest.TestCase):
     def test_release_is_aligned(self):
-        self.assertEqual(MANIFEST["version"], "0.13.182")
-        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.181")
+        self.assertEqual(MANIFEST["version"], "0.13.183")
+        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.182")
 
     def test_setup_and_progress_are_outside_the_block_palette(self):
         guide = HTML.split('<div class="automation-studio-guide-strip"', 1)[1].split('</div>\n            <nav', 1)[0]

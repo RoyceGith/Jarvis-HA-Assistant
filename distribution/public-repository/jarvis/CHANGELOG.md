@@ -1,5 +1,13 @@
 # Change log
 
+## 0.13.183
+
+- Replaced the long public landing-page release diary with a concise product guide.
+- Organized capabilities, requirements, installation, permissions, privacy, updates,
+  and troubleshooting for prospective and first-time users.
+- Added a focused Home Assistant app guide while retaining complete history here.
+- Updated the Home Assistant store description to represent the whole product.
+
 ## 0.13.182
 
 - Added a polished top-level About tab for product presentation and advertising.
