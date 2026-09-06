@@ -84,6 +84,10 @@ const automationFixture = {
     risk_level: "controlled",
     enabled: false,
     review_required: false,
+    readiness: {ready:true,summary:"All referenced entities have the required live access",issues:[],requirements:[
+      {entity_id:"sensor.browser_fixture_1",permission:"read",access:"read_only",allowed:true,sources:["trigger_read"]},
+      {entity_id:"sensor.browser_fixture_2",permission:"read",access:"read_only",allowed:true,sources:["signal_read"]},
+    ]},
     updated_at: 100,
     decision_history: [{id:"decision-safe",outcome:"suppressed_presence",detail:"Royce is away",evidence:"person.royce = not_home",policy:"suggest",branch:"IF",created_at:browserNow-120}],
     last_decision: {id:"decision-safe",outcome:"suppressed_presence",detail:"Royce is away",evidence:"person.royce = not_home",policy:"suggest",branch:"IF",created_at:browserNow-120},
@@ -106,6 +110,10 @@ const automationFixture = {
     risk_level: "low",
     enabled: true,
     review_required: false,
+    readiness: {ready:true,summary:"All referenced entities have the required live access",issues:[],requirements:[
+      {entity_id:"sensor.browser_fixture_3",permission:"read",access:"read_only",allowed:true,sources:["trigger_read"]},
+      {entity_id:"light.browser_fixture",permission:"control",access:"low_risk_control_proposed",allowed:true,sources:["action_control"],safety_label_blocked:false},
+    ]},
     updated_at: 200,
     decision_history: [{id:"decision-executed",outcome:"executed",detail:"Completed 1 action step",evidence:"sensor.browser_fixture_3 changed from 19 to 21",policy:"autonomous",branch:"IF",created_at:browserNow-60}],
     last_decision: {id:"decision-executed",outcome:"executed",detail:"Completed 1 action step",evidence:"sensor.browser_fixture_3 changed from 19 to 21",policy:"autonomous",branch:"IF",created_at:browserNow-60},
@@ -156,7 +164,7 @@ function apiFixture(url, method = "GET") {
   if (pathname === "/api/health") {
     return {
       status: "ok",
-      version: "0.13.168",
+      version: "0.13.169",
       speech_provider: "openai",
       speech_providers: {openai: {configured: true}, elevenlabs: {configured: false}},
     };
@@ -243,7 +251,7 @@ function apiFixture(url, method = "GET") {
   if (pathname === "/api/plugins") return {plugins: []};
   if (pathname === "/api/files/shared") return {files: [], count: 0};
   if (pathname === "/api/release-memory-sync") {
-    return {enabled: false, state: "disabled", version: "0.13.168", task_active: false};
+    return {enabled: false, state: "disabled", version: "0.13.169", task_active: false};
   }
   if (pathname === "/api/tab-activity") return {revisions: {}};
   if (pathname === "/api/grinder-monitor/status") return {enabled: false, connected: false};
@@ -528,6 +536,16 @@ async function main() {
     await page.locator("#automation-activity-result-filter").selectOption("all");
     assert.match(await page.locator("#automation-health-list").innerText(), /Active lighting/i);
     assert.match(await page.locator("#autonomy-timeline").innerText(), /Automation action sequence executed/i);
+    await page.locator('[data-auto-view="permissions"]').click();
+    await page.locator('[data-auto-panel="permissions"]:not(.hidden)').waitFor();
+    assert.equal(await page.locator("#automation-permission-ready").innerText(), "2");
+    assert.equal(await page.locator("#automation-permission-attention").innerText(), "0");
+    assert.equal(await page.locator("#automation-permission-reads").innerText(), "3");
+    assert.equal(await page.locator("#automation-permission-controls").innerText(), "1");
+    assert.match(await page.locator("#automation-permission-list").innerText(), /Browser Fixture Light/i);
+    assert.match(await page.locator("#automation-permission-list").innerText(), /Control allowed/i);
+    await page.locator("#automation-permission-filter").selectOption("attention");
+    assert.match(await page.locator("#automation-permission-list").innerText(), /No automations match this filter/i);
     await page.locator('[data-auto-view="memory"]').click();
     await page.locator('[data-auto-panel="memory"]:not(.hidden)').waitFor();
     assert.equal(await page.locator("#automation-memory-list").isVisible(), true);

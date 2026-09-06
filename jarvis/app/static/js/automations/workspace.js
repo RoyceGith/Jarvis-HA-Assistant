@@ -40,6 +40,16 @@
       </article>
       <article class="autonomy-card automation-system-activity"><h3>System activity</h3><p>Configuration changes, suggestions, recoveries, and action events.</p><div id="autonomy-timeline" class="autonomy-list"></div></article>
     </div>`;
+  $("automation-permission-root").innerHTML=`
+    <div class="automation-activity-head"><div><h3>Automation permissions</h3><p>Review exactly what each automation can read and control before you enable it.</p></div><button id="automation-permission-refresh" type="button">Check again</button></div>
+    <div class="automation-permission-summary" aria-label="Automation permission summary">
+      <article><span>Ready</span><strong id="automation-permission-ready">0</strong><small>Have every permission needed</small></article>
+      <article><span>Need permission</span><strong id="automation-permission-attention">0</strong><small>Will stop safely until fixed</small></article>
+      <article><span>Sensors read</span><strong id="automation-permission-reads">0</strong><small>Unique Home Assistant entities</small></article>
+      <article><span>Devices controlled</span><strong id="automation-permission-controls">0</strong><small>Unique Home Assistant entities</small></article>
+    </div>
+    <div class="automation-permission-toolbar"><label>Show<select id="automation-permission-filter"><option value="all">All automations</option><option value="attention">Need permission</option><option value="ready">Ready</option></select></label><button type="button" data-permission-open-entities>Manage entity permissions</button></div>
+    <div id="automation-permission-list" class="automation-permission-list"></div>`;
   const entityPickerFieldIds=new Set(["automation-trigger-entity","automation-presence","automation-signals","automation-action-entity"]);
   const studioPanels={
     details:{title:"1. Setup & safety",help:"Name this automation and choose its presence, device, and sleep-hour safety rules.",fields:[["automation-name","Automation name"],["automation-objective","What should it help with?"],["automation-require-presence","Require presence"],["automation-presence","Who must be present?"],["automation-risk","Device type"],["automation-sleep-hours-enabled","Pause during sleep hours"],["automation-sleep-hours-start","Sleep starts"],["automation-sleep-hours-end","Sleep ends"],["automation-run-during-sleep-hours","Security automation — run during sleep hours"],["automation-max-actions","Most times this may run in one hour"],["automation-reversible-only","Only allow automatic actions that can be undone"],["automation-notify-action","Tell me after it runs"],["automation-enabled","Enable automation on saving"]]},
@@ -648,6 +658,30 @@
     }
   }
 
+  const permissionSourceLabels={trigger_read:"Starts the automation",signal_read:"Provides context",condition_read:"Used by an IF check",condition_compare_read:"Compared in an IF check",presence_read:"Checks presence",wait_read:"Waits for this state",action_control:"Used by a task"};
+  function permissionRequirementText(requirement){
+    if(requirement.allowed)return requirement.permission==="control"?"Control allowed":"Reading allowed";
+    if(requirement.safety_label_blocked)return"Control blocked by its Home Assistant safety label";
+    if(requirement.permission==="control"&&requirement.access==="read_only")return"Set as Sensor device — control is not allowed";
+    return requirement.permission==="control"?"Control permission is missing":"Reading permission is missing";
+  }
+  function renderPermissions(){
+    const automations=state.automations||[],filter=$("automation-permission-filter").value||"all",requirements=automations.flatMap(item=>item.readiness?.requirements||[]);
+    const uniqueReads=new Set(requirements.filter(item=>item.permission==="read").map(item=>item.entity_id)),uniqueControls=new Set(requirements.filter(item=>item.permission==="control").map(item=>item.entity_id));
+    $("automation-permission-ready").textContent=String(automations.filter(item=>item.readiness?.ready!==false).length);
+    $("automation-permission-attention").textContent=String(automations.filter(item=>item.readiness?.ready===false).length);
+    $("automation-permission-reads").textContent=String(uniqueReads.size);$("automation-permission-controls").textContent=String(uniqueControls.size);
+    const visible=automations.filter(item=>filter==="all"||(filter==="attention"&&item.readiness?.ready===false)||(filter==="ready"&&item.readiness?.ready!==false));
+    const root=$("automation-permission-list");root.replaceChildren();
+    if(!visible.length){root.innerHTML=`<div class="autonomy-empty">${automations.length?"No automations match this filter.":"No saved automations yet."}</div>`;return}
+    for(const item of visible.sort((left,right)=>Number(left.readiness?.ready!==false)-Number(right.readiness?.ready!==false)||String(left.name||"").localeCompare(String(right.name||"")))){
+      const readiness=item.readiness||{},needed=readiness.requirements||[],card=document.createElement("article");card.className="autonomy-card automation-permission-card";card.dataset.tone=readiness.ready===false?"attention":"ready";
+      const rows=needed.map(requirement=>{const name=entityLabel(requirement.entity_id)||requirement.entity_id,sources=(requirement.sources||[]).map(source=>permissionSourceLabels[source]||"Used by this automation").join(" · ");return `<div class="automation-permission-row" data-allowed="${requirement.allowed}"><span class="automation-permission-kind" aria-hidden="true">${requirement.permission==="control"?"⚡":"◉"}</span><div><strong>${esc(name)}</strong><small>${esc(requirement.entity_id)} · ${esc(sources)}</small></div><span class="automation-permission-state">${esc(permissionRequirementText(requirement))}</span></div>`}).join("");
+      const empty='<div class="autonomy-empty">This automation does not use a Home Assistant sensor or device.</div>',status=readiness.ready===false?"Needs permission":"Ready";
+      card.innerHTML=`<div class="automation-permission-card-head"><div><strong>${esc(item.name||"Unnamed automation")}</strong><small>${item.enabled?"Enabled":"Not enabled"}</small></div><span>${status}</span></div><div class="automation-permission-rows">${rows||empty}</div>${readiness.ready===false?`<div class="automation-permission-fix"><p>ZBRANO will not run a protected task until these permissions are fixed.</p><button type="button" data-permission-open-entities>Fix entity permissions</button></div>`:""}<button class="automation-permission-open" type="button" data-activity-open-automation="${esc(item.id)}">Open automation</button>`;root.appendChild(card);
+    }
+  }
+
   function renderSuggestions(){
     const root=$("autonomy-suggestions");root.replaceChildren();
     const visible=(state.suggestions||[]).filter(item=>!["dismissed","expired"].includes(item.status)&&item.delivery_notification_center!==false).slice(0,30);
@@ -739,7 +773,7 @@
     $("autonomy-passive-learning").checked=settings.passive_learning_enabled!==false;
   }
 
-  function renderAll(){renderSummary();renderSuggestions();renderContext();renderLibrary();renderAutomationMemory();renderAutomationBrain();renderActivity();renderTimeline();renderSettings()}
+  function renderAll(){renderSummary();renderSuggestions();renderContext();renderLibrary();renderAutomationMemory();renderAutomationBrain();renderActivity();renderPermissions();renderTimeline();renderSettings()}
 
   async function loadEntityContext(){
     const root=$("autonomy-context");root.innerHTML='<div class="autonomy-empty">Loading Home Assistant context…</div>';
@@ -747,7 +781,7 @@
       const data=await api("api/ha/entities");entityMap=new Map((data.entities||[]).map(item=>[item.entity_id,item]));
       const options=$("automation-entity-options");options.replaceChildren();
       for(const entity of data.entities||[]){const option=document.createElement("option");option.value=entity.entity_id;option.label=entity.friendly_name||entity.entity_id;options.appendChild(option)}
-      renderContext();renderLibrary();renderEditorFlow();
+      renderContext();renderLibrary();renderPermissions();renderEditorFlow();
     }catch(error){root.innerHTML=`<div class="autonomy-empty">Context unavailable: ${esc(error.message||error)}</div>`}
   }
 
@@ -916,10 +950,13 @@
   $("automation-activity-automation-filter").addEventListener("change",renderActivity);
   $("automation-activity-result-filter").addEventListener("change",renderActivity);
   $("automation-activity-refresh").addEventListener("click",()=>loadWorkspace().catch(error=>{$("automation-decision-feed").innerHTML=`<div class="autonomy-empty">Activity refresh failed: ${esc(error.message||error)}</div>`}));
+  $("automation-permission-filter").addEventListener("change",renderPermissions);
+  $("automation-permission-refresh").addEventListener("click",()=>loadWorkspace().catch(error=>{$("automation-permission-list").innerHTML=`<div class="autonomy-empty">Permission check failed: ${esc(error.message||error)}</div>`}));
   $("automation-library-summary").addEventListener("click",event=>{const button=event.target.closest("[data-library-quick-filter]");if(!button)return;$("automation-library-filter").value=button.dataset.libraryQuickFilter;persistLibraryPrefs();renderLibrary()});
   panel.addEventListener("pointerdown",event=>{if(event.target.closest(".automation-flow-card-actions"))return;const block=event.target.closest(".automation-studio-preview [data-flow-kind]");if(block&&!block.draggable)selectStudioNode(block.dataset.flowKind,Number(block.dataset.flowIndex),block.hasAttribute("data-flow-branch-index")?Number(block.dataset.flowBranchIndex):null)},{capture:true});
   panel.addEventListener("click",async event=>{
     const toolTrigger=event.target.closest("[data-tool-trigger]");if(toolTrigger){addToolbarTrigger(toolTrigger.dataset.toolTrigger);return}
+    const entityPermissions=event.target.closest("[data-permission-open-entities]");if(entityPermissions){document.getElementById("entities-tab")?.click();return}
     const activityAutomation=event.target.closest("[data-activity-open-automation]");if(activityAutomation){const item=state.automations.find(value=>value.id===activityAutomation.dataset.activityOpenAutomation);if(item&&confirmEditorReplacement("open this automation")){fillEditor(item);showView("studio")}return}
     const toolCondition=event.target.closest("[data-tool-condition]");if(toolCondition){addToolbarCondition(toolCondition.dataset.toolCondition);return}
     const toolAction=event.target.closest("[data-tool-action]");if(toolAction){addToolbarAction(toolAction.dataset.toolAction);return}

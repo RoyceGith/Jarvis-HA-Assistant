@@ -1087,6 +1087,7 @@ def _automation_readiness(
 ) -> dict[str, Any]:
     issues: list[dict[str, str]] = []
     seen: set[tuple[str, str]] = set()
+    requirements: dict[tuple[str, str], dict[str, Any]] = {}
 
     def issue(kind: str, entity_id: str, detail: str) -> None:
         key = (kind, entity_id)
@@ -1096,12 +1097,24 @@ def _automation_readiness(
         issues.append({"kind": kind, "entity_id": entity_id, "detail": detail})
 
     def require_read(entity_id: str, kind: str) -> None:
-        if entity_id and not effective_entity_access(entity_id):
+        if not entity_id:
+            return
+        access = effective_entity_access(entity_id)
+        key = ("read", entity_id)
+        requirement = requirements.setdefault(key, {
+            "entity_id": entity_id, "permission": "read", "access": access or "not_enabled",
+            "allowed": bool(access), "sources": [],
+        })
+        if kind not in requirement["sources"]:
+            requirement["sources"].append(kind)
+        if not access:
             issue(kind, entity_id, f"{entity_id} is not enabled for reading")
 
     for trigger in _automation_triggers(item):
         if str(trigger.get("kind") or "entity") == "entity":
             require_read(str(trigger.get("entity_id") or ""), "trigger_read")
+    for entity_id in item.get("signal_entities") or []:
+        require_read(str(entity_id or ""), "signal_read")
     for condition in [*_automation_conditions(item), *(
         value for branch in _automation_branches(item) for value in _automation_conditions(branch)
     )]:
@@ -1125,16 +1138,22 @@ def _automation_readiness(
         if kind != "service" or not entity_id:
             continue
         access = effective_entity_access(entity_id)
+        label_blocked = bool(access and access != "read_only" and _automation_label_blocks_control(data, entity_id))
+        requirements[("control", entity_id)] = {
+            "entity_id": entity_id, "permission": "control", "access": access or "not_enabled",
+            "allowed": bool(access and access != "read_only" and not label_blocked),
+            "sources": ["action_control"], "safety_label_blocked": label_blocked,
+        }
         if not access:
             issue("action_control", entity_id, f"{entity_id} is not enabled in entity policy")
         elif access == "read_only":
             issue("action_control", entity_id, f"{entity_id} is read-only")
-        elif _automation_label_blocks_control(data, entity_id):
+        elif label_blocked:
             issue("safety_label", entity_id, f"{entity_id} control is blocked by a Home Assistant safety label")
 
     ready = not issues
     summary = "All referenced entities have the required live access" if ready else f"{len(issues)} live permission issue{'s' if len(issues) != 1 else ''}: " + "; ".join(value["detail"] for value in issues[:3])
-    return {"ready": ready, "summary": summary, "issues": issues}
+    return {"ready": ready, "summary": summary, "issues": issues, "requirements": list(requirements.values())}
 
 def _automation_condition_matches(item: dict[str, Any], old_state: Any, new_state: Any) -> bool:
     operator = str(item.get("operator") or item.get("trigger_operator") or "changes_to")

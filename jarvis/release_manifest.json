@@ -1,5 +1,5 @@
 {
-  "version": "0.13.168",
+  "version": "0.13.169",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/ZBRANO_Core main",
@@ -676,20 +676,24 @@
     {
       "version": "0.13.167",
       "summary": "Completed onboarding with a readiness summary and direct handoff into Chat."
+    },
+    {
+      "version": "0.13.168",
+      "summary": "Turned Automation Activity into a plain-language health and decision control room."
     }
   ],
   "release_entry": {
     "features": [
-      "Summarize watching automations, attention states, recent matches, and completed actions.",
-      "Explain stored automation decisions in plain language with optional evidence details.",
-      "Filter evaluation history by automation and result while showing each rule's current health."
+      "Audit each automation's required sensor reads and device controls in one dedicated view.",
+      "Explain why every entity is needed and whether its current live permission is sufficient.",
+      "Open the affected automation or Entity permissions directly from a permission finding."
     ],
     "fixes": [
-      "Replace the bare system-event timeline with useful decision observability.",
-      "Keep disabled, permission-blocked, and failure-paused automations distinguishable at a glance."
+      "Use the runtime readiness engine as the single source of truth for both enforcement and presentation.",
+      "Include legacy context signals, branch checks, comparisons, waits, presence, and all task devices in the audit."
     ],
     "validation": [
-      "Activity metrics, decision grouping and filtering, health presentation, system timeline, browser smoke, and v0.13.168 release coverage"
+      "Read/control requirement extraction, safety-label enforcement, permission filters and navigation, responsive presentation, browser smoke, and v0.13.169 release coverage"
     ]
   },
   "features": [
