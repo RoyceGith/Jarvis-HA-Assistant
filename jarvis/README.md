@@ -10,6 +10,10 @@ then verifies the required connection. Optional provider fields can remain blank
 
 ## Automation Studio
 
+Version 0.13.179 makes Device access consistent across Setup, checks, and the
+installation report. It uses Sensor device and Control device counts and clearly
+describes the limits of choosing no devices.
+
 Version 0.13.178 makes Entity Inventory permission-first, with plain names and the
 five essential columns before advanced Home Assistant details. Custom layouts stay
 intact and filtered results return to a usable top-left position.
