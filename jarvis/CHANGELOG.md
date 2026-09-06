@@ -1,5 +1,12 @@
 # Change log
 
+## 0.13.174
+
+- Added Sensor devices, Control devices, and All entities permission views.
+- Added live category counts derived from each installation's inventory.
+- Opened the permission guide directly from onboarding.
+- Kept filtering read-only with no bulk approval or silent authority expansion.
+
 ## 0.13.173
 
 - Replaced the AI model configuration dead end with a four-step Home Assistant guide.

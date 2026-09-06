@@ -10,9 +10,12 @@ then verifies the required connection. Optional provider fields can remain blank
 
 ## Automation Studio
 
-Version 0.13.173 adds an in-product Home Assistant configuration guide to the AI
-model setup step. It identifies the required field, explains save and restart,
-offers verification afterward, and separates optional provider settings.
+Version 0.13.174 adds a safe entity-permission guide with Sensor devices, Control
+devices, and All entities views. It shows live installation counts and opens from
+Setup without bulk-approving or silently expanding device authority.
+
+Version 0.13.173 adds an in-product Home Assistant AI configuration guide with a
+clear save, restart, and verification sequence.
 
 Version 0.13.172 adds a sanitized Installation Report covering connections,
 storage, backup, permissions, and automation safety totals.
