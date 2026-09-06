@@ -1,6 +1,6 @@
 # ZBRANO for Home Assistant
 
-Current release: **0.13.165**
+Current release: **0.13.166**
 
 This is the public Home Assistant installation and update repository for ZBRANO.
 The application is delivered as a prebuilt container image. The current repository
@@ -20,6 +20,10 @@ Existing ZBRANO installations retain the same add-on slug, configuration, `/data
 storage, and `ghcr.io/roycegith/jarvis-ha-assistant` update image.
 
 ## Current experience
+
+Version 0.13.166 makes first-run Setup a focused seven-step wizard. It explains
+one task at a time, provides direct verification and configuration actions, and
+keeps later steps locked until the required Home Assistant and AI checks pass.
 
 Version 0.13.165 removes owner-specific Grinder fields from the general Home
 Assistant add-on options. Private owner monitoring remains isolated in protected
