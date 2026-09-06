@@ -1,5 +1,12 @@
 # Change log
 
+## 0.13.173
+
+- Replaced the AI model configuration dead end with a four-step Home Assistant guide.
+- Named the required field and explained the save, restart, and verification sequence.
+- Separated optional provider settings that may remain blank.
+- Kept credential entry in Home Assistant's protected app configuration.
+
 ## 0.13.172
 
 - Added an installation-readiness report to the completed Setup screen.

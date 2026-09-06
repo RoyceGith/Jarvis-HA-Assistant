@@ -4,11 +4,18 @@ ZBRANO is a Home Assistant intelligence assistant with chat, voice, entity contr
 automations, notifications, calendar integration, local memory, and optional plugin
 connections.
 
+After installing, open **Settings → Apps → ZBRANO → Configuration**, place your own
+OpenAI API key in `openai_api_key`, save, and restart the app. ZBRANO's guided Setup
+then verifies the required connection. Optional provider fields can remain blank.
+
 ## Automation Studio
 
-Version 0.13.172 adds a shareable Installation Report to completed Setup. It checks
-connections, persistent storage, backup availability, entity permission counts,
-and automation safety totals, with sanitized copy and download actions for support.
+Version 0.13.173 adds an in-product Home Assistant configuration guide to the AI
+model setup step. It identifies the required field, explains save and restart,
+offers verification afterward, and separates optional provider settings.
+
+Version 0.13.172 adds a sanitized Installation Report covering connections,
+storage, backup, permissions, and automation safety totals.
 
 Version 0.13.167 completes the first-run journey with a readiness summary and
 direct Start chatting and Review connections actions. Optional capabilities stay
