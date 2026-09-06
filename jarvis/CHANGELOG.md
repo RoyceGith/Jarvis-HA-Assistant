@@ -1,11 +1,11 @@
 # Change log
 
-## 0.13.168
+## 0.13.169
 
-- Rebuilt Automation Activity as a clear health and decision control room.
-- Added counts for watching rules, attention states, matches, and completed actions.
-- Added per-automation and result filters with plain-language decision explanations.
-- Kept detailed evidence available behind a discreet disclosure.
+- Added a dedicated Automation Permissions audit for every saved rule.
+- Listed required sensor reads and device controls with their purpose and live state.
+- Explained missing access, read-only control attempts, and Home Assistant safety-label blocks.
+- Added direct actions to edit the automation or manage Entity permissions.
 
 ## 0.13.167
 

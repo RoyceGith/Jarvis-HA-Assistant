@@ -6,9 +6,9 @@ connections.
 
 ## Automation Studio
 
-Version 0.13.168 makes Automation Activity understandable at a glance with health
-counts, recent matches and actions, per-rule status, and a filterable explanation
-feed backed by the existing local decision journal.
+Version 0.13.169 adds a per-automation Permissions audit. It shows every required
+sensor read and device control, explains how the entity is used, and directs users
+to the exact automation or Entity permissions when access is missing.
 
 Version 0.13.167 completes the first-run journey with a readiness summary and
 direct Start chatting and Review connections actions. Optional capabilities stay
