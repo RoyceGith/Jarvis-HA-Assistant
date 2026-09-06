@@ -94,6 +94,79 @@
     }
   }
 
+  async function copyInstallationSummary(text, button) {
+    try {
+      if (navigator.clipboard?.writeText) await navigator.clipboard.writeText(text);
+      else {
+        const field = document.createElement("textarea");
+        field.value = text;
+        field.style.position = "fixed";
+        field.style.opacity = "0";
+        document.body.append(field);
+        field.select();
+        if (!document.execCommand("copy")) throw new Error("Copy is unavailable");
+        field.remove();
+      }
+      button.textContent = "Copied";
+      window.setTimeout(() => { button.textContent = "Copy support summary"; }, 1600);
+    } catch (error) {
+      message.textContent = `Could not copy the support summary: ${error.message || error}`;
+    }
+  }
+
+  function installationReportElement(data) {
+    const report = data.installation_report || {};
+    const details = document.createElement("details");
+    details.className = "onboarding-installation-report";
+    details.open = !report.ready;
+    const heading = document.createElement("summary");
+    heading.textContent = `Installation report · ${report.ready ? "Ready" : `${report.attention_count || 0} need attention`}`;
+    const checks = document.createElement("div");
+    checks.className = "onboarding-report-checks";
+    for (const check of report.checks || []) {
+      const row = document.createElement("div");
+      row.className = "onboarding-report-check";
+      row.dataset.state = check.state || "optional";
+      const marker = document.createElement("span");
+      marker.textContent = check.state === "ready" ? "OK" : check.state === "attention" ? "!" : "—";
+      const copy = document.createElement("div");
+      const title = document.createElement("strong");
+      title.textContent = check.title || check.id;
+      const detail = document.createElement("small");
+      detail.textContent = check.detail || "";
+      copy.append(title, detail);
+      row.append(marker, copy);
+      checks.append(row);
+    }
+    const privacy = document.createElement("p");
+    privacy.textContent = "Safe to share: this report excludes keys, tokens, entity IDs, messages, and personal data.";
+    const actions = document.createElement("div");
+    actions.className = "onboarding-report-actions";
+    const copy = document.createElement("button");
+    copy.type = "button";
+    copy.textContent = "Copy support summary";
+    copy.addEventListener("click", () => copyInstallationSummary(String(report.support_summary || ""), copy));
+    const download = document.createElement("button");
+    download.type = "button";
+    download.textContent = "Download report";
+    download.addEventListener("click", () => {
+      const payload = {version: report.version, generated_at: report.generated_at, ready: report.ready, checks: report.checks || [], support_summary: report.support_summary || ""};
+      const url = URL.createObjectURL(new Blob([JSON.stringify(payload, null, 2)], {type: "application/json"}));
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `zbrano-installation-report-${report.version || "current"}.json`;
+      link.click();
+      URL.revokeObjectURL(url);
+    });
+    const refresh = document.createElement("button");
+    refresh.type = "button";
+    refresh.textContent = "Refresh report";
+    refresh.addEventListener("click", () => load().catch(error => { message.textContent = `Report refresh failed: ${error.message || error}`; }));
+    actions.append(copy, download, refresh);
+    details.append(heading, checks, privacy, actions);
+    return details;
+  }
+
   function renderCompletion(data, steps) {
     const ready = steps.filter(step => step.ready);
     const later = steps.filter(step => !step.ready);
@@ -135,7 +208,7 @@
       render(data);
     });
     actions.append(start, review);
-    card.append(mark, title, description, capabilityList, actions);
+    card.append(mark, title, description, capabilityList, installationReportElement(data), actions);
     list.replaceChildren(card);
     guideActions.hidden = true;
     summary.hidden = true;

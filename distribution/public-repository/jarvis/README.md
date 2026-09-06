@@ -6,9 +6,9 @@ connections.
 
 ## Automation Studio
 
-Version 0.13.171 adds transparent Automation Results to Activity. Each conclusion
-is backed by visible approvals, dismissals, unanswered messages, successes,
-failures, and recent matches with a direct plain-language recommendation.
+Version 0.13.172 adds a shareable Installation Report to completed Setup. It checks
+connections, persistent storage, backup availability, entity permission counts,
+and automation safety totals, with sanitized copy and download actions for support.
 
 Version 0.13.167 completes the first-run journey with a readiness summary and
 direct Start chatting and Review connections actions. Optional capabilities stay

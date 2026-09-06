@@ -717,7 +717,7 @@ ha_ws = HomeAssistantWebSocketClient(
 
 app = FastAPI(
     title="ZBRANO",
-    version="0.13.171",
+    version="0.13.172",
     docs_url="/api/docs",
     openapi_url="/api/openapi.json",
 )
@@ -2821,7 +2821,7 @@ async def health() -> dict[str, Any]:
     configured_speech_provider = SPEECH_PROVIDER if SPEECH_PROVIDER in {"openai", "elevenlabs"} else "openai"
     return {
         "status": "ok",
-        "version": "0.13.171",
+        "version": "0.13.172",
         "home_assistant_configured": bool(SUPERVISOR_TOKEN),
         "workshop_memory_configured": bool(WORKSHOP_MEMORY_URL),
         "workshop_memory_cost_guard": workshop_cost_guard_status(),
@@ -4258,6 +4258,56 @@ async def onboarding_status_payload() -> dict[str, Any]:
         for step in steps
         if step["required"]
     )
+    storage_ready = DATA_DIR.exists() and os.access(DATA_DIR, os.R_OK | os.W_OK)
+    automation_data = automation_store()
+    automation_items = automation_data.get("automations", [])
+    permission_blocked = 0
+    failure_paused = 0
+    for automation in automation_items:
+        readiness = _automation_readiness(automation, automation_data)
+        circuit_open, _, _ = _automation_failure_circuit(automation, time.time())
+        permission_blocked += int(not readiness["ready"])
+        failure_paused += int(circuit_open)
+    report_checks = [
+        {
+            "id": step["id"], "title": step["title"],
+            "state": "ready" if step["ready"] else "attention" if step["required"] else "optional",
+            "required": step["required"], "detail": step["description"], "target": step["target"],
+        }
+        for step in steps
+    ]
+    report_checks.extend([
+        {
+            "id": "storage", "title": "Persistent storage",
+            "state": "ready" if storage_ready else "attention", "required": True,
+            "detail": "ZBRANO can read and write its persistent data folder" if storage_ready else "The persistent data folder is not available for reading and writing",
+            "target": "storage",
+        },
+        {
+            "id": "backup", "title": "Backup and restore",
+            "state": "ready", "required": False,
+            "detail": "A portable ZBRANO backup can be exported from Settings",
+            "target": "memory",
+        },
+        {
+            "id": "automation_health", "title": "Automation safety",
+            "state": "attention" if permission_blocked or failure_paused else "ready" if automation_items else "optional",
+            "required": False,
+            "detail": f"{len(automation_items)} saved; {permission_blocked} need permission; {failure_paused} paused after failures" if automation_items else "No automations have been saved yet",
+            "target": "automations",
+        },
+    ])
+    installation_ready = required_ready and storage_ready
+    support_summary = "\n".join([
+        f"ZBRANO installation report · v{app.version}",
+        f"Overall: {'Ready' if installation_ready else 'Needs attention'}",
+        f"Home Assistant: {'Connected' if steps[0]['ready'] else 'Not connected'}",
+        f"AI model: {'Configured' if steps[1]['ready'] else 'Not configured'}",
+        f"Entity permissions: {read_count} read / {control_count} control",
+        f"Persistent storage: {'Ready' if storage_ready else 'Needs attention'}",
+        f"Automations: {len(automation_items)} saved / {permission_blocked} permission issues / {failure_paused} failure pauses",
+        f"Optional capabilities ready: {sum(1 for step in steps if not step['required'] and step['ready'])}/{sum(1 for step in steps if not step['required'])}",
+    ])
     return {
         **state,
         "core_ready": required_ready,
@@ -4266,6 +4316,13 @@ async def onboarding_status_payload() -> dict[str, Any]:
         "ready_count": sum(1 for step in steps if step["ready"]),
         "total_count": len(steps),
         "steps": steps,
+        "installation_report": {
+            "generated_at": time.time(), "version": app.version,
+            "ready": installation_ready,
+            "attention_count": sum(item["state"] == "attention" for item in report_checks),
+            "ready_count": sum(item["state"] == "ready" for item in report_checks),
+            "checks": report_checks, "support_summary": support_summary,
+        },
     }
 
 

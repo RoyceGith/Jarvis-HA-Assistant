@@ -1,5 +1,5 @@
 {
-  "version": "0.13.171",
+  "version": "0.13.172",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/ZBRANO_Core main",
@@ -688,20 +688,24 @@
     {
       "version": "0.13.170",
       "summary": "Added understandable automation failure recovery, natural pause expiry, and guarded resume controls."
+    },
+    {
+      "version": "0.13.171",
+      "summary": "Added transparent per-automation evaluation from visible feedback, outcomes, rates, and recommendations."
     }
   ],
   "release_entry": {
     "features": [
-      "Evaluate each automation from visible approvals, manual resolutions, dismissals, unanswered suggestions, automatic successes, failures, and recent matches.",
-      "Classify results with explicit Learning, Healthy signals, Tune suggestions, Review delivery, Review reliability, and safety-attention states.",
-      "Show transparent acceptance and response rates with a plain-language recommendation and direct edit action."
+      "Show a completed-Setup installation report covering required and optional connections, persistent storage, backup availability, entity permission counts, and automation safety totals.",
+      "Provide a sanitized, copyable support summary that makes installation troubleshooting easier without exposing private configuration.",
+      "Download the sanitized report as JSON or refresh it in place after correcting a setup issue."
     ],
     "fixes": [
-      "Keep evaluation conclusions derived from named counters instead of presenting an opaque combined AI score.",
-      "Include monitor-only recent matches as evidence while avoiding duplicate event counting."
+      "Exclude credentials, tokens, entity identifiers, messages, and personal data from copied and downloaded installation reports.",
+      "Reuse live onboarding checks plus aggregate automation permission and failure-pause state so the report stays consistent with ZBRANO's safety engine."
     ],
     "validation": [
-      "Evaluation classification boundaries, transparent rates and recommendations, result filtering, responsive UI, browser smoke, and v0.13.171 release coverage"
+      "Installation-report contract, privacy boundaries, responsive completed-Setup UI, browser smoke, and v0.13.172 release coverage"
     ]
   },
   "features": [

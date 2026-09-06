@@ -160,6 +160,17 @@ const onboardingFixture = {
     {id:"plugins",title:"Plugins",description:"Plugins are optional",ready:false,required:false,target:"plugins",last_check:null,skipped:false},
     {id:"notifications",title:"Notifications and autonomy",description:"Choose notification delivery",ready:false,required:false,target:"notifications",last_check:null,skipped:false},
   ],
+  installation_report: {
+    generated_at: 1788300000, version: "0.13.172", ready: true, attention_count: 0, ready_count: 5,
+    checks: [
+      {id:"home_assistant",title:"Home Assistant",state:"ready",required:true,detail:"Connected to Home Assistant",target:"entities"},
+      {id:"model",title:"AI model",state:"ready",required:true,detail:"gpt-5-mini is configured",target:"model"},
+      {id:"storage",title:"Persistent storage",state:"ready",required:true,detail:"ZBRANO can read and write its persistent data folder",target:"storage"},
+      {id:"backup",title:"Backup and restore",state:"ready",required:false,detail:"A portable ZBRANO backup can be exported from Settings",target:"memory"},
+      {id:"automation_health",title:"Automation safety",state:"ready",required:false,detail:"2 saved; 0 need permission; 0 paused after failures",target:"automations"},
+    ],
+    support_summary: "ZBRANO installation report · v0.13.172\nOverall: Ready\nHome Assistant: Connected\nAI model: Configured\nEntity permissions: 3 read / 1 control\nPersistent storage: Ready\nAutomations: 2 saved / 0 permission issues / 0 failure pauses",
+  },
 };
 
 function apiFixture(url, method = "GET") {
@@ -167,7 +178,7 @@ function apiFixture(url, method = "GET") {
   if (pathname === "/api/health") {
     return {
       status: "ok",
-      version: "0.13.171",
+      version: "0.13.172",
       speech_provider: "openai",
       speech_providers: {openai: {configured: true}, elevenlabs: {configured: false}},
     };
@@ -254,7 +265,7 @@ function apiFixture(url, method = "GET") {
   if (pathname === "/api/plugins") return {plugins: []};
   if (pathname === "/api/files/shared") return {files: [], count: 0};
   if (pathname === "/api/release-memory-sync") {
-    return {enabled: false, state: "disabled", version: "0.13.171", task_active: false};
+    return {enabled: false, state: "disabled", version: "0.13.172", task_active: false};
   }
   if (pathname === "/api/tab-activity") return {revisions: {}};
   if (pathname === "/api/grinder-monitor/status") return {enabled: false, connected: false};
@@ -954,6 +965,11 @@ async function main() {
     assert.match(await page.locator('.onboarding-complete-card').innerText(), /ZBRANO is ready/);
     assert.match(await page.locator('.onboarding-capability-list').innerText(), /AI model ready/);
     assert.match(await page.locator('.onboarding-capability-list').innerText(), /Voice and wake word available later/);
+    assert.match(await page.locator('.onboarding-installation-report summary').innerText(), /Installation report · Ready/i);
+    await page.locator('.onboarding-installation-report summary').click();
+    assert.match(await page.locator('.onboarding-report-checks').innerText(), /Persistent storage/i);
+    assert.match(await page.locator('.onboarding-installation-report').innerText(), /excludes keys, tokens, entity IDs, messages, and personal data/i);
+    assert.equal(await page.getByRole('button', {name:'Download report'}).count(), 1);
     await page.getByRole('button', {name:'Review connections'}).click();
     await page.locator('.onboarding-step.is-active').waitFor();
     await page.locator('[data-settings-target="voice"]').click();
