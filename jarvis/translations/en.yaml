@@ -1,0 +1,61 @@
+configuration:
+  log_level:
+    name: Troubleshooting detail
+    description: Keep Information for normal use. Choose a more detailed level only while diagnosing a problem.
+  workshop_memory_url:
+    name: Workshop Memory address
+    description: Optional address for a Workshop Memory service. Leave the default unless you run this service yourself.
+  workshop_memory_internal_url:
+    name: Workshop Memory internal address
+    description: Advanced fallback address for container-to-container access. Most users should leave this unchanged.
+  openai_api_key:
+    name: OpenAI API key
+    description: Required for ZBRANO chat and the default speech provider. The key stays in protected Home Assistant app configuration.
+  github_oauth_client_id:
+    name: GitHub sign-in client ID
+    description: Optional. Add this only when connecting the official GitHub plugin.
+  google_oauth_client_id:
+    name: Google sign-in client ID
+    description: Optional. Add this with the matching secret only when connecting Google services.
+  google_oauth_client_secret:
+    name: Google sign-in client secret
+    description: Optional protected secret used with the Google sign-in client ID.
+  openai_model:
+    name: Chat and reasoning model
+    description: OpenAI model used for ZBRANO conversations and decisions. Keep the default unless you know the model you want.
+  openai_transcription_model:
+    name: Speech-to-text model
+    description: OpenAI model that turns spoken requests into text.
+  openai_tts_model:
+    name: OpenAI spoken-reply model
+    description: OpenAI model used to speak ZBRANO replies when OpenAI is the selected voice provider.
+  speech_provider:
+    name: Spoken-reply provider
+    description: Choose OpenAI for the simplest setup, or ElevenLabs after adding its API key and voice ID below.
+  elevenlabs_api_key:
+    name: ElevenLabs API key
+    description: Optional protected key required only when ElevenLabs is the selected spoken-reply provider.
+  elevenlabs_voice_id:
+    name: ElevenLabs voice ID
+    description: Optional voice identifier required with an ElevenLabs API key.
+  elevenlabs_voice_name:
+    name: ElevenLabs voice name
+    description: Friendly name shown for the configured ElevenLabs voice.
+  elevenlabs_model_id:
+    name: ElevenLabs voice model
+    description: ElevenLabs model used for spoken replies. Keep the default for fast responses.
+  speech_fallback_to_openai:
+    name: Fall back to OpenAI voice
+    description: Use OpenAI speech when an ElevenLabs spoken reply cannot be produced.
+  ha_read_entities:
+    name: Legacy sensor device IDs
+    description: Compatibility field for older installations. Leave blank and choose Sensor devices from Device Access inside ZBRANO.
+  ha_control_entities:
+    name: Legacy control device IDs
+    description: Compatibility field for older installations. Leave blank and choose Control devices from Device Access inside ZBRANO.
+  enable_direct_port:
+    name: Allow direct browser access
+    description: Expose port 8099 in addition to the normal protected Home Assistant sidebar connection.
+
+network:
+  8099/tcp: Direct ZBRANO web interface

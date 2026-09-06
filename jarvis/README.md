@@ -10,6 +10,10 @@ then verifies the required connection. Optional provider fields can remain blank
 
 ## Automation Studio
 
+Version 0.13.181 adds plain names and descriptions to every option shown in Home
+Assistant's ZBRANO Configuration screen, including clear required, optional,
+advanced, protected, and legacy guidance.
+
 Version 0.13.180 gives Home Assistant connection failures their own recovery guide
 and recheck action. The guide uses the Supervisor-provided connection and never
 asks users to find or paste a Home Assistant address or token.
