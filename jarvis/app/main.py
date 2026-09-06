@@ -296,6 +296,7 @@ from .services.entity_policy import (
     entity_domain,
     find_approved_entities,
     load_entity_policy,
+    normalize_entity_policy_enabled,
     save_entity_policy,
     should_auto_approve_entity,
 )
@@ -717,7 +718,7 @@ ha_ws = HomeAssistantWebSocketClient(
 
 app = FastAPI(
     title="ZBRANO",
-    version="0.13.176",
+    version="0.13.177",
     docs_url="/api/docs",
     openapi_url="/api/openapi.json",
 )
@@ -2821,7 +2822,7 @@ async def health() -> dict[str, Any]:
     configured_speech_provider = SPEECH_PROVIDER if SPEECH_PROVIDER in {"openai", "elevenlabs"} else "openai"
     return {
         "status": "ok",
-        "version": "0.13.176",
+        "version": "0.13.177",
         "home_assistant_configured": bool(SUPERVISOR_TOKEN),
         "workshop_memory_configured": bool(WORKSHOP_MEMORY_URL),
         "workshop_memory_cost_guard": workshop_cost_guard_status(),
@@ -5502,9 +5503,10 @@ async def update_entity_policy(
             clean_aliases.append(cleaned)
             seen.add(key)
 
+    enabled = normalize_entity_policy_enabled(request.enabled, request.access)
     policy = load_entity_policy()
     policy[entity_id] = {
-        "enabled": request.enabled,
+        "enabled": enabled,
         "friendly_name": request.friendly_name,
         "domain": request.domain,
         "device_class": request.device_class,

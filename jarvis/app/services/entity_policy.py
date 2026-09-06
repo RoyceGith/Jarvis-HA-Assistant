@@ -102,6 +102,11 @@ def entity_domain(entity_id: str) -> str:
     return entity_id.split(".", 1)[0]
 
 
+def normalize_entity_policy_enabled(enabled: bool, access: str) -> bool:
+    """A blocked access choice can never remain enabled."""
+    return bool(enabled and access != "restricted")
+
+
 def ensure_read_allowed(entity_id: str) -> None:
     access = effective_entity_access(entity_id)
     if access not in {"read_only", "state_only", "low_risk_control_proposed"}:

@@ -99,13 +99,13 @@ class ApplicationIntegrationTests(unittest.IsolatedAsyncioTestCase):
             response = await self.client.get("/api/health")
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json()["status"], "ok")
-        self.assertEqual(response.json()["version"], "0.13.176")
+        self.assertEqual(response.json()["version"], "0.13.177")
         self.assertEqual(response.json()["ha_read_entity_count"], 1)
         self.assertEqual(response.json()["ha_control_entity_count"], 1)
 
         frontend = await self.client.get("/")
         self.assertEqual(frontend.status_code, 200)
-        self.assertIn("HUD 0.13.176", frontend.text)
+        self.assertIn("HUD 0.13.177", frontend.text)
         self.assertEqual(
             frontend.headers.get("cache-control"),
             "no-store, no-cache, must-revalidate, max-age=0",
@@ -133,6 +133,35 @@ class ApplicationIntegrationTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(stored["general_instructions"], "Keep integration checks concise.")
         reread = await self.client.get("/api/settings")
         self.assertEqual(reread.json()["preferences"]["theme"], "gray")
+
+    async def test_do_not_allow_cannot_remain_enabled_in_entity_policy(self) -> None:
+        payload = {
+            "enabled": True,
+            "friendly_name": "Private room temperature",
+            "domain": "sensor",
+            "device_class": "temperature",
+            "unit": "°C",
+            "access": "restricted",
+            "aliases": [],
+        }
+        blocked = await self.client.put(
+            "/api/ha/entity-policy/sensor.private_room_temperature",
+            json=payload,
+        )
+        self.assertEqual(blocked.status_code, 200)
+        self.assertFalse(blocked.json()["record"]["enabled"])
+        self.assertIsNone(blocked.json()["effective_access"])
+        self.assertFalse(
+            entity_policy.load_entity_policy()["sensor.private_room_temperature"]["enabled"]
+        )
+
+        allowed = await self.client.put(
+            "/api/ha/entity-policy/sensor.private_room_temperature",
+            json={**payload, "access": "read_only"},
+        )
+        self.assertEqual(allowed.status_code, 200)
+        self.assertTrue(allowed.json()["record"]["enabled"])
+        self.assertEqual(allowed.json()["effective_access"], "read_only")
 
     async def test_legacy_minimal_backup_restores_without_newer_optional_sections(self) -> None:
         legacy_backup = {

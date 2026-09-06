@@ -1,5 +1,5 @@
 {
-  "version": "0.13.176",
+  "version": "0.13.177",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/ZBRANO_Core main",
@@ -708,19 +708,24 @@
       {
         "version": "0.13.175",
         "summary": "Required explicit per-entity consent and stopped inventory discovery from granting access automatically."
+      },
+      {
+        "version": "0.13.176",
+        "summary": "Replaced internal permission names with Sensor device, Control device, and Do not allow choices."
       }
     ],
     "release_entry": {
       "features": [
-        "Present entity access as Sensor device, Control device, or Do not allow instead of internal policy names.",
-        "Keep legacy stored access values visible and unchanged until the owner deliberately replaces them."
+        "Make Do not allow immediately revoke an entity instead of leaving contradictory enabled state.",
+        "Choose the safest readable access level when the owner checks an entity that was previously blocked.",
+        "Report readable and controllable device totals in plain language."
       ],
       "fixes": [
-        "Classify air-conditioning status and temperature sensors as read-only even when their names match the HVAC recommendation heuristic.",
-        "Only offer action authority for Home Assistant domains ZBRANO can safely control."
+        "Prevent restricted entities from being counted, exported, or stored as enabled.",
+        "Enforce the disabled restricted-access invariant in the API as well as the browser."
       ],
       "validation": [
-        "Plain access labels, legacy-value compatibility, HVAC sensor classification, browser interaction, and v0.13.176 release coverage"
+        "Permission-state normalization, safe re-enabling, API persistence, browser interaction, and v0.13.177 release coverage"
       ]
   },
   "features": [

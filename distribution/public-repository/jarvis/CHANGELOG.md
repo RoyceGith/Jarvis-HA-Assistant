@@ -1,5 +1,12 @@
 # Change log
 
+## 0.13.177
+
+- Made Do not allow immediately revoke entity access.
+- Restored the safest readable level when a blocked entity is checked again.
+- Excluded restricted entities from permission totals and catalog exports.
+- Enforced the same disabled state in direct API writes.
+
 ## 0.13.176
 
 - Replaced internal access-policy names with Sensor device, Control device, and Do not allow.

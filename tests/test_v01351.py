@@ -13,10 +13,10 @@ MANIFEST = json.loads((ROOT / "jarvis/release_manifest.json").read_text(encoding
 
 class BrowserBuildRepairReleaseTests(unittest.TestCase):
     def test_release_markers_are_aligned(self):
-        self.assertIn('version: "0.13.176"', CONFIG)
-        self.assertIn('version="0.13.176"', MAIN)
-        self.assertIn("HUD 0.13.176", HTML)
-        self.assertEqual(MANIFEST["version"], "0.13.176")
+        self.assertIn('version: "0.13.177"', CONFIG)
+        self.assertIn('version="0.13.177"', MAIN)
+        self.assertIn("HUD 0.13.177", HTML)
+        self.assertEqual(MANIFEST["version"], "0.13.177")
 
     def test_browser_opens_editor_and_waits_for_inventory_before_template(self):
         open_editor = BROWSER.index('locator(".automation-advanced summary").click()')
@@ -26,7 +26,7 @@ class BrowserBuildRepairReleaseTests(unittest.TestCase):
         self.assertLess(wait_inventory, click_template)
 
     def test_release_history_includes_v01350(self):
-        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.175")
+        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.176")
 
 
 if __name__ == "__main__":

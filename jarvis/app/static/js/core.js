@@ -1717,6 +1717,10 @@ function entityAccessOptions(entity, currentAccess) {
   return options;
 }
 
+function defaultAllowedEntityAccess(entity) {
+  return entityAccessOptions(entity, "").find(([access]) => access !== "restricted")?.[0] || "state_only";
+}
+
 function updateEntityPermissionGuide() {
   const counts = {sensor: 0, control: 0, all: entityInventory.length};
   for (const entity of entityInventory) {
@@ -1875,6 +1879,10 @@ function renderEntities() {
     checkbox.title = "Allow ZBRANO to use this entity with the selected access";
     checkbox.addEventListener("change", () => {
       review.selected = checkbox.checked;
+      if (review.selected && review.access === "restricted") {
+        review.access = defaultAllowedEntityAccess(entity);
+        accessSelect.value = review.access;
+      }
       updateSelectionSummary();
       queuePolicySave(entity, review);
     });
@@ -1937,8 +1945,14 @@ function renderEntities() {
       accessSelect.appendChild(option);
     });
     accessSelect.addEventListener("change", () => {
+      const wasSelected = review.selected;
       review.access = accessSelect.value;
-      if (review.selected) queuePolicySave(entity, review);
+      if (review.access === "restricted") {
+        review.selected = false;
+        checkbox.checked = false;
+      }
+      updateSelectionSummary();
+      if (wasSelected || review.selected) queuePolicySave(entity, review);
     });
     accessCell.appendChild(accessSelect);
     row.appendChild(accessCell);
@@ -1975,7 +1989,7 @@ function renderEntities() {
 
 function updateSelectionSummary(filteredCount = null) {
   const selectedCount = [...entityReview.values()]
-    .filter(item => item.selected).length;
+    .filter(item => item.selected && item.access !== "restricted").length;
   const shown = filteredCount ?? entityInventory.filter(entityMatches).length;
 
   entitySummary.textContent =
@@ -2064,7 +2078,10 @@ refreshEntities.addEventListener("click", loadEntities);
 
 function selectedCatalog() {
   return entityInventory
-    .filter(entity => ensureReview(entity).selected)
+    .filter(entity => {
+      const review = ensureReview(entity);
+      return review.selected && review.access !== "restricted";
+    })
     .map(entity => {
       const review = ensureReview(entity);
       return {
@@ -2164,9 +2181,8 @@ showApproved.addEventListener("click", async () => {
     const data = await response.json();
     if (!response.ok) throw new Error(data.detail || `HTTP ${response.status}`);
     entitySummary.textContent =
-      `Read approved: ${data.read_entities.length} · ` +
-      `Control approved: ${data.control_entities.length} · ` +
-      `Safe control domains: ${data.safe_control_domains.join(", ")}`;
+      `ZBRANO can read ${data.read_entities.length} devices · ` +
+      `control ${data.control_entities.length} devices.`;
   } catch (error) {
     entitySummary.textContent =
       `Failed to load approved entities: ${error.message || error}`;
