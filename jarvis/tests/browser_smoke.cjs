@@ -892,8 +892,10 @@ async function main() {
     assert.equal(await page.locator('.onboarding-rail-step').nth(1).isDisabled(), true);
     assert.equal(await page.locator('#onboarding-next').isDisabled(), true);
     assert.equal(await page.locator('#onboarding-recheck').innerText(), "Refresh status");
-    await page.locator('#onboarding-complete').evaluate(element => { element.disabled = false; });
-    await page.locator('#onboarding-complete').click();
+    await page.locator('#onboarding-complete').evaluate(element => {
+      element.disabled = false;
+      element.click();
+    });
     await page.locator('.onboarding-complete-card').waitFor();
     assert.match(await page.locator('.onboarding-complete-card').innerText(), /ZBRANO is ready/);
     assert.match(await page.locator('.onboarding-capability-list').innerText(), /AI model ready/);
