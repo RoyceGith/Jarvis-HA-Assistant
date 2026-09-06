@@ -10,6 +10,10 @@ then verifies the required connection. Optional provider fields can remain blank
 
 ## Automation Studio
 
+Version 0.13.176 gives entity access three clear choices: Sensor device, Control
+device, or Do not allow. HVAC status sensors can only be recommended for reading,
+and existing legacy values remain compatible until the owner changes them.
+
 Version 0.13.175 requires explicit selection before newly discovered devices gain
 ZBRANO access. Socket and HVAC heuristics now recommend an access level without
 granting it, while existing saved permissions remain compatible and revocable.

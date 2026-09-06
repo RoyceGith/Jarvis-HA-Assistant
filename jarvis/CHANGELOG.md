@@ -1,5 +1,12 @@
 # Change log
 
+## 0.13.176
+
+- Replaced internal access-policy names with Sensor device, Control device, and Do not allow.
+- Limited action authority choices to safely controllable Home Assistant domains.
+- Kept air-conditioning status and temperature sensors read-only.
+- Preserved legacy stored values until the owner explicitly chooses a replacement.
+
 ## 0.13.175
 
 - Stopped inventory loading and startup from automatically granting device control.
