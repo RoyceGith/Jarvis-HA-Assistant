@@ -1,11 +1,11 @@
 # Change log
 
-## 0.13.169
+## 0.13.170
 
-- Added a dedicated Automation Permissions audit for every saved rule.
-- Listed required sensor reads and device controls with their purpose and live state.
-- Explained missing access, read-only control attempts, and Home Assistant safety-label blocks.
-- Added direct actions to edit the automation or manage Entity permissions.
+- Added an Automation Recovery center with recent failure and pause-threshold status.
+- Preserved and displayed the actual Home Assistant error behind a discreet detail view.
+- Added natural pause-expiry timing and automatic status reconciliation.
+- Added guarded reset-and-resume controls without erasing history or bypassing safety.
 
 ## 0.13.167
 
