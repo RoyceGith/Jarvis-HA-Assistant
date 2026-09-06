@@ -34,7 +34,7 @@
   <header>
     <div class="brand-line">
       <h1>ZBRANO</h1>
-      <div class="status hud-version-label">Workshop Intelligence Interface · HUD 0.13.181</div>
+      <div class="status hud-version-label">Workshop Intelligence Interface · HUD 0.13.182</div>
     </div>
     <div class="runtime-status-stack">
       <div id="notification-inbox-shell" class="notification-inbox-shell">
@@ -161,7 +161,7 @@
     </div>
   </section>
 
-  <section id="developer-panel" class="panel hidden">
+<section id="developer-panel" class="panel hidden">
     <div class="developer-shell">
       <div class="developer-header">
         <div>
@@ -196,7 +196,7 @@
 
   <section id="files-panel" class="panel hidden"><div class="toolbar"><select id="shared-sort"><option value="date">Sort by date</option><option value="name">Sort by name</option></select><select id="shared-order"><option value="desc">Descending</option><option value="asc">Ascending</option></select><button id="shared-refresh" type="button">Refresh</button><button id="shared-use" type="button">Attach selected to chat</button><button id="shared-delete" type="button">Delete selected</button></div><div id="shared-summary" class="summary muted">Shared files are available to every chat.</div><div class="table-wrap"><table><thead><tr><th>Select</th><th>Name</th><th>Date</th><th>Type</th><th>Size</th></tr></thead><tbody id="shared-file-rows"></tbody></table></div></section>
 
-  <section id="entities-panel" class="panel hidden">
+<section id="entities-panel" class="panel hidden">
     <div class="entity-view-tabs" role="tablist" aria-label="Entity views">
       <button type="button" class="active" data-entity-view="inventory" role="tab" aria-selected="true">Entity Inventory</button>
       <button type="button" data-entity-view="history" role="tab" aria-selected="false">History &amp; Event Timeline</button>
@@ -252,7 +252,7 @@
     </div>
   </section>
 
-  <section id="settings-panel" class="panel hidden">
+<section id="settings-panel" class="panel hidden">
     <div class="settings-stack">
     <div class="settings-category-tabs" role="tablist" aria-label="Settings categories">
       <div class="settings-nav-title"><span class="settings-nav-icon" aria-hidden="true">⚙</span><div><strong>Settings</strong><small>Configure ZBRANO</small></div></div>
@@ -507,7 +507,7 @@
     </div>
   </section>
 
-  <section id="plugins-panel" class="panel hidden">
+<section id="plugins-panel" class="panel hidden">
     <div class="plugin-workspace">
       <div class="plugin-subtabs" role="tablist" aria-label="Plugin views">
         <button id="plugins-installed-tab" class="active" type="button" role="tab" aria-selected="true" aria-controls="plugins-installed-view">Installed Plugins</button>
@@ -1010,67 +1010,40 @@
 
 </main>
 
+<script src="js/about.js"></script>
 <script src="js/core.js"></script>
-
 <script id="zbrano-v01126-plugin-runtime" src="js/plugins/runtime.js"></script>
-
-
-
-
-
 <script id="zbrano-v01130-plugin-form" src="js/plugins/form.js"></script>
-
 <script id="zbrano-v01130-shared-files-recovery" src="js/files/shared-files-recovery.js"></script>
-
 <script id="zbrano-v01131-plugin-compact" src="js/plugins/compact.js"></script>
-
 <script id="zbrano-v0120-developer-mode" src="js/developer/mode.js"></script>
 
-
 <script id="zbrano-v01224-diagnostic-fix" src="js/developer/diagnostics.js"></script>
-
 <script id="zbrano-v0121-attach-recovery" src="js/files/attachment-recovery.js"></script>
-
 <script id="zbrano-v0122-attachment-controller" src="js/files/attachments.js"></script>
-
 <script id="zbrano-v0123-shared-files-controller" src="js/files/shared-files.js"></script>
-
 <script id="zbrano-v0124-investigation-engine" src="js/developer/investigation.js"></script>
-
 <script id="zbrano-v0128-plugin-workspace" src="js/plugins/workspace.js"></script>
-
 <script id="zbrano-v0129-plugin-oauth" src="js/plugins/oauth.js"></script>
-
 <script id="zbrano-v01363-automation-flow" src="js/automations/flow.js"></script>
 <script id="zbrano-v01210-autonomous-automations" src="js/automations/workspace.js"></script>
 <script id="zbrano-v01228-composer-context" src="js/chat/composer-context.js"></script>
 
-
 <script id="zbrano-v01243-notification-center" src="js/notifications/center.js"></script>
 <script id="zbrano-v013111-notification-inbox" src="js/notifications/inbox.js"></script>
-
 <script id="zbrano-v01251-semantic-tab-activity" src="js/ui/tab-activity.js"></script>
-
 <script id="zbrano-v01254-gmail-oauth" src="js/integrations/gmail-oauth.js"></script>
 <script id="zbrano-v01255-entity-columns" src="js/entities/columns.js"></script>
-
 <script id="zbrano-v01266-grinder-hud-indicator" src="js/grinder/hud.js"></script>
-
 <script id="zbrano-v01271-calendar-center" src="js/calendar/center.js"></script>
 <script id="zbrano-v013119-contacts" src="js/contacts.js"></script>
-
 <script id="zbrano-v01274-fast-memory" src="js/memory/fast-memory.js"></script>
-
 
 <script id="zbrano-v01276-ha-history" src="js/entities/history.js"></script>
 
-
 <script id="zbrano-v01289-two-way-telegram" src="js/integrations/telegram.js"></script>
-
 <script id="zbrano-v01290-live-history" src="js/entities/live-history.js"></script>
-
 <script id="zbrano-v01291-automation-entity-search" src="js/automations/entity-search.js"></script>
-
 
 <script id="zbrano-v01294-proactive-voice" src="js/voice/proactive.js"></script>
 <script id="zbrano-v01359-onboarding" src="js/onboarding.js"></script>

@@ -789,9 +789,11 @@ input.addEventListener("keydown", event => {
 const chatTab = document.getElementById("chat-tab");
 const entitiesTab = document.getElementById("entities-tab");
 const settingsTab = document.getElementById("settings-tab");
+const aboutTab = document.getElementById("about-tab");
 const chatPanel = document.getElementById("chat-panel");
 const entitiesPanel = document.getElementById("entities-panel");
 const settingsPanel = document.getElementById("settings-panel");
+const aboutPanel = document.getElementById("about-panel");
 const generalInstructions = document.getElementById("general-instructions");
 const saveSettings = document.getElementById("save-settings");
 const settingsSaveState = document.getElementById("settings-save-state");
@@ -1475,6 +1477,7 @@ function showPanel(panel) {
   const showAutomations = panel === "automations";
   const showCalendar = panel === "calendar";
   const showContacts = panel === "contacts";
+  const showAbout = panel === "about";
   chatPanel.classList.toggle("hidden", !showChat);
   entitiesPanel.classList.toggle("hidden", !showEntities);
   settingsPanel.classList.toggle("hidden", !showSettings);
@@ -1483,6 +1486,8 @@ function showPanel(panel) {
   document.getElementById("automations-panel")?.classList.toggle("hidden", !showAutomations);
   document.getElementById("calendar-panel")?.classList.toggle("hidden", !showCalendar);
   document.getElementById("contacts-panel")?.classList.toggle("hidden", !showContacts);
+  aboutPanel.classList.toggle("hidden", !showAbout);
+  document.getElementById("developer-panel")?.classList.add("hidden");
   chatTab.classList.toggle("active", showChat);
   entitiesTab.classList.toggle("active", showEntities);
   settingsTab.classList.toggle("active", showSettings);
@@ -1491,6 +1496,7 @@ function showPanel(panel) {
   document.getElementById("automations-tab")?.classList.toggle("active", showAutomations);
   document.getElementById("calendar-tab")?.classList.toggle("active", showCalendar);
   document.getElementById("contacts-tab")?.classList.toggle("active", showContacts);
+  aboutTab.classList.toggle("active", showAbout);
 }
 
 chatTab.addEventListener("click", () => showPanel("chat"));
@@ -1499,6 +1505,14 @@ entitiesTab.addEventListener("click", async () => {
   if (!inventoryLoaded) await loadEntities();
 });
 document.getElementById("contacts-tab")?.addEventListener("click", () => showPanel("contacts"));
+aboutTab.addEventListener("click", () => showPanel("about"));
+document.getElementById("about-start-chat")?.addEventListener("click", () => chatTab.click());
+document.getElementById("about-open-devices")?.addEventListener("click", () => entitiesTab.click());
+document.getElementById("about-open-automations")?.addEventListener("click", () => document.getElementById("automations-tab")?.click());
+document.getElementById("about-open-setup")?.addEventListener("click", () => {
+  settingsTab.click();
+  window.setTimeout(() => document.querySelector('[data-settings-target="setup"]')?.click(), 0);
+});
 
 function renderReleaseSyncStatus(status = {}) {
   const state = String(status.state || "pending");

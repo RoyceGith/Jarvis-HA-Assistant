@@ -162,7 +162,7 @@ const onboardingFixture = {
     {id:"notifications",title:"Notifications and autonomy",description:"Choose notification delivery",ready:false,required:false,target:"notifications",last_check:null,skipped:false},
   ],
   installation_report: {
-    generated_at: 1788300000, version: "0.13.181", ready: true, attention_count: 0, ready_count: 5,
+    generated_at: 1788300000, version: "0.13.182", ready: true, attention_count: 0, ready_count: 5,
     checks: [
       {id:"home_assistant",title:"Home Assistant",state:"ready",required:true,detail:"Connected to Home Assistant",target:"home_assistant"},
       {id:"model",title:"AI model",state:"ready",required:true,detail:"gpt-5-mini is configured",target:"model"},
@@ -170,7 +170,7 @@ const onboardingFixture = {
       {id:"backup",title:"Backup and restore",state:"ready",required:false,detail:"A portable ZBRANO backup can be exported from Settings",target:"memory"},
       {id:"automation_health",title:"Automation safety",state:"ready",required:false,detail:"2 saved; 0 need permission; 0 paused after failures",target:"automations"},
     ],
-    support_summary: "ZBRANO installation report · v0.13.181\nOverall: Ready\nHome Assistant: Connected\nAI model: Configured\nDevice access: 3 sensor devices / 1 control devices\nPersistent storage: Ready\nAutomations: 2 saved / 0 permission issues / 0 failure pauses",
+    support_summary: "ZBRANO installation report · v0.13.182\nOverall: Ready\nHome Assistant: Connected\nAI model: Configured\nDevice access: 3 sensor devices / 1 control devices\nPersistent storage: Ready\nAutomations: 2 saved / 0 permission issues / 0 failure pauses",
   },
 };
 
@@ -179,7 +179,7 @@ function apiFixture(url, method = "GET") {
   if (pathname === "/api/health") {
     return {
       status: "ok",
-      version: "0.13.181",
+      version: "0.13.182",
       speech_provider: "openai",
       speech_providers: {openai: {configured: true}, elevenlabs: {configured: false}},
     };
@@ -266,7 +266,7 @@ function apiFixture(url, method = "GET") {
   if (pathname === "/api/plugins") return {plugins: []};
   if (pathname === "/api/files/shared") return {files: [], count: 0};
   if (pathname === "/api/release-memory-sync") {
-    return {enabled: false, state: "disabled", version: "0.13.181", task_active: false};
+    return {enabled: false, state: "disabled", version: "0.13.182", task_active: false};
   }
   if (pathname === "/api/tab-activity") return {revisions: {}};
   if (pathname === "/api/grinder-monitor/status") return {enabled: false, connected: false};
@@ -361,6 +361,26 @@ async function main() {
     await page.waitForFunction(() => document.getElementById("brain-network")?.dataset.animationState === "paused");
     await page.evaluate(() => document.getSelection()?.removeAllRanges());
     await page.waitForFunction(() => document.getElementById("brain-network")?.dataset.animationState === "running");
+
+    await page.locator("#about-tab").click();
+    await page.locator("#about-panel:not(.hidden)").waitFor();
+    assert.equal(await page.locator("#chat-panel").isHidden(), true);
+    assert.match(await page.locator("#about-title").innerText(), /One assistant for your home/i);
+    assert.equal(await page.locator("#about-panel .about-feature").count(), 6);
+    assert.match(await page.locator("#about-panel").innerText(), /Natural conversation/i);
+    assert.match(await page.locator("#about-panel").innerText(), /Home awareness and control/i);
+    assert.match(await page.locator("#about-panel").innerText(), /Visual automations/i);
+    assert.match(await page.locator("#about-panel").innerText(), /Safety and ownership/i);
+    assert.equal(await page.locator(".about-journey > ol li").count(), 4);
+    const aboutScroll = await page.locator("#about-panel").evaluate(element => {
+      element.scrollTop = element.scrollHeight;
+      return {overflowY:getComputedStyle(element).overflowY, moved:element.scrollTop > 0};
+    });
+    assert.equal(aboutScroll.overflowY, "auto");
+    assert.equal(aboutScroll.moved, true, "About showcase must scroll inside its panel");
+    await page.locator("#about-open-devices").click();
+    await page.locator("#entities-panel:not(.hidden)").waitFor();
+    assert.equal(await page.locator("#about-panel").isHidden(), true);
 
     await page.locator("#entities-tab").click();
     await page.locator("#entities-panel:not(.hidden)").waitFor();
@@ -1042,7 +1062,7 @@ async function main() {
     assert.equal(voiceScroll.scrollable, true, "Voice settings must exceed and scroll within the panel at compact viewport heights");
     assert.equal(voiceScroll.moved, true, "Voice settings panel must accept vertical scrolling");
 
-    console.log("Browser smoke passed: New Chat, navigation, Entity scrolling, notification inbox, Calendar birthdays, guided onboarding, modern Settings, Automation Library filtering, Studio safety, validation, recovery, and branching workflows");
+    console.log("Browser smoke passed: New Chat, About showcase, navigation, Entity scrolling, notification inbox, Calendar birthdays, guided onboarding, modern Settings, Automation Library filtering, Studio safety, validation, recovery, and branching workflows");
   } finally {
     await browser.close();
     await new Promise(resolve => server.close(resolve));

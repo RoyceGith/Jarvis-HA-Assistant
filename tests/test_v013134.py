@@ -11,8 +11,8 @@ MANIFEST = json.loads((ROOT / "jarvis" / "release_manifest.json").read_text(enco
 
 class V013134VisibleNeuralSignalTests(unittest.TestCase):
     def test_release_is_aligned(self):
-        self.assertEqual(MANIFEST["version"], "0.13.181")
-        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.180")
+        self.assertEqual(MANIFEST["version"], "0.13.182")
+        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.181")
 
     def test_signals_render_over_nodes_with_visible_bounded_energy(self):
         node_render = CORE.index("for (const [pointIndex, point] of depthSorted.entries())")

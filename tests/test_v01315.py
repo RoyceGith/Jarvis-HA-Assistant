@@ -21,10 +21,10 @@ MANIFEST = json.loads((ROOT / "jarvis/release_manifest.json").read_text(encoding
 
 class CanonicalModuleArchitectureTests(unittest.TestCase):
     def test_release_markers_are_aligned(self):
-        self.assertIn('version: "0.13.181"', CONFIG)
-        self.assertIn('version="0.13.181"', MAIN_RAW)
-        self.assertIn("HUD 0.13.181", HTML)
-        self.assertEqual(MANIFEST["version"], "0.13.181")
+        self.assertIn('version: "0.13.182"', CONFIG)
+        self.assertIn('version="0.13.182"', MAIN_RAW)
+        self.assertIn("HUD 0.13.182", HTML)
+        self.assertEqual(MANIFEST["version"], "0.13.182")
 
     def test_frontend_is_directly_split_with_stable_order(self):
         stylesheet_paths = re.findall(r'<link[^>]+href="([^"]+\.css)"', HTML)
@@ -39,8 +39,8 @@ class CanonicalModuleArchitectureTests(unittest.TestCase):
             "css/workspace-modern.css",
             "css/contacts.css",
         ])
-        self.assertEqual(len(script_paths), 31)
-        self.assertEqual(script_paths[0], "js/core.js")
+        self.assertEqual(len(script_paths), 32)
+        self.assertEqual(script_paths[:2], ["js/about.js", "js/core.js"])
         self.assertEqual(script_paths[-1], "js/onboarding.js")
         self.assertTrue(all((STATIC / path).is_file() for path in stylesheet_paths + script_paths))
         self.assertLess(len(HTML.encode("utf-8")), 100_000)

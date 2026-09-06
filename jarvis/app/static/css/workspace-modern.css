@@ -1,4 +1,6 @@
 /* v0.13.79: quiet application navigation and GitHub-inspired settings workspace. */
+@import url("about.css");
+
 body > main > nav {
   width: 100%;
   max-width: none;

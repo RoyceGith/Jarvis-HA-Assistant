@@ -1,5 +1,5 @@
 {
-  "version": "0.13.181",
+  "version": "0.13.182",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/ZBRANO_Core main",
@@ -728,20 +728,24 @@
       {
         "version": "0.13.180",
         "summary": "Added dedicated plain-language Home Assistant connection recovery to guided Setup."
+      },
+      {
+        "version": "0.13.181",
+        "summary": "Added friendly Home Assistant configuration labels and validation for the thin public package."
       }
     ],
     "release_entry": {
       "features": [
-        "Add friendly Home Assistant Configuration names and descriptions for every ZBRANO option.",
-        "Identify required, optional, advanced, protected, and legacy fields in plain language.",
-        "Explain the simplest voice-provider setup and direct users to Device Access for entity permissions."
+        "Add a polished top-level About tab that can serve as an in-product ZBRANO showcase.",
+        "Organize conversation, home awareness, automation, memory, connected services, and safety into six feature cards.",
+        "Add a four-step product journey, ownership messaging, and direct actions into Chat, Setup, Device Access, and Automations."
       ],
       "fixes": [
-        "Require the Home Assistant option schema and English configuration translations to remain aligned.",
-        "Honor an explicit repository path when validating a thin public release and reject unexpected files."
+        "Keep the About panel mutually exclusive with every existing full-screen workspace.",
+        "Preserve usable navigation and internal scrolling across desktop, compact, and mobile layouts."
       ],
       "validation": [
-        "Configuration translation parity, public distribution allowlist, target-repository validation, documentation, and v0.13.181 release coverage"
+        "About content structure, navigation isolation, action wiring, responsive presentation, browser interaction, and v0.13.182 release coverage"
       ]
   },
   "features": [

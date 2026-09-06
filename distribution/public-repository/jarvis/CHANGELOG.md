@@ -1,5 +1,13 @@
 # Change log
 
+## 0.13.182
+
+- Added a polished top-level About tab for product presentation and advertising.
+- Organized the existing feature set into six understandable capability groups.
+- Added a four-step product journey and clear ownership and permission messaging.
+- Linked the showcase directly to Chat, Setup, Device Access, and Automations.
+- Added responsive, theme-aware styling and complete navigation coverage.
+
 ## 0.13.181
 
 - Added friendly Home Assistant names and descriptions for every ZBRANO option.

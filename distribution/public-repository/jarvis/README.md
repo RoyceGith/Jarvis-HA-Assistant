@@ -10,6 +10,10 @@ then verifies the required connection. Optional provider fields can remain blank
 
 ## Automation Studio
 
+Version 0.13.182 adds a top-level, responsive About showcase with six organized
+capability groups, a four-step product journey, ownership messaging, and direct
+links into Chat, Setup, Device Access, and Automations.
+
 Version 0.13.181 adds plain names and descriptions to every option shown in Home
 Assistant's ZBRANO Configuration screen, including clear required, optional,
 advanced, protected, and legacy guidance.

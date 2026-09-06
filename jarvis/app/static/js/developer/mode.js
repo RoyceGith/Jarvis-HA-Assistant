@@ -39,10 +39,10 @@
   }
 
   function activateDeveloperPanel() {
-    for (const id of ["chat-panel", "entities-panel", "settings-panel", "plugins-panel", "files-panel", "contacts-panel", "calendar-panel", "developer-panel"]) {
+    for (const id of ["chat-panel", "entities-panel", "settings-panel", "plugins-panel", "files-panel", "contacts-panel", "calendar-panel", "about-panel", "developer-panel"]) {
       document.getElementById(id)?.classList.toggle("hidden", id !== "developer-panel");
     }
-    for (const id of ["chat-tab", "entities-tab", "settings-tab", "plugins-tab", "files-tab", "contacts-tab", "calendar-tab", "developer-tab"]) {
+    for (const id of ["chat-tab", "entities-tab", "settings-tab", "plugins-tab", "files-tab", "contacts-tab", "calendar-tab", "about-tab", "developer-tab"]) {
       document.getElementById(id)?.classList.toggle("active", id === "developer-tab");
     }
   }
@@ -162,7 +162,7 @@
 
   // Existing navigation predates Developer Mode. Hide this panel whenever an
   // older navigation control is used so it cannot overlay Chat/Files/Plugins.
-  for (const id of ["chat-tab", "entities-tab", "settings-tab", "plugins-tab", "files-tab", "new-chat-button"]) {
+  for (const id of ["chat-tab", "entities-tab", "settings-tab", "plugins-tab", "files-tab", "about-tab", "new-chat-button"]) {
     document.getElementById(id)?.addEventListener("click", hideDeveloperPanel, true);
   }
 
