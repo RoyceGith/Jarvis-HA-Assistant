@@ -10,8 +10,8 @@ MANIFEST = json.loads((ROOT / "jarvis" / "release_manifest.json").read_text(enco
 
 class V013133NeuralSignalTests(unittest.TestCase):
     def test_release_is_aligned(self):
-        self.assertEqual(MANIFEST["version"], "0.13.180")
-        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.179")
+        self.assertEqual(MANIFEST["version"], "0.13.181")
+        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.180")
 
     def test_neural_signals_are_sparse_and_bounded(self):
         self.assertIn("let neuralSignals = [];", CORE)

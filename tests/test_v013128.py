@@ -15,8 +15,8 @@ class ArmBrowserGateReleaseTests(unittest.TestCase):
         self.assertIn("Wait 2 sec", BROWSER)
 
     def test_release_is_aligned(self):
-        self.assertEqual(MANIFEST["version"], "0.13.180")
-        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.179")
+        self.assertEqual(MANIFEST["version"], "0.13.181")
+        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.180")
 
 
 if __name__ == "__main__":

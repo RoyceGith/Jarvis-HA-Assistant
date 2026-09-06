@@ -38,24 +38,35 @@ PERSONAL_DEFAULTS = (
 )
 PRODUCT_DEFAULT_FILES = (
     "jarvis/config.yaml",
+    "jarvis/translations/en.yaml",
     "jarvis/app/static/index.html",
     "jarvis/app/static/js/automations/workspace.js",
 )
+PUBLIC_DISTRIBUTION_FILES = {
+    "README.md",
+    "repository.yaml",
+    "jarvis/README.md",
+    "jarvis/CHANGELOG.md",
+    "jarvis/config.yaml",
+    "jarvis/translations/en.yaml",
+}
 
 
-def tracked_paths() -> list[str]:
+def tracked_paths(root: Path = ROOT) -> list[str]:
     result = subprocess.run(
         ["git", "ls-files", "-z"],
-        cwd=ROOT,
+        cwd=root,
         check=True,
         capture_output=True,
     )
     return [item.decode("utf-8") for item in result.stdout.split(b"\0") if item]
 
 
-def validate(paths: list[str] | None = None) -> list[str]:
+def validate(paths: list[str] | None = None, *, root: Path = ROOT) -> list[str]:
     errors: list[str] = []
-    paths = tracked_paths() if paths is None else paths
+    root = Path(root).resolve()
+    paths = tracked_paths(root) if paths is None else paths
+    normalized_paths = {path.replace("\\", "/") for path in paths}
     for path in paths:
         normalized = path.replace("\\", "/")
         name = Path(normalized).name.lower()
@@ -64,19 +75,31 @@ def validate(paths: list[str] | None = None) -> list[str]:
         if name in FORBIDDEN_NAMES or name.endswith(FORBIDDEN_SUFFIXES):
             errors.append(f"secret-bearing filename is tracked: {normalized}")
 
-    ignore_text = (ROOT / ".gitignore").read_text(encoding="utf-8")
-    for marker in REQUIRED_IGNORES:
-        if marker not in ignore_text:
-            errors.append(f"missing public-boundary ignore rule: {marker}")
+    thin_distribution = "jarvis/config.yaml" in normalized_paths and ".github/workflows/build.yaml" not in normalized_paths
+    if thin_distribution:
+        for path in sorted(PUBLIC_DISTRIBUTION_FILES - normalized_paths):
+            errors.append(f"required public distribution file is missing: {path}")
+        for path in sorted(normalized_paths - PUBLIC_DISTRIBUTION_FILES):
+            errors.append(f"unexpected file in thin public distribution: {path}")
+    else:
+        ignore_text = (root / ".gitignore").read_text(encoding="utf-8")
+        for marker in REQUIRED_IGNORES:
+            if marker not in ignore_text:
+                errors.append(f"missing public-boundary ignore rule: {marker}")
 
-    repository = (ROOT / "repository.yaml").read_text(encoding="utf-8")
+    repository = (root / "repository.yaml").read_text(encoding="utf-8")
     if "name: ZBRANO" not in repository:
         errors.append("repository.yaml must use the ZBRANO product name")
     if "https://github.com/RoyceGith/ZBRANO_HA_Assistant" not in repository:
         errors.append("repository.yaml must point to the canonical public repository")
 
     for relative in PRODUCT_DEFAULT_FILES:
-        content = (ROOT / relative).read_text(encoding="utf-8").lower()
+        candidate = root / relative
+        if not candidate.is_file():
+            if thin_distribution and relative in PUBLIC_DISTRIBUTION_FILES:
+                errors.append(f"required product metadata is missing: {relative}")
+            continue
+        content = candidate.read_text(encoding="utf-8").lower()
         for personal in PERSONAL_DEFAULTS:
             if personal in content:
                 errors.append(f"personal default {personal!r} found in {relative}")
@@ -84,7 +107,8 @@ def validate(paths: list[str] | None = None) -> list[str]:
 
 
 def main() -> int:
-    errors = validate()
+    root = Path(sys.argv[1]).resolve() if len(sys.argv) > 1 else ROOT
+    errors = validate(root=root)
     if errors:
         for error in errors:
             print(f"ERROR: {error}", file=sys.stderr)

@@ -43,7 +43,9 @@ published GHCR image and contains no current application source or build workflo
 Source commits made after the split exist only in `ZBRANO_Core`; historical source
 that was already public remains reachable and cannot be retroactively revoked.
 The v0.13.57 bridge commit joins both public transition histories while retaining
-only the five allowlisted distribution files in its current tree.
+only explicitly allowlisted distribution files in its current tree. Home Assistant
+configuration translations are presentation metadata and may ship beside the app
+configuration without exposing application source.
 The v0.13.58 release preserves that bridge and aligns the container-only release
 fixtures with the published runtime version.
 

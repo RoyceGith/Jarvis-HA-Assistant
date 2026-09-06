@@ -1,5 +1,12 @@
 # Change log
 
+## 0.13.181
+
+- Added friendly Home Assistant names and descriptions for every ZBRANO option.
+- Identified required, optional, advanced, protected, and legacy configuration fields.
+- Added release validation that prevents untranslated configuration options.
+- Fixed public-boundary validation so an explicitly supplied public repository is actually checked.
+
 ## 0.13.180
 
 - Fixed the Home Assistant setup action so it opens connection help, not Device Access.

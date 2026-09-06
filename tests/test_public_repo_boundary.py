@@ -29,6 +29,12 @@ class PublicRepositoryBoundaryTests(unittest.TestCase):
         self.assertIn("contains no current application source or build workflow", text)
         self.assertIn("must not import private source code", text)
 
+    def test_thin_distribution_allowlist_includes_friendly_configuration(self):
+        paths = sorted(BOUNDARY.PUBLIC_DISTRIBUTION_FILES)
+        self.assertEqual(BOUNDARY.validate(paths, root=ROOT), [])
+        errors = BOUNDARY.validate(paths + ["jarvis/app/main.py"], root=ROOT)
+        self.assertTrue(any("unexpected file" in item for item in errors))
+
 
 if __name__ == "__main__":
     unittest.main()

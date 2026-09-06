@@ -1,5 +1,5 @@
 {
-  "version": "0.13.180",
+  "version": "0.13.181",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/ZBRANO_Core main",
@@ -724,20 +724,24 @@
       {
         "version": "0.13.179",
         "summary": "Aligned onboarding and installation reporting with Sensor device and Control device access."
+      },
+      {
+        "version": "0.13.180",
+        "summary": "Added dedicated plain-language Home Assistant connection recovery to guided Setup."
       }
     ],
     "release_entry": {
       "features": [
-        "Add dedicated Home Assistant connection help to guided Setup.",
-        "Explain the automatic Supervisor-provided connection without asking users for an address or access token.",
-        "Provide direct app-status, wait, log, restart, and connection-recheck guidance."
+        "Add friendly Home Assistant Configuration names and descriptions for every ZBRANO option.",
+        "Identify required, optional, advanced, protected, and legacy fields in plain language.",
+        "Explain the simplest voice-provider setup and direct users to Device Access for entity permissions."
       ],
       "fixes": [
-        "Stop the Home Assistant setup action from incorrectly opening Device Access.",
-        "Replace WebSocket terminology and raw connection errors with a plain recovery message."
+        "Require the Home Assistant option schema and English configuration translations to remain aligned.",
+        "Honor an explicit repository path when validating a thin public release and reject unexpected files."
       ],
       "validation": [
-        "Home Assistant setup target, recovery-guide content, generic recheck wiring, browser interaction, and v0.13.180 release coverage"
+        "Configuration translation parity, public distribution allowlist, target-repository validation, documentation, and v0.13.181 release coverage"
       ]
   },
   "features": [

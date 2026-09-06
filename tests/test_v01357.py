@@ -14,10 +14,10 @@ MANIFEST = json.loads((ROOT / "jarvis/release_manifest.json").read_text(encoding
 
 class PublicHistoryBridgeReleaseTests(unittest.TestCase):
     def test_release_markers_are_aligned(self):
-        self.assertIn('version: "0.13.180"', CONFIG)
-        self.assertIn('version="0.13.180"', MAIN)
-        self.assertIn("HUD 0.13.180", HTML)
-        self.assertEqual(MANIFEST["version"], "0.13.180")
+        self.assertIn('version: "0.13.181"', CONFIG)
+        self.assertIn('version="0.13.181"', MAIN)
+        self.assertIn("HUD 0.13.181", HTML)
+        self.assertEqual(MANIFEST["version"], "0.13.181")
 
     def test_both_public_transition_heads_are_recorded(self):
         self.assertIn('PUBLIC_HISTORY_BASE = "7036f4f0d89929b1db9f7ab5a64aabee2244908b"', EXPORTER)
@@ -25,10 +25,11 @@ class PublicHistoryBridgeReleaseTests(unittest.TestCase):
         self.assertIn("cached on either side of the transition", BOUNDARY)
 
     def test_public_tree_remains_thin(self):
-        self.assertIn("five allowlisted distribution files", BOUNDARY)
+        self.assertIn("explicitly allowlisted distribution files", BOUNDARY)
+        self.assertIn("configuration translations are presentation metadata", BOUNDARY)
 
     def test_release_history_includes_v01356(self):
-        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.179")
+        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.180")
 
 
 if __name__ == "__main__":

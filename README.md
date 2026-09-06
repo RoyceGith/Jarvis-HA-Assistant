@@ -1,9 +1,14 @@
-## ZBRANO v0.13.180
+## ZBRANO v0.13.181
 
 ZBRANO combines Home Assistant chat, voice, entity control, memory, notifications,
 calendar and contact tools, plugins, and evidence-based automations. Automation Studio now uses
 a visual building-block toolbox, interactive node canvas, and contextual inspector;
 the established automation engine and stored definitions remain compatible.
+
+Version 0.13.181 makes Home Assistant's ZBRANO Configuration screen understandable.
+Every option now has a friendly name and explanation covering required, optional,
+advanced, protected, and legacy fields. Release checks require complete option
+translations and now validate the actual thin public repository passed to them.
 
 Version 0.13.180 gives the Home Assistant setup step its own connection-recovery
 guide instead of sending users to Device Access. It explains the automatic
