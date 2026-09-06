@@ -13,10 +13,10 @@ MANIFEST = json.loads((ROOT / "jarvis" / "release_manifest.json").read_text(enco
 
 class V013131PaletteTests(unittest.TestCase):
     def test_release_is_aligned(self):
-        self.assertEqual(MANIFEST["version"], "0.13.174")
-        self.assertIn('version: "0.13.174"', (ROOT / "jarvis" / "config.yaml").read_text(encoding="utf-8"))
-        self.assertIn('version="0.13.174"', (ROOT / "jarvis" / "app" / "main.py").read_text(encoding="utf-8"))
-        self.assertIn("HUD 0.13.174", (ROOT / "jarvis" / "app" / "static" / "index.html").read_text(encoding="utf-8"))
+        self.assertEqual(MANIFEST["version"], "0.13.175")
+        self.assertIn('version: "0.13.175"', (ROOT / "jarvis" / "config.yaml").read_text(encoding="utf-8"))
+        self.assertIn('version="0.13.175"', (ROOT / "jarvis" / "app" / "main.py").read_text(encoding="utf-8"))
+        self.assertIn("HUD 0.13.175", (ROOT / "jarvis" / "app" / "static" / "index.html").read_text(encoding="utf-8"))
 
     def test_legacy_green_theme_tokens_match_talk_blue(self):
         self.assertEqual(BASE_CSS.count("--phosphor: #5cecff;"), 1)

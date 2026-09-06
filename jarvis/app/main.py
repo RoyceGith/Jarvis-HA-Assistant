@@ -717,7 +717,7 @@ ha_ws = HomeAssistantWebSocketClient(
 
 app = FastAPI(
     title="ZBRANO",
-    version="0.13.174",
+    version="0.13.175",
     docs_url="/api/docs",
     openapi_url="/api/openapi.json",
 )
@@ -2821,7 +2821,7 @@ async def health() -> dict[str, Any]:
     configured_speech_provider = SPEECH_PROVIDER if SPEECH_PROVIDER in {"openai", "elevenlabs"} else "openai"
     return {
         "status": "ok",
-        "version": "0.13.174",
+        "version": "0.13.175",
         "home_assistant_configured": bool(SUPERVISOR_TOKEN),
         "workshop_memory_configured": bool(WORKSHOP_MEMORY_URL),
         "workshop_memory_cost_guard": workshop_cost_guard_status(),
@@ -2973,8 +2973,7 @@ async def start_ha_websocket() -> None:
         # App remains available; the client reconnects lazily and REST is a fallback.
         pass
 
-    # Apply the owner's socket/HVAC auto-approval policy without requiring the
-    # Entities screen to be opened first.
+    # Prime the installation inventory without changing any entity permission.
     with contextlib.suppress(HTTPException, OSError, RuntimeError):
         await list_ha_entities()
     if NOTIFICATION_WATCH_TASK is None or NOTIFICATION_WATCH_TASK.done():
@@ -5645,7 +5644,7 @@ async def list_ha_entities(refresh: bool = False) -> dict[str, Any]:
             "icon": attributes.get("icon"),
             "risk": risk,
             "control_capable": domain in SAFE_CONTROL_DOMAINS,
-            "auto_approved": risk == "low_risk_control_proposed",
+            "auto_approved": False,
             "last_changed": item.get("last_changed"),
             "last_updated": item.get("last_updated"),
             "area_id": area.get("area_id") or "",
@@ -5657,29 +5656,6 @@ async def list_ha_entities(refresh: bool = False) -> dict[str, Any]:
             "site_name": area.get("site_name") or "",
             "zone_entity_id": area.get("zone_entity_id") or "",
         })
-
-    policy = load_entity_policy()
-    policy_changed = False
-    for entity in entities:
-        if not entity["auto_approved"]:
-            continue
-        existing = policy.get(entity["entity_id"], {})
-        updated = {
-            **existing,
-            "enabled": True,
-            "friendly_name": entity["friendly_name"],
-            "domain": entity["domain"],
-            "device_class": entity["device_class"],
-            "unit": entity["unit"],
-            "access": "low_risk_control_proposed",
-            "aliases": existing.get("aliases", []),
-            "auto_approved": True,
-        }
-        if existing != updated:
-            policy[entity["entity_id"]] = updated
-            policy_changed = True
-    if policy_changed:
-        save_entity_policy(policy)
 
     entities.sort(key=lambda entity: (
         str(entity.get("domain", "")).lower(),

@@ -1742,8 +1742,8 @@ function entityStateLabel(entity) {
 function ensureReview(entity) {
   if (!entityReview.has(entity.entity_id)) {
     entityReview.set(entity.entity_id, {
-      selected: Boolean(entity.auto_approved),
-      access: entity.auto_approved ? "low_risk_control_proposed" : entity.risk,
+      selected: false,
+      access: entity.risk,
       aliases: "",
     });
   }
@@ -1847,10 +1847,7 @@ function renderEntities() {
     const checkbox = document.createElement("input");
     checkbox.type = "checkbox";
     checkbox.checked = review.selected;
-    checkbox.disabled = Boolean(entity.auto_approved);
-    checkbox.title = entity.auto_approved
-      ? "Automatically approved by socket/HVAC policy"
-      : "Include this entity in ZBRANO policy";
+    checkbox.title = "Allow ZBRANO to use this entity with the selected access";
     checkbox.addEventListener("change", () => {
       review.selected = checkbox.checked;
       updateSelectionSummary();
@@ -1861,7 +1858,6 @@ function renderEntities() {
 
     const nameCell = document.createElement("td");
     nameCell.textContent = entity.friendly_name;
-    if (entity.auto_approved) nameCell.textContent += " · AUTO";
     row.appendChild(nameCell);
 
     const idCell = document.createElement("td");
@@ -1925,7 +1921,6 @@ function renderEntities() {
       review.access = accessSelect.value;
       if (review.selected) queuePolicySave(entity, review);
     });
-    accessSelect.disabled = Boolean(entity.auto_approved);
     accessCell.appendChild(accessSelect);
     row.appendChild(accessCell);
 
@@ -2008,10 +2003,8 @@ async function loadEntities() {
       if (existing || hasLocalAliases) {
         const restoredAliases = hasLocalAliases ? localAliases : serverAliases;
         entityReview.set(entity.entity_id, {
-          selected: entity.auto_approved || Boolean(existing && existing.enabled),
-          access: entity.auto_approved
-            ? "low_risk_control_proposed"
-            : ((existing && existing.access) || entity.risk),
+          selected: Boolean(existing && existing.enabled),
+          access: (existing && existing.access) || entity.risk,
           aliases: restoredAliases,
         });
         if (!hasLocalAliases && serverAliases) {

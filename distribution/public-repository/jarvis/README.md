@@ -10,9 +10,12 @@ then verifies the required connection. Optional provider fields can remain blank
 
 ## Automation Studio
 
-Version 0.13.174 adds a safe entity-permission guide with Sensor devices, Control
-devices, and All entities views. It shows live installation counts and opens from
-Setup without bulk-approving or silently expanding device authority.
+Version 0.13.175 requires explicit selection before newly discovered devices gain
+ZBRANO access. Socket and HVAC heuristics now recommend an access level without
+granting it, while existing saved permissions remain compatible and revocable.
+
+Version 0.13.174 adds safe Sensor, Control, and All entity permission views with
+live installation counts and no bulk approval.
 
 Version 0.13.173 adds an in-product Home Assistant AI configuration guide with a
 clear save, restart, and verification sequence.

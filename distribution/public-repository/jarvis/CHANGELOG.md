@@ -1,5 +1,12 @@
 # Change log
 
+## 0.13.175
+
+- Stopped inventory loading and startup from automatically granting device control.
+- Required an explicit checkbox for every newly discovered entity permission.
+- Preserved existing saved permissions and made old automatic records revocable.
+- Kept socket and HVAC detection only as a recommended access level.
+
 ## 0.13.174
 
 - Added Sensor devices, Control devices, and All entities permission views.

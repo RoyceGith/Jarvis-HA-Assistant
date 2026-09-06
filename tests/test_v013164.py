@@ -20,11 +20,11 @@ MANIFEST = json.loads((ROOT / "jarvis/release_manifest.json").read_text(encoding
 
 class OwnerExtensionMigrationReleaseTests(unittest.TestCase):
     def test_release_is_aligned(self):
-        self.assertIn('version: "0.13.174"', CONFIG)
-        self.assertIn('version="0.13.174"', MAIN)
-        self.assertIn("HUD 0.13.174", HTML)
-        self.assertEqual(MANIFEST["version"], "0.13.174")
-        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.173")
+        self.assertIn('version: "0.13.175"', CONFIG)
+        self.assertIn('version="0.13.175"', MAIN)
+        self.assertIn("HUD 0.13.175", HTML)
+        self.assertEqual(MANIFEST["version"], "0.13.175")
+        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.174")
 
     def test_default_installation_does_not_create_private_extension_file(self):
         with TemporaryDirectory() as directory:

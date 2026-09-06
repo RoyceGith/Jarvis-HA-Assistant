@@ -1,14 +1,17 @@
-## ZBRANO v0.13.174
+## ZBRANO v0.13.175
 
 ZBRANO combines Home Assistant chat, voice, entity control, memory, notifications,
 calendar and contact tools, plugins, and evidence-based automations. Automation Studio now uses
 a visual building-block toolbox, interactive node canvas, and contextual inspector;
 the established automation engine and stored definitions remain compatible.
 
-Version 0.13.174 adds a safe entity-permission guide with clear Sensor devices,
-Control devices, and All entities views. It shows installation-specific counts
-and opens directly from Setup. Filtering never approves anything; access changes
-only when the user deliberately selects an entity.
+Version 0.13.175 requires explicit selection before any newly discovered socket,
+thermostat, HVAC entity, or other device receives ZBRANO access. Existing saved
+permissions remain compatible and can now be revoked normally. Device heuristics
+only recommend an access level; inventory loading never grants it.
+
+Version 0.13.174 adds safe Sensor, Control, and All entity permission views with
+live installation counts and no bulk approval.
 
 Version 0.13.173 replaces the AI model setup dead end with a four-step Home
 Assistant configuration guide while keeping credential entry in Home Assistant.

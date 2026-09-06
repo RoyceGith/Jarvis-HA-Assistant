@@ -1,5 +1,5 @@
 {
-  "version": "0.13.174",
+  "version": "0.13.175",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/ZBRANO_Core main",
@@ -700,20 +700,24 @@
     {
       "version": "0.13.173",
       "summary": "Added a guided Home Assistant AI configuration sequence with restart and verification handoff."
+    },
+    {
+      "version": "0.13.174",
+      "summary": "Added safe Sensor, Control, and All entity permission views with live installation counts."
     }
   ],
   "release_entry": {
     "features": [
-      "Add a plain-language entity permission guide with separate Sensor devices, Control devices, and All entities views.",
-      "Show live installation-specific counts for each permission category and open the guide directly from onboarding.",
-      "Mark control-capable inventory records from the backend's existing safe control-domain policy."
+      "Require an explicit per-entity checkbox before newly discovered sockets, thermostats, HVAC devices, or other controls become available to ZBRANO.",
+      "Keep the existing socket and HVAC heuristic only as a recommended access level for easier manual setup.",
+      "Preserve every already-saved entity permission and make previously automatic records normally editable and revocable."
     ],
     "fixes": [
-      "Make clear that filtering never grants access and that only a deliberate entity checkbox changes permission.",
-      "Avoid bulk approval or silently expanded control authority while helping new users navigate a large Home Assistant inventory."
+      "Stop Home Assistant inventory loading and application startup from writing new control permissions automatically.",
+      "Remove forced AUTO labels and disabled permission controls from the entity inventory."
     ],
     "validation": [
-      "Safe control classification, permission filtering, no-bulk-write boundary, onboarding handoff, responsive UI, browser interaction, and v0.13.174 release coverage"
+      "No-automatic-write policy, saved-permission compatibility, explicit unchecked controls, editable revocation, browser interaction, and v0.13.175 release coverage"
     ]
   },
   "features": [

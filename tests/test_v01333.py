@@ -20,10 +20,10 @@ MANIFEST = json.loads((ROOT / "jarvis/release_manifest.json").read_text(encoding
 
 class PluginStorageAndPolicyBoundaryTests(unittest.TestCase):
     def test_release_markers_are_aligned(self):
-        self.assertIn('version: "0.13.174"', CONFIG)
-        self.assertIn('version="0.13.174"', MAIN)
-        self.assertIn("HUD 0.13.174", HTML)
-        self.assertEqual(MANIFEST["version"], "0.13.174")
+        self.assertIn('version: "0.13.175"', CONFIG)
+        self.assertIn('version="0.13.175"', MAIN)
+        self.assertIn("HUD 0.13.175", HTML)
+        self.assertEqual(MANIFEST["version"], "0.13.175")
 
     def test_both_services_are_outside_composition_root(self):
         self.assertNotIn("def _plugin_load(", MAIN)
