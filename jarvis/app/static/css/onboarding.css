@@ -125,6 +125,15 @@
 .onboarding-step-actions button:first-child { color: var(--cyan); }
 .onboarding-guide-actions { display: flex; justify-content: space-between; gap: .5rem; margin-top: .8rem; }
 .onboarding-summary { margin-top: .8rem; padding: .7rem .8rem; border: 1px solid color-mix(in srgb, var(--line) 60%, transparent); border-radius: 10px; color: var(--text-muted); }
+.onboarding-configuration-help { margin-top:.8rem; padding:1rem; border:1px solid color-mix(in srgb,var(--cyan) 54%,var(--line)); border-radius:12px; background:color-mix(in srgb,var(--cyan) 6%,var(--surface)); }
+.onboarding-configuration-help[hidden] { display:none; }
+.onboarding-configuration-heading { display:flex; align-items:flex-start; justify-content:space-between; gap:1rem; }
+.onboarding-configuration-heading h3 { margin:.2rem 0 0; }
+.onboarding-configuration-help > p { color:var(--text-muted); line-height:1.45; }
+.onboarding-configuration-help ol { display:grid; gap:.55rem; margin:.8rem 0; padding-left:1.35rem; line-height:1.45; }
+.onboarding-configuration-help code { padding:.12rem .3rem; border:1px solid var(--line); border-radius:5px; color:var(--cyan); background:var(--surface); }
+.onboarding-configuration-optional { padding:.65rem .75rem; border-left:3px solid var(--cyan); background:color-mix(in srgb,var(--cyan) 7%,transparent); }
+.onboarding-configuration-actions { display:flex; flex-wrap:wrap; gap:.45rem; margin-top:.8rem; }
 
 .onboarding-complete-card {
   display: grid;
@@ -176,6 +185,9 @@
   .onboarding-step { grid-template-columns: 1fr; }
   .onboarding-step-actions { align-self: stretch; display: grid; grid-template-columns: 1fr 1fr; }
   .onboarding-step-actions button { width: 100%; }
+  .onboarding-configuration-heading { display:grid; }
+  .onboarding-configuration-heading button { justify-self:start; }
+  .onboarding-configuration-actions { display:grid; }
   .onboarding-complete-actions { width: 100%; flex-direction: column; }
   .onboarding-complete-actions button { width: 100%; }
   .onboarding-report-checks { grid-template-columns:1fr; }

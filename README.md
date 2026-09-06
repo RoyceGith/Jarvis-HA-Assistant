@@ -1,14 +1,18 @@
-## ZBRANO v0.13.172
+## ZBRANO v0.13.173
 
 ZBRANO combines Home Assistant chat, voice, entity control, memory, notifications,
 calendar and contact tools, plugins, and evidence-based automations. Automation Studio now uses
 a visual building-block toolbox, interactive node canvas, and contextual inspector;
 the established automation engine and stored definitions remain compatible.
 
+Version 0.13.173 replaces the AI model setup dead end with a four-step Home
+Assistant configuration guide. It names the required field, explains save and
+restart, verifies the key afterward, and makes clear that unrelated provider
+settings may remain blank. Credential entry stays in Home Assistant.
+
 Version 0.13.172 adds a shareable Installation Report to completed Setup. It checks
-core and optional connections, persistent storage, backup availability, entity
-permission counts, and automation safety totals. Copied and downloaded reports
-exclude credentials, entity IDs, messages, and personal data.
+core and optional connections, storage, backup availability, permission counts,
+and automation safety totals without exposing private configuration.
 
 Version 0.13.167 completes the onboarding handoff. Finishing Setup now shows a
 clear ZBRANO is ready screen, separates capabilities that are ready from those

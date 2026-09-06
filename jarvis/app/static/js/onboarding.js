@@ -11,16 +11,43 @@
   const skip = document.getElementById("onboarding-skip");
   const next = document.getElementById("onboarding-next");
   const summary = document.getElementById("onboarding-summary");
+  const configurationHelp = document.createElement("aside");
+  configurationHelp.id = "onboarding-configuration-help";
+  configurationHelp.className = "onboarding-configuration-help";
+  configurationHelp.setAttribute("aria-labelledby", "onboarding-configuration-title");
+  configurationHelp.hidden = true;
+  configurationHelp.innerHTML = `
+    <div class="onboarding-configuration-heading">
+      <div><span class="onboarding-kicker">HOME ASSISTANT APP SETTINGS</span><h3 id="onboarding-configuration-title">Connect the AI model</h3></div>
+      <button id="onboarding-configuration-close" type="button" aria-label="Close configuration guide">Close</button>
+    </div>
+    <p>Your credential stays in Home Assistant's protected app configuration. ZBRANO never displays it on this page.</p>
+    <ol>
+      <li>In Home Assistant, open <strong>Settings → Apps → ZBRANO → Configuration</strong>.</li>
+      <li>Paste your own OpenAI API key into <code>openai_api_key</code>. The default <code>openai_model</code> can be kept.</li>
+      <li>Select <strong>Save</strong>, then restart the ZBRANO app so the protected setting is loaded.</li>
+      <li>Return here and select <strong>Verify key</strong>. ZBRANO checks the connection without revealing the key.</li>
+    </ol>
+    <p class="onboarding-configuration-optional"><strong>Optional fields can stay blank.</strong> ElevenLabs, Google, GitHub, and Workshop Memory settings are only needed when you choose those capabilities later.</p>
+    <div class="onboarding-configuration-actions">
+      <button id="onboarding-configuration-copy" type="button">Copy field name</button>
+      <button id="onboarding-configuration-verify" type="button">Verify after restart</button>
+    </div>`;
+  summary.after(configurationHelp);
+  const configurationClose = document.getElementById("onboarding-configuration-close");
+  const configurationCopy = document.getElementById("onboarding-configuration-copy");
+  const configurationVerify = document.getElementById("onboarding-configuration-verify");
   const guideActions = document.querySelector(".onboarding-guide-actions");
   const checkRequired = document.getElementById("onboarding-check-required");
   const recheck = document.getElementById("onboarding-recheck");
   const complete = document.getElementById("onboarding-complete");
   const dismiss = document.getElementById("onboarding-dismiss");
-  if (!setupTab || !list || !progress || !progressBar || !progressLabel || !message || !previous || !skip || !next || !summary || !guideActions || !checkRequired || !recheck || !complete || !dismiss) return;
+  if (!setupTab || !list || !progress || !progressBar || !progressLabel || !message || !previous || !skip || !next || !summary || !configurationHelp || !configurationClose || !configurationCopy || !configurationVerify || !guideActions || !checkRequired || !recheck || !complete || !dismiss) return;
   let latestData = null;
   let reviewingCompleted = false;
 
   function openTarget(target) {
+    configurationHelp.hidden = true;
     if (target === "entities") return document.getElementById("entities-tab")?.click();
     if (target === "plugins") return document.getElementById("plugins-tab")?.click();
     if (target === "notifications") {
@@ -29,7 +56,9 @@
       return;
     }
     if (target === "model") {
-      message.textContent = "Open the ZBRANO app Configuration page in Home Assistant to add or change the OpenAI API key.";
+      configurationHelp.hidden = false;
+      message.textContent = "Follow the four steps below. Keep the API key in Home Assistant's protected app configuration.";
+      configurationHelp.scrollIntoView({behavior: "smooth", block: "nearest"});
       return;
     }
     document.querySelector(`[data-settings-target="${CSS.escape(target)}"]`)?.click();
@@ -94,7 +123,7 @@
     }
   }
 
-  async function copyInstallationSummary(text, button) {
+  async function copyInstallationSummary(text, button, copiedLabel = "Copied", resetLabel = "Copy support summary") {
     try {
       if (navigator.clipboard?.writeText) await navigator.clipboard.writeText(text);
       else {
@@ -107,12 +136,23 @@
         if (!document.execCommand("copy")) throw new Error("Copy is unavailable");
         field.remove();
       }
-      button.textContent = "Copied";
-      window.setTimeout(() => { button.textContent = "Copy support summary"; }, 1600);
+      button.textContent = copiedLabel;
+      window.setTimeout(() => { button.textContent = resetLabel; }, 1600);
     } catch (error) {
-      message.textContent = `Could not copy the support summary: ${error.message || error}`;
+      message.textContent = `Could not copy this text: ${error.message || error}`;
     }
   }
+
+  configurationClose.addEventListener("click", () => {
+    configurationHelp.hidden = true;
+    message.textContent = "Configuration help closed. You can reopen it from the AI model setup step.";
+  });
+  configurationCopy.addEventListener("click", () => copyInstallationSummary("openai_api_key", configurationCopy, "Copied field name", "Copy field name"));
+  configurationVerify.addEventListener("click", () => {
+    const modelStep = [...list.querySelectorAll(".onboarding-step")].find(row => row.querySelector("strong")?.textContent.includes("AI model"));
+    const check = modelStep?.querySelector(".onboarding-step-actions button:first-child");
+    if (check) check.click();
+  });
 
   function installationReportElement(data) {
     const report = data.installation_report || {};
@@ -168,6 +208,7 @@
   }
 
   function renderCompletion(data, steps) {
+    configurationHelp.hidden = true;
     const ready = steps.filter(step => step.ready);
     const later = steps.filter(step => !step.ready);
     const card = document.createElement("article");
@@ -344,6 +385,7 @@
   }
 
   async function saveProgress(stepId, skippedStep = null) {
+    configurationHelp.hidden = true;
     const response = await fetch("api/onboarding/progress", {
       method: "PUT",
       headers: {"Content-Type": "application/json"},

@@ -1,6 +1,6 @@
 # ZBRANO for Home Assistant
 
-Current release: **0.13.172**
+Current release: **0.13.173**
 
 This is the public Home Assistant installation and update repository for ZBRANO.
 The application is delivered as a prebuilt container image. The current repository
@@ -16,15 +16,23 @@ update compatibility; post-split source and build history remain private.
 3. Select **ZBRANO**, install it, configure the required credentials and entity
    permissions, then start the app.
 
+For the required AI connection, open **Settings → Apps → ZBRANO → Configuration**,
+put your own OpenAI API key in `openai_api_key`, save, and restart ZBRANO. The
+guided Setup screen verifies the connection. Other provider fields are optional
+and may remain blank until you choose to use those capabilities.
+
 Existing ZBRANO installations retain the same add-on slug, configuration, `/data`
 storage, and `ghcr.io/roycegith/jarvis-ha-assistant` update image.
 
 ## Current experience
 
-Version 0.13.172 adds a shareable Installation Report to completed Setup. It checks
-core and optional connections, persistent storage, backup availability, entity
-permission counts, and automation safety totals. Copied and downloaded reports
-exclude credentials, entity IDs, messages, and personal data.
+Version 0.13.173 adds a four-step Home Assistant configuration guide directly to
+the AI model setup step. It names the required field, explains save and restart,
+offers verification afterward, and keeps optional provider settings clearly
+separate from the required connection.
+
+Version 0.13.172 adds a shareable Installation Report covering connections,
+storage, backup, permissions, and automation safety without exposing private data.
 
 Version 0.13.167 adds a proper onboarding completion screen with a clear readiness
 summary, optional capabilities available later, and direct Start chatting or

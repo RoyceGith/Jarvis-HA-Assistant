@@ -15,11 +15,11 @@ MANIFEST = json.loads((ROOT / "jarvis/release_manifest.json").read_text(encoding
 
 class FocusedOnboardingReleaseTests(unittest.TestCase):
     def test_release_is_aligned(self):
-        self.assertIn('version: "0.13.172"', CONFIG)
-        self.assertIn('version="0.13.172"', MAIN)
-        self.assertIn("HUD 0.13.172", HTML)
-        self.assertEqual(MANIFEST["version"], "0.13.172")
-        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.171")
+        self.assertIn('version: "0.13.173"', CONFIG)
+        self.assertIn('version="0.13.173"', MAIN)
+        self.assertIn("HUD 0.13.173", HTML)
+        self.assertEqual(MANIFEST["version"], "0.13.173")
+        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.172")
 
     def test_setup_is_one_focused_step_with_a_compact_rail(self):
         self.assertIn('rail.className = "onboarding-step-rail"', ONBOARDING)

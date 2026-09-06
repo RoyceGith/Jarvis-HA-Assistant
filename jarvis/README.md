@@ -1,14 +1,18 @@
-# ZBRANO v0.13.172
+# ZBRANO v0.13.173
 
 Automation Studio provides a graphical, step-by-step workflow for Home Assistant
 automations. Use Setup &amp; safety, When, Only if, Then, and optional Outcomes beside the
 interactive flow canvas. Natural-language creation, templates, drag-and-drop,
 saved automation compatibility, and the full Advanced editor remain available.
 
-Version 0.13.172 adds a shareable Installation Report to completed Setup. It checks
-core and optional connections, persistent storage, backup availability, entity
-permission counts, and automation safety totals. Its copy and download actions
-produce sanitized support information without private configuration details.
+Version 0.13.173 adds an in-product Home Assistant configuration guide to the AI
+model setup step. It identifies the required field, explains save and restart,
+offers verification afterward, and distinguishes optional provider settings while
+keeping credential entry outside the ZBRANO web interface.
+
+Version 0.13.172 adds a shareable Installation Report covering connections,
+storage, backup, permission counts, and automation safety totals with sanitized
+copy and download actions.
 
 Version 0.13.167 gives completed onboarding a useful destination. The final screen
 shows ready and later capabilities separately, opens Chat directly, and lets users
