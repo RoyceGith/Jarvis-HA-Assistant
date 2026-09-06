@@ -12,8 +12,8 @@ MANIFEST = json.loads((ROOT / "jarvis/release_manifest.json").read_text(encoding
 
 class WhenCardAndAutomaticFlowReleaseTests(unittest.TestCase):
     def test_release_is_aligned(self):
-        self.assertEqual(MANIFEST["version"], "0.13.162")
-        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.161")
+        self.assertEqual(MANIFEST["version"], "0.13.163")
+        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.162")
 
     def test_when_step_has_dedicated_event_choices(self):
         for preset in ("sensor", "power_on", "power_off", "time", "sun", "interval", "one_time"):
@@ -30,12 +30,11 @@ class WhenCardAndAutomaticFlowReleaseTests(unittest.TestCase):
         self.assertIn("'.automation-workflow-step').count(), 1", BROWSER)
         self.assertIn("'#studio-automation-trigger-entity').count(), 0", BROWSER)
 
-    def test_automatic_flows_remove_disconnected_messages(self):
+    def test_branch_messages_remain_connected_regardless_of_task_authority(self):
         self.assertIn('showMessages=!["observe","autonomous"].includes(a.execution_policy)', FLOW)
         self.assertIn("if(showMessages)flow.append", FLOW)
-        self.assertIn("if(showMessages)lane.append(say,connector())", FLOW)
-        self.assertIn('data-flow-kind="decision"', BROWSER)
-        self.assertIn('"#studio-automation-proposal").count(), 0', BROWSER)
+        self.assertIn("friendlyResultsStage(branches,name,visual,interactive,true)", FLOW)
+        self.assertIn('data-flow-kind="branch-message"', BROWSER)
 
 
 if __name__ == "__main__":

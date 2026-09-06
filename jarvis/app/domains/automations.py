@@ -536,6 +536,7 @@ def _automation_payload(request):
     } for item in payload.get("actions") or []]
     payload["branches"] = [{
         "name": " ".join(str(branch.get("name") or "Branch").split())[:80],
+        "execution_policy": str(branch.get("execution_policy") or payload.get("execution_policy") or "approval_required") if str(branch.get("execution_policy") or payload.get("execution_policy") or "approval_required") in {"approval_required", "autonomous"} else "approval_required",
         "suggestion": str(branch.get("suggestion") or "").strip()[:1000],
         "message_enabled": (bool(str(branch.get("suggestion") or "").strip()) if branch.get("message_enabled") is None else branch.get("message_enabled")) is not False,
         "delivery_voice": (payload.get("delivery_voice", True) if branch.get("delivery_voice") is None else branch.get("delivery_voice")) is not False,
@@ -675,7 +676,7 @@ def _automation_preview(item: dict[str, Any]) -> dict[str, Any]:
         "presence": item.get("presence_entity") or "not required by this rule",
         "suggestion": item.get("proposal_template"),
         "action": action,
-        "authority": item.get("execution_policy"),
+        "authority": "per_branch" if item.get("branches") else item.get("execution_policy"),
         "cooldown_minutes": item.get("cooldown_minutes"),
         "enabled": bool(item.get("enabled")),
     }
@@ -823,11 +824,9 @@ def _automation_effective_policy(item: dict[str, Any], settings: dict[str, Any])
     desired = global_policy if requested == "inherit" else requested
     if desired not in AUTOMATION_POLICY_ORDER:
         desired = "suggest"
-    if AUTOMATION_POLICY_ORDER[desired] > AUTOMATION_POLICY_ORDER[global_policy]:
-        return global_policy, f"global safety ceiling reduced {desired} to {global_policy}"
     if requested == "inherit":
         return desired, f"using global default {desired}"
-    return desired, f"per-automation mode {desired}"
+    return desired, f"explicit path mode {desired}"
 
 def _automation_state_positive(value: Any) -> bool:
     return str(value or "").casefold() in {"on", "home", "present", "occupied", "true", "1"}
@@ -1245,6 +1244,11 @@ def _automation_branch_suggestion(item: dict[str, Any], branch_name: str) -> str
     branch = next((value for value in _automation_branches(item) if str(value.get("name") or "") == branch_name), None)
     return str(branch.get("suggestion") or "") if branch and branch.get("message_enabled", bool(branch.get("suggestion"))) else ""
 
+def _automation_branch_policy(item: dict[str, Any], branch_name: str) -> str:
+    branch = next((value for value in _automation_branches(item) if str(value.get("name") or "") == branch_name), None)
+    requested = str((branch or {}).get("execution_policy") or item.get("execution_policy") or "approval_required")
+    return requested if requested in {"approval_required", "autonomous"} else "approval_required"
+
 def _automation_branch_delivery(item: dict[str, Any], branch_name: str, key: str) -> bool:
     branch = next((value for value in _automation_branches(item) if str(value.get("name") or "") == branch_name), None)
     return (branch.get(key, item.get(key, True)) if branch else item.get(key, True)) is not False
@@ -1330,7 +1334,8 @@ def _automation_test_flow(item: dict[str, Any], settings: dict[str, Any], data: 
     context_ok = conditions_ok and presence_ok
     branch_ok, branch_detail, actions, branch_name = _automation_select_branch(item)
     branch_suggestion = next((str(value.get("suggestion") or "") for value in _automation_branches(item) if str(value.get("name") or "") == branch_name), "")
-    policy, policy_detail = _automation_effective_policy(item, settings)
+    requested_policy = _automation_branch_policy(item, branch_name) if branch_name else str(item.get("execution_policy") or "approval_required")
+    policy, policy_detail = _automation_effective_policy({**item, "execution_policy": requested_policy}, settings)
     action_details = []
     for action in actions:
         kind = str(action.get("kind") or "service")
@@ -1938,7 +1943,9 @@ async def _automation_commit_match(automation_id: str, evidence: dict[str, Any])
             _automation_record_decision(item, "deferred_not_now", dismissal_detail, evidence=trigger_entity, branch=branch_name)
             _automation_save(data)
             return
-        policy, policy_detail = _automation_effective_policy(item, data["settings"])
+        requested_policy = _automation_branch_policy(item, branch_name) if branch_name else str(item.get("execution_policy") or "approval_required")
+        authority_item = {**item, "execution_policy": requested_policy}
+        policy, policy_detail = _automation_effective_policy(authority_item, data["settings"])
         readiness = _automation_readiness(item, data, selected_actions)
         if not readiness["ready"] and policy in {"approval_required", "autonomous"}:
             item["status"] = "blocked_permission"
@@ -1991,7 +1998,7 @@ async def _automation_commit_match(automation_id: str, evidence: dict[str, Any])
             _automation_event(data, "observation", f"Condition observed: {item.get('name')}", f"{evidence_text}; {policy_detail}")
             _automation_save(data)
             return
-        autonomous, authority_detail = _automation_autonomous_allowed(item, data["settings"], selected_actions)
+        autonomous, authority_detail = _automation_autonomous_allowed(authority_item, data["settings"], selected_actions)
         first_action = next((action for action in selected_actions if str(action.get("kind") or "service") == "service"), {})
         has_executable_action = bool(selected_actions)
         suggestion = {

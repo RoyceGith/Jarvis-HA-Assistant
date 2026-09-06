@@ -6,6 +6,10 @@ connections.
 
 ## Automation Studio
 
+Version 0.13.163 gives every executable IF and ELSE IF path its own Ask before
+running or Run automatically choice. Message-only paths require no action
+authority setting.
+
 Version 0.13.162 makes validation warnings card-specific, adds per-automation
 sleep hours with a security override, and synchronizes branch power tasks with
 the selected device.

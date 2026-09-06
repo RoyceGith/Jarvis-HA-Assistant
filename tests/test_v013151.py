@@ -12,8 +12,8 @@ MANIFEST = json.loads((ROOT / "jarvis/release_manifest.json").read_text(encoding
 
 class SimpleDeviceCategoryReleaseTests(unittest.TestCase):
     def test_release_is_aligned(self):
-        self.assertEqual(MANIFEST["version"], "0.13.162")
-        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.161")
+        self.assertEqual(MANIFEST["version"], "0.13.163")
+        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.162")
 
     def test_only_two_plain_device_types_are_offered(self):
         self.assertIn('<option value="informational" selected>Sensor device</option>', HTML)
@@ -27,7 +27,7 @@ class SimpleDeviceCategoryReleaseTests(unittest.TestCase):
 
     def test_irrelevant_action_safety_fields_are_hidden(self):
         self.assertIn('const actionOnlyFields=new Set(["automation-max-actions","automation-notify-action"])', WORKSPACE)
-        self.assertIn('policy!=="autonomous"', WORKSPACE)
+        self.assertIn('id==="automation-reversible-only"&&!controlDevice', WORKSPACE)
         self.assertIn('"#studio-automation-reversible-only").count(), 0', BROWSER)
         self.assertIn('"#studio-automation-notify-action").count(), 0', BROWSER)
 

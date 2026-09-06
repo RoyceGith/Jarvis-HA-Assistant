@@ -29,10 +29,10 @@
       const checkBox=document.createElement("div");checkBox.className="automation-flow-branch-conditions";checkBox.dataset.flowBranchConditionDrop=bi;const checkLabel=document.createElement("span");checkLabel.className="automation-flow-branch-section-label";checkLabel.textContent=fallback?"FALLBACK":"USE THIS WHEN";checkBox.append(checkLabel);
       if(checks.length)checks.forEach((item,ii)=>{if(ii)checkBox.append(logic("all",false,"branch",bi));const card=condition(item,ii,name,visual);card.classList.add("is-branch-condition");card.dataset.flowKind="branch-condition";card.dataset.flowBranchIndex=bi;card.dataset.flowItemIndex=ii;card.querySelector(".automation-flow-kicker").textContent=ii?"AND":"IF";checkBox.append(card)});else{const empty=document.createElement("span");empty.className="automation-flow-branch-empty is-condition-empty";empty.textContent="No checks — use when nothing else matches";checkBox.append(empty)}
       if(interactive)checkBox.append(menu("automation-flow-branch-condition-menu","+ Add a check",[["entity","Device or sensor"],["entity_compare","Compare two values"],["time_window","Time of day"],["weekday","Day of week"],["sun","Sunrise / sunset"]],bi,"flowBranchConditionTemplate"));lane.append(connector(),checkBox,connector());
-      const tasks=document.createElement("div");tasks.className="automation-flow-branch-actions";tasks.dataset.flowBranchActionDrop=bi;const taskLabel=document.createElement("span");taskLabel.className="automation-flow-branch-section-label";taskLabel.textContent="THEN";tasks.append(taskLabel);
+      const tasks=document.createElement("div");tasks.className="automation-flow-branch-actions";tasks.dataset.flowBranchActionDrop=bi;const actions=(branch.actions||[]).filter(Boolean),taskLabel=document.createElement("span");taskLabel.className="automation-flow-branch-section-label";taskLabel.textContent=actions.length?`THEN · ${branch.execution_policy==="autonomous"?"RUN AUTOMATICALLY":"ASK BEFORE RUNNING"}`:"THEN";tasks.append(taskLabel);
       const messageEnabled=showMessages&&Boolean(branch.message_enabled||String(branch.suggestion||"").trim());let taskCount=0;
       if(messageEnabled){const card=node("branch-message",0,"MESSAGE","Message",txt(branch.suggestion,"Write what ZBRANO should say"),"notify");card.dataset.flowBranchIndex=bi;card.dataset.flowItemIndex=0;tasks.append(card);taskCount+=1}
-      const actions=(branch.actions||[]).filter(Boolean);actions.forEach((item,ii)=>{const [title,detail,type]=actionInfo(item,name),card=node("branch-action",ii,taskCount||ii?"AND":"DO",title,detail,type);card.dataset.flowBranchIndex=bi;card.dataset.flowItemIndex=ii;tasks.append(card);taskCount+=1});
+      actions.forEach((item,ii)=>{const [title,detail,type]=actionInfo(item,name),card=node("branch-action",ii,taskCount||ii?"AND":"DO",title,detail,type);card.dataset.flowBranchIndex=bi;card.dataset.flowItemIndex=ii;tasks.append(card);taskCount+=1});
       if(!taskCount){const empty=document.createElement("span");empty.className="automation-flow-branch-empty";empty.textContent="No task added";tasks.append(empty)}
       if(interactive){const choices=[];if(showMessages&&!messageEnabled)choices.push(["message","Message"]);choices.push(["turn_on","Turn on"],["turn_off","Turn off"],["toggle","Change power"],["set_temperature","Set temperature"],["set_brightness","Set brightness"],["notification","Send notification"],["delay","Wait"],["wait","Wait until"],["service","Custom action"]);tasks.append(menu("automation-flow-branch-task-menu","+ Add a task",choices,bi,"flowBranchTaskTemplate"))}
       lane.append(tasks);grid.append(lane)
@@ -48,7 +48,7 @@
       if(toolbar)toolbar.textContent=fallback?"ELSE":index?"ELSE IF":"IF";
       if(result)result.remove();
       if(labels[0])labels[0].textContent=fallback?"WHEN NO PATH ABOVE MATCHES":"CONDITION";
-      if(labels[1])labels[1].textContent="THEN";
+      if(labels[1]&&!labels[1].textContent.includes("·"))labels[1].textContent="THEN";
       lane.querySelectorAll('.automation-flow-branch-conditions [data-flow-kind="branch-condition"] .automation-flow-kicker').forEach((label,conditionIndex)=>{label.textContent=conditionIndex?"AND":fallback?"ELSE":index?"ELSE IF":"IF"});
       const message=lane.querySelector(".automation-flow-branch-suggestion");
       if(message){
@@ -74,7 +74,7 @@
     if(checks.length)flow.append(connector(),stage("context","AND THIS IS TRUE",checks,a.condition_mode));
     const branches=(a.branches||[]).filter(Boolean);
     if(branches.length){
-      flow.append(connector(),friendlyResultsStage(branches,name,visual,interactive,showMessages));
+      flow.append(connector(),friendlyResultsStage(branches,name,visual,interactive,true));
       let loose=(a.actions||[]).filter(Boolean);
       if(!loose.length&&a.action_entity&&a.action_service)loose=[{entity_id:a.action_entity,service:a.action_service}];
       if(loose.length)flow.append(connector(),stage("action","NOT CONNECTED — WILL NOT RUN",loose.map((item,i)=>{const [t,d,type]=actionInfo(item,name);return node("action",i,`NOT CONNECTED ${i+1}`,t,d,type)})));

@@ -1,5 +1,11 @@
 # Change log
 
+## 0.13.163
+
+- Removed the automation-wide response setting from Setup.
+- Added independent Ask before running or Run automatically behavior to each executable branch.
+- Kept message-only branches free of action approval settings.
+
 ## 0.13.162
 
 - Marked only the exact incomplete IF or ELSE IF card as needing attention.

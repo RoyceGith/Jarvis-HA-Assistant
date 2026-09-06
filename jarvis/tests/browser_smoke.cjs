@@ -130,7 +130,7 @@ function apiFixture(url, method = "GET") {
   if (pathname === "/api/health") {
     return {
       status: "ok",
-      version: "0.13.162",
+      version: "0.13.163",
       speech_provider: "openai",
       speech_providers: {openai: {configured: true}, elevenlabs: {configured: false}},
     };
@@ -213,7 +213,7 @@ function apiFixture(url, method = "GET") {
   if (pathname === "/api/plugins") return {plugins: []};
   if (pathname === "/api/files/shared") return {files: [], count: 0};
   if (pathname === "/api/release-memory-sync") {
-    return {enabled: false, state: "disabled", version: "0.13.162", task_active: false};
+    return {enabled: false, state: "disabled", version: "0.13.163", task_active: false};
   }
   if (pathname === "/api/tab-activity") return {revisions: {}};
   if (pathname === "/api/grinder-monitor/status") return {enabled: false, connected: false};
@@ -383,8 +383,7 @@ async function main() {
     assert.equal(await page.locator("#automation-studio-inspector-title").innerText(), "1. Setup & safety");
     assert.equal(await page.locator("#automation-studio-current-step").innerText(), "Step 1 of 5");
     assert.equal(await page.locator("#automation-studio-step-back").isDisabled(), true);
-    assert.equal(await page.locator("#studio-automation-execution-policy").inputValue(), "suggest");
-    assert.deepEqual(await page.locator("#studio-automation-execution-policy option").allTextContents(), ["Monitor silently", "Notify me"]);
+    assert.equal(await page.locator("#studio-automation-execution-policy").count(), 0);
     assert.equal(await page.locator("#studio-automation-require-presence").isChecked(), false);
     assert.equal(await page.locator("#studio-automation-presence").isDisabled(), true);
     await page.locator("#studio-automation-require-presence").check();
@@ -716,34 +715,28 @@ async function main() {
     assert.match(await page.locator("#automation-flow-preview").innerText(), /Wait 2 sec/i);
     await page.locator('[data-studio-node="details"]').click();
     assert.equal(await page.locator("#automation-studio-inspector-title").innerText(), "1. Setup & safety");
-    assert.equal(await page.locator('.automation-rule-safety-guide').count(), 1);
+    assert.equal(await page.locator('.automation-rule-safety-guide').count(), 0);
     assert.equal(await page.locator('[data-auto-view="safety"]').isHidden(), true);
-    assert.equal(await page.locator("#studio-automation-execution-policy").inputValue(), "approval_required");
-    assert.deepEqual(await page.locator("#studio-automation-execution-policy option").allTextContents(), ["Ask me first", "Do it automatically"]);
+    assert.equal(await page.locator("#studio-automation-execution-policy").count(), 0);
     assert.equal(await page.locator("#studio-automation-sleep-hours-start").count(), 0);
     await page.locator("#studio-automation-sleep-hours-enabled").check();
     assert.equal(await page.locator("#studio-automation-sleep-hours-start").inputValue(), "22:00");
     assert.equal(await page.locator("#studio-automation-sleep-hours-end").inputValue(), "07:00");
     await page.locator("#studio-automation-run-during-sleep-hours").check();
     assert.equal(await page.locator("#automation-run-during-sleep-hours").isChecked(), true);
-    await page.locator("#studio-automation-execution-policy").selectOption("autonomous");
-    assert.equal(await page.locator("#automation-execution-policy").inputValue(), "autonomous");
-    assert.equal(await page.locator('#automation-flow-preview [data-flow-kind="decision"]').count(), 0);
     await page.locator("#studio-automation-risk").selectOption("controlled");
     assert.equal(await page.locator("#automation-risk").inputValue(), "controlled");
     await page.locator("#studio-automation-max-actions").fill("3");
     assert.equal(await page.locator("#automation-max-actions").inputValue(), "3");
     await page.locator('.automation-studio-toolbox [data-studio-node="decision"]').click();
-    assert.equal(await page.locator("#studio-automation-proposal").count(), 0);
-    assert.equal(await page.locator("#studio-automation-delivery-voice").count(), 0);
+    assert.equal(await page.locator("#studio-automation-proposal").count(), 1);
     await page.locator("#automation-studio-test").click();
     await page.locator("#automation-studio-test-results:not([hidden])").waitFor();
     assert.equal(await page.locator("#automation-studio-test-results .automation-studio-test-step").count(), 4);
     assert.match(await page.locator("#automation-studio-state").innerText(), /0 actions executed/i);
     await page.locator('[data-studio-node="details"]').click();
     await page.locator("#studio-automation-risk").selectOption("informational");
-    assert.equal(await page.locator("#studio-automation-execution-policy").inputValue(), "suggest");
-    assert.deepEqual(await page.locator("#studio-automation-execution-policy option").allTextContents(), ["Monitor silently", "Notify me"]);
+    assert.equal(await page.locator("#studio-automation-execution-policy").count(), 0);
     assert.equal(await page.locator("#studio-automation-max-actions").count(), 0);
     assert.equal(await page.locator("#studio-automation-reversible-only").count(), 0);
     assert.equal(await page.locator("#studio-automation-notify-action").count(), 0);
@@ -759,16 +752,6 @@ async function main() {
     assert.equal(await page.locator('[data-flow-branch-drop="1"] [data-flow-kind="branch-message"]').count(), 0);
     assert.equal(await page.locator('[data-flow-branch-drop="1"] [data-flow-branch-task-template="message"]').count(), 1);
     assert.equal(await page.locator("[data-branch-suggestion]").count(), 0);
-    await page.locator('[data-studio-node="details"]').click();
-    await page.locator("#studio-automation-execution-policy").selectOption("observe");
-    await page.locator('.automation-studio-toolbox [data-studio-node="decision"]').click();
-    assert.equal(await page.locator('#automation-flow-preview [data-flow-kind="branch-message"]').count(), 0);
-    assert.equal(await page.locator('[data-branch-suggestion]').count(), 0);
-    assert.equal(await page.locator('#studio-automation-proposal').count(), 0);
-    assert.equal(await page.locator('#studio-automation-delivery-voice').count(), 0);
-    await page.locator('[data-studio-node="details"]').click();
-    await page.locator("#studio-automation-execution-policy").selectOption("suggest");
-    await page.locator('.automation-studio-toolbox [data-studio-node="decision"]').click();
     const messageMenu=page.locator('[data-flow-branch-drop="1"] .automation-flow-branch-task-menu');
     await messageMenu.locator('summary').click();
     await messageMenu.locator('[data-flow-branch-task-template="message"]').click();
@@ -820,6 +803,11 @@ async function main() {
     await page.locator('#automation-flow-preview [data-flow-kind="branch-action"][data-flow-branch-index="1"]').click();
     assert.equal(await page.locator('[data-branch-collection="actions"][data-branch-index="1"]').count(), 2);
     assert.equal(await page.locator('[data-branch-collection="conditions"]').count(), 0);
+    assert.equal(await page.locator('[data-branch-policy][data-branch-index="1"]').inputValue(), "approval_required");
+    await page.locator('[data-branch-policy][data-branch-index="1"]').selectOption("autonomous");
+    assert.match(await page.locator('[data-flow-branch-drop="1"] .automation-flow-branch-section-label').last().innerText(), /RUN AUTOMATICALLY/i);
+    await page.locator('#automation-flow-preview [data-flow-kind="branch-action"][data-flow-branch-index="0"]').click();
+    assert.equal(await page.locator('[data-branch-policy][data-branch-index="0"]').inputValue(), "approval_required");
     assert.match(await page.locator("#automation-studio-state").innerText(), /Power off task added/i);
     await page.locator("#notification-inbox-count:not([hidden])").waitFor();
     assert.equal(await page.locator("#notification-inbox-count").innerText(), "1");

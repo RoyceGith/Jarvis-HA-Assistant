@@ -30,14 +30,14 @@ def load_policy_function():
 
 class PerAutomationOperatingModeReleaseTests(unittest.TestCase):
     def test_release_markers_are_aligned(self):
-        self.assertIn('version: "0.13.162"', CONFIG)
-        self.assertIn('version="0.13.162"', MAIN)
-        self.assertIn("HUD 0.13.162", HTML)
-        self.assertEqual(MANIFEST["version"], "0.13.162")
+        self.assertIn('version: "0.13.163"', CONFIG)
+        self.assertIn('version="0.13.163"', MAIN)
+        self.assertIn("HUD 0.13.163", HTML)
+        self.assertEqual(MANIFEST["version"], "0.13.163")
 
-    def test_global_mode_is_a_hard_ceiling(self):
+    def test_explicit_path_authority_replaces_the_legacy_global_ceiling(self):
         effective = load_policy_function()
-        self.assertEqual(effective({"execution_policy": "autonomous"}, {"operating_mode": "suggest_only"})[0], "suggest")
+        self.assertEqual(effective({"execution_policy": "autonomous"}, {"operating_mode": "suggest_only"})[0], "autonomous")
         self.assertEqual(effective({"execution_policy": "inherit"}, {"operating_mode": "approval_gated"})[0], "approval_required")
         self.assertEqual(effective({"execution_policy": "suggest"}, {"operating_mode": "selective_autonomy"})[0], "suggest")
         self.assertEqual(effective({"execution_policy": "autonomous"}, {"operating_mode": "selective_autonomy"})[0], "autonomous")
@@ -48,7 +48,7 @@ class PerAutomationOperatingModeReleaseTests(unittest.TestCase):
             self.assertIn(f"{field}: bool = True", SCHEMAS)
             self.assertIn(f'"{field}"', AUTOMATIONS)
         self.assertIn("suggestion-only and cannot execute from approval", MAIN)
-        self.assertIn("current global safety ceiling", MAIN)
+        self.assertIn("This path no longer permits approval", MAIN)
         self.assertIn('item.delivery_voice!==false', VOICE)
 
     def test_automation_studio_is_a_full_window_tab(self):
@@ -60,7 +60,7 @@ class PerAutomationOperatingModeReleaseTests(unittest.TestCase):
         self.assertIn("#automations-panel.studio-active", STUDIO_CSS)
 
     def test_release_history_includes_v01368(self):
-        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.161")
+        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.162")
 
 
 if __name__ == "__main__":

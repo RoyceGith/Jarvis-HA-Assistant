@@ -34,7 +34,7 @@
   <header>
     <div class="brand-line">
       <h1>ZBRANO</h1>
-      <div class="status hud-version-label">Workshop Intelligence Interface · HUD 0.13.162</div>
+      <div class="status hud-version-label">Workshop Intelligence Interface · HUD 0.13.163</div>
     </div>
     <div class="runtime-status-stack">
       <div id="notification-inbox-shell" class="notification-inbox-shell">
@@ -859,7 +859,7 @@
                 <label>Reset margin<input id="automation-reset-delta" type="number" min="0" max="100000" step="0.1" value="0" title="How far back past the threshold ends the episode; 0 resets at the threshold"></label>
                 <label>Minimum confidence<input id="automation-confidence" type="number" min="0.5" max="0.99" step="0.01" value="0.75"></label>
                 <label>Device type<select id="automation-risk"><option value="informational" selected>Sensor device</option><option value="controlled">Control device</option></select></label>
-                <label>How should ZBRANO respond?<select id="automation-execution-policy"><option value="observe">Monitor silently</option><option value="suggest" selected>Notify me</option><option value="approval_required">Ask me first</option><option value="autonomous">Do it automatically</option></select></label>
+                <select id="automation-execution-policy" hidden><option value="observe">Monitor silently</option><option value="suggest">Notify me</option><option value="approval_required" selected>Ask me first</option><option value="autonomous">Run automatically</option></select>
 <label class="check"><input id="automation-delivery-voice" type="checkbox" checked> Say this message aloud</label>
 <label class="check"><input id="automation-delivery-center" type="checkbox" checked> Show in ZBRANO notifications</label>
 <label class="check"><input id="automation-delivery-push" type="checkbox" checked> Send to Home Assistant notifications</label>

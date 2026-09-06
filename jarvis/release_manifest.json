@@ -1,9 +1,9 @@
 {
-  "version": "0.13.162",
+  "version": "0.13.163",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/ZBRANO_Core main",
-  "summary": "Make validation card-specific and add per-automation sleep hours with a security override.",
+  "summary": "Move automation authority from global setup into each executable IF and ELSE IF path.",
   "history_backfill": [
     {
       "version": "0.13.0",
@@ -652,19 +652,23 @@
     {
       "version": "0.13.161",
       "summary": "Made branch messages optional task blocks and supported message-only outcomes."
+    },
+    {
+      "version": "0.13.162",
+      "summary": "Made validation card-specific and added per-automation sleep hours with a security override."
     }
   ],
   "release_entry": {
     "features": [
-      "Configure sleep hours separately for each automation.",
-      "Allow security automations to run even during their configured sleep hours."
+      "Choose Ask before running or Run automatically independently for every IF and ELSE IF path that contains tasks.",
+      "Show each executable path's behavior directly in the flow diagram."
     ],
     "fixes": [
-      "Mark only the exact incomplete branch card instead of showing Needs attention on every branch card.",
-      "Derive Power on, Power off, and Toggle commands from the selected branch device."
+      "Remove the ambiguous automation-wide How should ZBRANO respond setting from Setup.",
+      "Keep message-only paths free of irrelevant action approval settings."
     ],
     "validation": [
-      "Card-specific branch validation, device-service synchronization, sleep-hour runtime behavior, security override, browser smoke, full regression suite, and v0.13.162 release coverage"
+      "Independent branch authority, legacy policy migration, mixed-path flow labels, browser smoke, full regression suite, and v0.13.163 release coverage"
     ]
   },
   "features": [

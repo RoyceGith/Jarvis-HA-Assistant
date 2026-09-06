@@ -14,8 +14,8 @@ MANIFEST = json.loads((ROOT / "jarvis/release_manifest.json").read_text(encoding
 
 class IndependentAutomationBranchesReleaseTests(unittest.TestCase):
     def test_release_is_aligned(self):
-        self.assertEqual(MANIFEST["version"], "0.13.162")
-        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.161")
+        self.assertEqual(MANIFEST["version"], "0.13.163")
+        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.162")
 
     def test_branch_title_cards_are_removed_and_conditions_identify_paths(self):
         self.assertIn("if(result)result.remove()", FLOW)
@@ -31,11 +31,11 @@ class IndependentAutomationBranchesReleaseTests(unittest.TestCase):
         self.assertNotIn("Leave blank to use the main message", WORKSPACE)
         self.assertIn('"" if _automation_branches(item) else item.get("proposal_template")', AUTOMATIONS)
 
-    def test_silent_modes_remove_messages(self):
+    def test_branch_messages_are_independent_from_action_authority(self):
         self.assertGreaterEqual(FLOW.count('["observe","autonomous"]'), 1)
-        self.assertGreaterEqual(WORKSPACE.count('["observe","autonomous"]'), 2)
+        self.assertIn("const showMessages=true", WORKSPACE)
+        self.assertIn("friendlyResultsStage(branches,name,visual,interactive,true)", FLOW)
         self.assertIn('branch-message', BROWSER)
-        self.assertIn("[data-branch-suggestion]').count(), 0", BROWSER)
 
     def test_task_menu_opens_upward_and_is_browser_checked(self):
         self.assertIn(".automation-flow-branch-task-menu .automation-flow-branch-task-choices", CSS)

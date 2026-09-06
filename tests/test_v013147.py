@@ -13,22 +13,16 @@ MANIFEST = json.loads((ROOT / "jarvis" / "release_manifest.json").read_text(enco
 
 class V013147PerAutomationAuthorityTests(unittest.TestCase):
     def test_release_is_aligned(self):
-        self.assertEqual(MANIFEST["version"], "0.13.162")
-        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.161")
+        self.assertEqual(MANIFEST["version"], "0.13.163")
+        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.162")
 
-    def test_setup_step_owns_each_rules_authority_and_safety(self):
+    def test_setup_owns_safety_while_task_paths_own_authority(self):
         details = WORKSPACE.split('details:{title:"1. Setup & safety"', 1)[1].split("trigger:{", 1)[0]
-        for field in (
-            "automation-execution-policy",
-            "automation-risk",
-            "automation-max-actions",
-            "automation-reversible-only",
-            "automation-notify-action",
-        ):
+        self.assertNotIn("automation-execution-policy", details)
+        for field in ("automation-risk", "automation-max-actions", "automation-reversible-only", "automation-notify-action"):
             self.assertIn(field, details)
-        self.assertIn('$("automation-execution-policy").value="suggest"', WORKSPACE)
-        self.assertIn("Authority for this automation", WORKSPACE)
-        self.assertIn("applies only to this rule", WORKSPACE)
+        self.assertIn("Authority for this path", WORKSPACE)
+        self.assertIn("data-branch-policy", WORKSPACE)
 
     def test_global_authority_screen_is_not_part_of_normal_navigation(self):
         self.assertIn('data-auto-view="safety" role="tab" aria-selected="false" hidden', HTML)
@@ -36,9 +30,9 @@ class V013147PerAutomationAuthorityTests(unittest.TestCase):
         self.assertIn("Authority model", HTML)
         self.assertIn('textContent="Per automation"', WORKSPACE)
 
-    def test_browser_exercises_per_rule_controls_in_step_one(self):
+    def test_browser_exercises_safety_in_setup_and_authority_in_branches(self):
         self.assertIn('"1. Setup & safety"', BROWSER)
-        self.assertIn('#studio-automation-execution-policy', BROWSER)
+        self.assertIn('data-branch-policy', BROWSER)
         self.assertIn('#studio-automation-risk', BROWSER)
         self.assertIn('#studio-automation-max-actions', BROWSER)
 

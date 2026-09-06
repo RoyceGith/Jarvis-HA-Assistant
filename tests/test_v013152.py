@@ -12,13 +12,13 @@ MANIFEST = json.loads((ROOT / "jarvis/release_manifest.json").read_text(encoding
 
 class AdaptiveAutomationResponseReleaseTests(unittest.TestCase):
     def test_release_is_aligned(self):
-        self.assertEqual(MANIFEST["version"], "0.13.162")
-        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.161")
+        self.assertEqual(MANIFEST["version"], "0.13.163")
+        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.162")
 
-    def test_plain_response_wording_replaces_overlapping_labels(self):
-        self.assertIn("How should ZBRANO respond?", HTML)
-        for label in ("Monitor silently", "Notify me", "Ask me first", "Do it automatically"):
-            self.assertIn(label, HTML)
+    def test_response_wording_is_attached_to_executable_paths(self):
+        self.assertNotIn("How should ZBRANO respond?", HTML)
+        for label in ("Ask before running", "Run automatically"):
+            self.assertIn(label, WORKSPACE + BROWSER)
         self.assertNotIn("Suggest it to me", HTML)
         self.assertNotIn("Ask before doing it", HTML)
 
@@ -28,10 +28,10 @@ class AdaptiveAutomationResponseReleaseTests(unittest.TestCase):
         self.assertIn('["suggest","observe"]', WORKSPACE)
         self.assertIn("if(!allowedPolicies.includes(option.value))option.remove()", WORKSPACE)
 
-    def test_browser_verifies_both_two_choice_menus(self):
-        self.assertIn('["Monitor silently", "Notify me"]', BROWSER)
-        self.assertIn('["Ask me first", "Do it automatically"]', BROWSER)
-        self.assertIn('#studio-automation-risk").selectOption("informational")', BROWSER)
+    def test_browser_verifies_independent_branch_choices(self):
+        self.assertIn('data-branch-policy][data-branch-index="1"', BROWSER)
+        self.assertIn('selectOption("autonomous")', BROWSER)
+        self.assertIn('data-branch-policy][data-branch-index="0"', BROWSER)
 
 
 if __name__ == "__main__":
