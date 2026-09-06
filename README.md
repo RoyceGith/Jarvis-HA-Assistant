@@ -1,6 +1,6 @@
 # ZBRANO for Home Assistant
 
-Current release: **0.13.163**
+Current release: **0.13.164**
 
 This is the public Home Assistant installation and update repository for ZBRANO.
 The application is delivered as a prebuilt container image. The current repository
@@ -20,6 +20,11 @@ Existing ZBRANO installations retain the same add-on slug, configuration, `/data
 storage, and `ghcr.io/roycegith/jarvis-ha-assistant` update image.
 
 ## Current experience
+
+Version 0.13.164 adds a compatibility migration that preserves enabled private
+owner extensions in protected persistent storage. It prepares owner-specific
+configuration for removal from the general add-on options without exposing it
+in onboarding or changing normal installations.
 
 Version 0.13.163 moves Ask before running and Run automatically into each IF or
 ELSE IF path that contains tasks. Message-only paths simply notify and no longer
