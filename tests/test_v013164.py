@@ -10,8 +10,8 @@ from jarvis.app.services.owner_extensions import (
 
 
 ROOT = Path(__file__).resolve().parents[1]
-RUN = (ROOT / "jarvis/run.sh").read_text(encoding="utf-8")
 DOMAIN = (ROOT / "jarvis/app/domains/grinder.py").read_text(encoding="utf-8")
+OWNER_EXTENSIONS = (ROOT / "jarvis/app/services/owner_extensions.py").read_text(encoding="utf-8")
 CONFIG = (ROOT / "jarvis/config.yaml").read_text(encoding="utf-8")
 MAIN = (ROOT / "jarvis/app/main.py").read_text(encoding="utf-8")
 HTML = (ROOT / "jarvis/app/static/index.html").read_text(encoding="utf-8")
@@ -20,11 +20,11 @@ MANIFEST = json.loads((ROOT / "jarvis/release_manifest.json").read_text(encoding
 
 class OwnerExtensionMigrationReleaseTests(unittest.TestCase):
     def test_release_is_aligned(self):
-        self.assertIn('version: "0.13.164"', CONFIG)
-        self.assertIn('version="0.13.164"', MAIN)
-        self.assertIn("HUD 0.13.164", HTML)
-        self.assertEqual(MANIFEST["version"], "0.13.164")
-        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.163")
+        self.assertIn('version: "0.13.165"', CONFIG)
+        self.assertIn('version="0.13.165"', MAIN)
+        self.assertIn("HUD 0.13.165", HTML)
+        self.assertEqual(MANIFEST["version"], "0.13.165")
+        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.164")
 
     def test_default_installation_does_not_create_private_extension_file(self):
         with TemporaryDirectory() as directory:
@@ -72,10 +72,8 @@ class OwnerExtensionMigrationReleaseTests(unittest.TestCase):
             self.assertTrue(loaded["enabled"])
             self.assertEqual(loaded["mqtt_host"], "stored-broker")
 
-    def test_startup_migrates_before_runtime_and_grinder_uses_private_loader(self):
-        migration = "python3 -m app.services.owner_extensions migrate"
-        self.assertIn(migration, RUN)
-        self.assertLess(RUN.index(migration), RUN.index("exec uvicorn app.main:app"))
+    def test_migration_helper_remains_available_and_grinder_uses_private_loader(self):
+        self.assertIn("def migrate_legacy_grinder_environment(", OWNER_EXTENSIONS)
         self.assertIn("from ..services.owner_extensions import grinder_extension_config", DOMAIN)
         self.assertIn("_GRINDER_EXTENSION = grinder_extension_config()", DOMAIN)
 

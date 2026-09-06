@@ -90,7 +90,6 @@ def main() -> None:
         "openai_api_key",
         "google_oauth_client_secret",
         "elevenlabs_api_key",
-        "grinder_mqtt_password",
     ):
         require(config, rf'^  {secret}:\s*"password"\s*$', f"password schema for {secret}")
 

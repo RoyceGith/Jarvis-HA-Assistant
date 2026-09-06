@@ -1,9 +1,9 @@
 {
-  "version": "0.13.164",
+  "version": "0.13.165",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/ZBRANO_Core main",
-  "summary": "Migrate owner-only extension settings into protected persistent storage without breaking existing installations.",
+  "summary": "Remove owner-only Grinder settings from general product configuration after their protected migration.",
   "history_backfill": [
     {
       "version": "0.13.0",
@@ -660,19 +660,23 @@
     {
       "version": "0.13.163",
       "summary": "Moved automation authority from global setup into each executable IF and ELSE IF path."
+    },
+    {
+      "version": "0.13.164",
+      "summary": "Migrated owner-only extension settings into protected persistent storage without breaking existing installations."
     }
   ],
   "release_entry": {
     "features": [
-      "Persist enabled or customized owner-only extension configuration in a protected private data record.",
-      "Load the private record before legacy environment values at runtime."
+      "Keep the private Grinder monitor running from its protected migrated data record.",
+      "Present normal users with only generally applicable Home Assistant add-on options."
     ],
     "fixes": [
-      "Preserve the owner's existing Grinder monitor configuration before its transitional public options are removed.",
-      "Avoid creating an owner-extension record on normal installations that use only disabled defaults."
+      "Remove Grinder-specific fields from public add-on defaults and schema.",
+      "Stop exporting private owner configuration through the general startup environment."
     ],
     "validation": [
-      "Private configuration migration, default-install isolation, persisted-config precedence, startup ordering, and v0.13.164 release coverage"
+      "Public option isolation, startup environment isolation, private persisted compatibility, release contract, and v0.13.165 release coverage"
     ]
   },
   "features": [

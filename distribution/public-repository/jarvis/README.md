@@ -6,6 +6,10 @@ connections.
 
 ## Automation Studio
 
+Version 0.13.165 removes private owner-only Grinder fields from the general add-on
+configuration. Existing owner monitoring continues through its protected migrated
+record, while normal users see only product configuration relevant to them.
+
 Version 0.13.164 safely migrates any enabled or customized private owner extension
 configuration into protected persistent storage before startup. Normal installations
 remain unchanged and owner-specific features stay excluded from onboarding.
