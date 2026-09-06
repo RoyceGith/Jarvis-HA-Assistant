@@ -17,6 +17,29 @@
   let editorHistoryBaseline="";
   const localDraftKey="zbrano.automation-studio.unsaved.v1",localDraftMaxAge=7*24*60*60*1000,localDraftMaxBytes=100000;
   const libraryPrefsKey="zbrano.automation-studio.library.v1";
+  $("automation-activity-root").innerHTML=`
+    <div class="automation-activity-head"><div><h3>Automation activity</h3><p>See what is watching, what needs attention, and why ZBRANO did or did not act.</p></div><button id="automation-activity-refresh" type="button">Refresh activity</button></div>
+    <div class="automation-activity-metrics" aria-label="Automation health summary">
+      <article><span>Watching now</span><strong id="automation-activity-watching">0</strong><small>Enabled automations</small></article>
+      <article><span>Needs attention</span><strong id="automation-activity-attention">0</strong><small>Permission or recovery issue</small></article>
+      <article><span>Matched in 24 hours</span><strong id="automation-activity-matched">0</strong><small>Conditions became true</small></article>
+      <article><span>Actions in 24 hours</span><strong id="automation-activity-actions">0</strong><small>Tasks completed</small></article>
+    </div>
+    <div class="automation-activity-grid">
+      <article class="autonomy-card automation-decision-card">
+        <div class="autonomy-card-head"><div><h3>Why ZBRANO responded</h3><p>Every evaluation is explained in plain language, including checks that stopped safely.</p></div><span id="automation-decision-count" class="automation-state">0 records</span></div>
+        <div class="automation-activity-filters">
+          <label>Automation<select id="automation-activity-automation-filter"><option value="all">All automations</option></select></label>
+          <label>Result<select id="automation-activity-result-filter"><option value="all">All results</option><option value="matched">Matched</option><option value="no_action">Did not act</option><option value="attention">Needs attention</option></select></label>
+        </div>
+        <div id="automation-decision-feed" class="autonomy-list"></div>
+      </article>
+      <article class="autonomy-card">
+        <div class="autonomy-card-head"><div><h3>Automation health</h3><p>Current state and most recent evaluation for each saved automation.</p></div></div>
+        <div id="automation-health-list" class="autonomy-list"></div>
+      </article>
+      <article class="autonomy-card automation-system-activity"><h3>System activity</h3><p>Configuration changes, suggestions, recoveries, and action events.</p><div id="autonomy-timeline" class="autonomy-list"></div></article>
+    </div>`;
   const entityPickerFieldIds=new Set(["automation-trigger-entity","automation-presence","automation-signals","automation-action-entity"]);
   const studioPanels={
     details:{title:"1. Setup & safety",help:"Name this automation and choose its presence, device, and sleep-hour safety rules.",fields:[["automation-name","Automation name"],["automation-objective","What should it help with?"],["automation-require-presence","Require presence"],["automation-presence","Who must be present?"],["automation-risk","Device type"],["automation-sleep-hours-enabled","Pause during sleep hours"],["automation-sleep-hours-start","Sleep starts"],["automation-sleep-hours-end","Sleep ends"],["automation-run-during-sleep-hours","Security automation — run during sleep hours"],["automation-max-actions","Most times this may run in one hour"],["automation-reversible-only","Only allow automatic actions that can be undone"],["automation-notify-action","Tell me after it runs"],["automation-enabled","Enable automation on saving"]]},
@@ -581,6 +604,50 @@
     panel.querySelector('[data-automation-overview-target="suggestions"]')?.setAttribute("aria-label",`View ${suggestionCount} pending suggestion${suggestionCount===1?"":"s"}`);
   }
 
+  function automationNeedsAttention(item){
+    const recovery=item.recovery_state||{},readiness=item.readiness||{};
+    return Boolean(item.review_required||recovery.circuit_open||readiness.ready===false||["blocked_permission","paused_failure","failed","deferred"].includes(item.status));
+  }
+
+  const decisionLabels={
+    waiting_trigger_group:"Waiting for all When events",suppressed_sleep_hours:"Paused for sleep hours",suppressed_presence:"Required person is not present",suppressed_context:"A shared check is false",suppressed_branch:"No IF or ELSE IF path matched",already_satisfied:"The task was already done",deferred_not_now:"Waiting after Not now",blocked_permission:"Permission blocked the task",paused_failure:"Paused after repeated failures",deferred_learning:"Held back by learned feedback",rate_limited:"Hourly run limit reached",observed:"Matched — monitored silently",pending:"Matched — message sent",approval_required:"Matched — waiting for approval",executing:"Running automatically",executed:"Action completed",failed:"Action failed"
+  };
+  const matchedDecisionOutcomes=new Set(["observed","pending","approval_required","executing","executed"]);
+  const attentionDecisionOutcomes=new Set(["blocked_permission","paused_failure","failed"]);
+  const friendlyDecision=value=>decisionLabels[value]||String(value||"Evaluation").replaceAll("_"," ");
+
+  function automationDecisions(){
+    return (state.automations||[]).flatMap(item=>(item.decision_history||[]).map(entry=>({...entry,automation_id:item.id,automation_name:item.name||"Unnamed automation"}))).sort((left,right)=>Number(right.created_at||0)-Number(left.created_at||0));
+  }
+
+  function renderActivity(){
+    const automations=state.automations||[],decisions=automationDecisions(),cutoff=Date.now()/1000-86400;
+    $("automation-activity-watching").textContent=String(automations.filter(item=>item.enabled).length);
+    $("automation-activity-attention").textContent=String(automations.filter(automationNeedsAttention).length);
+    $("automation-activity-matched").textContent=String(decisions.filter(item=>Number(item.created_at||0)>=cutoff&&matchedDecisionOutcomes.has(item.outcome)).length);
+    $("automation-activity-actions").textContent=String(decisions.filter(item=>Number(item.created_at||0)>=cutoff&&item.outcome==="executed").length);
+    const automationFilter=$("automation-activity-automation-filter"),previousAutomation=automationFilter.value||"all";
+    automationFilter.replaceChildren(new Option("All automations","all"));
+    for(const item of [...automations].sort((left,right)=>String(left.name||"").localeCompare(String(right.name||""))))automationFilter.add(new Option(item.name||"Unnamed automation",item.id));
+    automationFilter.value=[...automationFilter.options].some(option=>option.value===previousAutomation)?previousAutomation:"all";
+    const resultFilter=$("automation-activity-result-filter").value||"all";
+    const visible=decisions.filter(item=>automationFilter.value==="all"||item.automation_id===automationFilter.value).filter(item=>resultFilter==="all"||(resultFilter==="matched"&&matchedDecisionOutcomes.has(item.outcome))||(resultFilter==="attention"&&attentionDecisionOutcomes.has(item.outcome))||(resultFilter==="no_action"&&!matchedDecisionOutcomes.has(item.outcome)&&!attentionDecisionOutcomes.has(item.outcome)));
+    $("automation-decision-count").textContent=`${visible.length} record${visible.length===1?"":"s"}`;
+    const feed=$("automation-decision-feed");feed.replaceChildren();
+    if(!visible.length)feed.innerHTML='<div class="autonomy-empty">No evaluations match these filters yet.</div>';
+    for(const item of visible.slice(0,100)){
+      const row=document.createElement("div"),tone=attentionDecisionOutcomes.has(item.outcome)?"attention":matchedDecisionOutcomes.has(item.outcome)?"matched":"safe";row.className="automation-decision-row";row.dataset.tone=tone;
+      const path=item.branch?`<small>Path: ${esc(item.branch)}</small>`:"",policy=item.policy?`<span>${esc(authorityLabel(item.policy))}</span>`:"";
+      row.innerHTML=`<div class="automation-decision-title"><div><strong>${esc(friendlyDecision(item.outcome))}</strong><small>${esc(item.automation_name)}</small></div>${policy}</div><p>${esc(item.detail||"No additional detail was recorded.")}</p>${path}${item.evidence?`<details><summary>Evidence used</summary><small>${esc(item.evidence)}</small></details>`:""}<time>${new Date(Number(item.created_at||0)*1000).toLocaleString()}</time>`;feed.appendChild(row);
+    }
+    const health=$("automation-health-list");health.replaceChildren();
+    if(!automations.length)health.innerHTML='<div class="autonomy-empty">No saved automations yet.</div>';
+    for(const item of [...automations].sort((left,right)=>Number(automationNeedsAttention(right))-Number(automationNeedsAttention(left))||Number(Boolean(right.enabled))-Number(Boolean(left.enabled))||String(left.name||"").localeCompare(String(right.name||"")))){
+      const recovery=item.recovery_state||{},readiness=item.readiness||{},attention=automationNeedsAttention(item),last=item.last_decision||(item.decision_history||[])[0],status=!item.enabled?"Off":recovery.circuit_open||item.status==="paused_failure"?"Paused after failures":readiness.ready===false||item.status==="blocked_permission"?"Permission needed":attention?"Check this automation":"Watching";
+      const row=document.createElement("div");row.className="automation-health-row";row.dataset.tone=attention?"attention":item.enabled?"healthy":"off";row.innerHTML=`<div><strong>${esc(item.name||"Unnamed automation")}</strong><span>${esc(status)}</span></div><button type="button" data-activity-open-automation="${esc(item.id)}">Open</button><small>${last?`${esc(friendlyDecision(last.outcome))} · ${new Date(Number(last.created_at||0)*1000).toLocaleString()}`:item.enabled?"Waiting for its first matching event":"Enable it when you are ready"}</small>`;health.appendChild(row);
+    }
+  }
+
   function renderSuggestions(){
     const root=$("autonomy-suggestions");root.replaceChildren();
     const visible=(state.suggestions||[]).filter(item=>!["dismissed","expired"].includes(item.status)&&item.delivery_notification_center!==false).slice(0,30);
@@ -604,10 +671,9 @@
   function renderLibrary(){
     const root=$("automation-library"),all=state.automations||[],query=$("automation-library-search").value.trim().toLowerCase(),filter=$("automation-library-filter").value,sort=$("automation-library-sort").value;root.replaceChildren();root.classList.add("is-compact");
     const searchable=item=>[item.name,item.objective,item.trigger_entity,item.action_entity,item.action_service,item.proposal_template,...(item.signal_entities||[]),...(item.triggers||[]).flatMap(part=>[part.entity_id,part.kind]),...(item.conditions||[]).flatMap(part=>[part.entity_id,part.compare_entity_id,part.compare_attribute,part.kind]),...(item.actions||[]).flatMap(part=>[part.entity_id,part.service,part.kind]),...(item.branches||[]).flatMap(branch=>[branch.name,branch.suggestion,...(branch.conditions||[]).flatMap(part=>[part.entity_id,part.compare_entity_id,part.compare_attribute]),...(branch.actions||[]).flatMap(part=>[part.entity_id,part.service])])].filter(Boolean).join(" ").toLowerCase();
-    const isAttention=item=>{const recovery=item.recovery_state||{},readiness=item.readiness||{};return Boolean(item.review_required||recovery.circuit_open||readiness.ready===false||["blocked_permission","paused_failure","deferred"].includes(item.status))};
-    const matchesFilter=item=>{if(filter==="active")return Boolean(item.enabled);if(filter==="attention")return isAttention(item);if(filter==="disabled")return !item.enabled;if(filter==="autonomous")return automationHasAutonomousPath(item);if(filter==="watch")return item.kind==="notification_watch";return true};
-    const attentionScore=item=>Number(isAttention(item));
-    const summary={all:all.length,active:all.filter(item=>item.enabled).length,attention:all.filter(isAttention).length,disabled:all.filter(item=>!item.enabled).length,autonomous:all.filter(automationHasAutonomousPath).length};
+    const matchesFilter=item=>{if(filter==="active")return Boolean(item.enabled);if(filter==="attention")return automationNeedsAttention(item);if(filter==="disabled")return !item.enabled;if(filter==="autonomous")return automationHasAutonomousPath(item);if(filter==="watch")return item.kind==="notification_watch";return true};
+    const attentionScore=item=>Number(automationNeedsAttention(item));
+    const summary={all:all.length,active:all.filter(item=>item.enabled).length,attention:all.filter(automationNeedsAttention).length,disabled:all.filter(item=>!item.enabled).length,autonomous:all.filter(automationHasAutonomousPath).length};
     for(const [name,count] of Object.entries(summary)){$(`automation-library-${name}-count`).textContent=String(count)}
     for(const button of $("automation-library-summary").querySelectorAll("[data-library-quick-filter]"))button.setAttribute("aria-pressed",String(button.dataset.libraryQuickFilter===filter));
     const visible=all.filter(item=>(!query||searchable(item).includes(query))&&matchesFilter(item)).slice();
@@ -673,7 +739,7 @@
     $("autonomy-passive-learning").checked=settings.passive_learning_enabled!==false;
   }
 
-  function renderAll(){renderSummary();renderSuggestions();renderContext();renderLibrary();renderAutomationMemory();renderAutomationBrain();renderTimeline();renderSettings()}
+  function renderAll(){renderSummary();renderSuggestions();renderContext();renderLibrary();renderAutomationMemory();renderAutomationBrain();renderActivity();renderTimeline();renderSettings()}
 
   async function loadEntityContext(){
     const root=$("autonomy-context");root.innerHTML='<div class="autonomy-empty">Loading Home Assistant context…</div>';
@@ -847,10 +913,14 @@
   $("automation-library-search").addEventListener("input",renderLibrary);
   $("automation-library-filter").addEventListener("change",()=>{persistLibraryPrefs();renderLibrary()});
   $("automation-library-sort").addEventListener("change",()=>{persistLibraryPrefs();renderLibrary()});
+  $("automation-activity-automation-filter").addEventListener("change",renderActivity);
+  $("automation-activity-result-filter").addEventListener("change",renderActivity);
+  $("automation-activity-refresh").addEventListener("click",()=>loadWorkspace().catch(error=>{$("automation-decision-feed").innerHTML=`<div class="autonomy-empty">Activity refresh failed: ${esc(error.message||error)}</div>`}));
   $("automation-library-summary").addEventListener("click",event=>{const button=event.target.closest("[data-library-quick-filter]");if(!button)return;$("automation-library-filter").value=button.dataset.libraryQuickFilter;persistLibraryPrefs();renderLibrary()});
   panel.addEventListener("pointerdown",event=>{if(event.target.closest(".automation-flow-card-actions"))return;const block=event.target.closest(".automation-studio-preview [data-flow-kind]");if(block&&!block.draggable)selectStudioNode(block.dataset.flowKind,Number(block.dataset.flowIndex),block.hasAttribute("data-flow-branch-index")?Number(block.dataset.flowBranchIndex):null)},{capture:true});
   panel.addEventListener("click",async event=>{
     const toolTrigger=event.target.closest("[data-tool-trigger]");if(toolTrigger){addToolbarTrigger(toolTrigger.dataset.toolTrigger);return}
+    const activityAutomation=event.target.closest("[data-activity-open-automation]");if(activityAutomation){const item=state.automations.find(value=>value.id===activityAutomation.dataset.activityOpenAutomation);if(item&&confirmEditorReplacement("open this automation")){fillEditor(item);showView("studio")}return}
     const toolCondition=event.target.closest("[data-tool-condition]");if(toolCondition){addToolbarCondition(toolCondition.dataset.toolCondition);return}
     const toolAction=event.target.closest("[data-tool-action]");if(toolAction){addToolbarAction(toolAction.dataset.toolAction);return}
     const addBranchPathButton=event.target.closest("[data-flow-add-branch]");if(addBranchPathButton){event.preventDefault();event.stopPropagation();addBranchPath();return}

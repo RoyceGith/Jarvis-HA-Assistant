@@ -52,6 +52,7 @@ const entities = [
   {entity_id:"light.browser_light",friendly_name:"Browser Light",domain:"light",state:"off",available:true,risk:"low_risk_control_proposed",auto_approved:true},
   {entity_id:"light.browser_fixture",friendly_name:"Browser Fixture Light",domain:"light",state:"off",available:true,risk:"low_risk_control_proposed",auto_approved:true},
 ];
+const browserNow = Math.floor(Date.now() / 1000);
 const automationFixture = {
   settings: {
     operating_mode: "suggest_only",
@@ -84,6 +85,8 @@ const automationFixture = {
     enabled: false,
     review_required: false,
     updated_at: 100,
+    decision_history: [{id:"decision-safe",outcome:"suppressed_presence",detail:"Royce is away",evidence:"person.royce = not_home",policy:"suggest",branch:"IF",created_at:browserNow-120}],
+    last_decision: {id:"decision-safe",outcome:"suppressed_presence",detail:"Royce is away",evidence:"person.royce = not_home",policy:"suggest",branch:"IF",created_at:browserNow-120},
   }, {
     id: "active-flow",
     name: "Active lighting",
@@ -104,9 +107,11 @@ const automationFixture = {
     enabled: true,
     review_required: false,
     updated_at: 200,
+    decision_history: [{id:"decision-executed",outcome:"executed",detail:"Completed 1 action step",evidence:"sensor.browser_fixture_3 changed from 19 to 21",policy:"autonomous",branch:"IF",created_at:browserNow-60}],
+    last_decision: {id:"decision-executed",outcome:"executed",detail:"Completed 1 action step",evidence:"sensor.browser_fixture_3 changed from 19 to 21",policy:"autonomous",branch:"IF",created_at:browserNow-60},
   }],
   suggestions: [],
-  timeline: [],
+  timeline: [{id:"activity-executed",type:"action",title:"Automation action sequence executed: Active lighting",detail:"steps=1; source=selective_autonomy",created_at:browserNow-60}],
   entity_memory: [],
   area_context: {areas: [], entities: [], labels: [], zones: []},
   patterns: [],
@@ -151,7 +156,7 @@ function apiFixture(url, method = "GET") {
   if (pathname === "/api/health") {
     return {
       status: "ok",
-      version: "0.13.167",
+      version: "0.13.168",
       speech_provider: "openai",
       speech_providers: {openai: {configured: true}, elevenlabs: {configured: false}},
     };
@@ -238,7 +243,7 @@ function apiFixture(url, method = "GET") {
   if (pathname === "/api/plugins") return {plugins: []};
   if (pathname === "/api/files/shared") return {files: [], count: 0};
   if (pathname === "/api/release-memory-sync") {
-    return {enabled: false, state: "disabled", version: "0.13.167", task_active: false};
+    return {enabled: false, state: "disabled", version: "0.13.168", task_active: false};
   }
   if (pathname === "/api/tab-activity") return {revisions: {}};
   if (pathname === "/api/grinder-monitor/status") return {enabled: false, connected: false};
@@ -508,6 +513,21 @@ async function main() {
     assert.doesNotMatch(await page.locator("#automation-library .automation-flow").first().innerText(), /WATCH 1/i);
     assert.match(await page.locator("#automation-library .automation-flow").first().innerText(), /> 20/);
     assert.deepEqual(await page.evaluate(() => JSON.parse(localStorage.getItem("zbrano.automation-studio.library.v1"))), {filter: "all", sort: "active"});
+    await page.locator('[data-auto-view="activity"]').click();
+    await page.locator('[data-auto-panel="activity"]:not(.hidden)').waitFor();
+    assert.equal(await page.locator("#automation-activity-watching").innerText(), "1");
+    assert.equal(await page.locator("#automation-activity-attention").innerText(), "0");
+    assert.equal(await page.locator("#automation-activity-matched").innerText(), "1");
+    assert.equal(await page.locator("#automation-activity-actions").innerText(), "1");
+    assert.match(await page.locator("#automation-decision-feed").innerText(), /Action completed/i);
+    assert.match(await page.locator("#automation-decision-feed").innerText(), /Active lighting/i);
+    await page.locator("#automation-activity-result-filter").selectOption("no_action");
+    assert.match(await page.locator("#automation-decision-feed").innerText(), /Required person is not present/i);
+    await page.locator("#automation-activity-automation-filter").selectOption("active-flow");
+    assert.match(await page.locator("#automation-decision-feed").innerText(), /No evaluations match these filters yet/i);
+    await page.locator("#automation-activity-result-filter").selectOption("all");
+    assert.match(await page.locator("#automation-health-list").innerText(), /Active lighting/i);
+    assert.match(await page.locator("#autonomy-timeline").innerText(), /Automation action sequence executed/i);
     await page.locator('[data-auto-view="memory"]').click();
     await page.locator('[data-auto-panel="memory"]:not(.hidden)').waitFor();
     assert.equal(await page.locator("#automation-memory-list").isVisible(), true);

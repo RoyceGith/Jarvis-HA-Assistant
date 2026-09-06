@@ -14,10 +14,10 @@ MANIFEST = json.loads((ROOT / "jarvis/release_manifest.json").read_text(encoding
 
 class GrinderDomainBoundaryTests(unittest.TestCase):
     def test_release_markers_are_aligned(self):
-        self.assertIn('version: "0.13.167"', CONFIG)
-        self.assertIn('version="0.13.167"', MAIN)
-        self.assertIn("HUD 0.13.167", HTML)
-        self.assertEqual(MANIFEST["version"], "0.13.167")
+        self.assertIn('version: "0.13.168"', CONFIG)
+        self.assertIn('version="0.13.168"', MAIN)
+        self.assertIn("HUD 0.13.168", HTML)
+        self.assertEqual(MANIFEST["version"], "0.13.168")
 
     def test_grinder_engine_is_outside_composition_root(self):
         self.assertNotIn("async def grinder_monitor_worker(", MAIN)

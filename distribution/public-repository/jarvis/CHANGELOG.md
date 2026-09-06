@@ -1,5 +1,12 @@
 # Change log
 
+## 0.13.168
+
+- Rebuilt Automation Activity as a clear health and decision control room.
+- Added counts for watching rules, attention states, matches, and completed actions.
+- Added per-automation and result filters with plain-language decision explanations.
+- Kept detailed evidence available behind a discreet disclosure.
+
 ## 0.13.167
 
 - Added a dedicated ZBRANO is ready screen after setup completion.

@@ -1,9 +1,14 @@
-# ZBRANO v0.13.167
+# ZBRANO v0.13.168
 
 Automation Studio provides a graphical, step-by-step workflow for Home Assistant
 automations. Use Setup &amp; safety, When, Only if, Then, and optional Outcomes beside the
 interactive flow canvas. Natural-language creation, templates, drag-and-drop,
 saved automation compatibility, and the full Advanced editor remain available.
+
+Version 0.13.168 turns Automation Activity into a practical control room. Live
+summary cards show enabled rules, attention states, matches, and actions over the
+last 24 hours. A filterable explanation feed translates stored decisions into
+plain language and keeps detailed evidence available on demand.
 
 Version 0.13.167 gives completed onboarding a useful destination. The final screen
 shows ready and later capabilities separately, opens Chat directly, and lets users

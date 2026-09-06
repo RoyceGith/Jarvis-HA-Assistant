@@ -1,9 +1,9 @@
 {
-  "version": "0.13.167",
+  "version": "0.13.168",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/ZBRANO_Core main",
-  "summary": "Complete onboarding with a readiness summary and direct handoff into Chat.",
+  "summary": "Turn Automation Activity into a plain-language health and decision control room.",
   "history_backfill": [
     {
       "version": "0.13.0",
@@ -672,20 +672,24 @@
     {
       "version": "0.13.166",
       "summary": "Turned first-run Setup into a focused, gated seven-step onboarding wizard."
+    },
+    {
+      "version": "0.13.167",
+      "summary": "Completed onboarding with a readiness summary and direct handoff into Chat."
     }
   ],
   "release_entry": {
     "features": [
-      "Show a dedicated readiness screen after required setup is completed.",
-      "Separate configured capabilities from optional capabilities available later.",
-      "Open Chat directly or return to a reviewable setup wizard."
+      "Summarize watching automations, attention states, recent matches, and completed actions.",
+      "Explain stored automation decisions in plain language with optional evidence details.",
+      "Filter evaluation history by automation and result while showing each rule's current health."
     ],
     "fixes": [
-      "Replace the completed wizard's disabled final-step dead end with useful next actions.",
-      "Keep setup completion intact while reviewing connections."
+      "Replace the bare system-event timeline with useful decision observability.",
+      "Keep disabled, permission-blocked, and failure-paused automations distinguishable at a glance."
     ],
     "validation": [
-      "Completion rendering, capability classification, Chat handoff, connection review, browser smoke, and v0.13.167 release coverage"
+      "Activity metrics, decision grouping and filtering, health presentation, system timeline, browser smoke, and v0.13.168 release coverage"
     ]
   },
   "features": [
