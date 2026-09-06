@@ -28,10 +28,10 @@ def load_branch_functions(states):
 
 class BranchingAutomationReleaseTests(unittest.TestCase):
     def test_release_markers_are_aligned(self):
-        self.assertIn('version: "0.13.165"', CONFIG)
-        self.assertIn('version="0.13.165"', MAIN)
-        self.assertIn("HUD 0.13.165", HTML)
-        self.assertEqual(MANIFEST["version"], "0.13.165")
+        self.assertIn('version: "0.13.166"', CONFIG)
+        self.assertIn('version="0.13.166"', MAIN)
+        self.assertIn("HUD 0.13.166", HTML)
+        self.assertEqual(MANIFEST["version"], "0.13.166")
 
     def test_bounded_branch_schema_is_present(self):
         self.assertIn("class AutomationBranchRequest", SCHEMAS)
@@ -72,7 +72,7 @@ class BranchingAutomationReleaseTests(unittest.TestCase):
         self.assertIn("CHOOSE THE FIRST MATCHING OUTCOME", FLOW)
 
     def test_release_history_includes_v01366(self):
-        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.164")
+        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.165")
 
 
 if __name__ == "__main__":

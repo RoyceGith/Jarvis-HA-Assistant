@@ -125,12 +125,33 @@ const notificationInboxFixture = {
   total: 1,
 };
 
+const onboardingFixture = {
+  completed: false,
+  dismissed: true,
+  legacy_installation: false,
+  show_on_startup: false,
+  current_step: "home_assistant",
+  core_ready: false,
+  required_verified: false,
+  ready_count: 1,
+  total_count: 7,
+  steps: [
+    {id:"home_assistant",title:"Home Assistant",description:"Waiting for the Home Assistant connection",ready:false,required:true,target:"entities",last_check:null,skipped:false},
+    {id:"model",title:"AI model",description:"gpt-5-mini is configured",ready:true,required:true,target:"model",last_check:{ready:true,detail:"Key accepted",checked_at:1788300000},skipped:false},
+    {id:"entities",title:"Entity permissions",description:"Choose which entities ZBRANO may use",ready:false,required:false,target:"entities",last_check:null,skipped:false},
+    {id:"voice",title:"Voice and wake word",description:"Configure speech if wanted",ready:false,required:false,target:"voice",last_check:null,skipped:false},
+    {id:"memory",title:"Memory",description:"Fast Memory is optional",ready:false,required:false,target:"memory",last_check:null,skipped:false},
+    {id:"plugins",title:"Plugins",description:"Plugins are optional",ready:false,required:false,target:"plugins",last_check:null,skipped:false},
+    {id:"notifications",title:"Notifications and autonomy",description:"Choose notification delivery",ready:false,required:false,target:"notifications",last_check:null,skipped:false},
+  ],
+};
+
 function apiFixture(url, method = "GET") {
   const pathname = new URL(url).pathname;
   if (pathname === "/api/health") {
     return {
       status: "ok",
-      version: "0.13.165",
+      version: "0.13.166",
       speech_provider: "openai",
       speech_providers: {openai: {configured: true}, elevenlabs: {configured: false}},
     };
@@ -145,6 +166,7 @@ function apiFixture(url, method = "GET") {
       auto_sync_releases_to_workshop_memory: false,
     };
   }
+  if (pathname === "/api/onboarding") return onboardingFixture;
   if (pathname === "/api/ha/entities") {
     return {entities, count: entities.length, domains: ["sensor", "climate", "light"], source: "browser fixture"};
   }
@@ -213,7 +235,7 @@ function apiFixture(url, method = "GET") {
   if (pathname === "/api/plugins") return {plugins: []};
   if (pathname === "/api/files/shared") return {files: [], count: 0};
   if (pathname === "/api/release-memory-sync") {
-    return {enabled: false, state: "disabled", version: "0.13.165", task_active: false};
+    return {enabled: false, state: "disabled", version: "0.13.166", task_active: false};
   }
   if (pathname === "/api/tab-activity") return {revisions: {}};
   if (pathname === "/api/grinder-monitor/status") return {enabled: false, connected: false};
@@ -858,6 +880,15 @@ async function main() {
     assert.equal(settingsLayout.display, "grid");
     assert.match(settingsLayout.columns, /px .*px/);
     assert.equal(settingsLayout.cursor, "pointer");
+    await page.locator('[data-settings-target="setup"]').click();
+    await page.locator('.onboarding-step.is-active').waitFor();
+    assert.equal(await page.locator('.onboarding-rail-step').count(), 7);
+    assert.equal(await page.locator('.onboarding-step:visible').count(), 1);
+    assert.match(await page.locator('.onboarding-step.is-active').innerText(), /CORE CONNECTION/);
+    assert.match(await page.locator('.onboarding-step.is-active .onboarding-focus-guidance').innerText(), /only the entities you approve/i);
+    assert.equal(await page.locator('.onboarding-rail-step').nth(1).isDisabled(), true);
+    assert.equal(await page.locator('#onboarding-next').isDisabled(), true);
+    assert.equal(await page.locator('#onboarding-recheck').innerText(), "Refresh status");
     await page.locator('[data-settings-target="voice"]').click();
     await page.locator('[data-settings-category="voice"]:visible').waitFor();
     assert.equal(await page.locator('[data-settings-target="voice"]').evaluate(element => element.closest("details").open), true);
@@ -869,7 +900,7 @@ async function main() {
     assert.equal(voiceScroll.scrollable, true, "Voice settings must exceed and scroll within the panel at compact viewport heights");
     assert.equal(voiceScroll.moved, true, "Voice settings panel must accept vertical scrolling");
 
-    console.log("Browser smoke passed: New Chat, navigation, Entity scrolling, notification inbox, Calendar birthdays, modern Settings, Automation Library filtering, Studio safety, validation, recovery, and branching workflows");
+    console.log("Browser smoke passed: New Chat, navigation, Entity scrolling, notification inbox, Calendar birthdays, guided onboarding, modern Settings, Automation Library filtering, Studio safety, validation, recovery, and branching workflows");
   } finally {
     await browser.close();
     await new Promise(resolve => server.close(resolve));

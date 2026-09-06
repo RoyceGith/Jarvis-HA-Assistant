@@ -1,9 +1,14 @@
-## ZBRANO v0.13.165
+## ZBRANO v0.13.166
 
 ZBRANO combines Home Assistant chat, voice, entity control, memory, notifications,
 calendar and contact tools, plugins, and evidence-based automations. Automation Studio now uses
 a visual building-block toolbox, interactive node canvas, and contextual inspector;
 the established automation engine and stored definitions remain compatible.
+
+Version 0.13.166 turns first-run Setup into a focused guided wizard. One clearly
+explained task is shown at a time, a compact seven-step rail shows progress, and
+future steps remain locked until required Home Assistant and AI checks genuinely
+pass. Every step keeps direct Check and Configure actions.
 
 Version 0.13.165 completes the owner-extension separation. Grinder-specific
 settings no longer appear in the general Home Assistant add-on configuration or

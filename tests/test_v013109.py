@@ -16,10 +16,10 @@ MANIFEST = json.loads((ROOT / "jarvis/release_manifest.json").read_text(encoding
 
 class BranchPathManagementReleaseTests(unittest.TestCase):
     def test_release_markers_are_aligned(self):
-        self.assertIn('version: "0.13.165"', CONFIG)
-        self.assertIn('version="0.13.165"', MAIN)
-        self.assertIn("HUD 0.13.165", HTML)
-        self.assertEqual(MANIFEST["version"], "0.13.165")
+        self.assertIn('version: "0.13.166"', CONFIG)
+        self.assertIn('version="0.13.166"', MAIN)
+        self.assertIn("HUD 0.13.166", HTML)
+        self.assertEqual(MANIFEST["version"], "0.13.166")
 
     def test_canvas_exposes_complete_path_controls(self):
         for marker in (
@@ -53,7 +53,7 @@ class BranchPathManagementReleaseTests(unittest.TestCase):
             self.assertIn(f'["{action}"', FLOW)
 
     def test_release_history_includes_v013108(self):
-        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.164")
+        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.165")
 
 
 if __name__ == "__main__":

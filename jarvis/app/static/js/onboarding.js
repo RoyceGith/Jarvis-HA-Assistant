@@ -52,6 +52,16 @@
     notifications: "Validate channels",
   };
 
+  const stepMeta = {
+    home_assistant: {symbol: "HA", eyebrow: "CORE CONNECTION", guidance: "This connection lets ZBRANO see Home Assistant and use only the entities you approve."},
+    model: {symbol: "AI", eyebrow: "INTELLIGENCE", guidance: "The AI model powers chat and reasoning. Your key stays in the protected Home Assistant app configuration."},
+    entities: {symbol: "ID", eyebrow: "PERMISSIONS", guidance: "You choose exactly which sensors ZBRANO may read and which devices it may control."},
+    voice: {symbol: "VO", eyebrow: "VOICE", guidance: "Voice is optional. Configure speech, test playback, and enable the wake word only if you want hands-free use."},
+    memory: {symbol: "ME", eyebrow: "MEMORY", guidance: "Fast Memory helps ZBRANO remember useful preferences and context locally between conversations."},
+    plugins: {symbol: "PL", eyebrow: "CONNECTIONS", guidance: "Plugins connect optional services. You can skip this now and install only the services you trust later."},
+    notifications: {symbol: "NT", eyebrow: "NOTIFICATIONS", guidance: "Choose where ZBRANO should send alerts and automation messages. This can be changed at any time."},
+  };
+
   async function requestCheck(stepId) {
     const response = await fetch(`api/onboarding/check/${encodeURIComponent(stepId)}`, {method: "POST"});
     const data = await response.json();
@@ -85,12 +95,34 @@
   function render(data) {
     latestData = data;
     const steps = Array.isArray(data.steps) ? data.steps : [];
-    const activeIndex = Math.max(0, steps.findIndex(step => step.id === data.current_step));
+    const storedIndex = Math.max(0, steps.findIndex(step => step.id === data.current_step));
+    const blockedIndex = steps.findIndex(step => step.required && !(step.ready && step.last_check?.ready));
+    const activeIndex = blockedIndex >= 0 && storedIndex > blockedIndex ? blockedIndex : storedIndex;
     const percentage = steps.length ? Math.round((Number(data.ready_count || 0) / steps.length) * 100) : 0;
     progressBar.style.width = `${percentage}%`;
     progress.setAttribute("aria-valuenow", String(percentage));
     progressLabel.textContent = `${data.ready_count || 0} of ${data.total_count || steps.length} ready`;
     list.replaceChildren();
+    const rail = document.createElement("nav");
+    rail.className = "onboarding-step-rail";
+    rail.setAttribute("aria-label", "Setup steps");
+    for (const [index, step] of steps.entries()) {
+      const railStep = document.createElement("button");
+      railStep.type = "button";
+      railStep.className = `onboarding-rail-step${step.ready ? " is-ready" : ""}${index === activeIndex ? " is-active" : ""}${step.skipped ? " is-skipped" : ""}`;
+      railStep.disabled = blockedIndex >= 0 && index > blockedIndex;
+      if (index === activeIndex) railStep.setAttribute("aria-current", "step");
+      const marker = document.createElement("span");
+      marker.textContent = step.ready ? "OK" : String(index + 1);
+      const label = document.createElement("small");
+      label.textContent = step.title || step.id;
+      railStep.append(marker, label);
+      railStep.addEventListener("click", () => saveProgress(step.id).catch(error => {
+        message.textContent = `Could not open this setup step: ${error.message || error}`;
+      }));
+      rail.append(railStep);
+    }
+    list.append(rail);
     for (const [index, step] of steps.entries()) {
       const row = document.createElement("article");
       row.className = `onboarding-step${step.ready ? " is-ready" : ""}${index === activeIndex ? " is-active" : ""}${step.skipped ? " is-skipped" : ""}`;
@@ -99,8 +131,13 @@
       state.className = "onboarding-step-state";
       state.textContent = step.ready ? "✓" : "•";
       state.setAttribute("aria-label", step.ready ? "Ready" : "Needs attention");
+      const meta = stepMeta[step.id] || {symbol: String(index + 1), eyebrow: "SETUP", guidance: "Configure this capability, then check it before continuing."};
+      state.textContent = meta.symbol;
       const copy = document.createElement("div");
       copy.className = "onboarding-step-copy";
+      const eyebrow = document.createElement("small");
+      eyebrow.className = "onboarding-focus-eyebrow";
+      eyebrow.textContent = meta.eyebrow;
       const title = document.createElement("strong");
       title.textContent = step.title || step.id;
       if (step.required) {
@@ -125,7 +162,10 @@
       } else {
         verification.textContent = step.skipped ? "Skipped for now; you can configure this later" : "Not verified yet";
       }
-      copy.append(title, description, verification);
+      const guidance = document.createElement("p");
+      guidance.className = "onboarding-focus-guidance";
+      guidance.textContent = meta.guidance;
+      copy.append(eyebrow, title, description, guidance, verification);
       const actions = document.createElement("div");
       actions.className = "onboarding-step-actions";
       const check = document.createElement("button");
@@ -142,7 +182,7 @@
     }
     const activeStep = steps[activeIndex] || null;
     previous.disabled = activeIndex <= 0;
-    next.disabled = !activeStep || (Boolean(activeStep.required) && !Boolean(activeStep.last_check?.ready));
+    next.disabled = !activeStep || (Boolean(activeStep.required) && !(Boolean(activeStep.ready) && Boolean(activeStep.last_check?.ready)));
     next.textContent = activeIndex >= steps.length - 1 ? "Review summary" : "Continue";
     skip.hidden = !activeStep || Boolean(activeStep.required) || Boolean(activeStep.ready);
     const requiredSteps = steps.filter(step => step.required);
@@ -181,7 +221,9 @@
 
   async function moveGuide(direction, skipCurrent = false) {
     const steps = Array.isArray(latestData?.steps) ? latestData.steps : [];
-    const index = Math.max(0, steps.findIndex(step => step.id === latestData?.current_step));
+    const storedIndex = Math.max(0, steps.findIndex(step => step.id === latestData?.current_step));
+    const blockedIndex = steps.findIndex(step => step.required && !(step.ready && step.last_check?.ready));
+    const index = blockedIndex >= 0 && storedIndex > blockedIndex ? blockedIndex : storedIndex;
     const current = steps[index];
     const targetIndex = Math.max(0, Math.min(steps.length - 1, index + direction));
     if (!current || targetIndex === index) {
@@ -243,7 +285,7 @@
   next.addEventListener("click", () => moveGuide(1));
   skip.addEventListener("click", () => moveGuide(1, true));
   checkRequired.addEventListener("click", runRequiredChecks);
-  recheck.addEventListener("click", () => load().catch(error => { message.textContent = `Recheck failed: ${error.message || error}`; }));
+  recheck.addEventListener("click", () => load().catch(error => { message.textContent = `Refresh failed: ${error.message || error}`; }));
   complete.addEventListener("click", () => update("complete").catch(error => { message.textContent = error.message || String(error); }));
   dismiss.addEventListener("click", () => update("dismiss").catch(error => { message.textContent = error.message || String(error); }));
   load({openIfNeeded: true}).catch(() => {});

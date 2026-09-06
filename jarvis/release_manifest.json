@@ -1,9 +1,9 @@
 {
-  "version": "0.13.165",
+  "version": "0.13.166",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/ZBRANO_Core main",
-  "summary": "Remove owner-only Grinder settings from general product configuration after their protected migration.",
+  "summary": "Turn first-run Setup into a focused, gated seven-step onboarding wizard.",
   "history_backfill": [
     {
       "version": "0.13.0",
@@ -664,19 +664,24 @@
     {
       "version": "0.13.164",
       "summary": "Migrated owner-only extension settings into protected persistent storage without breaking existing installations."
+    },
+    {
+      "version": "0.13.165",
+      "summary": "Removed owner-only Grinder settings from general product configuration after their protected migration."
     }
   ],
   "release_entry": {
     "features": [
-      "Keep the private Grinder monitor running from its protected migrated data record.",
-      "Present normal users with only generally applicable Home Assistant add-on options."
+      "Guide first-time users through one clearly explained setup capability at a time.",
+      "Show Home Assistant, AI, permissions, voice, memory, plugins, and notifications in a compact progress rail.",
+      "Keep direct verification and configuration actions on the active step."
     ],
     "fixes": [
-      "Remove Grinder-specific fields from public add-on defaults and schema.",
-      "Stop exporting private owner configuration through the general startup environment."
+      "Prevent users from moving beyond an incomplete required step based only on stale verification.",
+      "Rename the misleading Recheck action to Refresh status."
     ],
     "validation": [
-      "Public option isolation, startup environment isolation, private persisted compatibility, release contract, and v0.13.165 release coverage"
+      "Focused-step rendering, required-step navigation gates, responsive progress rail, browser smoke, and v0.13.166 release coverage"
     ]
   },
   "features": [

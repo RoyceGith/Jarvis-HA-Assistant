@@ -10,8 +10,8 @@ MANIFEST = json.loads((ROOT / "jarvis" / "release_manifest.json").read_text(enco
 
 class V013144ArmBrowserGateTests(unittest.TestCase):
     def test_release_is_aligned(self):
-        self.assertEqual(MANIFEST["version"], "0.13.165")
-        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.164")
+        self.assertEqual(MANIFEST["version"], "0.13.166")
+        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.165")
 
     def test_undo_waits_for_persisted_debounced_history(self):
         self.assertIn('localStorage.getItem("zbrano.automation-studio.unsaved.v1")', BROWSER)

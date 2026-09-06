@@ -1,5 +1,12 @@
 # Change log
 
+## 0.13.166
+
+- Replaced the dense first-run checklist with one focused setup task at a time.
+- Added a compact seven-step progress rail with clear capability explanations.
+- Locked future steps until required live Home Assistant and AI checks pass.
+- Preserved direct Check, Configure, Skip, Back, Continue, and Finish actions.
+
 ## 0.13.165
 
 - Removed all Grinder-specific fields from the general Home Assistant add-on configuration.
