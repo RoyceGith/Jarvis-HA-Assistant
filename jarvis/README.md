@@ -1,9 +1,14 @@
-# ZBRANO v0.13.179
+# ZBRANO v0.13.180
 
 Automation Studio provides a graphical, step-by-step workflow for Home Assistant
 automations. Use Setup &amp; safety, When, Only if, Then, and optional Outcomes beside the
 interactive flow canvas. Natural-language creation, templates, drag-and-drop,
 saved automation compatibility, and the full Advanced editor remain available.
+
+Version 0.13.180 fixes the Home Assistant setup action so it opens dedicated
+connection help rather than Device Access. The guide explains that Supervisor
+connects ZBRANO automatically, points to app status and logs, and rechecks the
+connection directly without requesting an address or token.
 
 Version 0.13.179 replaces Entity permissions jargon in Setup with Device access,
 Sensor devices, and Control devices. Empty access now clearly distinguishes a

@@ -1,5 +1,5 @@
 {
-  "version": "0.13.179",
+  "version": "0.13.180",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/ZBRANO_Core main",
@@ -720,20 +720,24 @@
       {
         "version": "0.13.178",
         "summary": "Made Entity Inventory permission-first while preserving advanced columns and custom layouts."
+      },
+      {
+        "version": "0.13.179",
+        "summary": "Aligned onboarding and installation reporting with Sensor device and Control device access."
       }
     ],
     "release_entry": {
       "features": [
-        "Rename the onboarding Entity permissions step to Device access and align it with Sensor device and Control device terminology.",
-        "Show selected sensor and control device counts with correct singular and plural wording.",
-        "Explain that chat remains available when no devices are selected while home reading and control remain unavailable."
+        "Add dedicated Home Assistant connection help to guided Setup.",
+        "Explain the automatic Supervisor-provided connection without asking users for an address or access token.",
+        "Provide direct app-status, wait, log, restart, and connection-recheck guidance."
       ],
       "fixes": [
-        "Replace readable, controllable, approved, and entity-policy wording in normal onboarding actions and checks.",
-        "Use the same plain device-access language in the shareable installation report."
+        "Stop the Home Assistant setup action from incorrectly opening Device Access.",
+        "Replace WebSocket terminology and raw connection errors with a plain recovery message."
       ],
       "validation": [
-        "Device-access summary behavior, empty-access guidance, onboarding labels, installation report wording, browser interaction, and v0.13.179 release coverage"
+        "Home Assistant setup target, recovery-guide content, generic recheck wiring, browser interaction, and v0.13.180 release coverage"
       ]
   },
   "features": [

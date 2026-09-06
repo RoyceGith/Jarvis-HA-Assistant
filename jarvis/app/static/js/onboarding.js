@@ -18,23 +18,28 @@
   configurationHelp.hidden = true;
   configurationHelp.innerHTML = `
     <div class="onboarding-configuration-heading">
-      <div><span class="onboarding-kicker">HOME ASSISTANT APP SETTINGS</span><h3 id="onboarding-configuration-title">Connect the AI model</h3></div>
+      <div><span id="onboarding-configuration-kicker" class="onboarding-kicker">HOME ASSISTANT APP SETTINGS</span><h3 id="onboarding-configuration-title">Connect the AI model</h3></div>
       <button id="onboarding-configuration-close" type="button" aria-label="Close configuration guide">Close</button>
     </div>
-    <p>Your credential stays in Home Assistant's protected app configuration. ZBRANO never displays it on this page.</p>
-    <ol>
+    <p id="onboarding-configuration-intro">Your credential stays in Home Assistant's protected app configuration. ZBRANO never displays it on this page.</p>
+    <ol id="onboarding-configuration-steps">
       <li>In Home Assistant, open <strong>Settings → Apps → ZBRANO → Configuration</strong>.</li>
       <li>Paste your own OpenAI API key into <code>openai_api_key</code>. The default <code>openai_model</code> can be kept.</li>
       <li>Select <strong>Save</strong>, then restart the ZBRANO app so the protected setting is loaded.</li>
       <li>Return here and select <strong>Verify key</strong>. ZBRANO checks the connection without revealing the key.</li>
     </ol>
-    <p class="onboarding-configuration-optional"><strong>Optional fields can stay blank.</strong> ElevenLabs, Google, GitHub, and Workshop Memory settings are only needed when you choose those capabilities later.</p>
+    <p id="onboarding-configuration-note" class="onboarding-configuration-optional"><strong>Optional fields can stay blank.</strong> ElevenLabs, Google, GitHub, and Workshop Memory settings are only needed when you choose those capabilities later.</p>
     <div class="onboarding-configuration-actions">
       <button id="onboarding-configuration-copy" type="button">Copy field name</button>
       <button id="onboarding-configuration-verify" type="button">Verify after restart</button>
     </div>`;
   summary.after(configurationHelp);
   const configurationClose = document.getElementById("onboarding-configuration-close");
+  const configurationKicker = document.getElementById("onboarding-configuration-kicker");
+  const configurationTitle = document.getElementById("onboarding-configuration-title");
+  const configurationIntro = document.getElementById("onboarding-configuration-intro");
+  const configurationSteps = document.getElementById("onboarding-configuration-steps");
+  const configurationNote = document.getElementById("onboarding-configuration-note");
   const configurationCopy = document.getElementById("onboarding-configuration-copy");
   const configurationVerify = document.getElementById("onboarding-configuration-verify");
   const guideActions = document.querySelector(".onboarding-guide-actions");
@@ -42,12 +47,55 @@
   const recheck = document.getElementById("onboarding-recheck");
   const complete = document.getElementById("onboarding-complete");
   const dismiss = document.getElementById("onboarding-dismiss");
-  if (!setupTab || !list || !progress || !progressBar || !progressLabel || !message || !previous || !skip || !next || !summary || !configurationHelp || !configurationClose || !configurationCopy || !configurationVerify || !guideActions || !checkRequired || !recheck || !complete || !dismiss) return;
+  if (!setupTab || !list || !progress || !progressBar || !progressLabel || !message || !previous || !skip || !next || !summary || !configurationHelp || !configurationClose || !configurationKicker || !configurationTitle || !configurationIntro || !configurationSteps || !configurationNote || !configurationCopy || !configurationVerify || !guideActions || !checkRequired || !recheck || !complete || !dismiss) return;
   let latestData = null;
   let reviewingCompleted = false;
+  let configurationStepId = "model";
+
+  function showConfigurationGuide(stepId) {
+    const model = stepId === "model";
+    configurationStepId = stepId;
+    configurationKicker.textContent = model ? "HOME ASSISTANT APP SETTINGS" : "HOME ASSISTANT CONNECTION";
+    configurationTitle.textContent = model ? "Connect the AI model" : "Reconnect ZBRANO to Home Assistant";
+    configurationIntro.textContent = model
+      ? "Your credential stays in Home Assistant's protected app configuration. ZBRANO never displays it on this page."
+      : "ZBRANO connects to Home Assistant automatically. You do not need to enter an address or access token.";
+    const items = model
+      ? [
+          "In Home Assistant, open Settings → Apps → ZBRANO → Configuration.",
+          "Paste your own OpenAI API key into openai_api_key. The default openai_model can be kept.",
+          "Select Save, then restart the ZBRANO app so the protected setting is loaded.",
+          "Return here and select Verify key. ZBRANO checks the connection without revealing the key.",
+        ]
+      : [
+          "In Home Assistant, open Settings → Apps → ZBRANO and confirm the app is running.",
+          "If ZBRANO was just started, wait a few seconds and check the connection again.",
+          "If it is still disconnected, open the ZBRANO Log tab and look for the first Home Assistant connection error.",
+          "Restart the ZBRANO app, return here, and check the connection again.",
+        ];
+    configurationSteps.replaceChildren(...items.map(text => {
+      const item = document.createElement("li");
+      item.textContent = text;
+      return item;
+    }));
+    configurationNote.textContent = model
+      ? "Optional fields can stay blank. ElevenLabs, Google, GitHub, and Workshop Memory settings are only needed when you choose those capabilities later."
+      : "The Home Assistant Supervisor supplies this connection securely while the ZBRANO app is running.";
+    configurationCopy.hidden = !model;
+    configurationVerify.textContent = model ? "Verify after restart" : "Check connection again";
+    configurationHelp.hidden = false;
+    message.textContent = model
+      ? "Follow the four steps below. Keep the API key in Home Assistant's protected app configuration."
+      : "Follow these checks to restore the automatic Home Assistant connection.";
+    configurationHelp.scrollIntoView({behavior: "smooth", block: "nearest"});
+  }
 
   function openTarget(target) {
     configurationHelp.hidden = true;
+    if (target === "home_assistant") {
+      showConfigurationGuide(target);
+      return;
+    }
     if (target === "entities") {
       document.getElementById("entities-tab")?.click();
       window.setTimeout(() => window.zbranoOpenEntityPermissionGuide?.(), 0);
@@ -60,15 +108,14 @@
       return;
     }
     if (target === "model") {
-      configurationHelp.hidden = false;
-      message.textContent = "Follow the four steps below. Keep the API key in Home Assistant's protected app configuration.";
-      configurationHelp.scrollIntoView({behavior: "smooth", block: "nearest"});
+      showConfigurationGuide(target);
       return;
     }
     document.querySelector(`[data-settings-target="${CSS.escape(target)}"]`)?.click();
   }
 
   const actionLabels = {
+    home_assistant: "Connection help",
     entities: "Choose devices",
     model: "Configuration help",
     voice: "Open voice test",
@@ -153,8 +200,8 @@
   });
   configurationCopy.addEventListener("click", () => copyInstallationSummary("openai_api_key", configurationCopy, "Copied field name", "Copy field name"));
   configurationVerify.addEventListener("click", () => {
-    const modelStep = [...list.querySelectorAll(".onboarding-step")].find(row => row.querySelector("strong")?.textContent.includes("AI model"));
-    const check = modelStep?.querySelector(".onboarding-step-actions button:first-child");
+    const configuredStep = list.querySelector(`.onboarding-step[data-step-id="${CSS.escape(configurationStepId)}"]`);
+    const check = configuredStep?.querySelector(".onboarding-step-actions button:first-child");
     if (check) check.click();
   });
 
@@ -307,6 +354,7 @@
     for (const [index, step] of steps.entries()) {
       const row = document.createElement("article");
       row.className = `onboarding-step${step.ready ? " is-ready" : ""}${index === activeIndex ? " is-active" : ""}${step.skipped ? " is-skipped" : ""}`;
+      row.dataset.stepId = step.id;
       if (index === activeIndex) row.setAttribute("aria-current", "step");
       const state = document.createElement("span");
       state.className = "onboarding-step-state";

@@ -719,7 +719,7 @@ ha_ws = HomeAssistantWebSocketClient(
 
 app = FastAPI(
     title="ZBRANO",
-    version="0.13.179",
+    version="0.13.180",
     docs_url="/api/docs",
     openapi_url="/api/openapi.json",
 )
@@ -2823,7 +2823,7 @@ async def health() -> dict[str, Any]:
     configured_speech_provider = SPEECH_PROVIDER if SPEECH_PROVIDER in {"openai", "elevenlabs"} else "openai"
     return {
         "status": "ok",
-        "version": "0.13.179",
+        "version": "0.13.180",
         "home_assistant_configured": bool(SUPERVISOR_TOKEN),
         "workshop_memory_configured": bool(WORKSHOP_MEMORY_URL),
         "workshop_memory_cost_guard": workshop_cost_guard_status(),
@@ -4198,7 +4198,7 @@ async def onboarding_status_payload() -> dict[str, Any]:
             "description": "Connected to Home Assistant" if ha_status.get("connected") else "Waiting for the Home Assistant connection",
             "ready": bool(SUPERVISOR_TOKEN) and bool(ha_status.get("connected")),
             "required": True,
-            "target": "entities",
+            "target": "home_assistant",
         },
         {
             "id": "model",
@@ -4365,7 +4365,7 @@ async def check_onboarding_step(step_id: str) -> dict[str, Any]:
                 pass
             status = ha_ws.status()
         ready = bool(SUPERVISOR_TOKEN) and bool(status.get("connected"))
-        detail = "Home Assistant WebSocket connected" if ready else str(status.get("last_error") or "Home Assistant is not connected")
+        detail = "ZBRANO is connected to Home Assistant" if ready else "Home Assistant is not connected. Restart ZBRANO, then check its app log if the connection still fails."
     elif step_id == "model":
         if not OPENAI_API_KEY:
             save_onboarding_check(step_id, ready=False, detail="OpenAI API key is not configured", checked_at=checked_at)
