@@ -151,7 +151,7 @@ function apiFixture(url, method = "GET") {
   if (pathname === "/api/health") {
     return {
       status: "ok",
-      version: "0.13.166",
+      version: "0.13.167",
       speech_provider: "openai",
       speech_providers: {openai: {configured: true}, elevenlabs: {configured: false}},
     };
@@ -166,7 +166,10 @@ function apiFixture(url, method = "GET") {
       auto_sync_releases_to_workshop_memory: false,
     };
   }
-  if (pathname === "/api/onboarding") return onboardingFixture;
+  if (pathname === "/api/onboarding") {
+    if (method === "PUT") onboardingFixture.completed = true;
+    return onboardingFixture;
+  }
   if (pathname === "/api/ha/entities") {
     return {entities, count: entities.length, domains: ["sensor", "climate", "light"], source: "browser fixture"};
   }
@@ -235,7 +238,7 @@ function apiFixture(url, method = "GET") {
   if (pathname === "/api/plugins") return {plugins: []};
   if (pathname === "/api/files/shared") return {files: [], count: 0};
   if (pathname === "/api/release-memory-sync") {
-    return {enabled: false, state: "disabled", version: "0.13.166", task_active: false};
+    return {enabled: false, state: "disabled", version: "0.13.167", task_active: false};
   }
   if (pathname === "/api/tab-activity") return {revisions: {}};
   if (pathname === "/api/grinder-monitor/status") return {enabled: false, connected: false};
@@ -889,6 +892,14 @@ async function main() {
     assert.equal(await page.locator('.onboarding-rail-step').nth(1).isDisabled(), true);
     assert.equal(await page.locator('#onboarding-next').isDisabled(), true);
     assert.equal(await page.locator('#onboarding-recheck').innerText(), "Refresh status");
+    await page.locator('#onboarding-complete').evaluate(element => { element.disabled = false; });
+    await page.locator('#onboarding-complete').click();
+    await page.locator('.onboarding-complete-card').waitFor();
+    assert.match(await page.locator('.onboarding-complete-card').innerText(), /ZBRANO is ready/);
+    assert.match(await page.locator('.onboarding-capability-list').innerText(), /AI model ready/);
+    assert.match(await page.locator('.onboarding-capability-list').innerText(), /Voice and wake word available later/);
+    await page.getByRole('button', {name:'Review connections'}).click();
+    await page.locator('.onboarding-step.is-active').waitFor();
     await page.locator('[data-settings-target="voice"]').click();
     await page.locator('[data-settings-category="voice"]:visible').waitFor();
     assert.equal(await page.locator('[data-settings-target="voice"]').evaluate(element => element.closest("details").open), true);

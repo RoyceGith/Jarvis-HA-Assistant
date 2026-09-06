@@ -1,5 +1,12 @@
 # Change log
 
+## 0.13.167
+
+- Added a dedicated ZBRANO is ready screen after setup completion.
+- Separated capabilities that are ready from optional capabilities available later.
+- Added direct Start chatting and Review connections actions.
+- Preserved completion state while reviewing setup.
+
 ## 0.13.166
 
 - Replaced the dense first-run checklist with one focused setup task at a time.

@@ -1,9 +1,13 @@
-## ZBRANO v0.13.166
+## ZBRANO v0.13.167
 
 ZBRANO combines Home Assistant chat, voice, entity control, memory, notifications,
 calendar and contact tools, plugins, and evidence-based automations. Automation Studio now uses
 a visual building-block toolbox, interactive node canvas, and contextual inspector;
 the established automation engine and stored definitions remain compatible.
+
+Version 0.13.167 completes the onboarding handoff. Finishing Setup now shows a
+clear ZBRANO is ready screen, separates capabilities that are ready from those
+available later, and offers direct Start chatting and Review connections actions.
 
 Version 0.13.166 turns first-run Setup into a focused guided wizard. One clearly
 explained task is shown at a time, a compact seven-step rail shows progress, and

@@ -1,6 +1,6 @@
 # ZBRANO for Home Assistant
 
-Current release: **0.13.166**
+Current release: **0.13.167**
 
 This is the public Home Assistant installation and update repository for ZBRANO.
 The application is delivered as a prebuilt container image. The current repository
@@ -20,6 +20,10 @@ Existing ZBRANO installations retain the same add-on slug, configuration, `/data
 storage, and `ghcr.io/roycegith/jarvis-ha-assistant` update image.
 
 ## Current experience
+
+Version 0.13.167 adds a proper onboarding completion screen with a clear readiness
+summary, optional capabilities available later, and direct Start chatting or
+Review connections actions.
 
 Version 0.13.166 makes first-run Setup a focused seven-step wizard. It explains
 one task at a time, provides direct verification and configuration actions, and

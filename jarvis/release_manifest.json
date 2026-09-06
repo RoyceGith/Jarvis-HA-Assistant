@@ -1,9 +1,9 @@
 {
-  "version": "0.13.166",
+  "version": "0.13.167",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/ZBRANO_Core main",
-  "summary": "Turn first-run Setup into a focused, gated seven-step onboarding wizard.",
+  "summary": "Complete onboarding with a readiness summary and direct handoff into Chat.",
   "history_backfill": [
     {
       "version": "0.13.0",
@@ -668,20 +668,24 @@
     {
       "version": "0.13.165",
       "summary": "Removed owner-only Grinder settings from general product configuration after their protected migration."
+    },
+    {
+      "version": "0.13.166",
+      "summary": "Turned first-run Setup into a focused, gated seven-step onboarding wizard."
     }
   ],
   "release_entry": {
     "features": [
-      "Guide first-time users through one clearly explained setup capability at a time.",
-      "Show Home Assistant, AI, permissions, voice, memory, plugins, and notifications in a compact progress rail.",
-      "Keep direct verification and configuration actions on the active step."
+      "Show a dedicated readiness screen after required setup is completed.",
+      "Separate configured capabilities from optional capabilities available later.",
+      "Open Chat directly or return to a reviewable setup wizard."
     ],
     "fixes": [
-      "Prevent users from moving beyond an incomplete required step based only on stale verification.",
-      "Rename the misleading Recheck action to Refresh status."
+      "Replace the completed wizard's disabled final-step dead end with useful next actions.",
+      "Keep setup completion intact while reviewing connections."
     ],
     "validation": [
-      "Focused-step rendering, required-step navigation gates, responsive progress rail, browser smoke, and v0.13.166 release coverage"
+      "Completion rendering, capability classification, Chat handoff, connection review, browser smoke, and v0.13.167 release coverage"
     ]
   },
   "features": [

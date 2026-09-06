@@ -6,6 +6,10 @@ connections.
 
 ## Automation Studio
 
+Version 0.13.167 completes the first-run journey with a readiness summary and
+direct Start chatting and Review connections actions. Optional capabilities stay
+available later without blocking ordinary use.
+
 Version 0.13.166 replaces the dense Setup checklist with a focused guided wizard.
 Its compact progress rail covers Home Assistant, AI, entity permissions, voice,
 memory, plugins, and notifications, while required checks safely gate progress.

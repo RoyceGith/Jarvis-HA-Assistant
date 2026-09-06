@@ -11,12 +11,14 @@
   const skip = document.getElementById("onboarding-skip");
   const next = document.getElementById("onboarding-next");
   const summary = document.getElementById("onboarding-summary");
+  const guideActions = document.querySelector(".onboarding-guide-actions");
   const checkRequired = document.getElementById("onboarding-check-required");
   const recheck = document.getElementById("onboarding-recheck");
   const complete = document.getElementById("onboarding-complete");
   const dismiss = document.getElementById("onboarding-dismiss");
-  if (!setupTab || !list || !progress || !progressBar || !progressLabel || !message || !previous || !skip || !next || !summary || !checkRequired || !recheck || !complete || !dismiss) return;
+  if (!setupTab || !list || !progress || !progressBar || !progressLabel || !message || !previous || !skip || !next || !summary || !guideActions || !checkRequired || !recheck || !complete || !dismiss) return;
   let latestData = null;
+  let reviewingCompleted = false;
 
   function openTarget(target) {
     if (target === "entities") return document.getElementById("entities-tab")?.click();
@@ -92,6 +94,58 @@
     }
   }
 
+  function renderCompletion(data, steps) {
+    const ready = steps.filter(step => step.ready);
+    const later = steps.filter(step => !step.ready);
+    const card = document.createElement("article");
+    card.className = "onboarding-complete-card";
+    const mark = document.createElement("span");
+    mark.className = "onboarding-complete-mark";
+    mark.textContent = "OK";
+    mark.setAttribute("aria-hidden", "true");
+    const title = document.createElement("h3");
+    title.textContent = "ZBRANO is ready";
+    const description = document.createElement("p");
+    description.textContent = "Core setup is complete. You can start chatting now and add optional capabilities whenever you need them.";
+    const capabilityList = document.createElement("div");
+    capabilityList.className = "onboarding-capability-list";
+    for (const step of ready) {
+      const chip = document.createElement("span");
+      chip.className = "is-ready";
+      chip.textContent = `${step.title} ready`;
+      capabilityList.append(chip);
+    }
+    for (const step of later) {
+      const chip = document.createElement("span");
+      chip.textContent = `${step.title} available later`;
+      capabilityList.append(chip);
+    }
+    const actions = document.createElement("div");
+    actions.className = "onboarding-complete-actions";
+    const start = document.createElement("button");
+    start.type = "button";
+    start.className = "primary";
+    start.textContent = "Start chatting";
+    start.addEventListener("click", () => document.getElementById("chat-tab")?.click());
+    const review = document.createElement("button");
+    review.type = "button";
+    review.textContent = "Review connections";
+    review.addEventListener("click", () => {
+      reviewingCompleted = true;
+      render(data);
+    });
+    actions.append(start, review);
+    card.append(mark, title, description, capabilityList, actions);
+    list.replaceChildren(card);
+    guideActions.hidden = true;
+    summary.hidden = true;
+    checkRequired.hidden = true;
+    recheck.hidden = true;
+    complete.hidden = true;
+    dismiss.hidden = true;
+    message.textContent = "Setup complete. Optional connections remain available in Settings.";
+  }
+
   function render(data) {
     latestData = data;
     const steps = Array.isArray(data.steps) ? data.steps : [];
@@ -102,6 +156,15 @@
     progressBar.style.width = `${percentage}%`;
     progress.setAttribute("aria-valuenow", String(percentage));
     progressLabel.textContent = `${data.ready_count || 0} of ${data.total_count || steps.length} ready`;
+    if (data.completed && !reviewingCompleted) {
+      renderCompletion(data, steps);
+      return;
+    }
+    guideActions.hidden = false;
+    summary.hidden = false;
+    checkRequired.hidden = false;
+    recheck.hidden = false;
+    complete.hidden = false;
     list.replaceChildren();
     const rail = document.createElement("nav");
     rail.className = "onboarding-step-rail";
@@ -277,6 +340,7 @@
     });
     const data = await response.json();
     if (!response.ok) throw new Error(data.detail || `HTTP ${response.status}`);
+    if (action === "complete") reviewingCompleted = false;
     render(data);
   }
 
