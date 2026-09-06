@@ -1,11 +1,11 @@
 # Change log
 
-## 0.13.171
+## 0.13.172
 
-- Added transparent Automation Results backed by named feedback and outcome counters.
-- Added Learning, Healthy signals, Tune, Delivery, Reliability, and safety states.
-- Added visible acceptance and response rates with direct recommendations.
-- Kept monitor-only matches evaluable without introducing an opaque combined score.
+- Added an installation-readiness report to the completed Setup screen.
+- Covered core and optional connections, persistent storage, backups, permissions, and automation safety.
+- Added sanitized copy and JSON download actions for support.
+- Added in-place refresh after correcting a setup issue.
 
 ## 0.13.167
 
