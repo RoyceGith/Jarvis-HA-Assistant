@@ -26,6 +26,10 @@ export GRINDER_MQTT_USERNAME="$(bashio::config 'grinder_mqtt_username')"
 export GRINDER_MQTT_PASSWORD="$(bashio::config 'grinder_mqtt_password')"
 export GRINDER_MQTT_TOPIC_PREFIX="$(bashio::config 'grinder_mqtt_topic_prefix')"
 
+if ! python3 -m app.services.owner_extensions migrate; then
+  bashio::log.warning "Could not migrate the private owner extension configuration; using the current add-on options for this start."
+fi
+
 bashio::log.info "Starting local Playwright MCP browser service..."
 PLAYWRIGHT_CHROMIUM="$(command -v chromium-browser || command -v chromium)"
 if [[ -z "${PLAYWRIGHT_CHROMIUM}" ]]; then

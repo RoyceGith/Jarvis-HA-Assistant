@@ -12,8 +12,8 @@ MANIFEST = json.loads((ROOT / "jarvis" / "release_manifest.json").read_text(enco
 
 class V013141AutomationStudioGuideTests(unittest.TestCase):
     def test_release_is_aligned(self):
-        self.assertEqual(MANIFEST["version"], "0.13.163")
-        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.162")
+        self.assertEqual(MANIFEST["version"], "0.13.164")
+        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.163")
 
     def test_numbered_steps_have_live_completion_states(self):
         for kind in ("details", "trigger", "context", "action", "decision"):
@@ -29,7 +29,7 @@ class V013141AutomationStudioGuideTests(unittest.TestCase):
             "The extra action details have an invalid format",
             "% sure",
             "Waits ${item.cooldown_minutes} min before repeating",
-            "What ZBRANO may do",
+            "Before running these tasks",
             "selected outcome",
         ):
             self.assertIn(phrase, WORKSPACE)

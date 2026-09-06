@@ -16,6 +16,11 @@ Grinder monitoring is an owner-specific private extension. It must not appear in
 first-run onboarding, general product defaults, public product documentation,
 subscription entitlements, or installations distributed to other users. Its current
 compatibility path must be separated without breaking the owner's stored settings.
+Release 0.13.164 begins that separation by migrating any enabled or customized
+legacy add-on values into permission-restricted `/data/zbrano_owner_extensions.json`
+and making the extension runtime prefer the migrated record. The legacy option fields
+remain for this transition release so an existing owner installation can migrate
+before those product-facing fields are removed.
 
 The private canonical source repository is
 `https://github.com/RoyceGith/ZBRANO_Core`. The public distribution repository is

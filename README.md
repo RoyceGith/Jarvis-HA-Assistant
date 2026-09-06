@@ -1,9 +1,14 @@
-## ZBRANO v0.13.163
+## ZBRANO v0.13.164
 
 ZBRANO combines Home Assistant chat, voice, entity control, memory, notifications,
 calendar and contact tools, plugins, and evidence-based automations. Automation Studio now uses
 a visual building-block toolbox, interactive node canvas, and contextual inspector;
 the established automation engine and stored definitions remain compatible.
+
+Version 0.13.164 safely migrates an enabled or customized owner-only Grinder
+monitor configuration from public add-on options into protected persistent
+storage. The runtime now prefers that private configuration, preparing the old
+product-facing fields for removal without losing the owner's working setup.
 
 Version 0.13.163 removes the automation-wide response choice from Setup. Every
 IF or ELSE IF path with device tasks now independently chooses whether to ask

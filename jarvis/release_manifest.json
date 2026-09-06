@@ -1,9 +1,9 @@
 {
-  "version": "0.13.163",
+  "version": "0.13.164",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/ZBRANO_Core main",
-  "summary": "Move automation authority from global setup into each executable IF and ELSE IF path.",
+  "summary": "Migrate owner-only extension settings into protected persistent storage without breaking existing installations.",
   "history_backfill": [
     {
       "version": "0.13.0",
@@ -656,19 +656,23 @@
     {
       "version": "0.13.162",
       "summary": "Made validation card-specific and added per-automation sleep hours with a security override."
+    },
+    {
+      "version": "0.13.163",
+      "summary": "Moved automation authority from global setup into each executable IF and ELSE IF path."
     }
   ],
   "release_entry": {
     "features": [
-      "Choose Ask before running or Run automatically independently for every IF and ELSE IF path that contains tasks.",
-      "Show each executable path's behavior directly in the flow diagram."
+      "Persist enabled or customized owner-only extension configuration in a protected private data record.",
+      "Load the private record before legacy environment values at runtime."
     ],
     "fixes": [
-      "Remove the ambiguous automation-wide How should ZBRANO respond setting from Setup.",
-      "Keep message-only paths free of irrelevant action approval settings."
+      "Preserve the owner's existing Grinder monitor configuration before its transitional public options are removed.",
+      "Avoid creating an owner-extension record on normal installations that use only disabled defaults."
     ],
     "validation": [
-      "Independent branch authority, legacy policy migration, mixed-path flow labels, browser smoke, full regression suite, and v0.13.163 release coverage"
+      "Private configuration migration, default-install isolation, persisted-config precedence, startup ordering, and v0.13.164 release coverage"
     ]
   },
   "features": [

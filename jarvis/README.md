@@ -1,9 +1,14 @@
-# ZBRANO v0.13.163
+# ZBRANO v0.13.164
 
 Automation Studio provides a graphical, step-by-step workflow for Home Assistant
 automations. Use Setup &amp; safety, When, Only if, Then, and optional Outcomes beside the
 interactive flow canvas. Natural-language creation, templates, drag-and-drop,
 saved automation compatibility, and the full Advanced editor remain available.
+
+Version 0.13.164 migrates enabled or customized owner-only Grinder settings into
+protected `/data` storage before ZBRANO starts. The Grinder runtime now reads
+that private configuration first, allowing its transitional public add-on fields
+to be removed safely after existing owner installations have migrated.
 
 Version 0.13.163 moves action authority into the IF or ELSE IF path that owns
 the tasks. Each executable path can ask before running or run automatically,

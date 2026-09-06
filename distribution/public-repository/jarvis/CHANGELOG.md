@@ -1,5 +1,11 @@
 # Change log
 
+## 0.13.164
+
+- Migrated enabled or customized owner-only extension settings into protected persistent storage.
+- Made the Grinder runtime prefer private persisted configuration while preserving legacy add-on options during the transition.
+- Left normal installations and first-run onboarding unchanged.
+
 ## 0.13.163
 
 - Removed the automation-wide response setting from Setup.

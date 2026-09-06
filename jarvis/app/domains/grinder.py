@@ -4,7 +4,6 @@ import asyncio
 from collections import deque
 import contextlib
 import json
-import os
 from pathlib import Path
 import re
 import time
@@ -12,20 +11,24 @@ from typing import Any
 
 import aiomqtt
 
+from ..services.owner_extensions import grinder_extension_config
+
 
 DATA_DIR = Path("/data")
 
-GRINDER_MONITOR_ENABLED = os.getenv("GRINDER_MONITOR_ENABLED", "false").lower() == "true"
+_GRINDER_EXTENSION = grinder_extension_config()
 
-GRINDER_MQTT_HOST = os.getenv("GRINDER_MQTT_HOST", "core-mosquitto")
+GRINDER_MONITOR_ENABLED = bool(_GRINDER_EXTENSION["enabled"])
 
-GRINDER_MQTT_PORT = int(os.getenv("GRINDER_MQTT_PORT", "1883"))
+GRINDER_MQTT_HOST = str(_GRINDER_EXTENSION["mqtt_host"])
 
-GRINDER_MQTT_USERNAME = os.getenv("GRINDER_MQTT_USERNAME", "")
+GRINDER_MQTT_PORT = int(_GRINDER_EXTENSION["mqtt_port"])
 
-GRINDER_MQTT_PASSWORD = os.getenv("GRINDER_MQTT_PASSWORD", "")
+GRINDER_MQTT_USERNAME = str(_GRINDER_EXTENSION["mqtt_username"])
 
-GRINDER_MQTT_TOPIC_PREFIX = os.getenv("GRINDER_MQTT_TOPIC_PREFIX", "zbrano/grinder").strip("/")
+GRINDER_MQTT_PASSWORD = str(_GRINDER_EXTENSION["mqtt_password"])
+
+GRINDER_MQTT_TOPIC_PREFIX = str(_GRINDER_EXTENSION["mqtt_topic_prefix"]).strip("/")
 
 GRINDER_INCIDENTS_PATH = DATA_DIR / "grinder_incidents.json"
 

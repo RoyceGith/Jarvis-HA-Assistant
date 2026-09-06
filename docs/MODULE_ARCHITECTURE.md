@@ -71,6 +71,8 @@ Pure, low-coupling behavior is extracted under `jarvis/app/services/`:
   safe aggregation of the complete split frontend source for wiring diagnostics.
 - `wake_calibration.py` owns wake model construction, calibration storage and quality,
   status calculation, and personal verifier training.
+- `owner_extensions.py` owns the protected private-extension configuration file and
+  the one-way compatibility migration from legacy owner-specific add-on options.
 
 The API boundary models live in `jarvis/app/schemas.py`, keeping validation contracts
 separate from route orchestration without changing their names or fields.
