@@ -10,6 +10,10 @@ then verifies the required connection. Optional provider fields can remain blank
 
 ## Automation Studio
 
+Version 0.13.178 makes Entity Inventory permission-first, with plain names and the
+five essential columns before advanced Home Assistant details. Custom layouts stay
+intact and filtered results return to a usable top-left position.
+
 Version 0.13.177 keeps permission checkboxes and access choices synchronized.
 Do not allow always revokes access, while rechecking a blocked entity restores its
 safest readable level without silently granting control.

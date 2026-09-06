@@ -1,19 +1,20 @@
 (() => {
   const STORAGE_KEY = "zbrano_entity_column_layout_v1";
   const DEFAULTS = [
-    {key:"select", label:"Select", width:76, min:62},
-    {key:"name", label:"Friendly name", width:190, min:90},
+    {key:"select", label:"Allow", width:76, min:62},
+    {key:"name", label:"Device or sensor", width:190, min:90},
     {key:"entity_id", label:"Entity ID", width:230, min:110},
-    {key:"domain", label:"Domain", width:110, min:74},
-    {key:"area", label:"Area", width:150, min:88},
+    {key:"domain", label:"Type", width:110, min:74},
+    {key:"area", label:"Room / area", width:150, min:88},
     {key:"site", label:"Site / Zone", width:170, min:100},
-    {key:"labels", label:"HA Labels", width:220, min:120},
-    {key:"state", label:"State", width:110, min:72},
-    {key:"class_unit", label:"Class / unit", width:150, min:88},
-    {key:"access", label:"Access", width:210, min:125},
-    {key:"aliases", label:"Aliases", width:220, min:110},
+    {key:"labels", label:"HA labels", width:220, min:120},
+    {key:"state", label:"Current value", width:110, min:72},
+    {key:"class_unit", label:"Measurement", width:150, min:88},
+    {key:"access", label:"How ZBRANO may use it", width:210, min:125},
+    {key:"aliases", label:"Other names", width:220, min:110},
   ];
-  const defaultOrder = DEFAULTS.map(column => column.key);
+  const sourceOrder = DEFAULTS.map(column => column.key);
+  const defaultOrder = ["select", "name", "state", "access", "area", "entity_id", "aliases", "domain", "class_unit", "site", "labels"];
   const definitions = new Map(DEFAULTS.map(column => [column.key, column]));
   const table = document.querySelector("#entities-panel .table-wrap table");
   const rows = document.getElementById("entity-rows");
@@ -22,9 +23,10 @@
   function loadLayout() {
     try {
       const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || "null");
-      const order = Array.isArray(saved?.order)
+      const savedOrder = Array.isArray(saved?.order)
         ? saved.order.filter(key => definitions.has(key))
         : [];
+      const order = savedOrder.length ? savedOrder : [...defaultOrder];
       for (const key of defaultOrder) if (!order.includes(key)) order.push(key);
       const widths = {};
       for (const key of defaultOrder) {
@@ -54,10 +56,11 @@
   function ensureMetadata() {
     const headers = [...table.tHead?.rows?.[0]?.cells || []];
     headers.forEach((header, index) => {
-      if (!header.dataset.entityColumn) header.dataset.entityColumn = defaultOrder[index] || `column_${index}`;
+      if (!header.dataset.entityColumn) header.dataset.entityColumn = sourceOrder[index] || `column_${index}`;
       header.draggable = true;
       header.title = "Drag to move this column. Drag the right edge to resize it.";
       if (!header.querySelector(".entity-column-resizer")) {
+        header.textContent = definitions.get(header.dataset.entityColumn)?.label || header.textContent;
         const resizer = document.createElement("span");
         resizer.className = "entity-column-resizer";
         resizer.setAttribute("role", "separator");
@@ -67,7 +70,7 @@
     });
     for (const row of rows.rows) {
       [...row.cells].forEach((cell, index) => {
-        if (!cell.dataset.entityColumn) cell.dataset.entityColumn = defaultOrder[index] || `column_${index}`;
+        if (!cell.dataset.entityColumn) cell.dataset.entityColumn = sourceOrder[index] || `column_${index}`;
       });
     }
   }

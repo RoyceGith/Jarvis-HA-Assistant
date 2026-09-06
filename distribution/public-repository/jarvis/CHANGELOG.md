@@ -1,5 +1,12 @@
 # Change log
 
+## 0.13.178
+
+- Put the five essential entity-permission columns before technical details.
+- Renamed those columns with plain, task-focused descriptions.
+- Preserved deliberately customized layouts and updated Reset columns.
+- Kept filtered permission results visible by closing the guide and resetting the table viewport.
+
 ## 0.13.177
 
 - Made Do not allow immediately revoke entity access.

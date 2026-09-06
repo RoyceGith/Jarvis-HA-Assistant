@@ -1692,6 +1692,13 @@ function entityPermissionGroup(entity) {
   return "other";
 }
 
+function resetEntityInventoryScroll() {
+  const tableWrap = entityRows.closest(".table-wrap");
+  if (!tableWrap) return;
+  tableWrap.scrollTop = 0;
+  tableWrap.scrollLeft = 0;
+}
+
 function entityAccessOptions(entity, currentAccess) {
   let options;
   if (entity.control_capable) {
@@ -1740,7 +1747,9 @@ for (const button of entityPermissionGuide.querySelectorAll("[data-entity-permis
     for (const peer of entityPermissionGuide.querySelectorAll("[data-entity-permission-filter]")) {
       peer.setAttribute("aria-pressed", String(peer === button));
     }
+    entityPermissionGuide.open = false;
     renderEntities();
+    resetEntityInventoryScroll();
   });
 }
 

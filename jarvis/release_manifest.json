@@ -1,5 +1,5 @@
 {
-  "version": "0.13.177",
+  "version": "0.13.178",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/ZBRANO_Core main",
@@ -712,20 +712,24 @@
       {
         "version": "0.13.176",
         "summary": "Replaced internal permission names with Sensor device, Control device, and Do not allow choices."
+      },
+      {
+        "version": "0.13.177",
+        "summary": "Kept permission checkboxes, access choices, saved records, summaries, and exports consistent."
       }
     ],
     "release_entry": {
       "features": [
-        "Make Do not allow immediately revoke an entity instead of leaving contradictory enabled state.",
-        "Choose the safest readable access level when the owner checks an entity that was previously blocked.",
-        "Report readable and controllable device totals in plain language."
+        "Put Allow, Device or sensor, Current value, How ZBRANO may use it, and Room first in the entity inventory.",
+        "Rename technical table headings with plain descriptions while retaining every advanced entity detail.",
+        "Preserve deliberately saved custom column orders and make Reset columns return to the new permission-first layout."
       ],
       "fixes": [
-        "Prevent restricted entities from being counted, exported, or stored as enabled.",
-        "Enforce the disabled restricted-access invariant in the API as well as the browser."
+        "Close the permission guide after choosing a category so it cannot crowd the entity controls out of view.",
+        "Reset filtered inventory scrolling to the top-left so the permission controls are immediately visible."
       ],
       "validation": [
-        "Permission-state normalization, safe re-enabling, API persistence, browser interaction, and v0.13.177 release coverage"
+        "Column metadata and ordering, custom-layout compatibility, filtered viewport recovery, browser interaction, and v0.13.178 release coverage"
       ]
   },
   "features": [

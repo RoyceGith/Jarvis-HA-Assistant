@@ -14,10 +14,10 @@ MANIFEST = json.loads((ROOT / "jarvis/release_manifest.json").read_text(encoding
 
 class StableSpeechSpeedTests(unittest.TestCase):
     def test_release_markers_are_aligned(self):
-        self.assertIn('version: "0.13.177"', CONFIG)
-        self.assertIn('version="0.13.177"', MAIN)
-        self.assertIn("HUD 0.13.177", INDEX)
-        self.assertEqual(MANIFEST["version"], "0.13.177")
+        self.assertIn('version: "0.13.178"', CONFIG)
+        self.assertIn('version="0.13.178"', MAIN)
+        self.assertIn("HUD 0.13.178", INDEX)
+        self.assertEqual(MANIFEST["version"], "0.13.178")
 
     def test_adjusted_speed_avoids_the_unsafe_early_start_threshold(self):
         self.assertNotIn("bufferedSeconds >= 0.28", INDEX)

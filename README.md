@@ -1,9 +1,14 @@
-## ZBRANO v0.13.177
+## ZBRANO v0.13.178
 
 ZBRANO combines Home Assistant chat, voice, entity control, memory, notifications,
 calendar and contact tools, plugins, and evidence-based automations. Automation Studio now uses
 a visual building-block toolbox, interactive node canvas, and contextual inspector;
 the established automation engine and stored definitions remain compatible.
+
+Version 0.13.178 makes Entity Inventory permission-first. Allow, Device or sensor,
+Current value, How ZBRANO may use it, and Room now appear before technical details.
+Custom layouts remain intact, Reset columns uses the new order, and choosing a
+permission category reveals its table from the top-left without a crowded guide.
 
 Version 0.13.177 makes entity permission controls agree with each other. Choosing
 Do not allow now revokes access everywhere, while checking a blocked entity selects
