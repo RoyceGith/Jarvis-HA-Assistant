@@ -26,10 +26,10 @@ def load_functions(names):
 
 class AutomationLifecycleRecoveryReleaseTests(unittest.TestCase):
     def test_release_markers_are_aligned(self):
-        self.assertIn('version: "0.13.173"', CONFIG)
-        self.assertIn('version="0.13.173"', MAIN)
-        self.assertIn("HUD 0.13.173", HTML)
-        self.assertEqual(MANIFEST["version"], "0.13.173")
+        self.assertIn('version: "0.13.174"', CONFIG)
+        self.assertIn('version="0.13.174"', MAIN)
+        self.assertIn("HUD 0.13.174", HTML)
+        self.assertEqual(MANIFEST["version"], "0.13.174")
 
     def test_unanswered_suggestion_expires_and_unblocks_rule(self):
         functions = load_functions({"_automation_event", "_automation_record_feedback", "_automation_expire_stale_suggestions"})
@@ -74,7 +74,7 @@ class AutomationLifecycleRecoveryReleaseTests(unittest.TestCase):
         self.assertIn("_automation_save(data)", route)
 
     def test_release_history_includes_v01374(self):
-        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.172")
+        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.173")
 
 
 if __name__ == "__main__":

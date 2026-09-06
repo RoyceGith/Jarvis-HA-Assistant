@@ -34,6 +34,7 @@ function entityFixture(index) {
     state: String(20 + index / 10),
     available: true,
     risk: "read_only",
+    control_capable: false,
     auto_approved: false,
     area_name: index % 2 ? "Workshop" : "Office",
     area_source: "device",
@@ -48,9 +49,9 @@ function entityFixture(index) {
 
 const entities = [
   ...Array.from({length: 48}, (_, index) => entityFixture(index + 1)),
-  {entity_id:"climate.browser_thermostat",friendly_name:"Browser Thermostat",domain:"climate",state:"cool",target_temperature:25,current_temperature:26.2,temperature_unit:"°C",hvac_action:"cooling",available:true,risk:"low_risk_control_proposed",auto_approved:true},
-  {entity_id:"light.browser_light",friendly_name:"Browser Light",domain:"light",state:"off",available:true,risk:"low_risk_control_proposed",auto_approved:true},
-  {entity_id:"light.browser_fixture",friendly_name:"Browser Fixture Light",domain:"light",state:"off",available:true,risk:"low_risk_control_proposed",auto_approved:true},
+  {entity_id:"climate.browser_thermostat",friendly_name:"Browser Thermostat",domain:"climate",state:"cool",target_temperature:25,current_temperature:26.2,temperature_unit:"°C",hvac_action:"cooling",available:true,risk:"low_risk_control_proposed",control_capable:true,auto_approved:true},
+  {entity_id:"light.browser_light",friendly_name:"Browser Light",domain:"light",state:"off",available:true,risk:"low_risk_control_proposed",control_capable:true,auto_approved:true},
+  {entity_id:"light.browser_fixture",friendly_name:"Browser Fixture Light",domain:"light",state:"off",available:true,risk:"low_risk_control_proposed",control_capable:true,auto_approved:true},
 ];
 const browserNow = Math.floor(Date.now() / 1000);
 const automationFixture = {
@@ -161,7 +162,7 @@ const onboardingFixture = {
     {id:"notifications",title:"Notifications and autonomy",description:"Choose notification delivery",ready:false,required:false,target:"notifications",last_check:null,skipped:false},
   ],
   installation_report: {
-    generated_at: 1788300000, version: "0.13.173", ready: true, attention_count: 0, ready_count: 5,
+    generated_at: 1788300000, version: "0.13.174", ready: true, attention_count: 0, ready_count: 5,
     checks: [
       {id:"home_assistant",title:"Home Assistant",state:"ready",required:true,detail:"Connected to Home Assistant",target:"entities"},
       {id:"model",title:"AI model",state:"ready",required:true,detail:"gpt-5-mini is configured",target:"model"},
@@ -169,7 +170,7 @@ const onboardingFixture = {
       {id:"backup",title:"Backup and restore",state:"ready",required:false,detail:"A portable ZBRANO backup can be exported from Settings",target:"memory"},
       {id:"automation_health",title:"Automation safety",state:"ready",required:false,detail:"2 saved; 0 need permission; 0 paused after failures",target:"automations"},
     ],
-    support_summary: "ZBRANO installation report · v0.13.173\nOverall: Ready\nHome Assistant: Connected\nAI model: Configured\nEntity permissions: 3 read / 1 control\nPersistent storage: Ready\nAutomations: 2 saved / 0 permission issues / 0 failure pauses",
+    support_summary: "ZBRANO installation report · v0.13.174\nOverall: Ready\nHome Assistant: Connected\nAI model: Configured\nEntity permissions: 3 read / 1 control\nPersistent storage: Ready\nAutomations: 2 saved / 0 permission issues / 0 failure pauses",
   },
 };
 
@@ -178,7 +179,7 @@ function apiFixture(url, method = "GET") {
   if (pathname === "/api/health") {
     return {
       status: "ok",
-      version: "0.13.173",
+      version: "0.13.174",
       speech_provider: "openai",
       speech_providers: {openai: {configured: true}, elevenlabs: {configured: false}},
     };
@@ -265,7 +266,7 @@ function apiFixture(url, method = "GET") {
   if (pathname === "/api/plugins") return {plugins: []};
   if (pathname === "/api/files/shared") return {files: [], count: 0};
   if (pathname === "/api/release-memory-sync") {
-    return {enabled: false, state: "disabled", version: "0.13.173", task_active: false};
+    return {enabled: false, state: "disabled", version: "0.13.174", task_active: false};
   }
   if (pathname === "/api/tab-activity") return {revisions: {}};
   if (pathname === "/api/grinder-monitor/status") return {enabled: false, connected: false};
@@ -383,6 +384,15 @@ async function main() {
     assert.ok(["auto", "scroll"].includes(scrollState.overflowY));
     assert.equal(scrollState.horizontal, true, "Entity Inventory must scroll horizontally");
     assert.equal(scrollState.vertical, true, "Entity Inventory must scroll vertically");
+    await page.locator('#entity-permission-guide summary').click();
+    assert.match(await page.locator('#entity-permission-guide').innerText(), /Nothing is approved by opening or filtering/i);
+    assert.match(await page.locator('[data-entity-permission-filter="sensor"]').innerText(), /read information only/i);
+    assert.match(await page.locator('[data-entity-permission-filter="control"]').innerText(), /can perform actions/i);
+    await page.locator('[data-entity-permission-filter="control"]').click();
+    assert.equal(await page.locator('#entity-rows tr').count(), 3);
+    assert.match(await page.locator('#entity-rows').innerText(), /Browser Thermostat/i);
+    assert.match(await page.locator('#entity-rows').innerText(), /Browser Fixture Light/i);
+    await page.locator('[data-entity-permission-filter="all"]').click();
 
     await page.locator("#contacts-tab").click();
     await page.locator("#contacts-panel:not(.hidden)").waitFor();

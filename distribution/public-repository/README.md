@@ -1,6 +1,6 @@
 # ZBRANO for Home Assistant
 
-Current release: **0.13.173**
+Current release: **0.13.174**
 
 This is the public Home Assistant installation and update repository for ZBRANO.
 The application is delivered as a prebuilt container image. The current repository
@@ -26,10 +26,13 @@ storage, and `ghcr.io/roycegith/jarvis-ha-assistant` update image.
 
 ## Current experience
 
-Version 0.13.173 adds a four-step Home Assistant configuration guide directly to
-the AI model setup step. It names the required field, explains save and restart,
-offers verification afterward, and keeps optional provider settings clearly
-separate from the required connection.
+Version 0.13.174 adds a safe entity-permission guide with Sensor devices, Control
+devices, and All entities views. It shows counts from the current installation and
+opens directly from Setup. Filtering never grants access; each entity still needs
+an explicit user selection.
+
+Version 0.13.173 adds a four-step Home Assistant AI configuration guide with a
+clear save, restart, and verification sequence.
 
 Version 0.13.172 adds a shareable Installation Report covering connections,
 storage, backup, permissions, and automation safety without exposing private data.

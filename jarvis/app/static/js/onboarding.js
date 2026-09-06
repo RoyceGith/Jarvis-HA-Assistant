@@ -48,7 +48,11 @@
 
   function openTarget(target) {
     configurationHelp.hidden = true;
-    if (target === "entities") return document.getElementById("entities-tab")?.click();
+    if (target === "entities") {
+      document.getElementById("entities-tab")?.click();
+      window.setTimeout(() => window.zbranoOpenEntityPermissionGuide?.(), 0);
+      return;
+    }
     if (target === "plugins") return document.getElementById("plugins-tab")?.click();
     if (target === "notifications") {
       document.getElementById("automations-tab")?.click();

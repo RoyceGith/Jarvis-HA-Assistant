@@ -1,5 +1,5 @@
 {
-  "version": "0.13.173",
+  "version": "0.13.174",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/ZBRANO_Core main",
@@ -696,20 +696,24 @@
     {
       "version": "0.13.172",
       "summary": "Added a sanitized installation-readiness report with copy, download, and refresh actions."
+    },
+    {
+      "version": "0.13.173",
+      "summary": "Added a guided Home Assistant AI configuration sequence with restart and verification handoff."
     }
   ],
   "release_entry": {
     "features": [
-      "Replace the AI model configuration dead end with an in-product four-step Home Assistant configuration guide.",
-      "Name the exact required openai_api_key field, explain save and restart, and provide a direct Verify after restart action.",
-      "Separate required AI setup from optional ElevenLabs, Google, GitHub, and Workshop Memory fields that may remain blank."
+      "Add a plain-language entity permission guide with separate Sensor devices, Control devices, and All entities views.",
+      "Show live installation-specific counts for each permission category and open the guide directly from onboarding.",
+      "Mark control-capable inventory records from the backend's existing safe control-domain policy."
     ],
     "fixes": [
-      "Keep credential entry in Home Assistant's protected app configuration instead of rendering a secret input in the ZBRANO interface.",
-      "Document the same first-install AI configuration sequence in the public distribution instructions."
+      "Make clear that filtering never grants access and that only a deliberate entity checkbox changes permission.",
+      "Avoid bulk approval or silently expanded control authority while helping new users navigate a large Home Assistant inventory."
     ],
     "validation": [
-      "Configuration-guide content, no-secret-input boundary, responsive layout, browser interaction, public installation documentation, and v0.13.173 release coverage"
+      "Safe control classification, permission filtering, no-bulk-write boundary, onboarding handoff, responsive UI, browser interaction, and v0.13.174 release coverage"
     ]
   },
   "features": [

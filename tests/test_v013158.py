@@ -14,8 +14,8 @@ MANIFEST = json.loads((ROOT / "jarvis/release_manifest.json").read_text(encoding
 
 class IndependentAutomationBranchesReleaseTests(unittest.TestCase):
     def test_release_is_aligned(self):
-        self.assertEqual(MANIFEST["version"], "0.13.173")
-        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.172")
+        self.assertEqual(MANIFEST["version"], "0.13.174")
+        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.173")
 
     def test_branch_title_cards_are_removed_and_conditions_identify_paths(self):
         self.assertIn("if(result)result.remove()", FLOW)

@@ -47,10 +47,10 @@ def load_test_flow(states):
 
 class AutomationTestFlowReleaseTests(unittest.TestCase):
     def test_release_markers_are_aligned(self):
-        self.assertIn('version: "0.13.173"', CONFIG)
-        self.assertIn('version="0.13.173"', MAIN)
-        self.assertIn("HUD 0.13.173", HTML)
-        self.assertEqual(MANIFEST["version"], "0.13.173")
+        self.assertIn('version: "0.13.174"', CONFIG)
+        self.assertIn('version="0.13.174"', MAIN)
+        self.assertIn("HUD 0.13.174", HTML)
+        self.assertEqual(MANIFEST["version"], "0.13.174")
 
     def test_dry_run_uses_live_state_without_executing_actions(self):
         test_flow = load_test_flow({
@@ -90,7 +90,7 @@ class AutomationTestFlowReleaseTests(unittest.TestCase):
         self.assertIn(".automation-studio-test-step", STUDIO_CSS)
 
     def test_release_history_includes_v01369(self):
-        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.172")
+        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.173")
 
 
 if __name__ == "__main__":

@@ -15,10 +15,10 @@ MANIFEST = json.loads((ROOT / "jarvis/release_manifest.json").read_text(encoding
 
 class AutomationLibraryFilteringReleaseTests(unittest.TestCase):
     def test_release_markers_are_aligned(self):
-        self.assertIn('version: "0.13.173"', CONFIG)
-        self.assertIn('version="0.13.173"', MAIN)
-        self.assertIn("HUD 0.13.173", HTML)
-        self.assertEqual(MANIFEST["version"], "0.13.173")
+        self.assertIn('version: "0.13.174"', CONFIG)
+        self.assertIn('version="0.13.174"', MAIN)
+        self.assertIn("HUD 0.13.174", HTML)
+        self.assertEqual(MANIFEST["version"], "0.13.174")
 
     def test_library_has_compact_search_filter_and_count_controls(self):
         self.assertIn('id="automation-library-search"', HTML)
@@ -53,7 +53,7 @@ class AutomationLibraryFilteringReleaseTests(unittest.TestCase):
         self.assertIn('selectOption("all")', BROWSER)
 
     def test_release_history_includes_v01384(self):
-        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.172")
+        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.173")
 
 
 if __name__ == "__main__":

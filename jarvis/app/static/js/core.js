@@ -991,9 +991,26 @@ const saveMemoryDraft = document.getElementById("save-memory-draft");
 const showApproved = document.getElementById("show-approved");
 const entityRows = document.getElementById("entity-rows");
 const entitySummary = document.getElementById("entity-summary");
+const entityInventoryPanel = document.querySelector('[data-entity-view-panel="inventory"]');
+const entityPermissionGuide = document.createElement("details");
+entityPermissionGuide.id = "entity-permission-guide";
+entityPermissionGuide.className = "entity-permission-guide";
+entityPermissionGuide.innerHTML = `
+  <summary>Choose what ZBRANO can use</summary>
+  <div class="entity-permission-guide-copy">
+    <p>Start with sensors ZBRANO may read. Add control devices one at a time only when you want ZBRANO to operate them. Nothing is approved by opening or filtering this guide.</p>
+    <div class="entity-permission-categories" role="group" aria-label="Entity permission categories">
+      <button type="button" data-entity-permission-filter="sensor" aria-pressed="false"><span aria-hidden="true">S</span><strong>Sensor devices</strong><small><b data-entity-permission-count="sensor">0</b> available · read information only</small></button>
+      <button type="button" data-entity-permission-filter="control" aria-pressed="false"><span aria-hidden="true">C</span><strong>Control devices</strong><small><b data-entity-permission-count="control">0</b> available · can perform actions</small></button>
+      <button type="button" data-entity-permission-filter="all" aria-pressed="true"><span aria-hidden="true">ALL</span><strong>All entities</strong><small><b data-entity-permission-count="all">0</b> available · advanced review</small></button>
+    </div>
+    <p class="entity-permission-safety"><strong>A checkbox grants access.</strong> Filtering only changes what you see. Control remains limited to supported device types and the access selected on that row.</p>
+  </div>`;
+entityInventoryPanel?.insertBefore(entityPermissionGuide, entityInventoryPanel.querySelector(".toolbar"));
 
 let entityInventory = [];
 let inventoryLoaded = false;
+let entityPermissionFilter = "all";
 const entityReview = new Map();
 const ENTITY_ALIAS_BACKUP_KEY = "jarvis_entity_aliases_v1";
 let entityAliasBackup = {};
@@ -1663,8 +1680,45 @@ function entityMatches(entity) {
     (entity.labels || []).some(label => String(label).toLowerCase().includes(query));
 
   const matchesDomain = !selectedDomain || entity.domain === selectedDomain;
-  return matchesSearch && matchesDomain;
+  const matchesPermission = entityPermissionFilter === "all" || entityPermissionGroup(entity) === entityPermissionFilter;
+  return matchesSearch && matchesDomain && matchesPermission;
 }
+
+const sensorEntityDomains = new Set(["sensor", "binary_sensor", "person", "device_tracker", "weather", "sun"]);
+
+function entityPermissionGroup(entity) {
+  if (entity.control_capable) return "control";
+  if (sensorEntityDomains.has(String(entity.domain || ""))) return "sensor";
+  return "other";
+}
+
+function updateEntityPermissionGuide() {
+  const counts = {sensor: 0, control: 0, all: entityInventory.length};
+  for (const entity of entityInventory) {
+    const group = entityPermissionGroup(entity);
+    if (group in counts) counts[group] += 1;
+  }
+  for (const output of entityPermissionGuide.querySelectorAll("[data-entity-permission-count]")) {
+    output.textContent = String(counts[output.dataset.entityPermissionCount] || 0);
+  }
+}
+
+for (const button of entityPermissionGuide.querySelectorAll("[data-entity-permission-filter]")) {
+  button.addEventListener("click", () => {
+    entityPermissionFilter = button.dataset.entityPermissionFilter || "all";
+    entitySearch.value = "";
+    domainFilter.value = "";
+    for (const peer of entityPermissionGuide.querySelectorAll("[data-entity-permission-filter]")) {
+      peer.setAttribute("aria-pressed", String(peer === button));
+    }
+    renderEntities();
+  });
+}
+
+window.zbranoOpenEntityPermissionGuide = () => {
+  entityPermissionGuide.open = true;
+  entityPermissionGuide.scrollIntoView({behavior: "smooth", block: "start"});
+};
 
 function formatEntityTemperature(value, unit) {
   if (value === null || value === undefined || value === "") return "";
@@ -1973,6 +2027,7 @@ async function loadEntities() {
     }
 
     inventoryLoaded = true;
+    updateEntityPermissionGuide();
 
     domainFilter.innerHTML = '<option value="">All domains</option>';
     for (const domain of data.domains || []) {
