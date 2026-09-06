@@ -1,5 +1,12 @@
 # Change log
 
+## 0.13.180
+
+- Fixed the Home Assistant setup action so it opens connection help, not Device Access.
+- Added plain app-status, wait, log, restart, and recheck guidance.
+- Explained that Supervisor supplies the connection without an address or token.
+- Replaced WebSocket terminology in the setup result with user-facing connection status.
+
 ## 0.13.179
 
 - Renamed the onboarding permission step to Device access.

@@ -10,6 +10,10 @@ then verifies the required connection. Optional provider fields can remain blank
 
 ## Automation Studio
 
+Version 0.13.180 gives Home Assistant connection failures their own recovery guide
+and recheck action. The guide uses the Supervisor-provided connection and never
+asks users to find or paste a Home Assistant address or token.
+
 Version 0.13.179 makes Device access consistent across Setup, checks, and the
 installation report. It uses Sensor device and Control device counts and clearly
 describes the limits of choosing no devices.
