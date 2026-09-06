@@ -10,6 +10,10 @@ then verifies the required connection. Optional provider fields can remain blank
 
 ## Automation Studio
 
+Version 0.13.177 keeps permission checkboxes and access choices synchronized.
+Do not allow always revokes access, while rechecking a blocked entity restores its
+safest readable level without silently granting control.
+
 Version 0.13.176 gives entity access three clear choices: Sensor device, Control
 device, or Do not allow. HVAC status sensors can only be recommended for reading,
 and existing legacy values remain compatible until the owner changes them.
