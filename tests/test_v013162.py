@@ -23,7 +23,7 @@ def load_sleep_hours_helper():
 
 class Release013162Tests(unittest.TestCase):
     def test_release_markers_and_sleep_controls(self):
-        self.assertEqual(MANIFEST["version"], "0.13.169")
+        self.assertEqual(MANIFEST["version"], "0.13.170")
         self.assertIn("sleep_hours_enabled", SCHEMAS)
         self.assertIn('"automation-sleep-hours-enabled"', WORKSPACE)
         self.assertIn('"automation-run-during-sleep-hours"', WORKSPACE)

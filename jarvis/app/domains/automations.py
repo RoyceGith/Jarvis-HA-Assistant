@@ -1724,17 +1724,29 @@ def _automation_failure_circuit(item: dict[str, Any], now: float) -> tuple[bool,
     cutoff = max(now - window_minutes * 60, acknowledged_at)
     failure_timestamps = feedback.get("failure_timestamps")
     if isinstance(failure_timestamps, list):
-        count = sum(float(value or 0) > cutoff for value in failure_timestamps)
+        all_failures = [float(value or 0) for value in failure_timestamps if float(value or 0) > 0]
     else:
-        count = sum(
-            isinstance(entry, dict) and entry.get("outcome") == "action_failure" and float(entry.get("created_at") or 0) > cutoff
-            for entry in feedback.get("history", [])
-        )
+        all_failures = [
+            float(entry.get("created_at") or 0) for entry in feedback.get("history", [])
+            if isinstance(entry, dict) and entry.get("outcome") == "action_failure" and float(entry.get("created_at") or 0) > 0
+        ]
+    recent_failures = sorted(value for value in all_failures if value > cutoff)
+    count = len(recent_failures)
     is_open = count >= limit
+    retry_available_at = (
+        recent_failures[count - limit] + window_minutes * 60
+        if is_open else 0
+    )
     detail = f"failure circuit {'open' if is_open else 'closed'}: {count}/{limit} action failures within {window_minutes} minutes"
     item["recovery_state"] = {
         "circuit_open": is_open, "recent_failures": count, "failure_limit": limit,
         "window_minutes": window_minutes, "detail": detail,
+        "remaining_before_pause": max(0, limit - count),
+        "last_failure_at": max(all_failures, default=0),
+        "retry_available_at": retry_available_at,
+        "failure_acknowledged_at": acknowledged_at,
+        "recovery_resets": int(feedback.get("recovery_resets") or 0),
+        "last_error": str(item.get("last_error") or "")[:500],
     }
     return is_open, detail, count
 
@@ -1838,6 +1850,7 @@ async def _automation_execute_action(data: dict[str, Any], item: dict[str, Any],
             completed.append({"kind": "service", "service": service, "entity_id": entity_id})
     except Exception as exc:
         item["status"] = "failed"
+        item["last_error"] = str(exc)[:500]
         _automation_record_feedback(item, "action_failure", time.time(), suggestion)
         circuit_open, circuit_detail, _ = _automation_failure_circuit(item, time.time())
         if circuit_open:

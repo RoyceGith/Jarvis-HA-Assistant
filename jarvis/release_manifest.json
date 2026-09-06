@@ -1,5 +1,5 @@
 {
-  "version": "0.13.169",
+  "version": "0.13.170",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/ZBRANO_Core main",
@@ -680,20 +680,24 @@
     {
       "version": "0.13.168",
       "summary": "Turned Automation Activity into a plain-language health and decision control room."
+    },
+    {
+      "version": "0.13.169",
+      "summary": "Added a per-automation audit of required sensor reads, device controls, and live permission gaps."
     }
   ],
   "release_entry": {
     "features": [
-      "Audit each automation's required sensor reads and device controls in one dedicated view.",
-      "Explain why every entity is needed and whether its current live permission is sufficient.",
-      "Open the affected automation or Entity permissions directly from a permission finding."
+      "Add an Automation Recovery center with clear recent-failure counts, pause thresholds, and last-error details.",
+      "Show when a failure pause will expire naturally and whether the automation remains watching.",
+      "Provide guarded reset-and-resume actions while preserving permissions, branch authority, and audit history."
     ],
     "fixes": [
-      "Use the runtime readiness engine as the single source of truth for both enforcement and presentation.",
-      "Include legacy context signals, branch checks, comparisons, waits, presence, and all task devices in the audit."
+      "Store the actual Home Assistant action error in the automation recovery state.",
+      "Automatically reconcile an expired failure pause back to armed or draft state when the workspace refreshes."
     ],
     "validation": [
-      "Read/control requirement extraction, safety-label enforcement, permission filters and navigation, responsive presentation, browser smoke, and v0.13.169 release coverage"
+      "Failure-window timing, automatic recovery reconciliation, preserved history, guarded recovery controls, responsive UI, browser smoke, and v0.13.170 release coverage"
     ]
   },
   "features": [

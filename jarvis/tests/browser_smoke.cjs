@@ -114,6 +114,7 @@ const automationFixture = {
       {entity_id:"sensor.browser_fixture_3",permission:"read",access:"read_only",allowed:true,sources:["trigger_read"]},
       {entity_id:"light.browser_fixture",permission:"control",access:"low_risk_control_proposed",allowed:true,sources:["action_control"],safety_label_blocked:false},
     ]},
+    recovery_state: {circuit_open:false,recent_failures:1,failure_limit:3,window_minutes:60,remaining_before_pause:2,last_failure_at:browserNow-600,retry_available_at:0,failure_acknowledged_at:0,recovery_resets:0,last_error:"Home Assistant service timed out"},
     updated_at: 200,
     decision_history: [{id:"decision-executed",outcome:"executed",detail:"Completed 1 action step",evidence:"sensor.browser_fixture_3 changed from 19 to 21",policy:"autonomous",branch:"IF",created_at:browserNow-60}],
     last_decision: {id:"decision-executed",outcome:"executed",detail:"Completed 1 action step",evidence:"sensor.browser_fixture_3 changed from 19 to 21",policy:"autonomous",branch:"IF",created_at:browserNow-60},
@@ -164,7 +165,7 @@ function apiFixture(url, method = "GET") {
   if (pathname === "/api/health") {
     return {
       status: "ok",
-      version: "0.13.169",
+      version: "0.13.170",
       speech_provider: "openai",
       speech_providers: {openai: {configured: true}, elevenlabs: {configured: false}},
     };
@@ -251,7 +252,7 @@ function apiFixture(url, method = "GET") {
   if (pathname === "/api/plugins") return {plugins: []};
   if (pathname === "/api/files/shared") return {files: [], count: 0};
   if (pathname === "/api/release-memory-sync") {
-    return {enabled: false, state: "disabled", version: "0.13.169", task_active: false};
+    return {enabled: false, state: "disabled", version: "0.13.170", task_active: false};
   }
   if (pathname === "/api/tab-activity") return {revisions: {}};
   if (pathname === "/api/grinder-monitor/status") return {enabled: false, connected: false};
@@ -536,6 +537,11 @@ async function main() {
     await page.locator("#automation-activity-result-filter").selectOption("all");
     assert.match(await page.locator("#automation-health-list").innerText(), /Active lighting/i);
     assert.match(await page.locator("#autonomy-timeline").innerText(), /Automation action sequence executed/i);
+    assert.equal(await page.locator("#automation-recovery-paused").innerText(), "0 Paused");
+    assert.match(await page.locator("#automation-recovery-list").innerText(), /1 of 3 failures/i);
+    assert.match(await page.locator("#automation-recovery-list").innerText(), /2 more failures would pause/i);
+    await page.locator("#automation-recovery-list details summary").click();
+    assert.match(await page.locator("#automation-recovery-list").innerText(), /Home Assistant service timed out/i);
     await page.locator('[data-auto-view="permissions"]').click();
     await page.locator('[data-auto-panel="permissions"]:not(.hidden)').waitFor();
     assert.equal(await page.locator("#automation-permission-ready").innerText(), "2");

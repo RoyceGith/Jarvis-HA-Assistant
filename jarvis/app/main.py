@@ -716,7 +716,7 @@ ha_ws = HomeAssistantWebSocketClient(
 
 app = FastAPI(
     title="ZBRANO",
-    version="0.13.169",
+    version="0.13.170",
     docs_url="/api/docs",
     openapi_url="/api/openapi.json",
 )
@@ -2820,7 +2820,7 @@ async def health() -> dict[str, Any]:
     configured_speech_provider = SPEECH_PROVIDER if SPEECH_PROVIDER in {"openai", "elevenlabs"} else "openai"
     return {
         "status": "ok",
-        "version": "0.13.169",
+        "version": "0.13.170",
         "home_assistant_configured": bool(SUPERVISOR_TOKEN),
         "workshop_memory_configured": bool(WORKSHOP_MEMORY_URL),
         "workshop_memory_cost_guard": workshop_cost_guard_status(),
@@ -3518,10 +3518,16 @@ async def read_autonomous_automations():
         data = automation_store()
         now = time.time()
         expired = sum(_automation_expire_stale_suggestions(data, item, now) for item in data.get("automations", []))
+        recovered = 0
         for item in data.get("automations", []):
-            _automation_failure_circuit(item, now)
+            circuit_open, circuit_detail, _ = _automation_failure_circuit(item, now)
+            if not circuit_open and item.get("status") == "paused_failure":
+                item["status"] = "armed" if item.get("enabled") else "draft"
+                item.pop("last_circuit_signature", None)
+                _automation_event(data, "recovery", f"Automation failure pause elapsed: {item.get('name')}", circuit_detail)
+                recovered += 1
             item["readiness"] = _automation_readiness(item, data)
-        if expired:
+        if expired or recovered:
             _automation_save(data)
     return {
         **data,

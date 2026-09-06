@@ -16,10 +16,10 @@ MANIFEST = json.loads((ROOT / "jarvis/release_manifest.json").read_text(encoding
 
 class BranchQuickBuilderReleaseTests(unittest.TestCase):
     def test_release_markers_are_aligned(self):
-        self.assertIn('version: "0.13.169"', CONFIG)
-        self.assertIn('version="0.13.169"', MAIN)
-        self.assertIn("HUD 0.13.169", HTML)
-        self.assertEqual(MANIFEST["version"], "0.13.169")
+        self.assertIn('version: "0.13.170"', CONFIG)
+        self.assertIn('version="0.13.170"', MAIN)
+        self.assertIn("HUD 0.13.170", HTML)
+        self.assertEqual(MANIFEST["version"], "0.13.170")
 
     def test_each_interactive_path_has_direct_build_controls(self):
         for marker in (
@@ -59,7 +59,7 @@ class BranchQuickBuilderReleaseTests(unittest.TestCase):
         self.assertIn("cursor:pointer", STYLES)
 
     def test_release_history_includes_v013106(self):
-        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.168")
+        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.169")
 
 
 if __name__ == "__main__":

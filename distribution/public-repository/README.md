@@ -1,6 +1,6 @@
 # ZBRANO for Home Assistant
 
-Current release: **0.13.169**
+Current release: **0.13.170**
 
 This is the public Home Assistant installation and update repository for ZBRANO.
 The application is delivered as a prebuilt container image. The current repository
@@ -21,9 +21,9 @@ storage, and `ghcr.io/roycegith/jarvis-ha-assistant` update image.
 
 ## Current experience
 
-Version 0.13.169 adds an Automation Permissions audit that shows exactly which
-sensors each rule reads and which devices it can control. Missing access and Home
-Assistant safety-label blocks are explained with direct links to fix or review them.
+Version 0.13.170 adds an Automation Recovery center with understandable failure
+counts, pause thresholds, last-error details, and automatic retry timing. Guarded
+recovery resumes watching without bypassing permissions or erasing audit history.
 
 Version 0.13.167 adds a proper onboarding completion screen with a clear readiness
 summary, optional capabilities available later, and direct Start chatting or

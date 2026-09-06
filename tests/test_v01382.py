@@ -14,10 +14,10 @@ MANIFEST = json.loads((ROOT / "jarvis/release_manifest.json").read_text(encoding
 
 class AutomationStudioDraftRecoveryReleaseTests(unittest.TestCase):
     def test_release_markers_are_aligned(self):
-        self.assertIn('version: "0.13.169"', CONFIG)
-        self.assertIn('version="0.13.169"', MAIN)
-        self.assertIn("HUD 0.13.169", HTML)
-        self.assertEqual(MANIFEST["version"], "0.13.169")
+        self.assertIn('version: "0.13.170"', CONFIG)
+        self.assertIn('version="0.13.170"', MAIN)
+        self.assertIn("HUD 0.13.170", HTML)
+        self.assertEqual(MANIFEST["version"], "0.13.170")
 
     def test_recovery_is_local_expiring_and_size_bounded(self):
         self.assertIn('localDraftKey="zbrano.automation-studio.unsaved.v1"', WORKSPACE)
@@ -38,7 +38,7 @@ class AutomationStudioDraftRecoveryReleaseTests(unittest.TestCase):
         self.assertIn('inputValue(), "27"', BROWSER)
 
     def test_release_history_includes_v01381(self):
-        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.168")
+        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.169")
 
 
 if __name__ == "__main__":

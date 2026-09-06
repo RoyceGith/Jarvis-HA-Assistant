@@ -38,6 +38,10 @@
         <div class="autonomy-card-head"><div><h3>Automation health</h3><p>Current state and most recent evaluation for each saved automation.</p></div></div>
         <div id="automation-health-list" class="autonomy-list"></div>
       </article>
+      <article class="autonomy-card automation-recovery-card">
+        <div class="autonomy-card-head"><div><h3>Recovery center</h3><p>Repeated action failures pause safely. Review the cause, permissions, and retry timing before resuming.</p></div><span id="automation-recovery-paused" class="automation-state">0 paused</span></div>
+        <div id="automation-recovery-list" class="automation-recovery-list"></div>
+      </article>
       <article class="autonomy-card automation-system-activity"><h3>System activity</h3><p>Configuration changes, suggestions, recoveries, and action events.</p><div id="autonomy-timeline" class="autonomy-list"></div></article>
     </div>`;
   $("automation-permission-root").innerHTML=`
@@ -682,6 +686,18 @@
     }
   }
 
+  function renderRecovery(){
+    const automations=state.automations||[],paused=automations.filter(item=>item.recovery_state?.circuit_open),affected=automations.filter(item=>{const recovery=item.recovery_state||{};return recovery.circuit_open||Number(recovery.recent_failures||0)>0||Number(recovery.recovery_resets||0)>0||["failed","paused_failure"].includes(item.status)});
+    $("automation-recovery-paused").textContent=`${paused.length} paused`;
+    const root=$("automation-recovery-list");root.replaceChildren();
+    if(!affected.length){root.innerHTML='<div class="autonomy-empty">No automation failures need recovery. If repeated actions fail, ZBRANO will pause the affected rule here instead of continuing blindly.</div>';return}
+    for(const item of affected.sort((left,right)=>Number(Boolean(right.recovery_state?.circuit_open))-Number(Boolean(left.recovery_state?.circuit_open))||Number(right.recovery_state?.last_failure_at||0)-Number(left.recovery_state?.last_failure_at||0))){
+      const recovery=item.recovery_state||{},count=Number(recovery.recent_failures||0),limit=Math.max(1,Number(recovery.failure_limit||item.failure_limit||3)),open=Boolean(recovery.circuit_open),percent=Math.min(100,Math.round(count/limit*100)),lastFailure=Number(recovery.last_failure_at||0),retryAt=Number(recovery.retry_available_at||0),readiness=item.readiness||{},row=document.createElement("div");row.className="automation-recovery-row";row.dataset.tone=open?"paused":count?"warning":"recovered";
+      const status=open?"Paused safely":count?"Still watching":"Recovered",failureText=count?`${count} of ${limit} failures in ${Number(recovery.window_minutes||60)} minutes`:`Failure count cleared${Number(recovery.recovery_resets||0)?` · ${Number(recovery.recovery_resets)} manual reset${Number(recovery.recovery_resets)===1?"":"s"}`:""}`,lastError=recovery.last_error||item.last_error||"No error detail was stored.",timing=open&&retryAt?`The pause clears automatically after ${new Date(retryAt*1000).toLocaleString()}, or you can reset it after reviewing the cause.`:count?`${Math.max(0,Number(recovery.remaining_before_pause??limit-count))} more failure${Number(recovery.remaining_before_pause??limit-count)===1?"":"s"} would pause this automation.`:"The automation can run under its existing branch authority.";
+      row.innerHTML=`<div class="automation-recovery-title"><div><strong>${esc(item.name||"Unnamed automation")}</strong><small>${lastFailure?`Last failure ${new Date(lastFailure*1000).toLocaleString()}`:"Previous failure acknowledged"}</small></div><span>${esc(status)}</span></div><div class="automation-recovery-progress"><span style="width:${percent}%"></span></div><p><strong>${esc(failureText)}</strong> · ${esc(timing)}</p><details><summary>Failure detail</summary><small>${esc(lastError)}</small></details><div class="automation-recovery-actions"><button type="button" data-activity-open-automation="${esc(item.id)}">Open automation</button>${readiness.ready===false?'<button type="button" data-permission-open-entities>Review permissions</button>':""}${open?`<button type="button" data-auto-recover="${esc(item.id)}" data-recovery-label="${item.enabled?"Reset and resume watching":"Acknowledge failure"}">${item.enabled?"Reset and resume watching":"Acknowledge failure"}</button>`:""}</div>`;root.appendChild(row);
+    }
+  }
+
   function renderSuggestions(){
     const root=$("autonomy-suggestions");root.replaceChildren();
     const visible=(state.suggestions||[]).filter(item=>!["dismissed","expired"].includes(item.status)&&item.delivery_notification_center!==false).slice(0,30);
@@ -773,7 +789,7 @@
     $("autonomy-passive-learning").checked=settings.passive_learning_enabled!==false;
   }
 
-  function renderAll(){renderSummary();renderSuggestions();renderContext();renderLibrary();renderAutomationMemory();renderAutomationBrain();renderActivity();renderPermissions();renderTimeline();renderSettings()}
+  function renderAll(){renderSummary();renderSuggestions();renderContext();renderLibrary();renderAutomationMemory();renderAutomationBrain();renderActivity();renderPermissions();renderRecovery();renderTimeline();renderSettings()}
 
   async function loadEntityContext(){
     const root=$("autonomy-context");root.innerHTML='<div class="autonomy-empty">Loading Home Assistant context…</div>';
@@ -980,7 +996,7 @@
     const pause=event.target.closest("[data-auto-pause]");if(pause){const item=state.automations.find(value=>value.id===pause.dataset.autoPause);if(!item||!confirm(`Pause ${item.name}?\n\nLive evaluation and new actions will stop immediately. The rule and its history will be preserved.`))return;pause.disabled=true;try{await api(`api/automations/${encodeURIComponent(item.id)}/pause`,{method:"POST"});await loadWorkspace()}catch(error){alert(`Pause failed: ${error.message||error}`);pause.disabled=false}return}
     const forgetMemory=event.target.closest("[data-automation-memory-forget]");if(forgetMemory){if(!confirm("Forget this automation entity mapping? Existing rules will not be changed."))return;await api(`api/automations/entity-memory/${encodeURIComponent(forgetMemory.dataset.automationMemoryForget)}`,{method:"DELETE"});await loadWorkspace();return}
     const resetLearning=event.target.closest("[data-auto-reset-learning]");if(resetLearning){if(!confirm("Reset learned feedback for this automation? Its configured rule and episode history will remain."))return;resetLearning.disabled=true;try{await api(`api/automations/${encodeURIComponent(resetLearning.dataset.autoResetLearning)}/feedback`,{method:"DELETE"});await loadWorkspace()}catch(error){alert(`Learning reset failed: ${error.message||error}`);resetLearning.disabled=false}return}
-    const recover=event.target.closest("[data-auto-recover]");if(recover){if(!confirm("Reset this automation's failure circuit? Previous failures remain in its audit history."))return;recover.disabled=true;try{await api(`api/automations/${encodeURIComponent(recover.dataset.autoRecover)}/recover`,{method:"POST"});await loadWorkspace()}catch(error){alert(`Recovery reset failed: ${error.message||error}`);recover.disabled=false}return}
+    const recover=event.target.closest("[data-auto-recover]");if(recover){const label=recover.dataset.recoveryLabel||"Reset recovery";if(!confirm(`${label}?\n\nPrevious failures remain in the audit history. ZBRANO will still enforce this automation's permissions and branch authority before any task runs.`))return;recover.disabled=true;try{await api(`api/automations/${encodeURIComponent(recover.dataset.autoRecover)}/recover`,{method:"POST"});await loadWorkspace()}catch(error){alert(`Recovery reset failed: ${error.message||error}`);recover.disabled=false}return}
     const remove=event.target.closest("[data-auto-delete]");if(remove){if(!confirm("Delete this automation draft?"))return;await api(`api/automations/${encodeURIComponent(remove.dataset.autoDelete)}`,{method:"DELETE"});await loadWorkspace()}
   });
 
