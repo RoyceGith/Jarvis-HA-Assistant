@@ -1689,6 +1689,49 @@ def _automation_record_feedback(item: dict[str, Any], outcome: str, now: float, 
         "action_service": str(source.get("action_service") or ""),
     }, *list(feedback.get("history") or [])][:20]
 
+def _automation_evaluation(item: dict[str, Any]) -> dict[str, Any]:
+    feedback = item.get("feedback_memory") if isinstance(item.get("feedback_memory"), dict) else {}
+    approvals = int(feedback.get("approvals") or 0)
+    dismissals = int(feedback.get("dismissals") or 0)
+    manual_resolutions = int(feedback.get("manual_resolutions") or 0)
+    expired = int(feedback.get("expired_suggestions") or 0)
+    automatic_successes = int(feedback.get("autonomous_successes") or 0)
+    action_failures = int(feedback.get("action_failures") or 0)
+    decisions = item.get("decision_history") if isinstance(item.get("decision_history"), list) else []
+    matched_outcomes = {"observed", "pending", "approval_required", "executing", "executed"}
+    recent_matches = sum(isinstance(value, dict) and value.get("outcome") in matched_outcomes for value in decisions)
+    recent_completed_actions = sum(isinstance(value, dict) and value.get("outcome") == "executed" for value in decisions)
+    answered = approvals + dismissals + manual_resolutions
+    accepted = approvals + manual_resolutions
+    suggestions = answered + expired
+    evidence_count = max(suggestions + automatic_successes + action_failures, recent_matches)
+    acceptance_rate = round(accepted / answered, 3) if answered else None
+    response_rate = round(answered / suggestions, 3) if suggestions else None
+
+    if item.get("readiness", {}).get("ready") is False:
+        state, headline, recommendation = "attention", "Permission needs attention", "Fix the missing entity permission before judging this automation's results."
+    elif item.get("recovery_state", {}).get("circuit_open"):
+        state, headline, recommendation = "attention", "Paused after failures", "Review the last error in Recovery before resuming this automation."
+    elif evidence_count < 3:
+        state, headline, recommendation = "learning", "Still learning", "Let this automation run longer before changing its timing or conditions."
+    elif action_failures >= 2 and action_failures > automatic_successes:
+        state, headline, recommendation = "reliability", "Review task reliability", "The task has failed more often than it completed automatically. Check the device and service action."
+    elif dismissals >= 3 and dismissals > accepted:
+        state, headline, recommendation = "tune", "Tune its suggestions", "You choose Not now more often than accepting this automation. Narrow its When or IF checks, or increase its cooldown."
+    elif expired >= 3 and expired > accepted:
+        state, headline, recommendation = "delivery", "Review notification delivery", "Several suggestions expired unanswered. Check its message channels, timing, and sleep-hour settings."
+    else:
+        state, headline, recommendation = "healthy", "Healthy signals", "Recent feedback does not show a repeated dismissal, delivery, permission, or action-failure problem."
+    return {
+        "state": state, "headline": headline, "recommendation": recommendation,
+        "evidence_count": evidence_count, "suggestions": suggestions, "answered": answered,
+        "accepted": accepted, "approvals": approvals, "manual_resolutions": manual_resolutions,
+        "dismissals": dismissals, "expired": expired, "automatic_successes": automatic_successes,
+        "action_failures": action_failures, "acceptance_rate": acceptance_rate,
+        "response_rate": response_rate, "recent_matches": recent_matches,
+        "recent_completed_actions": recent_completed_actions,
+    }
+
 def _automation_expire_stale_suggestions(data: dict[str, Any], item: dict[str, Any], now: float) -> int:
     timeout = max(1, min(1440, int(item.get("suggestion_timeout_minutes") or 30))) * 60
     expired = 0

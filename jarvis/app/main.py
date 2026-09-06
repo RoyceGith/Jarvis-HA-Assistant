@@ -23,6 +23,7 @@ from .domains.automations import (
     _automation_entity_role,
     _automation_branch_policy,
     _automation_effective_policy,
+    _automation_evaluation,
     _automation_evaluate_state_change,
     _automation_event,
     _automation_expire_stale_suggestions,
@@ -716,7 +717,7 @@ ha_ws = HomeAssistantWebSocketClient(
 
 app = FastAPI(
     title="ZBRANO",
-    version="0.13.170",
+    version="0.13.171",
     docs_url="/api/docs",
     openapi_url="/api/openapi.json",
 )
@@ -2820,7 +2821,7 @@ async def health() -> dict[str, Any]:
     configured_speech_provider = SPEECH_PROVIDER if SPEECH_PROVIDER in {"openai", "elevenlabs"} else "openai"
     return {
         "status": "ok",
-        "version": "0.13.170",
+        "version": "0.13.171",
         "home_assistant_configured": bool(SUPERVISOR_TOKEN),
         "workshop_memory_configured": bool(WORKSHOP_MEMORY_URL),
         "workshop_memory_cost_guard": workshop_cost_guard_status(),
@@ -3527,6 +3528,7 @@ async def read_autonomous_automations():
                 _automation_event(data, "recovery", f"Automation failure pause elapsed: {item.get('name')}", circuit_detail)
                 recovered += 1
             item["readiness"] = _automation_readiness(item, data)
+            item["evaluation"] = _automation_evaluation(item)
         if expired or recovered:
             _automation_save(data)
     return {

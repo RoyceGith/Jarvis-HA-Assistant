@@ -6,9 +6,9 @@ connections.
 
 ## Automation Studio
 
-Version 0.13.170 adds an Automation Recovery center to Activity. It explains each
-recent action failure, shows when repeated failures pause a rule, and provides a
-guarded reset while preserving permissions, authority, and audit history.
+Version 0.13.171 adds transparent Automation Results to Activity. Each conclusion
+is backed by visible approvals, dismissals, unanswered messages, successes,
+failures, and recent matches with a direct plain-language recommendation.
 
 Version 0.13.167 completes the first-run journey with a readiness summary and
 direct Start chatting and Review connections actions. Optional capabilities stay

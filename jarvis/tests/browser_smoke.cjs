@@ -88,6 +88,7 @@ const automationFixture = {
       {entity_id:"sensor.browser_fixture_1",permission:"read",access:"read_only",allowed:true,sources:["trigger_read"]},
       {entity_id:"sensor.browser_fixture_2",permission:"read",access:"read_only",allowed:true,sources:["signal_read"]},
     ]},
+    evaluation: {state:"tune",headline:"Tune its suggestions",recommendation:"You choose Not now more often than accepting this automation. Narrow its When or IF checks, or increase its cooldown.",evidence_count:4,suggestions:4,answered:4,accepted:1,approvals:1,manual_resolutions:0,dismissals:3,expired:0,automatic_successes:0,action_failures:0,acceptance_rate:.25,response_rate:1,recent_matches:0,recent_completed_actions:0},
     updated_at: 100,
     decision_history: [{id:"decision-safe",outcome:"suppressed_presence",detail:"Royce is away",evidence:"person.royce = not_home",policy:"suggest",branch:"IF",created_at:browserNow-120}],
     last_decision: {id:"decision-safe",outcome:"suppressed_presence",detail:"Royce is away",evidence:"person.royce = not_home",policy:"suggest",branch:"IF",created_at:browserNow-120},
@@ -115,6 +116,7 @@ const automationFixture = {
       {entity_id:"light.browser_fixture",permission:"control",access:"low_risk_control_proposed",allowed:true,sources:["action_control"],safety_label_blocked:false},
     ]},
     recovery_state: {circuit_open:false,recent_failures:1,failure_limit:3,window_minutes:60,remaining_before_pause:2,last_failure_at:browserNow-600,retry_available_at:0,failure_acknowledged_at:0,recovery_resets:0,last_error:"Home Assistant service timed out"},
+    evaluation: {state:"healthy",headline:"Healthy signals",recommendation:"Recent feedback does not show a repeated dismissal, delivery, permission, or action-failure problem.",evidence_count:5,suggestions:0,answered:0,accepted:0,approvals:0,manual_resolutions:0,dismissals:0,expired:0,automatic_successes:4,action_failures:1,acceptance_rate:null,response_rate:null,recent_matches:1,recent_completed_actions:1},
     updated_at: 200,
     decision_history: [{id:"decision-executed",outcome:"executed",detail:"Completed 1 action step",evidence:"sensor.browser_fixture_3 changed from 19 to 21",policy:"autonomous",branch:"IF",created_at:browserNow-60}],
     last_decision: {id:"decision-executed",outcome:"executed",detail:"Completed 1 action step",evidence:"sensor.browser_fixture_3 changed from 19 to 21",policy:"autonomous",branch:"IF",created_at:browserNow-60},
@@ -165,7 +167,7 @@ function apiFixture(url, method = "GET") {
   if (pathname === "/api/health") {
     return {
       status: "ok",
-      version: "0.13.170",
+      version: "0.13.171",
       speech_provider: "openai",
       speech_providers: {openai: {configured: true}, elevenlabs: {configured: false}},
     };
@@ -252,7 +254,7 @@ function apiFixture(url, method = "GET") {
   if (pathname === "/api/plugins") return {plugins: []};
   if (pathname === "/api/files/shared") return {files: [], count: 0};
   if (pathname === "/api/release-memory-sync") {
-    return {enabled: false, state: "disabled", version: "0.13.170", task_active: false};
+    return {enabled: false, state: "disabled", version: "0.13.171", task_active: false};
   }
   if (pathname === "/api/tab-activity") return {revisions: {}};
   if (pathname === "/api/grinder-monitor/status") return {enabled: false, connected: false};
@@ -542,6 +544,14 @@ async function main() {
     assert.match(await page.locator("#automation-recovery-list").innerText(), /2 more failures would pause/i);
     await page.locator("#automation-recovery-list details summary").click();
     assert.match(await page.locator("#automation-recovery-list").innerText(), /Home Assistant service timed out/i);
+    assert.equal(await page.locator("#automation-results-evaluated").innerText(), "2");
+    assert.equal(await page.locator("#automation-results-attention").innerText(), "1");
+    assert.equal(await page.locator("#automation-results-learning").innerText(), "0");
+    assert.equal(await page.locator("#automation-results-healthy").innerText(), "1");
+    assert.match(await page.locator("#automation-results-list").innerText(), /25% accepted when answered/i);
+    await page.locator("#automation-results-filter").selectOption("attention");
+    assert.equal(await page.locator("#automation-results-list .automation-result-row").count(), 1);
+    assert.match(await page.locator("#automation-results-list").innerText(), /Narrow its When or IF checks/i);
     await page.locator('[data-auto-view="permissions"]').click();
     await page.locator('[data-auto-panel="permissions"]:not(.hidden)').waitFor();
     assert.equal(await page.locator("#automation-permission-ready").innerText(), "2");

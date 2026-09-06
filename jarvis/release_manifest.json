@@ -1,5 +1,5 @@
 {
-  "version": "0.13.170",
+  "version": "0.13.171",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/ZBRANO_Core main",
@@ -684,20 +684,24 @@
     {
       "version": "0.13.169",
       "summary": "Added a per-automation audit of required sensor reads, device controls, and live permission gaps."
+    },
+    {
+      "version": "0.13.170",
+      "summary": "Added understandable automation failure recovery, natural pause expiry, and guarded resume controls."
     }
   ],
   "release_entry": {
     "features": [
-      "Add an Automation Recovery center with clear recent-failure counts, pause thresholds, and last-error details.",
-      "Show when a failure pause will expire naturally and whether the automation remains watching.",
-      "Provide guarded reset-and-resume actions while preserving permissions, branch authority, and audit history."
+      "Evaluate each automation from visible approvals, manual resolutions, dismissals, unanswered suggestions, automatic successes, failures, and recent matches.",
+      "Classify results with explicit Learning, Healthy signals, Tune suggestions, Review delivery, Review reliability, and safety-attention states.",
+      "Show transparent acceptance and response rates with a plain-language recommendation and direct edit action."
     ],
     "fixes": [
-      "Store the actual Home Assistant action error in the automation recovery state.",
-      "Automatically reconcile an expired failure pause back to armed or draft state when the workspace refreshes."
+      "Keep evaluation conclusions derived from named counters instead of presenting an opaque combined AI score.",
+      "Include monitor-only recent matches as evidence while avoiding duplicate event counting."
     ],
     "validation": [
-      "Failure-window timing, automatic recovery reconciliation, preserved history, guarded recovery controls, responsive UI, browser smoke, and v0.13.170 release coverage"
+      "Evaluation classification boundaries, transparent rates and recommendations, result filtering, responsive UI, browser smoke, and v0.13.171 release coverage"
     ]
   },
   "features": [

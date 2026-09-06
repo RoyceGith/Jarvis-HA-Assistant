@@ -1,11 +1,11 @@
 # Change log
 
-## 0.13.170
+## 0.13.171
 
-- Added an Automation Recovery center with recent failure and pause-threshold status.
-- Preserved and displayed the actual Home Assistant error behind a discreet detail view.
-- Added natural pause-expiry timing and automatic status reconciliation.
-- Added guarded reset-and-resume controls without erasing history or bypassing safety.
+- Added transparent Automation Results backed by named feedback and outcome counters.
+- Added Learning, Healthy signals, Tune, Delivery, Reliability, and safety states.
+- Added visible acceptance and response rates with direct recommendations.
+- Kept monitor-only matches evaluable without introducing an opaque combined score.
 
 ## 0.13.167
 

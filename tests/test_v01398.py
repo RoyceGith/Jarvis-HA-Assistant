@@ -13,10 +13,10 @@ MANIFEST = json.loads((ROOT / "jarvis/release_manifest.json").read_text(encoding
 
 class AutomationStudioLifecycleGateReleaseTests(unittest.TestCase):
     def test_release_markers_are_aligned(self):
-        self.assertIn('version: "0.13.170"', CONFIG)
-        self.assertIn('version="0.13.170"', MAIN)
-        self.assertIn("HUD 0.13.170", HTML)
-        self.assertEqual(MANIFEST["version"], "0.13.170")
+        self.assertIn('version: "0.13.171"', CONFIG)
+        self.assertIn('version="0.13.171"', MAIN)
+        self.assertIn("HUD 0.13.171", HTML)
+        self.assertEqual(MANIFEST["version"], "0.13.171")
 
     def test_build_gate_covers_complete_studio_workflow_lifecycle(self):
         self.assertIn("test_studio_workflow_persists_activates_and_evaluates_end_to_end", INTEGRATION)
@@ -30,7 +30,7 @@ class AutomationStudioLifecycleGateReleaseTests(unittest.TestCase):
             self.assertIn(marker, INTEGRATION)
 
     def test_release_history_includes_v01397(self):
-        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.169")
+        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.170")
 
 
 if __name__ == "__main__":

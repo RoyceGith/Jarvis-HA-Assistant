@@ -38,6 +38,11 @@
         <div class="autonomy-card-head"><div><h3>Automation health</h3><p>Current state and most recent evaluation for each saved automation.</p></div></div>
         <div id="automation-health-list" class="autonomy-list"></div>
       </article>
+      <article class="autonomy-card automation-results-card">
+        <div class="autonomy-card-head"><div><h3>Automation results</h3><p>Judge usefulness from visible feedback and outcomes—not a hidden AI score.</p></div><label class="automation-results-filter">Show<select id="automation-results-filter"><option value="all">All automations</option><option value="attention">Needs adjustment</option><option value="learning">Still learning</option><option value="healthy">Healthy signals</option></select></label></div>
+        <div class="automation-results-summary"><span><strong id="automation-results-evaluated">0</strong> with evidence</span><span><strong id="automation-results-attention">0</strong> need adjustment</span><span><strong id="automation-results-learning">0</strong> still learning</span><span><strong id="automation-results-healthy">0</strong> healthy signals</span></div>
+        <div id="automation-results-list" class="automation-results-list"></div>
+      </article>
       <article class="autonomy-card automation-recovery-card">
         <div class="autonomy-card-head"><div><h3>Recovery center</h3><p>Repeated action failures pause safely. Review the cause, permissions, and retry timing before resuming.</p></div><span id="automation-recovery-paused" class="automation-state">0 paused</span></div>
         <div id="automation-recovery-list" class="automation-recovery-list"></div>
@@ -698,6 +703,19 @@
     }
   }
 
+  const evaluationAttentionStates=new Set(["attention","reliability","tune","delivery"]);
+  function renderEvaluation(){
+    const automations=state.automations||[],evaluated=automations.filter(item=>Number(item.evaluation?.evidence_count||0)>0),attention=automations.filter(item=>evaluationAttentionStates.has(item.evaluation?.state)),learning=automations.filter(item=>(item.evaluation?.state||"learning")==="learning"),healthy=automations.filter(item=>item.evaluation?.state==="healthy"),filter=$("automation-results-filter").value||"all";
+    $("automation-results-evaluated").textContent=String(evaluated.length);$("automation-results-attention").textContent=String(attention.length);$("automation-results-learning").textContent=String(learning.length);$("automation-results-healthy").textContent=String(healthy.length);
+    const visible=automations.filter(item=>filter==="all"||(filter==="attention"&&evaluationAttentionStates.has(item.evaluation?.state))||(filter==="learning"&&(item.evaluation?.state||"learning")==="learning")||(filter==="healthy"&&item.evaluation?.state==="healthy")),root=$("automation-results-list");root.replaceChildren();
+    if(!visible.length){root.innerHTML=`<div class="autonomy-empty">${automations.length?"No automations match this results filter.":"No saved automations yet."}</div>`;return}
+    for(const item of visible.sort((left,right)=>Number(evaluationAttentionStates.has(right.evaluation?.state))-Number(evaluationAttentionStates.has(left.evaluation?.state))||Number(right.evaluation?.evidence_count||0)-Number(left.evaluation?.evidence_count||0))){
+      const evaluation=item.evaluation||{},answered=Number(evaluation.answered||0),accepted=Number(evaluation.accepted||0),acceptance=evaluation.acceptance_rate==null?null:Math.round(Number(evaluation.acceptance_rate)*100),response=evaluation.response_rate==null?null:Math.round(Number(evaluation.response_rate)*100),row=document.createElement("div");row.className="automation-result-row";row.dataset.tone=evaluation.state||"learning";
+      const suggestionLine=Number(evaluation.suggestions||0)?`${accepted} accepted or handled manually · ${Number(evaluation.dismissals||0)} Not now · ${Number(evaluation.expired||0)} unanswered`:`No suggestion responses yet`,actionLine=`${Number(evaluation.automatic_successes||0)} automatic successes · ${Number(evaluation.action_failures||0)} task failures · ${Number(evaluation.recent_completed_actions||0)} recent completed actions`,rates=answered?`<div class="automation-result-rate"><span><i style="width:${acceptance}%"></i></span><small>${acceptance}% accepted when answered${response==null?"":` · ${response}% response rate`}</small></div>`:"";
+      row.innerHTML=`<div class="automation-result-title"><div><strong>${esc(item.name||"Unnamed automation")}</strong><small>${Number(evaluation.evidence_count||0)} recorded outcome${Number(evaluation.evidence_count||0)===1?"":"s"} · ${Number(evaluation.recent_matches||0)} recent match${Number(evaluation.recent_matches||0)===1?"":"es"}</small></div><span>${esc(evaluation.headline||"Still learning")}</span></div>${rates}<p>${esc(suggestionLine)}</p><p>${esc(actionLine)}</p><div class="automation-result-recommendation">${esc(evaluation.recommendation||"Let this automation run longer before changing it.")}</div><button type="button" data-activity-open-automation="${esc(item.id)}">Open automation</button>`;root.appendChild(row);
+    }
+  }
+
   function renderSuggestions(){
     const root=$("autonomy-suggestions");root.replaceChildren();
     const visible=(state.suggestions||[]).filter(item=>!["dismissed","expired"].includes(item.status)&&item.delivery_notification_center!==false).slice(0,30);
@@ -789,7 +807,7 @@
     $("autonomy-passive-learning").checked=settings.passive_learning_enabled!==false;
   }
 
-  function renderAll(){renderSummary();renderSuggestions();renderContext();renderLibrary();renderAutomationMemory();renderAutomationBrain();renderActivity();renderPermissions();renderRecovery();renderTimeline();renderSettings()}
+  function renderAll(){renderSummary();renderSuggestions();renderContext();renderLibrary();renderAutomationMemory();renderAutomationBrain();renderActivity();renderPermissions();renderRecovery();renderEvaluation();renderTimeline();renderSettings()}
 
   async function loadEntityContext(){
     const root=$("autonomy-context");root.innerHTML='<div class="autonomy-empty">Loading Home Assistant context…</div>';
@@ -965,6 +983,7 @@
   $("automation-library-sort").addEventListener("change",()=>{persistLibraryPrefs();renderLibrary()});
   $("automation-activity-automation-filter").addEventListener("change",renderActivity);
   $("automation-activity-result-filter").addEventListener("change",renderActivity);
+  $("automation-results-filter").addEventListener("change",renderEvaluation);
   $("automation-activity-refresh").addEventListener("click",()=>loadWorkspace().catch(error=>{$("automation-decision-feed").innerHTML=`<div class="autonomy-empty">Activity refresh failed: ${esc(error.message||error)}</div>`}));
   $("automation-permission-filter").addEventListener("change",renderPermissions);
   $("automation-permission-refresh").addEventListener("click",()=>loadWorkspace().catch(error=>{$("automation-permission-list").innerHTML=`<div class="autonomy-empty">Permission check failed: ${esc(error.message||error)}</div>`}));

@@ -1,14 +1,14 @@
-# ZBRANO v0.13.170
+# ZBRANO v0.13.171
 
 Automation Studio provides a graphical, step-by-step workflow for Home Assistant
 automations. Use Setup &amp; safety, When, Only if, Then, and optional Outcomes beside the
 interactive flow canvas. Natural-language creation, templates, drag-and-drop,
 saved automation compatibility, and the full Advanced editor remain available.
 
-Version 0.13.170 adds an Automation Recovery center to Activity. It shows the
-failure count and pause threshold, preserves the actual Home Assistant error,
-explains automatic retry timing, and offers a guarded reset that keeps all audit
-history and existing safety rules intact.
+Version 0.13.171 adds Automation Results to Activity. It turns approvals, manual
+resolutions, Not now responses, unanswered suggestions, automatic successes,
+failures, and recent matches into explicit plain-language recommendations while
+keeping every underlying count and rate visible.
 
 Version 0.13.167 gives completed onboarding a useful destination. The final screen
 shows ready and later capabilities separately, opens Chat directly, and lets users
