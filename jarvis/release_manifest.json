@@ -1,5 +1,5 @@
 {
-  "version": "0.13.175",
+  "version": "0.13.176",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/ZBRANO_Core main",
@@ -701,24 +701,27 @@
       "version": "0.13.173",
       "summary": "Added a guided Home Assistant AI configuration sequence with restart and verification handoff."
     },
-    {
-      "version": "0.13.174",
-      "summary": "Added safe Sensor, Control, and All entity permission views with live installation counts."
-    }
-  ],
-  "release_entry": {
-    "features": [
-      "Require an explicit per-entity checkbox before newly discovered sockets, thermostats, HVAC devices, or other controls become available to ZBRANO.",
-      "Keep the existing socket and HVAC heuristic only as a recommended access level for easier manual setup.",
-      "Preserve every already-saved entity permission and make previously automatic records normally editable and revocable."
+      {
+        "version": "0.13.174",
+        "summary": "Added safe Sensor, Control, and All entity permission views with live installation counts."
+      },
+      {
+        "version": "0.13.175",
+        "summary": "Required explicit per-entity consent and stopped inventory discovery from granting access automatically."
+      }
     ],
-    "fixes": [
-      "Stop Home Assistant inventory loading and application startup from writing new control permissions automatically.",
-      "Remove forced AUTO labels and disabled permission controls from the entity inventory."
-    ],
-    "validation": [
-      "No-automatic-write policy, saved-permission compatibility, explicit unchecked controls, editable revocation, browser interaction, and v0.13.175 release coverage"
-    ]
+    "release_entry": {
+      "features": [
+        "Present entity access as Sensor device, Control device, or Do not allow instead of internal policy names.",
+        "Keep legacy stored access values visible and unchanged until the owner deliberately replaces them."
+      ],
+      "fixes": [
+        "Classify air-conditioning status and temperature sensors as read-only even when their names match the HVAC recommendation heuristic.",
+        "Only offer action authority for Home Assistant domains ZBRANO can safely control."
+      ],
+      "validation": [
+        "Plain access labels, legacy-value compatibility, HVAC sensor classification, browser interaction, and v0.13.176 release coverage"
+      ]
   },
   "features": [
     "Manage a private local directory of people and company contacts with rich details.",

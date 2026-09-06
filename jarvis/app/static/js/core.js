@@ -1692,6 +1692,31 @@ function entityPermissionGroup(entity) {
   return "other";
 }
 
+function entityAccessOptions(entity, currentAccess) {
+  let options;
+  if (entity.control_capable) {
+    options = [
+      ["state_only", "Sensor device · read status only"],
+      ["low_risk_control_proposed", "Control device · allow actions"],
+      ["restricted", "Do not allow"],
+    ];
+  } else if (sensorEntityDomains.has(String(entity.domain || ""))) {
+    options = [
+      ["read_only", "Sensor device · read information"],
+      ["restricted", "Do not allow"],
+    ];
+  } else {
+    options = [
+      ["state_only", "Sensor device · read status only"],
+      ["restricted", "Do not allow"],
+    ];
+  }
+  if (currentAccess && !options.some(([access]) => access === currentAccess)) {
+    options.push([currentAccess, "Legacy setting · choose a new access level"]);
+  }
+  return options;
+}
+
 function updateEntityPermissionGuide() {
   const counts = {sensor: 0, control: 0, all: entityInventory.length};
   for (const entity of entityInventory) {
@@ -1904,13 +1929,7 @@ function renderEntities() {
 
     const accessCell = document.createElement("td");
     const accessSelect = document.createElement("select");
-    [
-      ["read_only", "read_only"],
-      ["state_only", "state_only"],
-      ["low_risk_control_proposed", "low_risk_control (approved)"],
-      ["confirmation_required", "confirmation_required"],
-      ["restricted", "restricted"],
-    ].forEach(([access, label]) => {
+    entityAccessOptions(entity, review.access).forEach(([access, label]) => {
       const option = document.createElement("option");
       option.value = access;
       option.textContent = label;

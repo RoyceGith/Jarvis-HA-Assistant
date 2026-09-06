@@ -1,9 +1,14 @@
-## ZBRANO v0.13.175
+## ZBRANO v0.13.176
 
 ZBRANO combines Home Assistant chat, voice, entity control, memory, notifications,
 calendar and contact tools, plugins, and evidence-based automations. Automation Studio now uses
 a visual building-block toolbox, interactive node canvas, and contextual inspector;
 the established automation engine and stored definitions remain compatible.
+
+Version 0.13.176 replaces internal entity-policy names with clear Sensor device,
+Control device, and Do not allow choices. Air-conditioning status and temperature
+sensors are now always recommended for reading, never device control, while old
+saved access values remain compatible until deliberately changed.
 
 Version 0.13.175 requires explicit selection before any newly discovered socket,
 thermostat, HVAC entity, or other device receives ZBRANO access. Existing saved

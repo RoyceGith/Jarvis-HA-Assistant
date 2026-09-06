@@ -29,10 +29,10 @@ def load_readiness(access, label_blocked=False):
 
 class AutomationReadinessReleaseTests(unittest.TestCase):
     def test_release_markers_are_aligned(self):
-        self.assertIn('version: "0.13.175"', CONFIG)
-        self.assertIn('version="0.13.175"', MAIN)
-        self.assertIn("HUD 0.13.175", HTML)
-        self.assertEqual(MANIFEST["version"], "0.13.175")
+        self.assertIn('version: "0.13.176"', CONFIG)
+        self.assertIn('version="0.13.176"', MAIN)
+        self.assertIn("HUD 0.13.176", HTML)
+        self.assertEqual(MANIFEST["version"], "0.13.176")
 
     def test_live_read_and_control_permissions_are_ready(self):
         ready = load_readiness({"sensor.temp": "read_only", "climate.room": "low_risk_control_proposed"})
@@ -74,7 +74,7 @@ class AutomationReadinessReleaseTests(unittest.TestCase):
         self.assertIn('item["readiness"] = _automation_readiness', MAIN)
 
     def test_release_history_includes_v01376(self):
-        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.174")
+        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.175")
 
 
 if __name__ == "__main__":

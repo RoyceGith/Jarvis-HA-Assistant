@@ -1,6 +1,6 @@
 # ZBRANO for Home Assistant
 
-Current release: **0.13.175**
+Current release: **0.13.176**
 
 This is the public Home Assistant installation and update repository for ZBRANO.
 The application is delivered as a prebuilt container image. The current repository
@@ -25,6 +25,10 @@ Existing ZBRANO installations retain the same add-on slug, configuration, `/data
 storage, and `ghcr.io/roycegith/jarvis-ha-assistant` update image.
 
 ## Current experience
+
+Version 0.13.176 replaces internal access-policy names with Sensor device,
+Control device, and Do not allow. HVAC status sensors are limited to reading,
+while existing legacy access values remain compatible until explicitly changed.
 
 Version 0.13.175 requires explicit selection before a newly discovered device can
 be used by ZBRANO. Legacy socket and HVAC recommendations no longer grant control
