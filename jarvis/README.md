@@ -1,304 +1,79 @@
 # ZBRANO
 
-ZBRANO is a Home Assistant intelligence assistant with chat, voice, entity control,
-automations, notifications, calendar integration, local memory, and optional plugin
-connections.
-
-After installing, open **Settings → Apps → ZBRANO → Configuration**, place your own
-OpenAI API key in `openai_api_key`, save, and restart the app. ZBRANO's guided Setup
-then verifies the required connection. Optional provider fields can remain blank.
-
-## Automation Studio
-
-Version 0.13.182 adds a top-level, responsive About showcase with six organized
-capability groups, a four-step product journey, ownership messaging, and direct
-links into Chat, Setup, Device Access, and Automations.
-
-Version 0.13.181 adds plain names and descriptions to every option shown in Home
-Assistant's ZBRANO Configuration screen, including clear required, optional,
-advanced, protected, and legacy guidance.
-
-Version 0.13.180 gives Home Assistant connection failures their own recovery guide
-and recheck action. The guide uses the Supervisor-provided connection and never
-asks users to find or paste a Home Assistant address or token.
-
-Version 0.13.179 makes Device access consistent across Setup, checks, and the
-installation report. It uses Sensor device and Control device counts and clearly
-describes the limits of choosing no devices.
-
-Version 0.13.178 makes Entity Inventory permission-first, with plain names and the
-five essential columns before advanced Home Assistant details. Custom layouts stay
-intact and filtered results return to a usable top-left position.
-
-Version 0.13.177 keeps permission checkboxes and access choices synchronized.
-Do not allow always revokes access, while rechecking a blocked entity restores its
-safest readable level without silently granting control.
-
-Version 0.13.176 gives entity access three clear choices: Sensor device, Control
-device, or Do not allow. HVAC status sensors can only be recommended for reading,
-and existing legacy values remain compatible until the owner changes them.
-
-Version 0.13.175 requires explicit selection before newly discovered devices gain
-ZBRANO access. Socket and HVAC heuristics now recommend an access level without
-granting it, while existing saved permissions remain compatible and revocable.
-
-Version 0.13.174 adds safe Sensor, Control, and All entity permission views with
-live installation counts and no bulk approval.
-
-Version 0.13.173 adds an in-product Home Assistant AI configuration guide with a
-clear save, restart, and verification sequence.
-
-Version 0.13.172 adds a sanitized Installation Report covering connections,
-storage, backup, permissions, and automation safety totals.
-
-Version 0.13.167 completes the first-run journey with a readiness summary and
-direct Start chatting and Review connections actions. Optional capabilities stay
-available later without blocking ordinary use.
-
-Version 0.13.166 replaces the dense Setup checklist with a focused guided wizard.
-Its compact progress rail covers Home Assistant, AI, entity permissions, voice,
-memory, plugins, and notifications, while required checks safely gate progress.
-
-Version 0.13.165 removes private owner-only Grinder fields from the general add-on
-configuration. Existing owner monitoring continues through its protected migrated
-record, while normal users see only product configuration relevant to them.
-
-Version 0.13.164 safely migrates any enabled or customized private owner extension
-configuration into protected persistent storage before startup. Normal installations
-remain unchanged and owner-specific features stay excluded from onboarding.
-
-Version 0.13.163 gives every executable IF and ELSE IF path its own Ask before
-running or Run automatically choice. Message-only paths require no action
-authority setting.
-
-Version 0.13.162 makes validation warnings card-specific, adds per-automation
-sleep hours with a security override, and synchronizes branch power tasks with
-the selected device.
-
-Version 0.13.161 makes branch messages optional task blocks and supports outcomes
-that only send a message without requesting approval for a nonexistent action.
-
-Version 0.13.160 keeps nested branch task selections synchronized and displays
-the complete Home Assistant friendly name instead of partial search text.
-
-Version 0.13.159 gives every IF and ELSE IF message separate speech, ZBRANO
-notification, and Home Assistant notification choices. Branch checks now use
-AND without a redundant path-mode selector.
-
-Version 0.13.158 starts each IF and ELSE IF branch with its own condition, gives
-each speaking branch a separate message, hides messages for silent monitoring,
-and keeps bottom task menus visible by opening them upward.
-
-Version 0.13.157 shows current device and sensor readings beside entity names and
-IDs throughout Automation Studio selection dropdowns.
-
-Version 0.13.156 defaults IF and ELSE IF checks to the selected device state and
-moves optional attribute selection into a collapsed advanced section.
-
-Version 0.13.155 reserves the Automation Studio top palette for real flow blocks,
-moves setup and progress into a slim guide line, and reduces action-button size.
-
-Version 0.13.154 keeps Power turns on and Power turns off selected after choosing
-an entity and removes redundant comparison settings from those When blocks.
-
-Version 0.13.153 introduces a categorized top block bar and a wider automation
-canvas. IF begins conditions, while AND/OR connects additional checks.
-
-Version 0.13.152 gives Sensor devices read-only response choices and Control
-devices approval-gated or automatic choices without overlapping wording.
-
-Version 0.13.151 uses two clear device categories—Sensor device and Control
-device—and only displays action safety settings when they apply.
-
-Version 0.13.150 adds a Require presence gate to the first step and changes the
-optional final step into a direct IF / ELSE IF path builder. Existing checks
-and tasks remain connected when branching begins.
-
-Version 0.13.149 adds dedicated event cards to the When step, limits the
-inspector to the selected trigger, and removes Say content from automatic flows
-where it is no longer connected.
-
-Version 0.13.148 makes the aarch64 image browser validation deterministic by
-testing Undo against a deliberately persisted edit. Application behavior is
-unchanged from v0.13.147.
-
-Version 0.13.147 puts authority and safety in the first step of each automation.
-Each rule separately chooses whether ZBRANO watches, suggests, asks first, or
-acts automatically, together with its impact and safety limits. The global
-authority tab is no longer shown in normal navigation.
-
-Version 0.13.146 prevents undersized names and purposes from reaching the server
-and shows readable field-specific explanations for any server validation error.
-
-Version 0.13.145 makes the optional final Studio step a plain Different results
-question. Each result uses readable When / Then language with an explained
-fallback, while the visual flow and saved automation format remain compatible.
-
-Version 0.13.144 stabilizes the ARM image browser gate by waiting for the actual
-persisted Studio history snapshot before testing Undo. User-facing behavior is
-unchanged from v0.13.143.
-
-Version 0.13.143 makes the Then step task-first. New automations use icon-based
-choices such as Turn on, Set temperature, Notify, and Wait instead of raw Home
-Assistant command fields. Custom actions remain under an Advanced disclosure,
-and saved flow cards and confirmation messages use readable action names.
-
-Version 0.13.142 adds Back and Next navigation to the five Automation Studio
-steps. New drafts begin at Name it, required information is explained before
-moving on, and the final step points users to safe testing or saving without
-removing the interactive flow, direct step selection, or drag-and-drop editing.
-
-Version 0.13.141 turns the five numbered Automation Studio steps into a live
-completion guide and replaces technical validation, library, and activation
-language with common-user wording. The complete visual flow remains available.
-
-Version 0.13.140 labels every repeatable trigger, check, and task in everyday
-language, groups fine-tuning and safety controls into expandable sections, and
-uses Outcome terminology consistently. The complete visual flow and all settings
-remain available.
-
-Version 0.13.139 keeps the interactive flow and adds a numbered, icon-led,
-plain-language building experience for common users.
-
-Version 0.13.138 fixes additional Automation Studio Trigger cards so selecting one
-loads its own Home Assistant entity picker or focuses its relevant schedule field.
-
-Version 0.13.137 removes circular arrival rings and uses a brief four-point electrical
-sparkle when a moving signal reaches its destination neuron.
-
-Version 0.13.136 makes resting neuron interiors fully neutral grayscale in every
-theme while retaining the blue neural network and firing effects.
-
-Version 0.13.135 adds a compact bright destination flash and discreet expanding halo
-when a neural signal reaches a neuron.
-
-Version 0.13.134 makes connection impulses and arrival flashes clearly visible above
-the neuron bodies and slightly neutralizes the blue tint inside each node.
-
-Version 0.13.133 adds subtle connection impulses and destination-node flashes to the
-active neural backdrop while preserving all animation pause rules.
-
-Version 0.13.132 keeps the configured neural backdrop visible but pauses its animation
-after chat begins, during chat-text selection, and whenever the chat workspace is
-hidden.
-
-Version 0.13.131 replaces the remaining green interface palette with the Talk
-button's theme-aware blue across controls, accents, glows, surfaces, and the neural
-backdrop.
-
-Version 0.13.130 separates watcher events from IF / ELSE IF decisions and gives
-each condition complete, clearly labelled value, attribute, comparison, and
-duration controls.
-
-Version 0.13.128 stabilizes the container browser validation on slower ARM builders
-and restores image publication without changing application behavior.
-
-Version 0.13.127 unifies Birthdays into one People view with the nearest birthdays
-first and colored monthly sections below. Chat saves default to seven-day and
-one-day reminders without replacing existing reminder choices.
-
-Version 0.13.126 prevents reminder delivery from losing Birthday data and repairs
-missing Birthday records from linked Contacts.
-
-Version 0.13.125 keeps automation Objectives separate from Do This tasks and uses
-a clear placeholder until a suggestion or task is configured.
-
-Version 0.13.124 makes Automation Studio read as Check, If, and Do, renames the
-visible Context block to Condition, and displays complete entity names and IDs.
-
-Version 0.13.123 restores searchable Home Assistant entity choices for Context
-presence, Context signals, and Action entities, and moves Contacts after Calendar.
-
-Version 0.13.122 restores Contacts scrolling and adds Cards, List, and Compact
-directory arrangements that are remembered in the browser.
-
-Version 0.13.121 repairs a timing-sensitive notification assertion in the
-container browser gate. Runtime behavior and stored data are unchanged.
-
-Version 0.13.120 repairs Google Contacts imports with actionable Google People API
-errors, per-record resilience, and preservation of local contact details.
-
-Version 0.13.119 adds the private Contacts directory, file and read-only Google
-imports, Birthday linking, and numbered chat disambiguation.
-
-Version 0.13.117 moves My Automations and Automation Memory into dedicated,
-indented Studio navigation entries. Saved automations stay compact and expose
-their visual flow only through an independent expand control.
-
-Version 0.13.116 adds branch-specific suggestions and live entity-to-attribute
-conditions so multi-outcome behavior can remain in one Automation Studio flow.
-
-Version 0.13.115 restores entity loading in Automation Studio's WHEN-card
-inspector and synchronizes the selected Home Assistant entity into the workflow.
-
-Version 0.13.114 shows a climate entity's HVAC mode and configured target temperature
-together in Entity Inventory, such as `cool · set to 25 °C`. Current temperature and
-active HVAC action remain available as detail without changing entity controls or
-stored data. The full Advanced editor remains available, existing stored automations are preserved, and
-repeatable OR triggers, grouped conditions, ordered actions, and IF/ELSE branches
-are supported, together with dedicated Delay and bounded Wait Until steps. Each
-automation can use the global operating default or select its own lower authority,
-plus voice, Studio inbox, and Home Assistant push delivery.
-Build-gated upgrade coverage now proves that pre-Studio simple rules retain their
-identity, creation history, trigger behavior, and suggestion wording when restored
-and saved through the current workflow schema.
-A complete backup gate now exports and restores all supported user-data domains
-together while keeping secrets and plugin credentials outside the backup.
-The owner-specific Grinder diagnostic extension remains invisible and unavailable
-unless its explicit Home Assistant option is enabled.
-Conversational creation now reads known Home Assistant Area-to-Zone links and uses
-approved person or device-tracker presence sources for site-aware automation drafts.
-Automation Overview draft and pending-suggestion metrics now open their matching
-filtered destinations directly with accessible keyboard focus.
-Studio also checks live read and control permissions plus Home Assistant safety
-labels before approval or autonomous execution and explains any blocked entity.
-Its bounded per-automation decision journal shows why recent evaluations observed,
-suppressed, deferred, suggested, blocked, or executed.
-The visual Studio is presented before conversational creation, with a modern
-collapsible Settings sidebar and a quiet hover-driven primary top bar.
-Controls use compact readable widths, Automations shares the icon-led sidebar, and
-long Voice and full-height workspace pages scroll independently and reliably.
-Visible Undo and Redo controls plus standard keyboard shortcuts restore field,
-workflow-step, branch, and selected-block edits from a bounded local history.
-Unsaved work recovers after an accidental refresh from a seven-day, 100 KB maximum
-browser-local record that is discarded after save or when another flow is opened.
-Live validation marks incomplete canvas blocks, links each issue to its inspector,
-and guards Test and Save until the visual workflow is structurally complete.
-Studio exposes unsaved state and confirms before New, template, edit, or cancel
-actions replace a dirty flow; dismissing the confirmation preserves the draft.
-My Automations can be searched by rule or workflow content and filtered by state,
-with live result counts and no-match feedback that do not alter saved definitions.
-Sorting by recency, name, active state, or attention priority is available, and the
-chosen Studio library view, filter, and sort are remembered locally.
-Live status summaries for all, active, attention-needed, draft, and automatic rules
-also work as accessible one-click filters synchronized with the state selector.
-The library can switch between full Detailed workflows and a remembered Compact
-card grid while keeping rule names, states, and editing actions available.
-Saved rules can be duplicated into independent disabled drafts without overwriting
-their source; the copy is only stored after explicit review and Save.
-Confirmed Pause and Resume controls stop or restart live evaluation while preserving
-definitions and history and retaining existing activation safety checks.
-The Test Flow control checks an unsaved draft against current Home Assistant state,
-renders a four-stage trace, and performs no service calls.
-Graphical triggers now include selected local times and weekdays, sunrise or sunset
-offsets, intervals, and one-time events. Context blocks can check time windows,
-weekdays, sun state, and sustained entity states without breaking older rules.
-Dismissed suggestions retain their trigger value and direction, preventing repeated
-prompts while a numeric condition improves. The engine re-arms after reset and
-checks whether configured Home Assistant actions are already satisfied.
-Numeric conditions are now tracked as bounded episodes with live improving or
-worsening direction, and each rule can optionally tune its reconsideration and
-reset margins while retaining backward-compatible defaults.
-Repeated Not now responses now adjust suggestion timing for only that automation.
-The learned feedback is visible and resettable, while permissions and operating
-authority remain unchanged.
-Per-rule response windows now expire unanswered suggestions and recover interrupted
-executions as visible failures. Outcome health reports expirations, automatic
-successes, and action failures without retrying or increasing authority.
-Repeated action failures now pause approval and autonomous execution behind a
-configurable circuit. Reset recovery acknowledges the fault without erasing its
-audit history or changing permissions.
-
-After installation, configure your own service credentials and explicitly approve
-the Home Assistant entities ZBRANO may read or control. Personal data and runtime
-configuration remain in your Home Assistant installation.
+**Conversation, home intelligence, and visual automation—with permissions you control.**
+
+ZBRANO is a private Home Assistant intelligence assistant. It combines natural
+conversation, live home context, voice, useful memory, notifications, organization,
+and automation in one interface without granting itself access to every device.
+
+## Highlights
+
+- **Talk naturally:** use text or voice, maintain separate conversations, attach
+  files, and optionally search the web with visible sources.
+- **Understand the home:** inspect permitted sensors, devices, areas, history, and
+  live state changes.
+- **Build visual automations:** create WHEN, IF, ELSE IF, message, and action paths
+  with readable cards and a zero-action Test Flow.
+- **Stay organized:** use local memory, shared files, contacts, birthdays,
+  appointments, and reminders.
+- **Connect deliberately:** add optional plugins and services only when needed.
+- **Remain in control:** choose Sensor, Control, or no access for each entity and
+  select authority independently for executable automation branches.
+
+## Before installation
+
+ZBRANO currently supports `aarch64` Home Assistant systems and requires your own
+OpenAI API key for its core AI connection. Home Assistant provides the local API
+connection automatically. Other credentials and providers are optional.
+
+## First setup
+
+1. Install ZBRANO from its Home Assistant repository.
+2. Open **Settings → Apps → ZBRANO → Configuration**.
+3. Enter **OpenAI API key**, save, and restart the app.
+4. Open the ZBRANO interface and follow the guided **Setup**.
+5. In **Device access**, explicitly select the entities ZBRANO may use.
+6. Start with Sensor access and ask-first automations until the behavior matches
+   your home.
+
+The Setup wizard verifies required connections, keeps optional features skippable,
+and provides direct recovery guidance when a check fails.
+
+## Device access
+
+| Choice | Access granted |
+| --- | --- |
+| **Sensor device** | Read state and context only |
+| **Control device** | Read state and perform explicitly configured actions |
+| **Do not allow** | No ZBRANO access |
+
+Discovery never grants permission automatically. Existing access can be reviewed or
+revoked at any time.
+
+## Automation safety
+
+Automation Studio keeps the complete visual flow visible while showing settings only
+for the selected block. Conditional branches can independently notify, ask before
+acting, or—when deliberately configured—run automatically beneath safety limits.
+
+Use **Try it safely** before saving. The test evaluates live conditions and explains
+the selected path without sending notifications or controlling devices.
+
+## Privacy and recovery
+
+Persistent ZBRANO data remains in the Home Assistant app data area. Credentials stay
+in protected configuration and are excluded from backups and Installation Reports.
+The app includes guarded backups, permission audits, activity history, diagnostics,
+and plain-language recovery guidance.
+
+## Need help?
+
+- Open **Setup** to recheck Home Assistant and AI connectivity.
+- Create a sanitized report in **Settings → Installation Report**.
+- Review the Home Assistant app log for startup or connection errors.
+- See the [full changelog](CHANGELOG.md) for release details.
+- Report reproducible issues at
+  [RoyceGith/ZBRANO_HA_Assistant](https://github.com/RoyceGith/ZBRANO_HA_Assistant/issues).
+
+Version 0.13.183 introduces this concise public product and setup guide. The in-app
+**About** tab provides a visual overview of ZBRANO's complete feature set.
