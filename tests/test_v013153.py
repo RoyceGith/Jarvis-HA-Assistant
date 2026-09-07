@@ -14,8 +14,8 @@ MANIFEST = json.loads((ROOT / "jarvis/release_manifest.json").read_text(encoding
 
 class CategorizedTopBlockBarReleaseTests(unittest.TestCase):
     def test_release_is_aligned(self):
-        self.assertEqual(MANIFEST["version"], "0.13.186")
-        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.185")
+        self.assertEqual(MANIFEST["version"], "0.13.187")
+        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.186")
 
     def test_categories_replace_the_left_step_column(self):
         for label in ("WHEN · Events", "IF · Conditions", "THEN · Actions", "ELSE IF"):

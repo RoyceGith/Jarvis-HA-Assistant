@@ -87,7 +87,7 @@
       if (watch.active_start && watch.active_end) values.push(`${watch.active_start}–${watch.active_end}`);
       for (const value of values) { const chip = document.createElement("span"); chip.textContent = value; meta.appendChild(chip); }
       const detail = document.createElement("small");
-      const last = watch.last_triggered_at ? new Date(watch.last_triggered_at * 1000).toLocaleString() : "never";
+      const last = watch.last_triggered_at ? new Date(watch.last_triggered_at * 1000).toLocaleString(window.ZbranoI18n?.locale || undefined) : "never";
       detail.textContent = `${watch.trigger_entity} → ${watch.trigger_state} · ${watch.destination} · triggered ${watch.trigger_count || 0} time(s) · last ${last}`;
       row.append(head, meta, detail); root.appendChild(row);
     }
@@ -116,7 +116,7 @@
       checkbox.addEventListener("change", () => { checkbox.checked ? selectedDeliveries.add(delivery.id) : selectedDeliveries.delete(delivery.id); updateDeliverySelection(); });
       const title = document.createElement("strong"); title.textContent = delivery.title || "Notification";
       const status = document.createElement("span"); status.className = "notification-platform"; status.textContent = delivery.status;
-      const detail = document.createElement("small"); detail.textContent = `${delivery.target} · ${delivery.severity} · ${new Date(delivery.created_at * 1000).toLocaleString()}`;
+      const detail = document.createElement("small"); detail.textContent = `${delivery.target} · ${delivery.severity} · ${new Date(delivery.created_at * 1000).toLocaleString(window.ZbranoI18n?.locale || undefined)}`;
       const evidence = document.createElement("small"); evidence.textContent = delivery.detail || "";
       titleGroup.append(checkbox, title); head.append(titleGroup, status); row.append(head, detail, evidence); root.appendChild(row);
     }

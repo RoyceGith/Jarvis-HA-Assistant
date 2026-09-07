@@ -387,7 +387,7 @@
       const lastCheck = step.last_check;
       if (lastCheck && Number(lastCheck.checked_at || 0) > 0) {
         const checked = new Date(Number(lastCheck.checked_at) * 1000);
-        verification.textContent = `${lastCheck.ready ? "Verified" : "Last check failed"} ${checked.toLocaleString()}`;
+        verification.textContent = `${lastCheck.ready ? "Verified" : "Last check failed"} ${checked.toLocaleString(window.ZbranoI18n?.locale || undefined)}`;
       } else {
         verification.textContent = step.skipped ? "Skipped for now; you can configure this later" : "Not verified yet";
       }

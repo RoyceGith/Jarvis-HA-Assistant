@@ -2661,7 +2661,7 @@ checkHealth();
 loadSettings().finally(() => openChat(jarvisChatSessionId));
 const hudClock = document.getElementById("hud-clock");
 if (hudClock) window.setInterval(() => {
-  hudClock.textContent = new Date().toLocaleTimeString([], {hour12: false});
+  hudClock.textContent = new Date().toLocaleTimeString(window.ZbranoI18n?.locale || undefined, {hour12: false});
 }, 1000);
 fetch("api/ha/approved")
   .then(response => response.json())

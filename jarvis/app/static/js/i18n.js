@@ -118,6 +118,7 @@
   const originals = new WeakMap();
   const rendered = new WeakMap();
   const attributeOriginals = new WeakMap();
+  const attributeRendered = new WeakMap();
   let preference = "auto";
   let locale = "en";
 
@@ -136,7 +137,21 @@
   }
   function translate(value) {
     const source = String(value || "");
-    return locale === "en" ? source : catalogs[locale]?.[source] || source;
+    if (locale === "en") return source;
+    const exact = catalogs[locale]?.[source];
+    if (exact) return exact;
+    const counts = {
+      el: {automations:"αυτοματισμοί", mappings:"αντιστοιχίσεις", patterns:"μοτίβα", selected:"επιλεγμένα", watches:"παρακολουθήσεις", appointments:"ραντεβού", days:"ημέρες", minutes:"λεπτά", failures:"αποτυχίες"},
+      it: {automations:"automazioni", mappings:"associazioni", patterns:"schemi", selected:"selezionati", watches:"monitoraggi", appointments:"appuntamenti", days:"giorni", minutes:"minuti", failures:"errori"},
+      fr: {automations:"automatisations", mappings:"associations", patterns:"modèles", selected:"sélectionnés", watches:"surveillances", appointments:"rendez-vous", days:"jours", minutes:"minutes", failures:"échecs"},
+    };
+    const count = source.match(/^(\d+) (automations|mappings|patterns|selected|watches|appointments|days|minutes|failures)$/);
+    if (count) return `${count[1]} ${counts[locale][count[2]]}`;
+    const step = source.match(/^Step (\d+) of (\d+)$/);
+    if (step) return locale === "el" ? `Βήμα ${step[1]} από ${step[2]}` : locale === "it" ? `Passaggio ${step[1]} di ${step[2]}` : `Étape ${step[1]} sur ${step[2]}`;
+    const more = source.match(/^\+(\d+) more$/);
+    if (more) return locale === "el" ? `+${more[1]} ακόμη` : locale === "it" ? `+${more[1]} altri` : `+${more[1]} autres`;
+    return source;
   }
   function isProtected(node) {
     const parent = node.nodeType === Node.ELEMENT_NODE ? node : node.parentElement;
@@ -157,11 +172,15 @@
     if (isProtected(element)) return;
     let saved = attributeOriginals.get(element);
     if (!saved) { saved = {}; attributeOriginals.set(element, saved); }
+    let shown = attributeRendered.get(element);
+    if (!shown) { shown = {}; attributeRendered.set(element, shown); }
     for (const name of ["aria-label", "title", "placeholder"]) {
       if (!element.hasAttribute(name)) continue;
-      if (!(name in saved)) saved[name] = element.getAttribute(name);
+      const current = element.getAttribute(name);
+      if (!(name in saved) || (name in shown && current !== shown[name])) saved[name] = current;
       const next = translate(saved[name]);
-      if (element.getAttribute(name) !== next) element.setAttribute(name, next);
+      shown[name] = next;
+      if (current !== next) element.setAttribute(name, next);
     }
   }
   function apply(root = document) {
@@ -181,6 +200,15 @@
     try { localStorage.setItem("zbrano_interface_language_v1", preference); } catch {}
     apply(document);
   }
+  function register(entries) {
+    for (const [english, translations] of Object.entries(entries || {})) {
+      if (!Array.isArray(translations) || translations.length !== 3 || translations.some(value => !String(value || "").trim())) continue;
+      catalogs.el[english] = translations[0];
+      catalogs.it[english] = translations[1];
+      catalogs.fr[english] = translations[2];
+    }
+    apply(document);
+  }
 
   try { preference = localStorage.getItem("zbrano_interface_language_v1") || "auto"; } catch {}
   locale = resolveLocale(preference);
@@ -188,8 +216,9 @@
   new MutationObserver(records => {
     for (const record of records) {
       if (record.type === "characterData") translateText(record.target);
+      if (record.type === "attributes") translateAttributes(record.target);
       for (const node of record.addedNodes) apply(node);
     }
-  }).observe(document.body, {childList: true, characterData: true, subtree: true});
-  window.ZbranoI18n = Object.freeze({apply, setPreference, t: translate, get locale() { return locale; }, supported});
+  }).observe(document.body, {attributes: true, attributeFilter: ["aria-label", "title", "placeholder"], childList: true, characterData: true, subtree: true});
+  window.ZbranoI18n = Object.freeze({apply, register, setPreference, t: translate, get locale() { return locale; }, supported});
 })();

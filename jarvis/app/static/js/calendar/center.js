@@ -16,7 +16,7 @@
   }
 
   function formatDate(timestamp) {
-    return new Date(Number(timestamp) * 1000).toLocaleString([], {weekday:"short", year:"numeric", month:"short", day:"numeric", hour:"2-digit", minute:"2-digit"});
+    return new Date(Number(timestamp) * 1000).toLocaleString(window.ZbranoI18n?.locale || undefined, {weekday:"short", year:"numeric", month:"short", day:"numeric", hour:"2-digit", minute:"2-digit"});
   }
 
   function reminderBadge(reminder) {
@@ -57,7 +57,7 @@
   function renderSelectedCalendarDay() {
     const root = $("calendar-day-appointments");
     const appointments = appointmentsForDay(selectedCalendarDay);
-    $("calendar-day-title").textContent = selectedCalendarDay.toLocaleDateString([], {weekday:"long", year:"numeric", month:"long", day:"numeric"});
+    $("calendar-day-title").textContent = selectedCalendarDay.toLocaleDateString(window.ZbranoI18n?.locale || undefined, {weekday:"long", year:"numeric", month:"long", day:"numeric"});
     $("calendar-day-summary").textContent = `${appointments.length} appointment${appointments.length === 1 ? "" : "s"}`;
     root.replaceChildren();
     if (!appointments.length) {
@@ -67,7 +67,7 @@
     for (const item of appointments) {
       const node = document.createElement("div");
       node.className = "calendar-appointment";
-      const time = new Date(Number(item.start_timestamp) * 1000).toLocaleTimeString([], {hour:"2-digit", minute:"2-digit"});
+      const time = new Date(Number(item.start_timestamp) * 1000).toLocaleTimeString(window.ZbranoI18n?.locale || undefined, {hour:"2-digit", minute:"2-digit"});
       const meta = [item.location, `${Number(item.duration_minutes || 60)} minutes`].filter(Boolean);
       const reminderSummary = appointmentReminderSummary(item);
       const canEdit = Number(item.end_timestamp || item.start_timestamp || 0) >= Date.now() / 1000;
@@ -90,7 +90,7 @@
       const date = new Date(Number(item.start_timestamp) * 1000);
       return date.getFullYear() === year && date.getMonth() === month;
     });
-    $("calendar-month-title").textContent = first.toLocaleDateString([], {month:"long", year:"numeric"});
+    $("calendar-month-title").textContent = first.toLocaleDateString(window.ZbranoI18n?.locale || undefined, {month:"long", year:"numeric"});
     $("calendar-month-summary").textContent = `${monthAppointments.length} appointment${monthAppointments.length === 1 ? "" : "s"} this month`;
     grid.replaceChildren();
     for (let index = 0; index < 42; index += 1) {
@@ -105,9 +105,9 @@
       cell.dataset.today = String(key === todayKey);
       cell.dataset.selected = String(key === selectedKey);
       cell.setAttribute("role", "gridcell");
-      cell.setAttribute("aria-label", `${date.toLocaleDateString([], {weekday:"long", month:"long", day:"numeric", year:"numeric"})}; ${appointments.length} appointment${appointments.length === 1 ? "" : "s"}`);
+      cell.setAttribute("aria-label", `${date.toLocaleDateString(window.ZbranoI18n?.locale || undefined, {weekday:"long", month:"long", day:"numeric", year:"numeric"})}; ${appointments.length} appointment${appointments.length === 1 ? "" : "s"}`);
       const visible = appointments.slice(0, 3);
-      cell.innerHTML = `<span class="calendar-day-number">${date.getDate()}</span><span class="calendar-day-events">${visible.map(item => { const reminder = appointmentReminderSummary(item); return `<span class="calendar-day-event"><time>${new Date(Number(item.start_timestamp) * 1000).toLocaleTimeString([], {hour:"2-digit", minute:"2-digit"})}</time><span class="calendar-day-event-title">${esc(item.title)}</span><em class="calendar-month-reminder-state" data-state="${esc(reminder.state)}">${esc(reminder.label)}</em></span>`; }).join("")}${appointments.length > 3 ? `<span class="calendar-day-more">+${appointments.length - 3} more</span>` : ""}</span>`;
+      cell.innerHTML = `<span class="calendar-day-number">${date.getDate()}</span><span class="calendar-day-events">${visible.map(item => { const reminder = appointmentReminderSummary(item); return `<span class="calendar-day-event"><time>${new Date(Number(item.start_timestamp) * 1000).toLocaleTimeString(window.ZbranoI18n?.locale || undefined, {hour:"2-digit", minute:"2-digit"})}</time><span class="calendar-day-event-title">${esc(item.title)}</span><em class="calendar-month-reminder-state" data-state="${esc(reminder.state)}">${esc(reminder.label)}</em></span>`; }).join("")}${appointments.length > 3 ? `<span class="calendar-day-more">+${appointments.length - 3} more</span>` : ""}</span>`;
       grid.appendChild(cell);
     }
     renderSelectedCalendarDay();
@@ -190,7 +190,7 @@
     const date = new Date(`${item.next_occurrence}T12:00:00`);
     if (Number(item.days_until) === 0) return "Today";
     if (Number(item.days_until) === 1) return "Tomorrow";
-    return `${date.toLocaleDateString([], {weekday:"short", month:"long", day:"numeric"})} · in ${item.days_until} days`;
+    return `${date.toLocaleDateString(window.ZbranoI18n?.locale || undefined, {weekday:"short", month:"long", day:"numeric"})} · in ${item.days_until} days`;
   }
 
   function birthdayCard(item, detailed=false) {
@@ -204,7 +204,7 @@
   function renderBirthdays() {
     const birthdays = state.birthdays || [];
     const upcoming = birthdays.slice(0, 5);
-    const months = Array.from({length:12}, (_, index) => new Date(2024, index, 1).toLocaleDateString([], {month:"long"}));
+    const months = Array.from({length:12}, (_, index) => new Date(2024, index, 1).toLocaleDateString(window.ZbranoI18n?.locale || undefined, {month:"long"}));
     const grouped = new Map();
     for (const item of birthdays) {
       const month = Math.max(1, Math.min(12, Number(String(item.birthday || "").split("-")[0]) || 1));

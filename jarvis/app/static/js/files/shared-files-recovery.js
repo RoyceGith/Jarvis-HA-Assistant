@@ -39,7 +39,7 @@
         const row = document.createElement("tr");
         row.innerHTML = `<td><input type="checkbox" data-shared-id="${escHtml(file.file_id)}"></td>` +
           `<td>${escHtml(file.name)}</td>` +
-          `<td>${new Date(Number(file.created_at || 0) * 1000).toLocaleString()}</td>` +
+          `<td>${new Date(Number(file.created_at || 0) * 1000).toLocaleString(window.ZbranoI18n?.locale || undefined)}</td>` +
           `<td>${escHtml(file.mime_type)}</td>` +
           `<td>${Math.round(Number(file.size || 0) / 1024)} KB</td>`;
         rows.appendChild(row);

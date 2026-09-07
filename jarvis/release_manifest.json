@@ -1,9 +1,9 @@
 {
-  "version": "0.13.186",
+  "version": "0.13.187",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/ZBRANO_Core main",
-  "summary": "Introduce a safe four-language foundation for the ZBRANO interface, replies, voice recognition, and Home Assistant configuration.",
+  "summary": "Expand the four-language interface across ZBRANO's primary and advanced workspaces with build-gated catalog coverage.",
   "history_backfill": [
     {
       "version": "0.13.0",
@@ -748,21 +748,25 @@
       {
         "version": "0.13.185",
         "summary": "Added amd64 beside aarch64 and published both behind the existing generic Home Assistant image manifest."
+      },
+      {
+        "version": "0.13.186",
+        "summary": "Added English, Greek, Italian, and French interface foundations, automatic language detection, voice locales, and Home Assistant configuration translations."
       }
   ],
   "release_entry": {
     "features": [
-      "Choose English, Greek, Italian, French, or automatic device-language detection from Settings.",
-      "Translate core interface text and dynamically inserted controls without changing chat messages or user-authored content.",
-      "Use the matching browser speech-recognition locale for each supported language.",
-      "Show every Home Assistant app configuration option in all four languages."
+      "Translate hundreds of additional phrases across Automation Studio, Setup, About, Calendar, Contacts, Notifications, Plugins, Entities, and Developer controls.",
+      "Format browser-rendered dates and times with the selected ZBRANO locale.",
+      "Translate dynamically updated titles, placeholders, and accessibility labels.",
+      "Localize common dynamic counters while preserving user and Home Assistant content."
     ],
     "fixes": [
-      "Replace the free-form language field with supported, testable language choices.",
-      "Prevent an incomplete translated Home Assistant configuration from being released."
+      "Keep late-rendered interface controls aligned when the user changes language.",
+      "Prevent catalog regressions and unsafe content-boundary changes from reaching a container build."
     ],
     "validation": [
-      "Four-locale configuration parity, runtime catalog wiring, automatic fallback, language switching, protected user content, browser voice locale mapping, browser smoke, and v0.13.186 release coverage"
+      "Catalog structure and minimum coverage, advanced-surface language switching, dynamic accessibility attributes, localized date wiring, protected user content, browser smoke, and v0.13.187 release coverage"
     ]
   },
   "features": [

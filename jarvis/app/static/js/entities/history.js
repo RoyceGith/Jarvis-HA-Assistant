@@ -36,7 +36,7 @@
   function renderEvents(events){
     const root=$("ha-timeline-events");root.replaceChildren();$("ha-history-event-count").textContent=`${events.length} bounded events`;
     if(!events.length){root.innerHTML='<div class="ha-history-empty">No matching history or logbook events in this period.</div>';return;}
-    for(const event of events){const node=document.createElement("article");node.className="ha-timeline-event";node.dataset.source=event.source||"history";const when=new Date(event.when);node.innerHTML=`<time>${esc(Number.isNaN(when.getTime())?event.when:when.toLocaleString())}</time><strong>${esc(event.name||event.entity_id||"Home Assistant")}</strong><span>${esc(event.message||event.state||"")} <small class="ha-timeline-source">${esc(event.source||"")}</small></span>`;root.appendChild(node);}
+    for(const event of events){const node=document.createElement("article");node.className="ha-timeline-event";node.dataset.source=event.source||"history";const when=new Date(event.when);node.innerHTML=`<time>${esc(Number.isNaN(when.getTime())?event.when:when.toLocaleString(window.ZbranoI18n?.locale || undefined))}</time><strong>${esc(event.name||event.entity_id||"Home Assistant")}</strong><span>${esc(event.message||event.state||"")} <small class="ha-timeline-source">${esc(event.source||"")}</small></span>`;root.appendChild(node);}
   }
 
   async function loadTimeline(){

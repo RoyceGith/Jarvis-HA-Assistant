@@ -34,16 +34,18 @@ COPY release_manifest.json ./release_manifest.json
 COPY validate_release_manifest.py ./validate_release_manifest.py
 COPY validate_inline_js.py ./validate_inline_js.py
 COPY validate_new_chat_wiring.py ./validate_new_chat_wiring.py
+COPY validate_i18n_catalog.py ./validate_i18n_catalog.py
 COPY tests ./tests
 
 RUN python3 ./validate_release_manifest.py \
+    && python3 ./validate_i18n_catalog.py \
     && python3 ./validate_inline_js.py ./app/static/index.html \
     && python3 ./validate_new_chat_wiring.py ./app/static/index.html \
     && python3 -m compileall -q ./app \
     && python3 -m unittest discover -s ./tests -p "test_*.py" \
     && node ./tests/browser_smoke.cjs \
     && rm -r ./tests \
-    && rm ./validate_release_manifest.py ./validate_inline_js.py ./validate_new_chat_wiring.py ./config.yaml
+    && rm ./validate_release_manifest.py ./validate_i18n_catalog.py ./validate_inline_js.py ./validate_new_chat_wiring.py ./config.yaml
 
 COPY run.sh /run.sh
 RUN sed -i 's/\r$//' /run.sh \

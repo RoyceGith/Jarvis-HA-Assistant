@@ -33,7 +33,7 @@
     for (const item of memories) {
       const node = document.createElement("article");
       node.className = "fast-memory-item";
-      const date = new Date(Number(item.updated_at || 0) * 1000).toLocaleString();
+      const date = new Date(Number(item.updated_at || 0) * 1000).toLocaleString(window.ZbranoI18n?.locale || undefined);
       node.innerHTML = `<div class="fast-memory-item-head"><div class="fast-memory-item-title"><span class="fast-memory-badge">${esc(item.kind.replaceAll("_"," "))}</span>${esc(item.subject)} · ${esc(item.key)}</div><span>${item.pinned ? "📌" : ""}</span></div><div class="fast-memory-value">${esc(item.summary || item.value)}</div><div class="fast-memory-meta"><span>importance ${esc(item.importance)}</span><span>confidence ${Math.round(Number(item.confidence || 0)*100)}%</span><span>revision ${esc(item.revision)}</span><span>${esc(date)}</span></div><div class="fast-memory-actions"><button type="button" data-memory-edit="${esc(item.id)}">Edit</button><button type="button" data-memory-pin="${esc(item.id)}">${item.pinned ? "Unpin" : "Pin"}</button><button type="button" data-memory-delete="${esc(item.id)}">Delete</button></div>`;
       root.appendChild(node);
     }

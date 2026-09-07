@@ -1,9 +1,15 @@
-## ZBRANO v0.13.186
+## ZBRANO v0.13.187
 
 ZBRANO combines Home Assistant chat, voice, entity control, memory, notifications,
 calendar and contact tools, plugins, and evidence-based automations. Automation Studio now uses
 a visual building-block toolbox, interactive node canvas, and contextual inspector;
 the established automation engine and stored definitions remain compatible.
+
+Version 0.13.187 expands localization across Automation Studio, Setup, About,
+Calendar, Contacts, Notifications, Plugins, Entities, and Developer controls. A
+second checked-in catalog covers hundreds of interface phrases, selected-language
+date formatting follows the interface choice, dynamic accessibility text is
+translated, and the container build now rejects incomplete catalog structure.
 
 Version 0.13.186 begins ZBRANO's multilingual interface rollout with English,
 Greek, Italian, and French. It adds automatic device-language detection, a saved

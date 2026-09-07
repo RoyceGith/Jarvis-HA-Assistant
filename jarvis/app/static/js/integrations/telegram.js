@@ -34,7 +34,7 @@
         const row = document.createElement('div'); row.className = 'notification-channel telegram-linked-chat';
         const identity = document.createElement('strong'); identity.textContent = item.display_name || 'Telegram owner';
         const remove = document.createElement('button'); remove.type = 'button'; remove.textContent = 'Unlink'; remove.dataset.telegramUnlink = item.chat_id;
-        const detail = document.createElement('small'); detail.textContent = `${item.username ? '@' + item.username + ' · ' : ''}Chat ${item.chat_id} · ${item.last_message_at ? 'last message ' + new Date(item.last_message_at * 1000).toLocaleString() : 'no messages yet'}`;
+        const detail = document.createElement('small'); detail.textContent = `${item.username ? '@' + item.username + ' · ' : ''}Chat ${item.chat_id} · ${item.last_message_at ? 'last message ' + new Date(item.last_message_at * 1000).toLocaleString(window.ZbranoI18n?.locale || undefined) : 'no messages yet'}`;
         row.append(identity, remove, detail); root.appendChild(row);
       }
       if (!state.linked_chats?.length) root.innerHTML = '<div class="autonomy-empty">No Telegram chats paired.</div>';

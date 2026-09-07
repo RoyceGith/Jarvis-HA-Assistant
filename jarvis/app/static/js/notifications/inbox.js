@@ -71,7 +71,7 @@
       message.textContent = displayMessage(item);
       const timestamp = document.createElement("time");
       timestamp.dateTime = new Date(Number(item.created_at || 0) * 1000).toISOString();
-      timestamp.textContent = new Date(Number(item.created_at || 0) * 1000).toLocaleString();
+      timestamp.textContent = new Date(Number(item.created_at || 0) * 1000).toLocaleString(window.ZbranoI18n?.locale || undefined);
       const suggestion = item.automation_suggestion || {};
       const brain = suggestion.source === "automation_brain";
       const actionable = ((brain && suggestion.status === "pending") || suggestion.status === "approval_required") && suggestion.action_service && suggestion.action_entity;

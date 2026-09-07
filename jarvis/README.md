@@ -1,9 +1,15 @@
-# ZBRANO v0.13.186
+# ZBRANO v0.13.187
 
 Automation Studio provides a graphical, step-by-step workflow for Home Assistant
 automations. Use Setup &amp; safety, When, Only if, Then, and optional Outcomes beside the
 interactive flow canvas. Natural-language creation, templates, drag-and-drop,
 saved automation compatibility, and the full Advanced editor remain available.
+
+Version 0.13.187 extends the four-language interface throughout the main and
+advanced workspaces. It localizes hundreds of additional controls and the complete
+About showcase, translates dynamically changed accessibility labels, formats dates
+with the selected locale, and build-gates catalog coverage while continuing to
+protect conversation, entity, and user-authored automation content.
 
 Version 0.13.186 introduces the localization foundation for English, Greek,
 Italian, and French. ZBRANO can follow the device language or a saved selection,
