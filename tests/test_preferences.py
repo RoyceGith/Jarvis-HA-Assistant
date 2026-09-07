@@ -49,6 +49,58 @@ class PreferenceBehaviorTests(unittest.TestCase):
         self.assertIn("now on", confirmed["reply"])
         set_power.assert_awaited_once_with("light.bench", True)
 
+    def test_control_intent_prefers_the_control_device_over_matching_sensors(self):
+        functions = load_preference_functions()
+        thermostat = {
+            "entity_id": "climate.living_room_air_conditioner",
+            "friendly_name": "Living room Air Conditioner",
+            "control_approved": True,
+            "score": 80,
+        }
+        set_power = AsyncMock(return_value={
+            "verified_state": "cool",
+            "friendly_name": thermostat["friendly_name"],
+        })
+        functions.update(
+            {
+                "PENDING_LOW_RISK_ACTIONS": {},
+                "get_session_entity": lambda session_id: None,
+                "is_entity_followup": lambda message: False,
+                "parse_local_ha_intent": lambda message: {
+                    "kind": "control", "query": "living room air conditioner", "turn_on": True,
+                },
+                "find_approved_entities": lambda query: {
+                    "recommended_unique_match": None,
+                    "matches": [
+                        {
+                            "entity_id": "sensor.living_room_air_conditioner_temperature",
+                            "friendly_name": "Living room Air Conditioner Temperature",
+                            "control_approved": False,
+                            "score": 100,
+                        },
+                        {
+                            "entity_id": "binary_sensor.living_room_air_conditioner_status",
+                            "friendly_name": "Living room Air Conditioner Status",
+                            "control_approved": False,
+                            "score": 100,
+                        },
+                        thermostat,
+                    ],
+                },
+                "load_preferences": lambda: {"confirmation_strictness": "standard"},
+                "ha_set_power": set_power,
+                "remember_session_entity": lambda *args: None,
+            }
+        )
+
+        result = asyncio.run(functions["try_local_ha_route"](
+            "turn on the living room air conditioner", "test"
+        ))
+
+        self.assertIn("now cool", result["reply"])
+        self.assertEqual(result["tool_calls"][0]["route"], "local")
+        set_power.assert_awaited_once_with(thermostat["entity_id"], True)
+
     def test_pronunciation_rules_do_not_change_unrelated_words(self):
         functions = load_preference_functions()
         functions["load_preferences"] = lambda: {

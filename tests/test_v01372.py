@@ -25,10 +25,10 @@ def load_functions(names, states=None):
 
 class ContextAwareAutomationFeedbackReleaseTests(unittest.TestCase):
     def test_release_markers_are_aligned(self):
-        self.assertIn('version: "0.13.188"', CONFIG)
-        self.assertIn('version="0.13.188"', MAIN)
-        self.assertIn("HUD 0.13.188", HTML)
-        self.assertEqual(MANIFEST["version"], "0.13.188")
+        self.assertIn('version: "0.13.189"', CONFIG)
+        self.assertIn('version="0.13.189"', MAIN)
+        self.assertIn("HUD 0.13.189", HTML)
+        self.assertEqual(MANIFEST["version"], "0.13.189")
 
     def test_declined_above_threshold_suggestion_respects_trend(self):
         suppress = load_functions({"_automation_dismissal_suppression"})["_automation_dismissal_suppression"]
@@ -72,7 +72,7 @@ class ContextAwareAutomationFeedbackReleaseTests(unittest.TestCase):
         self.assertIn("Why ${esc(item.status)}", WORKSPACE)
 
     def test_release_history_includes_v01371(self):
-        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.187")
+        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.188")
 
 
 if __name__ == "__main__":

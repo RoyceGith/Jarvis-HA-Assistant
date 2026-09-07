@@ -1,5 +1,13 @@
 # Change log
 
+## 0.13.189
+
+- Routed clear turn-on and turn-off chat commands locally before AI or Workshop tool preparation.
+- Resolved control requests against approved Control Devices without interference from matching sensors.
+- Added a fast local numbered choice when multiple controllable devices match.
+- Prevented successful WebSocket service calls from being repeated during REST state verification.
+- Reduced the state-cache verification wait and used a read-only state check when needed.
+
 ## 0.13.188
 
 - Added a compact flag selector to the top-right application header.

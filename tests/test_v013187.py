@@ -20,12 +20,12 @@ MANIFEST = json.loads((ROOT / "jarvis/release_manifest.json").read_text(encoding
 
 class ExpandedInterfaceLocalizationReleaseTests(unittest.TestCase):
     def test_release_is_aligned(self):
-        self.assertIn('version: "0.13.188"', CONFIG)
-        self.assertIn('version="0.13.188"', MAIN)
-        self.assertIn("HUD 0.13.188", HTML)
-        self.assertEqual(MANIFEST["version"], "0.13.188")
-        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.187")
-        self.assertTrue(CHANGELOG.startswith("# Change log\n\n## 0.13.188"))
+        self.assertIn('version: "0.13.189"', CONFIG)
+        self.assertIn('version="0.13.189"', MAIN)
+        self.assertIn("HUD 0.13.189", HTML)
+        self.assertEqual(MANIFEST["version"], "0.13.189")
+        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.188")
+        self.assertTrue(CHANGELOG.startswith("# Change log\n\n## 0.13.189"))
 
     def test_advanced_catalog_is_large_complete_and_loaded_early(self):
         base = object_literal(I18N, r"const rows = (\{.*?^  \});", "base")

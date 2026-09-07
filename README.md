@@ -1,9 +1,15 @@
-## ZBRANO v0.13.188
+## ZBRANO v0.13.189
 
 ZBRANO combines Home Assistant chat, voice, entity control, memory, notifications,
 calendar and contact tools, plugins, and evidence-based automations. Automation Studio now uses
 a visual building-block toolbox, interactive node canvas, and contextual inspector;
 the established automation engine and stored definitions remain compatible.
+
+Version 0.13.189 sends clear Home Assistant on/off requests through the local
+control route before preparing AI or Workshop tools. It selects approved Control
+Devices without being confused by similarly named sensors, asks locally when more
+than one device matches, and never repeats a successful WebSocket action during
+state verification.
 
 Version 0.13.188 adds a compact flag selector to the top-right header and makes
 the saved choice apply only to interface text and locale-aware dates. ZBRANO now

@@ -720,7 +720,7 @@ ha_ws = HomeAssistantWebSocketClient(
 
 app = FastAPI(
     title="ZBRANO",
-    version="0.13.188",
+    version="0.13.189",
     docs_url="/api/docs",
     openapi_url="/api/openapi.json",
 )
@@ -1826,6 +1826,31 @@ async def try_local_ha_route(
             return None
         lookup = find_approved_entities(parsed["query"])
         entity = lookup.get("recommended_unique_match")
+        if parsed["kind"] == "control" and "matches" in lookup:
+            control_matches = [
+                candidate for candidate in lookup.get("matches", [])
+                if candidate.get("control_approved") is True
+            ]
+            if not control_matches:
+                return {
+                    "reply": (
+                        f'I could not find an approved Control Device matching “{parsed["query"]}”. '
+                        "Check its access in Entities, then try again."
+                    ),
+                    "tool_calls": [],
+                }
+            top_score = control_matches[0]["score"]
+            top_matches = [candidate for candidate in control_matches if candidate["score"] == top_score]
+            if len(top_matches) != 1:
+                choices = "\n".join(
+                    f'{index}. {candidate.get("friendly_name") or candidate["entity_id"]}'
+                    for index, candidate in enumerate(top_matches, start=1)
+                )
+                return {
+                    "reply": f"I found more than one matching Control Device. Which one?\n\n{choices}",
+                    "tool_calls": [],
+                }
+            entity = top_matches[0]
         if not entity:
             return None
         intent = {**parsed, "entity": entity, "source": "approved_entity_lookup"}
@@ -1893,8 +1918,6 @@ def cost_scoped_runtime_tools(
     return runtime_chat_tools(search_mode, message)
 
 async def run_jarvis(message: str, session_id: str = "default") -> dict[str, Any]:
-    if not developer_mode_enabled():
-        await refresh_workshop_memory_tools()
     pending_workshop = PENDING_WORKSHOP_APPROVALS.get(session_id)
     workshop_decision = workshop_memory_approval_decision(message)
     if pending_workshop and workshop_decision is not None:
@@ -1922,6 +1945,8 @@ async def run_jarvis(message: str, session_id: str = "default") -> dict[str, Any
         append_chat_message(session_id, "assistant", local_result["reply"])
         return local_result
 
+    if not developer_mode_enabled():
+        await refresh_workshop_memory_tools()
     workshop_scope = not developer_mode_enabled() and is_workshop_memory_intent(message)
     workshop_budget = new_workshop_budget(message) if workshop_scope else None
     response = await create_openai_response(
@@ -2271,8 +2296,6 @@ async def continue_workshop_memory_approval(
 async def _run_jarvis_stream_events(message: str, session_id: str = "default", search_mode: str = "auto") -> AsyncIterator[bytes]:
     yield stream_event("status", message="Searching the web..." if search_mode == "search" and not developer_mode_enabled() else "Thinking…")
 
-    if not developer_mode_enabled():
-        await refresh_workshop_memory_tools()
     pending_workshop = PENDING_WORKSHOP_APPROVALS.get(session_id)
     workshop_decision = workshop_memory_approval_decision(message)
     if pending_workshop and workshop_decision is not None:
@@ -2394,7 +2417,11 @@ async def _run_jarvis_stream_events(message: str, session_id: str = "default", s
         else None
     )
     if local_result:
-        yield stream_event("activity", id="local-home-assistant", label="Reading Home Assistant", state="completed", provider="home_assistant", plugin_id="")
+        controlling = any(
+            str(call.get("tool") or "").startswith(("turn_on_", "turn_off_"))
+            for call in local_result["tool_calls"]
+        )
+        yield stream_event("activity", id="local-home-assistant", label="Controlling Home Assistant" if controlling else "Reading Home Assistant", state="completed", provider="home_assistant", plugin_id="")
         yield stream_event("status", message="Using Home Assistant…")
         reply = local_result["reply"]
         yield stream_event("status", message="Responding…")
@@ -2402,6 +2429,8 @@ async def _run_jarvis_stream_events(message: str, session_id: str = "default", s
         yield stream_event("done", tool_calls=local_result["tool_calls"])
         return
 
+    if not developer_mode_enabled():
+        await refresh_workshop_memory_tools()
     workshop_scope = not developer_mode_enabled() and is_workshop_memory_intent(message)
     workshop_budget = new_workshop_budget(message) if workshop_scope else None
     audit: list[dict[str, Any]] = []
@@ -2824,7 +2853,7 @@ async def health() -> dict[str, Any]:
     configured_speech_provider = SPEECH_PROVIDER if SPEECH_PROVIDER in {"openai", "elevenlabs"} else "openai"
     return {
         "status": "ok",
-        "version": "0.13.188",
+        "version": "0.13.189",
         "home_assistant_configured": bool(SUPERVISOR_TOKEN),
         "workshop_memory_configured": bool(WORKSHOP_MEMORY_URL),
         "workshop_memory_cost_guard": workshop_cost_guard_status(),

@@ -113,10 +113,6 @@ async def ha_set_power(entity_id: str, turn_on: bool) -> dict[str, Any]:
             service,
             {"entity_id": entity_id},
         )
-        verified_raw = await _wait_for_ha_power_state(entity_id, domain, turn_on, timeout=5.0)
-        if verified_raw is None:
-            raise RuntimeError(f"No state received for {entity_id}")
-        verified = normalize_ha_state(verified_raw)
     except RuntimeError:
         transport = "rest_fallback"
         headers = {
@@ -134,7 +130,13 @@ async def ha_set_power(entity_id: str, turn_on: bool) -> dict[str, Any]:
                 f"Home Assistant action failed with HTTP {response.status_code}: "
                 f"{response.text[:500]}"
             )
-        verified = normalize_ha_state(await ha_get_state_rest(entity_id))
+
+    verified_raw = None
+    if transport == "websocket":
+        verified_raw = await _wait_for_ha_power_state(entity_id, domain, turn_on, timeout=1.0)
+    if not verified_raw or not _ha_power_state_matches(domain, verified_raw.get("state"), turn_on):
+        verified_raw = await ha_get_state_rest(entity_id)
+    verified = normalize_ha_state(verified_raw)
 
     return {
         "success": _ha_power_state_matches(domain, verified.get("state"), turn_on),
