@@ -12,6 +12,8 @@ DOCKERFILE = APP_ROOT / "Dockerfile"
 MANIFEST = APP_ROOT / "release_manifest.json"
 RUN_SCRIPT = APP_ROOT / "run.sh"
 ENGLISH_TRANSLATIONS = APP_ROOT / "translations" / "en.yaml"
+TRANSLATION_LANGUAGES = ("en", "el", "it", "fr")
+TRANSLATION_FILES = tuple(APP_ROOT / "translations" / f"{language}.yaml" for language in TRANSLATION_LANGUAGES)
 WORKFLOW = REPOSITORY_ROOT / ".github/workflows/build.yaml"
 
 
@@ -46,7 +48,7 @@ def yaml_section_keys(text: str, section: str) -> set[str]:
 
 
 def main() -> None:
-    required_files = (CONFIG, DOCKERFILE, MANIFEST, RUN_SCRIPT, ENGLISH_TRANSLATIONS, WORKFLOW)
+    required_files = (CONFIG, DOCKERFILE, MANIFEST, RUN_SCRIPT, *TRANSLATION_FILES, WORKFLOW)
     missing = [str(path.relative_to(REPOSITORY_ROOT)) for path in required_files if not path.is_file()]
     if missing:
         raise RuntimeError(f"Release contract files are missing: {', '.join(missing)}")
@@ -56,7 +58,6 @@ def main() -> None:
     workflow = WORKFLOW.read_text(encoding="utf-8")
     run_script = RUN_SCRIPT.read_text(encoding="utf-8")
     manifest = json.loads(MANIFEST.read_text(encoding="utf-8"))
-    translations = ENGLISH_TRANSLATIONS.read_text(encoding="utf-8")
 
     version = yaml_scalar(config, "version")
     if version != str(manifest.get("version") or ""):
@@ -88,20 +89,22 @@ def main() -> None:
             f"missing schema={sorted(option_keys - schema_keys)}; "
             f"missing defaults={sorted(schema_keys - option_keys)}"
         )
-    translation_keys = yaml_section_keys(translations, "configuration")
-    if translation_keys != schema_keys:
-        raise RuntimeError(
-            "Home Assistant configuration translations are incomplete: "
-            f"missing={sorted(schema_keys - translation_keys)}; extra={sorted(translation_keys - schema_keys)}"
-        )
-    for option in sorted(schema_keys):
-        block = require(
-            translations,
-            rf"^  {re.escape(option)}:\s*\n((?:    .+\n?)+)",
-            f"translation block for {option}",
-        ).group(1)
-        require(block, r"^    name:\s*\S.+$", f"friendly name for {option}")
-        require(block, r"^    description:\s*\S.+$", f"description for {option}")
+    for language, translation_file in zip(TRANSLATION_LANGUAGES, TRANSLATION_FILES):
+        translations = translation_file.read_text(encoding="utf-8")
+        translation_keys = yaml_section_keys(translations, "configuration")
+        if translation_keys != schema_keys:
+            raise RuntimeError(
+                f"Home Assistant {language} configuration translations are incomplete: "
+                f"missing={sorted(schema_keys - translation_keys)}; extra={sorted(translation_keys - schema_keys)}"
+            )
+        for option in sorted(schema_keys):
+            block = require(
+                translations,
+                rf"^  {re.escape(option)}:\s*\n((?:    .+\n?)+)",
+                f"{language} translation block for {option}",
+            ).group(1)
+            require(block, r'^    name:\s*["\']?\S.+$', f"{language} friendly name for {option}")
+            require(block, r'^    description:\s*["\']?\S.+$', f"{language} description for {option}")
     for secret in (
         "openai_api_key",
         "google_oauth_client_secret",

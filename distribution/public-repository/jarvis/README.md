@@ -8,6 +8,9 @@ ZBRANO is a private Home Assistant intelligence assistant. It combines natural
 conversation, live home context, voice, useful memory, notifications, organization,
 and automation in one interface without granting itself access to every device.
 
+The first multilingual interface release supports English, Greek, Italian, and
+French with automatic device-language detection and an explicit saved selection.
+
 ## Highlights
 
 - **Talk naturally:** use text or voice, maintain separate conversations, attach
@@ -77,7 +80,7 @@ and plain-language recovery guidance.
 - Report reproducible issues at
   [RoyceGith/ZBRANO_HA_Assistant](https://github.com/RoyceGith/ZBRANO_HA_Assistant/issues).
 
-Version 0.13.185 adds `amd64` installation support while preserving `aarch64` and
-the existing update path. Version 0.13.184 added dedicated ZBRANO identity artwork
-to the Home Assistant store and this product guide.
+Version 0.13.186 introduces English, Greek, Italian, and French interface support,
+localized Home Assistant configuration, and matching browser voice locales. Version
+0.13.185 added `amd64` while preserving `aarch64` and the existing update path.
 The in-app **About** tab provides a visual overview of ZBRANO's complete feature set.

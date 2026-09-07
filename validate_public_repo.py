@@ -40,6 +40,9 @@ PERSONAL_DEFAULTS = (
 PRODUCT_DEFAULT_FILES = (
     "jarvis/config.yaml",
     "jarvis/translations/en.yaml",
+    "jarvis/translations/el.yaml",
+    "jarvis/translations/it.yaml",
+    "jarvis/translations/fr.yaml",
     "jarvis/app/static/index.html",
     "jarvis/app/static/js/automations/workspace.js",
 )
@@ -50,6 +53,9 @@ PUBLIC_DISTRIBUTION_FILES = {
     "jarvis/CHANGELOG.md",
     "jarvis/config.yaml",
     "jarvis/translations/en.yaml",
+    "jarvis/translations/el.yaml",
+    "jarvis/translations/it.yaml",
+    "jarvis/translations/fr.yaml",
     "jarvis/icon.png",
     "jarvis/logo.png",
 }

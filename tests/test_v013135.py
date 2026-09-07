@@ -10,8 +10,8 @@ MANIFEST = json.loads((ROOT / "jarvis" / "release_manifest.json").read_text(enco
 
 class V013135NeuralArrivalFlashTests(unittest.TestCase):
     def test_release_is_aligned(self):
-        self.assertEqual(MANIFEST["version"], "0.13.185")
-        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.184")
+        self.assertEqual(MANIFEST["version"], "0.13.186")
+        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.185")
 
     def test_arrival_has_a_distinct_non_circular_spark(self):
         self.assertIn("if (progress > .68)", CORE)

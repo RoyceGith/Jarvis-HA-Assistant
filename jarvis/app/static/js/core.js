@@ -1586,7 +1586,8 @@ async function loadSettings() {
     fastMemoryEnabled.checked = jarvisPreferences.fast_memory_enabled !== false;
     fastMemoryAutoCapture.checked = jarvisPreferences.fast_memory_auto_capture !== false;
     fastMemoryContextItems.value = String(jarvisPreferences.fast_memory_context_items ?? 10);
-    preferredLanguage.value = jarvisPreferences.preferred_language || "auto";
+    preferredLanguage.value = ["auto", "English", "Greek", "Italian", "French"].includes(jarvisPreferences.preferred_language) ? jarvisPreferences.preferred_language : "auto";
+    window.ZbranoI18n?.setPreference(preferredLanguage.value);
     pronunciationDictionary.value = jarvisPreferences.pronunciation_dictionary || "";
     neuralStyle.value = jarvisPreferences.neural_style || "constellation";
     neuralScale.value = String(jarvisPreferences.neural_scale ?? 1);
@@ -1669,6 +1670,7 @@ saveSettings.addEventListener("click", async () => {
     setElevenLabsVoiceControls(data.elevenlabs_voice_settings || {});
     jarvisPreferences = data.preferences || jarvisPreferences;
     settingsAutoSpeak.checked = jarvisPreferences.auto_speak !== false;
+    window.ZbranoI18n?.setPreference(jarvisPreferences.preferred_language || preferredLanguage.value || "auto");
     applyInterfacePreferences(jarvisPreferences);
     saveVoiceSettings();
     renderReleaseSyncStatus(data.release_sync || {});
@@ -1679,6 +1681,8 @@ saveSettings.addEventListener("click", async () => {
     saveSettings.disabled = false;
   }
 });
+
+preferredLanguage.addEventListener("change", () => window.ZbranoI18n?.setPreference(preferredLanguage.value));
 
 function entityMatches(entity) {
   const query = entitySearch.value.trim().toLowerCase();

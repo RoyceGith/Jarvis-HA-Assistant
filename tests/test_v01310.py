@@ -14,10 +14,10 @@ MANIFEST = json.loads((ROOT / "jarvis/release_manifest.json").read_text(encoding
 
 class PassiveAutomationBrainTests(unittest.TestCase):
     def test_release_markers_are_aligned(self):
-        self.assertIn('version: "0.13.185"', CONFIG)
-        self.assertIn('version="0.13.185"', MAIN)
-        self.assertIn("HUD 0.13.185", INDEX)
-        self.assertEqual(MANIFEST["version"], "0.13.185")
+        self.assertIn('version: "0.13.186"', CONFIG)
+        self.assertIn('version="0.13.186"', MAIN)
+        self.assertIn("HUD 0.13.186", INDEX)
+        self.assertEqual(MANIFEST["version"], "0.13.186")
 
     def test_home_assistant_areas_and_device_inheritance_are_imported(self):
         self.assertIn('"type": "config/area_registry/list"', MAIN)

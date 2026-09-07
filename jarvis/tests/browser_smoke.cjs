@@ -162,7 +162,7 @@ const onboardingFixture = {
     {id:"notifications",title:"Notifications and autonomy",description:"Choose notification delivery",ready:false,required:false,target:"notifications",last_check:null,skipped:false},
   ],
   installation_report: {
-    generated_at: 1788300000, version: "0.13.185", ready: true, attention_count: 0, ready_count: 5,
+    generated_at: 1788300000, version: "0.13.186", ready: true, attention_count: 0, ready_count: 5,
     checks: [
       {id:"home_assistant",title:"Home Assistant",state:"ready",required:true,detail:"Connected to Home Assistant",target:"home_assistant"},
       {id:"model",title:"AI model",state:"ready",required:true,detail:"gpt-5-mini is configured",target:"model"},
@@ -170,7 +170,7 @@ const onboardingFixture = {
       {id:"backup",title:"Backup and restore",state:"ready",required:false,detail:"A portable ZBRANO backup can be exported from Settings",target:"memory"},
       {id:"automation_health",title:"Automation safety",state:"ready",required:false,detail:"2 saved; 0 need permission; 0 paused after failures",target:"automations"},
     ],
-    support_summary: "ZBRANO installation report · v0.13.185\nOverall: Ready\nHome Assistant: Connected\nAI model: Configured\nDevice access: 3 sensor devices / 1 control devices\nPersistent storage: Ready\nAutomations: 2 saved / 0 permission issues / 0 failure pauses",
+    support_summary: "ZBRANO installation report · v0.13.186\nOverall: Ready\nHome Assistant: Connected\nAI model: Configured\nDevice access: 3 sensor devices / 1 control devices\nPersistent storage: Ready\nAutomations: 2 saved / 0 permission issues / 0 failure pauses",
   },
 };
 
@@ -179,7 +179,7 @@ function apiFixture(url, method = "GET") {
   if (pathname === "/api/health") {
     return {
       status: "ok",
-      version: "0.13.185",
+      version: "0.13.186",
       speech_provider: "openai",
       speech_providers: {openai: {configured: true}, elevenlabs: {configured: false}},
     };
@@ -266,7 +266,7 @@ function apiFixture(url, method = "GET") {
   if (pathname === "/api/plugins") return {plugins: []};
   if (pathname === "/api/files/shared") return {files: [], count: 0};
   if (pathname === "/api/release-memory-sync") {
-    return {enabled: false, state: "disabled", version: "0.13.185", task_active: false};
+    return {enabled: false, state: "disabled", version: "0.13.186", task_active: false};
   }
   if (pathname === "/api/tab-activity") return {revisions: {}};
   if (pathname === "/api/grinder-monitor/status") return {enabled: false, connected: false};
@@ -337,6 +337,26 @@ async function main() {
     await page.goto(`http://127.0.0.1:${address.port}/`, {waitUntil: "domcontentloaded"});
     await page.waitForFunction(() => typeof window.createNewChat === "function");
     await page.waitForFunction(() => !document.getElementById("chat-list")?.textContent.includes("Loading"));
+
+    const chooseLanguage = value => page.locator("#preferred-language").evaluate((element, language) => {
+      element.value = language;
+      element.dispatchEvent(new Event("change", {bubbles: true}));
+    }, value);
+    await chooseLanguage("Greek");
+    assert.equal(await page.locator("#chat-tab").innerText(), "Συνομιλία");
+    assert.equal(await page.locator("#settings-tab span").innerText(), "Ρυθμίσεις");
+    assert.equal(await page.locator("html").getAttribute("lang"), "el");
+    assert.match(await page.locator("#messages").innerText(), /intelligence core online/i, "User and assistant messages must not be translated as interface copy");
+    await chooseLanguage("Italian");
+    assert.equal(await page.locator("#settings-tab span").innerText(), "Impostazioni");
+    assert.equal(await page.locator("html").getAttribute("lang"), "it");
+    await chooseLanguage("French");
+    assert.equal(await page.locator("#chat-tab").innerText(), "Discussion");
+    assert.equal(await page.locator("html").getAttribute("lang"), "fr");
+    await chooseLanguage("English");
+    assert.equal(await page.locator("#chat-tab").innerText(), "Chat");
+    assert.equal(await page.locator("#settings-tab span").innerText(), "Settings");
+    assert.equal(await page.locator("html").getAttribute("lang"), "en");
 
     const composerStartHeight = await page.locator("#message").evaluate(element => element.getBoundingClientRect().height);
     assert.equal(await page.locator("#message").evaluate(element => getComputedStyle(element).fieldSizing), "content");

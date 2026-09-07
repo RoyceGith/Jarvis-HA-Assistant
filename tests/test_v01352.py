@@ -15,10 +15,10 @@ MANIFEST = json.loads((ROOT / "jarvis/release_manifest.json").read_text(encoding
 
 class RepositoryBoundaryReleaseTests(unittest.TestCase):
     def test_release_markers_are_aligned(self):
-        self.assertIn('version: "0.13.185"', CONFIG)
-        self.assertIn('version="0.13.185"', MAIN)
-        self.assertIn("HUD 0.13.185", HTML)
-        self.assertEqual(MANIFEST["version"], "0.13.185")
+        self.assertIn('version: "0.13.186"', CONFIG)
+        self.assertIn('version="0.13.186"', MAIN)
+        self.assertIn("HUD 0.13.186", HTML)
+        self.assertEqual(MANIFEST["version"], "0.13.186")
 
     def test_public_and_private_responsibilities_are_explicit(self):
         self.assertIn("private canonical source and build repository", BOUNDARY)
@@ -32,7 +32,7 @@ class RepositoryBoundaryReleaseTests(unittest.TestCase):
         self.assertIn("PERSONAL_DEFAULTS", VALIDATOR)
 
     def test_release_history_includes_v01351(self):
-        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.184")
+        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.185")
 
 
 if __name__ == "__main__":

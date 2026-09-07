@@ -1,0 +1,60 @@
+configuration:
+  log_level:
+    name: "Dettaglio risoluzione problemi"
+    description: "Mantieni Informazioni per l’uso normale. Scegli un livello più dettagliato solo durante la diagnosi di un problema."
+  workshop_memory_url:
+    name: "Indirizzo Workshop Memory"
+    description: "Indirizzo opzionale di un servizio Workshop Memory. Mantieni il valore predefinito, a meno che tu non gestisca questo servizio."
+  workshop_memory_internal_url:
+    name: "Indirizzo interno Workshop Memory"
+    description: "Indirizzo di riserva avanzato per l’accesso tra container. La maggior parte degli utenti dovrebbe lasciarlo invariato."
+  openai_api_key:
+    name: "Chiave API OpenAI"
+    description: "Necessaria per la chat ZBRANO e per il provider vocale predefinito. La chiave rimane nella configurazione protetta dell’app Home Assistant."
+  github_oauth_client_id:
+    name: "ID client di accesso GitHub"
+    description: "Opzionale. Aggiungilo solo quando connetti il plugin GitHub ufficiale."
+  google_oauth_client_id:
+    name: "ID client di accesso Google"
+    description: "Opzionale. Aggiungilo con il segreto corrispondente solo quando connetti servizi Google."
+  google_oauth_client_secret:
+    name: "Segreto client di accesso Google"
+    description: "Segreto protetto opzionale utilizzato con l’ID client di accesso Google."
+  openai_model:
+    name: "Modello di chat e ragionamento"
+    description: "Modello OpenAI usato per conversazioni e decisioni ZBRANO. Mantieni il valore predefinito, a meno che tu non sappia quale modello desideri."
+  openai_transcription_model:
+    name: "Modello di conversione voce-testo"
+    description: "Modello OpenAI che trasforma le richieste vocali in testo."
+  openai_tts_model:
+    name: "Modello di risposta vocale OpenAI"
+    description: "Modello OpenAI usato per leggere le risposte ZBRANO quando OpenAI è il provider vocale selezionato."
+  speech_provider:
+    name: "Provider di risposta vocale"
+    description: "Scegli OpenAI per la configurazione più semplice oppure ElevenLabs dopo aver aggiunto chiave API e ID voce."
+  elevenlabs_api_key:
+    name: "Chiave API ElevenLabs"
+    description: "Chiave protetta opzionale, necessaria solo quando ElevenLabs è il provider vocale selezionato."
+  elevenlabs_voice_id:
+    name: "ID voce ElevenLabs"
+    description: "Identificatore vocale opzionale richiesto insieme a una chiave API ElevenLabs."
+  elevenlabs_voice_name:
+    name: "Nome voce ElevenLabs"
+    description: "Nome descrittivo mostrato per la voce ElevenLabs configurata."
+  elevenlabs_model_id:
+    name: "Modello vocale ElevenLabs"
+    description: "Modello ElevenLabs usato per le risposte vocali. Mantieni il valore predefinito per risposte rapide."
+  speech_fallback_to_openai:
+    name: "Usa la voce OpenAI come riserva"
+    description: "Usa la sintesi vocale OpenAI quando non è possibile produrre una risposta con ElevenLabs."
+  ha_read_entities:
+    name: "ID legacy dei dispositivi sensore"
+    description: "Campo di compatibilità per installazioni precedenti. Lascialo vuoto e scegli i Dispositivi sensore da Accesso ai dispositivi in ZBRANO."
+  ha_control_entities:
+    name: "ID legacy dei dispositivi di controllo"
+    description: "Campo di compatibilità per installazioni precedenti. Lascialo vuoto e scegli i Dispositivi di controllo da Accesso ai dispositivi in ZBRANO."
+  enable_direct_port:
+    name: "Consenti accesso diretto dal browser"
+    description: "Espone la porta 8099 oltre alla normale connessione protetta dalla barra laterale di Home Assistant."
+network:
+  8099/tcp: "Interfaccia web diretta di ZBRANO"

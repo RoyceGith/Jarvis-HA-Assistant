@@ -1,9 +1,9 @@
 {
-  "version": "0.13.185",
+  "version": "0.13.186",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/ZBRANO_Core main",
-  "summary": "Publish ZBRANO for both modern 64-bit Home Assistant architectures without changing its installation identity.",
+  "summary": "Introduce a safe four-language foundation for the ZBRANO interface, replies, voice recognition, and Home Assistant configuration.",
   "history_backfill": [
     {
       "version": "0.13.0",
@@ -744,20 +744,25 @@
       {
         "version": "0.13.184",
         "summary": "Added a validated ZBRANO icon and transparent wordmark to the Home Assistant store and public guides."
+      },
+      {
+        "version": "0.13.185",
+        "summary": "Added amd64 beside aarch64 and published both behind the existing generic Home Assistant image manifest."
       }
   ],
   "release_entry": {
     "features": [
-      "Publish an amd64 image for 64-bit Home Assistant PCs, servers, and virtual machines.",
-      "Continue publishing the existing aarch64 image for Raspberry Pi 5 and other modern ARM installations.",
-      "Combine both platform images behind the existing generic GHCR manifest."
+      "Choose English, Greek, Italian, French, or automatic device-language detection from Settings.",
+      "Translate core interface text and dynamically inserted controls without changing chat messages or user-authored content.",
+      "Use the matching browser speech-recognition locale for each supported language.",
+      "Show every Home Assistant app configuration option in all four languages."
     ],
     "fixes": [
-      "Remove the unnecessary aarch64-only installation restriction for other Home Assistant users.",
-      "Require the exact supported architecture list before a release can be published."
+      "Replace the free-form language field with supported, testable language choices.",
+      "Prevent an incomplete translated Home Assistant configuration from being released."
     ],
     "validation": [
-      "Architecture metadata, official multi-architecture workflow wiring, public compatibility guidance, and v0.13.185 release coverage"
+      "Four-locale configuration parity, runtime catalog wiring, automatic fallback, language switching, protected user content, browser voice locale mapping, browser smoke, and v0.13.186 release coverage"
     ]
   },
   "features": [
