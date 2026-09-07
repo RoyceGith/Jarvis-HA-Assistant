@@ -1,5 +1,7 @@
 # ZBRANO
 
+![ZBRANO](logo.png)
+
 **Conversation, home intelligence, and visual automation—with permissions you control.**
 
 ZBRANO is a private Home Assistant intelligence assistant. It combines natural
@@ -75,5 +77,6 @@ and plain-language recovery guidance.
 - Report reproducible issues at
   [RoyceGith/ZBRANO_HA_Assistant](https://github.com/RoyceGith/ZBRANO_HA_Assistant/issues).
 
-Version 0.13.183 introduces this concise public product and setup guide. The in-app
-**About** tab provides a visual overview of ZBRANO's complete feature set.
+Version 0.13.184 adds dedicated ZBRANO identity artwork to the Home Assistant store
+and this product guide. Version 0.13.183 introduced the concise public setup guide.
+The in-app **About** tab provides a visual overview of ZBRANO's complete feature set.

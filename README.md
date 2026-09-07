@@ -1,8 +1,10 @@
 # ZBRANO for Home Assistant
 
+![ZBRANO](jarvis/logo.png)
+
 **A private, permission-aware assistant for conversation, home intelligence, and visual automation.**
 
-Current release: **0.13.183**
+Current release: **0.13.184**
 Platform: **Home Assistant · aarch64**
 
 ZBRANO brings the parts of an intelligent home into one understandable workspace.
@@ -78,6 +80,10 @@ metadata, configuration presentation, and documentation.
 
 Existing installations keep the same app slug, configuration, persistent `/data`
 storage, and image path. Updating does not require uninstalling ZBRANO.
+
+Version 0.13.184 adds dedicated ZBRANO icon and logo artwork to the Home Assistant
+store and public product pages, with release checks for dimensions, transparency,
+file size, and repository boundaries.
 
 Version 0.13.183 replaces the former release-diary landing page with this concise
 product and installation guide. The complete release history remains available in

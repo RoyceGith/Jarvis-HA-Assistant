@@ -1,5 +1,12 @@
 # Change log
 
+## 0.13.184
+
+- Added an original ZBRANO icon for the Home Assistant app store.
+- Added a matching transparent horizontal logo to public product pages.
+- Added release validation for asset names, dimensions, transparency, and size.
+- Expanded the thin public-repository allowlist only for these presentation assets.
+
 ## 0.13.183
 
 - Replaced the long public landing-page release diary with a concise product guide.
