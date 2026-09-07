@@ -1,5 +1,14 @@
 # Change log
 
+## 0.13.186
+
+- Added a localization foundation for English, Greek, Italian, and French.
+- Added automatic device-language detection and an explicit saved language selector.
+- Translated core navigation and controls while excluding conversations and user-authored content.
+- Mapped each language to the correct browser speech-recognition locale.
+- Added complete Home Assistant configuration translations in all four languages.
+- Added release validation that prevents missing configuration translations.
+
 ## 0.13.185
 
 - Added `amd64` alongside `aarch64` for 64-bit Home Assistant PCs, servers, and virtual machines.
