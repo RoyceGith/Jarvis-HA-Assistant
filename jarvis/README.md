@@ -24,7 +24,7 @@ and automation in one interface without granting itself access to every device.
 
 ## Before installation
 
-ZBRANO currently supports `aarch64` Home Assistant systems and requires your own
+ZBRANO supports `aarch64` and `amd64` Home Assistant systems and requires your own
 OpenAI API key for its core AI connection. Home Assistant provides the local API
 connection automatically. Other credentials and providers are optional.
 
@@ -77,6 +77,7 @@ and plain-language recovery guidance.
 - Report reproducible issues at
   [RoyceGith/ZBRANO_HA_Assistant](https://github.com/RoyceGith/ZBRANO_HA_Assistant/issues).
 
-Version 0.13.184 adds dedicated ZBRANO identity artwork to the Home Assistant store
-and this product guide. Version 0.13.183 introduced the concise public setup guide.
+Version 0.13.185 adds `amd64` installation support while preserving `aarch64` and
+the existing update path. Version 0.13.184 added dedicated ZBRANO identity artwork
+to the Home Assistant store and this product guide.
 The in-app **About** tab provides a visual overview of ZBRANO's complete feature set.

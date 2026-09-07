@@ -4,8 +4,8 @@
 
 **A private, permission-aware assistant for conversation, home intelligence, and visual automation.**
 
-Current release: **0.13.184**
-Platform: **Home Assistant · aarch64**
+Current release: **0.13.185**
+Platforms: **Home Assistant · aarch64 · amd64**
 
 ZBRANO brings the parts of an intelligent home into one understandable workspace.
 Talk naturally, inspect live Home Assistant context, build visual automations, keep
@@ -50,8 +50,9 @@ checks each required connection and explains anything that still needs attention
 6. Open ZBRANO, follow **Setup**, and choose Sensor or Control access only for the
    Home Assistant devices you want it to use.
 
-ZBRANO currently publishes an `aarch64` image, intended for systems such as a
-Raspberry Pi 5 running Home Assistant OS. Optional provider fields may remain blank.
+ZBRANO publishes `aarch64` and `amd64` images for modern 64-bit ARM systems such as
+a Raspberry Pi 5 and 64-bit PCs, servers, and virtual machines running Home Assistant.
+Optional provider fields may remain blank.
 
 ## Permission model
 
