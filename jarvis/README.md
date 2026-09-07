@@ -10,8 +10,8 @@ and automation in one interface without granting itself access to every device.
 
 The multilingual interface supports English, Greek, Italian, and French with
 automatic device-language detection or an explicit saved selection. Core and
-advanced workspaces, the About showcase, voice recognition, and displayed dates
-follow the selected language while personal content remains unchanged.
+advanced workspaces, the About showcase, and displayed dates follow the selected
+language while conversations, voice recognition, and personal content remain independent.
 
 ## Highlights
 
@@ -82,7 +82,7 @@ and plain-language recovery guidance.
 - Report reproducible issues at
   [RoyceGith/ZBRANO_HA_Assistant](https://github.com/RoyceGith/ZBRANO_HA_Assistant/issues).
 
-Version 0.13.187 expands localization through the primary and advanced workspaces,
+Version 0.13.188 expands localization through the primary and advanced workspaces,
 the complete About showcase, dynamic accessibility text, and displayed dates.
 Version 0.13.186 introduced the four-language foundation and localized Home
 Assistant configuration. Version 0.13.185 added `amd64` while preserving `aarch64`
