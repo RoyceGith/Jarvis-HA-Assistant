@@ -62,6 +62,9 @@ class JarvisSettingsUpdate(BaseModel):
     fast_memory_auto_capture: bool = True
     fast_memory_context_items: int = Field(default=10, ge=2, le=20)
 
+class InterfaceLanguageUpdate(BaseModel):
+    interface_language: str = Field(pattern="^(auto|English|Greek|Italian|French)$")
+
 class OnboardingStateUpdate(BaseModel):
     action: str = Field(pattern="^(complete|dismiss)$")
 

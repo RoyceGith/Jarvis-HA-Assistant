@@ -25,7 +25,7 @@ REQUIRED_PHRASES = {
     "Developer",
     "Entities",
     "Everything works as one assistant",
-    "Interface and reply language",
+    "Interface language",
     "My Automations",
     "Notification Center",
     "Plugins",

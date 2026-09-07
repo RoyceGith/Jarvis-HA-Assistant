@@ -4,7 +4,7 @@
 
 **A private, permission-aware assistant for conversation, home intelligence, and visual automation.**
 
-Current release: **0.13.187**
+Current release: **0.13.188**
 Platforms: **Home Assistant · aarch64 · amd64**
 Languages: **English · Ελληνικά · Italiano · Français**
 
@@ -15,7 +15,8 @@ control.
 
 ZBRANO can follow the device language or use an explicit English, Greek, Italian,
 or French selection. Navigation, primary and advanced workspaces, the About
-showcase, browser voice recognition, and locale-aware dates follow that choice.
+showcase, and locale-aware dates follow that choice. Conversation and browser voice
+recognition remain independent from the interface selection.
 
 ## What ZBRANO brings together
 

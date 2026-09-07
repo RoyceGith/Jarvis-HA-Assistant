@@ -34,9 +34,19 @@
   <header>
     <div class="brand-line">
       <h1>ZBRANO</h1>
-      <div class="status hud-version-label">Workshop Intelligence Interface · HUD 0.13.187</div>
+      <div class="status hud-version-label">Workshop Intelligence Interface · HUD 0.13.188</div>
     </div>
     <div class="runtime-status-stack">
+      <label class="interface-language-picker" title="Interface language">
+        <span id="interface-language-flag" aria-hidden="true">🌐</span>
+        <select id="preferred-language" aria-label="Interface language" data-i18n-ignore>
+          <option value="auto">🌐 Auto (device language)</option>
+          <option value="English">🇬🇧 English</option>
+          <option value="Greek">🇬🇷 Ελληνικά</option>
+          <option value="Italian">🇮🇹 Italiano</option>
+          <option value="French">🇫🇷 Français</option>
+        </select>
+      </label>
       <div id="notification-inbox-shell" class="notification-inbox-shell">
         <button id="notification-inbox-toggle" class="notification-inbox-toggle" type="button" aria-label="Open notifications" aria-expanded="false" aria-controls="notification-inbox-popover" title="Notifications">
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9Z"/><path d="M10 21h4"/></svg>
@@ -423,7 +433,6 @@
       <div class="settings-grid">
         <div class="setting-field"><label for="response-length">Response detail</label><select id="response-length"><option value="brief">Brief</option><option value="balanced">Balanced</option><option value="detailed">Detailed</option></select></div>
         <div class="setting-field"><label for="confirmation-strictness">Confirmation style</label><select id="confirmation-strictness"><option value="standard">Standard</option><option value="cautious">Cautious · confirm low-risk actions</option></select><small>Protected-device safeguards always remain enforced.</small></div>
-        <div class="setting-field"><label for="preferred-language">Interface and reply language</label><select id="preferred-language" data-i18n-ignore><option value="auto">Auto (device language)</option><option value="English">English</option><option value="Greek">Ελληνικά</option><option value="Italian">Italiano</option><option value="French">Français</option></select><small>Changes the ZBRANO interface, AI replies, and browser voice recognition. English remains the fallback.</small></div>
       </div>
       <div class="setting-field"><label for="pronunciation-dictionary">Pronunciation dictionary</label><textarea id="pronunciation-dictionary" rows="4" maxlength="8000" placeholder="HA = H A&#10;Nicosia = Nee-koh-see-ah"></textarea><small>One “term = spoken form” rule per line. Applied only to speech output.</small></div>
     </div>

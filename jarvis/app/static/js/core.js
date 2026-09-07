@@ -820,6 +820,7 @@ const fastMemoryEnabled = document.getElementById("fast-memory-enabled");
 const fastMemoryAutoCapture = document.getElementById("fast-memory-auto-capture");
 const fastMemoryContextItems = document.getElementById("fast-memory-context-items");
 const preferredLanguage = document.getElementById("preferred-language");
+const interfaceLanguageFlag = document.getElementById("interface-language-flag");
 const pronunciationDictionary = document.getElementById("pronunciation-dictionary");
 const reducedMotionSetting = document.getElementById("reduced-motion");
 const releaseMemoryAutoSync = document.getElementById("release-memory-auto-sync");
@@ -838,6 +839,14 @@ const interfaceDensity = document.getElementById("interface-density");
 const quietHoursEnabled = document.getElementById("quiet-hours-enabled");
 const quietHoursStart = document.getElementById("quiet-hours-start");
 const quietHoursEnd = document.getElementById("quiet-hours-end");
+
+function renderInterfaceLanguageFlag() {
+  const flags = {auto: "🌐", English: "🇬🇧", Greek: "🇬🇷", Italian: "🇮🇹", French: "🇫🇷"};
+  interfaceLanguageFlag.textContent = flags[preferredLanguage.value] || flags.auto;
+}
+const initialInterfaceLanguage = window.ZbranoI18n?.preference || "auto";
+if (["auto", "English", "Greek", "Italian", "French"].includes(initialInterfaceLanguage)) preferredLanguage.value = initialInterfaceLanguage;
+renderInterfaceLanguageFlag();
 const voiceVolume = document.getElementById("voice-volume");
 const voiceVolumeValue = document.getElementById("voice-volume-value");
 const voiceSpeed = document.getElementById("voice-speed");
@@ -1588,6 +1597,7 @@ async function loadSettings() {
     fastMemoryContextItems.value = String(jarvisPreferences.fast_memory_context_items ?? 10);
     preferredLanguage.value = ["auto", "English", "Greek", "Italian", "French"].includes(jarvisPreferences.preferred_language) ? jarvisPreferences.preferred_language : "auto";
     window.ZbranoI18n?.setPreference(preferredLanguage.value);
+    renderInterfaceLanguageFlag();
     pronunciationDictionary.value = jarvisPreferences.pronunciation_dictionary || "";
     neuralStyle.value = jarvisPreferences.neural_style || "constellation";
     neuralScale.value = String(jarvisPreferences.neural_scale ?? 1);
@@ -1674,7 +1684,7 @@ saveSettings.addEventListener("click", async () => {
     applyInterfacePreferences(jarvisPreferences);
     saveVoiceSettings();
     renderReleaseSyncStatus(data.release_sync || {});
-    settingsSaveState.textContent = "Saved. New replies, speech, and release synchronization will use these settings.";
+    settingsSaveState.textContent = "Saved. ZBRANO will use these settings.";
   } catch (error) {
     settingsSaveState.textContent = `Save failed: ${error.message || error}`;
   } finally {
@@ -1682,7 +1692,23 @@ saveSettings.addEventListener("click", async () => {
   }
 });
 
-preferredLanguage.addEventListener("change", () => window.ZbranoI18n?.setPreference(preferredLanguage.value));
+preferredLanguage.addEventListener("change", async () => {
+  const interfaceLanguage = preferredLanguage.value || "auto";
+  jarvisPreferences = {...jarvisPreferences, preferred_language: interfaceLanguage};
+  window.ZbranoI18n?.setPreference(interfaceLanguage);
+  renderInterfaceLanguageFlag();
+  try {
+    const response = await fetch("api/settings/interface-language", {
+      method: "PUT",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({interface_language: interfaceLanguage}),
+    });
+    const data = await response.json().catch(() => ({}));
+    if (!response.ok) throw new Error(data.detail || `HTTP ${response.status}`);
+  } catch (error) {
+    console.warn("Could not save interface language", error);
+  }
+});
 
 function entityMatches(entity) {
   const query = entitySearch.value.trim().toLowerCase();

@@ -1,9 +1,9 @@
 {
-  "version": "0.13.187",
+  "version": "0.13.188",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/ZBRANO_Core main",
-  "summary": "Expand the four-language interface across ZBRANO's primary and advanced workspaces with build-gated catalog coverage.",
+  "summary": "Add a top-right flag selector for interface-only language selection and decouple conversation and voice behavior.",
   "history_backfill": [
     {
       "version": "0.13.0",
@@ -752,21 +752,24 @@
       {
         "version": "0.13.186",
         "summary": "Added English, Greek, Italian, and French interface foundations, automatic language detection, voice locales, and Home Assistant configuration translations."
+      },
+      {
+        "version": "0.13.187",
+        "summary": "Expanded four-language coverage across primary and advanced workspaces with build-gated catalog validation."
       }
   ],
   "release_entry": {
     "features": [
-      "Translate hundreds of additional phrases across Automation Studio, Setup, About, Calendar, Contacts, Notifications, Plugins, Entities, and Developer controls.",
-      "Format browser-rendered dates and times with the selected ZBRANO locale.",
-      "Translate dynamically updated titles, placeholders, and accessibility labels.",
-      "Localize common dynamic counters while preserving user and Home Assistant content."
+      "Select the ZBRANO interface language from a compact flag control in the top-right header.",
+      "Persist a language change immediately without opening Settings or saving unrelated preferences.",
+      "Keep automatic device-language detection alongside explicit English, Greek, Italian, and French choices."
     ],
     "fixes": [
-      "Keep late-rendered interface controls aligned when the user changes language.",
-      "Prevent catalog regressions and unsafe content-boundary changes from reaching a container build."
+      "Prevent the interface language from forcing the language of AI replies.",
+      "Keep browser speech recognition on the device locale instead of coupling it to interface presentation."
     ],
     "validation": [
-      "Catalog structure and minimum coverage, advanced-surface language switching, dynamic accessibility attributes, localized date wiring, protected user content, browser smoke, and v0.13.187 release coverage"
+      "Header placement, supported flags, immediate persistence API, conversation and voice decoupling, localization catalog integrity, browser smoke, and v0.13.188 release coverage"
     ]
   },
   "features": [

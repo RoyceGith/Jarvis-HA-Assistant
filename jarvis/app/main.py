@@ -242,6 +242,7 @@ from .schemas import (
     ChatSessionCreate,
     ChatRenameRequest,
     JarvisSettingsUpdate,
+    InterfaceLanguageUpdate,
     OnboardingProgressUpdate,
     OnboardingStateUpdate,
     AgentSettingsUpdate,
@@ -719,7 +720,7 @@ ha_ws = HomeAssistantWebSocketClient(
 
 app = FastAPI(
     title="ZBRANO",
-    version="0.13.187",
+    version="0.13.188",
     docs_url="/api/docs",
     openapi_url="/api/openapi.json",
 )
@@ -2823,7 +2824,7 @@ async def health() -> dict[str, Any]:
     configured_speech_provider = SPEECH_PROVIDER if SPEECH_PROVIDER in {"openai", "elevenlabs"} else "openai"
     return {
         "status": "ok",
-        "version": "0.13.187",
+        "version": "0.13.188",
         "home_assistant_configured": bool(SUPERVISOR_TOKEN),
         "workshop_memory_configured": bool(WORKSHOP_MEMORY_URL),
         "workshop_memory_cost_guard": workshop_cost_guard_status(),
@@ -4478,6 +4479,15 @@ async def update_settings(request: JarvisSettingsUpdate) -> dict[str, Any]:
         "preferences": preferences,
         "release_sync": release_sync_status(),
     }
+
+
+@app.put("/api/settings/interface-language")
+async def update_interface_language(request: InterfaceLanguageUpdate) -> dict[str, Any]:
+    """Persist the chrome language without changing assistant or voice behavior."""
+    preferences = load_preferences()
+    preferences["preferred_language"] = request.interface_language
+    save_preferences(preferences)
+    return {"saved": True, "interface_language": request.interface_language}
 
 
 @app.get("/api/fast-memory")

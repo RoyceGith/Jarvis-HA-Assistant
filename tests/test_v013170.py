@@ -26,11 +26,11 @@ def load_failure_circuit():
 
 class AutomationRecoveryCenterReleaseTests(unittest.TestCase):
     def test_release_is_aligned(self):
-        self.assertIn('version: "0.13.187"', CONFIG)
-        self.assertIn('version="0.13.187"', MAIN)
-        self.assertIn("HUD 0.13.187", HTML)
-        self.assertEqual(MANIFEST["version"], "0.13.187")
-        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.186")
+        self.assertIn('version: "0.13.188"', CONFIG)
+        self.assertIn('version="0.13.188"', MAIN)
+        self.assertIn("HUD 0.13.188", HTML)
+        self.assertEqual(MANIFEST["version"], "0.13.188")
+        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.187")
 
     def test_failure_circuit_reports_recovery_timing_and_error(self):
         circuit = load_failure_circuit()

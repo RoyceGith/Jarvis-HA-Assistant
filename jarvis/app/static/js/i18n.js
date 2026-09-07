@@ -53,7 +53,7 @@
     "Home Assistant": ["Home Assistant", "Home Assistant", "Home Assistant"],
     "Installed Plugins": ["Εγκατεστημένες προσθήκες", "Plugin installati", "Plugins installés"],
     "Intelligence": ["Νοημοσύνη", "Intelligenza", "Intelligence"],
-    "Interface and reply language": ["Γλώσσα διεπαφής και απαντήσεων", "Lingua dell’interfaccia e delle risposte", "Langue de l’interface et des réponses"],
+    "Interface language": ["Γλώσσα διεπαφής", "Lingua dell’interfaccia", "Langue de l’interface"],
     "Light": ["Φωτεινό", "Chiaro", "Clair"],
     "Loading…": ["Φόρτωση…", "Caricamento…", "Chargement…"],
     "Loading chats…": ["Φόρτωση συνομιλιών…", "Caricamento chat…", "Chargement des discussions…"],
@@ -100,7 +100,6 @@
     "ZBRANO is ready": ["Το ZBRANO είναι έτοιμο", "ZBRANO è pronto", "ZBRANO est prêt"],
     "Speak your command…": ["Πείτε την εντολή σας…", "Pronuncia il comando…", "Dites votre commande…"],
     "Enter command…": ["Πληκτρολογήστε εντολή…", "Inserisci un comando…", "Saisissez une commande…"],
-    "Changes the ZBRANO interface, AI replies, and browser voice recognition. English remains the fallback.": ["Αλλάζει τη διεπαφή ZBRANO, τις απαντήσεις AI και τη φωνητική αναγνώριση του προγράμματος περιήγησης. Τα Αγγλικά παραμένουν η εφεδρική γλώσσα.", "Cambia l’interfaccia ZBRANO, le risposte AI e il riconoscimento vocale del browser. L’inglese rimane la lingua di riserva.", "Modifie l’interface ZBRANO, les réponses de l’IA et la reconnaissance vocale du navigateur. L’anglais reste la langue de secours."],
     "Core setup is complete. You can start chatting now and add optional capabilities whenever you need them.": ["Η βασική ρύθμιση ολοκληρώθηκε. Μπορείτε να ξεκινήσετε συνομιλία και να προσθέσετε προαιρετικές δυνατότητες όποτε τις χρειαστείτε.", "La configurazione principale è completa. Puoi iniziare a chattare e aggiungere funzioni opzionali quando servono.", "La configuration principale est terminée. Vous pouvez discuter maintenant et ajouter des fonctions facultatives quand vous le souhaitez."],
     "Review setup": ["Έλεγχος ρύθμισης", "Rivedi configurazione", "Vérifier la configuration"],
     "Review connections": ["Έλεγχος συνδέσεων", "Rivedi connessioni", "Vérifier les connexions"],
@@ -220,5 +219,5 @@
       for (const node of record.addedNodes) apply(node);
     }
   }).observe(document.body, {attributes: true, attributeFilter: ["aria-label", "title", "placeholder"], childList: true, characterData: true, subtree: true});
-  window.ZbranoI18n = Object.freeze({apply, register, setPreference, t: translate, get locale() { return locale; }, supported});
+  window.ZbranoI18n = Object.freeze({apply, register, setPreference, t: translate, get locale() { return locale; }, get preference() { return preference; }, supported});
 })();

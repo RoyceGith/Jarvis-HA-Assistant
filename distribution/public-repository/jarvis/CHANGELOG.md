@@ -1,5 +1,13 @@
 # Change log
 
+## 0.13.188
+
+- Added a compact flag selector to the top-right application header.
+- Applied the selected language only to interface text and locale-aware dates.
+- Saved header language changes immediately without requiring the Settings screen.
+- Made replies follow the language used in each message instead of the interface language.
+- Made browser speech recognition follow the device locale independently.
+
 ## 0.13.187
 
 - Expanded Greek, Italian, and French coverage across the main and advanced workspaces.

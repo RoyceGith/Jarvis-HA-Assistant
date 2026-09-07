@@ -33,6 +33,7 @@ class ApplicationIntegrationTests(unittest.IsolatedAsyncioTestCase):
         self.original_chat_path = conversations.CHAT_STORAGE_PATH
         self.original_automation_path = automations.AUTOMATION_STORAGE_PATH
         self.original_calendar_path = calendar.CALENDAR_STORAGE_PATH
+        self.original_birthday_path = calendar.BIRTHDAY_STORAGE_PATH
         self.original_contacts_path = contacts.CONTACTS_STORAGE_PATH
         self.original_notification_path = notifications.NOTIFICATION_STORAGE_PATH
         self.original_fast_memory_path = fast_memory.FAST_MEMORY_PATH
@@ -47,6 +48,7 @@ class ApplicationIntegrationTests(unittest.IsolatedAsyncioTestCase):
         conversations.CHAT_STORAGE_PATH = temporary_root / "chat_sessions.json"
         automations.AUTOMATION_STORAGE_PATH = temporary_root / "autonomous_automations.json"
         calendar.CALENDAR_STORAGE_PATH = temporary_root / "zbrano_calendar.json"
+        calendar.BIRTHDAY_STORAGE_PATH = temporary_root / "zbrano_birthdays.json"
         contacts.CONTACTS_STORAGE_PATH = temporary_root / "zbrano_contacts.json"
         notifications.NOTIFICATION_STORAGE_PATH = temporary_root / "notification_center.json"
         fast_memory.FAST_MEMORY_PATH = temporary_root / "zbrano_fast_memory.sqlite3"
@@ -72,6 +74,7 @@ class ApplicationIntegrationTests(unittest.IsolatedAsyncioTestCase):
         conversations.CHAT_STORAGE_PATH = self.original_chat_path
         automations.AUTOMATION_STORAGE_PATH = self.original_automation_path
         calendar.CALENDAR_STORAGE_PATH = self.original_calendar_path
+        calendar.BIRTHDAY_STORAGE_PATH = self.original_birthday_path
         contacts.CONTACTS_STORAGE_PATH = self.original_contacts_path
         notifications.NOTIFICATION_STORAGE_PATH = self.original_notification_path
         fast_memory.FAST_MEMORY_PATH = self.original_fast_memory_path
@@ -99,13 +102,13 @@ class ApplicationIntegrationTests(unittest.IsolatedAsyncioTestCase):
             response = await self.client.get("/api/health")
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json()["status"], "ok")
-        self.assertEqual(response.json()["version"], "0.13.187")
+        self.assertEqual(response.json()["version"], "0.13.188")
         self.assertEqual(response.json()["ha_read_entity_count"], 1)
         self.assertEqual(response.json()["ha_control_entity_count"], 1)
 
         frontend = await self.client.get("/")
         self.assertEqual(frontend.status_code, 200)
-        self.assertIn("HUD 0.13.187", frontend.text)
+        self.assertIn("HUD 0.13.188", frontend.text)
         self.assertEqual(
             frontend.headers.get("cache-control"),
             "no-store, no-cache, must-revalidate, max-age=0",
@@ -133,6 +136,22 @@ class ApplicationIntegrationTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(stored["general_instructions"], "Keep integration checks concise.")
         reread = await self.client.get("/api/settings")
         self.assertEqual(reread.json()["preferences"]["theme"], "gray")
+
+        language = await self.client.put(
+            "/api/settings/interface-language",
+            json={"interface_language": "Italian"},
+        )
+        self.assertEqual(language.status_code, 200)
+        self.assertEqual(language.json()["interface_language"], "Italian")
+        reread = await self.client.get("/api/settings")
+        self.assertEqual(reread.json()["preferences"]["preferred_language"], "Italian")
+        self.assertEqual(reread.json()["preferences"]["theme"], "gray")
+
+        invalid_language = await self.client.put(
+            "/api/settings/interface-language",
+            json={"interface_language": "Klingon"},
+        )
+        self.assertEqual(invalid_language.status_code, 422)
 
     async def test_do_not_allow_cannot_remain_enabled_in_entity_policy(self) -> None:
         payload = {

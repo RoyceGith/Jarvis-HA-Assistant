@@ -41,11 +41,9 @@ def effective_system_instructions() -> str:
         if preferences["confirmation_strictness"] == "cautious"
         else "Use the standard approved low-risk action policy above."
     )
-    language = preferences["preferred_language"]
     language_guidance = (
-        "Reply in the language used by the user."
-        if language == "auto"
-        else f"Prefer {language} unless the user explicitly requests another language."
+        "Reply in the language used by the user. The separately selected interface "
+        "language never forces the conversation language."
     )
     formatting_guidance = (
         "Format replies in a clean ChatGPT-like Markdown style: use short section "

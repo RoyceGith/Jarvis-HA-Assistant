@@ -267,7 +267,7 @@
     }catch(error){status(`Reliable wake listener unavailable: ${error.message||error}. Trying Chrome speech recognition...`,"error");stopWakeFallback();return false}
     finally{if(startToken===wakeFallbackStartToken)wakeFallbackStarting=false}
   }
-  function recognitionLanguage(){const preferred=String(jarvisPreferences?.preferred_language||"").trim(),mapped={English:"en-US",Greek:"el-GR",Italian:"it-IT",French:"fr-FR"};return preferred&&preferred!=="auto"?(mapped[preferred]||preferred):document.documentElement.lang||navigator.language||"en-US"}
+  function recognitionLanguage(){return navigator.language||navigator.languages?.[0]||"en-US"}
   function wakeCanRun(){return Boolean(wakeEnabled.checked&&Recognition&&!braveBrowser&&!document.hidden&&!pendingSuggestion&&!activeAudio&&!speechQueueRunning&&!mediaRecorder&&!activeRequest)}
   function showWakeCompatibility(){
     if(braveBrowser){wakeEnabled.checked=false;stopWake();status("Browser wake phrase is unavailable in Brave. Use Chrome or Edge, or connect a local Home Assistant voice satellite. Push-to-talk still works.","error");return false}

@@ -1,9 +1,14 @@
-## ZBRANO v0.13.187
+## ZBRANO v0.13.188
 
 ZBRANO combines Home Assistant chat, voice, entity control, memory, notifications,
 calendar and contact tools, plugins, and evidence-based automations. Automation Studio now uses
 a visual building-block toolbox, interactive node canvas, and contextual inspector;
 the established automation engine and stored definitions remain compatible.
+
+Version 0.13.188 adds a compact flag selector to the top-right header and makes
+the saved choice apply only to interface text and locale-aware dates. ZBRANO now
+answers in the language used in each message, while browser speech recognition
+uses the device locale independently.
 
 Version 0.13.187 expands localization across Automation Studio, Setup, About,
 Calendar, Contacts, Notifications, Plugins, Entities, and Developer controls. A
@@ -13,9 +18,9 @@ translated, and the container build now rejects incomplete catalog structure.
 
 Version 0.13.186 begins ZBRANO's multilingual interface rollout with English,
 Greek, Italian, and French. It adds automatic device-language detection, a saved
-interface-and-reply language selector, live translation of core navigation and
-controls, matching browser voice-recognition locales, and complete Home Assistant
-configuration translations without altering user content or stored automations.
+language selector, live translation of core navigation and controls, and complete
+Home Assistant configuration translations without altering user content or stored
+automations.
 
 Version 0.13.185 adds `amd64` alongside `aarch64`, allowing the same validated
 ZBRANO release to install on modern 64-bit Home Assistant PCs, servers, virtual

@@ -20,15 +20,15 @@ MANIFEST = json.loads((ROOT / "jarvis/release_manifest.json").read_text(encoding
 
 class MultilingualFoundationReleaseTests(unittest.TestCase):
     def test_release_is_aligned(self):
-        self.assertIn('version: "0.13.187"', CONFIG)
-        self.assertIn('version="0.13.187"', MAIN)
-        self.assertIn("HUD 0.13.187", HTML)
-        self.assertEqual(MANIFEST["version"], "0.13.187")
-        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.186")
-        self.assertTrue(CHANGELOG.startswith("# Change log\n\n## 0.13.187"))
+        self.assertIn('version: "0.13.188"', CONFIG)
+        self.assertIn('version="0.13.188"', MAIN)
+        self.assertIn("HUD 0.13.188", HTML)
+        self.assertEqual(MANIFEST["version"], "0.13.188")
+        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.187")
+        self.assertTrue(CHANGELOG.startswith("# Change log\n\n## 0.13.188"))
 
     def test_language_selector_has_supported_choices(self):
-        select = re.search(r'<select id="preferred-language"[^>]*>(.*?)</select>', HTML)
+        select = re.search(r'<select id="preferred-language"[^>]*>(.*?)</select>', HTML, re.DOTALL)
         self.assertIsNotNone(select)
         self.assertEqual(
             re.findall(r'<option value="([^"]+)"', select.group(1)),
@@ -59,9 +59,9 @@ class MultilingualFoundationReleaseTests(unittest.TestCase):
         self.assertIn("#entity-rows", I18N)
         self.assertIn("[data-i18n-ignore]", I18N)
 
-    def test_voice_recognition_uses_matching_locale(self):
-        for locale in ("en-US", "el-GR", "it-IT", "fr-FR"):
-            self.assertIn(locale, VOICE)
+    def test_voice_recognition_is_independent_from_interface_locale(self):
+        self.assertIn('return navigator.language||navigator.languages?.[0]||"en-US"', VOICE)
+        self.assertNotIn("jarvisPreferences?.preferred_language", VOICE)
 
     def test_every_home_assistant_translation_matches_the_configuration(self):
         schema_keys = yaml_section_keys(CONFIG, "schema")
