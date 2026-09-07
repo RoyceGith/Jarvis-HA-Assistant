@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 from pathlib import Path
+import struct
 import subprocess
 import sys
 
@@ -49,6 +50,12 @@ PUBLIC_DISTRIBUTION_FILES = {
     "jarvis/CHANGELOG.md",
     "jarvis/config.yaml",
     "jarvis/translations/en.yaml",
+    "jarvis/icon.png",
+    "jarvis/logo.png",
+}
+PUBLIC_PRESENTATION_ASSETS = {
+    "jarvis/icon.png": (128, 128),
+    "jarvis/logo.png": (511, 120),
 }
 
 
@@ -92,6 +99,27 @@ def validate(paths: list[str] | None = None, *, root: Path = ROOT) -> list[str]:
         errors.append("repository.yaml must use the ZBRANO product name")
     if "https://github.com/RoyceGith/ZBRANO_HA_Assistant" not in repository:
         errors.append("repository.yaml must point to the canonical public repository")
+
+    for relative, expected_size in PUBLIC_PRESENTATION_ASSETS.items():
+        candidate = root / relative
+        if not candidate.is_file():
+            errors.append(f"required public presentation asset is missing: {relative}")
+            continue
+        payload = candidate.read_bytes()
+        if len(payload) > 100_000:
+            errors.append(f"public presentation asset is too large: {relative}")
+            continue
+        if len(payload) < 26 or payload[:8] != b"\x89PNG\r\n\x1a\n" or payload[12:16] != b"IHDR":
+            errors.append(f"public presentation asset is not a valid PNG: {relative}")
+            continue
+        dimensions = struct.unpack(">II", payload[16:24])
+        if dimensions != expected_size:
+            errors.append(
+                f"public presentation asset has size {dimensions[0]}x{dimensions[1]}, "
+                f"expected {expected_size[0]}x{expected_size[1]}: {relative}"
+            )
+        if payload[25] not in {4, 6}:
+            errors.append(f"public presentation asset must preserve transparency: {relative}")
 
     for relative in PRODUCT_DEFAULT_FILES:
         candidate = root / relative

@@ -1,9 +1,13 @@
-## ZBRANO v0.13.183
+## ZBRANO v0.13.184
 
 ZBRANO combines Home Assistant chat, voice, entity control, memory, notifications,
 calendar and contact tools, plugins, and evidence-based automations. Automation Studio now uses
 a visual building-block toolbox, interactive node canvas, and contextual inspector;
 the established automation engine and stored definitions remain compatible.
+
+Version 0.13.184 gives ZBRANO a dedicated Home Assistant store icon and matching
+transparent wordmark. Public-boundary validation now checks their exact dimensions,
+PNG format, transparency, and bounded file size before publication.
 
 Version 0.13.183 turns the public Home Assistant pages into concise product and
 installation guides. Capabilities, requirements, permissions, privacy, upgrades,
@@ -281,7 +285,7 @@ Version 0.13.119 adds the Contacts directory, CSV/vCard and read-only Google imp
 Birthday synchronization, and numbered chat disambiguation.
 
 The application source and post-split build history are maintained in the private
-core repository. Public Home Assistant repositories contain only the five-file
+core repository. Public Home Assistant repositories contain only the eight-file
 installer and update metadata needed to deliver the prebuilt image.
 
 ZBRANO v0.13.56 reconnects the thin public installer branch to the last previously public source commit so Home Assistant Supervisor can fast-forward its cached repository checkout and detect updates without uninstalling.

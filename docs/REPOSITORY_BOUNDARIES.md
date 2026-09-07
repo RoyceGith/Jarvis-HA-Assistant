@@ -46,6 +46,9 @@ The v0.13.57 bridge commit joins both public transition histories while retainin
 only explicitly allowlisted distribution files in its current tree. Home Assistant
 configuration translations are presentation metadata and may ship beside the app
 configuration without exposing application source.
+The allowlisted `jarvis/icon.png` and `jarvis/logo.png` are public presentation
+assets. Their PNG format, dimensions, transparency, and bounded size are validated
+before publication.
 The v0.13.58 release preserves that bridge and aligns the container-only release
 fixtures with the published runtime version.
 

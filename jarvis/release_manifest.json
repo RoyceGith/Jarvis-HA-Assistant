@@ -1,9 +1,9 @@
 {
-  "version": "0.13.183",
+  "version": "0.13.184",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/ZBRANO_Core main",
-  "summary": "Present ZBRANO clearly to prospective and first-time Home Assistant users.",
+  "summary": "Give ZBRANO a validated visual identity in the Home Assistant store and public guides.",
   "history_backfill": [
     {
       "version": "0.13.0",
@@ -736,20 +736,24 @@
       {
         "version": "0.13.182",
         "summary": "Added a polished top-level About showcase with organized capabilities and direct product actions."
+      },
+      {
+        "version": "0.13.183",
+        "summary": "Replaced public release-diary pages with concise product, installation, permission, privacy, and support guides."
       }
     ],
     "release_entry": {
       "features": [
-        "Replace the public release-diary landing page with a concise ZBRANO product and installation guide.",
-        "Organize capabilities, requirements, permissions, privacy, upgrades, and support for prospective and first-time users.",
-        "Give the Home Assistant app page a focused setup, device-access, automation-safety, and recovery guide."
+        "Add an original 128 by 128 ZBRANO icon for the Home Assistant app store.",
+        "Add a matching transparent horizontal ZBRANO logo to both public product guides.",
+        "Keep the icon and logo inside the explicit thin public-repository presentation boundary."
       ],
       "fixes": [
-        "Move detailed historical release information out of the public landing pages and keep it in the changelog.",
-        "Replace the narrow Workshop Memory-focused store description with a truthful description of the complete product."
+        "Replace generic Home Assistant listing identity with recognizable ZBRANO artwork.",
+        "Prevent malformed, opaque, wrongly sized, or oversized presentation files from being published."
       ],
       "validation": [
-        "Public guide structure, installation accuracy, permission and privacy language, thin-repository boundary, and v0.13.183 release coverage"
+        "PNG signature, dimensions, alpha channel, bounded size, public allowlist, documentation references, and v0.13.184 release coverage"
       ]
   },
   "features": [
