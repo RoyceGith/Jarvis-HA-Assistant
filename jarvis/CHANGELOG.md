@@ -1,5 +1,14 @@
 # Change log
 
+## 0.13.187
+
+- Expanded Greek, Italian, and French coverage across the main and advanced workspaces.
+- Localized the complete About product showcase and hundreds of additional interface phrases.
+- Added count patterns and selected-language date formatting for dynamic content.
+- Translated dynamically changed titles, placeholders, and accessibility labels.
+- Kept conversations, entity names, and user-authored automation text outside interface translation.
+- Added a container build gate for catalog structure, minimum coverage, load order, and content-protection markers.
+
 ## 0.13.186
 
 - Added a localization foundation for English, Greek, Italian, and French.
