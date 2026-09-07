@@ -1,5 +1,11 @@
 # Change log
 
+## 0.13.190
+
+- Excluded status, temperature, and mode helper domains from direct power-action choices.
+- Prioritized climate and thermostat entities when an on/off command names an air conditioner.
+- Added regression coverage for the exact four-entity air-conditioner ambiguity.
+
 ## 0.13.189
 
 - Routed clear turn-on and turn-off chat commands locally before AI or Workshop tool preparation.

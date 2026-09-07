@@ -82,7 +82,7 @@ and plain-language recovery guidance.
 - Report reproducible issues at
   [RoyceGith/ZBRANO_HA_Assistant](https://github.com/RoyceGith/ZBRANO_HA_Assistant/issues).
 
-Version 0.13.189 expands localization through the primary and advanced workspaces,
+Version 0.13.190 expands localization through the primary and advanced workspaces,
 the complete About showcase, dynamic accessibility text, and displayed dates.
 Version 0.13.186 introduced the four-language foundation and localized Home
 Assistant configuration. Version 0.13.185 added `amd64` while preserving `aarch64`
