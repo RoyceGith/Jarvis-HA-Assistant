@@ -1,9 +1,14 @@
-## ZBRANO v0.13.189
+## ZBRANO v0.13.190
 
 ZBRANO combines Home Assistant chat, voice, entity control, memory, notifications,
 calendar and contact tools, plugins, and evidence-based automations. Automation Studio now uses
 a visual building-block toolbox, interactive node canvas, and contextual inspector;
 the established automation engine and stored definitions remain compatible.
+
+Version 0.13.190 distinguishes real controllable devices from their status,
+temperature, and mode helper entities. Air-conditioner power requests now prefer
+the actual climate/thermostat entity instead of presenting sensor helpers as
+equally valid devices.
 
 Version 0.13.189 sends clear Home Assistant on/off requests through the local
 control route before preparing AI or Workshop tools. It selects approved Control

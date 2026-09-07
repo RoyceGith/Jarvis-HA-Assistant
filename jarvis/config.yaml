@@ -1,6 +1,6 @@
 name: "ZBRANO"
 description: "Private AI conversation, home intelligence, and visual automation with explicit device permissions"
-version: "0.13.189"
+version: "0.13.190"
 slug: "jarvis_workshop_assistant"
 image: "ghcr.io/roycegith/jarvis-ha-assistant"
 init: false

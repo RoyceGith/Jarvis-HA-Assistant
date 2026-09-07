@@ -24,11 +24,11 @@ def png_metadata(path: Path) -> tuple[int, int, int]:
 
 class PublicPresentationAssetsReleaseTests(unittest.TestCase):
     def test_release_is_aligned(self):
-        self.assertIn('version: "0.13.189"', CONFIG)
-        self.assertIn('version="0.13.189"', MAIN)
-        self.assertIn("HUD 0.13.189", HTML)
-        self.assertEqual(MANIFEST["version"], "0.13.189")
-        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.188")
+        self.assertIn('version: "0.13.190"', CONFIG)
+        self.assertIn('version="0.13.190"', MAIN)
+        self.assertIn("HUD 0.13.190", HTML)
+        self.assertEqual(MANIFEST["version"], "0.13.190")
+        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.189")
 
     def test_home_assistant_icon_is_bounded_transparent_png(self):
         path = ROOT / "jarvis/icon.png"

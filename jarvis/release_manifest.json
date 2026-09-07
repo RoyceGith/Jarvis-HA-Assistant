@@ -1,9 +1,9 @@
 {
-  "version": "0.13.189",
+  "version": "0.13.190",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/ZBRANO_Core main",
-  "summary": "Route clear Home Assistant on/off commands locally, prefer approved Control Devices over matching sensors, and avoid duplicate service actions.",
+  "summary": "Resolve air-conditioner power commands to the actual climate entity instead of similarly named status, temperature, or mode helpers.",
   "history_backfill": [
     {
       "version": "0.13.0",
@@ -760,20 +760,22 @@
       {
         "version": "0.13.188",
         "summary": "Added a top-right flag selector for interface-only language selection and decoupled conversation and voice behavior."
+      },
+      {
+        "version": "0.13.189",
+        "summary": "Routed clear Home Assistant on/off commands locally, preferred approved Control Devices over matching sensors, and avoided duplicate service actions."
       }
   ],
   "release_entry": {
     "features": [
-      "Route clear turn-on and turn-off chat commands through deterministic local Home Assistant control before preparing AI or Workshop tools.",
-      "Resolve control commands against approved Control Devices while excluding similarly named read-only sensors.",
-      "Ask a local numbered clarification when multiple approved Control Devices match."
+      "Resolve air-conditioner power wording to an approved climate or thermostat entity before lower-level helpers.",
+      "Limit direct power choices to Home Assistant domains that support the safe on/off control route."
     ],
     "fixes": [
-      "Never replay a successful Home Assistant WebSocket service call through REST when state-cache verification is delayed.",
-      "Reduce the post-action state-cache wait to one second and fall back to a read-only state check."
+      "Stop presenting air-conditioner status, indoor-temperature, and running-mode helpers as equal power-action targets."
     ],
     "validation": [
-      "Control-device preference over matching sensors, local route ordering, WebSocket no-replay behavior, state verification, regression suite, browser smoke, and v0.13.189 release coverage"
+      "Exact four-entity air-conditioner ambiguity regression, safe-domain filtering, climate preference, regression suite, browser smoke, and v0.13.190 release coverage"
     ]
   },
   "features": [

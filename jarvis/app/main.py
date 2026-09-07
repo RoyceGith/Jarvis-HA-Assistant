@@ -720,7 +720,7 @@ ha_ws = HomeAssistantWebSocketClient(
 
 app = FastAPI(
     title="ZBRANO",
-    version="0.13.189",
+    version="0.13.190",
     docs_url="/api/docs",
     openapi_url="/api/openapi.json",
 )
@@ -1827,9 +1827,14 @@ async def try_local_ha_route(
         lookup = find_approved_entities(parsed["query"])
         entity = lookup.get("recommended_unique_match")
         if parsed["kind"] == "control" and "matches" in lookup:
+            safe_control_domains = {"light", "switch", "fan", "input_boolean", "climate"}
             control_matches = [
                 candidate for candidate in lookup.get("matches", [])
                 if candidate.get("control_approved") is True
+                and str(
+                    candidate.get("domain")
+                    or str(candidate.get("entity_id") or "").partition(".")[0]
+                ).lower() in safe_control_domains
             ]
             if not control_matches:
                 return {
@@ -1839,8 +1844,24 @@ async def try_local_ha_route(
                     ),
                     "tool_calls": [],
                 }
-            top_score = control_matches[0]["score"]
-            top_matches = [candidate for candidate in control_matches if candidate["score"] == top_score]
+            query_words = str(parsed.get("query") or "").lower().replace("_", " ")
+            preferred_domain = ""
+            if any(term in query_words for term in ("air condition", "aircondition", "thermostat", "hvac", "heating", "cooling")):
+                preferred_domain = "climate"
+            elif any(term in query_words for term in ("light", "lamp")):
+                preferred_domain = "light"
+            elif "fan" in query_words:
+                preferred_domain = "fan"
+
+            def control_rank(candidate: dict[str, Any]) -> int:
+                domain = str(
+                    candidate.get("domain")
+                    or str(candidate.get("entity_id") or "").partition(".")[0]
+                ).lower()
+                return int(candidate.get("score") or 0) + (100 if domain == preferred_domain else 0)
+
+            top_score = max(control_rank(candidate) for candidate in control_matches)
+            top_matches = [candidate for candidate in control_matches if control_rank(candidate) == top_score]
             if len(top_matches) != 1:
                 choices = "\n".join(
                     f'{index}. {candidate.get("friendly_name") or candidate["entity_id"]}'
@@ -2853,7 +2874,7 @@ async def health() -> dict[str, Any]:
     configured_speech_provider = SPEECH_PROVIDER if SPEECH_PROVIDER in {"openai", "elevenlabs"} else "openai"
     return {
         "status": "ok",
-        "version": "0.13.189",
+        "version": "0.13.190",
         "home_assistant_configured": bool(SUPERVISOR_TOKEN),
         "workshop_memory_configured": bool(WORKSHOP_MEMORY_URL),
         "workshop_memory_cost_guard": workshop_cost_guard_status(),
