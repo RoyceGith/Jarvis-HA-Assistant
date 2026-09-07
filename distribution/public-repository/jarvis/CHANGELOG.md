@@ -1,5 +1,12 @@
 # Change log
 
+## 0.13.185
+
+- Added `amd64` alongside `aarch64` for 64-bit Home Assistant PCs, servers, and virtual machines.
+- Kept one generic GHCR image reference backed by the official multi-architecture manifest.
+- Expanded the release contract to require both supported architectures in stable order.
+- Preserved the existing app slug, update path, permissions, and persistent data.
+
 ## 0.13.184
 
 - Added an original ZBRANO icon for the Home Assistant app store.

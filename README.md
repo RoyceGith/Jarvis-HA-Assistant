@@ -1,9 +1,14 @@
-## ZBRANO v0.13.184
+## ZBRANO v0.13.185
 
 ZBRANO combines Home Assistant chat, voice, entity control, memory, notifications,
 calendar and contact tools, plugins, and evidence-based automations. Automation Studio now uses
 a visual building-block toolbox, interactive node canvas, and contextual inspector;
 the established automation engine and stored definitions remain compatible.
+
+Version 0.13.185 adds `amd64` alongside `aarch64`, allowing the same validated
+ZBRANO release to install on modern 64-bit Home Assistant PCs, servers, virtual
+machines, and ARM systems. The existing generic GHCR image now publishes a true
+two-platform manifest without changing the app slug, update path, or stored data.
 
 Version 0.13.184 gives ZBRANO a dedicated Home Assistant store icon and matching
 transparent wordmark. Public-boundary validation now checks their exact dimensions,

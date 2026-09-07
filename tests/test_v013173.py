@@ -16,11 +16,11 @@ MANIFEST = json.loads((ROOT / "jarvis/release_manifest.json").read_text(encoding
 
 class InstallationConfigurationGuideReleaseTests(unittest.TestCase):
     def test_release_is_aligned(self):
-        self.assertIn('version: "0.13.184"', CONFIG)
-        self.assertIn('version="0.13.184"', MAIN)
-        self.assertIn("HUD 0.13.184", HTML)
-        self.assertEqual(MANIFEST["version"], "0.13.184")
-        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.183")
+        self.assertIn('version: "0.13.185"', CONFIG)
+        self.assertIn('version="0.13.185"', MAIN)
+        self.assertIn("HUD 0.13.185", HTML)
+        self.assertEqual(MANIFEST["version"], "0.13.185")
+        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.184")
 
     def test_model_help_is_an_explicit_restart_and_verify_sequence(self):
         guide = ONBOARDING[ONBOARDING.index('configurationHelp.innerHTML'):ONBOARDING.index('summary.after(configurationHelp)')]

@@ -11,8 +11,8 @@ MANIFEST = json.loads((ROOT / "jarvis" / "release_manifest.json").read_text(enco
 
 class V013138AdditionalTriggerEntityPickerTests(unittest.TestCase):
     def test_release_is_aligned(self):
-        self.assertEqual(MANIFEST["version"], "0.13.184")
-        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.183")
+        self.assertEqual(MANIFEST["version"], "0.13.185")
+        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.184")
 
     def test_additional_trigger_maps_to_its_relevant_field(self):
         self.assertIn('const workflowIndex=index-1,item=workflowDraft.triggers[workflowIndex]||{},preferredField=', WORKSPACE)

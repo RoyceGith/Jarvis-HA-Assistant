@@ -1,9 +1,9 @@
 {
-  "version": "0.13.184",
+  "version": "0.13.185",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/ZBRANO_Core main",
-  "summary": "Give ZBRANO a validated visual identity in the Home Assistant store and public guides.",
+  "summary": "Publish ZBRANO for both modern 64-bit Home Assistant architectures without changing its installation identity.",
   "history_backfill": [
     {
       "version": "0.13.0",
@@ -740,21 +740,25 @@
       {
         "version": "0.13.183",
         "summary": "Replaced public release-diary pages with concise product, installation, permission, privacy, and support guides."
+      },
+      {
+        "version": "0.13.184",
+        "summary": "Added a validated ZBRANO icon and transparent wordmark to the Home Assistant store and public guides."
       }
+  ],
+  "release_entry": {
+    "features": [
+      "Publish an amd64 image for 64-bit Home Assistant PCs, servers, and virtual machines.",
+      "Continue publishing the existing aarch64 image for Raspberry Pi 5 and other modern ARM installations.",
+      "Combine both platform images behind the existing generic GHCR manifest."
     ],
-    "release_entry": {
-      "features": [
-        "Add an original 128 by 128 ZBRANO icon for the Home Assistant app store.",
-        "Add a matching transparent horizontal ZBRANO logo to both public product guides.",
-        "Keep the icon and logo inside the explicit thin public-repository presentation boundary."
-      ],
-      "fixes": [
-        "Replace generic Home Assistant listing identity with recognizable ZBRANO artwork.",
-        "Prevent malformed, opaque, wrongly sized, or oversized presentation files from being published."
-      ],
-      "validation": [
-        "PNG signature, dimensions, alpha channel, bounded size, public allowlist, documentation references, and v0.13.184 release coverage"
-      ]
+    "fixes": [
+      "Remove the unnecessary aarch64-only installation restriction for other Home Assistant users.",
+      "Require the exact supported architecture list before a release can be published."
+    ],
+    "validation": [
+      "Architecture metadata, official multi-architecture workflow wiring, public compatibility guidance, and v0.13.185 release coverage"
+    ]
   },
   "features": [
     "Manage a private local directory of people and company contacts with rich details.",

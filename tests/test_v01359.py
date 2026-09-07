@@ -26,10 +26,10 @@ class OnboardingFoundationReleaseTests(unittest.TestCase):
         self.temporary.cleanup()
 
     def test_release_markers_are_aligned(self):
-        self.assertIn('version: "0.13.184"', CONFIG)
-        self.assertIn('version="0.13.184"', MAIN)
-        self.assertIn("HUD 0.13.184", HTML)
-        self.assertEqual(MANIFEST["version"], "0.13.184")
+        self.assertIn('version: "0.13.185"', CONFIG)
+        self.assertIn('version="0.13.185"', MAIN)
+        self.assertIn("HUD 0.13.185", HTML)
+        self.assertEqual(MANIFEST["version"], "0.13.185")
 
     def test_new_installation_opens_setup_without_writing(self):
         state = settings.load_onboarding_state()
@@ -59,7 +59,7 @@ class OnboardingFoundationReleaseTests(unittest.TestCase):
         self.assertIn("owner-specific private extension", BOUNDARY)
 
     def test_release_history_includes_v01358(self):
-        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.183")
+        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.184")
 
 
 if __name__ == "__main__":

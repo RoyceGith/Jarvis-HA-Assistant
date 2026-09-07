@@ -16,11 +16,11 @@ MANIFEST = json.loads((ROOT / "jarvis/release_manifest.json").read_text(encoding
 
 class PlainDeviceAccessOnboardingReleaseTests(unittest.TestCase):
     def test_release_is_aligned(self):
-        self.assertIn('version: "0.13.184"', CONFIG)
-        self.assertIn('version="0.13.184"', MAIN)
-        self.assertIn("HUD 0.13.184", HTML)
-        self.assertEqual(MANIFEST["version"], "0.13.184")
-        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.183")
+        self.assertIn('version: "0.13.185"', CONFIG)
+        self.assertIn('version="0.13.185"', MAIN)
+        self.assertIn("HUD 0.13.185", HTML)
+        self.assertEqual(MANIFEST["version"], "0.13.185")
+        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.184")
 
     def test_device_counts_use_the_same_sensor_and_control_concepts(self):
         self.assertEqual(entity_permission_setup_detail(1, 0), "1 sensor device · 0 control devices selected")

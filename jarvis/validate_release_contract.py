@@ -73,7 +73,7 @@ def main() -> None:
 
     arch_block = require(config, r"^arch:\s*\n((?:  - .+\n?)+)", "architecture list").group(1)
     architectures = re.findall(r"^  -\s+([a-z0-9_]+)\s*$", arch_block, re.MULTILINE)
-    if architectures != ["aarch64"]:
+    if architectures != ["aarch64", "amd64"]:
         raise RuntimeError(f"Unsupported release architectures: {architectures}")
     if yaml_scalar(config, "ingress_port") != "8099":
         raise RuntimeError("Ingress port must remain 8099")
@@ -137,7 +137,7 @@ def main() -> None:
     if workflow.count("latest") < 2:
         raise RuntimeError("Image and manifest latest tags are not both configured")
 
-    print(f"Release contract validated for ZBRANO v{version} ({architectures[0]})")
+    print(f"Release contract validated for ZBRANO v{version} ({', '.join(architectures)})")
 
 
 if __name__ == "__main__":
