@@ -16,7 +16,8 @@ language while conversations, voice recognition, and personal content remain ind
 ## Highlights
 
 - **Talk naturally:** use text or voice, maintain separate conversations, attach
-  files, and optionally search the web with visible sources.
+  files, use voice-independent browser wake recognition, and optionally search the
+  web with visible sources.
 - **Understand the home:** inspect permitted sensors, devices, areas, history, and
   live state changes.
 - **Build visual automations:** create WHEN, IF, ELSE IF, message, and action paths
@@ -82,7 +83,7 @@ and plain-language recovery guidance.
 - Report reproducible issues at
   [RoyceGith/ZBRANO_HA_Assistant](https://github.com/RoyceGith/ZBRANO_HA_Assistant/issues).
 
-Version 0.13.190 expands localization through the primary and advanced workspaces,
+Version 0.13.191 expands localization through the primary and advanced workspaces,
 the complete About showcase, dynamic accessibility text, and displayed dates.
 Version 0.13.186 introduced the four-language foundation and localized Home
 Assistant configuration. Version 0.13.185 added `amd64` while preserving `aarch64`

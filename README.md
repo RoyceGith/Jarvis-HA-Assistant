@@ -4,7 +4,7 @@
 
 **A private, permission-aware assistant for conversation, home intelligence, and visual automation.**
 
-Current release: **0.13.190**
+Current release: **0.13.191**
 Platforms: **Home Assistant · aarch64 · amd64**
 Languages: **English · Ελληνικά · Italiano · Français**
 
@@ -22,7 +22,7 @@ recognition remain independent from the interface selection.
 
 | Capability | What it means in everyday use |
 | --- | --- |
-| **Conversation and voice** | Separate saved conversations, file attachments, optional web sources, speech replies, wake phrase, and follow-up listening. |
+| **Conversation and voice** | Separate saved conversations, file attachments, optional web sources, speech replies, voice-independent browser wake recognition, and follow-up listening. |
 | **Home awareness** | Live sensor readings, device states, rooms, labels, history, and event timelines from explicitly permitted Home Assistant entities. |
 | **Visual automations** | Automation Studio uses understandable WHEN, IF, ELSE IF, message, and action paths with safe testing before saving. |
 | **Memory and organization** | Private Fast Memory, optional Workshop Memory, shared files, contacts, birthdays, appointments, and reminders. |
