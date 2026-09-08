@@ -75,6 +75,14 @@ class MemoryStudioReleaseTests(unittest.TestCase):
         finally:
             second.cleanup()
 
+    def test_studio_exposes_guided_database_and_template_workspaces(self):
+        self.assertIn('data-memory-view="database"', STUDIO)
+        self.assertIn('data-memory-view="templates"', STUDIO)
+        self.assertIn('id="memory-create-categories"', STUDIO)
+        self.assertIn('id="memory-create-templates"', STUDIO)
+        self.assertIn('id="memory-note-blueprints"', STUDIO)
+        self.assertIn("@media(max-width:850px)", STYLE)
+
     def test_template_note_paths_are_safe_and_unique(self):
         with self.assertRaises(ValueError):
             knowledge_memory.save_memory_template("Unsafe", "", "Personal", "template", [{"name": "../../outside", "purpose": "", "content": ""}])
