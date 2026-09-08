@@ -1,9 +1,9 @@
 {
-  "version": "0.13.190",
+  "version": "0.13.191",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/ZBRANO_Core main",
-  "summary": "Resolve air-conditioner power commands to the actual climate entity instead of similarly named status, temperature, or mode helpers.",
+  "summary": "Make browser wake recognition the clear universal choice while preserving and accurately labelling the owner-tuned local model as experimental.",
   "history_backfill": [
     {
       "version": "0.13.0",
@@ -764,18 +764,24 @@
       {
         "version": "0.13.189",
         "summary": "Routed clear Home Assistant on/off commands locally, preferred approved Control Devices over matching sensors, and avoided duplicate service actions."
+      },
+      {
+        "version": "0.13.190",
+        "summary": "Resolved air-conditioner power commands to the actual climate entity instead of similarly named status, temperature, or mode helpers."
       }
   ],
   "release_entry": {
     "features": [
-      "Resolve air-conditioner power wording to an approved climate or thermostat entity before lower-level helpers.",
-      "Limit direct power choices to Home Assistant domains that support the safe on/off control route."
+      "Choose between recommended browser wake recognition and the experimental local wake model through explicit method cards.",
+      "Default new browser profiles to voice-independent browser recognition while preserving existing local-model preferences.",
+      "Localize wake-method guidance across English, Greek, Italian, and French."
     ],
     "fixes": [
-      "Stop presenting air-conditioner status, indoor-temperature, and running-mode helpers as equal power-action targets."
+      "Stop presenting the owner-tuned local wake prototype as though it were equally reliable for every user's voice.",
+      "Explain that personal calibration reduces false activations but cannot retrain base wake-phrase recognition."
     ],
     "validation": [
-      "Exact four-entity air-conditioner ambiguity regression, safe-domain filtering, climate preference, regression suite, browser smoke, and v0.13.190 release coverage"
+      "Wake-method default and persistence wiring, local-model compatibility, localization catalog integrity, regression suite, browser smoke, and v0.13.191 release coverage"
     ]
   },
   "features": [

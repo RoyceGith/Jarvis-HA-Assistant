@@ -1,5 +1,13 @@
 # Change log
 
+## 0.13.191
+
+- Added an explicit wake-detection method selector with browser recognition recommended for every user.
+- Marked the owner-tuned local wake model as experimental instead of presenting it as universal.
+- Preserved existing local-model choices while defaulting new browsers to voice-independent recognition.
+- Clarified that personal calibration filters false activations and does not retrain the base wake phrase.
+- Localized the new wake-method guidance in English, Greek, Italian, and French.
+
 ## 0.13.190
 
 - Excluded status, temperature, and mode helper domains from direct power-action choices.

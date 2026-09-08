@@ -138,7 +138,7 @@
     home_assistant: {symbol: "HA", eyebrow: "CORE CONNECTION", guidance: "This connection lets ZBRANO see Home Assistant and use only the entities you approve."},
     model: {symbol: "AI", eyebrow: "INTELLIGENCE", guidance: "The AI model powers chat and reasoning. Your key stays in the protected Home Assistant app configuration."},
     entities: {symbol: "DV", eyebrow: "DEVICE ACCESS", guidance: "Choose Sensor devices for information and Control devices only when you want ZBRANO to perform actions."},
-    voice: {symbol: "VO", eyebrow: "VOICE", guidance: "Voice is optional. Configure speech, test playback, and enable the wake word only if you want hands-free use."},
+    voice: {symbol: "VO", eyebrow: "VOICE", guidance: "Voice is optional. Browser wake recognition is recommended for every user; the experimental local model may favor the owner voice used to tune it."},
     memory: {symbol: "ME", eyebrow: "MEMORY", guidance: "Fast Memory helps ZBRANO remember useful preferences and context locally between conversations."},
     plugins: {symbol: "PL", eyebrow: "CONNECTIONS", guidance: "Plugins connect optional services. You can skip this now and install only the services you trust later."},
     notifications: {symbol: "NT", eyebrow: "NOTIFICATIONS", guidance: "Choose where ZBRANO should send alerts and automation messages. This can be changed at any time."},

@@ -13,12 +13,12 @@ MANIFEST = json.loads((ROOT / "jarvis/release_manifest.json").read_text(encoding
 
 class ActionableEntityMatchingReleaseTests(unittest.TestCase):
     def test_release_is_aligned(self):
-        self.assertIn('version: "0.13.190"', CONFIG)
-        self.assertIn('version="0.13.190"', MAIN)
-        self.assertIn("HUD 0.13.190", HTML)
-        self.assertEqual(MANIFEST["version"], "0.13.190")
-        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.189")
-        self.assertTrue(CHANGELOG.startswith("# Change log\n\n## 0.13.190"))
+        self.assertIn('version: "0.13.191"', CONFIG)
+        self.assertIn('version="0.13.191"', MAIN)
+        self.assertIn("HUD 0.13.191", HTML)
+        self.assertEqual(MANIFEST["version"], "0.13.191")
+        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.190")
+        self.assertTrue(CHANGELOG.startswith("# Change log\n\n## 0.13.191"))
 
     def test_direct_power_matching_uses_safe_domains_and_semantic_priority(self):
         route = MAIN[MAIN.index("async def try_local_ha_route("):MAIN.index("async def run_jarvis(")]

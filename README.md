@@ -1,9 +1,15 @@
-## ZBRANO v0.13.190
+## ZBRANO v0.13.191
 
 ZBRANO combines Home Assistant chat, voice, entity control, memory, notifications,
 calendar and contact tools, plugins, and evidence-based automations. Automation Studio now uses
 a visual building-block toolbox, interactive node canvas, and contextual inspector;
 the established automation engine and stored definitions remain compatible.
+
+Version 0.13.191 makes wake-word portability explicit: browser recognition is the
+recommended method for every user, while the bundled owner-tuned local model is
+clearly marked experimental. The selector preserves existing choices, and personal
+calibration now explains that it reduces false activations rather than retraining
+the base wake phrase.
 
 Version 0.13.190 distinguishes real controllable devices from their status,
 temperature, and mode helper entities. Air-conditioner power requests now prefer

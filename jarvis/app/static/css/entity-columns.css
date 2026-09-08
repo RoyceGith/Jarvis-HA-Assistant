@@ -360,6 +360,8 @@
     /* v0.12.94 proactive voice and wake phrase. */
     .voice-handsfree-settings { margin-top:1rem; padding-top:.85rem; border-top:1px solid var(--line); display:grid; gap:.65rem; }
     .voice-handsfree-settings h3 { margin:0; font-size:.78rem; letter-spacing:.08em; }
+    .wake-method-picker{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.55rem;margin:0;padding:.65rem;border:1px solid var(--line);border-radius:10px}.wake-method-picker legend{padding:0 .35rem;color:var(--text-muted);font-size:.72rem}.wake-method-card{position:relative;display:grid;grid-template-columns:auto 1fr;gap:.55rem;align-items:start;min-width:0;padding:.65rem;border:1px solid var(--line);border-radius:9px;background:color-mix(in srgb,var(--panel) 90%,transparent);cursor:pointer}.wake-method-card:has(input:checked){border-color:color-mix(in srgb,var(--cyan) 72%,var(--line));background:color-mix(in srgb,var(--cyan) 9%,var(--panel))}.wake-method-card input{margin-top:.15rem}.wake-method-card span{display:grid;gap:.2rem;min-width:0}.wake-method-card strong{font-size:.76rem}.wake-method-card small{color:var(--text-muted);font-size:.68rem;line-height:1.45}.wake-method-card em{grid-column:2;color:var(--cyan);font-size:.59rem;font-style:normal;font-weight:750;letter-spacing:.08em}.wake-method-card:last-child em{color:var(--text-muted)}
+    @media(max-width:700px){.wake-method-picker{grid-template-columns:1fr}}
     #wake-word-status[data-state="listening"] { color:var(--cyan); }
     #wake-word-status[data-state="error"] { color:var(--danger); }
 

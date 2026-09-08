@@ -1,8 +1,10 @@
 # ZBRANO wake-word model
 
-`hey_zbrano.onnx` is the second ZBRANO OpenWakeWord model. It combines the
-original synthetic training corpus with validated real-room recordings. It is
-included for silent shadow-mode evaluation and cannot activate chat.
+`hey_zbrano.onnx` is an experimental ZBRANO OpenWakeWord prototype. It combines
+the original synthetic training corpus with the owner's validated real-room
+recordings, so it must not be treated as a voice-independent production model.
+Browser recognition is the recommended wake method for other users. The local
+model remains available for private offline testing and optional activation.
 
 - Phrase: `Hey ZBRANO`
 - Training pronunciation: `hˈeɪ zbɹˈɑːnoʊ`
@@ -13,8 +15,10 @@ included for silent shadow-mode evaluation and cannot activate chat.
 - Model format: ONNX, 205,430 bytes
 
 The model was trained using ACAV100M-derived negative features and is provided
-for this personal, non-commercial project under CC BY-NC-SA 4.0. OpenWakeWord
-runtime code is Apache-2.0 licensed.
+for this personal, non-commercial project under CC BY-NC-SA 4.0. It must not be
+included in a commercial or premium package without replacing it with a model
+whose training data and licence permit that use. OpenWakeWord runtime code is
+Apache-2.0 licensed.
 
 Runtime feature models from the official OpenWakeWord v0.5.1 release:
 

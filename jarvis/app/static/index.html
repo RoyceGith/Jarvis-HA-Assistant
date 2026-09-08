@@ -34,7 +34,7 @@
   <header>
     <div class="brand-line">
       <h1>ZBRANO</h1>
-      <div class="status hud-version-label">Workshop Intelligence Interface · HUD 0.13.190</div>
+      <div class="status hud-version-label">Workshop Intelligence Interface · HUD 0.13.191</div>
     </div>
     <div class="runtime-status-stack">
       <label class="interface-language-picker" title="Interface language">
@@ -400,8 +400,12 @@
         <h3>PROACTIVE &amp; HANDS-FREE VOICE</h3>
         <label class="toggle-row"><input id="proactive-voice-enabled" type="checkbox" checked> Speak new autonomous suggestions on this open ZBRANO interface</label>
         <label class="toggle-row"><input id="voice-approval-enabled" type="checkbox" checked> Listen briefly for “approve” or “decline” after a spoken suggestion</label>
-        <label class="toggle-row"><input id="wake-word-enabled" type="checkbox"> Enable always listening mode</label>
-        <label class="toggle-row"><input id="wake-local-activate" type="checkbox"> Use the local wake model to activate ZBRANO</label>
+        <label class="toggle-row"><input id="wake-word-enabled" type="checkbox"> Enable “Hey ZBRANO” listening</label>
+        <fieldset class="wake-method-picker">
+          <legend>Wake phrase detection</legend>
+          <label class="wake-method-card"><input id="wake-browser-activate" name="wake-detection-method" type="radio" checked><span><strong>Browser recognition</strong><small>Recommended for every user. Recognizes words, not a specific voice.</small></span><em>RECOMMENDED</em></label>
+          <label class="wake-method-card"><input id="wake-local-activate" name="wake-detection-method" type="radio"><span><strong>Experimental local model</strong><small>Private and offline. Owner-tuned; may miss some voices.</small></span><em>EXPERIMENTAL</em></label>
+        </fieldset>
         <label class="toggle-row"><input id="wake-conversation-enabled" type="checkbox"> Keep listening for follow-up conversation after voice replies</label>
         <div class="setting-field"><label for="wake-conversation-stop">Stop conversation phrase</label><input id="wake-conversation-stop" type="text" minlength="2" maxlength="60" value="ok thank you" autocomplete="off"><small>Say this during a follow-up window to end conversation mode without sending another prompt.</small></div>
         <div class="setting-field"><label for="wake-phrase">Wake phrase</label><input id="wake-phrase" type="text" minlength="2" maxlength="40" value="hey zbrano" autocomplete="off"><small>Say the phrase followed by a command, or pause and speak after ZBRANO starts listening.</small></div>
@@ -418,11 +422,11 @@
           <ol id="wake-attempt-results" class="wake-attempt-results" aria-label="Recent wake phrase test results"></ol>
           <section class="wake-verifier-calibration">
             <h4>PERSONAL VOICE CALIBRATION</h4>
-            <p>Record your wake phrase and ordinary speech. Clips remain in ZBRANO’s private add-on data and are saved only when you press a recording or false-trigger button.</p>
+            <p>Calibration can reduce false activations. It cannot retrain the experimental model for a new voice. Clips stay in ZBRANO’s private app data.</p>
             <div class="wake-calibration-counts"><span>Hey ZBRANO<strong id="wake-positive-count">0 / 20</strong></span><span>Other speech<strong id="wake-negative-count">0 / 20</strong></span><span>Verifier<strong id="wake-verifier-state">Not trained</strong></span></div>
             <div class="settings-actions"><button id="wake-record-positive" type="button">Record “Hey ZBRANO”</button><button id="wake-record-negative" type="button">Record other speech</button><button id="wake-train-verifier" type="button" disabled>Train personal verifier</button><button id="wake-export-calibration" type="button">Export recordings ZIP</button><button id="wake-remove-invalid" type="button">Remove invalid recordings</button><button id="wake-delete-verifier" type="button">Delete verifier only</button><button id="wake-reset-calibration" type="button">Delete all calibration</button></div>
             <label class="toggle-row"><input id="wake-use-verifier" type="checkbox"> Use personal verifier <small>(optional extra false-trigger filter)</small></label>
-            <p id="wake-calibration-message" class="muted">The broader base model remains active by default. Your recordings are preserved for optional verifier experiments.</p>
+            <p id="wake-calibration-message" class="muted">Browser recognition needs no personal training. Calibration applies only to the experimental local model.</p>
           </section>
         </section>
         <small>Voice approval is intended for a trusted room. Browser speech recognition may use the browser vendor's speech service. If Chrome produces no transcript, local voice activity detection sends only a short detected utterance to ZBRANO transcription, with a 20-request hourly safety limit and no saved audio. Screen approval and all existing automation authority limits remain available.</small>
