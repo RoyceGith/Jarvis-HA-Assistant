@@ -352,6 +352,9 @@ async function main() {
   });
   try {
     const page = await browser.newPage({viewport: {width: 1100, height: 720}});
+    // Multi-architecture image builds may execute Chromium through QEMU. Keep
+    // the assertions strict while allowing UI actions enough time on emulated ARM.
+    page.setDefaultTimeout(60000);
     await page.route("**/api/**", async route => {
       await route.fulfill({
         status: 200,
