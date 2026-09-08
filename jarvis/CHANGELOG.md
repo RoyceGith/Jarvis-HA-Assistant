@@ -1,5 +1,13 @@
 # Change log
 
+## 0.13.194
+
+- Added a dedicated Memory tab with separate Memory Database and Template Studio workspaces.
+- Added user-created categories and reusable templates made from clear note cards.
+- Added guided space creation, local note browsing, search, editing, and deletion.
+- Included custom categories and templates in ZBRANO backup and restore.
+- Kept permanent memory changes made through chat behind explicit approval.
+
 ## 0.13.193
 
 - Replaced the external Workshop Memory dependency with built-in local Knowledge Memory.
