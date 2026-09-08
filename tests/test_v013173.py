@@ -16,17 +16,18 @@ MANIFEST = json.loads((ROOT / "jarvis/release_manifest.json").read_text(encoding
 
 class InstallationConfigurationGuideReleaseTests(unittest.TestCase):
     def test_release_is_aligned(self):
-        self.assertIn('version: "0.13.191"', CONFIG)
-        self.assertIn('version="0.13.191"', MAIN)
-        self.assertIn("HUD 0.13.191", HTML)
-        self.assertEqual(MANIFEST["version"], "0.13.191")
-        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.190")
+        self.assertIn('version: "0.13.192"', CONFIG)
+        self.assertIn('version="0.13.192"', MAIN)
+        self.assertIn("HUD 0.13.192", HTML)
+        self.assertEqual(MANIFEST["version"], "0.13.192")
+        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.191")
 
     def test_model_help_is_an_explicit_restart_and_verify_sequence(self):
         guide = ONBOARDING[ONBOARDING.index('configurationHelp.innerHTML'):ONBOARDING.index('summary.after(configurationHelp)')]
         for marker in (
             "Settings → Apps → ZBRANO → Configuration",
-            "openai_api_key",
+            "chat_provider",
+            "openrouter_api_key",
             "restart the ZBRANO app",
             "Verify key",
             "Optional fields can stay blank",
@@ -39,7 +40,7 @@ class InstallationConfigurationGuideReleaseTests(unittest.TestCase):
         for marker in (
             'target === "model"',
             "configurationHelp.hidden = false",
-            'copyInstallationSummary("openai_api_key"',
+            'copyInstallationSummary("chat_provider"',
             "configurationVerify.addEventListener",
             "configurationClose.addEventListener",
         ):
@@ -50,7 +51,7 @@ class InstallationConfigurationGuideReleaseTests(unittest.TestCase):
 
     def test_public_installation_instructions_match_the_guide(self):
         self.assertIn("Settings → Apps → ZBRANO → Configuration", PUBLIC_README)
-        self.assertIn("`openai_api_key`", PUBLIC_README)
+        self.assertIn("`chat_provider`", PUBLIC_README)
         self.assertIn("save, and restart ZBRANO", PUBLIC_README)
         self.assertIn("may remain blank", PUBLIC_README)
 

@@ -563,6 +563,16 @@ WORKSHOP_MEMORY_INTERNAL_URL = os.getenv(
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "")
 OPENAI_MODEL = os.getenv("OPENAI_MODEL", "gpt-5-mini")
 OPENAI_RESPONSES_URL = "https://api.openai.com/v1/responses"
+CHAT_PROVIDER = os.getenv("CHAT_PROVIDER", "openai").strip().lower()
+if CHAT_PROVIDER not in {"openai", "openrouter"}:
+    CHAT_PROVIDER = "openai"
+OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY", "").strip()
+OPENROUTER_MODEL = os.getenv("OPENROUTER_MODEL", "openai/gpt-5-mini").strip() or "openai/gpt-5-mini"
+AGENT_API_KEY = OPENROUTER_API_KEY if CHAT_PROVIDER == "openrouter" else OPENAI_API_KEY
+AGENT_RESPONSES_URL = "https://openrouter.ai/api/v1/responses" if CHAT_PROVIDER == "openrouter" else OPENAI_RESPONSES_URL
+AGENT_MODELS_URL = "https://openrouter.ai/api/v1/models" if CHAT_PROVIDER == "openrouter" else "https://api.openai.com/v1/models"
+AGENT_DEFAULT_MODEL = OPENROUTER_MODEL if CHAT_PROVIDER == "openrouter" else OPENAI_MODEL
+AGENT_PROVIDER_LABEL = "OpenRouter" if CHAT_PROVIDER == "openrouter" else "OpenAI"
 OPENAI_TRANSCRIPTION_MODEL = os.getenv(
     "OPENAI_TRANSCRIPTION_MODEL", "gpt-4o-transcribe"
 )
@@ -720,7 +730,7 @@ ha_ws = HomeAssistantWebSocketClient(
 
 app = FastAPI(
     title="ZBRANO",
-    version="0.13.191",
+    version="0.13.192",
     docs_url="/api/docs",
     openapi_url="/api/openapi.json",
 )
@@ -1935,8 +1945,17 @@ def cost_scoped_runtime_tools(
     workshop_scope: bool = False,
 ) -> list[dict[str, Any]]:
     if workshop_scope and not developer_mode_enabled():
-        return workshop_tools(WORKSHOP_TOOLS, workshop_memory_function_tools())
-    return runtime_chat_tools(search_mode, message)
+        tools = workshop_tools(WORKSHOP_TOOLS, workshop_memory_function_tools())
+    else:
+        tools = runtime_chat_tools(search_mode if CHAT_PROVIDER == "openai" else "off", message)
+    if CHAT_PROVIDER != "openai":
+        tools = [tool for tool in tools if tool.get("type") == "function"]
+    return tools
+
+
+def agent_search_mode(search_mode: str) -> str:
+    """Built-in provider web search remains OpenAI-only until verified elsewhere."""
+    return search_mode if CHAT_PROVIDER == "openai" else "off"
 
 async def run_jarvis(message: str, session_id: str = "default") -> dict[str, Any]:
     pending_workshop = PENDING_WORKSHOP_APPROVALS.get(session_id)
@@ -2088,11 +2107,11 @@ def stream_event(event_type: str, **data: Any) -> bytes:
 
 
 async def stream_openai_response(payload: dict[str, Any]) -> AsyncIterator[dict[str, Any]]:
-    if not OPENAI_API_KEY:
-        raise OpenAIError("OpenAI API key is not configured")
+    if not AGENT_API_KEY:
+        raise OpenAIError(f"{AGENT_PROVIDER_LABEL} API key is not configured")
 
     headers = {
-        "Authorization": f"Bearer {OPENAI_API_KEY}",
+        "Authorization": f"Bearer {AGENT_API_KEY}",
         "Content-Type": "application/json",
     }
     request_payload = {**payload, "stream": True}
@@ -2100,14 +2119,14 @@ async def stream_openai_response(payload: dict[str, Any]) -> AsyncIterator[dict[
     async with httpx.AsyncClient(timeout=httpx.Timeout(210.0, connect=10.0)) as client:
         async with client.stream(
             "POST",
-            OPENAI_RESPONSES_URL,
+            AGENT_RESPONSES_URL,
             headers=headers,
             json=request_payload,
         ) as response:
             if response.is_error:
                 body = await response.aread()
                 raise OpenAIError(
-                    f"OpenAI HTTP {response.status_code}: "
+                    f"{AGENT_PROVIDER_LABEL} HTTP {response.status_code}: "
                     f"{body.decode('utf-8', errors='replace')[:1000]}"
                 )
 
@@ -2315,6 +2334,7 @@ async def continue_workshop_memory_approval(
 
 
 async def _run_jarvis_stream_events(message: str, session_id: str = "default", search_mode: str = "auto") -> AsyncIterator[bytes]:
+    search_mode = agent_search_mode(search_mode)
     yield stream_event("status", message="Searching the web..." if search_mode == "search" and not developer_mode_enabled() else "Thinking…")
 
     pending_workshop = PENDING_WORKSHOP_APPROVALS.get(session_id)
@@ -2874,12 +2894,16 @@ async def health() -> dict[str, Any]:
     configured_speech_provider = SPEECH_PROVIDER if SPEECH_PROVIDER in {"openai", "elevenlabs"} else "openai"
     return {
         "status": "ok",
-        "version": "0.13.191",
+        "version": "0.13.192",
         "home_assistant_configured": bool(SUPERVISOR_TOKEN),
         "workshop_memory_configured": bool(WORKSHOP_MEMORY_URL),
         "workshop_memory_cost_guard": workshop_cost_guard_status(),
         "openai_configured": bool(OPENAI_API_KEY),
         "openai_model": OPENAI_MODEL,
+        "agent_configured": bool(AGENT_API_KEY),
+        "agent_provider": CHAT_PROVIDER,
+        "agent_provider_label": AGENT_PROVIDER_LABEL,
+        "agent_model": active_agent_model(),
         "voice_configured": bool(OPENAI_API_KEY) or bool(ELEVENLABS_API_KEY and ELEVENLABS_VOICE_ID),
         "speech_provider": configured_speech_provider,
         "speech_providers": {
@@ -2911,7 +2935,9 @@ async def connections_status() -> dict[str, Any]:
             "release_sync": release_sync_status(),
         },
         "openai": {
-            "configured": bool(OPENAI_API_KEY),
+            "configured": bool(AGENT_API_KEY),
+            "provider": CHAT_PROVIDER,
+            "provider_label": AGENT_PROVIDER_LABEL,
             "model": active_agent_model(),
             **agent_reasoning_payload(),
         },
@@ -3103,21 +3129,27 @@ async def rename_chat(session_id: str, request: ChatRenameRequest) -> dict[str, 
 @app.get("/api/models")
 async def list_openai_models() -> dict[str, Any]:
     preferences = load_preferences()
-    selected_model = str(preferences.get("agent_model") or OPENAI_MODEL)
-    models = {"gpt-5.5", "gpt-5-mini", selected_model, OPENAI_MODEL}
-    if OPENAI_API_KEY:
-        headers = {"Authorization": f"Bearer {OPENAI_API_KEY}"}
+    saved_model = str(preferences.get("agent_model") or "")
+    selected_model = (
+        saved_model if CHAT_PROVIDER == "openai" or "/" in saved_model
+        else AGENT_DEFAULT_MODEL
+    )
+    models = {selected_model, AGENT_DEFAULT_MODEL}
+    if CHAT_PROVIDER == "openai":
+        models.update({"gpt-5.5", "gpt-5-mini", OPENAI_MODEL})
+    if AGENT_API_KEY:
+        headers = {"Authorization": f"Bearer {AGENT_API_KEY}"}
         try:
             async with httpx.AsyncClient(timeout=15.0) as client:
-                response = await client.get("https://api.openai.com/v1/models", headers=headers)
+                response = await client.get(AGENT_MODELS_URL, headers=headers)
             if not response.is_error:
                 for item in response.json().get("data", []):
                     model_id = str(item.get("id") or "")
-                    if model_id.startswith("gpt-"):
+                    if model_id and (CHAT_PROVIDER == "openrouter" or model_id.startswith("gpt-")):
                         models.add(model_id)
         except (httpx.HTTPError, ValueError, TypeError):
             pass
-    return {"models": sorted(models), "selected_model": selected_model, "reasoning_effort": preferences.get("reasoning_effort", "medium")}
+    return {"models": sorted(models), "selected_model": selected_model, "reasoning_effort": preferences.get("reasoning_effort", "medium"), "provider": CHAT_PROVIDER, "provider_label": AGENT_PROVIDER_LABEL, "capabilities": {"chat": True, "function_tools": True, "remote_mcp": CHAT_PROVIDER == "openai", "built_in_web_search": CHAT_PROVIDER == "openai"}}
 
 
 @app.put("/api/agent/settings")
@@ -4254,8 +4286,8 @@ async def onboarding_status_payload() -> dict[str, Any]:
         {
             "id": "model",
             "title": "AI model",
-            "description": f"{active_agent_model()} is configured" if OPENAI_API_KEY else "Add an OpenAI API key in the ZBRANO app configuration",
-            "ready": bool(OPENAI_API_KEY),
+            "description": f"{AGENT_PROVIDER_LABEL} · {active_agent_model()} is configured" if AGENT_API_KEY else f"Add an {AGENT_PROVIDER_LABEL} API key in the ZBRANO app configuration",
+            "ready": bool(AGENT_API_KEY),
             "required": True,
             "target": "model",
         },
@@ -4418,23 +4450,23 @@ async def check_onboarding_step(step_id: str) -> dict[str, Any]:
         ready = bool(SUPERVISOR_TOKEN) and bool(status.get("connected"))
         detail = "ZBRANO is connected to Home Assistant" if ready else "Home Assistant is not connected. Restart ZBRANO, then check its app log if the connection still fails."
     elif step_id == "model":
-        if not OPENAI_API_KEY:
-            save_onboarding_check(step_id, ready=False, detail="OpenAI API key is not configured", checked_at=checked_at)
-            raise HTTPException(status_code=503, detail="Add an OpenAI API key in the ZBRANO app configuration first")
+        if not AGENT_API_KEY:
+            save_onboarding_check(step_id, ready=False, detail=f"{AGENT_PROVIDER_LABEL} API key is not configured", checked_at=checked_at)
+            raise HTTPException(status_code=503, detail=f"Add an {AGENT_PROVIDER_LABEL} API key in the ZBRANO app configuration first")
         try:
             async with httpx.AsyncClient(timeout=10.0) as client:
                 response = await client.get(
-                    "https://api.openai.com/v1/models",
-                    headers={"Authorization": f"Bearer {OPENAI_API_KEY}"},
+                    AGENT_MODELS_URL,
+                    headers={"Authorization": f"Bearer {AGENT_API_KEY}"},
                 )
             if response.is_error:
-                save_onboarding_check(step_id, ready=False, detail=f"OpenAI rejected the configured key (HTTP {response.status_code})", checked_at=checked_at)
-                raise HTTPException(status_code=502, detail=f"OpenAI rejected the configured key (HTTP {response.status_code})")
+                save_onboarding_check(step_id, ready=False, detail=f"{AGENT_PROVIDER_LABEL} rejected the configured key (HTTP {response.status_code})", checked_at=checked_at)
+                raise HTTPException(status_code=502, detail=f"{AGENT_PROVIDER_LABEL} rejected the configured key (HTTP {response.status_code})")
         except httpx.HTTPError as exc:
-            save_onboarding_check(step_id, ready=False, detail=f"OpenAI connection failed: {exc}", checked_at=checked_at)
-            raise HTTPException(status_code=502, detail=f"OpenAI connection failed: {exc}") from exc
+            save_onboarding_check(step_id, ready=False, detail=f"{AGENT_PROVIDER_LABEL} connection failed: {exc}", checked_at=checked_at)
+            raise HTTPException(status_code=502, detail=f"{AGENT_PROVIDER_LABEL} connection failed: {exc}") from exc
         ready = True
-        detail = f"OpenAI key accepted; {active_agent_model()} selected"
+        detail = f"{AGENT_PROVIDER_LABEL} key accepted; {active_agent_model()} selected"
     elif step_id == "entities":
         approved = await approved_ha_entities()
         read_count = len(approved["read_entities"])
@@ -6278,7 +6310,8 @@ configure_google_oauth_service(
     oauth_path=PLUGIN_OAUTH_PATH,
 )
 configure_agent_runtime(
-    openai_model=OPENAI_MODEL,
+    openai_model=AGENT_DEFAULT_MODEL,
+    model_provider=CHAT_PROVIDER,
     chat_context_max_messages=CHAT_CONTEXT_MAX_MESSAGES,
     base_system_instructions=BASE_SYSTEM_INSTRUCTIONS,
     load_preferences_fn=load_preferences,
@@ -6316,8 +6349,9 @@ configure_web_search_service(
     load_preferences_fn=load_preferences,
 )
 configure_openai_responses(
-    api_key=OPENAI_API_KEY,
-    responses_url=OPENAI_RESPONSES_URL,
+    api_key=AGENT_API_KEY,
+    responses_url=AGENT_RESPONSES_URL,
+    provider=AGENT_PROVIDER_LABEL,
 )
 configure_gmail_direct_domain(
     plugin_registry_fn=plugin_registry,

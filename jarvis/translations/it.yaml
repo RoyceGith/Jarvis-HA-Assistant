@@ -11,6 +11,15 @@ configuration:
   openai_api_key:
     name: "Chiave API OpenAI"
     description: "Necessaria per la chat ZBRANO e per il provider vocale predefinito. La chiave rimane nella configurazione protetta dell’app Home Assistant."
+  chat_provider:
+    name: "Provider AI della chat"
+    description: "Scegli OpenAI oppure usa il tuo account OpenRouter per modelli di varie aziende AI. Riavvia ZBRANO dopo la modifica."
+  openrouter_api_key:
+    name: "Chiave API OpenRouter"
+    description: "La tua chiave OpenRouter protetta. Necessaria solo quando OpenRouter e il provider AI della chat."
+  openrouter_model:
+    name: "Modello OpenRouter predefinito"
+    description: "ID completo del modello OpenRouter, ad esempio openai/gpt-5-mini. Puoi scegliere un altro modello disponibile dentro ZBRANO."
   github_oauth_client_id:
     name: "ID client di accesso GitHub"
     description: "Opzionale. Aggiungilo solo quando connetti il plugin GitHub ufficiale."

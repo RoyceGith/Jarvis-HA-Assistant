@@ -20,12 +20,12 @@ MANIFEST = json.loads((ROOT / "jarvis/release_manifest.json").read_text(encoding
 
 class MultilingualFoundationReleaseTests(unittest.TestCase):
     def test_release_is_aligned(self):
-        self.assertIn('version: "0.13.191"', CONFIG)
-        self.assertIn('version="0.13.191"', MAIN)
-        self.assertIn("HUD 0.13.191", HTML)
-        self.assertEqual(MANIFEST["version"], "0.13.191")
-        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.190")
-        self.assertTrue(CHANGELOG.startswith("# Change log\n\n## 0.13.191"))
+        self.assertIn('version: "0.13.192"', CONFIG)
+        self.assertIn('version="0.13.192"', MAIN)
+        self.assertIn("HUD 0.13.192", HTML)
+        self.assertEqual(MANIFEST["version"], "0.13.192")
+        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.191")
+        self.assertTrue(CHANGELOG.startswith("# Change log\n\n## 0.13.192"))
 
     def test_language_selector_has_supported_choices(self):
         select = re.search(r'<select id="preferred-language"[^>]*>(.*?)</select>', HTML, re.DOTALL)
@@ -65,7 +65,7 @@ class MultilingualFoundationReleaseTests(unittest.TestCase):
 
     def test_every_home_assistant_translation_matches_the_configuration(self):
         schema_keys = yaml_section_keys(CONFIG, "schema")
-        self.assertEqual(len(schema_keys), 19)
+        self.assertEqual(len(schema_keys), 22)
         for language in ("en", "el", "it", "fr"):
             translation = (ROOT / f"jarvis/translations/{language}.yaml").read_text(encoding="utf-8")
             self.assertEqual(yaml_section_keys(translation, "configuration"), schema_keys)

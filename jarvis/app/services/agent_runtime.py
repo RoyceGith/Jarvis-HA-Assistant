@@ -5,6 +5,7 @@ from typing import Any
 
 
 OPENAI_MODEL = "gpt-5-mini"
+MODEL_PROVIDER = "openai"
 CHAT_CONTEXT_MAX_MESSAGES = 20
 BASE_SYSTEM_INSTRUCTIONS = ""
 _load_preferences: Callable[[], dict[str, Any]] = lambda: {}
@@ -18,10 +19,12 @@ def configure_agent_runtime(
     base_system_instructions: str,
     load_preferences_fn: Callable[[], dict[str, Any]],
     load_general_instructions_fn: Callable[[], str],
+    model_provider: str = "openai",
 ) -> None:
-    global OPENAI_MODEL, CHAT_CONTEXT_MAX_MESSAGES, BASE_SYSTEM_INSTRUCTIONS
+    global OPENAI_MODEL, MODEL_PROVIDER, CHAT_CONTEXT_MAX_MESSAGES, BASE_SYSTEM_INSTRUCTIONS
     global _load_preferences, _load_general_instructions
     OPENAI_MODEL = openai_model
+    MODEL_PROVIDER = str(model_provider or "openai").strip().lower()
     CHAT_CONTEXT_MAX_MESSAGES = chat_context_max_messages
     BASE_SYSTEM_INSTRUCTIONS = base_system_instructions
     _load_preferences = load_preferences_fn
@@ -85,6 +88,11 @@ def chat_context_limit() -> int:
 
 def active_agent_model() -> str:
     model = str(_load_preferences().get("agent_model") or OPENAI_MODEL).strip()
+    # Existing installations may have an OpenAI-only model preference saved in
+    # the UI. OpenRouter model IDs include their provider namespace, so use the
+    # protected app-configuration default until the user selects a compatible ID.
+    if MODEL_PROVIDER == "openrouter" and "/" not in model:
+        return OPENAI_MODEL
     return model or OPENAI_MODEL
 
 

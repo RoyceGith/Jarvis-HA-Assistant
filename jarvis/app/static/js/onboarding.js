@@ -24,7 +24,8 @@
     <p id="onboarding-configuration-intro">Your credential stays in Home Assistant's protected app configuration. ZBRANO never displays it on this page.</p>
     <ol id="onboarding-configuration-steps">
       <li>In Home Assistant, open <strong>Settings → Apps → ZBRANO → Configuration</strong>.</li>
-      <li>Paste your own OpenAI API key into <code>openai_api_key</code>. The default <code>openai_model</code> can be kept.</li>
+      <li>Choose <code>chat_provider</code>: OpenAI or OpenRouter.</li>
+      <li>Paste your own key into <code>openai_api_key</code> or <code>openrouter_api_key</code>. Keep the matching default model unless you want another one.</li>
       <li>Select <strong>Save</strong>, then restart the ZBRANO app so the protected setting is loaded.</li>
       <li>Return here and select <strong>Verify key</strong>. ZBRANO checks the connection without revealing the key.</li>
     </ol>
@@ -63,7 +64,8 @@
     const items = model
       ? [
           "In Home Assistant, open Settings → Apps → ZBRANO → Configuration.",
-          "Paste your own OpenAI API key into openai_api_key. The default openai_model can be kept.",
+          "Choose chat_provider: OpenAI or OpenRouter.",
+          "Paste your own key into openai_api_key or openrouter_api_key. Keep the matching default model unless you want another one.",
           "Select Save, then restart the ZBRANO app so the protected setting is loaded.",
           "Return here and select Verify key. ZBRANO checks the connection without revealing the key.",
         ]
@@ -198,7 +200,7 @@
     configurationHelp.hidden = true;
     message.textContent = "Configuration help closed. You can reopen it from the AI model setup step.";
   });
-  configurationCopy.addEventListener("click", () => copyInstallationSummary("openai_api_key", configurationCopy, "Copied field name", "Copy field name"));
+  configurationCopy.addEventListener("click", () => copyInstallationSummary("chat_provider", configurationCopy, "Copied field name", "Copy field name"));
   configurationVerify.addEventListener("click", () => {
     const configuredStep = list.querySelector(`.onboarding-step[data-step-id="${CSS.escape(configurationStepId)}"]`);
     const check = configuredStep?.querySelector(".onboarding-step-actions button:first-child");

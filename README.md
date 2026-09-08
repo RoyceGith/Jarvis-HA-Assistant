@@ -1,9 +1,15 @@
-## ZBRANO v0.13.191
+## ZBRANO v0.13.192
 
 ZBRANO combines Home Assistant chat, voice, entity control, memory, notifications,
 calendar and contact tools, plugins, and evidence-based automations. Automation Studio now uses
 a visual building-block toolbox, interactive node canvas, and contextual inspector;
 the established automation engine and stored definitions remain compatible.
+
+Version 0.13.192 adds bring-your-own AI through OpenRouter alongside direct OpenAI.
+Users supply their own provider key and can choose from OpenRouter's available model
+catalog without ZBRANO operating or billing a managed AI service. Direct Home
+Assistant commands remain local and fast; OpenRouter chat supports local ZBRANO
+tools, while OpenAI-only web search and remote plugins are clearly identified.
 
 Version 0.13.191 makes wake-word portability explicit: browser recognition is the
 recommended method for every user, while the bundled owner-tuned local model is

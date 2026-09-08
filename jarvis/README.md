@@ -1,9 +1,15 @@
-# ZBRANO v0.13.191
+# ZBRANO v0.13.192
 
 Automation Studio provides a graphical, step-by-step workflow for Home Assistant
 automations. Use Setup &amp; safety, When, Only if, Then, and optional Outcomes beside the
 interactive flow canvas. Natural-language creation, templates, drag-and-drop,
 saved automation compatibility, and the full Advanced editor remain available.
+
+Version 0.13.192 adds bring-your-own AI through OpenRouter. A user can keep direct
+OpenAI or provide their own OpenRouter key, choose a model from its live catalog,
+and pay that provider directly. Home Assistant control commands keep their fast
+local route. The interface accurately limits OpenRouter sessions to local function
+tools until web search and remote-plugin compatibility is verified.
 
 Version 0.13.191 adds a clear wake-detection choice. Browser recognition is
 recommended for all voices; the private local prototype is labelled experimental

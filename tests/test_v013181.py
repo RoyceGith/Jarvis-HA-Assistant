@@ -19,17 +19,17 @@ MANIFEST = json.loads((ROOT / "jarvis/release_manifest.json").read_text(encoding
 
 class FriendlyHomeAssistantConfigurationReleaseTests(unittest.TestCase):
     def test_release_is_aligned(self):
-        self.assertIn('version: "0.13.191"', CONFIG)
-        self.assertIn('version="0.13.191"', MAIN)
-        self.assertIn("HUD 0.13.191", HTML)
-        self.assertEqual(MANIFEST["version"], "0.13.191")
-        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.190")
+        self.assertIn('version: "0.13.192"', CONFIG)
+        self.assertIn('version="0.13.192"', MAIN)
+        self.assertIn("HUD 0.13.192", HTML)
+        self.assertEqual(MANIFEST["version"], "0.13.192")
+        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.191")
 
     def test_every_home_assistant_option_has_friendly_copy(self):
         option_keys = yaml_section_keys(CONFIG, "schema")
         translated_keys = yaml_section_keys(TRANSLATIONS, "configuration")
         self.assertEqual(translated_keys, option_keys)
-        self.assertEqual(len(option_keys), 19)
+        self.assertEqual(len(option_keys), 22)
         for key in option_keys:
             self.assertRegex(
                 TRANSLATIONS,
@@ -55,7 +55,7 @@ class FriendlyHomeAssistantConfigurationReleaseTests(unittest.TestCase):
         self.assertIn("unexpected file in thin public distribution", BOUNDARY)
 
     def test_public_installation_steps_use_device_access_language(self):
-        self.assertIn("add the required OpenAI API key", PUBLIC_README)
+        self.assertIn("add your OpenAI or OpenRouter API key", PUBLIC_README)
         self.assertIn("choose Sensor or Control access", PUBLIC_README)
 
 

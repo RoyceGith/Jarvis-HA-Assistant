@@ -8,29 +8,31 @@ import httpx
 
 OPENAI_API_KEY = ""
 OPENAI_RESPONSES_URL = "https://api.openai.com/v1/responses"
+MODEL_PROVIDER = "OpenAI"
 
 
 class OpenAIError(RuntimeError):
     pass
 
 
-def configure_openai_responses(*, api_key: str, responses_url: str) -> None:
-    global OPENAI_API_KEY, OPENAI_RESPONSES_URL
+def configure_openai_responses(*, api_key: str, responses_url: str, provider: str = "OpenAI") -> None:
+    global OPENAI_API_KEY, OPENAI_RESPONSES_URL, MODEL_PROVIDER
     OPENAI_API_KEY = api_key
     OPENAI_RESPONSES_URL = responses_url
+    MODEL_PROVIDER = provider
 
 
-def openai_error_message(response: httpx.Response) -> str:
+def openai_error_message(response: httpx.Response, provider: str = "OpenAI") -> str:
     try:
         detail = response.json()
     except json.JSONDecodeError:
         detail = response.text[:1000]
-    return f"OpenAI HTTP {response.status_code}: {detail}"
+    return f"{provider} HTTP {response.status_code}: {detail}"
 
 
 async def create_openai_response(payload: dict[str, Any]) -> dict[str, Any]:
     if not OPENAI_API_KEY:
-        raise OpenAIError("OpenAI API key is not configured")
+        raise OpenAIError(f"{MODEL_PROVIDER} API key is not configured")
 
     headers = {
         "Authorization": f"Bearer {OPENAI_API_KEY}",
@@ -45,7 +47,7 @@ async def create_openai_response(payload: dict[str, Any]) -> dict[str, Any]:
         )
 
     if response.is_error:
-        raise OpenAIError(openai_error_message(response))
+        raise OpenAIError(openai_error_message(response, MODEL_PROVIDER))
 
     return response.json()
 
