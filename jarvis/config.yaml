@@ -1,6 +1,6 @@
 name: "ZBRANO"
 description: "Private AI conversation, home intelligence, and visual automation with explicit device permissions"
-version: "0.13.192"
+version: "0.13.193"
 slug: "jarvis_workshop_assistant"
 image: "ghcr.io/roycegith/jarvis-ha-assistant"
 init: false
@@ -25,8 +25,6 @@ ports_description:
 
 options:
   log_level: "info"
-  workshop_memory_url: "http://workshop-memory.local:3001/mcp"
-  workshop_memory_internal_url: "http://workshop_memory:3001/mcp"
   openai_api_key: ""
   chat_provider: "openai"
   openrouter_api_key: ""
@@ -49,8 +47,6 @@ options:
 
 schema:
   log_level: "list(trace|debug|info|warning|error)"
-  workshop_memory_url: "str"
-  workshop_memory_internal_url: "str?"
   openai_api_key: "password"
   chat_provider: "list(openai|openrouter)"
   openrouter_api_key: "password"

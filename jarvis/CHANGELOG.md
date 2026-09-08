@@ -1,5 +1,14 @@
 # Change log
 
+## 0.13.193
+
+- Replaced the external Workshop Memory dependency with built-in local Knowledge Memory.
+- Added customizable Home, Work, Study, Recipes, Project, blank, and custom spaces without assuming a workshop workflow.
+- Added local Markdown note listing, reading, searching, and approval-gated writing tools for every supported chat provider.
+- Included the complete Knowledge Memory store in ZBRANO settings backup and restore.
+- Added a one-time importer for installations that still have a legacy Workshop Memory endpoint saved.
+- Removed Workshop Memory server and tunnel fields from new Home Assistant configuration.
+
 ## 0.13.192
 
 - Added bring-your-own AI with direct OpenAI or a user-owned OpenRouter account.

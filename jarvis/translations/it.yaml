@@ -2,12 +2,6 @@ configuration:
   log_level:
     name: "Dettaglio risoluzione problemi"
     description: "Mantieni Informazioni per l’uso normale. Scegli un livello più dettagliato solo durante la diagnosi di un problema."
-  workshop_memory_url:
-    name: "Indirizzo Workshop Memory"
-    description: "Indirizzo opzionale di un servizio Workshop Memory. Mantieni il valore predefinito, a meno che tu non gestisca questo servizio."
-  workshop_memory_internal_url:
-    name: "Indirizzo interno Workshop Memory"
-    description: "Indirizzo di riserva avanzato per l’accesso tra container. La maggior parte degli utenti dovrebbe lasciarlo invariato."
   openai_api_key:
     name: "Chiave API OpenAI"
     description: "Necessaria per la chat ZBRANO e per il provider vocale predefinito. La chiave rimane nella configurazione protetta dell’app Home Assistant."
