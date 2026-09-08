@@ -130,7 +130,7 @@ def workshop_memory_approval_prompt(calls: list[dict[str, Any]]) -> str:
     lines = [
         "Gmail Direct is requesting permission to create an unsent draft:"
         if gmail_writes else
-        "Workshop Memory is requesting permission to change permanent project data:"
+        "Knowledge Memory is requesting permission to change permanent project data:"
     ]
     for call in writes[:5]:
         name = str(call.get("name") or "unknown tool")
@@ -141,7 +141,7 @@ def workshop_memory_approval_prompt(calls: list[dict[str, Any]]) -> str:
     lines.append(
         "The message will remain a draft and will not be sent. Reply **approve** to create it or **cancel** to deny."
         if gmail_writes else
-        "Reply **approve** for this write, **approve task** to allow Workshop Memory writes in this chat for 15 minutes, or **cancel** to deny."
+        "Reply **approve** for this write, **approve task** to allow Knowledge Memory writes in this chat for 15 minutes, or **cancel** to deny."
     )
     return "\n".join(lines)
 

@@ -11,7 +11,7 @@ import httpx
 
 from app import main
 from app.domains import automations, calendar, contacts, conversations, fast_memory, notifications, settings
-from app.services import entity_policy
+from app.services import entity_policy, knowledge_memory
 
 
 class FakeHomeAssistant:
@@ -37,6 +37,7 @@ class ApplicationIntegrationTests(unittest.IsolatedAsyncioTestCase):
         self.original_contacts_path = contacts.CONTACTS_STORAGE_PATH
         self.original_notification_path = notifications.NOTIFICATION_STORAGE_PATH
         self.original_fast_memory_path = fast_memory.FAST_MEMORY_PATH
+        self.original_knowledge_memory_root = knowledge_memory.KNOWLEDGE_ROOT
         self.original_main_chat_path = main.CHAT_STORAGE_PATH
         self.original_main_entity_policy_path = main.ENTITY_POLICY_PATH
         self.original_entity_data_dir = entity_policy.DATA_DIR
@@ -52,6 +53,7 @@ class ApplicationIntegrationTests(unittest.IsolatedAsyncioTestCase):
         contacts.CONTACTS_STORAGE_PATH = temporary_root / "zbrano_contacts.json"
         notifications.NOTIFICATION_STORAGE_PATH = temporary_root / "notification_center.json"
         fast_memory.FAST_MEMORY_PATH = temporary_root / "zbrano_fast_memory.sqlite3"
+        knowledge_memory.configure_knowledge_memory(root=temporary_root / "knowledge-memory")
         main.CHAT_STORAGE_PATH = conversations.CHAT_STORAGE_PATH
         main.ENTITY_POLICY_PATH = temporary_root / "entity_policy.json"
         entity_policy.DATA_DIR = temporary_root
@@ -78,6 +80,7 @@ class ApplicationIntegrationTests(unittest.IsolatedAsyncioTestCase):
         contacts.CONTACTS_STORAGE_PATH = self.original_contacts_path
         notifications.NOTIFICATION_STORAGE_PATH = self.original_notification_path
         fast_memory.FAST_MEMORY_PATH = self.original_fast_memory_path
+        knowledge_memory.configure_knowledge_memory(root=self.original_knowledge_memory_root)
         main.CHAT_STORAGE_PATH = self.original_main_chat_path
         main.ENTITY_POLICY_PATH = self.original_main_entity_policy_path
         entity_policy.DATA_DIR = self.original_entity_data_dir
@@ -102,13 +105,13 @@ class ApplicationIntegrationTests(unittest.IsolatedAsyncioTestCase):
             response = await self.client.get("/api/health")
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json()["status"], "ok")
-        self.assertEqual(response.json()["version"], "0.13.192")
+        self.assertEqual(response.json()["version"], "0.13.193")
         self.assertEqual(response.json()["ha_read_entity_count"], 1)
         self.assertEqual(response.json()["ha_control_entity_count"], 1)
 
         frontend = await self.client.get("/")
         self.assertEqual(frontend.status_code, 200)
-        self.assertIn("HUD 0.13.192", frontend.text)
+        self.assertIn("HUD 0.13.193", frontend.text)
         self.assertEqual(
             frontend.headers.get("cache-control"),
             "no-store, no-cache, must-revalidate, max-age=0",
@@ -406,13 +409,15 @@ class ApplicationIntegrationTests(unittest.IsolatedAsyncioTestCase):
             "importance": 4,
             "confidence": 1.0,
         })
+        knowledge_memory.create_memory_space("Household", "Shared home reference", "home")
+        knowledge_memory.write_memory_note("Household", "Appliances", "Boiler service is due in October.", "create")
 
         exported = await self.client.get("/api/settings/backup")
         self.assertEqual(exported.status_code, 200)
         backup = exported.json()
         self.assertEqual(set(backup), {
             "format", "created_at", "settings", "chats", "entity_policy",
-            "automations", "notifications", "calendar", "birthdays", "contacts", "fast_memory",
+            "automations", "notifications", "calendar", "birthdays", "contacts", "fast_memory", "knowledge_memory",
         })
 
         settings.save_settings_payload({"version": 3, "general_instructions": "Replace me."})
@@ -427,6 +432,7 @@ class ApplicationIntegrationTests(unittest.IsolatedAsyncioTestCase):
         calendar._birthday_save({"birthdays": []})
         contacts._contacts_save({"contacts": []})
         fast_memory.restore_fast_memory({"version": 1, "memories": []})
+        knowledge_memory.write_memory_note("Household", "Appliances", "Replace me.", "replace")
 
         restored = await self.client.post("/api/settings/restore", json={"backup": backup})
         self.assertEqual(restored.status_code, 200)
@@ -443,6 +449,8 @@ class ApplicationIntegrationTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(contacts.contacts_store()["contacts"][0]["id"], "backup-contact")
         memories = fast_memory.fast_memory_search("upgrades", limit=10)["memories"]
         self.assertEqual(memories[0]["key"], "backup_round_trip")
+        note = knowledge_memory.read_memory_note("Household", "Appliances")
+        self.assertEqual(note["content"], "Boiler service is due in October.")
 
     async def test_chat_api_create_rename_list_and_delete_round_trip(self) -> None:
         created = await self.client.post("/api/chats", json={"session_id": "integration-chat"})

@@ -1,9 +1,15 @@
-## ZBRANO v0.13.192
+## ZBRANO v0.13.193
 
 ZBRANO combines Home Assistant chat, voice, entity control, memory, notifications,
 calendar and contact tools, plugins, and evidence-based automations. Automation Studio now uses
 a visual building-block toolbox, interactive node canvas, and contextual inspector;
 the established automation engine and stored definitions remain compatible.
+
+Version 0.13.193 replaces the external Workshop Memory dependency with built-in
+Knowledge Memory. Users create their own spaces for Home, Work, Study, Recipes,
+Projects, or any custom purpose; notes remain local, approval-gated, searchable,
+and included in backup and restore. Existing remote project notes can be imported
+once during upgrade, after which ZBRANO no longer depends on that server or tunnel.
 
 Version 0.13.192 adds bring-your-own AI through OpenRouter alongside direct OpenAI.
 Users supply their own provider key and can choose from OpenRouter's available model

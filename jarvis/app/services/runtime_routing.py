@@ -105,7 +105,7 @@ def priority_system_instructions(base: str, message: str) -> str:
 
 HOME ASSISTANT DEVICE CONTROL INTENT IS ACTIVE.
 Resolve the requested device only with the provided Home Assistant entity tools. Do not inspect repositories,
-plugins, Workshop Memory, or the web. If the entity name is ambiguous, search approved Home Assistant entities
+plugins, Knowledge Memory, or the web. If the entity name is ambiguous, search approved Home Assistant entities
 and ask one concise clarification rather than selecting an unsafe device. Execute only the requested state change.
 """.strip()
 

@@ -2229,7 +2229,7 @@ saveMemoryDraft.addEventListener("click", async () => {
     link.click();
     link.remove();
     window.setTimeout(() => URL.revokeObjectURL(url), 1000);
-    entitySummary.textContent = `Prepared ${entities.length} entities as ${link.download}. No Workshop Memory note was changed; attach the draft in chat when you want an approved reconciliation.`;
+    entitySummary.textContent = `Prepared ${entities.length} entities as ${link.download}. No Knowledge Memory note was changed; attach the draft in chat when you want an approved reconciliation.`;
   } catch (error) {
     entitySummary.textContent = `Could not prepare entity inventory update: ${error.message || error}`;
   } finally {

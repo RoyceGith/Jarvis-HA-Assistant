@@ -81,7 +81,7 @@ def local_tool_activity(tool_names: list[str], *, writing: bool = False) -> dict
         return {"label": "Investigating ZBRANO", "provider": "developer", "plugin_id": ""}
     workshop_terms = ("project", "note", "memory", "handoff", "template", "reorganization", "progress")
     if any(any(term in name.lower() for term in workshop_terms) for name in tool_names):
-        label = "Updating Workshop Memory" if writing else "Reading Workshop Memory"
+        label = "Updating Knowledge Memory" if writing else "Reading Knowledge Memory"
         return {"label": label, "provider": "workshop_memory", "plugin_id": ""}
     readable = ", ".join(name.replace("_", " ") for name in tool_names[:3]) or "Tool work"
     return {"label": readable, "provider": "tool", "plugin_id": ""}

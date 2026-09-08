@@ -69,7 +69,7 @@ def effective_system_instructions() -> str:
         "- Call remember_fast_memory immediately when the user explicitly asks to remember a durable fact or preference.\n"
         "- Call search_fast_memory when the user asks what ZBRANO remembers or when supplied context is insufficient.\n"
         "- Call forget_fast_memory only after an explicit request to forget matching local memories.\n"
-        "- Keep detailed project documents and accepted technical records in Workshop Memory.",
+        "- Keep detailed project documents and accepted technical records in Knowledge Memory.",
     ]
     if custom:
         sections.append(

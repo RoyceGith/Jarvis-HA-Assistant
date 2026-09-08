@@ -1,9 +1,9 @@
 {
-  "version": "0.13.192",
+  "version": "0.13.193",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/ZBRANO_Core main",
-  "summary": "Add bring-your-own AI through direct OpenAI or a user-owned OpenRouter account without creating a ZBRANO-managed AI service.",
+  "summary": "Replace the external Workshop Memory dependency with built-in, customizable Knowledge Memory that stays local to each ZBRANO installation.",
   "history_backfill": [
     {
       "version": "0.13.0",
@@ -772,20 +772,26 @@
       {
         "version": "0.13.191",
         "summary": "Made browser wake recognition the universal recommended choice while preserving and accurately labelling the owner-tuned local model as experimental."
+      },
+      {
+        "version": "0.13.192",
+        "summary": "Added bring-your-own AI through direct OpenAI or a user-owned OpenRouter account without creating a ZBRANO-managed AI service."
       }
   ],
   "release_entry": {
     "features": [
-      "Choose direct OpenAI or a user-owned OpenRouter account as the ZBRANO chat provider.",
-      "Discover and select models from the active provider while keeping provider keys in protected Home Assistant app configuration.",
-      "Keep chat-provider credentials independent from OpenAI or ElevenLabs speech settings."
+      "Keep durable Markdown knowledge inside ZBRANO without an external server, domain, tunnel, or developer-operated dependency.",
+      "Create customizable spaces from Home, Work, Study, Recipes, Project, blank, or custom templates.",
+      "List, read, search, and approval-gate changes to Knowledge Memory through local function tools available to supported chat providers.",
+      "Include the complete Knowledge Memory store in settings backup and restore."
     ],
     "fixes": [
-      "Ignore an old OpenAI-only saved model when an installation switches to an OpenRouter namespaced model.",
-      "Disable unverified built-in web search and remote MCP tools for OpenRouter while preserving local Home Assistant and ZBRANO function tools."
+      "Stop assuming that every user organizes their life around workshops or projects.",
+      "Use a saved legacy Workshop Memory endpoint only for one-time import and remove it from new-install configuration.",
+      "Preserve approval enforcement for both new Knowledge Memory writes and compatible legacy project-write calls."
     ],
     "validation": [
-      "Provider configuration, protected key propagation, model selection, capability boundaries, localization catalog integrity, regression suite, browser smoke, and v0.13.192 release coverage"
+      "Local space templates, Markdown read and write behavior, traversal protection, search, backup and restore, legacy permissions, configuration independence, regression suite, browser smoke, and v0.13.193 release coverage"
     ]
   },
   "features": [

@@ -73,7 +73,7 @@ def _find_result(messages: list[dict[str, Any]], request_id: int) -> dict[str, A
 def decode_workshop_tool_result(result: Any) -> dict[str, Any]:
     """Decode MCP tool output for application use, preferring structured data."""
     if not isinstance(result, dict):
-        raise MCPError("Workshop Memory returned an invalid tool result")
+        raise MCPError("Knowledge Memory returned an invalid tool result")
     content = result.get("content") if isinstance(result.get("content"), list) else []
     text_parts = [
         str(item.get("text") or "")
@@ -82,7 +82,7 @@ def decode_workshop_tool_result(result: Any) -> dict[str, Any]:
     ]
     combined = "\n".join(part for part in text_parts if part)
     if result.get("isError") is True:
-        raise MCPError(combined or "Workshop Memory tool execution failed")
+        raise MCPError(combined or "Knowledge Memory tool execution failed")
 
     structured = result.get("structuredContent")
     if structured is not None:

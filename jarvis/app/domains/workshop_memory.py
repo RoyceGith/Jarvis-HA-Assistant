@@ -4,11 +4,17 @@ import asyncio
 import json
 import re
 import time
+from pathlib import Path
 from typing import Any
 
 import httpx
 
 from ..services.mcp_protocol import MCPError, _find_result, _read_mcp_response, decode_workshop_tool_result
+from ..services.knowledge_memory import (
+    call_local_knowledge_tool,
+    configure_knowledge_memory,
+    knowledge_memory_tool_catalog,
+)
 
 
 WORKSHOP_MEMORY_INTERNAL_URL = ""
@@ -16,19 +22,23 @@ WORKSHOP_MEMORY_URL = ""
 WORKSHOP_STATIC_TOOL_NAMES: set[str] = set()
 GMAIL_DIRECT_TOOL_NAMES: set[str] = set()
 GMAIL_DIRECT_WRITE_TOOLS: set[str] = set()
+KNOWLEDGE_MEMORY_ROOT = Path("/data/knowledge-memory")
 
 
 def configure_workshop_memory_domain(
     *, internal_url: str, external_url: str, static_tool_names: set[str],
     direct_tool_names: set[str], direct_write_tools: set[str],
+    local_root: Path | None = None,
 ) -> None:
     global WORKSHOP_MEMORY_INTERNAL_URL, WORKSHOP_MEMORY_URL
-    global WORKSHOP_STATIC_TOOL_NAMES, GMAIL_DIRECT_TOOL_NAMES, GMAIL_DIRECT_WRITE_TOOLS
+    global WORKSHOP_STATIC_TOOL_NAMES, GMAIL_DIRECT_TOOL_NAMES, GMAIL_DIRECT_WRITE_TOOLS, KNOWLEDGE_MEMORY_ROOT
     WORKSHOP_MEMORY_INTERNAL_URL = internal_url
     WORKSHOP_MEMORY_URL = external_url
     WORKSHOP_STATIC_TOOL_NAMES = set(static_tool_names)
     GMAIL_DIRECT_TOOL_NAMES = set(direct_tool_names)
     GMAIL_DIRECT_WRITE_TOOLS = set(direct_write_tools)
+    KNOWLEDGE_MEMORY_ROOT = (local_root or Path("/data/knowledge-memory")).resolve()
+    configure_knowledge_memory(root=KNOWLEDGE_MEMORY_ROOT)
 
 MCP_HTTP_TIMEOUT = httpx.Timeout(30.0, connect=2.0)
 
@@ -120,6 +130,45 @@ async def close_mcp_client() -> None:
     if MCP_CLIENT is not None and not MCP_CLIENT.is_closed:
         await MCP_CLIENT.aclose()
     MCP_CLIENT = None
+
+
+async def migrate_legacy_workshop_memory() -> dict[str, Any]:
+    """Import an old remote project vault once, then use local storage forever."""
+    marker = KNOWLEDGE_MEMORY_ROOT / ".legacy-migration.json"
+    if marker.is_file() or not workshop_memory_candidates():
+        return {"migrated": False, "reason": "already migrated or no legacy endpoint"}
+    errors: list[str] = []
+    for endpoint_url in workshop_memory_candidates():
+        imported = 0
+        try:
+            listing = await _call_workshop_memory_endpoint(endpoint_url, "list_projects", {})
+            for project_item in listing.get("projects") or []:
+                project = str(project_item.get("name") if isinstance(project_item, dict) else project_item).strip()
+                if not project:
+                    continue
+                notes = await _call_workshop_memory_endpoint(endpoint_url, "list_project_notes", {"project": project})
+                for note in notes.get("notes") or []:
+                    relative = str(note.get("relative_path") if isinstance(note, dict) else note).strip()
+                    if not relative:
+                        continue
+                    source = await _call_workshop_memory_endpoint(endpoint_url, "read_project_note", {"relative_path": relative})
+                    try:
+                        call_local_knowledge_tool("write_project_note", {
+                            "relative_path": f"Projects/{relative}",
+                            "content": str(source.get("content") or ""),
+                            "mode": "create",
+                            "create_folders": True,
+                        })
+                        imported += 1
+                    except ValueError as exc:
+                        if "already exists" not in str(exc):
+                            raise
+            marker.parent.mkdir(parents=True, exist_ok=True)
+            marker.write_text(json.dumps({"completed_at": time.time(), "source": endpoint_url, "notes_imported": imported}, indent=2), encoding="utf-8")
+            return {"migrated": True, "notes_imported": imported}
+        except (MCPError, httpx.HTTPError, OSError, RuntimeError, ValueError) as exc:
+            errors.append(f"{endpoint_url}: {exc}")
+    return {"migrated": False, "reason": " | ".join(errors)[:1000]}
 
 async def _mcp_post(
     client: httpx.AsyncClient,
@@ -249,7 +298,7 @@ def _workshop_tool_permission(tool: dict[str, Any]) -> str:
     return "read_only" if annotations.get("readOnlyHint") is True else "write"
 
 async def refresh_workshop_memory_tools(force: bool = False) -> dict[str, dict[str, Any]]:
-    """Discover local MCP tools; unknown or unannotated tools default to write."""
+    """Publish built-in Knowledge Memory tools without a network dependency."""
     global WORKSHOP_DYNAMIC_TOOLS, WORKSHOP_DYNAMIC_TOOLS_REFRESHED_AT
     if (
         not force
@@ -257,37 +306,9 @@ async def refresh_workshop_memory_tools(force: bool = False) -> dict[str, dict[s
         and time.monotonic() - WORKSHOP_DYNAMIC_TOOLS_REFRESHED_AT < WORKSHOP_DYNAMIC_TOOLS_TTL
     ):
         return WORKSHOP_DYNAMIC_TOOLS
-    try:
-        endpoint_url = await select_workshop_memory_endpoint()
-        discovered = await _list_workshop_memory_endpoint_tools(endpoint_url)
-    except (MCPError, httpx.HTTPError, OSError, RuntimeError, ValueError):
-        return WORKSHOP_DYNAMIC_TOOLS
-
-    static_names = WORKSHOP_STATIC_TOOL_NAMES
-    catalog: dict[str, dict[str, Any]] = {}
-    for tool in discovered:
-        name = str(tool.get("name") or "").strip()
-        if (
-            not name
-            or len(name) > 64
-            or not re.fullmatch(r"[A-Za-z0-9_-]+", name)
-            or name in static_names
-        ):
-            continue
-        parameters = tool.get("inputSchema")
-        if not isinstance(parameters, dict) or parameters.get("type") != "object":
-            parameters = {"type": "object", "properties": {}}
-        parameters = dict(parameters)
-        parameters.pop("$schema", None)
-        catalog[name] = {
-            "name": name,
-            "description": str(tool.get("description") or f"Workshop Memory tool: {name}")[:1000],
-            "parameters": parameters,
-            "permission": _workshop_tool_permission(tool),
-        }
-    WORKSHOP_DYNAMIC_TOOLS = catalog
+    WORKSHOP_DYNAMIC_TOOLS = knowledge_memory_tool_catalog()
     WORKSHOP_DYNAMIC_TOOLS_REFRESHED_AT = time.monotonic()
-    return catalog
+    return WORKSHOP_DYNAMIC_TOOLS
 
 def workshop_memory_function_tools() -> list[dict[str, Any]]:
     return [
@@ -302,6 +323,18 @@ def workshop_memory_function_tools() -> list[dict[str, Any]]:
     ]
 
 def workshop_memory_tool_permission(name: str) -> str | None:
+    if name == "write_project_note":
+        return "write"
+    if name in {
+        "check_server_status",
+        "list_projects",
+        "get_profile_summary",
+        "read_project_note",
+        "get_project_context",
+        "get_latest_handoff",
+        "get_open_decisions",
+    }:
+        return "read_only"
     if name in GMAIL_DIRECT_WRITE_TOOLS:
         return "write"
     if name in GMAIL_DIRECT_TOOL_NAMES:
@@ -325,23 +358,10 @@ async def probe_workshop_memory_endpoint(endpoint_url: str) -> tuple[bool, float
 
 async def select_workshop_memory_endpoint(force: bool = False) -> str:
     global MCP_ACTIVE_URL, MCP_LAST_ERROR, MCP_LAST_LATENCY_MS
-
-    if MCP_ACTIVE_URL and not force:
-        return MCP_ACTIVE_URL
-
-    errors: list[str] = []
-    for endpoint_url in workshop_memory_candidates():
-        ok, latency_ms, error = await probe_workshop_memory_endpoint(endpoint_url)
-        if ok:
-            MCP_ACTIVE_URL = endpoint_url
-            MCP_LAST_LATENCY_MS = round(latency_ms, 2)
-            MCP_LAST_ERROR = None
-            return endpoint_url
-        errors.append(f"{endpoint_url}: {error}")
-
-    MCP_ACTIVE_URL = None
-    MCP_LAST_ERROR = " | ".join(errors) or "No Workshop Memory endpoint configured"
-    raise MCPError(MCP_LAST_ERROR)
+    MCP_ACTIVE_URL = "local://knowledge-memory"
+    MCP_LAST_LATENCY_MS = 0.0
+    MCP_LAST_ERROR = None
+    return MCP_ACTIVE_URL
 
 async def call_workshop_memory_tool(
     tool_name: str,
@@ -354,25 +374,9 @@ async def call_workshop_memory_tool(
         return {**cached, "_jarvis_cache": "hit"}
 
     async with MCP_LOCK:
-        endpoint_url = await select_workshop_memory_endpoint()
         started = time.perf_counter()
-
-        try:
-            result = await _call_workshop_memory_endpoint(
-                endpoint_url,
-                tool_name,
-                arguments,
-            )
-        except (MCPError, httpx.HTTPError, OSError, RuntimeError) as first_error:
-            MCP_LAST_ERROR = str(first_error)
-            MCP_ACTIVE_URL = None
-            endpoint_url = await select_workshop_memory_endpoint(force=True)
-            started = time.perf_counter()
-            result = await _call_workshop_memory_endpoint(
-                endpoint_url,
-                tool_name,
-                arguments,
-            )
+        await select_workshop_memory_endpoint()
+        result = call_local_knowledge_tool(tool_name, arguments)
 
         MCP_LAST_LATENCY_MS = round((time.perf_counter() - started) * 1000, 2)
         MCP_LAST_SUCCESS_AT = time.time()
@@ -384,20 +388,17 @@ async def call_workshop_memory_tool_uncached(
     tool_name: str,
     arguments: dict[str, Any],
 ) -> dict[str, Any]:
-    """Call Workshop Memory without using a possibly stale post-write cache."""
+    """Call Knowledge Memory without using a possibly stale post-write cache."""
     async with MCP_LOCK:
-        endpoint_url = await select_workshop_memory_endpoint(force=True)
-        return await _call_workshop_memory_endpoint(
-            endpoint_url,
-            tool_name,
-            arguments,
-        )
+        await select_workshop_memory_endpoint(force=True)
+        return call_local_knowledge_tool(tool_name, arguments)
 
 
 def workshop_memory_runtime_status() -> dict[str, Any]:
     return {
-        "active_url": MCP_ACTIVE_URL,
-        "candidates": workshop_memory_candidates(),
+        "mode": "built_in",
+        "active_url": MCP_ACTIVE_URL or "local://knowledge-memory",
+        "candidates": [],
         "last_latency_ms": MCP_LAST_LATENCY_MS,
         "endpoint_latency_ms": dict(MCP_ENDPOINT_LATENCY_MS),
         "last_success_at_unix": MCP_LAST_SUCCESS_AT,

@@ -78,5 +78,5 @@ then request bounded history for exact approved entity IDs. Use get_home_assista
 search_home_assistant_logbook for named events, and correlate_home_assistant_timeline when timing relationships matter.
 Default to 24 hours when the user gives no period. Never request more than seven days or eight entities in one call.
 Report the exact observed window and distinguish measurements from inferred correlations. A close-in-time correlation
-is not proof of causation. Do not inspect repositories, Workshop Memory, plugins, or the public web for this request.
+is not proof of causation. Do not inspect repositories, Knowledge Memory, plugins, or the public web for this request.
 """.strip()

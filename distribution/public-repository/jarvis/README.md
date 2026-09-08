@@ -22,8 +22,9 @@ language while conversations, voice recognition, and personal content remain ind
   live state changes.
 - **Build visual automations:** create WHEN, IF, ELSE IF, message, and action paths
   with readable cards and a zero-action Test Flow.
-- **Stay organized:** use local memory, shared files, contacts, birthdays,
-  appointments, and reminders.
+- **Stay organized:** use private Fast Memory and built-in Knowledge Memory spaces
+  for Home, Work, Study, Recipes, Projects, or any custom purpose, alongside shared
+  files, contacts, birthdays, appointments, and reminders.
 - **Connect deliberately:** add optional plugins and services only when needed.
 - **Remain in control:** choose Sensor, Control, or no access for each entity and
   select authority independently for executable automation branches.
@@ -84,6 +85,9 @@ and plain-language recovery guidance.
 - Report reproducible issues at
   [RoyceGith/ZBRANO_HA_Assistant](https://github.com/RoyceGith/ZBRANO_HA_Assistant/issues).
 
+Version 0.13.193 makes Knowledge Memory local and built in, with user-created spaces,
+searchable Markdown notes, write approvals, backup and restore, and one-time legacy
+import without an ongoing server, domain, or tunnel dependency.
 Version 0.13.192 adds direct OpenAI or user-owned OpenRouter chat provider selection,
 live model discovery, protected provider keys, and verified capability boundaries.
 Version 0.13.186 introduced the four-language foundation and localized Home

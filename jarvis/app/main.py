@@ -124,12 +124,12 @@ from .domains.workshop_memory import (
     call_workshop_memory_tool,
     call_workshop_memory_tool_uncached,
     close_mcp_client,
-    get_mcp_client,
     refresh_workshop_memory_tools,
     select_workshop_memory_endpoint,
     workshop_memory_function_tools,
     workshop_memory_runtime_status,
     workshop_memory_tool_permission,
+    migrate_legacy_workshop_memory,
 )
 from .domains.grinder import (
     active_grinder_monitor_tools,
@@ -267,6 +267,7 @@ from .schemas import (
     GoogleCalendarSyncSettingsRequest,
     FastMemoryWriteRequest,
     FastMemoryForgetRequest,
+    KnowledgeSpaceCreateRequest,
     TelegramInboundSettingsRequest,
     TelegramInboundUnlinkRequest,
     SettingsRestoreRequest,
@@ -539,6 +540,12 @@ from .services.wake_calibration import (
     _wake_calibration_status,
     _wake_clip_quality,
 )
+from .services.knowledge_memory import (
+    create_memory_space,
+    export_knowledge_memory,
+    list_memory_spaces,
+    restore_knowledge_memory,
+)
 
 import httpx
 import websockets
@@ -554,11 +561,11 @@ HA_WS_URL = "ws://supervisor/core/websocket"
 SUPERVISOR_TOKEN = os.getenv("SUPERVISOR_TOKEN", "")
 WORKSHOP_MEMORY_URL = os.getenv(
     "WORKSHOP_MEMORY_URL",
-    "http://workshop-memory.local:3001/mcp",
+    "",
 ).rstrip("/")
 WORKSHOP_MEMORY_INTERNAL_URL = os.getenv(
     "WORKSHOP_MEMORY_INTERNAL_URL",
-    "http://workshop_memory:3001/mcp",
+    "",
 ).rstrip("/")
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "")
 OPENAI_MODEL = os.getenv("OPENAI_MODEL", "gpt-5-mini")
@@ -730,7 +737,7 @@ ha_ws = HomeAssistantWebSocketClient(
 
 app = FastAPI(
     title="ZBRANO",
-    version="0.13.192",
+    version="0.13.193",
     docs_url="/api/docs",
     openapi_url="/api/openapi.json",
 )
@@ -1000,7 +1007,7 @@ WORKSHOP_TOOLS: list[dict[str, Any]] = [
     {
         "type": "function",
         "name": "list_projects",
-        "description": "List available projects in the Workshop Memory Obsidian vault.",
+        "description": "List available projects in the Knowledge Memory Obsidian vault.",
         "parameters": {
             "type": "object",
             "properties": {},
@@ -1012,7 +1019,7 @@ WORKSHOP_TOOLS: list[dict[str, Any]] = [
         "type": "function",
         "name": "get_project_context",
         "description": (
-            "Load compact context for a named workshop project, including its "
+            "Load compact context for a named memory space, including its "
             "overview, latest handoff, unresolved decisions, and requirements."
         ),
         "parameters": {
@@ -1063,7 +1070,7 @@ WORKSHOP_TOOLS: list[dict[str, Any]] = [
     {
         "type": "function",
         "name": "get_profile_summary",
-        "description": "Return the user's compact workshop workflow and preferences summary.",
+        "description": "Return the user's compact documented workflow and preferences summary.",
         "parameters": {
             "type": "object",
             "properties": {},
@@ -1261,27 +1268,27 @@ WORKSHOP_TOOLS: list[dict[str, Any]] = [
 
 
 BASE_SYSTEM_INSTRUCTIONS = """
-You are ZBRANO, a practical workshop intelligence core assistant.
+You are ZBRANO, a practical personal intelligence assistant.
 
-Workshop Memory is the source of truth for accepted project knowledge.
-Use Workshop Memory tools whenever the user asks about projects, prior
-decisions, requirements, current status, handoffs, next actions, or the
-user's documented workflow. Never pretend to remember project facts that
-were not returned by a tool.
+Knowledge Memory is the built-in source of truth for durable user knowledge.
+Its spaces are customizable and may represent Home, Work, Projects, Study,
+Recipes, or anything else the user chooses. Never assume the user has a
+workshop or projects. Use Knowledge Memory tools for relevant stored notes,
+decisions, requirements, status, or personal reference material. Never
+pretend to remember facts that were not returned by a tool.
 
-Workshop Memory remains review-controlled. Its MCP tool catalog is discovered at
-runtime. You may use advertised tools to create projects or templates, update
-project progress, and add notes when the user requests it. Every discovered
-tool not explicitly annotated read-only requires an approval prompt and must
+Knowledge Memory remains review-controlled and runs locally inside ZBRANO.
+You may create spaces and add or update notes when the user requests it. Every
+advertised tool not explicitly annotated read-only requires an approval prompt and must
 not execute until the user approves the exact tool and arguments. Never claim
 a permanent write completed until its tool result confirms success. Do not use
-save_general_instruction as a substitute for a project note. Prefer one generic
-write_project_note call when the user requests a Markdown note beneath Projects;
-that tool can create missing folders and the note in one approved operation.
-For project-wide content edits, discover and read each relevant note only once,
+save_general_instruction as a substitute for a durable Knowledge Memory note.
+Use create_memory_space when the requested category does not exist, then use
+write_memory_note for its Markdown notes. For space-wide content edits, discover
+and read each relevant note only once,
 then batch independent write calls into as few response rounds as possible. Do
 not repeatedly reread a note after a successful write merely to confirm it. If
-the Workshop Memory server has no bulk replacement tool, update each relevant
+the Knowledge Memory store has no bulk replacement tool, update each relevant
 note exactly once under task approval and report the completed scope.
 
 You may read Home Assistant entities only when they are enabled in ZBRANO policy.
@@ -1385,12 +1392,12 @@ async def api_home_assistant_live_events(limit: int = 100) -> dict[str, Any]:
 
 def workshop_result_error(result: Any) -> str | None:
     if not isinstance(result, dict):
-        return "Workshop Memory returned an invalid result."
+        return "Knowledge Memory returned an invalid result."
     error = result.get("error")
     if error:
         return str(error)
     if result.get("isError") is True:
-        return str(result.get("message") or "Workshop Memory reported an error.")
+        return str(result.get("message") or "Knowledge Memory reported an error.")
     return None
 
 
@@ -1445,7 +1452,7 @@ async def reconcile_workshop_memory_write(
         if mode == "create" and existing and not workshop_result_error(existing):
             return {
                 "error": (
-                    "Workshop Memory returned an ambiguous create result, and the note "
+                    "Knowledge Memory returned an ambiguous create result, and the note "
                     "now exists with different content. Automatic retry stopped to avoid "
                     "overwriting a conflict."
                 ),
@@ -1455,7 +1462,7 @@ async def reconcile_workshop_memory_write(
         if mode == "append":
             return {
                 "error": (
-                    "Workshop Memory returned an ambiguous append result and exact suffix "
+                    "Knowledge Memory returned an ambiguous append result and exact suffix "
                     "verification did not confirm it. Automatic retry stopped to prevent "
                     "duplicate appended content."
                 ),
@@ -1522,7 +1529,7 @@ async def reconcile_workshop_memory_write(
         "reconciliation_supported": False,
         "reconciliation_detail": (
             "Automatic retry is unavailable for this write type; inspect current "
-            "Workshop Memory state before retrying."
+            "Knowledge Memory state before retrying."
         ),
     }
 
@@ -1547,14 +1554,14 @@ def workshop_execution_fallback_reply(tool_outputs: Any) -> str:
                 reconciled += 1
     if failed:
         return (
-            "Workshop Memory execution completed, but the response step failed. "
+            "Knowledge Memory execution completed, but the response step failed. "
             f"State reconciliation confirmed {succeeded} operation(s); {failed} "
             "operation(s) still reported an error. Inspect current project state "
             "before retrying the failed operations."
         )
     detail = f" Reconciled after an ambiguous result: {reconciled}." if reconciled else ""
     return (
-        "Workshop Memory execution completed successfully, but the normal response "
+        "Knowledge Memory execution completed successfully, but the normal response "
         f"could not be generated. Confirmed operations: {succeeded}.{detail} No "
         "automatic duplicate retry is required."
     )
@@ -1621,9 +1628,9 @@ async def execute_tool_calls(
         elif name not in allowed_names:
             result: dict[str, Any] = {"error": f"Tool is not allowed: {name}"}
         elif permission == "write" and call_id in denied_workshop_call_ids:
-            result = {"error": "User denied this Workshop Memory change."}
+            result = {"error": "User denied this Knowledge Memory change."}
         elif permission == "write" and call_id not in approved_workshop_call_ids:
-            result = {"error": "Explicit user approval is required before this Workshop Memory change."}
+            result = {"error": "Explicit user approval is required before this Knowledge Memory change."}
         else:
             try:
                 if name == "get_home_assistant_history":
@@ -1931,7 +1938,7 @@ async def try_local_ha_route(
 
 
 def runtime_tool_round_limit(session_id: str, workshop_scope: bool = False) -> int:
-    """Bound tool loops; Workshop Memory has a strict cost-safety ceiling."""
+    """Bound tool loops; Knowledge Memory has a strict cost-safety ceiling."""
     if workshop_scope:
         return WORKSHOP_MAX_MODEL_RESPONSES - 1
     if developer_mode_enabled():
@@ -2289,7 +2296,7 @@ async def continue_workshop_memory_approval(
         if not calls:
             reply = response_text(response)
             if not reply:
-                reply = "Workshop Memory change completed." if approved else "Workshop Memory change was denied."
+                reply = "Knowledge Memory change completed." if approved else "Knowledge Memory change was denied."
             return {"reply": reply, "tool_calls": audit}
         write_calls = workshop_memory_write_calls(calls)
         if write_calls and (gmail_direct_write_calls(calls) or not workshop_memory_task_approval_active(session_id)):
@@ -2348,7 +2355,7 @@ async def _run_jarvis_stream_events(message: str, session_id: str = "default", s
         approved = workshop_decision in {"once", "task"}
         yield stream_event(
             "status",
-            message="Executing approved Workshop Memory change…" if approved else "Denying Workshop Memory change…",
+            message="Executing approved Knowledge Memory change…" if approved else "Denying Knowledge Memory change…",
         )
         result = await continue_workshop_memory_approval(
             pending_workshop,
@@ -2590,7 +2597,7 @@ async def _run_jarvis_stream_events(message: str, session_id: str = "default", s
 
         if calls and budget_reason:
             reply = workshop_budget_stop_reply(budget_reason)
-            yield stream_event("status", message="Workshop Memory cost limit reached.")
+            yield stream_event("status", message="Knowledge Memory cost limit reached.")
             yield stream_event("delta", text=reply)
             yield stream_event("done", tool_calls=audit)
             return
@@ -2701,7 +2708,7 @@ async def _run_jarvis_stream_events(message: str, session_id: str = "default", s
         if budget_reason:
             reply = workshop_budget_stop_reply(budget_reason)
             yield stream_event("activity", id=activity_id, state="failed", **activity_meta)
-            yield stream_event("status", message="Workshop Memory cost limit reached.")
+            yield stream_event("status", message="Knowledge Memory cost limit reached.")
             yield stream_event("delta", text=reply)
             yield stream_event("done", tool_calls=audit)
             return
@@ -2894,9 +2901,10 @@ async def health() -> dict[str, Any]:
     configured_speech_provider = SPEECH_PROVIDER if SPEECH_PROVIDER in {"openai", "elevenlabs"} else "openai"
     return {
         "status": "ok",
-        "version": "0.13.192",
+        "version": "0.13.193",
         "home_assistant_configured": bool(SUPERVISOR_TOKEN),
-        "workshop_memory_configured": bool(WORKSHOP_MEMORY_URL),
+        "workshop_memory_configured": True,
+        "knowledge_memory_mode": "built_in",
         "workshop_memory_cost_guard": workshop_cost_guard_status(),
         "openai_configured": bool(OPENAI_API_KEY),
         "openai_model": OPENAI_MODEL,
@@ -2949,7 +2957,7 @@ async def memory_status() -> dict[str, Any]:
     try:
         result = await call_workshop_memory_tool("check_server_status", {})
         return {"connected": True, "result": result}
-    except (MCPError, httpx.HTTPError) as exc:
+    except (MCPError, httpx.HTTPError, ValueError) as exc:
         raise HTTPException(status_code=502, detail=str(exc)) from exc
 
 
@@ -2961,6 +2969,8 @@ async def memory_project(project_name: str) -> dict[str, Any]:
             {"project": project_name, "include_requirements": True},
         )
         return {"connected": True, "project": project_name, "result": result}
+    except ValueError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
     except (MCPError, httpx.HTTPError) as exc:
         raise HTTPException(status_code=502, detail=str(exc)) from exc
 
@@ -3034,9 +3044,9 @@ async def start_ha_websocket() -> None:
         PLUGIN_OAUTH_REFRESH_TASK = asyncio.create_task(
             _plugin_oauth_refresh_loop(), name="zbrano-plugin-oauth-refresh"
         )
-    await get_mcp_client()
-    with contextlib.suppress(MCPError, httpx.HTTPError, OSError, RuntimeError):
-        await select_workshop_memory_endpoint(force=True)
+    with contextlib.suppress(MCPError, httpx.HTTPError, OSError, RuntimeError, ValueError):
+        await migrate_legacy_workshop_memory()
+    await select_workshop_memory_endpoint(force=True)
     schedule_release_sync()
     if CALENDAR_REMINDER_TASK is None or CALENDAR_REMINDER_TASK.done():
         CALENDAR_REMINDER_TASK = asyncio.create_task(calendar_reminder_worker(), name="zbrano-calendar-reminders")
@@ -4309,9 +4319,9 @@ async def onboarding_status_payload() -> dict[str, Any]:
         },
         {
             "id": "memory",
-            "title": "Memory",
-            "description": "Fast Memory is enabled" if preferences.get("fast_memory_enabled") else "Fast Memory is currently disabled",
-            "ready": bool(preferences.get("fast_memory_enabled")),
+            "title": "Knowledge Memory",
+            "description": "Built into ZBRANO · create spaces for Home, Work, Projects, Study, or anything else",
+            "ready": True,
             "required": False,
             "target": "memory",
         },
@@ -4572,6 +4582,19 @@ async def update_interface_language(request: InterfaceLanguageUpdate) -> dict[st
     return {"saved": True, "interface_language": request.interface_language}
 
 
+@app.get("/api/knowledge-memory/spaces")
+async def read_knowledge_memory_spaces() -> dict[str, Any]:
+    return list_memory_spaces()
+
+
+@app.post("/api/knowledge-memory/spaces")
+async def create_knowledge_memory_space(request: KnowledgeSpaceCreateRequest) -> dict[str, Any]:
+    try:
+        return create_memory_space(request.name, request.purpose, request.template)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+
 @app.get("/api/fast-memory")
 async def read_fast_memory(query: str = "", kind: str = "", limit: int = 100) -> dict[str, Any]:
     result = fast_memory_search(query, kind=kind, limit=limit)
@@ -4623,6 +4646,7 @@ async def export_settings_backup() -> Response:
         "birthdays": birthday_store(),
         "contacts": contacts_store(),
         "fast_memory": export_fast_memory(),
+        "knowledge_memory": export_knowledge_memory(),
     }
     # Secrets are environment-backed and are intentionally absent from this file.
     return Response(
@@ -4646,6 +4670,7 @@ async def restore_settings_backup(request: SettingsRestoreRequest) -> dict[str, 
     birthdays = backup.get("birthdays")
     contacts = backup.get("contacts")
     fast_memory = backup.get("fast_memory")
+    knowledge_memory = backup.get("knowledge_memory")
     if not isinstance(settings, dict) or not isinstance(chats, dict) or not isinstance(policy, dict):
         raise HTTPException(status_code=400, detail="Backup is missing required sections")
     if not isinstance(chats.get("sessions", {}), dict) or not isinstance(policy.get("entities", {}), dict):
@@ -4681,6 +4706,12 @@ async def restore_settings_backup(request: SettingsRestoreRequest) -> dict[str, 
         or not isinstance(fast_memory.get("memories", []), list)
     ):
         raise HTTPException(status_code=400, detail="Backup Fast Memory data is malformed")
+    if knowledge_memory is not None and (
+        not isinstance(knowledge_memory, dict)
+        or knowledge_memory.get("version") != 1
+        or not isinstance(knowledge_memory.get("files"), list)
+    ):
+        raise HTTPException(status_code=400, detail="Backup Knowledge Memory data is malformed")
     save_settings_payload(settings)
     CHAT_STORAGE_PATH.parent.mkdir(parents=True, exist_ok=True)
     CHAT_STORAGE_PATH.write_text(json.dumps(chats, ensure_ascii=False, indent=2), encoding="utf-8")
@@ -4698,6 +4729,11 @@ async def restore_settings_backup(request: SettingsRestoreRequest) -> dict[str, 
         _contacts_save(contacts)
     if fast_memory is not None:
         restore_fast_memory(fast_memory)
+    if knowledge_memory is not None:
+        try:
+            restore_knowledge_memory(knowledge_memory)
+        except ValueError as exc:
+            raise HTTPException(status_code=400, detail=str(exc)) from exc
     load_chat_sessions()
     return {"restored": True, "chat_count": len(CHAT_SESSIONS), "automation_count": len(automation_store()["automations"])}
 
@@ -4872,7 +4908,7 @@ async def developer_diagnostics() -> dict[str, object]:
                 ),
             ),
             "workshop_memory",
-            repair_hint="Verify Workshop Memory connectivity, the ZBRANO project name, and Release and Change Log.md.",
+            repair_hint="Verify Knowledge Memory connectivity, the ZBRANO project name, and Release and Change Log.md.",
         )
 
         await probe(
@@ -5028,12 +5064,12 @@ async def developer_diagnostics() -> dict[str, object]:
             "/api/connections/status",
             lambda payload: (
                 "operational" if isinstance(payload, dict) and all(key in payload for key in ("home_assistant", "workshop_memory", "openai")) else "failed",
-                "Home Assistant, Workshop Memory, and OpenAI states readable" if isinstance(payload, dict) else "invalid JSON payload",
+                "Home Assistant, Knowledge Memory, and OpenAI states readable" if isinstance(payload, dict) else "invalid JSON payload",
             ),
             "integrations",
         )
         await probe(
-            "Workshop Memory operational",
+            "Knowledge Memory operational",
             "/api/memory/status",
             lambda payload: (
                 "operational" if isinstance(payload, dict) and payload.get("connected") else "degraded",
@@ -5042,7 +5078,7 @@ async def developer_diagnostics() -> dict[str, object]:
             "integrations",
             timeout=18.0,
             optional=True,
-            repair_hint="Check the configured Workshop Memory endpoint and its MCP status tool.",
+            repair_hint="Open Memory and verify that the local Knowledge Memory store is readable.",
         )
 
         storage_root = Path("/data/.zbrano-diagnostics")
@@ -5363,7 +5399,7 @@ async def _targeted_developer_diagnostics(feature_key: str) -> dict[str, Any]:
     elif feature_key == "developer":
         await probe("Developer API operational", developer_status, lambda p: (p.get("repository") == DEVELOPER_REPOSITORY, f"repository={p.get('repository')}; deployment={p.get('deployment')}"), "developer")
         github_tools = developer_mcp_tools()
-        add("Developer GitHub tools", "operational" if github_tools else "degraded", f"{len(github_tools)} GitHub MCP server(s) exposed; Workshop Memory tools excluded", "developer")
+        add("Developer GitHub tools", "operational" if github_tools else "degraded", f"{len(github_tools)} GitHub MCP server(s) exposed; Knowledge Memory tools excluded", "developer")
         try:
             playwright_tools = await asyncio.wait_for(playwright_mcp_inventory(), timeout=5.0)
             playwright_missing = sorted(PLAYWRIGHT_REQUIRED_TOOLS - playwright_tools)
@@ -5376,7 +5412,7 @@ async def _targeted_developer_diagnostics(feature_key: str) -> dict[str, Any]:
         except Exception as exc:
             add("Developer Playwright tools", "failed", str(exc)[:500], "developer")
     elif feature_key == "workshop_memory":
-        add("Workshop Memory configuration", "present" if WORKSHOP_MEMORY_URL else "degraded", "configuration inspected without calling Workshop Memory MCP tools", "integrations")
+        add("Knowledge Memory", "operational", "built into ZBRANO with no external server or domain", "integrations")
     elif feature_key == "voice":
         add("Voice configuration", "operational" if health_payload.get("voice_configured") else "degraded", f"provider={health_payload.get('speech_provider')}; configured={bool(health_payload.get('voice_configured'))}", "voice")
 
@@ -5767,14 +5803,14 @@ async def list_ha_entities(refresh: bool = False) -> dict[str, Any]:
         "entities": entities,
         "source": inventory_source,
         "diagnostics": diagnostics,
-        "note": "States are live Home Assistant data. Only stable metadata should later be proposed for Workshop Memory.",
+        "note": "States are live Home Assistant data. Only stable metadata should later be proposed for Knowledge Memory.",
     }
 
 @app.post("/api/memory/entity-catalog-draft")
 async def prepare_entity_catalog_draft(
     request: EntityCatalogDraftRequest,
 ) -> dict[str, Any]:
-    """Prepare a reviewable inventory without bypassing Workshop Memory approval."""
+    """Prepare a reviewable inventory without bypassing Knowledge Memory approval."""
     markdown = entity_catalog_markdown(request.entities)
     return {
         "prepared": True,
@@ -5785,7 +5821,7 @@ async def prepare_entity_catalog_draft(
         "filename": "HA OS Entities Update Draft.md",
         "permanent_project_notes_changed": False,
         "review_required": True,
-        "next_step": "Attach this draft in chat and ask ZBRANO to reconcile it with the existing Workshop Memory entity note.",
+        "next_step": "Attach this draft in chat and ask ZBRANO to reconcile it with the existing Knowledge Memory entity note.",
     }
 
 
@@ -6402,6 +6438,7 @@ configure_workshop_memory_domain(
     static_tool_names={str(tool.get("name") or "") for tool in WORKSHOP_TOOLS},
     direct_tool_names=GMAIL_DIRECT_TOOL_NAMES,
     direct_write_tools=GMAIL_DIRECT_WRITE_TOOLS,
+    local_root=DATA_DIR / "knowledge-memory",
 )
 configure_calendar_domain(
     plugin_load=_plugin_load,

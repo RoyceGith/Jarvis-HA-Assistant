@@ -162,7 +162,7 @@ const onboardingFixture = {
     {id:"notifications",title:"Notifications and autonomy",description:"Choose notification delivery",ready:false,required:false,target:"notifications",last_check:null,skipped:false},
   ],
   installation_report: {
-    generated_at: 1788300000, version: "0.13.192", ready: true, attention_count: 0, ready_count: 5,
+    generated_at: 1788300000, version: "0.13.193", ready: true, attention_count: 0, ready_count: 5,
     checks: [
       {id:"home_assistant",title:"Home Assistant",state:"ready",required:true,detail:"Connected to Home Assistant",target:"home_assistant"},
       {id:"model",title:"AI model",state:"ready",required:true,detail:"gpt-5-mini is configured",target:"model"},
@@ -170,8 +170,14 @@ const onboardingFixture = {
       {id:"backup",title:"Backup and restore",state:"ready",required:false,detail:"A portable ZBRANO backup can be exported from Settings",target:"memory"},
       {id:"automation_health",title:"Automation safety",state:"ready",required:false,detail:"2 saved; 0 need permission; 0 paused after failures",target:"automations"},
     ],
-    support_summary: "ZBRANO installation report · v0.13.192\nOverall: Ready\nHome Assistant: Connected\nAI model: Configured\nDevice access: 3 sensor devices / 1 control devices\nPersistent storage: Ready\nAutomations: 2 saved / 0 permission issues / 0 failure pauses",
+    support_summary: "ZBRANO installation report · v0.13.193\nOverall: Ready\nHome Assistant: Connected\nAI model: Configured\nDevice access: 3 sensor devices / 1 control devices\nPersistent storage: Ready\nAutomations: 2 saved / 0 permission issues / 0 failure pauses",
   },
+};
+
+const knowledgeMemoryFixture = {
+  spaces: [{name:"Household", purpose:"Shared home reference", template:"home"}],
+  count: 1,
+  storage: "local",
 };
 
 function apiFixture(url, method = "GET") {
@@ -179,7 +185,7 @@ function apiFixture(url, method = "GET") {
   if (pathname === "/api/health") {
     return {
       status: "ok",
-      version: "0.13.192",
+      version: "0.13.193",
       speech_provider: "openai",
       speech_providers: {openai: {configured: true}, elevenlabs: {configured: false}},
     };
@@ -194,6 +200,8 @@ function apiFixture(url, method = "GET") {
       auto_sync_releases_to_workshop_memory: false,
     };
   }
+  if (pathname === "/api/knowledge-memory/spaces") return knowledgeMemoryFixture;
+  if (pathname === "/api/fast-memory") return {memories: [], status: {total: 0, pinned: 0, by_kind: {}, runtime: {running: false}}};
   if (pathname === "/api/onboarding") {
     if (method === "PUT") onboardingFixture.completed = true;
     return onboardingFixture;
@@ -266,7 +274,7 @@ function apiFixture(url, method = "GET") {
   if (pathname === "/api/plugins") return {plugins: []};
   if (pathname === "/api/files/shared") return {files: [], count: 0};
   if (pathname === "/api/release-memory-sync") {
-    return {enabled: false, state: "disabled", version: "0.13.192", task_active: false};
+    return {enabled: false, state: "disabled", version: "0.13.193", task_active: false};
   }
   if (pathname === "/api/tab-activity") return {revisions: {}};
   if (pathname === "/api/grinder-monitor/status") return {enabled: false, connected: false};
@@ -1089,6 +1097,11 @@ async function main() {
     assert.equal(await page.getByRole('button', {name:'Download report'}).count(), 1);
     await page.getByRole('button', {name:'Review connections'}).click();
     await page.locator('.onboarding-step.is-active').waitFor();
+    await page.locator('[data-settings-target="memory"]').click();
+    await page.locator('[data-settings-category="memory"]:visible').waitFor();
+    await page.getByText('Household', {exact:true}).waitFor();
+    assert.match(await page.locator('#knowledge-memory-status').innerText(), /no server, domain, or MCP setup required/i);
+    assert.equal(await page.locator('#knowledge-space-template option').count(), 7);
     await page.locator('[data-settings-target="voice"]').click();
     await page.locator('[data-settings-category="voice"]:visible').waitFor();
     assert.equal(await page.locator('[data-settings-target="voice"]').evaluate(element => element.closest("details").open), true);
@@ -1100,7 +1113,7 @@ async function main() {
     assert.equal(voiceScroll.scrollable, true, "Voice settings must exceed and scroll within the panel at compact viewport heights");
     assert.equal(voiceScroll.moved, true, "Voice settings panel must accept vertical scrolling");
 
-    console.log("Browser smoke passed: New Chat, About showcase, navigation, Entity scrolling, notification inbox, Calendar birthdays, guided onboarding, modern Settings, Automation Library filtering, Studio safety, validation, recovery, and branching workflows");
+    console.log("Browser smoke passed: New Chat, About showcase, navigation, Entity scrolling, notification inbox, Calendar birthdays, guided onboarding, built-in Knowledge Memory, modern Settings, Automation Library filtering, Studio safety, validation, recovery, and branching workflows");
   } finally {
     await browser.close();
     await new Promise(resolve => server.close(resolve));

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import asyncio
+import contextlib
 import hashlib
 import json
 import os
@@ -8,7 +9,7 @@ from pathlib import Path
 import re
 import sqlite3
 import time
-from typing import Any
+from typing import Any, Iterator
 
 
 load_preferences = None
@@ -58,7 +59,8 @@ FAST_MEMORY_SECRET_RE = re.compile(
     r"(?i)(?:password|passphrase|api[_ -]?key|access[_ -]?token|refresh[_ -]?token|client[_ -]?secret|authorization)\s*[:=]|\b(?:sk|ghp|github_pat)_[A-Za-z0-9_-]{16,}"
 )
 
-def _fast_memory_connect() -> sqlite3.Connection:
+@contextlib.contextmanager
+def _fast_memory_connect() -> Iterator[sqlite3.Connection]:
     FAST_MEMORY_PATH.parent.mkdir(parents=True, exist_ok=True)
     connection = sqlite3.connect(str(FAST_MEMORY_PATH), timeout=3.0)
     connection.row_factory = sqlite3.Row
@@ -92,7 +94,14 @@ def _fast_memory_connect() -> sqlite3.Connection:
     connection.execute("CREATE INDEX IF NOT EXISTS idx_fast_memory_kind ON memory_records(kind)")
     connection.execute("CREATE INDEX IF NOT EXISTS idx_fast_memory_updated ON memory_records(updated_at DESC)")
     connection.execute("CREATE INDEX IF NOT EXISTS idx_fast_memory_expiry ON memory_records(expires_at)")
-    return connection
+    try:
+        yield connection
+        connection.commit()
+    except Exception:
+        connection.rollback()
+        raise
+    finally:
+        connection.close()
 
 def _fast_memory_text(value: Any, limit: int) -> str:
     return " ".join(str(value or "").strip().split())[:limit]

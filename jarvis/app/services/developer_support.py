@@ -116,7 +116,7 @@ DEVELOPER_FEATURE_SPECS = {
         "files": ("jarvis/app/main.py", "jarvis/app/static/index.html", "jarvis/config.yaml"),
     },
     "workshop_memory": {
-        "title": "Workshop Memory",
+        "title": "Knowledge Memory",
         "aliases": ("workshop memory", "memory", "mcp memory", "project context"),
         "terms": ("workshop memory", "connection status", "application health"),
         "layers": ("configuration", "mcp transport", "tool response", "cache"),

@@ -26,14 +26,14 @@ class InterfaceTests(unittest.TestCase):
     def test_hud_graph_and_versions(self):
         self.assertIn('id="brain-network"', INDEX)
         self.assertIn("prefers-reduced-motion: reduce", INDEX)
-        self.assertIn('version: "0.13.192"', CONFIG)
-        self.assertIn('version="0.13.192"', MAIN)
+        self.assertIn('version: "0.13.193"', CONFIG)
+        self.assertIn('version="0.13.193"', MAIN)
 
     def test_public_defaults_and_saved_app_options(self):
         self.assertNotIn("192.168.178.49", CONFIG)
         self.assertNotIn("192.168.178.49", MAIN)
-        self.assertIn("http://workshop-memory.local:3001/mcp", CONFIG)
-        self.assertIn("bashio::config 'workshop_memory_url'", RUN_SCRIPT)
+        self.assertNotIn("workshop_memory_url:", CONFIG)
+        self.assertIn("bashio::config.has_value 'workshop_memory_url'", RUN_SCRIPT)
         self.assertIn("bashio::config 'openai_api_key'", RUN_SCRIPT)
         self.assertIn("bashio::config 'elevenlabs_api_key'", RUN_SCRIPT)
         self.assertIn('ELEVENLABS_MODEL_ID\n        if ELEVENLABS_MODEL_ID in', MAIN)

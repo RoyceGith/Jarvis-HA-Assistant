@@ -2,8 +2,12 @@
 set -euo pipefail
 
 export JARVIS_LOG_LEVEL="$(bashio::config 'log_level')"
-export WORKSHOP_MEMORY_URL="$(bashio::config 'workshop_memory_url')"
-export WORKSHOP_MEMORY_INTERNAL_URL="$(bashio::config 'workshop_memory_internal_url')"
+if bashio::config.has_value 'workshop_memory_url'; then
+  export WORKSHOP_MEMORY_URL="$(bashio::config 'workshop_memory_url')"
+fi
+if bashio::config.has_value 'workshop_memory_internal_url'; then
+  export WORKSHOP_MEMORY_INTERNAL_URL="$(bashio::config 'workshop_memory_internal_url')"
+fi
 export OPENAI_API_KEY="$(bashio::config 'openai_api_key')"
 export CHAT_PROVIDER="$(bashio::config 'chat_provider')"
 export OPENROUTER_API_KEY="$(bashio::config 'openrouter_api_key')"

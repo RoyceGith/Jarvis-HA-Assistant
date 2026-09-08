@@ -354,6 +354,11 @@ class FastMemoryWriteRequest(BaseModel):
 class FastMemoryForgetRequest(BaseModel):
     query: str = Field(min_length=2, max_length=300)
 
+class KnowledgeSpaceCreateRequest(BaseModel):
+    name: str = Field(min_length=1, max_length=100)
+    purpose: str = Field(default="", max_length=1000)
+    template: str = Field(default="blank", pattern="^(blank|home|work|project|study|recipes|custom)$")
+
 class TelegramInboundSettingsRequest(BaseModel):
     enabled: bool = False
     reply_channel: str = Field(default="", max_length=255, pattern=r"^(|notify\.[a-z0-9_]+)$")

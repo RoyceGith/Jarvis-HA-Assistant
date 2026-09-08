@@ -40,6 +40,11 @@ _LAST_STATUS: dict[str, Any] = {
 def is_workshop_memory_intent(message: str) -> bool:
     normalized = " ".join(str(message or "").casefold().split())
     explicit = (
+        "knowledge memory",
+        "knowledge note",
+        "memory note",
+        "memory space",
+        "durable note",
         "workshop memory",
         "workshop note",
         "project note",
@@ -75,7 +80,7 @@ def workshop_tools(
     static_tools: list[dict[str, Any]],
     dynamic_tools: list[dict[str, Any]],
 ) -> list[dict[str, Any]]:
-    """Expose only Workshop Memory schemas for a Workshop Memory request."""
+    """Expose only Knowledge Memory schemas for a Knowledge Memory request."""
     selected = [
         tool for tool in static_tools
         if str(tool.get("name") or "") in WORKSHOP_CORE_TOOL_NAMES
@@ -212,7 +217,7 @@ def bound_workshop_result(
     if len(rendered) > MAX_SINGLE_TOOL_OUTPUT_CHARS:
         return {
             "error": (
-                f"Workshop Memory returned {len(rendered)} characters, above the "
+                f"Knowledge Memory returned {len(rendered)} characters, above the "
                 f"{MAX_SINGLE_TOOL_OUTPUT_CHARS}-character safety limit. Narrow the request "
                 "to one note or a smaller section; the oversized result was not sent to the model."
             )
@@ -235,7 +240,7 @@ def stop_workshop_budget(budget: dict[str, Any], reason: str) -> None:
 
 def workshop_budget_stop_reply(reason: str) -> str:
     return (
-        "Workshop Memory stopped because its cost-safety budget was reached: "
+        "Knowledge Memory stopped because its cost-safety budget was reached: "
         f"{reason}. No further tools were run. Narrow the request to one note or "
         "one specific change, then start a new task."
     )

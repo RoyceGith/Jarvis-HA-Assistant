@@ -2,12 +2,6 @@ configuration:
   log_level:
     name: Troubleshooting detail
     description: Keep Information for normal use. Choose a more detailed level only while diagnosing a problem.
-  workshop_memory_url:
-    name: Workshop Memory address
-    description: Optional address for a Workshop Memory service. Leave the default unless you run this service yourself.
-  workshop_memory_internal_url:
-    name: Workshop Memory internal address
-    description: Advanced fallback address for container-to-container access. Most users should leave this unchanged.
   openai_api_key:
     name: OpenAI API key
     description: Required for ZBRANO chat and the default speech provider. The key stays in protected Home Assistant app configuration.

@@ -36,7 +36,7 @@ def grinder_system_instructions(base: str) -> str:
 
 GRINDER DIAGNOSTIC INTENT IS ACTIVE.
 Use the provided local grinder diagnostic tools before answering. They are the authoritative runtime source and
-are not Workshop Memory tools. When an incident identifier is present, call get_grinder_incident with that exact
+are not Knowledge Memory tools. When an incident identifier is present, call get_grinder_incident with that exact
 identifier. Otherwise call list_grinder_incidents, select the incident matching the user's timing description,
 then call get_grinder_incident. Analyze the bounded pre_failure_window rather than asking the user for an export.
 If the user says they manually removed power after a freeze, treat the later POWER ON reset as operator-caused and

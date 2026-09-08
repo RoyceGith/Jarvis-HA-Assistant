@@ -29,7 +29,7 @@
       <li>Select <strong>Save</strong>, then restart the ZBRANO app so the protected setting is loaded.</li>
       <li>Return here and select <strong>Verify key</strong>. ZBRANO checks the connection without revealing the key.</li>
     </ol>
-    <p id="onboarding-configuration-note" class="onboarding-configuration-optional"><strong>Optional fields can stay blank.</strong> ElevenLabs, Google, GitHub, and Workshop Memory settings are only needed when you choose those capabilities later.</p>
+    <p id="onboarding-configuration-note" class="onboarding-configuration-optional"><strong>Optional fields can stay blank.</strong> ElevenLabs, Google, and GitHub settings are only needed when you choose those capabilities later.</p>
     <div class="onboarding-configuration-actions">
       <button id="onboarding-configuration-copy" type="button">Copy field name</button>
       <button id="onboarding-configuration-verify" type="button">Verify after restart</button>
@@ -81,7 +81,7 @@
       return item;
     }));
     configurationNote.textContent = model
-      ? "Optional fields can stay blank. ElevenLabs, Google, GitHub, and Workshop Memory settings are only needed when you choose those capabilities later."
+      ? "Optional fields can stay blank. ElevenLabs, Google, and GitHub settings are only needed when you choose those capabilities later."
       : "The Home Assistant Supervisor supplies this connection securely while the ZBRANO app is running.";
     configurationCopy.hidden = !model;
     configurationVerify.textContent = model ? "Verify after restart" : "Check connection again";
@@ -141,7 +141,7 @@
     model: {symbol: "AI", eyebrow: "INTELLIGENCE", guidance: "The AI model powers chat and reasoning. Your key stays in the protected Home Assistant app configuration."},
     entities: {symbol: "DV", eyebrow: "DEVICE ACCESS", guidance: "Choose Sensor devices for information and Control devices only when you want ZBRANO to perform actions."},
     voice: {symbol: "VO", eyebrow: "VOICE", guidance: "Voice is optional. Browser wake recognition is recommended for every user; the experimental local model may favor the owner voice used to tune it."},
-    memory: {symbol: "ME", eyebrow: "MEMORY", guidance: "Fast Memory helps ZBRANO remember useful preferences and context locally between conversations."},
+    memory: {symbol: "ME", eyebrow: "MEMORY", guidance: "Knowledge Memory is built in for organized notes and user-created spaces. Fast Memory quietly keeps useful preferences and conversational context."},
     plugins: {symbol: "PL", eyebrow: "CONNECTIONS", guidance: "Plugins connect optional services. You can skip this now and install only the services you trust later."},
     notifications: {symbol: "NT", eyebrow: "NOTIFICATIONS", guidance: "Choose where ZBRANO should send alerts and automation messages. This can be changed at any time."},
   };

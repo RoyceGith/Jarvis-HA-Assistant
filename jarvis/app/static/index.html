@@ -34,7 +34,7 @@
   <header>
     <div class="brand-line">
       <h1>ZBRANO</h1>
-      <div class="status hud-version-label">Workshop Intelligence Interface · HUD 0.13.192</div>
+      <div class="status hud-version-label">Workshop Intelligence Interface · HUD 0.13.193</div>
     </div>
     <div class="runtime-status-stack">
       <label class="interface-language-picker" title="Interface language">
@@ -219,7 +219,7 @@
       </select>
       <button id="refresh-entities">Refresh</button>
       <button id="export-entities">Export JSON</button>
-      <button id="save-memory-draft" title="Download selected stable entity metadata for a later approved Workshop Memory update">Prepare Entity Inventory Update</button>
+      <button id="save-memory-draft" title="Download selected stable entity metadata for a later approved Knowledge Memory update">Prepare Entity Inventory Update</button>
       <button id="show-approved">Show Approved</button>
     </div>
     <div id="entity-summary" class="summary muted">Load the inventory to begin.</div>
@@ -508,8 +508,8 @@
     <div class="settings-card" data-settings-category="updates" hidden>
       <h2>RELEASE MEMORY</h2>
       <p>Keep the ZBRANO Workshop Assistant project synchronized with every successfully installed version.</p>
-      <label class="toggle-row"><input id="release-memory-auto-sync" type="checkbox"> Automatically sync installed releases to Workshop Memory</label>
-      <p class="setting-note">Enabling this grants standing authorization only for ZBRANO's canonical current-release fields and Release History. Historical entries are preserved, replacements are limited to the ZBRANO project, and Workshop Memory creates backups.</p>
+      <label class="toggle-row"><input id="release-memory-auto-sync" type="checkbox"> Automatically sync installed releases to Knowledge Memory</label>
+      <p class="setting-note">Enabling this grants standing authorization only for ZBRANO's canonical current-release fields and Release History. Historical entries are preserved, replacements are limited to the ZBRANO project, and Knowledge Memory creates backups.</p>
       <div class="release-sync-status" id="release-memory-sync-status" role="status" aria-live="polite">Checking synchronization status…</div>
       <div class="settings-actions"><button id="release-memory-sync-retry" type="button">Sync Current Release Now</button></div>
     </div>

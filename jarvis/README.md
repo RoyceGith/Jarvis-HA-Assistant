@@ -1,9 +1,15 @@
-# ZBRANO v0.13.192
+# ZBRANO v0.13.193
 
 Automation Studio provides a graphical, step-by-step workflow for Home Assistant
 automations. Use Setup &amp; safety, When, Only if, Then, and optional Outcomes beside the
 interactive flow canvas. Natural-language creation, templates, drag-and-drop,
 saved automation compatibility, and the full Advanced editor remain available.
+
+Version 0.13.193 adds built-in Knowledge Memory with customizable spaces instead
+of assuming that every user has a workshop or projects. Markdown notes are stored
+locally, searched by ZBRANO's own tools, protected by write approval, and included
+in settings backup and restore. A saved legacy Workshop Memory endpoint is used
+only for a one-time import and is no longer required afterward.
 
 Version 0.13.192 adds bring-your-own AI through OpenRouter. A user can keep direct
 OpenAI or provide their own OpenRouter key, choose a model from its live catalog,
@@ -414,16 +420,18 @@ route. These commands avoid an OpenAI tool-selection round:
 Ambiguous device names and unsupported requests continue through the model tool
 loop. Existing entity policy and safe-domain checks still protect every action.
 
-Set `workshop_memory_url` to the hostname or private IP of your Workshop Memory
-service. The public example uses a neutral local hostname:
-
-`http://workshop-memory.local:3001/mcp`
+Knowledge Memory is built into ZBRANO and stores Markdown notes in the app's
+persistent data directory. Users can create neutral spaces for Home, Work,
+Study, Recipes, a Project, or anything else. It does not require a domain,
+tunnel, MCP server, or account controlled by the ZBRANO developer. An existing
+legacy Workshop Memory URL is used only for a one-time local import when that
+saved option is still present after an upgrade.
 
 ## Updating without losing configuration
 
 Home Assistant keeps the app's existing configuration when ZBRANO is updated.
-That includes the Workshop Memory URL, OpenAI and ElevenLabs API keys, voice ID,
-model choices, and entity lists. ZBRANO reads those saved options at every
+That includes OpenAI and ElevenLabs API keys, voice ID, model choices, and
+entity lists. ZBRANO reads those saved options at every
 start; the defaults in `config.yaml` are used only for a new installation or a
 newly introduced option.
 
