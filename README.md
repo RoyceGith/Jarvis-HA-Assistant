@@ -4,7 +4,7 @@
 
 **A private, permission-aware assistant for conversation, home intelligence, and visual automation.**
 
-Current release: **0.13.191**
+Current release: **0.13.192**
 Platforms: **Home Assistant · aarch64 · amd64**
 Languages: **English · Ελληνικά · Italiano · Français**
 
@@ -18,11 +18,15 @@ or French selection. Navigation, primary and advanced workspaces, the About
 showcase, and locale-aware dates follow that choice. Conversation and browser voice
 recognition remain independent from the interface selection.
 
+Bring your own AI account: use OpenAI directly or select OpenRouter to access
+models from multiple AI companies with your own key and provider billing. ZBRANO
+does not operate a managed AI subscription.
+
 ## What ZBRANO brings together
 
 | Capability | What it means in everyday use |
 | --- | --- |
-| **Conversation and voice** | Separate saved conversations, file attachments, optional web sources, speech replies, voice-independent browser wake recognition, and follow-up listening. |
+| **Conversation and voice** | Your choice of direct OpenAI or user-owned OpenRouter, separate saved conversations, file attachments, optional web sources with OpenAI, speech replies, voice-independent browser wake recognition, and follow-up listening. |
 | **Home awareness** | Live sensor readings, device states, rooms, labels, history, and event timelines from explicitly permitted Home Assistant entities. |
 | **Visual automations** | Automation Studio uses understandable WHEN, IF, ELSE IF, message, and action paths with safe testing before saving. |
 | **Memory and organization** | Private Fast Memory, optional Workshop Memory, shared files, contacts, birthdays, appointments, and reminders. |
@@ -36,7 +40,7 @@ services only when they are useful.
 ## From installation to useful action
 
 1. **Install ZBRANO** in Home Assistant.
-2. **Connect the AI service** with your own OpenAI API key.
+2. **Connect the AI service** with your own OpenAI or OpenRouter API key.
 3. **Choose device access** one entity at a time as Sensor device, Control device,
    or Do not allow.
 4. **Start a conversation** or build a visual automation and try it safely before
@@ -50,9 +54,9 @@ checks each required connection and explains anything that still needs attention
 1. In Home Assistant, open **Settings → Apps → App store**.
 2. Open the repository menu and add:
    `https://github.com/RoyceGith/ZBRANO_HA_Assistant`
-3. Select **ZBRANO**, install it, and add the required OpenAI API key.
+3. Select **ZBRANO**, install it, and add your OpenAI or OpenRouter API key.
 4. Open **Settings → Apps → ZBRANO → Configuration**.
-5. Enter your own OpenAI API key in **OpenAI API key** (`openai_api_key`), save, and restart ZBRANO.
+5. Choose **Chat AI provider** (`chat_provider`), enter your own matching API key, save, and restart ZBRANO.
 6. Open ZBRANO, follow **Setup**, and choose Sensor or Control access only for the
    Home Assistant devices you want it to use.
 

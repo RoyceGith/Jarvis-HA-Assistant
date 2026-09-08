@@ -31,14 +31,15 @@ language while conversations, voice recognition, and personal content remain ind
 ## Before installation
 
 ZBRANO supports `aarch64` and `amd64` Home Assistant systems and requires your own
-OpenAI API key for its core AI connection. Home Assistant provides the local API
-connection automatically. Other credentials and providers are optional.
+OpenAI or OpenRouter API key for its core AI connection. Home Assistant provides
+the local API connection automatically. ZBRANO does not resell or operate a managed
+AI service; usage and billing stay with the provider account you select.
 
 ## First setup
 
 1. Install ZBRANO from its Home Assistant repository.
 2. Open **Settings → Apps → ZBRANO → Configuration**.
-3. Enter **OpenAI API key**, save, and restart the app.
+3. Choose **Chat AI provider**, enter its API key, save, and restart the app.
 4. Open the ZBRANO interface and follow the guided **Setup**.
 5. In **Device access**, explicitly select the entities ZBRANO may use.
 6. Start with Sensor access and ask-first automations until the behavior matches
@@ -83,8 +84,8 @@ and plain-language recovery guidance.
 - Report reproducible issues at
   [RoyceGith/ZBRANO_HA_Assistant](https://github.com/RoyceGith/ZBRANO_HA_Assistant/issues).
 
-Version 0.13.191 expands localization through the primary and advanced workspaces,
-the complete About showcase, dynamic accessibility text, and displayed dates.
+Version 0.13.192 adds direct OpenAI or user-owned OpenRouter chat provider selection,
+live model discovery, protected provider keys, and verified capability boundaries.
 Version 0.13.186 introduced the four-language foundation and localized Home
 Assistant configuration. Version 0.13.185 added `amd64` while preserving `aarch64`
 and the existing update path.

@@ -1,5 +1,13 @@
 # Change log
 
+## 0.13.192
+
+- Added bring-your-own AI with direct OpenAI or a user-owned OpenRouter account.
+- Loaded OpenRouter's available model catalog without storing keys in ordinary preferences.
+- Kept clear Home Assistant on/off commands on ZBRANO's fast local control route.
+- Limited OpenRouter sessions to verified local function tools and clearly identified OpenAI-only web and remote-plugin features.
+- Kept chat-provider credentials independent from speech-provider configuration.
+
 ## 0.13.191
 
 - Added an explicit wake-detection method selector with browser recognition recommended for every user.

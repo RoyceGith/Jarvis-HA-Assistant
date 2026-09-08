@@ -11,6 +11,15 @@ configuration:
   openai_api_key:
     name: "Κλειδί API OpenAI"
     description: "Απαιτείται για τη συνομιλία ZBRANO και τον προεπιλεγμένο πάροχο φωνής. Το κλειδί παραμένει στην προστατευμένη διαμόρφωση εφαρμογής του Home Assistant."
+  chat_provider:
+    name: "Πάροχος AI συνομιλίας"
+    description: "Επιλέξτε OpenAI ή χρησιμοποιήστε τον δικό σας λογαριασμό OpenRouter για μοντέλα από πολλές εταιρείες AI. Επανεκκινήστε το ZBRANO μετά την αλλαγή."
+  openrouter_api_key:
+    name: "Κλειδί API OpenRouter"
+    description: "Το δικό σας προστατευμένο κλειδί OpenRouter. Απαιτείται μόνο όταν το OpenRouter είναι ο πάροχος AI συνομιλίας."
+  openrouter_model:
+    name: "Προεπιλεγμένο μοντέλο OpenRouter"
+    description: "Πλήρες ID μοντέλου OpenRouter, όπως openai/gpt-5-mini. Μετά μπορείτε να επιλέξετε άλλο διαθέσιμο μοντέλο μέσα στο ZBRANO."
   github_oauth_client_id:
     name: "Αναγνωριστικό σύνδεσης GitHub"
     description: "Προαιρετικό. Προσθέστε το μόνο όταν συνδέετε την επίσημη προσθήκη GitHub."
