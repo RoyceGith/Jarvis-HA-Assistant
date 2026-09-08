@@ -1493,6 +1493,7 @@ function showPanel(panel) {
   const showPlugins = panel === "plugins";
   const showFiles = panel === "files";
   const showAutomations = panel === "automations";
+  const showMemory = panel === "memory";
   const showCalendar = panel === "calendar";
   const showContacts = panel === "contacts";
   const showAbout = panel === "about";
@@ -1502,6 +1503,7 @@ function showPanel(panel) {
   pluginsPanel.classList.toggle("hidden", !showPlugins);
   document.getElementById("files-panel")?.classList.toggle("hidden", !showFiles);
   document.getElementById("automations-panel")?.classList.toggle("hidden", !showAutomations);
+  document.getElementById("memory-panel")?.classList.toggle("hidden", !showMemory);
   document.getElementById("calendar-panel")?.classList.toggle("hidden", !showCalendar);
   document.getElementById("contacts-panel")?.classList.toggle("hidden", !showContacts);
   aboutPanel.classList.toggle("hidden", !showAbout);
@@ -1512,6 +1514,7 @@ function showPanel(panel) {
   pluginsTab.classList.toggle("active", showPlugins);
   document.getElementById("files-tab")?.classList.toggle("active", showFiles);
   document.getElementById("automations-tab")?.classList.toggle("active", showAutomations);
+  document.getElementById("memory-tab")?.classList.toggle("active", showMemory);
   document.getElementById("calendar-tab")?.classList.toggle("active", showCalendar);
   document.getElementById("contacts-tab")?.classList.toggle("active", showContacts);
   aboutTab.classList.toggle("active", showAbout);
@@ -1523,6 +1526,7 @@ entitiesTab.addEventListener("click", async () => {
   if (!inventoryLoaded) await loadEntities();
 });
 document.getElementById("contacts-tab")?.addEventListener("click", () => showPanel("contacts"));
+document.getElementById("memory-tab")?.addEventListener("click", () => showPanel("memory"));
 aboutTab.addEventListener("click", () => showPanel("about"));
 document.getElementById("about-start-chat")?.addEventListener("click", () => chatTab.click());
 document.getElementById("about-open-devices")?.addEventListener("click", () => entitiesTab.click());

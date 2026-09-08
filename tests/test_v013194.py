@@ -1,0 +1,96 @@
+import json
+from pathlib import Path
+import tempfile
+import unittest
+
+from jarvis.app.services import knowledge_memory
+
+
+ROOT = Path(__file__).resolve().parents[1]
+CONFIG = (ROOT / "jarvis/config.yaml").read_text(encoding="utf-8")
+MAIN = (ROOT / "jarvis/app/main.py").read_text(encoding="utf-8")
+INDEX = (ROOT / "jarvis/app/static/index.html").read_text(encoding="utf-8")
+STUDIO = (ROOT / "jarvis/app/static/js/memory/studio.js").read_text(encoding="utf-8")
+STYLE = (ROOT / "jarvis/app/static/css/memory-studio.css").read_text(encoding="utf-8")
+MANIFEST = json.loads((ROOT / "jarvis/release_manifest.json").read_text(encoding="utf-8"))
+
+
+class MemoryStudioReleaseTests(unittest.TestCase):
+    def setUp(self):
+        self.original_root = knowledge_memory.KNOWLEDGE_ROOT
+        self.temporary = tempfile.TemporaryDirectory()
+        knowledge_memory.configure_knowledge_memory(root=Path(self.temporary.name))
+
+    def tearDown(self):
+        knowledge_memory.configure_knowledge_memory(root=self.original_root)
+        self.temporary.cleanup()
+
+    def test_release_is_aligned(self):
+        self.assertIn('version: "0.13.194"', CONFIG)
+        self.assertIn('version="0.13.194"', MAIN)
+        self.assertIn("HUD 0.13.194", INDEX)
+        self.assertEqual(MANIFEST["version"], "0.13.194")
+        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.193")
+
+    def test_custom_category_template_and_space_round_trip(self):
+        category = knowledge_memory.create_memory_category("Health", "health", "Appointments and records")
+        self.assertEqual(category["category"]["name"], "Health")
+        saved = knowledge_memory.save_memory_template(
+            "Care plan", "Reusable health notes", "Health", "health",
+            [
+                {"name": "Overview", "purpose": "Current summary", "content": "# Overview\n"},
+                {"name": "Visits/Questions.md", "purpose": "Questions to ask", "content": "# Questions\n"},
+            ],
+        )
+        self.assertFalse(saved["template"]["built_in"])
+        created = knowledge_memory.create_memory_space("My care", "Private health reference", "custom:Care plan", "Health")
+        self.assertEqual(created["space"]["category"], "Health")
+        self.assertEqual(created["notes_created"], ["Overview.md", "Visits/Questions.md"])
+        notes = knowledge_memory.list_memory_notes("My care")
+        self.assertEqual(notes["count"], 2)
+        self.assertEqual(knowledge_memory.read_memory_note("My care", "Visits/Questions.md")["content"], "# Questions\n")
+        self.assertEqual(knowledge_memory.knowledge_memory_tool_catalog()["create_memory_category"]["permission"], "write")
+
+    def test_database_edit_delete_and_backup_restore(self):
+        knowledge_memory.create_memory_category("Travel", "travel", "Trips and places")
+        knowledge_memory.save_memory_template("Trip", "Plan a trip", "Travel", "travel", [{"name": "Plan", "purpose": "Itinerary", "content": "# Plan\n"}])
+        knowledge_memory.create_memory_space("Rome", "Autumn holiday", "custom:Trip", "Travel")
+        knowledge_memory.write_memory_note("Rome", "Plan", "# Plan\nThree days", "replace")
+        self.assertIn("Three days", knowledge_memory.read_memory_note("Rome", "Plan")["content"])
+        backup = knowledge_memory.export_knowledge_memory()
+        paths = {item["path"] for item in backup["files"]}
+        self.assertIn("categories.json", paths)
+        self.assertIn("Templates/Trip/.template.json", paths)
+        second = tempfile.TemporaryDirectory()
+        try:
+            knowledge_memory.configure_knowledge_memory(root=Path(second.name))
+            knowledge_memory.restore_knowledge_memory(backup)
+            self.assertEqual(knowledge_memory.list_memory_spaces()["spaces"][0]["category"], "Travel")
+            self.assertTrue(any(item["name"] == "Trip" for item in knowledge_memory.list_memory_templates()["templates"]))
+            knowledge_memory.delete_memory_note("Rome", "Plan")
+            self.assertEqual(knowledge_memory.list_memory_notes("Rome")["count"], 0)
+            knowledge_memory.delete_memory_space("Rome")
+            knowledge_memory.delete_memory_template("Trip")
+            self.assertEqual(knowledge_memory.list_memory_spaces()["count"], 0)
+        finally:
+            second.cleanup()
+
+    def test_template_note_paths_are_safe_and_unique(self):
+        with self.assertRaises(ValueError):
+            knowledge_memory.save_memory_template("Unsafe", "", "Personal", "template", [{"name": "../../outside", "purpose": "", "content": ""}])
+        with self.assertRaises(ValueError):
+            knowledge_memory.save_memory_template("Duplicates", "", "Personal", "template", [{"name": "One", "purpose": "", "content": ""}, {"name": "one.md", "purpose": "", "content": ""}])
+
+    def test_studio_is_a_dedicated_responsive_workspace(self):
+        self.assertIn('id="memory-tab"', INDEX)
+        self.assertIn('id="memory-panel"', INDEX)
+        self.assertIn("Memory Database", STUDIO)
+        self.assertIn("Template Studio", STUDIO)
+        self.assertIn("data-template-note-name", STUDIO)
+        self.assertIn("stored locally", STUDIO.lower())
+        self.assertIn(".memory-space-layout", STYLE)
+        self.assertIn("@media(max-width:850px)", STYLE)
+
+
+if __name__ == "__main__":
+    unittest.main()

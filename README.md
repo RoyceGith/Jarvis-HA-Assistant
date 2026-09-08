@@ -1,9 +1,14 @@
-## ZBRANO v0.13.193
+## ZBRANO v0.13.194
 
 ZBRANO combines Home Assistant chat, voice, entity control, memory, notifications,
 calendar and contact tools, plugins, and evidence-based automations. Automation Studio now uses
 a visual building-block toolbox, interactive node canvas, and contextual inspector;
 the established automation engine and stored definitions remain compatible.
+
+Version 0.13.194 turns that built-in memory into a friendly Memory Studio. A
+dedicated Memory Database organizes custom categories, spaces, and notes, while
+Template Studio lets each user create reusable note-card layouts for their own
+life and work. The complete database remains local and included in backups.
 
 Version 0.13.193 replaces the external Workshop Memory dependency with built-in
 Knowledge Memory. Users create their own spaces for Home, Work, Study, Recipes,

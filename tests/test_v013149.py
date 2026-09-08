@@ -12,8 +12,8 @@ MANIFEST = json.loads((ROOT / "jarvis/release_manifest.json").read_text(encoding
 
 class WhenCardAndAutomaticFlowReleaseTests(unittest.TestCase):
     def test_release_is_aligned(self):
-        self.assertEqual(MANIFEST["version"], "0.13.193")
-        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.192")
+        self.assertEqual(MANIFEST["version"], "0.13.194")
+        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.193")
 
     def test_when_step_has_dedicated_event_choices(self):
         for preset in ("sensor", "power_on", "power_off", "time", "sun", "interval", "one_time"):

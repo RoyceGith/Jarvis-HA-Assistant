@@ -1,9 +1,9 @@
 {
-  "version": "0.13.193",
+  "version": "0.13.194",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/ZBRANO_Core main",
-  "summary": "Replace the external Workshop Memory dependency with built-in, customizable Knowledge Memory that stays local to each ZBRANO installation.",
+  "summary": "Add a friendly Memory Studio with a local Memory Database, custom categories, reusable templates, and guided note management.",
   "history_backfill": [
     {
       "version": "0.13.0",
@@ -776,22 +776,26 @@
       {
         "version": "0.13.192",
         "summary": "Added bring-your-own AI through direct OpenAI or a user-owned OpenRouter account without creating a ZBRANO-managed AI service."
+      },
+      {
+        "version": "0.13.193",
+        "summary": "Replaced the external Workshop Memory dependency with built-in, customizable Knowledge Memory that stays local to each ZBRANO installation."
       }
   ],
   "release_entry": {
     "features": [
-      "Keep durable Markdown knowledge inside ZBRANO without an external server, domain, tunnel, or developer-operated dependency.",
-      "Create customizable spaces from Home, Work, Study, Recipes, Project, blank, or custom templates.",
-      "List, read, search, and approval-gate changes to Knowledge Memory through local function tools available to supported chat providers.",
-      "Include the complete Knowledge Memory store in settings backup and restore."
+      "Open a dedicated Memory tab with separate Memory Database and Template Studio workspaces.",
+      "Create user-defined categories, guided memory spaces, reusable templates, and note-card blueprints.",
+      "Browse, search, create, edit, and delete local Markdown notes without knowing file or MCP concepts.",
+      "Include custom categories and templates in the existing local backup and restore flow."
     ],
     "fixes": [
-      "Stop assuming that every user organizes their life around workshops or projects.",
-      "Use a saved legacy Workshop Memory endpoint only for one-time import and remove it from new-install configuration.",
-      "Preserve approval enforcement for both new Knowledge Memory writes and compatible legacy project-write calls."
+      "Separate structured Knowledge Memory from compact conversational Fast Memory so each has a clear purpose.",
+      "Replace the technical settings-based space form with a visual, step-by-step studio.",
+      "Keep user-created template writes approval-gated when invoked through chat tools."
     ],
     "validation": [
-      "Local space templates, Markdown read and write behavior, traversal protection, search, backup and restore, legacy permissions, configuration independence, regression suite, browser smoke, and v0.13.193 release coverage"
+      "Custom category, template, space, and note lifecycle; traversal protection; extended backup and restore; API integration; multilingual interface catalog; regression suite; browser smoke; and v0.13.194 release coverage"
     ]
   },
   "features": [

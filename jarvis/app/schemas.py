@@ -357,7 +357,31 @@ class FastMemoryForgetRequest(BaseModel):
 class KnowledgeSpaceCreateRequest(BaseModel):
     name: str = Field(min_length=1, max_length=100)
     purpose: str = Field(default="", max_length=1000)
-    template: str = Field(default="blank", pattern="^(blank|home|work|project|study|recipes|custom)$")
+    template: str = Field(default="blank", min_length=1, max_length=100)
+    category: str = Field(default="Personal", min_length=1, max_length=100)
+
+class KnowledgeCategoryCreateRequest(BaseModel):
+    name: str = Field(min_length=1, max_length=100)
+    icon: str = Field(default="custom", min_length=1, max_length=30)
+    description: str = Field(default="", max_length=300)
+
+class KnowledgeTemplateNoteRequest(BaseModel):
+    name: str = Field(min_length=1, max_length=300)
+    purpose: str = Field(default="", max_length=300)
+    content: str = Field(default="", max_length=200000)
+
+class KnowledgeTemplateWriteRequest(BaseModel):
+    name: str = Field(min_length=1, max_length=100)
+    original_name: str = Field(default="", max_length=100)
+    description: str = Field(default="", max_length=500)
+    category: str = Field(default="Personal", min_length=1, max_length=100)
+    icon: str = Field(default="template", min_length=1, max_length=30)
+    notes: list[KnowledgeTemplateNoteRequest] = Field(default_factory=list, max_length=30)
+
+class KnowledgeNoteWriteRequest(BaseModel):
+    note: str = Field(min_length=1, max_length=300)
+    content: str = Field(default="", max_length=1000000)
+    mode: str = Field(default="create", pattern="^(create|replace)$")
 
 class TelegramInboundSettingsRequest(BaseModel):
     enabled: bool = False

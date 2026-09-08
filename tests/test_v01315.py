@@ -21,10 +21,10 @@ MANIFEST = json.loads((ROOT / "jarvis/release_manifest.json").read_text(encoding
 
 class CanonicalModuleArchitectureTests(unittest.TestCase):
     def test_release_markers_are_aligned(self):
-        self.assertIn('version: "0.13.193"', CONFIG)
-        self.assertIn('version="0.13.193"', MAIN_RAW)
-        self.assertIn("HUD 0.13.193", HTML)
-        self.assertEqual(MANIFEST["version"], "0.13.193")
+        self.assertIn('version: "0.13.194"', CONFIG)
+        self.assertIn('version="0.13.194"', MAIN_RAW)
+        self.assertIn("HUD 0.13.194", HTML)
+        self.assertEqual(MANIFEST["version"], "0.13.194")
 
     def test_frontend_is_directly_split_with_stable_order(self):
         stylesheet_paths = re.findall(r'<link[^>]+href="([^"]+\.css)"', HTML)
@@ -38,12 +38,13 @@ class CanonicalModuleArchitectureTests(unittest.TestCase):
             "css/automation-studio.css",
             "css/workspace-modern.css",
             "css/contacts.css",
+            "css/memory-studio.css",
         ])
-        self.assertEqual(len(script_paths), 34)
+        self.assertEqual(len(script_paths), 35)
         self.assertEqual(script_paths[:4], ["js/i18n.js", "js/i18n/catalog-advanced.js", "js/about.js", "js/core.js"])
         self.assertEqual(script_paths[-1], "js/onboarding.js")
         self.assertTrue(all((STATIC / path).is_file() for path in stylesheet_paths + script_paths))
-        self.assertLess(len(HTML.encode("utf-8")), 101_000)
+        self.assertLess(len(HTML.encode("utf-8")), 102_000)
         self.assertIn("function renderMarkdownText", FRONTEND)
         self.assertIn('id="zbrano-v01294-proactive-voice"', HTML)
 
@@ -68,7 +69,7 @@ class CanonicalModuleArchitectureTests(unittest.TestCase):
 
     def test_request_schemas_have_a_dedicated_module(self):
         schemas = (APP / "schemas.py").read_text(encoding="utf-8")
-        self.assertEqual(len(re.findall(r"^class \w+\(BaseModel\)", schemas, re.MULTILINE)), 47)
+        self.assertEqual(len(re.findall(r"^class \w+\(BaseModel\)", schemas, re.MULTILINE)), 51)
         self.assertIn("from .schemas import (", MAIN_RAW)
         self.assertNotIn("class ChatRequest(BaseModel)", MAIN_RAW)
         self.assertIn("class ChatRequest(BaseModel)", BACKEND)

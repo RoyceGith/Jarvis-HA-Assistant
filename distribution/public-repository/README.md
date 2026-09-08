@@ -4,7 +4,7 @@
 
 **A private, permission-aware assistant for conversation, home intelligence, and visual automation.**
 
-Current release: **0.13.193**
+Current release: **0.13.194**
 Platforms: **Home Assistant · aarch64 · amd64**
 Languages: **English · Ελληνικά · Italiano · Français**
 
@@ -29,7 +29,7 @@ does not operate a managed AI subscription.
 | **Conversation and voice** | Your choice of direct OpenAI or user-owned OpenRouter, separate saved conversations, file attachments, optional web sources with OpenAI, speech replies, voice-independent browser wake recognition, and follow-up listening. |
 | **Home awareness** | Live sensor readings, device states, rooms, labels, history, and event timelines from explicitly permitted Home Assistant entities. |
 | **Visual automations** | Automation Studio uses understandable WHEN, IF, ELSE IF, message, and action paths with safe testing before saving. |
-| **Memory and organization** | Private Fast Memory, built-in Knowledge Memory with customizable spaces, shared files, contacts, birthdays, appointments, and reminders. |
+| **Memory and organization** | Private Fast Memory, a visual Memory Database, customizable categories and reusable note templates, shared files, contacts, birthdays, appointments, and reminders. |
 | **Connected services** | Optional plugins and integrations for services such as Google Calendar, Contacts, Gmail, GitHub, and Telegram. |
 | **Safety and ownership** | Sensor or Control access per entity, branch-level authority, presence checks, quiet hours, approvals, audit history, backups, and recovery tools. |
 

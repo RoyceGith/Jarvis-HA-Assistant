@@ -3,15 +3,8 @@
   const form = document.getElementById("fast-memory-form");
   if (!root || !form) return;
   const $ = id => document.getElementById(id);
-  const t = value => window.ZbranoI18n?.t(value) || value;
   const esc = value => String(value ?? "").replace(/[&<>"']/g, char => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"})[char]);
   let memories = [];
-
-  const knowledgeCenter = document.createElement("section");
-  knowledgeCenter.className = "fast-memory-center";
-  knowledgeCenter.setAttribute("aria-labelledby", "knowledge-memory-heading");
-  knowledgeCenter.innerHTML = `<div class="fast-memory-heading"><div><h3 id="knowledge-memory-heading">KNOWLEDGE MEMORY</h3><p>Built into ZBRANO. Organize durable notes in spaces that fit your life.</p></div><button id="knowledge-memory-refresh" type="button">Refresh</button></div><div id="knowledge-memory-status" class="fast-memory-status" role="status">Loading local spaces&hellip;</div><form id="knowledge-space-form" class="fast-memory-form"><input id="knowledge-space-name" required maxlength="100" placeholder="Space name, e.g. Home, Work or Recipes"><input id="knowledge-space-purpose" maxlength="1000" placeholder="What should ZBRANO keep here?"><select id="knowledge-space-template" aria-label="Starter layout"><option value="blank">Blank</option><option value="home">Home</option><option value="work">Work</option><option value="project">Project</option><option value="study">Study</option><option value="recipes">Recipes</option><option value="custom">Custom</option></select><div class="settings-actions"><button type="submit">Create space</button><span id="knowledge-space-form-status"></span></div></form><div id="knowledge-space-list" class="fast-memory-list"></div><p class="setting-note">Ask ZBRANO to add, find, or update notes in any space. Permanent writes still require your approval.</p>`;
-  root.closest(".fast-memory-center")?.before(knowledgeCenter);
 
   async function api(path, options={}) {
     const response = await fetch(path, {cache:"no-store", ...options});
@@ -19,43 +12,6 @@
     if (!response.ok) throw new Error(data.detail || `HTTP ${response.status}`);
     return data;
   }
-
-  async function loadKnowledgeSpaces() {
-    const data = await api("api/knowledge-memory/spaces");
-    const list = $("knowledge-space-list");
-    const spaces = data.spaces || [];
-    $("knowledge-memory-status").textContent = `${spaces.length} ${t(spaces.length === 1 ? "local space" : "local spaces")} · ${t("no server, domain, or MCP setup required")}`;
-    list.replaceChildren();
-    if (!spaces.length) {
-      list.innerHTML = '<div class="calendar-empty">No spaces yet. Create only the categories that are useful to you.</div>';
-      return;
-    }
-    for (const space of spaces) {
-      const card = document.createElement("article");
-      card.className = "fast-memory-item";
-      const title = document.createElement("div");
-      title.className = "fast-memory-item-title";
-      title.textContent = space.name;
-      const detail = document.createElement("div");
-      detail.className = "fast-memory-value";
-      detail.textContent = space.purpose || `${space.template || "custom"} space`;
-      card.append(title, detail);
-      list.appendChild(card);
-    }
-  }
-
-  $("knowledge-space-form").addEventListener("submit", async event => {
-    event.preventDefault();
-    const status = $("knowledge-space-form-status");
-    status.textContent = "Creating…";
-    try {
-      await api("api/knowledge-memory/spaces", {method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify({name:$("knowledge-space-name").value.trim(), purpose:$("knowledge-space-purpose").value.trim(), template:$("knowledge-space-template").value})});
-      event.currentTarget.reset();
-      status.textContent = "Space created";
-      await loadKnowledgeSpaces();
-    } catch (error) { status.textContent = `Create failed: ${error.message || error}`; }
-  });
-  $("knowledge-memory-refresh").addEventListener("click", () => loadKnowledgeSpaces().catch(error => { $("knowledge-memory-status").textContent = error.message || error; }));
 
   function clearForm() {
     form.reset();
@@ -131,9 +87,6 @@
   $("fast-memory-search").addEventListener("input", () => { clearTimeout(window.zbranoFastMemorySearchTimer); window.zbranoFastMemorySearchTimer = setTimeout(() => load().catch(()=>{}), 250); });
   $("fast-memory-kind").addEventListener("change", () => load().catch(()=>{}));
   $("fast-memory-form-clear").addEventListener("click", clearForm);
-  document.querySelector('[data-settings-target="memory"]')?.addEventListener("click", () => {
-    loadKnowledgeSpaces().catch(error => { $("knowledge-memory-status").textContent = `Knowledge Memory unavailable: ${error.message || error}`; });
-    load().catch(error => { $("fast-memory-status").textContent = `Fast Memory unavailable: ${error.message || error}`; });
-  });
+  document.querySelector('[data-settings-target="memory"]')?.addEventListener("click", () => load().catch(error => { $("fast-memory-status").textContent = `Fast Memory unavailable: ${error.message || error}`; }));
   window.zbranoFastMemory = {refresh:load};
 })();

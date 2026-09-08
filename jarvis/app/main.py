@@ -268,6 +268,9 @@ from .schemas import (
     FastMemoryWriteRequest,
     FastMemoryForgetRequest,
     KnowledgeSpaceCreateRequest,
+    KnowledgeCategoryCreateRequest,
+    KnowledgeTemplateWriteRequest,
+    KnowledgeNoteWriteRequest,
     TelegramInboundSettingsRequest,
     TelegramInboundUnlinkRequest,
     SettingsRestoreRequest,
@@ -541,10 +544,21 @@ from .services.wake_calibration import (
     _wake_clip_quality,
 )
 from .services.knowledge_memory import (
+    create_memory_category,
     create_memory_space,
+    delete_memory_note,
+    delete_memory_space,
+    delete_memory_template,
     export_knowledge_memory,
+    list_memory_categories,
+    list_memory_notes,
     list_memory_spaces,
+    list_memory_templates,
+    read_memory_note,
     restore_knowledge_memory,
+    save_memory_template,
+    search_knowledge_memory,
+    write_memory_note,
 )
 
 import httpx
@@ -737,7 +751,7 @@ ha_ws = HomeAssistantWebSocketClient(
 
 app = FastAPI(
     title="ZBRANO",
-    version="0.13.193",
+    version="0.13.194",
     docs_url="/api/docs",
     openapi_url="/api/openapi.json",
 )
@@ -1283,8 +1297,11 @@ advertised tool not explicitly annotated read-only requires an approval prompt a
 not execute until the user approves the exact tool and arguments. Never claim
 a permanent write completed until its tool result confirms success. Do not use
 save_general_instruction as a substitute for a durable Knowledge Memory note.
-Use create_memory_space when the requested category does not exist, then use
-write_memory_note for its Markdown notes. For space-wide content edits, discover
+Use create_memory_category when the user wants a new category. Use
+list_memory_templates before choosing a reusable layout, create_memory_template
+when the user asks for a new reusable layout, and create_memory_space for the
+actual collection. Then use write_memory_note for its Markdown notes. For
+space-wide content edits, discover
 and read each relevant note only once,
 then batch independent write calls into as few response rounds as possible. Do
 not repeatedly reread a note after a successful write merely to confirm it. If
@@ -2901,7 +2918,7 @@ async def health() -> dict[str, Any]:
     configured_speech_provider = SPEECH_PROVIDER if SPEECH_PROVIDER in {"openai", "elevenlabs"} else "openai"
     return {
         "status": "ok",
-        "version": "0.13.193",
+        "version": "0.13.194",
         "home_assistant_configured": bool(SUPERVISOR_TOKEN),
         "workshop_memory_configured": True,
         "knowledge_memory_mode": "built_in",
@@ -4590,7 +4607,93 @@ async def read_knowledge_memory_spaces() -> dict[str, Any]:
 @app.post("/api/knowledge-memory/spaces")
 async def create_knowledge_memory_space(request: KnowledgeSpaceCreateRequest) -> dict[str, Any]:
     try:
-        return create_memory_space(request.name, request.purpose, request.template)
+        return create_memory_space(request.name, request.purpose, request.template, request.category)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+
+@app.delete("/api/knowledge-memory/spaces/{space_name}")
+async def remove_knowledge_memory_space(space_name: str) -> dict[str, Any]:
+    try:
+        return delete_memory_space(space_name)
+    except ValueError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+
+
+@app.get("/api/knowledge-memory/spaces/{space_name}/notes")
+async def read_knowledge_memory_note_list(space_name: str) -> dict[str, Any]:
+    try:
+        return list_memory_notes(space_name)
+    except ValueError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+
+
+@app.get("/api/knowledge-memory/spaces/{space_name}/note")
+async def read_knowledge_memory_note(space_name: str, note: str) -> dict[str, Any]:
+    try:
+        return read_memory_note(space_name, note)
+    except ValueError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+
+
+@app.put("/api/knowledge-memory/spaces/{space_name}/note")
+async def save_knowledge_memory_note(space_name: str, request: KnowledgeNoteWriteRequest) -> dict[str, Any]:
+    try:
+        return write_memory_note(space_name, request.note, request.content, request.mode)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+
+@app.delete("/api/knowledge-memory/spaces/{space_name}/note")
+async def remove_knowledge_memory_note(space_name: str, note: str) -> dict[str, Any]:
+    try:
+        return delete_memory_note(space_name, note)
+    except ValueError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+
+
+@app.get("/api/knowledge-memory/categories")
+async def read_knowledge_memory_categories() -> dict[str, Any]:
+    return list_memory_categories()
+
+
+@app.post("/api/knowledge-memory/categories")
+async def create_knowledge_memory_category(request: KnowledgeCategoryCreateRequest) -> dict[str, Any]:
+    try:
+        return create_memory_category(request.name, request.icon, request.description)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+
+@app.get("/api/knowledge-memory/templates")
+async def read_knowledge_memory_templates() -> dict[str, Any]:
+    return list_memory_templates()
+
+
+@app.put("/api/knowledge-memory/templates")
+async def save_knowledge_memory_template(request: KnowledgeTemplateWriteRequest) -> dict[str, Any]:
+    try:
+        payload = request.model_dump()
+        return save_memory_template(
+            payload["name"], payload["description"], payload["category"], payload["icon"],
+            payload["notes"], payload["original_name"],
+        )
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+
+@app.delete("/api/knowledge-memory/templates/{template_name}")
+async def remove_knowledge_memory_template(template_name: str) -> dict[str, Any]:
+    try:
+        return delete_memory_template(template_name)
+    except ValueError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+
+
+@app.get("/api/knowledge-memory/search")
+async def search_local_knowledge_memory(query: str, limit: int = 50) -> dict[str, Any]:
+    try:
+        return search_knowledge_memory(query, limit)
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
 

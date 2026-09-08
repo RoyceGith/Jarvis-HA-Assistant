@@ -55,7 +55,7 @@
   window.zbranoClearTabChanged = tabId => clear(document.getElementById(tabId));
   document.addEventListener("click", event => {
     const button = event.target.closest?.(
-      "#chat-tab,#files-tab,#plugins-tab,#entities-tab,#contacts-tab,#calendar-tab,#automations-tab,#settings-tab,#about-tab,#developer-tab,[data-auto-view],[data-notification-view],.settings-category-tab[data-settings-target],#plugins-installed-tab,#plugins-browse-tab"
+      "#chat-tab,#files-tab,#plugins-tab,#entities-tab,#contacts-tab,#calendar-tab,#automations-tab,#memory-tab,#settings-tab,#about-tab,#developer-tab,[data-auto-view],[data-notification-view],.settings-category-tab[data-settings-target],#plugins-installed-tab,#plugins-browse-tab"
     );
     if (!button) return;
     clear(button);

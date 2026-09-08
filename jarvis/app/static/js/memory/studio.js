@@ -1,0 +1,265 @@
+(function () {
+  const panel = document.getElementById("memory-panel");
+  if (!panel) return;
+
+  const esc = (value) => String(value ?? "").replace(/[&<>"']/g, (char) => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[char]));
+  const api = async (path, options = {}) => {
+    const response = await fetch(path, options);
+    const payload = await response.json().catch(() => ({}));
+    if (!response.ok) throw new Error(payload.detail || payload.error || `Request failed (${response.status})`);
+    return payload;
+  };
+  const icons = {home:"🏠", work:"💼", study:"📚", project:"🧩", recipes:"🍲", personal:"★", person:"★", template:"▦", blank:"＋", learning:"🎓", health:"♥", travel:"✈"};
+  const icon = (name) => icons[String(name || "").toLowerCase()] || String(name || "◆").slice(0, 2).toUpperCase();
+  const state = {loaded:false, spaces:[], categories:[], templates:[], category:"All", selectedSpace:"", selectedNote:"", createCategory:"", createTemplate:"blank", editingTemplate:""};
+
+  panel.innerHTML = `
+    <div class="memory-studio">
+      <aside class="memory-studio-nav">
+        <div class="memory-studio-brand"><span class="memory-studio-brand-icon">M</span><div><h2>Memory Studio</h2><p>Your organized local knowledge</p></div></div>
+        <button type="button" class="active" data-memory-view="database"><span class="memory-studio-nav-symbol">DB</span><span><strong>Memory Database</strong><small>Spaces and notes</small></span></button>
+        <button type="button" data-memory-view="templates"><span class="memory-studio-nav-symbol">T</span><span><strong>Template Studio</strong><small>Reusable note layouts</small></span></button>
+        <div class="memory-local-note">Stored locally on this ZBRANO installation. Nothing depends on an external MCP server.</div>
+      </aside>
+      <main class="memory-studio-main">
+        <section id="memory-database-view" class="memory-view">
+          <header class="memory-heading"><div><h2>Memory Database</h2><p>Create a place for anything you want ZBRANO to remember and organize.</p></div><div class="memory-heading-actions"><button type="button" id="memory-refresh">Refresh</button><button type="button" id="memory-new-space" class="memory-primary">+ New space</button></div></header>
+          <div class="memory-dashboard"><div class="memory-stat"><strong id="memory-space-count">0</strong><span>Memory spaces</span></div><div class="memory-stat"><strong id="memory-note-count">0</strong><span>Organized notes</span></div><div class="memory-stat"><strong id="memory-template-count">0</strong><span>Available templates</span></div></div>
+          <section id="memory-space-composer" class="memory-composer" hidden>
+            <div class="memory-heading"><div><h2>Create a memory space</h2><p>Three simple choices. You can change the notes afterwards.</p></div><button type="button" data-memory-cancel="space">Cancel</button></div>
+            <div class="memory-step"><strong>1 · WHAT IS IT FOR?</strong><div id="memory-create-categories" class="memory-choice-grid"></div></div>
+            <div class="memory-step"><strong>2 · CHOOSE A STARTING LAYOUT</strong><div id="memory-create-templates" class="memory-choice-grid"></div></div>
+            <form id="memory-space-form" class="memory-form-grid">
+              <label>Name<input id="memory-space-name" required maxlength="80" placeholder="For example, Garden plans"></label>
+              <label>What will you keep here?<input id="memory-space-purpose" maxlength="500" placeholder="A short description helps ZBRANO use it well"></label>
+              <div class="wide memory-actions"><button type="submit" class="memory-primary">Create space</button><span id="memory-space-form-status" class="memory-status"></span></div>
+            </form>
+          </section>
+          <section id="memory-category-composer" class="memory-composer" hidden>
+            <div class="memory-heading"><div><h2>Add your own category</h2><p>Categories are simple labels for grouping related spaces and templates.</p></div><button type="button" data-memory-cancel="category">Cancel</button></div>
+            <form id="memory-category-form" class="memory-form-grid">
+              <label>Category name<input id="memory-category-name" required maxlength="60" placeholder="For example, Health"></label>
+              <label>Symbol<select id="memory-category-icon"><option value="personal">★ Personal</option><option value="home">🏠 Home</option><option value="work">💼 Work</option><option value="study">📚 Learning</option><option value="health">♥ Health</option><option value="travel">✈ Travel</option></select></label>
+              <label class="wide">What belongs here?<input id="memory-category-description" maxlength="240" placeholder="A friendly description"></label>
+              <div class="wide memory-actions"><button type="submit" class="memory-primary">Add category</button><span id="memory-category-status" class="memory-status"></span></div>
+            </form>
+          </section>
+          <div class="memory-filter-row"><input id="memory-search" type="search" placeholder="Search spaces and every note"><button type="button" id="memory-add-category">+ Category</button></div>
+          <div id="memory-category-chips" class="memory-category-chips"></div>
+          <div id="memory-search-results"></div>
+          <div id="memory-space-grid" class="memory-card-grid"></div>
+          <section id="memory-space-details" hidden></section>
+        </section>
+        <section id="memory-templates-view" class="memory-view" hidden>
+          <header class="memory-heading"><div><h2>Template Studio</h2><p>Build reusable sets of note cards for projects, clients, collections, routines, or anything else.</p></div><button type="button" id="memory-new-template" class="memory-primary">+ New template</button></header>
+          <div id="memory-template-grid" class="memory-template-grid"></div>
+          <section id="memory-template-composer" class="memory-composer" hidden>
+            <div class="memory-heading"><div><h2 id="memory-template-editor-title">Create a template</h2><p>Each note card becomes a ready-to-use note whenever this template is chosen.</p></div><button type="button" data-memory-cancel="template">Cancel</button></div>
+            <form id="memory-template-form" class="memory-template-builder">
+              <div class="memory-template-fields">
+                <label>Template name<input id="memory-template-name" required maxlength="80" placeholder="For example, Client project"></label>
+                <label>Category<select id="memory-template-category"></select></label>
+                <label class="wide">What is this template for?<input id="memory-template-description" maxlength="500" placeholder="Explain when someone should choose it"></label>
+                <label>Symbol<select id="memory-template-icon"><option value="template">▦ General</option><option value="project">🧩 Project</option><option value="home">🏠 Home</option><option value="work">💼 Work</option><option value="study">📚 Learning</option><option value="recipes">🍲 Recipes</option></select></label>
+              </div>
+              <div class="memory-heading"><div><h2>Note cards</h2><p>Give every card a clear name and purpose.</p></div><button type="button" id="memory-add-blueprint">+ Add note card</button></div>
+              <div id="memory-note-blueprints" class="memory-note-blueprints"></div>
+              <div class="memory-actions"><button type="submit" class="memory-primary">Save template</button><button type="button" id="memory-delete-template" class="memory-danger" hidden>Delete template</button><span id="memory-template-status" class="memory-status"></span></div>
+            </form>
+          </section>
+        </section>
+      </main>
+    </div>`;
+
+  const $ = (id) => document.getElementById(id);
+  const setStatus = (id, text) => { const node = $(id); if (node) node.textContent = text || ""; };
+  function categoryByName(name) { return state.categories.find((item) => item.name === name) || {name:name || "Personal", icon:"personal", description:""}; }
+  function templateById(id) { return state.templates.find((item) => item.id === id || item.name === id); }
+
+  function renderCategories() {
+    const chips = [{name:"All", icon:"template"}, ...state.categories];
+    $("memory-category-chips").innerHTML = chips.map((item) => `<button type="button" class="${state.category === item.name ? "active" : ""}" data-memory-category="${esc(item.name)}">${esc(icon(item.icon))} ${esc(item.name)}</button>`).join("");
+    $("memory-create-categories").innerHTML = state.categories.map((item) => `<button type="button" class="memory-choice ${state.createCategory === item.name ? "active" : ""}" data-create-category="${esc(item.name)}"><strong>${esc(icon(item.icon))} ${esc(item.name)}</strong><small>${esc(item.description || "Your own collection")}</small></button>`).join("");
+    $("memory-template-category").innerHTML = state.categories.map((item) => `<option value="${esc(item.name)}">${esc(icon(item.icon))} ${esc(item.name)}</option>`).join("");
+  }
+
+  function renderSpaces() {
+    const query = $("memory-search").value.trim().toLowerCase();
+    const visible = state.spaces.filter((space) => (state.category === "All" || space.category === state.category) && (!query || `${space.name} ${space.purpose} ${space.category}`.toLowerCase().includes(query)));
+    $("memory-space-count").textContent = state.spaces.length;
+    $("memory-note-count").textContent = state.spaces.reduce((sum, item) => sum + Number(item.note_count || 0), 0);
+    $("memory-template-count").textContent = state.templates.length;
+    $("memory-space-grid").innerHTML = visible.length ? visible.map((space) => {
+      const category = categoryByName(space.category);
+      return `<article class="memory-card ${state.selectedSpace === space.name ? "selected" : ""}" data-memory-space="${esc(space.name)}"><span class="memory-icon">${esc(icon(category.icon))}</span><div class="memory-card-body"><h3>${esc(space.name)}</h3><p>${esc(space.purpose || "A flexible place for your knowledge")}</p><div class="memory-card-meta"><span class="memory-pill">${esc(space.category || "Personal")}</span><span>${Number(space.note_count || 0)} notes</span></div></div></article>`;
+    }).join("") : `<div class="memory-empty">No spaces match this view. Create one when you are ready.</div>`;
+  }
+
+  function renderTemplates() {
+    $("memory-template-grid").innerHTML = state.templates.map((item) => `<article class="memory-card" data-memory-template="${esc(item.id)}"><span class="memory-icon">${esc(icon(item.icon))}</span><div class="memory-card-body"><h3>${esc(item.name)}</h3><p>${esc(item.description || "A flexible starting layout")}</p><div class="memory-card-meta"><span class="memory-pill">${esc(item.category || "Personal")}</span><span>${(item.notes || []).length} note cards</span><span>${item.built_in ? "Built in" : "Your template"}</span></div></div></article>`).join("");
+    $("memory-create-templates").innerHTML = state.templates.map((item) => `<button type="button" class="memory-choice ${state.createTemplate === item.id ? "active" : ""}" data-create-template="${esc(item.id)}"><strong>${esc(icon(item.icon))} ${esc(item.name)}</strong><small>${esc(item.description || "Flexible layout")}</small></button>`).join("");
+  }
+
+  function renderBlueprint(note = {}) {
+    const node = document.createElement("div");
+    node.className = "memory-blueprint";
+    node.innerHTML = `<input data-template-note-name maxlength="100" required placeholder="Note name, e.g. Decisions.md" value="${esc(note.name || "")}"><input data-template-note-purpose maxlength="240" placeholder="What belongs in this note?" value="${esc(note.purpose || "")}"><textarea data-template-note-content maxlength="20000" placeholder="Optional starter text">${esc(note.content || "")}</textarea><button type="button" data-remove-blueprint class="memory-danger">Remove</button>`;
+    $("memory-note-blueprints").appendChild(node);
+  }
+
+  async function loadAll() {
+    setStatus("memory-space-form-status", "Loading…");
+    const [spaces, categories, templates] = await Promise.all([
+      api("api/knowledge-memory/spaces"), api("api/knowledge-memory/categories"), api("api/knowledge-memory/templates")
+    ]);
+    state.spaces = spaces.spaces || [];
+    state.categories = categories.categories || [];
+    state.templates = templates.templates || [];
+    if (!state.createCategory) state.createCategory = state.categories[0]?.name || "Personal";
+    if (!templateById(state.createTemplate)) state.createTemplate = state.templates[0]?.id || "blank";
+    renderCategories(); renderTemplates(); renderSpaces(); setStatus("memory-space-form-status", ""); state.loaded = true;
+  }
+
+  function showView(name) {
+    $("memory-database-view").hidden = name !== "database";
+    $("memory-templates-view").hidden = name !== "templates";
+    panel.querySelectorAll("[data-memory-view]").forEach((button) => button.classList.toggle("active", button.dataset.memoryView === name));
+  }
+
+  function openSpaceComposer(templateId = "") {
+    if (templateId) state.createTemplate = templateId;
+    const selected = templateById(state.createTemplate);
+    if (selected?.category) state.createCategory = selected.category;
+    renderCategories(); renderTemplates();
+    $("memory-space-composer").hidden = false; $("memory-category-composer").hidden = true; $("memory-space-details").hidden = true;
+    $("memory-space-name").focus();
+  }
+
+  async function openSpace(name) {
+    state.selectedSpace = name; state.selectedNote = ""; renderSpaces();
+    const space = state.spaces.find((item) => item.name === name);
+    const payload = await api(`api/knowledge-memory/spaces/${encodeURIComponent(name)}/notes`);
+    const details = $("memory-space-details");
+    details.hidden = false;
+    details.innerHTML = `<div class="memory-heading"><div><h2>${esc(name)}</h2><p>${esc(space?.purpose || "Your organized notes")}</p></div><div class="memory-heading-actions"><button type="button" data-new-note>+ New note</button><button type="button" data-delete-space class="memory-danger">Delete space</button><button type="button" data-close-space>Close</button></div></div><div class="memory-space-layout"><aside class="memory-note-list"><strong>Notes</strong><div id="memory-notes">${(payload.notes || []).map((note) => `<button type="button" data-memory-note="${esc(note)}">${esc(note.replace(/\.md$/i, ""))}</button>`).join("") || `<span class="memory-muted">No notes yet.</span>`}</div></aside><form id="memory-note-form" class="memory-editor"><div class="memory-heading"><div><h2 id="memory-note-heading">Choose a note</h2><p>Edit simple Markdown text. ZBRANO can read it during chat.</p></div></div><label>Note name<input id="memory-note-name" maxlength="180" placeholder="For example, Important contacts.md" disabled></label><label>Contents<textarea id="memory-note-content" maxlength="1000000" placeholder="Write what should be remembered…" disabled></textarea></label><div class="memory-actions"><button id="memory-save-note" type="submit" class="memory-primary" disabled>Save note</button><button id="memory-delete-note" type="button" class="memory-danger" hidden>Delete note</button><span id="memory-note-status" class="memory-status"></span></div></form></div>`;
+    details.scrollIntoView({behavior:"smooth", block:"start"});
+  }
+
+  async function openNote(note) {
+    const payload = await api(`api/knowledge-memory/spaces/${encodeURIComponent(state.selectedSpace)}/note?note=${encodeURIComponent(note)}`);
+    state.selectedNote = payload.note;
+    panel.querySelectorAll("[data-memory-note]").forEach((button) => button.classList.toggle("active", button.dataset.memoryNote === payload.note));
+    $("memory-note-heading").textContent = payload.note.replace(/\.md$/i, "");
+    $("memory-note-name").value = payload.note; $("memory-note-name").disabled = true;
+    $("memory-note-content").value = payload.content || ""; $("memory-note-content").disabled = false;
+    $("memory-save-note").disabled = false; $("memory-delete-note").hidden = false; setStatus("memory-note-status", "");
+  }
+
+  function newNote() {
+    state.selectedNote = "";
+    panel.querySelectorAll("[data-memory-note]").forEach((button) => button.classList.remove("active"));
+    $("memory-note-heading").textContent = "Create a note";
+    $("memory-note-name").value = ""; $("memory-note-name").disabled = false;
+    $("memory-note-content").value = ""; $("memory-note-content").disabled = false;
+    $("memory-save-note").disabled = false; $("memory-delete-note").hidden = true; $("memory-note-name").focus();
+  }
+
+  function openTemplateEditor(item = null) {
+    state.editingTemplate = item && !item.built_in ? item.name : "";
+    $("memory-template-editor-title").textContent = state.editingTemplate ? "Edit your template" : "Create a template";
+    $("memory-template-name").value = state.editingTemplate ? item.name : "";
+    $("memory-template-description").value = state.editingTemplate ? (item.description || "") : "";
+    $("memory-template-category").value = state.editingTemplate ? (item.category || state.categories[0]?.name) : (state.categories[0]?.name || "Personal");
+    $("memory-template-icon").value = state.editingTemplate ? (item.icon || "template") : "template";
+    $("memory-note-blueprints").innerHTML = "";
+    const notes = state.editingTemplate ? (item.notes || []) : [{name:"Overview.md", purpose:"A clear summary", content:"# Overview\n"}];
+    notes.forEach(renderBlueprint);
+    $("memory-delete-template").hidden = !state.editingTemplate;
+    $("memory-template-composer").hidden = false; setStatus("memory-template-status", "");
+    $("memory-template-composer").scrollIntoView({behavior:"smooth", block:"start"});
+  }
+
+  let searchTimer = 0;
+  async function runSearch() {
+    const query = $("memory-search").value.trim(); renderSpaces();
+    const root = $("memory-search-results");
+    if (query.length < 2) { root.innerHTML = ""; return; }
+    try {
+      const payload = await api(`api/knowledge-memory/search?query=${encodeURIComponent(query)}&limit=30`);
+      root.innerHTML = payload.results?.length ? `<section class="memory-composer"><strong>Matches inside notes</strong>${payload.results.map((item) => `<button type="button" class="memory-choice" data-search-path="${esc(item.relative_path)}"><strong>${esc(item.relative_path)}</strong><small>${esc(String(item.excerpt || "").replace(/[#*_`]/g, " ").slice(0, 180))}</small></button>`).join("")}</section>` : "";
+    } catch (error) { root.innerHTML = `<div class="memory-status">${esc(error.message)}</div>`; }
+  }
+
+  panel.addEventListener("click", async (event) => {
+    const button = event.target.closest("button, [data-memory-space], [data-memory-template]");
+    if (!button) return;
+    try {
+      if (button.dataset.memoryView) { showView(button.dataset.memoryView); return; }
+      if (button.id === "memory-refresh") { await loadAll(); return; }
+      if (button.id === "memory-new-space") { openSpaceComposer(); return; }
+      if (button.id === "memory-add-category") { $("memory-category-composer").hidden = false; $("memory-space-composer").hidden = true; $("memory-category-name").focus(); return; }
+      if (button.dataset.memoryCancel === "space") { $("memory-space-composer").hidden = true; return; }
+      if (button.dataset.memoryCancel === "category") { $("memory-category-composer").hidden = true; return; }
+      if (button.dataset.memoryCancel === "template") { $("memory-template-composer").hidden = true; state.editingTemplate = ""; return; }
+      if (button.dataset.memoryCategory) { state.category = button.dataset.memoryCategory; renderCategories(); renderSpaces(); return; }
+      if (button.dataset.createCategory) { state.createCategory = button.dataset.createCategory; renderCategories(); return; }
+      if (button.dataset.createTemplate) { state.createTemplate = button.dataset.createTemplate; const item = templateById(state.createTemplate); if (item?.category) state.createCategory = item.category; renderCategories(); renderTemplates(); return; }
+      if (button.dataset.memorySpace) { await openSpace(button.dataset.memorySpace); return; }
+      if (button.dataset.memoryNote) { await openNote(button.dataset.memoryNote); return; }
+      if (button.hasAttribute("data-new-note")) { newNote(); return; }
+      if (button.hasAttribute("data-close-space")) { $("memory-space-details").hidden = true; state.selectedSpace = ""; renderSpaces(); return; }
+      if (button.hasAttribute("data-delete-space") && confirm(`Delete the memory space “${state.selectedSpace}” and all of its notes?`)) { await api(`api/knowledge-memory/spaces/${encodeURIComponent(state.selectedSpace)}`, {method:"DELETE"}); $("memory-space-details").hidden = true; state.selectedSpace = ""; await loadAll(); return; }
+      if (button.id === "memory-new-template") { openTemplateEditor(); return; }
+      if (button.dataset.memoryTemplate) { const item = templateById(button.dataset.memoryTemplate); if (item?.built_in) { showView("database"); openSpaceComposer(item.id); } else if (item) openTemplateEditor(item); return; }
+      if (button.id === "memory-add-blueprint") { renderBlueprint(); return; }
+      if (button.hasAttribute("data-remove-blueprint")) { button.closest(".memory-blueprint")?.remove(); return; }
+      if (button.id === "memory-delete-template" && state.editingTemplate && confirm(`Delete the template “${state.editingTemplate}”?`)) { await api(`api/knowledge-memory/templates/${encodeURIComponent(state.editingTemplate)}`, {method:"DELETE"}); $("memory-template-composer").hidden = true; state.editingTemplate = ""; await loadAll(); return; }
+      if (button.id === "memory-delete-note" && state.selectedNote && confirm(`Delete “${state.selectedNote}”?`)) { await api(`api/knowledge-memory/spaces/${encodeURIComponent(state.selectedSpace)}/note?note=${encodeURIComponent(state.selectedNote)}`, {method:"DELETE"}); await openSpace(state.selectedSpace); return; }
+      if (button.dataset.searchPath) {
+        const match = button.dataset.searchPath.match(/^Spaces\/([^/]+)\/(.+)$/);
+        if (match) { await openSpace(match[1]); await openNote(match[2]); }
+      }
+    } catch (error) { setStatus("memory-space-form-status", error.message || String(error)); setStatus("memory-template-status", error.message || String(error)); }
+  });
+
+  $("memory-space-form").addEventListener("submit", async (event) => {
+    event.preventDefault(); setStatus("memory-space-form-status", "Creating…");
+    try {
+      await api("api/knowledge-memory/spaces", {method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify({name:$("memory-space-name").value.trim(), purpose:$("memory-space-purpose").value.trim(), template:state.createTemplate, category:state.createCategory})});
+      const name = $("memory-space-name").value.trim(); event.target.reset(); $("memory-space-composer").hidden = true; await loadAll(); await openSpace(name);
+    } catch (error) { setStatus("memory-space-form-status", `Could not create space: ${error.message || error}`); }
+  });
+
+  $("memory-category-form").addEventListener("submit", async (event) => {
+    event.preventDefault(); setStatus("memory-category-status", "Adding…");
+    try {
+      const name = $("memory-category-name").value.trim();
+      await api("api/knowledge-memory/categories", {method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify({name, icon:$("memory-category-icon").value, description:$("memory-category-description").value.trim()})});
+      state.createCategory = name; event.target.reset(); $("memory-category-composer").hidden = true; await loadAll();
+    } catch (error) { setStatus("memory-category-status", `Could not add category: ${error.message || error}`); }
+  });
+
+  $("memory-template-form").addEventListener("submit", async (event) => {
+    event.preventDefault(); setStatus("memory-template-status", "Saving…");
+    try {
+      const notes = [...panel.querySelectorAll(".memory-blueprint")].map((row) => ({name:row.querySelector("[data-template-note-name]").value.trim(), purpose:row.querySelector("[data-template-note-purpose]").value.trim(), content:row.querySelector("[data-template-note-content]").value}));
+      await api("api/knowledge-memory/templates", {method:"PUT", headers:{"Content-Type":"application/json"}, body:JSON.stringify({name:$("memory-template-name").value.trim(), original_name:state.editingTemplate, description:$("memory-template-description").value.trim(), category:$("memory-template-category").value, icon:$("memory-template-icon").value, notes})});
+      $("memory-template-composer").hidden = true; state.editingTemplate = ""; await loadAll();
+    } catch (error) { setStatus("memory-template-status", `Could not save template: ${error.message || error}`); }
+  });
+
+  panel.addEventListener("submit", async (event) => {
+    if (event.target.id !== "memory-note-form") return;
+    event.preventDefault(); setStatus("memory-note-status", "Saving…");
+    try {
+      const note = state.selectedNote || $("memory-note-name").value.trim();
+      await api(`api/knowledge-memory/spaces/${encodeURIComponent(state.selectedSpace)}/note`, {method:"PUT", headers:{"Content-Type":"application/json"}, body:JSON.stringify({note, content:$("memory-note-content").value, mode:state.selectedNote ? "replace" : "create"})});
+      await openSpace(state.selectedSpace); await openNote(note); setStatus("memory-note-status", "Saved locally"); await loadAll();
+    } catch (error) { setStatus("memory-note-status", `Could not save note: ${error.message || error}`); }
+  });
+
+  $("memory-search").addEventListener("input", () => { clearTimeout(searchTimer); renderSpaces(); searchTimer = setTimeout(runSearch, 250); });
+  document.getElementById("memory-tab")?.addEventListener("click", () => { if (!state.loaded) loadAll().catch((error) => { $("memory-space-grid").innerHTML = `<div class="memory-empty">Memory Studio is unavailable: ${esc(error.message || error)}</div>`; }); });
+  document.querySelector('[data-settings-target="memory"]')?.addEventListener("dblclick", () => document.getElementById("memory-tab")?.click());
+  window.zbranoMemoryStudio = {refresh:loadAll, open:() => document.getElementById("memory-tab")?.click()};
+})();

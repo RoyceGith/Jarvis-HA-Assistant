@@ -11,7 +11,7 @@ ROOT = Path(__file__).resolve().parents[1]
 CONFIG = (ROOT / "jarvis/config.yaml").read_text(encoding="utf-8")
 RUN = (ROOT / "jarvis/run.sh").read_text(encoding="utf-8")
 MAIN = (ROOT / "jarvis/app/main.py").read_text(encoding="utf-8")
-MEMORY_UI = (ROOT / "jarvis/app/static/js/memory/fast-memory.js").read_text(encoding="utf-8")
+MEMORY_UI = (ROOT / "jarvis/app/static/js/memory/studio.js").read_text(encoding="utf-8")
 MANIFEST = json.loads((ROOT / "jarvis/release_manifest.json").read_text(encoding="utf-8"))
 
 
@@ -26,10 +26,10 @@ class BuiltInKnowledgeMemoryReleaseTests(unittest.TestCase):
         self.temporary.cleanup()
 
     def test_release_is_aligned(self):
-        self.assertIn('version: "0.13.193"', CONFIG)
-        self.assertIn('version="0.13.193"', MAIN)
-        self.assertEqual(MANIFEST["version"], "0.13.193")
-        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.192")
+        self.assertIn('version: "0.13.194"', CONFIG)
+        self.assertIn('version="0.13.194"', MAIN)
+        self.assertEqual(MANIFEST["version"], "0.13.194")
+        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.193")
 
     def test_spaces_are_generic_local_and_searchable(self):
         created = knowledge_memory.create_memory_space("Household", "Shared home knowledge", "home")
@@ -68,7 +68,7 @@ class BuiltInKnowledgeMemoryReleaseTests(unittest.TestCase):
         self.assertIn("bashio::config.has_value 'workshop_memory_url'", RUN)
         self.assertIn('local_root=DATA_DIR / "knowledge-memory"', MAIN)
         self.assertIn('"knowledge_memory": export_knowledge_memory()', MAIN)
-        self.assertIn("Built into ZBRANO", MEMORY_UI)
+        self.assertIn("Stored locally on this ZBRANO installation", MEMORY_UI)
         self.assertIn("Create space", MEMORY_UI)
 
 

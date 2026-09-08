@@ -105,13 +105,13 @@ class ApplicationIntegrationTests(unittest.IsolatedAsyncioTestCase):
             response = await self.client.get("/api/health")
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json()["status"], "ok")
-        self.assertEqual(response.json()["version"], "0.13.193")
+        self.assertEqual(response.json()["version"], "0.13.194")
         self.assertEqual(response.json()["ha_read_entity_count"], 1)
         self.assertEqual(response.json()["ha_control_entity_count"], 1)
 
         frontend = await self.client.get("/")
         self.assertEqual(frontend.status_code, 200)
-        self.assertIn("HUD 0.13.193", frontend.text)
+        self.assertIn("HUD 0.13.194", frontend.text)
         self.assertEqual(
             frontend.headers.get("cache-control"),
             "no-store, no-cache, must-revalidate, max-age=0",
@@ -613,6 +613,32 @@ class ApplicationIntegrationTests(unittest.IsolatedAsyncioTestCase):
             cancelled = await self.client.delete(f"/api/calendar/{appointment_id}")
             self.assertEqual(cancelled.status_code, 200)
             self.assertEqual((await self.client.get("/api/calendar")).json()["count"], 0)
+
+    async def test_memory_studio_category_template_space_and_note_round_trip(self) -> None:
+        category = await self.client.post("/api/knowledge-memory/categories", json={
+            "name": "Travel", "icon": "travel", "description": "Trips and places",
+        })
+        self.assertEqual(category.status_code, 200)
+        template = await self.client.put("/api/knowledge-memory/templates", json={
+            "name": "Trip plan", "description": "A reusable trip layout", "category": "Travel", "icon": "travel",
+            "notes": [{"name": "Itinerary", "purpose": "Daily plan", "content": "# Itinerary\n"}],
+        })
+        self.assertEqual(template.status_code, 200)
+        created = await self.client.post("/api/knowledge-memory/spaces", json={
+            "name": "Rome", "purpose": "Autumn holiday", "template": "custom:Trip plan", "category": "Travel",
+        })
+        self.assertEqual(created.status_code, 200)
+        self.assertEqual(created.json()["space"]["category"], "Travel")
+        notes = await self.client.get("/api/knowledge-memory/spaces/Rome/notes")
+        self.assertEqual(notes.json()["notes"], ["Itinerary.md"])
+        saved = await self.client.put("/api/knowledge-memory/spaces/Rome/note", json={
+            "note": "Itinerary.md", "content": "# Itinerary\nVisit the forum", "mode": "replace",
+        })
+        self.assertEqual(saved.status_code, 200)
+        search = await self.client.get("/api/knowledge-memory/search", params={"query": "forum"})
+        self.assertEqual(search.json()["count"], 1)
+        deleted = await self.client.delete("/api/knowledge-memory/spaces/Rome/note", params={"note": "Itinerary.md"})
+        self.assertEqual(deleted.status_code, 200)
 
     async def test_notification_settings_and_watch_round_trip(self) -> None:
         saved = await self.client.put(

@@ -94,3 +94,6 @@ Version 0.13.186 introduced the four-language foundation and localized Home
 Assistant configuration. Version 0.13.185 added `amd64` while preserving `aarch64`
 and the existing update path.
 The in-app **About** tab provides a visual overview of ZBRANO's complete feature set.
+
+Version 0.13.194 adds Memory Studio with a visual Memory Database, custom categories,
+reusable note-card templates, and guided local note management.

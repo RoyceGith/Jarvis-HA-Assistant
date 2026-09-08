@@ -162,7 +162,7 @@ const onboardingFixture = {
     {id:"notifications",title:"Notifications and autonomy",description:"Choose notification delivery",ready:false,required:false,target:"notifications",last_check:null,skipped:false},
   ],
   installation_report: {
-    generated_at: 1788300000, version: "0.13.193", ready: true, attention_count: 0, ready_count: 5,
+    generated_at: 1788300000, version: "0.13.194", ready: true, attention_count: 0, ready_count: 5,
     checks: [
       {id:"home_assistant",title:"Home Assistant",state:"ready",required:true,detail:"Connected to Home Assistant",target:"home_assistant"},
       {id:"model",title:"AI model",state:"ready",required:true,detail:"gpt-5-mini is configured",target:"model"},
@@ -170,22 +170,34 @@ const onboardingFixture = {
       {id:"backup",title:"Backup and restore",state:"ready",required:false,detail:"A portable ZBRANO backup can be exported from Settings",target:"memory"},
       {id:"automation_health",title:"Automation safety",state:"ready",required:false,detail:"2 saved; 0 need permission; 0 paused after failures",target:"automations"},
     ],
-    support_summary: "ZBRANO installation report · v0.13.193\nOverall: Ready\nHome Assistant: Connected\nAI model: Configured\nDevice access: 3 sensor devices / 1 control devices\nPersistent storage: Ready\nAutomations: 2 saved / 0 permission issues / 0 failure pauses",
+    support_summary: "ZBRANO installation report · v0.13.194\nOverall: Ready\nHome Assistant: Connected\nAI model: Configured\nDevice access: 3 sensor devices / 1 control devices\nPersistent storage: Ready\nAutomations: 2 saved / 0 permission issues / 0 failure pauses",
   },
 };
 
 const knowledgeMemoryFixture = {
-  spaces: [{name:"Household", purpose:"Shared home reference", template:"home"}],
+  spaces: [{name:"Household", purpose:"Shared home reference", template:"home", category:"Home", note_count:3}],
   count: 1,
   storage: "local",
 };
+const knowledgeCategoriesFixture = {categories:[
+  {name:"Personal", icon:"person", description:"Things that matter to you.", built_in:true},
+  {name:"Home", icon:"home", description:"Household knowledge and routines.", built_in:true},
+  {name:"Work", icon:"work", description:"Work and professional reference.", built_in:true},
+  {name:"Learning", icon:"study", description:"Study, research, and ideas.", built_in:true},
+], count:4};
+const knowledgeTemplatesFixture = {templates:[
+  {id:"blank", name:"Blank", description:"Start with an empty space.", icon:"blank", category:"Personal", notes:[], built_in:true},
+  {id:"home", name:"Home", description:"Household information and routines.", icon:"home", category:"Home", notes:[{name:"Overview.md"},{name:"Routines.md"}], built_in:true},
+  {id:"work", name:"Work", description:"Decisions and next actions.", icon:"work", category:"Work", notes:[{name:"Overview.md"}], built_in:true},
+  {id:"custom:Client kit", name:"Client kit", description:"Reusable client records.", icon:"project", category:"Work", notes:[{name:"Brief.md",purpose:"Client brief",content:"# Brief"}], built_in:false},
+], count:4};
 
 function apiFixture(url, method = "GET") {
   const pathname = new URL(url).pathname;
   if (pathname === "/api/health") {
     return {
       status: "ok",
-      version: "0.13.193",
+      version: "0.13.194",
       speech_provider: "openai",
       speech_providers: {openai: {configured: true}, elevenlabs: {configured: false}},
     };
@@ -201,6 +213,11 @@ function apiFixture(url, method = "GET") {
     };
   }
   if (pathname === "/api/knowledge-memory/spaces") return knowledgeMemoryFixture;
+  if (pathname === "/api/knowledge-memory/categories") return knowledgeCategoriesFixture;
+  if (pathname === "/api/knowledge-memory/templates") return knowledgeTemplatesFixture;
+  if (pathname === "/api/knowledge-memory/spaces/Household/notes") return {space:"Household", notes:["Overview.md","Routines.md","Important information.md"], count:3};
+  if (pathname === "/api/knowledge-memory/spaces/Household/note") return {space:"Household", note:"Overview.md", content:"# Household\n\nShared home reference."};
+  if (pathname === "/api/knowledge-memory/search") return {query:"home", results:[{relative_path:"Spaces/Household/Overview.md",excerpt:"Shared home reference."}], count:1};
   if (pathname === "/api/fast-memory") return {memories: [], status: {total: 0, pinned: 0, by_kind: {}, runtime: {running: false}}};
   if (pathname === "/api/onboarding") {
     if (method === "PUT") onboardingFixture.completed = true;
@@ -274,7 +291,7 @@ function apiFixture(url, method = "GET") {
   if (pathname === "/api/plugins") return {plugins: []};
   if (pathname === "/api/files/shared") return {files: [], count: 0};
   if (pathname === "/api/release-memory-sync") {
-    return {enabled: false, state: "disabled", version: "0.13.193", task_active: false};
+    return {enabled: false, state: "disabled", version: "0.13.194", task_active: false};
   }
   if (pathname === "/api/tab-activity") return {revisions: {}};
   if (pathname === "/api/grinder-monitor/status") return {enabled: false, connected: false};
@@ -1097,11 +1114,29 @@ async function main() {
     assert.equal(await page.getByRole('button', {name:'Download report'}).count(), 1);
     await page.getByRole('button', {name:'Review connections'}).click();
     await page.locator('.onboarding-step.is-active').waitFor();
+    await page.locator('#memory-tab').click();
+    await page.locator('#memory-database-view:visible').waitFor();
+    await page.getByText('Household', {exact:true}).waitFor();
+    assert.match(await page.locator('#memory-panel').innerText(), /stored locally on this ZBRANO installation/i);
+    assert.equal(await page.locator('#memory-space-count').innerText(), '1');
+    assert.equal(await page.locator('#memory-note-count').innerText(), '3');
+    await page.getByText('Household', {exact:true}).click();
+    await page.getByRole('button', {name:'Overview'}).click();
+    assert.match(await page.locator('#memory-note-content').inputValue(), /Shared home reference/);
+    await page.locator('[data-memory-view="templates"]').click();
+    await page.locator('#memory-templates-view:visible').waitFor();
+    await page.getByText('Client kit', {exact:true}).click();
+    assert.equal(await page.locator('#memory-template-name').inputValue(), 'Client kit');
+    assert.equal(await page.locator('.memory-blueprint').count(), 1);
+    await page.locator('[data-memory-cancel="template"]').click();
+    await page.locator('[data-memory-view="database"]').click();
+    await page.locator('#memory-new-space').click();
+    assert.equal(await page.locator('#memory-create-categories .memory-choice').count(), 4);
+    assert.equal(await page.locator('#memory-create-templates .memory-choice').count(), 4);
+    await page.locator('[data-memory-cancel="space"]').click();
+    await page.locator('#settings-tab').click();
     await page.locator('[data-settings-target="memory"]').click();
     await page.locator('[data-settings-category="memory"]:visible').waitFor();
-    await page.getByText('Household', {exact:true}).waitFor();
-    assert.match(await page.locator('#knowledge-memory-status').innerText(), /no server, domain, or MCP setup required/i);
-    assert.equal(await page.locator('#knowledge-space-template option').count(), 7);
     await page.locator('[data-settings-target="voice"]').click();
     await page.locator('[data-settings-category="voice"]:visible').waitFor();
     assert.equal(await page.locator('[data-settings-target="voice"]').evaluate(element => element.closest("details").open), true);
