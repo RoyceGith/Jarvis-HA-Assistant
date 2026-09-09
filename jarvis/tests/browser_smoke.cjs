@@ -162,7 +162,7 @@ const onboardingFixture = {
     {id:"notifications",title:"Notifications and autonomy",description:"Choose notification delivery",ready:false,required:false,target:"notifications",last_check:null,skipped:false},
   ],
   installation_report: {
-    generated_at: 1788300000, version: "0.13.195", ready: true, attention_count: 0, ready_count: 5,
+    generated_at: 1788300000, version: "0.13.196", ready: true, attention_count: 0, ready_count: 5,
     checks: [
       {id:"home_assistant",title:"Home Assistant",state:"ready",required:true,detail:"Connected to Home Assistant",target:"home_assistant"},
       {id:"model",title:"AI model",state:"ready",required:true,detail:"gpt-5-mini is configured",target:"model"},
@@ -170,7 +170,7 @@ const onboardingFixture = {
       {id:"backup",title:"Backup and restore",state:"ready",required:false,detail:"A portable ZBRANO backup can be exported from Settings",target:"memory"},
       {id:"automation_health",title:"Automation safety",state:"ready",required:false,detail:"2 saved; 0 need permission; 0 paused after failures",target:"automations"},
     ],
-    support_summary: "ZBRANO installation report · v0.13.195\nOverall: Ready\nHome Assistant: Connected\nAI model: Configured\nDevice access: 3 sensor devices / 1 control devices\nPersistent storage: Ready\nAutomations: 2 saved / 0 permission issues / 0 failure pauses",
+    support_summary: "ZBRANO installation report · v0.13.196\nOverall: Ready\nHome Assistant: Connected\nAI model: Configured\nDevice access: 3 sensor devices / 1 control devices\nPersistent storage: Ready\nAutomations: 2 saved / 0 permission issues / 0 failure pauses",
   },
 };
 
@@ -197,7 +197,7 @@ function apiFixture(url, method = "GET") {
   if (pathname === "/api/health") {
     return {
       status: "ok",
-      version: "0.13.195",
+      version: "0.13.196",
       speech_provider: "openai",
       speech_providers: {openai: {configured: true}, elevenlabs: {configured: false}},
     };
@@ -291,7 +291,7 @@ function apiFixture(url, method = "GET") {
   if (pathname === "/api/plugins") return {plugins: []};
   if (pathname === "/api/files/shared") return {files: [], count: 0};
   if (pathname === "/api/release-memory-sync") {
-    return {enabled: false, state: "disabled", version: "0.13.195", task_active: false};
+    return {enabled: false, state: "disabled", version: "0.13.196", task_active: false};
   }
   if (pathname === "/api/tab-activity") return {revisions: {}};
   if (pathname === "/api/grinder-monitor/status") return {enabled: false, connected: false};
@@ -1126,6 +1126,49 @@ async function main() {
     assert.equal(await page.locator('[data-memory-view="templates"]').count(), 1);
     assert.equal(await page.locator('#memory-new-space').count(), 1);
     assert.equal(await page.locator('#memory-new-template').count(), 1);
+    await page.setViewportSize({width: 1100, height: 480});
+    await page.locator('#memory-new-space').click();
+    const databaseScroll = await page.locator('.memory-studio-main').evaluate(element => {
+      element.scrollTop = element.scrollHeight;
+      const panel = document.getElementById('memory-panel');
+      return {
+        overflowY: getComputedStyle(element).overflowY,
+        fitsPanel: Math.abs(element.clientHeight - panel.clientHeight) <= 2,
+        scrollable: element.scrollHeight > element.clientHeight,
+        moved: element.scrollTop > 0,
+      };
+    });
+    assert.equal(databaseScroll.overflowY, 'auto');
+    assert.equal(databaseScroll.fitsPanel, true, 'Memory content must fit its panel instead of inheriting the page-sized main layout');
+    assert.equal(databaseScroll.scrollable, true, 'Memory Database must overflow at compact viewport heights');
+    assert.equal(databaseScroll.moved, true, 'Memory Database must accept vertical scrolling');
+    await page.locator('.memory-studio-main').evaluate(element => { element.scrollTop = 0; });
+    await page.locator('[data-memory-view="templates"]').click();
+    await page.locator('#memory-new-template').click();
+    await page.locator('#memory-add-blueprint').click();
+    await page.locator('#memory-add-blueprint').click();
+    const templateScroll = await page.locator('.memory-studio-main').evaluate(element => {
+      element.scrollTop = element.scrollHeight;
+      return {
+        scrollable: element.scrollHeight > element.clientHeight,
+        moved: element.scrollTop > 0,
+      };
+    });
+    assert.equal(templateScroll.scrollable, true, 'Template Studio must overflow at compact viewport heights');
+    assert.equal(templateScroll.moved, true, 'Template Studio must accept vertical scrolling');
+    await page.setViewportSize({width: 700, height: 480});
+    const compactMemoryScroll = await page.locator('#memory-panel').evaluate(element => {
+      element.scrollTop = element.scrollHeight;
+      return {
+        overflowY: getComputedStyle(element).overflowY,
+        scrollable: element.scrollHeight > element.clientHeight,
+        moved: element.scrollTop > 0,
+      };
+    });
+    assert.equal(compactMemoryScroll.overflowY, 'auto');
+    assert.equal(compactMemoryScroll.scrollable, true, 'Compact Memory Studio must overflow within the panel');
+    assert.equal(compactMemoryScroll.moved, true, 'Compact Memory Studio must accept vertical scrolling');
+    await page.setViewportSize({width: 1100, height: 720});
     await page.locator('#settings-tab').click();
     await page.locator('[data-settings-target="memory"]').click();
     await page.locator('[data-settings-category="memory"]:visible').waitFor();

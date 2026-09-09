@@ -1,9 +1,9 @@
 {
-  "version": "0.13.195",
+  "version": "0.13.196",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/ZBRANO_Core main",
-  "summary": "Make Memory Studio categories and organizational layouts distinct, relevant, and immediately understandable.",
+  "summary": "Restore reliable vertical scrolling throughout Memory Database and Template Studio on desktop and compact screens.",
   "history_backfill": [
     {
       "version": "0.13.0",
@@ -784,21 +784,23 @@
       {
         "version": "0.13.194",
         "summary": "Added a friendly Memory Studio with a local Memory Database, custom categories, reusable templates, and guided note management."
+      },
+      {
+        "version": "0.13.195",
+        "summary": "Made Memory Studio categories and organizational layouts distinct, relevant, and immediately understandable."
       }
   ],
   "release_entry": {
     "features": [
-      "Choose what a memory space is for before choosing how its notes should be organized.",
-      "Show only organizational layouts relevant to the selected category, plus an empty-space option.",
-      "Use descriptive layout names such as Household organizer, Work notebook, Project tracker, Study notebook, and Recipe collection."
+      "Keep Memory Database and Template Studio usable at every supported window height."
     ],
     "fixes": [
-      "Remove the confusing Home-to-Home and Work-to-Work duplicate choices in guided space creation.",
-      "Keep the selected category stable when choosing a layout.",
-      "Harden multi-architecture browser validation and expose individual Docker validation failures."
+      "Stop the nested Memory content area from inheriting the application shell's full-viewport main sizing.",
+      "Restore vertical scrolling in space creation, note editing, template creation, and template editing.",
+      "Keep compact and mobile Memory layouts vertically scrollable with touch momentum."
     ],
     "validation": [
-      "Category-to-layout filtering, distinct built-in layout names, local memory lifecycle regression coverage, API integration, multilingual catalog validation, browser smoke, and v0.13.195 release coverage"
+      "Desktop Memory Database scrolling, desktop Template Studio scrolling, compact Memory panel scrolling, API integration, multilingual catalog validation, browser smoke, and v0.13.196 release coverage"
     ]
   },
   "features": [

@@ -1,0 +1,36 @@
+import json
+from pathlib import Path
+import unittest
+
+
+ROOT = Path(__file__).resolve().parents[1]
+CONFIG = (ROOT / "jarvis/config.yaml").read_text(encoding="utf-8")
+MAIN = (ROOT / "jarvis/app/main.py").read_text(encoding="utf-8")
+INDEX = (ROOT / "jarvis/app/static/index.html").read_text(encoding="utf-8")
+STYLE = (ROOT / "jarvis/app/static/css/memory-studio.css").read_text(encoding="utf-8")
+BROWSER = (ROOT / "jarvis/tests/browser_smoke.cjs").read_text(encoding="utf-8")
+MANIFEST = json.loads((ROOT / "jarvis/release_manifest.json").read_text(encoding="utf-8"))
+
+
+class MemoryStudioScrollingReleaseTests(unittest.TestCase):
+    def test_release_is_aligned(self):
+        self.assertIn('version: "0.13.196"', CONFIG)
+        self.assertIn('version="0.13.196"', MAIN)
+        self.assertIn("HUD 0.13.196", INDEX)
+        self.assertEqual(MANIFEST["version"], "0.13.196")
+        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.195")
+
+    def test_memory_workspace_overrides_global_main_sizing(self):
+        self.assertIn("position:static", STYLE)
+        self.assertIn("height:100%;max-height:100%", STYLE)
+        self.assertIn("overflow-y:auto", STYLE)
+        self.assertIn("-webkit-overflow-scrolling:touch", STYLE)
+
+    def test_browser_covers_every_memory_scroll_owner(self):
+        self.assertIn("Memory Database must accept vertical scrolling", BROWSER)
+        self.assertIn("Template Studio must accept vertical scrolling", BROWSER)
+        self.assertIn("Compact Memory Studio must accept vertical scrolling", BROWSER)
+
+
+if __name__ == "__main__":
+    unittest.main()
