@@ -26,11 +26,11 @@ class MemoryStudioReleaseTests(unittest.TestCase):
         self.temporary.cleanup()
 
     def test_release_is_aligned(self):
-        self.assertIn('version: "0.13.194"', CONFIG)
-        self.assertIn('version="0.13.194"', MAIN)
-        self.assertIn("HUD 0.13.194", INDEX)
-        self.assertEqual(MANIFEST["version"], "0.13.194")
-        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.193")
+        self.assertIn('version: "0.13.195"', CONFIG)
+        self.assertIn('version="0.13.195"', MAIN)
+        self.assertIn("HUD 0.13.195", INDEX)
+        self.assertEqual(MANIFEST["version"], "0.13.195")
+        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.194")
 
     def test_custom_category_template_and_space_round_trip(self):
         category = knowledge_memory.create_memory_category("Health", "health", "Appointments and records")
@@ -82,6 +82,15 @@ class MemoryStudioReleaseTests(unittest.TestCase):
         self.assertIn('id="memory-create-templates"', STUDIO)
         self.assertIn('id="memory-note-blueprints"', STUDIO)
         self.assertIn("@media(max-width:850px)", STYLE)
+        self.assertIn("HOW SHOULD IT BE ORGANIZED?", STUDIO)
+
+    def test_builtin_layout_names_do_not_repeat_category_names(self):
+        templates = knowledge_memory.list_memory_templates()["templates"]
+        names = {item["id"]: item["name"] for item in templates}
+        self.assertEqual(names["home"], "Household organizer")
+        self.assertEqual(names["work"], "Work notebook")
+        self.assertEqual(names["project"], "Project tracker")
+        self.assertEqual(names["blank"], "Empty space")
 
     def test_template_note_paths_are_safe_and_unique(self):
         with self.assertRaises(ValueError):

@@ -1,9 +1,13 @@
-# ZBRANO v0.13.194
+# ZBRANO v0.13.195
 
 Automation Studio provides a graphical, step-by-step workflow for Home Assistant
 automations. Use Setup &amp; safety, When, Only if, Then, and optional Outcomes beside the
 interactive flow canvas. Natural-language creation, templates, drag-and-drop,
 saved automation compatibility, and the full Advanced editor remain available.
+
+Version 0.13.195 separates a memory space's category from its layout. After choosing
+Home, Work, Personal, or Learning, users see only relevant organizational layouts
+with clear names instead of choosing Home or Work twice.
 
 Version 0.13.194 adds a dedicated Memory Studio. Memory Database provides visual
 categories, spaces, note search, and a simple editor. Template Studio lets users

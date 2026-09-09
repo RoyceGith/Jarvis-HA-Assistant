@@ -23,12 +23,12 @@ DEFAULT_CATEGORIES = [
 ]
 
 BUILTIN_TEMPLATES = {
-    "blank": {"name": "Blank", "description": "Start with an empty space.", "icon": "blank", "category": "Personal"},
-    "home": {"name": "Home", "description": "Household information, routines, and important details.", "icon": "home", "category": "Home"},
-    "work": {"name": "Work", "description": "Decisions and next actions for everyday work.", "icon": "work", "category": "Work"},
-    "project": {"name": "Project", "description": "Overview, decisions, progress, and next actions.", "icon": "project", "category": "Work"},
-    "study": {"name": "Study", "description": "Learning notes, questions, and an overview.", "icon": "study", "category": "Learning"},
-    "recipes": {"name": "Recipes", "description": "Favorite recipes and cooking reference.", "icon": "recipes", "category": "Personal"},
+    "blank": {"name": "Empty space", "description": "Start without any ready-made notes.", "icon": "blank", "category": "All"},
+    "home": {"name": "Household organizer", "description": "Overview, routines, and important household information.", "icon": "home", "category": "Home"},
+    "work": {"name": "Work notebook", "description": "Overview, decisions, and next actions for everyday work.", "icon": "work", "category": "Work"},
+    "project": {"name": "Project tracker", "description": "Overview, decisions, progress, and next actions for a project.", "icon": "project", "category": "Work"},
+    "study": {"name": "Study notebook", "description": "An overview, learning notes, and open questions.", "icon": "study", "category": "Learning"},
+    "recipes": {"name": "Recipe collection", "description": "An overview and a place for favorite recipes.", "icon": "recipes", "category": "Personal"},
 }
 
 

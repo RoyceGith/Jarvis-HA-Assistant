@@ -1,9 +1,9 @@
 {
-  "version": "0.13.194",
+  "version": "0.13.195",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/ZBRANO_Core main",
-  "summary": "Add a friendly Memory Studio with a local Memory Database, custom categories, reusable templates, and guided note management.",
+  "summary": "Make Memory Studio categories and organizational layouts distinct, relevant, and immediately understandable.",
   "history_backfill": [
     {
       "version": "0.13.0",
@@ -780,22 +780,25 @@
       {
         "version": "0.13.193",
         "summary": "Replaced the external Workshop Memory dependency with built-in, customizable Knowledge Memory that stays local to each ZBRANO installation."
+      },
+      {
+        "version": "0.13.194",
+        "summary": "Added a friendly Memory Studio with a local Memory Database, custom categories, reusable templates, and guided note management."
       }
   ],
   "release_entry": {
     "features": [
-      "Open a dedicated Memory tab with separate Memory Database and Template Studio workspaces.",
-      "Create user-defined categories, guided memory spaces, reusable templates, and note-card blueprints.",
-      "Browse, search, create, edit, and delete local Markdown notes without knowing file or MCP concepts.",
-      "Include custom categories and templates in the existing local backup and restore flow."
+      "Choose what a memory space is for before choosing how its notes should be organized.",
+      "Show only organizational layouts relevant to the selected category, plus an empty-space option.",
+      "Use descriptive layout names such as Household organizer, Work notebook, Project tracker, Study notebook, and Recipe collection."
     ],
     "fixes": [
-      "Separate structured Knowledge Memory from compact conversational Fast Memory so each has a clear purpose.",
-      "Replace the technical settings-based space form with a visual, step-by-step studio.",
-      "Keep user-created template writes approval-gated when invoked through chat tools."
+      "Remove the confusing Home-to-Home and Work-to-Work duplicate choices in guided space creation.",
+      "Keep the selected category stable when choosing a layout.",
+      "Harden multi-architecture browser validation and expose individual Docker validation failures."
     ],
     "validation": [
-      "Custom category, template, space, and note lifecycle; traversal protection; extended backup and restore; API integration; multilingual interface catalog; regression suite; browser smoke; and v0.13.194 release coverage"
+      "Category-to-layout filtering, distinct built-in layout names, local memory lifecycle regression coverage, API integration, multilingual catalog validation, browser smoke, and v0.13.195 release coverage"
     ]
   },
   "features": [

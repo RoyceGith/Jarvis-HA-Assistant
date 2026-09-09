@@ -28,7 +28,7 @@
           <section id="memory-space-composer" class="memory-composer" hidden>
             <div class="memory-heading"><div><h2>Create a memory space</h2><p>Three simple choices. You can change the notes afterwards.</p></div><button type="button" data-memory-cancel="space">Cancel</button></div>
             <div class="memory-step"><strong>1 · WHAT IS IT FOR?</strong><div id="memory-create-categories" class="memory-choice-grid"></div></div>
-            <div class="memory-step"><strong>2 · CHOOSE A STARTING LAYOUT</strong><div id="memory-create-templates" class="memory-choice-grid"></div></div>
+            <div class="memory-step"><strong>2 · HOW SHOULD IT BE ORGANIZED?</strong><div id="memory-create-templates" class="memory-choice-grid"></div></div>
             <form id="memory-space-form" class="memory-form-grid">
               <label>Name<input id="memory-space-name" required maxlength="80" placeholder="For example, Garden plans"></label>
               <label>What will you keep here?<input id="memory-space-purpose" maxlength="500" placeholder="A short description helps ZBRANO use it well"></label>
@@ -97,7 +97,9 @@
 
   function renderTemplates() {
     $("memory-template-grid").innerHTML = state.templates.map((item) => `<article class="memory-card" data-memory-template="${esc(item.id)}"><span class="memory-icon">${esc(icon(item.icon))}</span><div class="memory-card-body"><h3>${esc(item.name)}</h3><p>${esc(item.description || "A flexible starting layout")}</p><div class="memory-card-meta"><span class="memory-pill">${esc(item.category || "Personal")}</span><span>${(item.notes || []).length} note cards</span><span>${item.built_in ? "Built in" : "Your template"}</span></div></div></article>`).join("");
-    $("memory-create-templates").innerHTML = state.templates.map((item) => `<button type="button" class="memory-choice ${state.createTemplate === item.id ? "active" : ""}" data-create-template="${esc(item.id)}"><strong>${esc(icon(item.icon))} ${esc(item.name)}</strong><small>${esc(item.description || "Flexible layout")}</small></button>`).join("");
+    const relevant = state.templates.filter((item) => item.id === "blank" || item.category === "All" || item.category === state.createCategory);
+    if (!relevant.some((item) => item.id === state.createTemplate)) state.createTemplate = relevant.find((item) => item.id !== "blank")?.id || "blank";
+    $("memory-create-templates").innerHTML = relevant.map((item) => `<button type="button" class="memory-choice ${state.createTemplate === item.id ? "active" : ""}" data-create-template="${esc(item.id)}"><strong>${esc(icon(item.icon))} ${esc(item.name)}</strong><small>${esc(item.description || "Flexible layout")}</small></button>`).join("");
   }
 
   function renderBlueprint(note = {}) {
@@ -129,7 +131,7 @@
   function openSpaceComposer(templateId = "") {
     if (templateId) state.createTemplate = templateId;
     const selected = templateById(state.createTemplate);
-    if (selected?.category) state.createCategory = selected.category;
+    if (templateId && selected?.category && selected.category !== "All") state.createCategory = selected.category;
     renderCategories(); renderTemplates();
     $("memory-space-composer").hidden = false; $("memory-category-composer").hidden = true; $("memory-space-details").hidden = true;
     $("memory-space-name").focus();
@@ -202,8 +204,8 @@
       if (button.dataset.memoryCancel === "category") { $("memory-category-composer").hidden = true; return; }
       if (button.dataset.memoryCancel === "template") { $("memory-template-composer").hidden = true; state.editingTemplate = ""; return; }
       if (button.dataset.memoryCategory) { state.category = button.dataset.memoryCategory; renderCategories(); renderSpaces(); return; }
-      if (button.dataset.createCategory) { state.createCategory = button.dataset.createCategory; renderCategories(); return; }
-      if (button.dataset.createTemplate) { state.createTemplate = button.dataset.createTemplate; const item = templateById(state.createTemplate); if (item?.category) state.createCategory = item.category; renderCategories(); renderTemplates(); return; }
+      if (button.dataset.createCategory) { state.createCategory = button.dataset.createCategory; renderCategories(); renderTemplates(); return; }
+      if (button.dataset.createTemplate) { state.createTemplate = button.dataset.createTemplate; renderTemplates(); return; }
       if (button.dataset.memorySpace) { await openSpace(button.dataset.memorySpace); return; }
       if (button.dataset.memoryNote) { await openNote(button.dataset.memoryNote); return; }
       if (button.hasAttribute("data-new-note")) { newNote(); return; }

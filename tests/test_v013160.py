@@ -13,8 +13,8 @@ MANIFEST = json.loads((ROOT / "jarvis/release_manifest.json").read_text(encoding
 
 class BranchTaskEntityNameReleaseTests(unittest.TestCase):
     def test_release_is_aligned(self):
-        self.assertEqual(MANIFEST["version"], "0.13.194")
-        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.193")
+        self.assertEqual(MANIFEST["version"], "0.13.195")
+        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.194")
 
     def test_entity_picker_synchronizes_nested_editors(self):
         input_event = 'input.dispatchEvent(new Event("input",{bubbles:true}))'

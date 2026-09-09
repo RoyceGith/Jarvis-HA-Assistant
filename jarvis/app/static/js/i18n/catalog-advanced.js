@@ -383,5 +383,11 @@ window.ZbranoI18n?.register({
   "Search spaces and every note": ["Αναζήτηση σε χώρους και σημειώσεις", "Cerca negli spazi e in tutte le note", "Rechercher dans les espaces et les notes"],
   "New note": ["Νέα σημείωση", "Nuova nota", "Nouvelle note"],
   "Save note": ["Αποθήκευση σημείωσης", "Salva nota", "Enregistrer la note"],
-  "Delete note": ["Διαγραφή σημείωσης", "Elimina nota", "Supprimer la note"]
+  "Delete note": ["Διαγραφή σημείωσης", "Elimina nota", "Supprimer la note"],
+  "Empty space": ["Κενός χώρος", "Spazio vuoto", "Espace vide"],
+  "Household organizer": ["Οργάνωση σπιτιού", "Organizzatore domestico", "Organisateur du foyer"],
+  "Work notebook": ["Σημειωματάριο εργασίας", "Quaderno di lavoro", "Carnet de travail"],
+  "Project tracker": ["Παρακολούθηση έργου", "Monitoraggio progetto", "Suivi de projet"],
+  "Study notebook": ["Σημειωματάριο μελέτης", "Quaderno di studio", "Carnet d’étude"],
+  "Recipe collection": ["Συλλογή συνταγών", "Raccolta di ricette", "Collection de recettes"]
 });

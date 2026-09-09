@@ -162,7 +162,7 @@ const onboardingFixture = {
     {id:"notifications",title:"Notifications and autonomy",description:"Choose notification delivery",ready:false,required:false,target:"notifications",last_check:null,skipped:false},
   ],
   installation_report: {
-    generated_at: 1788300000, version: "0.13.194", ready: true, attention_count: 0, ready_count: 5,
+    generated_at: 1788300000, version: "0.13.195", ready: true, attention_count: 0, ready_count: 5,
     checks: [
       {id:"home_assistant",title:"Home Assistant",state:"ready",required:true,detail:"Connected to Home Assistant",target:"home_assistant"},
       {id:"model",title:"AI model",state:"ready",required:true,detail:"gpt-5-mini is configured",target:"model"},
@@ -170,7 +170,7 @@ const onboardingFixture = {
       {id:"backup",title:"Backup and restore",state:"ready",required:false,detail:"A portable ZBRANO backup can be exported from Settings",target:"memory"},
       {id:"automation_health",title:"Automation safety",state:"ready",required:false,detail:"2 saved; 0 need permission; 0 paused after failures",target:"automations"},
     ],
-    support_summary: "ZBRANO installation report · v0.13.194\nOverall: Ready\nHome Assistant: Connected\nAI model: Configured\nDevice access: 3 sensor devices / 1 control devices\nPersistent storage: Ready\nAutomations: 2 saved / 0 permission issues / 0 failure pauses",
+    support_summary: "ZBRANO installation report · v0.13.195\nOverall: Ready\nHome Assistant: Connected\nAI model: Configured\nDevice access: 3 sensor devices / 1 control devices\nPersistent storage: Ready\nAutomations: 2 saved / 0 permission issues / 0 failure pauses",
   },
 };
 
@@ -186,9 +186,9 @@ const knowledgeCategoriesFixture = {categories:[
   {name:"Learning", icon:"study", description:"Study, research, and ideas.", built_in:true},
 ], count:4};
 const knowledgeTemplatesFixture = {templates:[
-  {id:"blank", name:"Blank", description:"Start with an empty space.", icon:"blank", category:"Personal", notes:[], built_in:true},
-  {id:"home", name:"Home", description:"Household information and routines.", icon:"home", category:"Home", notes:[{name:"Overview.md"},{name:"Routines.md"}], built_in:true},
-  {id:"work", name:"Work", description:"Decisions and next actions.", icon:"work", category:"Work", notes:[{name:"Overview.md"}], built_in:true},
+  {id:"blank", name:"Empty space", description:"Start without any ready-made notes.", icon:"blank", category:"All", notes:[], built_in:true},
+  {id:"home", name:"Household organizer", description:"Household information and routines.", icon:"home", category:"Home", notes:[{name:"Overview.md"},{name:"Routines.md"}], built_in:true},
+  {id:"work", name:"Work notebook", description:"Decisions and next actions.", icon:"work", category:"Work", notes:[{name:"Overview.md"}], built_in:true},
   {id:"custom:Client kit", name:"Client kit", description:"Reusable client records.", icon:"project", category:"Work", notes:[{name:"Brief.md",purpose:"Client brief",content:"# Brief"}], built_in:false},
 ], count:4};
 
@@ -197,7 +197,7 @@ function apiFixture(url, method = "GET") {
   if (pathname === "/api/health") {
     return {
       status: "ok",
-      version: "0.13.194",
+      version: "0.13.195",
       speech_provider: "openai",
       speech_providers: {openai: {configured: true}, elevenlabs: {configured: false}},
     };
@@ -291,7 +291,7 @@ function apiFixture(url, method = "GET") {
   if (pathname === "/api/plugins") return {plugins: []};
   if (pathname === "/api/files/shared") return {files: [], count: 0};
   if (pathname === "/api/release-memory-sync") {
-    return {enabled: false, state: "disabled", version: "0.13.194", task_active: false};
+    return {enabled: false, state: "disabled", version: "0.13.195", task_active: false};
   }
   if (pathname === "/api/tab-activity") return {revisions: {}};
   if (pathname === "/api/grinder-monitor/status") return {enabled: false, connected: false};
