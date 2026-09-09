@@ -95,6 +95,10 @@ Assistant configuration. Version 0.13.185 added `amd64` while preserving `aarch6
 and the existing update path.
 The in-app **About** tab provides a visual overview of ZBRANO's complete feature set.
 
+Version 0.13.197 makes Memory automatic for everyday users. Write one natural
+sentence and ZBRANO chooses where it belongs, creates any missing organization,
+avoids duplicates, and confirms the saved destination. Manual layouts are optional.
+
 Version 0.13.196 restores reliable scrolling throughout Memory Database and
 Template Studio on desktop and compact screens.
 

@@ -1,5 +1,13 @@
 # Change log
 
+## 0.13.197
+
+- Added one-step natural-language memory capture with automatic organization.
+- Added everyday People, Health, Travel, Food, Hobbies, and General memory areas.
+- Reused matching spaces, created missing organization, and prevented duplicates.
+- Moved manual spaces and reusable layouts behind optional customization controls.
+- Added the same approval-protected automatic organizer to chat tools.
+
 ## 0.13.196
 
 - Restored vertical scrolling throughout Memory Database and Template Studio.
