@@ -26,25 +26,25 @@ class MemoryStudioReleaseTests(unittest.TestCase):
         self.temporary.cleanup()
 
     def test_release_is_aligned(self):
-        self.assertIn('version: "0.13.196"', CONFIG)
-        self.assertIn('version="0.13.196"', MAIN)
-        self.assertIn("HUD 0.13.196", INDEX)
-        self.assertEqual(MANIFEST["version"], "0.13.196")
-        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.195")
+        self.assertIn('version: "0.13.197"', CONFIG)
+        self.assertIn('version="0.13.197"', MAIN)
+        self.assertIn("HUD 0.13.197", INDEX)
+        self.assertEqual(MANIFEST["version"], "0.13.197")
+        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.196")
 
     def test_custom_category_template_and_space_round_trip(self):
-        category = knowledge_memory.create_memory_category("Health", "health", "Appointments and records")
-        self.assertEqual(category["category"]["name"], "Health")
+        category = knowledge_memory.create_memory_category("Wellness", "health", "Appointments and records")
+        self.assertEqual(category["category"]["name"], "Wellness")
         saved = knowledge_memory.save_memory_template(
-            "Care plan", "Reusable health notes", "Health", "health",
+            "Care plan", "Reusable health notes", "Wellness", "health",
             [
                 {"name": "Overview", "purpose": "Current summary", "content": "# Overview\n"},
                 {"name": "Visits/Questions.md", "purpose": "Questions to ask", "content": "# Questions\n"},
             ],
         )
         self.assertFalse(saved["template"]["built_in"])
-        created = knowledge_memory.create_memory_space("My care", "Private health reference", "custom:Care plan", "Health")
-        self.assertEqual(created["space"]["category"], "Health")
+        created = knowledge_memory.create_memory_space("My care", "Private health reference", "custom:Care plan", "Wellness")
+        self.assertEqual(created["space"]["category"], "Wellness")
         self.assertEqual(created["notes_created"], ["Overview.md", "Visits/Questions.md"])
         notes = knowledge_memory.list_memory_notes("My care")
         self.assertEqual(notes["count"], 2)
@@ -52,9 +52,9 @@ class MemoryStudioReleaseTests(unittest.TestCase):
         self.assertEqual(knowledge_memory.knowledge_memory_tool_catalog()["create_memory_category"]["permission"], "write")
 
     def test_database_edit_delete_and_backup_restore(self):
-        knowledge_memory.create_memory_category("Travel", "travel", "Trips and places")
-        knowledge_memory.save_memory_template("Trip", "Plan a trip", "Travel", "travel", [{"name": "Plan", "purpose": "Itinerary", "content": "# Plan\n"}])
-        knowledge_memory.create_memory_space("Rome", "Autumn holiday", "custom:Trip", "Travel")
+        knowledge_memory.create_memory_category("Journeys", "travel", "Trips and places")
+        knowledge_memory.save_memory_template("Trip", "Plan a trip", "Journeys", "travel", [{"name": "Plan", "purpose": "Itinerary", "content": "# Plan\n"}])
+        knowledge_memory.create_memory_space("Rome", "Autumn holiday", "custom:Trip", "Journeys")
         knowledge_memory.write_memory_note("Rome", "Plan", "# Plan\nThree days", "replace")
         self.assertIn("Three days", knowledge_memory.read_memory_note("Rome", "Plan")["content"])
         backup = knowledge_memory.export_knowledge_memory()
@@ -65,7 +65,7 @@ class MemoryStudioReleaseTests(unittest.TestCase):
         try:
             knowledge_memory.configure_knowledge_memory(root=Path(second.name))
             knowledge_memory.restore_knowledge_memory(backup)
-            self.assertEqual(knowledge_memory.list_memory_spaces()["spaces"][0]["category"], "Travel")
+            self.assertEqual(knowledge_memory.list_memory_spaces()["spaces"][0]["category"], "Journeys")
             self.assertTrue(any(item["name"] == "Trip" for item in knowledge_memory.list_memory_templates()["templates"]))
             knowledge_memory.delete_memory_note("Rome", "Plan")
             self.assertEqual(knowledge_memory.list_memory_notes("Rome")["count"], 0)
@@ -101,10 +101,10 @@ class MemoryStudioReleaseTests(unittest.TestCase):
     def test_studio_is_a_dedicated_responsive_workspace(self):
         self.assertIn('id="memory-tab"', INDEX)
         self.assertIn('id="memory-panel"', INDEX)
-        self.assertIn("Memory Database", STUDIO)
-        self.assertIn("Template Studio", STUDIO)
+        self.assertIn("My memory", STUDIO)
+        self.assertIn("Customize organization", STUDIO)
         self.assertIn("data-template-note-name", STUDIO)
-        self.assertIn("stored locally", STUDIO.lower())
+        self.assertIn("stays on this zbrano installation", STUDIO.lower())
         self.assertIn(".memory-space-layout", STYLE)
         self.assertIn("@media(max-width:850px)", STYLE)
 

@@ -18,8 +18,14 @@ CATEGORIES_FILE = "categories.json"
 DEFAULT_CATEGORIES = [
     {"name": "Personal", "icon": "person", "description": "Things that matter to you."},
     {"name": "Home", "icon": "home", "description": "Household knowledge, routines, and reference."},
+    {"name": "People", "icon": "people", "description": "Useful details about family, friends, and other people."},
+    {"name": "Health", "icon": "health", "description": "Health information, appointments, and medication."},
     {"name": "Work", "icon": "work", "description": "Work, clients, and professional reference."},
+    {"name": "Travel", "icon": "travel", "description": "Trips, bookings, places, and travel plans."},
     {"name": "Learning", "icon": "study", "description": "Study, research, and ideas."},
+    {"name": "Food", "icon": "recipes", "description": "Recipes, meals, restaurants, and food preferences."},
+    {"name": "Hobbies", "icon": "hobbies", "description": "Interests, collections, equipment, and activities."},
+    {"name": "General", "icon": "personal", "description": "Everything that does not need a special area."},
 ]
 
 BUILTIN_TEMPLATES = {
@@ -29,6 +35,54 @@ BUILTIN_TEMPLATES = {
     "project": {"name": "Project tracker", "description": "Overview, decisions, progress, and next actions for a project.", "icon": "project", "category": "Work"},
     "study": {"name": "Study notebook", "description": "An overview, learning notes, and open questions.", "icon": "study", "category": "Learning"},
     "recipes": {"name": "Recipe collection", "description": "An overview and a place for favorite recipes.", "icon": "recipes", "category": "Personal"},
+}
+
+AUTO_MEMORY_AREAS = {
+    "home": {
+        "area": "Home", "space": "Home", "category": "Home", "icon": "home",
+        "purpose": "Household information automatically organized by ZBRANO.",
+        "keywords": ("home", "house", "household", "room", "apartment", "appliance", "air conditioner", "boiler", "filter", "maintenance", "repair", "electricity", "water", "wifi", "garage", "garden", "casa", "stanza", "condizionatore", "maison", "pièce", "climatiseur", "filtre"),
+    },
+    "people": {
+        "area": "People", "space": "People", "category": "People", "icon": "people",
+        "purpose": "Useful details about family, friends, and other people.",
+        "keywords": ("birthday", "family", "friend", "wife", "husband", "partner", "mother", "father", "sister", "brother", "daughter", "son", "contact", "phone number", "email address", "likes", "prefers", "compleanno", "famiglia", "amico", "anniversaire", "famille", "ami"),
+    },
+    "health": {
+        "area": "Health", "space": "Health", "category": "Health", "icon": "health",
+        "purpose": "Health information automatically organized by ZBRANO.",
+        "keywords": ("health", "doctor", "medical", "medicine", "medication", "tablet", "dose", "allergy", "allergic", "symptom", "hospital", "clinic", "prescription", "blood pressure", "salute", "medico", "farmaco", "allergia", "santé", "médecin", "médicament", "allergie"),
+    },
+    "work": {
+        "area": "Work & projects", "space": "Work & Projects", "category": "Work", "icon": "work",
+        "purpose": "Work and project information automatically organized by ZBRANO.",
+        "keywords": ("work", "project", "client", "customer", "meeting", "deadline", "decision", "invoice", "proposal", "task", "office", "business", "lavoro", "progetto", "riunione", "scadenza", "travail", "projet", "réunion", "échéance", "décision"),
+    },
+    "travel": {
+        "area": "Travel", "space": "Travel", "category": "Travel", "icon": "travel",
+        "purpose": "Trips and travel information automatically organized by ZBRANO.",
+        "keywords": ("travel", "trip", "flight", "hotel", "booking", "reservation", "passport", "itinerary", "holiday", "vacation", "airport", "train", "viaggio", "volo", "prenotazione", "passaporto", "voyage", "vol", "hôtel", "réservation", "passeport"),
+    },
+    "learning": {
+        "area": "Learning", "space": "Learning", "category": "Learning", "icon": "study",
+        "purpose": "Learning and reference material automatically organized by ZBRANO.",
+        "keywords": ("learn", "study", "course", "research", "lesson", "exam", "article", "reference", "tutorial", "training", "studio", "corso", "ricerca", "lezione", "étude", "cours", "recherche", "leçon"),
+    },
+    "food": {
+        "area": "Food & recipes", "space": "Food & Recipes", "category": "Food", "icon": "recipes",
+        "purpose": "Food information automatically organized by ZBRANO.",
+        "keywords": ("recipe", "ingredient", "meal", "cook", "restaurant", "food", "grocery", "bake", "breakfast", "lunch", "dinner", "ricetta", "ingrediente", "cucinare", "recette", "repas", "cuisiner"),
+    },
+    "hobbies": {
+        "area": "Hobbies", "space": "Hobbies", "category": "Hobbies", "icon": "hobbies",
+        "purpose": "Interests and collections automatically organized by ZBRANO.",
+        "keywords": ("hobby", "collection", "music", "gaming", "photography", "bicycle", "cycling", "painting", "craft", "fishing", "sport", "musica", "fotografia", "collezione", "musique", "photographie", "vélo"),
+    },
+    "general": {
+        "area": "General", "space": "General", "category": "General", "icon": "personal",
+        "purpose": "Useful information automatically organized by ZBRANO.",
+        "keywords": (),
+    },
 }
 
 
@@ -223,6 +277,15 @@ def knowledge_memory_tool_catalog() -> dict[str, dict[str, Any]]:
             "description": "List built-in and user-created reusable Knowledge Memory templates.",
             "parameters": object_schema,
         },
+        "remember_automatically": {
+            "name": "remember_automatically", "permission": "write",
+            "description": "Save and automatically organize an ordinary memory after approval. Prefer this one-step tool when the user says to remember information and has not requested a specific space or note.",
+            "parameters": {"type": "object", "properties": {
+                "content": {"type": "string"},
+                "title": {"type": "string", "description": "An optional short label when the user supplied one."},
+                "preferred_area": {"type": "string", "enum": ["auto", "home", "people", "health", "work", "travel", "learning", "food", "hobbies", "general"]},
+            }, "required": ["content", "title", "preferred_area"], "additionalProperties": False},
+        },
         "create_memory_category": {
             "name": "create_memory_category", "permission": "write",
             "description": "Create a user-defined category for related Knowledge Memory spaces and templates after approval.",
@@ -314,6 +377,116 @@ def create_memory_space(name: str, purpose: str, template: str, category: str = 
         note_path.parent.mkdir(parents=True, exist_ok=True)
         note_path.write_text(content, encoding="utf-8")
     return {"created": True, "space": metadata, "notes_created": sorted(template_notes)}
+
+
+def _automatic_memory_area(content: str, preferred_area: str = "") -> tuple[str, dict[str, Any]]:
+    requested = str(preferred_area or "").strip().casefold().replace(" ", "_")
+    aliases = {
+        "auto": "", "work_&_projects": "work", "work_and_projects": "work",
+        "food_&_recipes": "food", "food_and_recipes": "food",
+    }
+    requested = aliases.get(requested, requested)
+    if requested and requested not in AUTO_MEMORY_AREAS:
+        raise ValueError("Unknown automatic memory area")
+    if requested:
+        return requested, AUTO_MEMORY_AREAS[requested]
+
+    normalized = " ".join(str(content or "").casefold().split())
+    scored: list[tuple[int, int, str]] = []
+    priority = ("health", "travel", "food", "work", "home", "learning", "people", "hobbies")
+    for order, key in enumerate(priority):
+        keywords = AUTO_MEMORY_AREAS[key]["keywords"]
+        score = sum(2 if " " in keyword else 1 for keyword in keywords if keyword in normalized)
+        scored.append((score, -order, key))
+    best_score, _, best_key = max(scored)
+    selected = best_key if best_score else "general"
+    return selected, AUTO_MEMORY_AREAS[selected]
+
+
+def _automatic_memory_note(area_key: str, content: str) -> str:
+    normalized = str(content or "").casefold()
+    topics = {
+        "home": (
+            (("repair", "maintenance", "service", "replace", "filter"), "Maintenance.md"),
+            (("appliance", "air conditioner", "boiler", "fridge", "oven", "washing machine"), "Appliances.md"),
+            (("routine", "schedule", "every day", "every week"), "Routines.md"),
+        ),
+        "health": (
+            (("medicine", "medication", "tablet", "dose", "prescription"), "Medication.md"),
+            (("doctor", "hospital", "clinic", "appointment"), "Appointments.md"),
+        ),
+        "work": (
+            (("decision", "decided", "agreed"), "Decisions.md"),
+            (("meeting", "call", "minutes"), "Meetings.md"),
+            (("task", "deadline", "next action", "to-do", "todo"), "Next actions.md"),
+        ),
+        "travel": (
+            (("flight", "hotel", "booking", "reservation", "train"), "Bookings.md"),
+            (("pack", "packing"), "Packing.md"),
+        ),
+        "food": (
+            (("recipe", "ingredient", "cook", "bake"), "Recipes.md"),
+            (("restaurant", "favorite", "prefers"), "Favorites.md"),
+        ),
+    }
+    for keywords, note in topics.get(area_key, ()):
+        if any(keyword in normalized for keyword in keywords):
+            return note
+    return {
+        "home": "Household notes.md", "people": "Important information.md",
+        "health": "Health notes.md", "work": "Work notes.md", "travel": "Travel plans.md",
+        "learning": "Learning notes.md", "food": "Food notes.md", "hobbies": "Hobby notes.md",
+        "general": "Notes.md",
+    }[area_key]
+
+
+def remember_automatically(content: str, title: str = "", preferred_area: str = "") -> dict[str, Any]:
+    """File an explicitly submitted memory without making the user design its storage."""
+    clean_content = str(content or "").strip()
+    if not clean_content:
+        raise ValueError("Tell ZBRANO what it should remember")
+    if len(clean_content.encode("utf-8")) > 50_000:
+        raise ValueError("This memory is too large to save at once")
+    clean_title = " ".join(str(title or "").strip().split())[:160]
+    area_key, area = _automatic_memory_area(clean_content, preferred_area)
+
+    spaces = list_memory_spaces()["spaces"]
+    matching = [item for item in spaces if str(item.get("category", "")).casefold() == str(area["category"]).casefold()]
+    exact = next((item for item in spaces if str(item.get("name", "")).casefold() == str(area["space"]).casefold()), None)
+    destination = exact or (matching[0] if len(matching) == 1 else None)
+    created_space = False
+    if destination is None:
+        created = create_memory_space(area["space"], area["purpose"], "blank", area["category"])
+        destination = created["space"]
+        created_space = True
+
+    space_name = str(destination["name"])
+    note = _automatic_memory_note(area_key, clean_content)
+    note_path = _space_note_path(space_name, note)
+    previous = note_path.read_text(encoding="utf-8") if note_path.is_file() else ""
+    comparable = " ".join(clean_content.casefold().split())
+    duplicate = bool(comparable and comparable in " ".join(previous.casefold().split()))
+    if not duplicate:
+        body = clean_content.replace("\r\n", "\n").replace("\r", "\n").replace("\n", "\n  ")
+        entry = f"- **{clean_title}:** {body}\n" if clean_title else f"- {body}\n"
+        if note_path.is_file():
+            separator = "" if previous.endswith("\n") else "\n"
+            write_memory_note(space_name, note, f"{separator}{entry}", "append")
+        else:
+            heading = note.removesuffix(".md")
+            write_memory_note(space_name, note, f"# {heading}\n\n{entry}", "create")
+
+    return {
+        "saved": True,
+        "duplicate": duplicate,
+        "created_space": created_space,
+        "area": area["area"],
+        "area_key": area_key,
+        "icon": area["icon"],
+        "space": space_name,
+        "note": note,
+        "relative_path": f"{SPACES_FOLDER}/{space_name}/{note}",
+    }
 
 
 def list_memory_spaces() -> dict[str, Any]:
@@ -502,6 +675,8 @@ def call_local_knowledge_tool(tool_name: str, arguments: dict[str, Any]) -> dict
         return list_memory_spaces()
     if tool_name == "list_memory_templates":
         return list_memory_templates()
+    if tool_name == "remember_automatically":
+        return remember_automatically(arguments["content"], arguments.get("title", ""), arguments.get("preferred_area", "auto"))
     if tool_name == "create_memory_category":
         return create_memory_category(arguments["name"], arguments.get("icon", "custom"), arguments.get("description", ""))
     if tool_name == "create_memory_template":

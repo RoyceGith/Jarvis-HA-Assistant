@@ -10,23 +10,33 @@
     return payload;
   };
   const icons = {home:"🏠", work:"💼", study:"📚", project:"🧩", recipes:"🍲", personal:"★", person:"★", template:"▦", blank:"＋", learning:"🎓", health:"♥", travel:"✈"};
+  Object.assign(icons, {people:"P", hobbies:"H"});
   const icon = (name) => icons[String(name || "").toLowerCase()] || String(name || "◆").slice(0, 2).toUpperCase();
   const state = {loaded:false, spaces:[], categories:[], templates:[], category:"All", selectedSpace:"", selectedNote:"", createCategory:"", createTemplate:"blank", editingTemplate:""};
 
   panel.innerHTML = `
     <div class="memory-studio">
       <aside class="memory-studio-nav">
-        <div class="memory-studio-brand"><span class="memory-studio-brand-icon">M</span><div><h2>Memory Studio</h2><p>Your organized local knowledge</p></div></div>
-        <button type="button" class="active" data-memory-view="database"><span class="memory-studio-nav-symbol">DB</span><span><strong>Memory Database</strong><small>Spaces and notes</small></span></button>
-        <button type="button" data-memory-view="templates"><span class="memory-studio-nav-symbol">T</span><span><strong>Template Studio</strong><small>Reusable note layouts</small></span></button>
-        <div class="memory-local-note">Stored locally on this ZBRANO installation. Nothing depends on an external MCP server.</div>
+        <div class="memory-studio-brand"><span class="memory-studio-brand-icon">M</span><div><h2>My Memory</h2><p>ZBRANO organizes it for you</p></div></div>
+        <button type="button" class="active" data-memory-view="database"><span class="memory-studio-nav-symbol">M</span><span><strong>My memory</strong><small>Remember, find, and review</small></span></button>
+        <button type="button" data-memory-view="templates"><span class="memory-studio-nav-symbol">&#9881;</span><span><strong>Customize</strong><small>Optional organization tools</small></span></button>
+        <div class="memory-local-note">Everything here stays on this ZBRANO installation and is included in your backups.</div>
       </aside>
-      <main class="memory-studio-main">
+      <div class="memory-studio-main">
         <section id="memory-database-view" class="memory-view">
-          <header class="memory-heading"><div><h2>Memory Database</h2><p>Create a place for anything you want ZBRANO to remember and organize.</p></div><div class="memory-heading-actions"><button type="button" id="memory-refresh">Refresh</button><button type="button" id="memory-new-space" class="memory-primary">+ New space</button></div></header>
-          <div class="memory-dashboard"><div class="memory-stat"><strong id="memory-space-count">0</strong><span>Memory spaces</span></div><div class="memory-stat"><strong id="memory-note-count">0</strong><span>Organized notes</span></div><div class="memory-stat"><strong id="memory-template-count">0</strong><span>Available templates</span></div></div>
+          <section class="memory-capture">
+            <span class="memory-capture-icon" aria-hidden="true">&#10022;</span>
+            <div class="memory-capture-copy"><span class="memory-eyebrow">QUICK MEMORY</span><h2>What should ZBRANO remember?</h2><p>Write it naturally. ZBRANO will choose where it belongs and organize it for you.</p></div>
+            <form id="memory-quick-form" class="memory-quick-form">
+              <label class="memory-quick-input"><span class="sr-only">What should ZBRANO remember?</span><textarea id="memory-quick-content" required maxlength="50000" placeholder="For example: The living-room air conditioner filter is 40 x 60 cm."></textarea></label>
+              <div class="memory-quick-actions"><button type="submit" id="memory-quick-save" class="memory-primary">Remember this</button><details class="memory-destination-choice"><summary>Choose an area instead</summary><select id="memory-quick-area" aria-label="Memory area"><option value="auto">Let ZBRANO choose</option><option value="home">Home</option><option value="people">People</option><option value="health">Health</option><option value="work">Work &amp; projects</option><option value="travel">Travel</option><option value="learning">Learning</option><option value="food">Food &amp; recipes</option><option value="hobbies">Hobbies</option><option value="general">General</option></select></details><span id="memory-quick-status" class="memory-status" role="status"></span></div>
+            </form>
+            <div id="memory-quick-result" class="memory-quick-result" hidden></div>
+          </section>
+          <header class="memory-heading"><div><h2>Your organized memory</h2><p>Browse what ZBRANO has filed, or search across everything.</p></div><div class="memory-heading-actions"><button type="button" id="memory-refresh">Refresh</button><button type="button" id="memory-new-space">Organize manually</button></div></header>
+          <div class="memory-dashboard"><div class="memory-stat"><strong id="memory-space-count">0</strong><span>Memory areas</span></div><div class="memory-stat"><strong id="memory-note-count">0</strong><span>Organized notes</span></div><div class="memory-stat"><strong id="memory-template-count">Ready</strong><span>Automatic organization</span></div></div>
           <section id="memory-space-composer" class="memory-composer" hidden>
-            <div class="memory-heading"><div><h2>Create a memory space</h2><p>Three simple choices. You can change the notes afterwards.</p></div><button type="button" data-memory-cancel="space">Cancel</button></div>
+            <div class="memory-heading"><div><span class="memory-eyebrow">OPTIONAL</span><h2>Organize a space manually</h2><p>Use this only when you want to control the structure yourself.</p></div><button type="button" data-memory-cancel="space">Cancel</button></div>
             <div class="memory-step"><strong>1 · WHAT IS IT FOR?</strong><div id="memory-create-categories" class="memory-choice-grid"></div></div>
             <div class="memory-step"><strong>2 · HOW SHOULD IT BE ORGANIZED?</strong><div id="memory-create-templates" class="memory-choice-grid"></div></div>
             <form id="memory-space-form" class="memory-form-grid">
@@ -44,14 +54,16 @@
               <div class="wide memory-actions"><button type="submit" class="memory-primary">Add category</button><span id="memory-category-status" class="memory-status"></span></div>
             </form>
           </section>
-          <div class="memory-filter-row"><input id="memory-search" type="search" placeholder="Search spaces and every note"><button type="button" id="memory-add-category">+ Category</button></div>
+          <div class="memory-filter-row"><input id="memory-search" type="search" placeholder="Search everything ZBRANO remembers"><button type="button" id="memory-add-category">+ Custom area</button></div>
+          <div class="memory-section-label">BROWSE BY AREA</div>
           <div id="memory-category-chips" class="memory-category-chips"></div>
           <div id="memory-search-results"></div>
           <div id="memory-space-grid" class="memory-card-grid"></div>
           <section id="memory-space-details" hidden></section>
         </section>
         <section id="memory-templates-view" class="memory-view" hidden>
-          <header class="memory-heading"><div><h2>Template Studio</h2><p>Build reusable sets of note cards for projects, clients, collections, routines, or anything else.</p></div><button type="button" id="memory-new-template" class="memory-primary">+ New template</button></header>
+          <header class="memory-heading"><div><h2>Customize organization</h2><p>Optional tools for people who want to design their own reusable layouts.</p></div><button type="button" id="memory-new-template" class="memory-primary">+ New layout</button></header>
+          <div class="memory-advanced-note"><strong>You do not need to set this up.</strong><span>ZBRANO can organize ordinary memories automatically. Create a layout only when you want the same special note structure again and again.</span></div>
           <div id="memory-template-grid" class="memory-template-grid"></div>
           <section id="memory-template-composer" class="memory-composer" hidden>
             <div class="memory-heading"><div><h2 id="memory-template-editor-title">Create a template</h2><p>Each note card becomes a ready-to-use note whenever this template is chosen.</p></div><button type="button" data-memory-cancel="template">Cancel</button></div>
@@ -68,7 +80,7 @@
             </form>
           </section>
         </section>
-      </main>
+      </div>
     </div>`;
 
   const $ = (id) => document.getElementById(id);
@@ -77,7 +89,8 @@
   function templateById(id) { return state.templates.find((item) => item.id === id || item.name === id); }
 
   function renderCategories() {
-    const chips = [{name:"All", icon:"template"}, ...state.categories];
+    const usedCategories = new Set(state.spaces.map((item) => item.category));
+    const chips = [{name:"All", icon:"template"}, ...state.categories.filter((item) => usedCategories.has(item.name))];
     $("memory-category-chips").innerHTML = chips.map((item) => `<button type="button" class="${state.category === item.name ? "active" : ""}" data-memory-category="${esc(item.name)}">${esc(icon(item.icon))} ${esc(item.name)}</button>`).join("");
     $("memory-create-categories").innerHTML = state.categories.map((item) => `<button type="button" class="memory-choice ${state.createCategory === item.name ? "active" : ""}" data-create-category="${esc(item.name)}"><strong>${esc(icon(item.icon))} ${esc(item.name)}</strong><small>${esc(item.description || "Your own collection")}</small></button>`).join("");
     $("memory-template-category").innerHTML = state.categories.map((item) => `<option value="${esc(item.name)}">${esc(icon(item.icon))} ${esc(item.name)}</option>`).join("");
@@ -88,7 +101,7 @@
     const visible = state.spaces.filter((space) => (state.category === "All" || space.category === state.category) && (!query || `${space.name} ${space.purpose} ${space.category}`.toLowerCase().includes(query)));
     $("memory-space-count").textContent = state.spaces.length;
     $("memory-note-count").textContent = state.spaces.reduce((sum, item) => sum + Number(item.note_count || 0), 0);
-    $("memory-template-count").textContent = state.templates.length;
+    $("memory-template-count").textContent = "Ready";
     $("memory-space-grid").innerHTML = visible.length ? visible.map((space) => {
       const category = categoryByName(space.category);
       return `<article class="memory-card ${state.selectedSpace === space.name ? "selected" : ""}" data-memory-space="${esc(space.name)}"><span class="memory-icon">${esc(icon(category.icon))}</span><div class="memory-card-body"><h3>${esc(space.name)}</h3><p>${esc(space.purpose || "A flexible place for your knowledge")}</p><div class="memory-card-meta"><span class="memory-pill">${esc(space.category || "Personal")}</span><span>${Number(space.note_count || 0)} notes</span></div></div></article>`;
@@ -126,6 +139,8 @@
     $("memory-database-view").hidden = name !== "database";
     $("memory-templates-view").hidden = name !== "templates";
     panel.querySelectorAll("[data-memory-view]").forEach((button) => button.classList.toggle("active", button.dataset.memoryView === name));
+    panel.scrollTop = 0;
+    panel.querySelector(".memory-studio-main").scrollTop = 0;
   }
 
   function openSpaceComposer(templateId = "") {
@@ -222,6 +237,33 @@
         if (match) { await openSpace(match[1]); await openNote(match[2]); }
       }
     } catch (error) { setStatus("memory-space-form-status", error.message || String(error)); setStatus("memory-template-status", error.message || String(error)); }
+  });
+
+  $("memory-quick-form").addEventListener("submit", async (event) => {
+    event.preventDefault();
+    const content = $("memory-quick-content").value.trim();
+    if (!content) return;
+    const button = $("memory-quick-save");
+    button.disabled = true;
+    setStatus("memory-quick-status", "Organizing…");
+    $("memory-quick-result").hidden = true;
+    try {
+      const payload = await api("api/knowledge-memory/remember", {
+        method:"POST",
+        headers:{"Content-Type":"application/json"},
+        body:JSON.stringify({content, preferred_area:$("memory-quick-area").value}),
+      });
+      $("memory-quick-content").value = "";
+      setStatus("memory-quick-status", "");
+      await loadAll();
+      const result = $("memory-quick-result");
+      result.innerHTML = `<span class="memory-quick-result-icon">${esc(icon(payload.icon))}</span><div><strong>${payload.duplicate ? "Already remembered" : "Saved and organized"}</strong><small>${esc(payload.space)} &rarr; ${esc(String(payload.note || "").replace(/\.md$/i, ""))}</small></div><button type="button" data-memory-space="${esc(payload.space)}">Open</button>`;
+      result.hidden = false;
+    } catch (error) {
+      setStatus("memory-quick-status", `Could not save this memory: ${error.message || error}`);
+    } finally {
+      button.disabled = false;
+    }
   });
 
   $("memory-space-form").addEventListener("submit", async (event) => {

@@ -1,9 +1,9 @@
 {
-  "version": "0.13.196",
+  "version": "0.13.197",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/ZBRANO_Core main",
-  "summary": "Restore reliable vertical scrolling throughout Memory Database and Template Studio on desktop and compact screens.",
+  "summary": "Make Memory effortless for everyday users with one-step capture and automatic local organization.",
   "history_backfill": [
     {
       "version": "0.13.0",
@@ -788,19 +788,26 @@
       {
         "version": "0.13.195",
         "summary": "Made Memory Studio categories and organizational layouts distinct, relevant, and immediately understandable."
+      },
+      {
+        "version": "0.13.196",
+        "summary": "Restored reliable vertical scrolling throughout Memory Database and Template Studio on desktop and compact screens."
       }
   ],
   "release_entry": {
     "features": [
-      "Keep Memory Database and Template Studio usable at every supported window height."
+      "Add a prominent natural-language memory box that automatically chooses an area, space, and note.",
+      "Automatically reuse a matching user space, create missing organization, and detect duplicate memories.",
+      "Add practical everyday areas for people, health, travel, food, hobbies, and general information.",
+      "Let chat use the same approval-protected automatic memory organizer."
     ],
     "fixes": [
-      "Stop the nested Memory content area from inheriting the application shell's full-viewport main sizing.",
-      "Restore vertical scrolling in space creation, note editing, template creation, and template editing.",
-      "Keep compact and mobile Memory layouts vertically scrollable with touch momentum."
+      "Move manual spaces and reusable layouts behind clearly optional organization controls.",
+      "Show only areas that currently contain memory in the default browser.",
+      "Present a clear saved destination and one-click way to open the organized result."
     ],
     "validation": [
-      "Desktop Memory Database scrolling, desktop Template Studio scrolling, compact Memory panel scrolling, API integration, multilingual catalog validation, browser smoke, and v0.13.196 release coverage"
+      "Automatic routing, matching-space reuse, duplicate prevention, write approval metadata, API integration, English/Greek/Italian/French interface coverage, browser interaction, scrolling regression, and v0.13.197 release coverage"
     ]
   },
   "features": [

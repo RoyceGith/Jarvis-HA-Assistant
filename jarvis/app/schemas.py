@@ -360,6 +360,11 @@ class KnowledgeSpaceCreateRequest(BaseModel):
     template: str = Field(default="blank", min_length=1, max_length=100)
     category: str = Field(default="Personal", min_length=1, max_length=100)
 
+class KnowledgeRememberRequest(BaseModel):
+    content: str = Field(min_length=1, max_length=50000)
+    title: str = Field(default="", max_length=160)
+    preferred_area: str = Field(default="auto", max_length=100)
+
 class KnowledgeCategoryCreateRequest(BaseModel):
     name: str = Field(min_length=1, max_length=100)
     icon: str = Field(default="custom", min_length=1, max_length=30)

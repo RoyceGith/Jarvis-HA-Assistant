@@ -268,6 +268,7 @@ from .schemas import (
     FastMemoryWriteRequest,
     FastMemoryForgetRequest,
     KnowledgeSpaceCreateRequest,
+    KnowledgeRememberRequest,
     KnowledgeCategoryCreateRequest,
     KnowledgeTemplateWriteRequest,
     KnowledgeNoteWriteRequest,
@@ -555,6 +556,7 @@ from .services.knowledge_memory import (
     list_memory_spaces,
     list_memory_templates,
     read_memory_note,
+    remember_automatically,
     restore_knowledge_memory,
     save_memory_template,
     search_knowledge_memory,
@@ -751,7 +753,7 @@ ha_ws = HomeAssistantWebSocketClient(
 
 app = FastAPI(
     title="ZBRANO",
-    version="0.13.196",
+    version="0.13.197",
     docs_url="/api/docs",
     openapi_url="/api/openapi.json",
 )
@@ -1297,7 +1299,9 @@ advertised tool not explicitly annotated read-only requires an approval prompt a
 not execute until the user approves the exact tool and arguments. Never claim
 a permanent write completed until its tool result confirms success. Do not use
 save_general_instruction as a substitute for a durable Knowledge Memory note.
-Use create_memory_category when the user wants a new category. Use
+For an ordinary request such as "remember this", use remember_automatically so
+ZBRANO chooses the area and note without asking the user to design a structure.
+Use create_memory_category when the user explicitly wants a new category. Use
 list_memory_templates before choosing a reusable layout, create_memory_template
 when the user asks for a new reusable layout, and create_memory_space for the
 actual collection. Then use write_memory_note for its Markdown notes. For
@@ -2918,7 +2922,7 @@ async def health() -> dict[str, Any]:
     configured_speech_provider = SPEECH_PROVIDER if SPEECH_PROVIDER in {"openai", "elevenlabs"} else "openai"
     return {
         "status": "ok",
-        "version": "0.13.196",
+        "version": "0.13.197",
         "home_assistant_configured": bool(SUPERVISOR_TOKEN),
         "workshop_memory_configured": True,
         "knowledge_memory_mode": "built_in",
@@ -4608,6 +4612,14 @@ async def read_knowledge_memory_spaces() -> dict[str, Any]:
 async def create_knowledge_memory_space(request: KnowledgeSpaceCreateRequest) -> dict[str, Any]:
     try:
         return create_memory_space(request.name, request.purpose, request.template, request.category)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+
+@app.post("/api/knowledge-memory/remember")
+async def remember_in_knowledge_memory(request: KnowledgeRememberRequest) -> dict[str, Any]:
+    try:
+        return remember_automatically(request.content, request.title, request.preferred_area)
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
 
