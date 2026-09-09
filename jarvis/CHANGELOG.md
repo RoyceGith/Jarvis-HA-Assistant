@@ -1,5 +1,13 @@
 # Change log
 
+## 0.13.195
+
+- Separated a memory space's category from its organizational layout.
+- Renamed duplicate-looking layouts to Household organizer, Work notebook, Project tracker, Study notebook, and Recipe collection.
+- Filtered layouts to the selected category while always retaining an empty-space option.
+- Kept category selection stable when users choose a layout.
+- Hardened browser validation for multi-architecture image builds.
+
 ## 0.13.194
 
 - Added a dedicated Memory tab with separate Memory Database and Template Studio workspaces.

@@ -95,5 +95,8 @@ Assistant configuration. Version 0.13.185 added `amd64` while preserving `aarch6
 and the existing update path.
 The in-app **About** tab provides a visual overview of ZBRANO's complete feature set.
 
+Version 0.13.195 makes category and layout choices distinct in Memory Studio and
+shows only the organizational layouts relevant to the selected category.
+
 Version 0.13.194 adds Memory Studio with a visual Memory Database, custom categories,
 reusable note-card templates, and guided local note management.
