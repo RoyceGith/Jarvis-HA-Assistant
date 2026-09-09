@@ -1,5 +1,11 @@
 # Change log
 
+## 0.13.196
+
+- Restored vertical scrolling throughout Memory Database and Template Studio.
+- Corrected the inner Memory workspace sizing that clipped long forms.
+- Covered space creation, template creation, desktop, compact, and touch layouts.
+
 ## 0.13.195
 
 - Separated a memory space's category from its organizational layout.
