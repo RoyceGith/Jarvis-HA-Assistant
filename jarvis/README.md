@@ -1,9 +1,13 @@
-# ZBRANO v0.13.197
+# ZBRANO v0.13.198
 
 Automation Studio provides a graphical, step-by-step workflow for Home Assistant
 automations. Use Setup &amp; safety, When, Only if, Then, and optional Outcomes beside the
 interactive flow canvas. Natural-language creation, templates, drag-and-drop,
 saved automation compatibility, and the full Advanced editor remain available.
+
+Version 0.13.198 keeps optional remote MCP connectors out of unrelated chat
+requests. Connectors are attached only when named explicitly, so a failed remote
+server cannot break ordinary questions, recipes, device control, or local Memory.
 
 Version 0.13.197 turns Memory into an automatic everyday experience. Users write
 what ZBRANO should remember; it chooses the area and note, reuses existing spaces,

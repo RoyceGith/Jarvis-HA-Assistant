@@ -1,9 +1,13 @@
-## ZBRANO v0.13.197
+## ZBRANO v0.13.198
 
 ZBRANO combines Home Assistant chat, voice, entity control, memory, notifications,
 calendar and contact tools, plugins, and evidence-based automations. Automation Studio now uses
 a visual building-block toolbox, interactive node canvas, and contextual inspector;
 the established automation engine and stored definitions remain compatible.
+
+Version 0.13.198 isolates optional remote MCP connectors from ordinary chat. A
+failed or unavailable connector can no longer prevent normal questions, recipes,
+Home Assistant commands, web searches, or built-in Memory requests from working.
 
 Version 0.13.197 makes Memory effortless for ordinary users: write one natural
 sentence and ZBRANO chooses the area, reuses or creates the right space, files it

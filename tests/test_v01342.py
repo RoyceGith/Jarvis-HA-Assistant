@@ -44,15 +44,19 @@ class FinalModularizationBoundaryTests(unittest.TestCase):
             calendar_tools_fn=lambda: [{"name": "calendar"}],
             ha_history_tools_fn=lambda: [{"name": "history"}],
             ha_priority_tools_fn=lambda: [{"name": "control"}],
-            default_tools_fn=lambda: [{"name": "default"}],
+            default_tools_fn=lambda: [
+                {"name": "default"},
+                {"type": "mcp", "server_description": "Workshop Memory"},
+                {"type": "mcp", "server_description": "Google Drive"},
+            ],
             native_web_search_tool_fn=lambda mode: {"name": f"search-{mode}"} if mode != "off" else None,
         )
 
     def test_release_markers_are_aligned(self):
-        self.assertIn('version: "0.13.197"', CONFIG)
-        self.assertIn('version="0.13.197"', MAIN)
-        self.assertIn("HUD 0.13.197", HTML)
-        self.assertEqual(MANIFEST["version"], "0.13.197")
+        self.assertIn('version: "0.13.198"', CONFIG)
+        self.assertIn('version="0.13.198"', MAIN)
+        self.assertIn("HUD 0.13.198", HTML)
+        self.assertEqual(MANIFEST["version"], "0.13.198")
 
     def test_final_implementations_are_outside_the_composition_root(self):
         for definition in (
@@ -82,6 +86,14 @@ class FinalModularizationBoundaryTests(unittest.TestCase):
         self.assertEqual(runtime_routing.runtime_chat_tools(message="history"), [{"name": "history"}])
         self.assertEqual(runtime_routing.runtime_chat_tools(message="control"), [{"name": "control"}])
         self.assertEqual(runtime_routing.runtime_chat_tools("auto", "other"), [{"name": "default"}, {"name": "search-auto"}])
+        self.assertEqual(
+            runtime_routing.runtime_chat_tools("off", "Search Google Drive for the invoice"),
+            [{"name": "default"}, {"type": "mcp", "server_description": "Google Drive"}],
+        )
+        self.assertEqual(
+            runtime_routing.runtime_chat_tools("off", "Give me winter soup recipes with beef"),
+            [{"name": "default"}],
+        )
         self.developer_enabled = True
         self.assertEqual(runtime_routing.runtime_chat_tools(message="control"), [{"name": "developer"}, {"name": "developer-mcp"}])
 

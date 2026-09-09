@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from collections.abc import Callable
+import re
 from typing import Any
 
 
@@ -110,6 +111,24 @@ and ask one concise clarification rather than selecting an unsafe device. Execut
 """.strip()
 
 
+def _normalized_words(value: str) -> str:
+    return " ".join(re.findall(r"[a-z0-9]+", str(value or "").casefold()))
+
+
+def _contextual_default_tools(tools: list[dict[str, Any]], message: str) -> list[dict[str, Any]]:
+    """Keep optional remote MCP dependencies out of unrelated chat requests."""
+    normalized_message = _normalized_words(message)
+    selected: list[dict[str, Any]] = []
+    for tool in tools:
+        if str(tool.get("type") or "") != "mcp":
+            selected.append(tool)
+            continue
+        connector_name = _normalized_words(str(tool.get("server_description") or ""))
+        if connector_name and connector_name in normalized_message:
+            selected.append(tool)
+    return selected
+
+
 def runtime_chat_tools(search_mode: str = "auto", message: str = "") -> list[dict[str, Any]]:
     if _developer_mode_enabled():
         return _developer_tools() + _developer_mcp_tools()
@@ -127,6 +146,6 @@ def runtime_chat_tools(search_mode: str = "auto", message: str = "") -> list[dic
         return _ha_priority_tools()
     if _is_workshop_memory(message):
         return _workshop_memory_tools()
-    tools = _default_tools()
+    tools = _contextual_default_tools(_default_tools(), message)
     search_tool = _native_web_search_tool(search_mode)
     return tools + ([search_tool] if search_tool else [])

@@ -1,9 +1,9 @@
 {
-  "version": "0.13.197",
+  "version": "0.13.198",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/ZBRANO_Core main",
-  "summary": "Make Memory effortless for everyday users with one-step capture and automatic local organization.",
+  "summary": "Keep optional remote MCP failures from breaking ordinary chat by loading connectors only when explicitly requested.",
   "history_backfill": [
     {
       "version": "0.13.0",
@@ -792,22 +792,23 @@
       {
         "version": "0.13.196",
         "summary": "Restored reliable vertical scrolling throughout Memory Database and Template Studio on desktop and compact screens."
+      },
+      {
+        "version": "0.13.197",
+        "summary": "Made Memory effortless for everyday users with one-step capture and automatic local organization."
       }
   ],
   "release_entry": {
     "features": [
-      "Add a prominent natural-language memory box that automatically chooses an area, space, and note.",
-      "Automatically reuse a matching user space, create missing organization, and detect duplicate memories.",
-      "Add practical everyday areas for people, health, travel, food, hobbies, and general information.",
-      "Let chat use the same approval-protected automatic memory organizer."
+      "Select optional remote MCP connectors contextually from the user's explicit connector name.",
+      "Keep built-in chat tools and web search available without contacting unrelated remote servers."
     ],
     "fixes": [
-      "Move manual spaces and reusable layouts behind clearly optional organization controls.",
-      "Show only areas that currently contain memory in the default browser.",
-      "Present a clear saved destination and one-click way to open the organized result."
+      "Prevent an unavailable optional MCP server from failing ordinary questions such as recipe requests.",
+      "Keep Home Assistant, automation, calendar, and local Knowledge Memory priority routes isolated from remote MCP dependencies."
     ],
     "validation": [
-      "Automatic routing, matching-space reuse, duplicate prevention, write approval metadata, API integration, English/Greek/Italian/French interface coverage, browser interaction, scrolling regression, and v0.13.197 release coverage"
+      "Contextual MCP inclusion, unrelated-chat isolation, priority route preservation, and v0.13.198 release coverage"
     ]
   },
   "features": [
