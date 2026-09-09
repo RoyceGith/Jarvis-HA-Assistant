@@ -9,6 +9,7 @@ MAIN = (ROOT / "jarvis/app/main.py").read_text(encoding="utf-8")
 INDEX = (ROOT / "jarvis/app/static/index.html").read_text(encoding="utf-8")
 STUDIO = (ROOT / "jarvis/app/static/js/memory/studio.js").read_text(encoding="utf-8")
 SERVICE = (ROOT / "jarvis/app/services/knowledge_memory.py").read_text(encoding="utf-8")
+DOCKER = (ROOT / "jarvis/Dockerfile").read_text(encoding="utf-8")
 MANIFEST = json.loads((ROOT / "jarvis/release_manifest.json").read_text(encoding="utf-8"))
 
 
@@ -27,6 +28,11 @@ class MemoryLayoutClarityReleaseTests(unittest.TestCase):
         self.assertIn('"name": "Work notebook"', SERVICE)
         self.assertIn('"name": "Project tracker"', SERVICE)
         self.assertIn('"name": "Empty space"', SERVICE)
+
+    def test_browser_smoke_runs_once_on_native_architecture(self):
+        self.assertIn('if [ "$BUILD_ARCH" = "aarch64" ]', DOCKER)
+        self.assertIn("node ./tests/browser_smoke.cjs", DOCKER)
+        self.assertIn("Python compilation, and API test", DOCKER)
 
 
 if __name__ == "__main__":
