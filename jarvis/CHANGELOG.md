@@ -1,5 +1,12 @@
 # Change log
 
+## 0.13.198
+
+- Stopped attaching every enabled remote MCP connector to every chat request.
+- Load an optional connector only when the user explicitly names it.
+- Prevent unavailable MCP servers from breaking recipes and other ordinary chat.
+- Kept Home Assistant, web search, and built-in local Memory routing independent.
+
 ## 0.13.197
 
 - Added one-step natural-language memory capture with automatic organization.
