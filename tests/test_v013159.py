@@ -15,8 +15,8 @@ MANIFEST = json.loads((ROOT / "jarvis/release_manifest.json").read_text(encoding
 
 class PerBranchMessageDeliveryReleaseTests(unittest.TestCase):
     def test_release_is_aligned(self):
-        self.assertEqual(MANIFEST["version"], "0.13.209")
-        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.208")
+        self.assertEqual(MANIFEST["version"], "0.13.210")
+        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.209")
 
     def test_branch_schema_and_normalization_store_delivery_choices(self):
         for field in ("delivery_voice", "delivery_notification_center", "delivery_ha_push"):

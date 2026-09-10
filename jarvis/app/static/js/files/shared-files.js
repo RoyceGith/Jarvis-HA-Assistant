@@ -3,6 +3,8 @@
   const summary = document.getElementById("shared-summary");
   const deleteButton = document.getElementById("shared-delete");
   const useButton = document.getElementById("shared-use");
+  const moveButton = document.getElementById("shared-move");
+  const moveTarget = document.getElementById("shared-move-target");
   if (!rows || !deleteButton || !useButton) return;
 
   const selectedIds = () => [
@@ -61,8 +63,7 @@
     }
     useButton.disabled = true;
     try {
-      const data = await sharedApi(`api/files/shared?_=${Date.now()}`, {cache: "no-store"});
-      const selected = (data.files || []).filter(file => ids.includes(file.file_id));
+      const selected = (window.zbranoVisibleSharedFiles || []).filter(file => ids.includes(file.file_id));
       const pending = window.zbranoPendingAttachments = window.zbranoPendingAttachments || [];
       for (const file of selected) {
         if (!pending.some(item => item.file_id === file.file_id)) pending.push(file);
@@ -82,15 +83,52 @@
     }
   }
 
+  async function moveSelected(event) {
+    event?.preventDefault();
+    event?.stopImmediatePropagation();
+    const ids = selectedIds();
+    const selectedTarget = moveTarget?.value || "";
+    if (!ids.length) {
+      if (summary) summary.textContent = "Select at least one shared file to move.";
+      return;
+    }
+    if (!selectedTarget) {
+      if (summary) summary.textContent = "Choose a destination folder first.";
+      return;
+    }
+    moveButton.disabled = true;
+    try {
+      const folder = selectedTarget === "__root__" ? "" : selectedTarget;
+      const result = await sharedApi("api/files/shared", {
+        method:"PATCH",
+        headers:{"Content-Type":"application/json"},
+        body:JSON.stringify({file_ids:ids,folder}),
+      });
+      await window.zbranoLoadSharedFiles?.();
+      if (summary) summary.textContent = `${result.count || 0} file${result.count === 1 ? "" : "s"} moved.`;
+      window.zbranoSharedFilesController.lastAction = "move";
+      window.zbranoSharedFilesController.lastActionOk = result.count === ids.length;
+    } catch (error) {
+      if (summary) summary.textContent = `Move failed: ${error.message || error}`;
+      window.zbranoSharedFilesController.lastAction = "move";
+      window.zbranoSharedFilesController.lastActionOk = false;
+      window.zbranoSharedFilesController.lastError = String(error.message || error);
+    } finally {
+      moveButton.disabled = false;
+    }
+  }
+
   window.zbranoSharedFilesController = {
     ready: true,
     selectedIds,
     deleteSelected,
     attachSelected,
+    moveSelected,
     lastAction: "",
     lastActionOk: null,
     lastError: "",
   };
   deleteButton.addEventListener("click", deleteSelected, true);
   useButton.addEventListener("click", attachSelected, true);
+  moveButton?.addEventListener("click", moveSelected, true);
 })();

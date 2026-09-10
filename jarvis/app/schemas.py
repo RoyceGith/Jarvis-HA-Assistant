@@ -445,6 +445,17 @@ class NotificationReadRequest(BaseModel):
 
 class SharedFilesDeleteRequest(BaseModel): file_ids:list[str]=Field(default_factory=list,max_length=100)
 
+class SharedFolderCreateRequest(BaseModel):
+    parent: str = Field(default="", max_length=720)
+    name: str = Field(min_length=1, max_length=80)
+
+class SharedFolderDeleteRequest(BaseModel):
+    folder: str = Field(min_length=1, max_length=720)
+
+class SharedFilesMoveRequest(BaseModel):
+    file_ids: list[str] = Field(min_length=1, max_length=100)
+    folder: str = Field(default="", max_length=720)
+
 class DeveloperModeRequest(BaseModel):
     enabled: bool
 

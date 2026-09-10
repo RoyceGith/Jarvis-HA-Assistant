@@ -8,6 +8,9 @@ ZBRANO is a private Home Assistant intelligence assistant. It combines natural
 conversation, live home context, voice, useful memory, notifications, organization,
 and automation in one interface without granting itself access to every device.
 
+Version 0.13.210 organizes Shared Files into navigable folders, supports uploads
+to the open folder, and moves existing files safely between folders.
+
 Version 0.13.209 gives the My Memory front page a compact top section and brings
 saved spaces upward with smaller, clearer labels and cards.
 
@@ -16,9 +19,6 @@ lists, adds visible last-updated dates, and prints the same formatted content.
 
 Version 0.13.207 prints the memory space name as a smaller clean heading without
 the interface's decorative greater-than sign.
-
-Version 0.13.206 removes the excessive gap between a note title and its content
-editor while preserving the expanded workspace.
 
 Version 0.13.205 opens the first note immediately, keeps other categories in a
 compact top switcher, and gives the note editor more usable room.

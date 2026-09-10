@@ -11,7 +11,7 @@ from unittest.mock import AsyncMock, patch
 import httpx
 
 from app import main
-from app.domains import automations, calendar, contacts, conversations, fast_memory, notifications, settings
+from app.domains import automations, calendar, contacts, conversations, fast_memory, files, notifications, settings
 from app.services import entity_policy, knowledge_memory
 
 
@@ -39,6 +39,8 @@ class ApplicationIntegrationTests(unittest.IsolatedAsyncioTestCase):
         self.original_notification_path = notifications.NOTIFICATION_STORAGE_PATH
         self.original_fast_memory_path = fast_memory.FAST_MEMORY_PATH
         self.original_knowledge_memory_root = knowledge_memory.KNOWLEDGE_ROOT
+        self.original_shared_file_root = files.SHARED_FILE_ROOT
+        self.original_main_shared_file_root = main.SHARED_FILE_ROOT
         self.original_main_chat_path = main.CHAT_STORAGE_PATH
         self.original_main_entity_policy_path = main.ENTITY_POLICY_PATH
         self.original_entity_data_dir = entity_policy.DATA_DIR
@@ -55,6 +57,8 @@ class ApplicationIntegrationTests(unittest.IsolatedAsyncioTestCase):
         notifications.NOTIFICATION_STORAGE_PATH = temporary_root / "notification_center.json"
         fast_memory.FAST_MEMORY_PATH = temporary_root / "zbrano_fast_memory.sqlite3"
         knowledge_memory.configure_knowledge_memory(root=temporary_root / "knowledge-memory")
+        files.SHARED_FILE_ROOT = temporary_root / "shared-files"
+        main.SHARED_FILE_ROOT = files.SHARED_FILE_ROOT
         main.CHAT_STORAGE_PATH = conversations.CHAT_STORAGE_PATH
         main.ENTITY_POLICY_PATH = temporary_root / "entity_policy.json"
         entity_policy.DATA_DIR = temporary_root
@@ -82,6 +86,8 @@ class ApplicationIntegrationTests(unittest.IsolatedAsyncioTestCase):
         notifications.NOTIFICATION_STORAGE_PATH = self.original_notification_path
         fast_memory.FAST_MEMORY_PATH = self.original_fast_memory_path
         knowledge_memory.configure_knowledge_memory(root=self.original_knowledge_memory_root)
+        files.SHARED_FILE_ROOT = self.original_shared_file_root
+        main.SHARED_FILE_ROOT = self.original_main_shared_file_root
         main.CHAT_STORAGE_PATH = self.original_main_chat_path
         main.ENTITY_POLICY_PATH = self.original_main_entity_policy_path
         entity_policy.DATA_DIR = self.original_entity_data_dir
@@ -106,13 +112,13 @@ class ApplicationIntegrationTests(unittest.IsolatedAsyncioTestCase):
             response = await self.client.get("/api/health")
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json()["status"], "ok")
-        self.assertEqual(response.json()["version"], "0.13.209")
+        self.assertEqual(response.json()["version"], "0.13.210")
         self.assertEqual(response.json()["ha_read_entity_count"], 1)
         self.assertEqual(response.json()["ha_control_entity_count"], 1)
 
         frontend = await self.client.get("/")
         self.assertEqual(frontend.status_code, 200)
-        self.assertIn("HUD 0.13.209", frontend.text)
+        self.assertIn("HUD 0.13.210", frontend.text)
         self.assertEqual(
             frontend.headers.get("cache-control"),
             "no-store, no-cache, must-revalidate, max-age=0",
@@ -797,6 +803,42 @@ class ApplicationIntegrationTests(unittest.IsolatedAsyncioTestCase):
         deleted = await self.client.delete(f"/api/notifications/watches/{watch_id}")
         self.assertEqual(deleted.status_code, 200)
         self.assertEqual(notifications.notification_watches(), [])
+
+    async def test_shared_files_support_nested_folders_upload_move_and_safe_delete(self) -> None:
+        created = await self.client.post("/api/files/shared/folders", json={"parent":"","name":"Documents"})
+        self.assertEqual(created.status_code, 200)
+        nested = await self.client.post("/api/files/shared/folders", json={"parent":"Documents","name":"Receipts"})
+        self.assertEqual(nested.status_code, 200)
+
+        uploaded = await self.client.post(
+            "/api/files/shared",
+            data={"folder":"Documents"},
+            files={"file":("manual.txt", b"Shared folder test", "text/plain")},
+        )
+        self.assertEqual(uploaded.status_code, 200)
+        file_id = uploaded.json()["file_id"]
+        self.assertEqual(uploaded.json()["folder"], "Documents")
+
+        root = (await self.client.get("/api/files/shared", params={"folder":""})).json()
+        self.assertEqual(root["files"], [])
+        self.assertEqual(root["folders"][0]["path"], "Documents")
+        documents = (await self.client.get("/api/files/shared", params={"folder":"Documents"})).json()
+        self.assertEqual(documents["files"][0]["file_id"], file_id)
+        self.assertEqual(documents["folders"][0]["path"], "Documents/Receipts")
+
+        moved = await self.client.patch("/api/files/shared", json={"file_ids":[file_id],"folder":"Documents/Receipts"})
+        self.assertEqual(moved.json()["count"], 1)
+        receipts = (await self.client.get("/api/files/shared", params={"folder":"Documents/Receipts"})).json()
+        self.assertEqual(receipts["files"][0]["name"], "manual.txt")
+        blocked = await self.client.request("DELETE", "/api/files/shared/folders", json={"folder":"Documents/Receipts"})
+        self.assertEqual(blocked.status_code, 409)
+
+        moved_home = await self.client.patch("/api/files/shared", json={"file_ids":[file_id],"folder":""})
+        self.assertEqual(moved_home.json()["count"], 1)
+        removed_nested = await self.client.request("DELETE", "/api/files/shared/folders", json={"folder":"Documents/Receipts"})
+        self.assertEqual(removed_nested.status_code, 200)
+        removed_parent = await self.client.request("DELETE", "/api/files/shared/folders", json={"folder":"Documents"})
+        self.assertEqual(removed_parent.status_code, 200)
 
 
 if __name__ == "__main__":

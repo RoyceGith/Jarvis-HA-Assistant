@@ -190,6 +190,17 @@
     .toggle-row { display: flex; align-items: center; gap: .65rem; min-height: 2.5rem; }
     .danger-action { color: #ffb4ad; border-color: rgba(255,120,110,.35); }
     .file-input { max-width: 100%; }
+    .shared-breadcrumbs { display:flex;align-items:center;flex-wrap:wrap;gap:.25rem;margin:0 0 .65rem;padding:.55rem .65rem;border:1px solid var(--line);border-radius:10px;background:var(--surface); }
+    .shared-breadcrumbs button { min-height:0;padding:.28rem .42rem;border:0;background:transparent;color:var(--cyan);font-size:.78rem; }
+    .shared-breadcrumbs button:not(:last-child)::after { content:"/";margin-left:.65rem;color:var(--text-muted); }
+    .shared-breadcrumbs button:last-child { color:var(--text);font-weight:700; }
+    .shared-files-toolbar { align-items:center;flex-wrap:wrap; }
+    .shared-files-toolbar #shared-move-target { min-width:10rem; }
+    .shared-folder-name { display:inline-flex;align-items:center;gap:.45rem;padding:.25rem .4rem;border:0;background:transparent;color:var(--text);font-weight:700;text-align:left; }
+    .shared-folder-name:hover,.shared-folder-name:focus-visible { color:var(--cyan); }
+    .shared-folder-icon { color:var(--cyan);font-size:1.05rem; }
+    .shared-folder-delete { min-height:0;padding:.3rem .5rem;color:#e76565;border-color:color-mix(in srgb,#e76565 55%,var(--line));font-size:.72rem; }
+    .shared-files-empty td { padding:2rem;text-align:center;color:var(--text-muted); }
     :root[data-text-size="small"] { font-size: 14px; }
     :root[data-text-size="medium"] { font-size: 16px; }
     :root[data-text-size="large"] { font-size: 18px; }

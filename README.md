@@ -1,9 +1,12 @@
-## ZBRANO v0.13.209
+## ZBRANO v0.13.210
 
 ZBRANO combines Home Assistant chat, voice, entity control, memory, notifications,
 calendar and contact tools, plugins, and evidence-based automations. Automation Studio now uses
 a visual building-block toolbox, interactive node canvas, and contextual inspector;
 the established automation engine and stored definitions remain compatible.
+
+Version 0.13.210 adds folders to Shared Files, including nested navigation,
+uploading into the open folder, and moving existing files between folders.
 
 Version 0.13.209 compacts the My Memory landing page so saved spaces begin near
 the top, with smaller labels, counters, and cards.

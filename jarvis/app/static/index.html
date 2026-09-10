@@ -35,7 +35,7 @@
   <header>
     <div class="brand-line">
       <h1>ZBRANO</h1>
-      <div class="status hud-version-label">Workshop Intelligence Interface · HUD 0.13.209</div>
+      <div class="status hud-version-label">Workshop Intelligence Interface · HUD 0.13.210</div>
     </div>
     <div class="runtime-status-stack">
       <label class="interface-language-picker" title="Interface language">
@@ -206,7 +206,7 @@
     </div>
   </section>
 
-  <section id="files-panel" class="panel hidden"><div class="toolbar"><select id="shared-sort"><option value="date">Sort by date</option><option value="name">Sort by name</option></select><select id="shared-order"><option value="desc">Descending</option><option value="asc">Ascending</option></select><button id="shared-refresh" type="button">Refresh</button><button id="shared-use" type="button">Attach selected to chat</button><button id="shared-delete" type="button">Delete selected</button></div><div id="shared-summary" class="summary muted">Shared files are available to every chat.</div><div class="table-wrap"><table><thead><tr><th>Select</th><th>Name</th><th>Date</th><th>Type</th><th>Size</th></tr></thead><tbody id="shared-file-rows"></tbody></table></div></section>
+  <section id="files-panel" class="panel hidden"><div id="shared-breadcrumbs" class="shared-breadcrumbs" aria-label="Current folder"><button type="button" data-shared-folder="">Shared Files</button></div><div class="toolbar shared-files-toolbar"><button id="shared-new-folder" type="button">+ New folder</button><button id="shared-upload-here" type="button">Upload files</button><input id="shared-folder-upload" type="file" multiple hidden><select id="shared-move-target" aria-label="Move selected files"><option value="">Move selected to…</option></select><button id="shared-move" type="button">Move</button><select id="shared-sort"><option value="date">Sort by date</option><option value="name">Sort by name</option></select><select id="shared-order"><option value="desc">Descending</option><option value="asc">Ascending</option></select><button id="shared-refresh" type="button">Refresh</button><button id="shared-use" type="button">Attach selected to chat</button><button id="shared-delete" type="button">Delete selected</button></div><div id="shared-summary" class="summary muted">Shared files are available to every chat.</div><div class="table-wrap"><table class="shared-files-table"><thead><tr><th>Select</th><th>Name</th><th>Date</th><th>Type</th><th>Size</th><th>Actions</th></tr></thead><tbody id="shared-file-rows"></tbody></table></div></section>
 
 <section id="entities-panel" class="panel hidden">
     <div class="entity-view-tabs" role="tablist" aria-label="Entity views">

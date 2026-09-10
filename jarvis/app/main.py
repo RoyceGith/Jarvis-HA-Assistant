@@ -203,9 +203,16 @@ from .domains.files import (
     attachment_context,
     chat_upload_path,
     clear_chat_files,
+    create_shared_folder,
+    delete_shared_folder,
     delete_shared_files as delete_shared_file_ids,
+    all_shared_folder_records,
     list_files,
+    list_shared_folder_records,
     list_shared_files as shared_file_records,
+    move_shared_files,
+    normalize_shared_folder,
+    shared_files_in_folder,
     store_upload,
 )
 from .domains.gmail_direct import (
@@ -283,6 +290,9 @@ from .schemas import (
     NotificationDeliveryDeleteRequest,
     NotificationReadRequest,
     SharedFilesDeleteRequest,
+    SharedFolderCreateRequest,
+    SharedFolderDeleteRequest,
+    SharedFilesMoveRequest,
     DeveloperModeRequest,
     DeveloperInvestigationRequest,
 )
@@ -574,7 +584,7 @@ from .services.knowledge_memory import (
 import httpx
 import websockets
 from websockets.exceptions import ConnectionClosed
-from fastapi import FastAPI, File, HTTPException, Request, UploadFile, WebSocket, WebSocketDisconnect
+from fastapi import FastAPI, File, Form, HTTPException, Request, UploadFile, WebSocket, WebSocketDisconnect
 from fastapi.responses import FileResponse, Response, StreamingResponse
 
 APP_DIR = Path(__file__).resolve().parent
@@ -761,7 +771,7 @@ ha_ws = HomeAssistantWebSocketClient(
 
 app = FastAPI(
     title="ZBRANO",
-    version="0.13.209",
+    version="0.13.210",
     docs_url="/api/docs",
     openapi_url="/api/openapi.json",
 )
@@ -2992,7 +3002,7 @@ async def health() -> dict[str, Any]:
     configured_speech_provider = SPEECH_PROVIDER if SPEECH_PROVIDER in {"openai", "elevenlabs"} else "openai"
     return {
         "status": "ok",
-        "version": "0.13.209",
+        "version": "0.13.210",
         "home_assistant_configured": bool(SUPERVISOR_TOKEN),
         "workshop_memory_configured": True,
         "knowledge_memory_mode": "built_in",
@@ -4980,14 +4990,25 @@ async def upload_chat_file(session_id:str,file:UploadFile=File(...)): return awa
 @app.get("/api/files/chat/{session_id}")
 async def list_chat_files(session_id:str): return {"files":list_files(chat_upload_path(session_id))}
 @app.post("/api/files/shared")
-async def upload_shared_file(file:UploadFile=File(...)): return await store_upload(file,SHARED_FILE_ROOT,"shared")
+async def upload_shared_file(file:UploadFile=File(...),folder:str=Form("")): return await store_upload(file,SHARED_FILE_ROOT,"shared",folder=folder)
 @app.get("/api/files/shared")
-async def list_shared_files(sort:str="date",order:str="desc"):
-    return {"files":shared_file_records(sort,order)}
+async def list_shared_files(sort:str="date",order:str="desc",folder:str=""):
+    current=normalize_shared_folder(folder)
+    return {"files":shared_files_in_folder(current,sort,order),"folders":list_shared_folder_records(current),"current_folder":current}
 @app.delete("/api/files/shared")
 async def delete_shared_files(r:SharedFilesDeleteRequest):
     done=delete_shared_file_ids(r.file_ids)
     return {"deleted":done,"count":len(done)}
+@app.get("/api/files/shared/folders")
+async def list_shared_folders_api(): return {"folders":all_shared_folder_records()}
+@app.post("/api/files/shared/folders")
+async def create_shared_folder_api(r:SharedFolderCreateRequest): return create_shared_folder(r.parent,r.name)
+@app.delete("/api/files/shared/folders")
+async def delete_shared_folder_api(r:SharedFolderDeleteRequest): return {"deleted":delete_shared_folder(r.folder)}
+@app.patch("/api/files/shared")
+async def move_shared_files_api(r:SharedFilesMoveRequest):
+    moved=move_shared_files(r.file_ids,r.folder)
+    return {"moved":moved,"count":len(moved)}
 
 
 async def developer_diagnostics() -> dict[str, object]:

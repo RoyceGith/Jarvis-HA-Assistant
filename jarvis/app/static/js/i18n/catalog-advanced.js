@@ -417,5 +417,13 @@ window.ZbranoI18n?.register({
   "+ New layout": ["+ Νέα διάταξη", "+ Nuova struttura", "+ Nouvelle structure"],
   "You do not need to set this up.": ["Δεν χρειάζεται να το ρυθμίσετε.", "Non è necessario configurarlo.", "Vous n’avez pas besoin de configurer ceci."],
   "ZBRANO can organize ordinary memories automatically. Create a layout only when you want the same special note structure again and again.": ["Το ZBRANO μπορεί να οργανώνει αυτόματα τις καθημερινές μνήμες. Δημιουργήστε διάταξη μόνο όταν χρειάζεστε επανειλημμένα την ίδια ειδική δομή σημειώσεων.", "ZBRANO può organizzare automaticamente i ricordi comuni. Crea una struttura solo quando vuoi riutilizzare più volte la stessa organizzazione speciale.", "ZBRANO peut organiser automatiquement les souvenirs ordinaires. Créez une structure uniquement si vous souhaitez réutiliser la même organisation particulière."],
-  "Open": ["Άνοιγμα", "Apri", "Ouvrir"]
+  "Open": ["Άνοιγμα", "Apri", "Ouvrir"],
+  "+ New folder": ["+ Νέος φάκελος", "+ Nuova cartella", "+ Nouveau dossier"],
+  "Upload files": ["Μεταφόρτωση αρχείων", "Carica file", "Importer des fichiers"],
+  "Move selected to…": ["Μετακίνηση επιλεγμένων σε…", "Sposta selezionati in…", "Déplacer la sélection vers…"],
+  "Move": ["Μετακίνηση", "Sposta", "Déplacer"],
+  "Shared Files (main)": ["Κοινόχρηστα αρχεία (κύρια)", "File condivisi (principale)", "Fichiers partagés (principal)"],
+  "Folder": ["Φάκελος", "Cartella", "Dossier"],
+  "This folder is empty. Upload files or create a folder here.": ["Αυτός ο φάκελος είναι κενός. Μεταφορτώστε αρχεία ή δημιουργήστε έναν φάκελο εδώ.", "Questa cartella è vuota. Carica file o crea una cartella qui.", "Ce dossier est vide. Importez des fichiers ou créez un dossier ici."],
+  "Name this folder": ["Ονομάστε αυτόν τον φάκελο", "Assegna un nome alla cartella", "Nommez ce dossier"]
 });

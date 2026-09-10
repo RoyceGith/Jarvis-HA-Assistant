@@ -1,9 +1,9 @@
 {
-  "version": "0.13.209",
+  "version": "0.13.210",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/ZBRANO_Core main",
-  "summary": "Compact the My Memory landing page and move saved spaces into the upper portion of the view.",
+  "summary": "Add safe folder organization, navigation, uploads, and file moving to Shared Files.",
   "history_backfill": [
     {
       "version": "0.13.0",
@@ -840,20 +840,25 @@
       {
         "version": "0.13.208",
         "summary": "Displayed memory notes with chat-style Markdown formatting and visible last-updated dates."
+      },
+      {
+        "version": "0.13.209",
+        "summary": "Compacted the My Memory landing page and moved saved spaces into the upper portion of the view."
       }
   ],
   "release_entry": {
     "features": [
-      "See saved memory spaces in the upper portion of the My Memory landing page.",
-      "Use a compact quick-memory composer and space summary.",
-      "Scan smaller, clearer area labels and memory cards.",
-      "Keep the compact layout responsive on narrow screens."
+      "Create folders and nested folders inside Shared Files.",
+      "Navigate the current folder with breadcrumbs.",
+      "Upload files directly into the open folder.",
+      "Move selected files between folders or back to the main Shared Files area."
     ],
     "fixes": [
-      "Remove excessive vertical space before the memory-space collection."
+      "Reject unsafe folder paths and prevent non-empty folders from being deleted.",
+      "Keep existing unfiled Shared Files visible in the main area without migration."
     ],
     "validation": [
-      "Compact landing-page structure, responsive styling, browser smoke, and v0.13.209 release coverage"
+      "Nested folder lifecycle, folder uploads, moving, safe deletion, browser navigation, localization, and v0.13.210 release coverage"
     ]
   },
   "features": [

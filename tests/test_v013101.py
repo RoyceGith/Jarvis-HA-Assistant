@@ -18,10 +18,10 @@ MANIFEST = json.loads((ROOT / "jarvis/release_manifest.json").read_text(encoding
 
 class AutomationTaskPaletteReleaseTests(unittest.TestCase):
     def test_release_markers_are_aligned(self):
-        self.assertIn('version: "0.13.209"', CONFIG)
-        self.assertIn('version="0.13.209"', MAIN)
-        self.assertIn("HUD 0.13.209", HTML)
-        self.assertEqual(MANIFEST["version"], "0.13.209")
+        self.assertIn('version: "0.13.210"', CONFIG)
+        self.assertIn('version="0.13.210"', MAIN)
+        self.assertIn("HUD 0.13.210", HTML)
+        self.assertEqual(MANIFEST["version"], "0.13.210")
 
     def test_action_palette_exposes_executable_presets(self):
         for marker in ('["turn_on","Power on"', '["turn_off","Power off"',
@@ -48,7 +48,7 @@ class AutomationTaskPaletteReleaseTests(unittest.TestCase):
         self.assertIn('Automation finished', BROWSER)
 
     def test_release_history_includes_v013100(self):
-        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.208")
+        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.209")
 
 
 if __name__ == "__main__":
