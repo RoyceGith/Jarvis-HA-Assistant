@@ -18,24 +18,26 @@ MANIFEST = json.loads((ROOT / "jarvis/release_manifest.json").read_text(encoding
 
 class AboutProductShowcaseReleaseTests(unittest.TestCase):
     def test_release_is_aligned(self):
-        self.assertIn('version: "0.13.211"', CONFIG)
-        self.assertIn('version="0.13.211"', MAIN)
-        self.assertIn("HUD 0.13.211", HTML)
-        self.assertEqual(MANIFEST["version"], "0.13.211")
-        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.210")
+        self.assertIn('version: "0.13.212"', CONFIG)
+        self.assertIn('version="0.13.212"', MAIN)
+        self.assertIn("HUD 0.13.212", HTML)
+        self.assertEqual(MANIFEST["version"], "0.13.212")
+        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.211")
 
     def test_about_is_a_top_level_feature_showcase(self):
         self.assertIn('<script src="js/about.js"></script>', HTML)
         self.assertIn('tab.id = "about-tab"', ABOUT)
         self.assertIn('panel.id = "about-panel"', ABOUT)
         self.assertIn('panel.setAttribute("aria-labelledby", "about-title")', ABOUT)
-        self.assertEqual(ABOUT.count('class="about-feature"'), 6)
+        self.assertEqual(ABOUT.count('class="about-feature"'), 8)
         for marker in (
             "Natural conversation",
             "Home awareness and control",
             "Visual automations",
-            "Memory and organization",
+            "Memory and knowledge",
+            "Files and everyday organization",
             "Connected services",
+            "Language and personalization",
             "Safety and ownership",
             "From a connected home to useful action",
             "DESIGNED TO STAY YOURS",
@@ -43,7 +45,7 @@ class AboutProductShowcaseReleaseTests(unittest.TestCase):
             self.assertIn(marker, ABOUT)
 
     def test_about_actions_open_real_product_workspaces(self):
-        for control in ("about-start-chat", "about-open-setup", "about-open-devices", "about-open-automations"):
+        for control in ("about-start-chat", "about-open-setup", "about-open-memory", "about-open-files", "about-open-devices", "about-open-automations"):
             self.assertIn(f'id="{control}"', ABOUT)
             self.assertIn(f'getElementById("{control}")', CORE)
         self.assertIn('const showAbout = panel === "about"', CORE)
@@ -52,12 +54,13 @@ class AboutProductShowcaseReleaseTests(unittest.TestCase):
         self.assertIn('"about-panel"', DEVELOPER)
 
     def test_showcase_is_responsive_and_browser_covered(self):
-        self.assertIn("grid-template-columns: repeat(3", ABOUT_CSS)
+        self.assertIn("grid-template-columns: repeat(4", ABOUT_CSS)
+        self.assertIn("@media (max-width: 1120px)", ABOUT_CSS)
         self.assertIn("@media (max-width: 920px)", ABOUT_CSS)
         self.assertIn("@media (max-width: 560px)", ABOUT_CSS)
         self.assertIn("overflow-y: auto", ABOUT_CSS)
         self.assertIn('page.locator("#about-tab").click()', BROWSER)
-        self.assertIn('page.locator("#about-panel .about-feature").count(), 6', BROWSER)
+        self.assertIn('page.locator("#about-panel .about-feature").count(), 8', BROWSER)
         self.assertIn("About showcase must scroll inside its panel", BROWSER)
 
 

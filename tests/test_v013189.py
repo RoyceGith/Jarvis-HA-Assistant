@@ -14,12 +14,12 @@ MANIFEST = json.loads((ROOT / "jarvis/release_manifest.json").read_text(encoding
 
 class FastHomeAssistantControlReleaseTests(unittest.TestCase):
     def test_release_is_aligned(self):
-        self.assertIn('version: "0.13.211"', CONFIG)
-        self.assertIn('version="0.13.211"', MAIN)
-        self.assertIn("HUD 0.13.211", HTML)
-        self.assertEqual(MANIFEST["version"], "0.13.211")
-        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.210")
-        self.assertTrue(CHANGELOG.startswith("# Change log\n\n## 0.13.211"))
+        self.assertIn('version: "0.13.212"', CONFIG)
+        self.assertIn('version="0.13.212"', MAIN)
+        self.assertIn("HUD 0.13.212", HTML)
+        self.assertEqual(MANIFEST["version"], "0.13.212")
+        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.211")
+        self.assertTrue(CHANGELOG.startswith("# Change log\n\n## 0.13.212"))
 
     def test_local_control_runs_before_workshop_tool_preparation(self):
         normal = MAIN[MAIN.index("async def run_jarvis("):MAIN.index("async def _run_jarvis_stream_events(")]

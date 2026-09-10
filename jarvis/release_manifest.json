@@ -1,9 +1,9 @@
 {
-  "version": "0.13.211",
+  "version": "0.13.212",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/ZBRANO_Core main",
-  "summary": "Polish Shared Files into a refined, modern private-library workspace.",
+  "summary": "Update About into a polished, complete, multilingual product showcase.",
   "history_backfill": [
     {
       "version": "0.13.0",
@@ -848,20 +848,25 @@
       {
         "version": "0.13.210",
         "summary": "Added safe folder organization, navigation, uploads, and file moving to Shared Files."
+      },
+      {
+        "version": "0.13.211",
+        "summary": "Polished Shared Files into a refined, modern private-library workspace."
       }
   ],
   "release_entry": {
     "features": [
-      "Use a refined private-library layout in Shared Files.",
-      "See primary upload and folder actions separated from selection tools.",
-      "Scan polished file and folder badges with concise metadata.",
-      "Use grouped controls that adapt cleanly to narrower screens."
+      "Explore eight current ZBRANO capability areas in About.",
+      "See Knowledge Memory, organized Shared Files, languages, personalization, and user-selected AI represented clearly.",
+      "Open Memory Database and Shared Files directly from About.",
+      "Read the complete showcase in English, Greek, Italian, or French."
     ],
     "fixes": [
-      "Improve Shared Files hierarchy, spacing, hover feedback, and visual consistency without changing stored files."
+      "Keep About aligned with the current product instead of its earlier six-feature summary.",
+      "Balance feature cards across wide, tablet, and mobile layouts."
     ],
     "validation": [
-      "Shared Files structure, file metadata rendering, responsive styling, browser navigation, localization, and v0.13.211 release coverage"
+      "About content, direct workspace actions, responsive card layout, browser navigation, four-language localization, and v0.13.212 release coverage"
     ]
   },
   "features": [

@@ -8,6 +8,9 @@ ZBRANO is a private Home Assistant intelligence assistant. It combines natural
 conversation, live home context, voice, useful memory, notifications, organization,
 and automation in one interface without granting itself access to every device.
 
+Version 0.13.212 updates About into a polished multilingual showcase of ZBRANO's
+complete feature set, with direct shortcuts into Memory and Shared Files.
+
 Version 0.13.211 refreshes Shared Files with a refined private-library layout,
 clear action hierarchy, polished file rows, and responsive controls.
 
@@ -22,10 +25,6 @@ lists, adds visible last-updated dates, and prints the same formatted content.
 
 Version 0.13.207 prints the memory space name as a smaller clean heading without
 the interface's decorative greater-than sign.
-
-Version 0.13.201 lets an explicit Memory Database save run without a second approval.
-Ordinary saves finish in one operation; genuinely large saves announce their bounded
-phase count first. Other permanent edits still require review.
 
 The multilingual interface supports English, Greek, Italian, and French with
 automatic device-language detection or an explicit saved selection. Core and

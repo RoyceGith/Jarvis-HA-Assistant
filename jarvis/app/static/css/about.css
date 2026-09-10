@@ -3,7 +3,7 @@
   padding: 0;
   scrollbar-gutter: stable;
 }
-.about-shell { max-width: 1240px; margin: 0 auto; padding: clamp(1rem, 3vw, 2.6rem); }
+.about-shell { max-width: 1380px; margin: 0 auto; padding: clamp(1rem, 3vw, 2.6rem); }
 .about-hero {
   position: relative;
   display: grid;
@@ -40,8 +40,10 @@
 .about-section-heading { max-width: 720px; margin-bottom: 1.4rem; }
 .about-section-heading h3,.about-trust h3 { margin: .35rem 0 .55rem; color: inherit; font-size: clamp(1.5rem, 3vw, 2.35rem); letter-spacing: -.035em; }
 .about-section-heading p,.about-trust p { margin: 0; color: var(--text-muted); line-height: 1.65; }
-.about-feature-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .85rem; }
-.about-feature { min-width: 0; padding: 1.3rem; border: 1px solid var(--line); border-radius: 16px; background: color-mix(in srgb, var(--surface) 78%, transparent); box-shadow: 0 12px 30px color-mix(in srgb, var(--shadow) 38%, transparent); }
+.about-feature-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: .85rem; }
+.about-feature { position:relative;min-width: 0; padding: 1.3rem; border: 1px solid color-mix(in srgb,var(--line) 88%,transparent); border-radius: 16px; background: linear-gradient(145deg,color-mix(in srgb, var(--surface-strong) 86%, transparent),color-mix(in srgb, var(--surface) 74%, transparent)); box-shadow: 0 14px 34px color-mix(in srgb, var(--shadow) 34%, transparent);overflow:hidden;transition:transform .18s ease,border-color .18s ease,box-shadow .18s ease; }
+.about-feature::after { position:absolute;inset:0 auto auto 0;width:42%;height:1px;background:linear-gradient(90deg,var(--cyan),transparent);opacity:.55;content:""; }
+.about-feature:hover { transform:translateY(-2px);border-color:color-mix(in srgb,var(--cyan) 34%,var(--line));box-shadow:0 20px 42px color-mix(in srgb,var(--shadow) 46%,transparent); }
 .about-feature-icon { display: inline-grid; min-width: 2.7rem; height: 2.25rem; place-items: center; padding: 0 .45rem; border: 1px solid color-mix(in srgb, var(--cyan) 38%, var(--line)); border-radius: 8px; background: color-mix(in srgb, var(--cyan) 8%, transparent); color: var(--cyan); font-size: .58rem; font-weight: 850; letter-spacing: .08em; }
 .about-feature h4 { margin: .9rem 0 .5rem; font-size: 1.05rem; }
 .about-feature p { min-height: 4.8em; margin: 0; color: var(--text-muted); line-height: 1.55; }
@@ -54,8 +56,9 @@
 .about-journey li div { display: grid; gap: .35rem; }
 .about-journey li span { color: var(--text-muted); font-size: .82rem; line-height: 1.5; }
 .about-trust { display: flex; align-items: end; justify-content: space-between; gap: 2rem; margin: clamp(2.3rem, 5vw, 4.5rem) 0 1rem; padding: clamp(1.4rem, 3vw, 2.4rem); border-left: 3px solid var(--cyan); border-radius: 0 16px 16px 0; background: color-mix(in srgb, var(--cyan) 5%, var(--surface)); }
-.about-trust > div:first-child { max-width: 760px; }.about-trust .about-actions { flex-shrink: 0; }
+.about-trust > div:first-child { max-width: 760px; }.about-trust .about-actions { max-width:30rem;flex-shrink: 0;justify-content:flex-end; }
 :root[data-theme="light"] .about-actions .about-primary { color: #fff; }
-@media (max-width: 920px) { .about-hero { grid-template-columns: 1fr; min-height: 0; }.about-orbit { width: min(62vw, 280px); }.about-feature-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }.about-journey ol { grid-template-columns: repeat(2, minmax(0, 1fr)); }.about-trust { align-items: start; flex-direction: column; } }
+@media (max-width: 1120px) { .about-feature-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 920px) { .about-hero { grid-template-columns: 1fr; min-height: 0; }.about-orbit { width: min(62vw, 280px); }.about-journey ol { grid-template-columns: repeat(2, minmax(0, 1fr)); }.about-trust { align-items: start; flex-direction: column; }.about-trust .about-actions{max-width:none;justify-content:flex-start;} }
 @media (max-width: 560px) { .about-shell { padding: .7rem; }.about-hero { padding: 1.2rem; border-radius: 16px; }.about-orbit { width: min(76vw, 250px); }.about-feature-grid,.about-journey ol { grid-template-columns: 1fr; }.about-feature p { min-height: 0; }.about-trust { margin-bottom: .5rem; }.about-actions button { width: 100%; } }
 @media (prefers-reduced-motion: reduce) { .about-orbit { transform: none; } }

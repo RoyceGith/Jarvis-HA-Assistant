@@ -1545,6 +1545,8 @@ aboutTab.addEventListener("click", () => showPanel("about"));
 document.getElementById("about-start-chat")?.addEventListener("click", () => chatTab.click());
 document.getElementById("about-open-devices")?.addEventListener("click", () => entitiesTab.click());
 document.getElementById("about-open-automations")?.addEventListener("click", () => document.getElementById("automations-tab")?.click());
+document.getElementById("about-open-memory")?.addEventListener("click", () => document.getElementById("memory-tab")?.click());
+document.getElementById("about-open-files")?.addEventListener("click", () => document.getElementById("files-tab")?.click());
 document.getElementById("about-open-setup")?.addEventListener("click", () => {
   settingsTab.click();
   window.setTimeout(() => document.querySelector('[data-settings-target="setup"]')?.click(), 0);

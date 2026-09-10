@@ -425,14 +425,37 @@ window.ZbranoI18n?.register({
   "Shared Files (main)": ["Κοινόχρηστα αρχεία (κύρια)", "File condivisi (principale)", "Fichiers partagés (principal)"],
   "Folder": ["Φάκελος", "Cartella", "Dossier"],
   "This folder is empty. Upload files or create a folder here.": ["Αυτός ο φάκελος είναι κενός. Μεταφορτώστε αρχεία ή δημιουργήστε έναν φάκελο εδώ.", "Questa cartella è vuota. Carica file o crea una cartella qui.", "Ce dossier est vide. Importez des fichiers ou créez un dossier ici."],
-  "Name this folder": ["Ονομάστε αυτόν τον φάκελο", "Assegna un nome alla cartella", "Nommez ce dossier"]
-  ,"PRIVATE LIBRARY": ["ΙΔΙΩΤΙΚΗ ΒΙΒΛΙΟΘΗΚΗ", "LIBRERIA PRIVATA", "BIBLIOTHÈQUE PRIVÉE"]
-  ,"Your file library": ["Η βιβλιοθήκη αρχείων σας", "La tua libreria di file", "Votre bibliothèque de fichiers"]
-  ,"Keep useful documents organized and ready for any conversation.": ["Διατηρήστε χρήσιμα έγγραφα οργανωμένα και έτοιμα για κάθε συνομιλία.", "Mantieni i documenti utili organizzati e pronti per ogni conversazione.", "Gardez vos documents utiles organisés et prêts pour chaque conversation."]
-  ,"New folder": ["Νέος φάκελος", "Nuova cartella", "Nouveau dossier"]
-  ,"Attach to chat": ["Επισύναψη στη συνομιλία", "Allega alla chat", "Joindre à la discussion"]
-  ,"Delete": ["Διαγραφή", "Elimina", "Supprimer"]
-  ,"Newest first": ["Νεότερα πρώτα", "Più recenti prima", "Plus récents d’abord"]
-  ,"Name": ["Όνομα", "Nome", "Nom"]
-  ,"Date added": ["Ημερομηνία προσθήκης", "Data di aggiunta", "Date d’ajout"]
+  "Name this folder": ["Ονομάστε αυτόν τον φάκελο", "Assegna un nome alla cartella", "Nommez ce dossier"],
+  "PRIVATE LIBRARY": ["ΙΔΙΩΤΙΚΗ ΒΙΒΛΙΟΘΗΚΗ", "LIBRERIA PRIVATA", "BIBLIOTHÈQUE PRIVÉE"],
+  "Your file library": ["Η βιβλιοθήκη αρχείων σας", "La tua libreria di file", "Votre bibliothèque de fichiers"],
+  "Keep useful documents organized and ready for any conversation.": ["Διατηρήστε χρήσιμα έγγραφα οργανωμένα και έτοιμα για κάθε συνομιλία.", "Mantieni i documenti utili organizzati e pronti per ogni conversazione.", "Gardez vos documents utiles organisés et prêts pour chaque conversation."],
+  "New folder": ["Νέος φάκελος", "Nuova cartella", "Nouveau dossier"],
+  "Attach to chat": ["Επισύναψη στη συνομιλία", "Allega alla chat", "Joindre à la discussion"],
+  "Delete": ["Διαγραφή", "Elimina", "Supprimer"],
+  "Newest first": ["Νεότερα πρώτα", "Più recenti prima", "Plus récents d’abord"],
+  "Name": ["Όνομα", "Nome", "Nom"],
+  "Date added": ["Ημερομηνία προσθήκης", "Data di aggiunta", "Date d’ajout"],
+  "ZBRANO brings conversation, Home Assistant, organized files and memory, visual automations, notifications, and connected services into one clear workspace.": ["Το ZBRANO συγκεντρώνει συνομιλία, Home Assistant, οργανωμένα αρχεία και μνήμη, οπτικούς αυτοματισμούς, ειδοποιήσεις και συνδεδεμένες υπηρεσίες σε έναν ξεκάθαρο χώρο.", "ZBRANO riunisce conversazione, Home Assistant, file e memoria organizzati, automazioni visive, notifiche e servizi connessi in un unico spazio chiaro.", "ZBRANO réunit conversation, Home Assistant, fichiers et mémoire organisés, automatisations visuelles, notifications et services connectés dans un espace clair."],
+  "Your choice of AI": ["Η δική σας επιλογή AI", "La tua scelta di IA", "Votre choix d’IA"],
+  "Four interface languages": ["Τέσσερις γλώσσες διεπαφής", "Quattro lingue dell’interfaccia", "Quatre langues d’interface"],
+  "Memory and knowledge": ["Μνήμη και γνώση", "Memoria e conoscenza", "Mémoire et connaissances"],
+  "Keep useful preferences and knowledge close to the assistant while staying in control of what is remembered.": ["Διατηρήστε χρήσιμες προτιμήσεις και γνώσεις κοντά στον βοηθό, ελέγχοντας πάντα τι αποθηκεύεται.", "Mantieni preferenze e conoscenze utili vicine all’assistente, controllando ciò che viene ricordato.", "Gardez préférences et connaissances utiles à portée de l’assistant tout en contrôlant ce qui est mémorisé."],
+  "Automatic Knowledge Memory organization": ["Αυτόματη οργάνωση Μνήμης Γνώσης", "Organizzazione automatica della Memoria delle conoscenze", "Organisation automatique de la Mémoire de connaissances"],
+  "Custom spaces and reusable layouts": ["Προσαρμοσμένοι χώροι και επαναχρησιμοποιήσιμες διατάξεις", "Spazi personalizzati e strutture riutilizzabili", "Espaces personnalisés et structures réutilisables"],
+  "Formatted, editable, and printable notes": ["Μορφοποιημένες, επεξεργάσιμες και εκτυπώσιμες σημειώσεις", "Note formattate, modificabili e stampabili", "Notes mises en forme, modifiables et imprimables"],
+  "Private conversational Fast Memory": ["Ιδιωτική Γρήγορη Μνήμη συνομιλιών", "Memoria rapida privata per le conversazioni", "Mémoire rapide conversationnelle privée"],
+  "Files and everyday organization": ["Αρχεία και καθημερινή οργάνωση", "File e organizzazione quotidiana", "Fichiers et organisation quotidienne"],
+  "Keep the documents and details you use every day organized, searchable, and ready for conversation.": ["Διατηρήστε τα καθημερινά έγγραφα και στοιχεία οργανωμένα, αναζητήσιμα και έτοιμα για συνομιλία.", "Mantieni documenti e dettagli quotidiani organizzati, ricercabili e pronti per la conversazione.", "Gardez vos documents et informations du quotidien organisés, consultables et prêts pour la conversation."],
+  "Shared Files folders and subfolders": ["Φάκελοι και υποφάκελοι Κοινόχρηστων Αρχείων", "Cartelle e sottocartelle dei File condivisi", "Dossiers et sous-dossiers des Fichiers partagés"],
+  "Upload, move, and attach documents": ["Μεταφόρτωση, μετακίνηση και επισύναψη εγγράφων", "Carica, sposta e allega documenti", "Importer, déplacer et joindre des documents"],
+  "Local contacts and birthdays": ["Τοπικές επαφές και γενέθλια", "Contatti e compleanni locali", "Contacts et anniversaires locaux"],
+  "Calendar, reminders, and notifications": ["Ημερολόγιο, υπενθυμίσεις και ειδοποιήσεις", "Calendario, promemoria e notifiche", "Calendrier, rappels et notifications"],
+  "Language and personalization": ["Γλώσσα και εξατομίκευση", "Lingua e personalizzazione", "Langue et personnalisation"],
+  "Shape the interface and assistant around how you prefer to read, speak, and work.": ["Προσαρμόστε τη διεπαφή και τον βοηθό στον τρόπο που προτιμάτε να διαβάζετε, να μιλάτε και να εργάζεστε.", "Adatta l’interfaccia e l’assistente al tuo modo di leggere, parlare e lavorare.", "Adaptez l’interface et l’assistant à votre façon de lire, parler et travailler."],
+  "English, Greek, Italian, and French": ["Αγγλικά, Ελληνικά, Ιταλικά και Γαλλικά", "Inglese, greco, italiano e francese", "Anglais, grec, italien et français"],
+  "Automatic or manual interface language": ["Αυτόματη ή χειροκίνητη γλώσσα διεπαφής", "Lingua dell’interfaccia automatica o manuale", "Langue d’interface automatique ou manuelle"],
+  "Theme, density, and text-size controls": ["Ρυθμίσεις θέματος, πυκνότητας και μεγέθους κειμένου", "Controlli per tema, densità e dimensione testo", "Réglages du thème, de la densité et de la taille du texte"],
+  "Your preferred compatible AI provider": ["Ο συμβατός πάροχος AI που προτιμάτε", "Il provider IA compatibile che preferisci", "Le fournisseur d’IA compatible de votre choix"],
+  "Open memory": ["Άνοιγμα μνήμης", "Apri memoria", "Ouvrir la mémoire"],
+  "Browse files": ["Περιήγηση αρχείων", "Sfoglia file", "Parcourir les fichiers"]
 });
