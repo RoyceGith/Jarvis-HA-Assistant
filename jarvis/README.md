@@ -8,6 +8,9 @@ ZBRANO is a private Home Assistant intelligence assistant. It combines natural
 conversation, live home context, voice, useful memory, notifications, organization,
 and automation in one interface without granting itself access to every device.
 
+Version 0.13.209 gives the My Memory front page a compact top section and brings
+saved spaces upward with smaller, clearer labels and cards.
+
 Version 0.13.208 renders memory notes with chat-style headings, bold text, and
 lists, adds visible last-updated dates, and prints the same formatted content.
 
