@@ -14,10 +14,10 @@ MANIFEST = json.loads((ROOT / "jarvis/release_manifest.json").read_text(encoding
 
 class FollowupCaptureRegressionTests(unittest.TestCase):
     def test_release_markers_are_aligned(self):
-        self.assertIn('version: "0.13.208"', CONFIG)
-        self.assertIn('version="0.13.208"', MAIN)
-        self.assertIn("HUD 0.13.208", INDEX)
-        self.assertEqual(MANIFEST["version"], "0.13.208")
+        self.assertIn('version: "0.13.209"', CONFIG)
+        self.assertIn('version="0.13.209"', MAIN)
+        self.assertIn("HUD 0.13.209", INDEX)
+        self.assertEqual(MANIFEST["version"], "0.13.209")
 
     def test_command_window_records_before_speech_detection(self):
         window = INDEX[INDEX.index("function startFallbackCommandWindow()"):INDEX.index("function fallbackRateAllowed")]

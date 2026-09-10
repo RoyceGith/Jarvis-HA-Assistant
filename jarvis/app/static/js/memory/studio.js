@@ -37,8 +37,10 @@
             </form>
             <div id="memory-quick-result" class="memory-quick-result" hidden></div>
           </section>
-          <header class="memory-heading"><div><h2>Your organized memory</h2><p>Browse what ZBRANO has filed, or search across everything.</p></div><div class="memory-heading-actions"><button type="button" id="memory-refresh">Refresh</button><button type="button" id="memory-new-space">Organize manually</button></div></header>
-          <div class="memory-dashboard"><div class="memory-stat"><strong id="memory-space-count">0</strong><span>Memory areas</span></div><div class="memory-stat"><strong id="memory-note-count">0</strong><span>Organized notes</span></div><div class="memory-stat"><strong id="memory-template-count">Ready</strong><span>Automatic organization</span></div></div>
+          <div class="memory-overview-bar">
+            <header class="memory-heading"><div><h2>Your organized memory</h2><p>Browse what ZBRANO has filed, or search across everything.</p></div><div class="memory-heading-actions"><button type="button" id="memory-refresh">Refresh</button><button type="button" id="memory-new-space">Organize manually</button></div></header>
+            <div class="memory-dashboard"><div class="memory-stat"><strong id="memory-space-count">0</strong><span>Areas</span></div><div class="memory-stat"><strong id="memory-note-count">0</strong><span>Notes</span></div><div class="memory-stat"><strong id="memory-template-count">Ready</strong><span>Auto-organize</span></div></div>
+          </div>
           <section id="memory-space-composer" class="memory-composer" hidden>
             <div class="memory-heading"><div><span class="memory-eyebrow">OPTIONAL</span><h2>Organize a space manually</h2><p>Use this only when you want to control the structure yourself.</p></div><button type="button" data-memory-cancel="space">Cancel</button></div>
             <div class="memory-step"><strong>1 · WHAT IS IT FOR?</strong><div id="memory-create-categories" class="memory-choice-grid"></div></div>

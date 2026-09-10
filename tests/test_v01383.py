@@ -15,10 +15,10 @@ MANIFEST = json.loads((ROOT / "jarvis/release_manifest.json").read_text(encoding
 
 class AutomationStudioLiveValidationReleaseTests(unittest.TestCase):
     def test_release_markers_are_aligned(self):
-        self.assertIn('version: "0.13.208"', CONFIG)
-        self.assertIn('version="0.13.208"', MAIN)
-        self.assertIn("HUD 0.13.208", HTML)
-        self.assertEqual(MANIFEST["version"], "0.13.208")
+        self.assertIn('version: "0.13.209"', CONFIG)
+        self.assertIn('version="0.13.209"', MAIN)
+        self.assertIn("HUD 0.13.209", HTML)
+        self.assertEqual(MANIFEST["version"], "0.13.209")
 
     def test_validation_surface_and_canvas_markers_exist(self):
         self.assertIn('id="automation-studio-validation"', HTML)
@@ -47,7 +47,7 @@ class AutomationStudioLiveValidationReleaseTests(unittest.TestCase):
         self.assertIn('/before saving/i', BROWSER)
 
     def test_release_history_includes_v01382(self):
-        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.207")
+        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.208")
 
 
 if __name__ == "__main__":

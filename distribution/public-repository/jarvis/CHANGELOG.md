@@ -1,5 +1,13 @@
 # Change log
 
+## 0.13.209
+
+- Bring saved memory spaces into the upper portion of the landing page.
+- Reduce the quick-memory composer height and visual padding.
+- Place compact memory counters beside the section heading on wide screens.
+- Use smaller labels, icons, descriptions, and spacing on memory cards.
+- Preserve a stacked responsive layout on narrower screens.
+
 ## 0.13.208
 
 - Render memory notes with the same safe Markdown formatting used by chat.

@@ -12,7 +12,7 @@ MEMORY_CSS = (ROOT / "jarvis/app/static/css/memory-studio.css").read_text(encodi
 MANIFEST = json.loads((ROOT / "jarvis/release_manifest.json").read_text(encoding="utf-8"))
 
 
-class MemoryPrintHeadingReleaseTests(unittest.TestCase):
+class CompactMemoryLandingReleaseTests(unittest.TestCase):
     def test_release_is_aligned(self):
         self.assertIn('version: "0.13.209"', CONFIG)
         self.assertIn('version="0.13.209"', MAIN)
@@ -20,14 +20,16 @@ class MemoryPrintHeadingReleaseTests(unittest.TestCase):
         self.assertEqual(MANIFEST["version"], "0.13.209")
         self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.208")
 
-    def test_print_heading_uses_the_space_name(self):
-        self.assertIn('title.textContent = state.selectedSpace || "My Memory";', STUDIO)
-        self.assertNotIn('title.textContent = $("memory-note-name")', STUDIO)
+    def test_landing_page_uses_compact_overview(self):
+        self.assertIn('class="memory-overview-bar"', STUDIO)
+        self.assertIn('<span>Areas</span>', STUDIO)
+        self.assertIn('<span>Notes</span>', STUDIO)
+        self.assertIn(".memory-overview-bar{display:grid", MEMORY_CSS)
+        self.assertIn("min-height:3.6rem", MEMORY_CSS)
+        self.assertIn(".memory-card h3{font-size:.88rem", MEMORY_CSS)
 
-    def test_print_heading_is_compact_and_has_no_prompt_marker(self):
-        self.assertIn("font:650 13pt/1.25", MEMORY_CSS)
-        self.assertIn("#memory-print-sheet h1::before,#memory-print-sheet h2::before", MEMORY_CSS)
-        self.assertIn("{display:none!important;content:none!important}", MEMORY_CSS)
+    def test_compact_overview_remains_responsive(self):
+        self.assertIn("@media(max-width:1050px){.memory-overview-bar{grid-template-columns:1fr}", MEMORY_CSS)
 
 
 if __name__ == "__main__":

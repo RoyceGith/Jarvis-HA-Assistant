@@ -1,9 +1,9 @@
 {
-  "version": "0.13.208",
+  "version": "0.13.209",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/ZBRANO_Core main",
-  "summary": "Display memory notes with chat-style Markdown formatting and visible last-updated dates.",
+  "summary": "Compact the My Memory landing page and move saved spaces into the upper portion of the view.",
   "history_backfill": [
     {
       "version": "0.13.0",
@@ -836,20 +836,24 @@
       {
         "version": "0.13.207",
         "summary": "Used the memory space name as a compact, undecorated print heading."
+      },
+      {
+        "version": "0.13.208",
+        "summary": "Displayed memory notes with chat-style Markdown formatting and visible last-updated dates."
       }
   ],
   "release_entry": {
     "features": [
-      "Read notes with the same safe Markdown headings, bold text, lists, links, and code formatting used in chat.",
-      "Switch explicitly between a clean reading view and the editable Markdown source.",
-      "Show each note's last-updated date in the note list and selected-note header.",
-      "Print formatted note content together with its note title and update date."
+      "See saved memory spaces in the upper portion of the My Memory landing page.",
+      "Use a compact quick-memory composer and space summary.",
+      "Scan smaller, clearer area labels and memory cards.",
+      "Keep the compact layout responsive on narrow screens."
     ],
     "fixes": [
-      "Keep existing Markdown notes compatible while deriving dates from their stored modification time."
+      "Remove excessive vertical space before the memory-space collection."
     ],
     "validation": [
-      "Markdown reading view, note timestamps, formatted print output, API integration, browser smoke, and v0.13.208 release coverage"
+      "Compact landing-page structure, responsive styling, browser smoke, and v0.13.209 release coverage"
     ]
   },
   "features": [
