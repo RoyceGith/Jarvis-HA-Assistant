@@ -27,11 +27,11 @@ class AutomaticEverydayMemoryReleaseTests(unittest.TestCase):
         self.temporary.cleanup()
 
     def test_release_is_aligned(self):
-        self.assertIn('version: "0.13.198"', CONFIG)
-        self.assertIn('version="0.13.198"', MAIN)
-        self.assertIn("HUD 0.13.198", INDEX)
-        self.assertEqual(MANIFEST["version"], "0.13.198")
-        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.197")
+        self.assertIn('version: "0.13.199"', CONFIG)
+        self.assertIn('version="0.13.199"', MAIN)
+        self.assertIn("HUD 0.13.199", INDEX)
+        self.assertEqual(MANIFEST["version"], "0.13.199")
+        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.198")
 
     def test_ordinary_memory_is_filed_without_manual_setup(self):
         saved = knowledge_memory.remember_automatically(
@@ -58,7 +58,7 @@ class AutomaticEverydayMemoryReleaseTests(unittest.TestCase):
     def test_everyday_areas_and_chat_tool_are_available(self):
         categories = {item["name"] for item in knowledge_memory.list_memory_categories()["categories"]}
         self.assertTrue({"People", "Health", "Travel", "Food", "Hobbies", "General"}.issubset(categories))
-        tool = knowledge_memory.knowledge_memory_tool_catalog()["remember_automatically"]
+        tool = knowledge_memory.knowledge_memory_tool_catalog()["save_to_memory_database"]
         self.assertEqual(tool["permission"], "write")
 
     def test_default_interface_hides_organization_complexity(self):

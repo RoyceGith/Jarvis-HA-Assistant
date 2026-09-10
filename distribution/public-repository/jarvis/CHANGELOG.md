@@ -1,5 +1,11 @@
 # Change log
 
+## 0.13.199
+
+- Renamed the technical automatic-memory tool to `save_to_memory_database`.
+- Show **Save to Memory Database** in approval prompts.
+- Kept the previous internal name as a compatibility alias for pending requests.
+
 ## 0.13.198
 
 - Stopped attaching every enabled remote MCP connector to every chat request.

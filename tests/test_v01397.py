@@ -13,10 +13,10 @@ MANIFEST = json.loads((ROOT / "jarvis/release_manifest.json").read_text(encoding
 
 class ArmBrowserBuildStabilityReleaseTests(unittest.TestCase):
     def test_release_markers_are_aligned(self):
-        self.assertIn('version: "0.13.198"', CONFIG)
-        self.assertIn('version="0.13.198"', MAIN)
-        self.assertIn("HUD 0.13.198", HTML)
-        self.assertEqual(MANIFEST["version"], "0.13.198")
+        self.assertIn('version: "0.13.199"', CONFIG)
+        self.assertIn('version="0.13.199"', MAIN)
+        self.assertIn("HUD 0.13.199", HTML)
+        self.assertEqual(MANIFEST["version"], "0.13.199")
 
     def test_browser_waits_for_async_automation_summary(self):
         self.assertIn('[aria-label="View 1 automation draft"]\').waitFor()', BROWSER)
@@ -25,7 +25,7 @@ class ArmBrowserBuildStabilityReleaseTests(unittest.TestCase):
         self.assertLess(wait_index, assertion_index)
 
     def test_release_history_includes_v01396(self):
-        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.197")
+        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.198")
 
 
 if __name__ == "__main__":

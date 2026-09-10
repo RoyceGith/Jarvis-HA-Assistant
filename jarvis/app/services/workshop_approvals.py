@@ -124,6 +124,13 @@ def workshop_memory_write_calls(calls: list[dict[str, Any]]) -> list[dict[str, A
     ]
 
 
+def workshop_tool_display_name(name: str) -> str:
+    return {
+        "save_to_memory_database": "Save to Memory Database",
+        "remember_automatically": "Save to Memory Database",
+    }.get(name, name.replace("_", " ").strip().title() or "Memory Database change")
+
+
 def workshop_memory_approval_prompt(calls: list[dict[str, Any]]) -> str:
     writes = workshop_memory_write_calls(calls)
     gmail_writes = _gmail_write_calls(calls)
@@ -133,9 +140,9 @@ def workshop_memory_approval_prompt(calls: list[dict[str, Any]]) -> str:
         "Knowledge Memory is requesting permission to change permanent project data:"
     ]
     for call in writes[:5]:
-        name = str(call.get("name") or "unknown tool")
+        name = workshop_tool_display_name(str(call.get("name") or ""))
         arguments = summarize_workshop_memory_arguments(call.get("arguments") or "{}")
-        lines.append(f"- `{name}` with `{arguments}`")
+        lines.append(f"- **{name}** with `{arguments}`")
     if len(writes) > 5:
         lines.append(f"- …and {len(writes) - 5} more change(s)")
     lines.append(

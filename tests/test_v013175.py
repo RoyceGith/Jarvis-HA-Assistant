@@ -14,11 +14,11 @@ MANIFEST = json.loads((ROOT / "jarvis/release_manifest.json").read_text(encoding
 
 class ExplicitEntityPermissionReleaseTests(unittest.TestCase):
     def test_release_is_aligned(self):
-        self.assertIn('version: "0.13.198"', CONFIG)
-        self.assertIn('version="0.13.198"', MAIN)
-        self.assertIn("HUD 0.13.198", HTML)
-        self.assertEqual(MANIFEST["version"], "0.13.198")
-        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.197")
+        self.assertIn('version: "0.13.199"', CONFIG)
+        self.assertIn('version="0.13.199"', MAIN)
+        self.assertIn("HUD 0.13.199", HTML)
+        self.assertEqual(MANIFEST["version"], "0.13.199")
+        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.198")
 
     def test_inventory_never_writes_automatic_permission(self):
         inventory_tail = MAIN[MAIN.index('"auto_approved": False'):MAIN.index('entities.sort(key=lambda entity:')]

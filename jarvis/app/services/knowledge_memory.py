@@ -277,8 +277,8 @@ def knowledge_memory_tool_catalog() -> dict[str, dict[str, Any]]:
             "description": "List built-in and user-created reusable Knowledge Memory templates.",
             "parameters": object_schema,
         },
-        "remember_automatically": {
-            "name": "remember_automatically", "permission": "write",
+        "save_to_memory_database": {
+            "name": "save_to_memory_database", "permission": "write",
             "description": "Save and automatically organize an ordinary memory after approval. Prefer this one-step tool when the user says to remember information and has not requested a specific space or note.",
             "parameters": {"type": "object", "properties": {
                 "content": {"type": "string"},
@@ -675,7 +675,7 @@ def call_local_knowledge_tool(tool_name: str, arguments: dict[str, Any]) -> dict
         return list_memory_spaces()
     if tool_name == "list_memory_templates":
         return list_memory_templates()
-    if tool_name == "remember_automatically":
+    if tool_name in {"save_to_memory_database", "remember_automatically"}:
         return remember_automatically(arguments["content"], arguments.get("title", ""), arguments.get("preferred_area", "auto"))
     if tool_name == "create_memory_category":
         return create_memory_category(arguments["name"], arguments.get("icon", "custom"), arguments.get("description", ""))

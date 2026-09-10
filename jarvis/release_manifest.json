@@ -1,9 +1,9 @@
 {
-  "version": "0.13.198",
+  "version": "0.13.199",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/ZBRANO_Core main",
-  "summary": "Keep optional remote MCP failures from breaking ordinary chat by loading connectors only when explicitly requested.",
+  "summary": "Give automatic Knowledge Memory writes the clear Save to Memory Database name in chat and approvals.",
   "history_backfill": [
     {
       "version": "0.13.0",
@@ -796,19 +796,23 @@
       {
         "version": "0.13.197",
         "summary": "Made Memory effortless for everyday users with one-step capture and automatic local organization."
+      },
+      {
+        "version": "0.13.198",
+        "summary": "Kept optional remote MCP failures from breaking ordinary chat by loading connectors only when explicitly requested."
       }
   ],
   "release_entry": {
     "features": [
-      "Select optional remote MCP connectors contextually from the user's explicit connector name.",
-      "Keep built-in chat tools and web search available without contacting unrelated remote servers."
+      "Rename the advertised automatic-memory tool to save_to_memory_database.",
+      "Render automatic Knowledge Memory writes as Save to Memory Database in approval prompts."
     ],
     "fixes": [
-      "Prevent an unavailable optional MCP server from failing ordinary questions such as recipe requests.",
-      "Keep Home Assistant, automation, calendar, and local Knowledge Memory priority routes isolated from remote MCP dependencies."
+      "Keep remember_automatically as an internal compatibility alias for already-pending calls.",
+      "Distinguish durable Memory Database writes from Fast Memory preferences."
     ],
     "validation": [
-      "Contextual MCP inclusion, unrelated-chat isolation, priority route preservation, and v0.13.198 release coverage"
+      "Advertised tool naming, approval display labels, compatibility alias handling, and v0.13.199 release coverage"
     ]
   },
   "features": [

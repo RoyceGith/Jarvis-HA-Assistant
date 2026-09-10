@@ -95,6 +95,9 @@ Assistant configuration. Version 0.13.185 added `amd64` while preserving `aarch6
 and the existing update path.
 The in-app **About** tab provides a visual overview of ZBRANO's complete feature set.
 
+Version 0.13.199 gives automatic Knowledge Memory writes the clear **Save to
+Memory Database** name, distinguishing them from Fast Memory preferences.
+
 Version 0.13.198 isolates optional remote MCP connectors from unrelated chat, so
 an unavailable connector cannot break recipes, device control, or local Memory.
 

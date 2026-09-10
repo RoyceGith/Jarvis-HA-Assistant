@@ -753,7 +753,7 @@ ha_ws = HomeAssistantWebSocketClient(
 
 app = FastAPI(
     title="ZBRANO",
-    version="0.13.198",
+    version="0.13.199",
     docs_url="/api/docs",
     openapi_url="/api/openapi.json",
 )
@@ -1299,7 +1299,7 @@ advertised tool not explicitly annotated read-only requires an approval prompt a
 not execute until the user approves the exact tool and arguments. Never claim
 a permanent write completed until its tool result confirms success. Do not use
 save_general_instruction as a substitute for a durable Knowledge Memory note.
-For an ordinary request such as "remember this", use remember_automatically so
+For an ordinary request such as "remember this", use save_to_memory_database so
 ZBRANO chooses the area and note without asking the user to design a structure.
 Use create_memory_category when the user explicitly wants a new category. Use
 list_memory_templates before choosing a reusable layout, create_memory_template
@@ -2922,7 +2922,7 @@ async def health() -> dict[str, Any]:
     configured_speech_provider = SPEECH_PROVIDER if SPEECH_PROVIDER in {"openai", "elevenlabs"} else "openai"
     return {
         "status": "ok",
-        "version": "0.13.198",
+        "version": "0.13.199",
         "home_assistant_configured": bool(SUPERVISOR_TOKEN),
         "workshop_memory_configured": True,
         "knowledge_memory_mode": "built_in",
