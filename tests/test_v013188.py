@@ -17,11 +17,11 @@ MANIFEST = json.loads((ROOT / "jarvis/release_manifest.json").read_text(encoding
 
 class InterfaceLanguagePickerReleaseTests(unittest.TestCase):
     def test_release_is_aligned(self):
-        self.assertIn('version: "0.13.201"', CONFIG)
-        self.assertIn('version="0.13.201"', MAIN)
-        self.assertIn("HUD 0.13.201", HTML)
-        self.assertEqual(MANIFEST["version"], "0.13.201")
-        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.200")
+        self.assertIn('version: "0.13.202"', CONFIG)
+        self.assertIn('version="0.13.202"', MAIN)
+        self.assertIn("HUD 0.13.202", HTML)
+        self.assertEqual(MANIFEST["version"], "0.13.202")
+        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.201")
 
     def test_flag_selector_is_in_the_top_right_runtime_header(self):
         runtime = HTML[HTML.index('<div class="runtime-status-stack">'):HTML.index("</header>")]

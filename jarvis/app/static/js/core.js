@@ -1461,10 +1461,16 @@ async function deleteChat(sessionId) {
 
   const listResponse = await fetch("api/chats");
   const listData = await listResponse.json().catch(() => ({}));
+  if (!listResponse.ok) throw new Error(listData.detail || `HTTP ${listResponse.status}`);
   const remaining = Array.isArray(listData.chats) ? listData.chats : [];
   const next = remaining.find(chat => chat.session_id !== sessionId);
   if (next) await openChat(next.session_id);
-  else await createNewChat();
+  else {
+    // createNewChat renders a client-only draft and intentionally keeps saved rows.
+    // The final saved row has just been deleted, so remove that stale DOM snapshot first.
+    chatList.innerHTML = "";
+    await createNewChat();
+  }
 }
 
 newChatButton.addEventListener("click", createNewChat);

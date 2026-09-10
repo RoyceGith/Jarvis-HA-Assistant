@@ -1,5 +1,12 @@
 # Change log
 
+## 0.13.202
+
+- Remove the final saved conversation row before rendering its replacement draft.
+- Leave exactly one fresh unsaved chat after the last conversation is deleted.
+- Prevent a second click on a stale row from making both chats appear deleted.
+- Cover the complete one-chat deletion sequence in browser smoke tests.
+
 ## 0.13.201
 
 - Treat an explicit Memory Database save instruction as authorization for that save.

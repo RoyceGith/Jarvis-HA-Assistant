@@ -30,10 +30,10 @@ def load_policy_function():
 
 class PerAutomationOperatingModeReleaseTests(unittest.TestCase):
     def test_release_markers_are_aligned(self):
-        self.assertIn('version: "0.13.201"', CONFIG)
-        self.assertIn('version="0.13.201"', MAIN)
-        self.assertIn("HUD 0.13.201", HTML)
-        self.assertEqual(MANIFEST["version"], "0.13.201")
+        self.assertIn('version: "0.13.202"', CONFIG)
+        self.assertIn('version="0.13.202"', MAIN)
+        self.assertIn("HUD 0.13.202", HTML)
+        self.assertEqual(MANIFEST["version"], "0.13.202")
 
     def test_explicit_path_authority_replaces_the_legacy_global_ceiling(self):
         effective = load_policy_function()
@@ -60,7 +60,7 @@ class PerAutomationOperatingModeReleaseTests(unittest.TestCase):
         self.assertIn("#automations-panel.studio-active", STUDIO_CSS)
 
     def test_release_history_includes_v01368(self):
-        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.200")
+        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.201")
 
 
 if __name__ == "__main__":

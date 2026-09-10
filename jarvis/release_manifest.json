@@ -1,9 +1,9 @@
 {
-  "version": "0.13.201",
+  "version": "0.13.202",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/ZBRANO_Core main",
-  "summary": "Complete explicitly requested Memory Database saves without redundant approvals and announce bounded phases for large saves.",
+  "summary": "Delete the final saved conversation cleanly and leave exactly one fresh unsaved chat.",
   "history_backfill": [
     {
       "version": "0.13.0",
@@ -808,19 +808,23 @@
       {
         "version": "0.13.200",
         "summary": "Preserved formatted partial answers and chat history when users stop a streamed response."
+      },
+      {
+        "version": "0.13.201",
+        "summary": "Completed explicitly requested Memory Database saves without redundant approvals and announced bounded phases for large saves."
       }
   ],
   "release_entry": {
     "features": [
-      "Use an explicit Memory Database save request as authorization for that exact automatic save.",
-      "Announce the number of bounded phases before a genuinely large save begins."
+      "Remove the final saved conversation before showing its replacement draft.",
+      "Leave exactly one fresh unsaved chat after deleting the last conversation."
     ],
     "fixes": [
-      "Remove repeated approval prompts from ordinary automatic Memory Database saves.",
-      "Keep other permanent Memory edits and Gmail draft creation behind approval."
+      "Prevent the deleted conversation row from remaining visible beside the new chat.",
+      "Prevent a second delete on stale UI state from clearing both visible rows."
     ],
     "validation": [
-      "Explicit-save authorization boundaries, large-save phase notices, approval preservation, and v0.13.201 release coverage"
+      "Single-conversation deletion lifecycle, replacement-draft rendering, browser smoke, and v0.13.202 release coverage"
     ]
   },
   "features": [
