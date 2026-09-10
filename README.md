@@ -1,9 +1,12 @@
-## ZBRANO v0.13.206
+## ZBRANO v0.13.207
 
 ZBRANO combines Home Assistant chat, voice, entity control, memory, notifications,
 calendar and contact tools, plugins, and evidence-based automations. Automation Studio now uses
 a visual building-block toolbox, interactive node canvas, and contextual inspector;
 the established automation engine and stored definitions remain compatible.
+
+Version 0.13.207 prints the memory space name as a smaller, clean document heading
+without the interface's decorative greater-than sign.
 
 Version 0.13.206 removes the excessive blank gap between a memory note title and
 its content while preserving the large editor workspace.

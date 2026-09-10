@@ -12,7 +12,7 @@ MEMORY_CSS = (ROOT / "jarvis/app/static/css/memory-studio.css").read_text(encodi
 MANIFEST = json.loads((ROOT / "jarvis/release_manifest.json").read_text(encoding="utf-8"))
 
 
-class MemoryCategoryNavigationReleaseTests(unittest.TestCase):
+class MemoryPrintHeadingReleaseTests(unittest.TestCase):
     def test_release_is_aligned(self):
         self.assertIn('version: "0.13.207"', CONFIG)
         self.assertIn('version="0.13.207"', MAIN)
@@ -20,19 +20,13 @@ class MemoryCategoryNavigationReleaseTests(unittest.TestCase):
         self.assertEqual(MANIFEST["version"], "0.13.207")
         self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.206")
 
-    def test_entering_a_space_opens_its_first_note(self):
-        self.assertIn("if (payload.notes?.length) await openNote(payload.notes[0]);", STUDIO)
+    def test_print_heading_uses_the_space_name(self):
+        self.assertIn('title.textContent = state.selectedSpace || "My Memory";', STUDIO)
+        self.assertNotIn('title.textContent = $("memory-note-name")', STUDIO)
 
-    def test_categories_remain_available_above_the_note(self):
-        self.assertIn('class="memory-space-category-tabs"', STUDIO)
-        self.assertIn("data-open-memory-category", STUDIO)
-        self.assertIn("if (matches.length === 1)", STUDIO)
-        self.assertIn(".memory-space-category-tabs", MEMORY_CSS)
-
-    def test_note_workspace_uses_more_available_space(self):
-        self.assertIn("grid-template-columns:11.5rem minmax(0,1fr)", MEMORY_CSS)
-        self.assertIn("minmax(30rem,1fr)", MEMORY_CSS)
-        self.assertIn(":has(.memory-details-open)", MEMORY_CSS)
+    def test_print_heading_is_compact_and_has_no_prompt_marker(self):
+        self.assertIn("font:650 13pt/1.25", MEMORY_CSS)
+        self.assertIn("#memory-print-sheet h1::before{display:none!important;content:none!important}", MEMORY_CSS)
 
 
 if __name__ == "__main__":

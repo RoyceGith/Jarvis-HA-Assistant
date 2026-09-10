@@ -1,9 +1,9 @@
 {
-  "version": "0.13.206",
+  "version": "0.13.207",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/ZBRANO_Core main",
-  "summary": "Remove the excessive gap between a memory note title and its content editor.",
+  "summary": "Use the memory space name as a compact, undecorated print heading.",
   "history_backfill": [
     {
       "version": "0.13.0",
@@ -828,18 +828,22 @@
       {
         "version": "0.13.205",
         "summary": "Opened memory notes immediately, kept category navigation visible, and expanded the usable editor space."
+      },
+      {
+        "version": "0.13.206",
+        "summary": "Removed the excessive gap between a memory note title and its content editor."
       }
   ],
   "release_entry": {
     "features": [
-      "Place the memory content editor immediately beneath its Contents label.",
-      "Keep the content editor stretched through the remaining workspace height."
+      "Use the containing memory space name as the print document heading.",
+      "Present the print heading at a compact document-friendly size."
     ],
     "fixes": [
-      "Remove the nested 100-percent height calculation that created a large blank gap above the note."
+      "Suppress the interface heading decoration so printouts no longer begin with a greater-than sign."
     ],
     "validation": [
-      "Memory editor grid sizing, browser smoke, and v0.13.206 release coverage"
+      "Print title content, print-only heading styling, browser smoke, and v0.13.207 release coverage"
     ]
   },
   "features": [

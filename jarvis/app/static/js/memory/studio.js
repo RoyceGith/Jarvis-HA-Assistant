@@ -212,7 +212,7 @@
     const sheet = document.createElement("section");
     sheet.id = "memory-print-sheet";
     const title = document.createElement("h1");
-    title.textContent = $("memory-note-name").value.trim() || displayNote(state.selectedNote);
+    title.textContent = state.selectedSpace || "My Memory";
     const content = document.createElement("pre");
     content.textContent = $("memory-note-content").value;
     sheet.append(title, content);
