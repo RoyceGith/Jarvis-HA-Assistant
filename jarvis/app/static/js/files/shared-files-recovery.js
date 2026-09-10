@@ -23,6 +23,18 @@
     if (!response.ok) throw new Error(data.detail || `HTTP ${response.status}`);
     return data;
   };
+  const formatBytes = value => {
+    const bytes = Math.max(0, Number(value || 0));
+    if (bytes < 1024) return `${bytes} B`;
+    if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(bytes < 10240 ? 1 : 0)} KB`;
+    return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+  };
+  const fileKind = file => {
+    const extension = String(file.name || "").split(".").pop().toUpperCase();
+    if (extension && extension !== String(file.name || "").toUpperCase() && extension.length <= 5) return extension;
+    const subtype = String(file.mime_type || "file").split("/").pop().split(/[+;.]/)[0];
+    return (subtype || "FILE").slice(0, 8).toUpperCase();
+  };
 
   function activateFilesPanel() {
     for (const id of ["chat-panel", "entities-panel", "settings-panel", "plugins-panel", "files-panel", "contacts-panel", "calendar-panel", "about-panel"]) {
@@ -66,12 +78,14 @@
       for (const folder of folders) {
         const row = document.createElement("tr");
         row.className = "shared-folder-row";
-        row.innerHTML = `<td></td><td><button type="button" class="shared-folder-name" data-shared-folder="${escHtml(folder.path)}"><span class="shared-folder-icon" aria-hidden="true">&#128193;</span>${escHtml(folder.name)}</button></td><td>—</td><td>Folder</td><td>${Number(folder.file_count || 0)} files</td><td><button type="button" class="shared-folder-delete" data-delete-shared-folder="${escHtml(folder.path)}">Delete</button></td>`;
+        const folderCount = Number(folder.file_count || 0);
+        row.innerHTML = `<td></td><td><button type="button" class="shared-folder-name" data-shared-folder="${escHtml(folder.path)}"><span class="shared-folder-icon" aria-hidden="true">&#128193;</span>${escHtml(folder.name)}</button></td><td>—</td><td>Folder</td><td>${folderCount} file${folderCount === 1 ? "" : "s"}</td><td><button type="button" class="shared-folder-delete" data-delete-shared-folder="${escHtml(folder.path)}">Delete</button></td>`;
         rows.appendChild(row);
       }
       for (const file of files) {
         const row = document.createElement("tr");
-        row.innerHTML = `<td><input type="checkbox" data-shared-id="${escHtml(file.file_id)}"></td><td>${escHtml(file.name)}</td><td>${new Date(Number(file.created_at || 0) * 1000).toLocaleString(window.ZbranoI18n?.locale || undefined)}</td><td>${escHtml(file.mime_type)}</td><td>${Math.round(Number(file.size || 0) / 1024)} KB</td><td></td>`;
+        const kind = fileKind(file);
+        row.innerHTML = `<td><input type="checkbox" data-shared-id="${escHtml(file.file_id)}" aria-label="Select ${escHtml(file.name)}"></td><td><span class="shared-file-name"><span class="shared-file-icon" aria-hidden="true">${escHtml(kind)}</span>${escHtml(file.name)}</span></td><td class="shared-file-date">${new Date(Number(file.created_at || 0) * 1000).toLocaleString(window.ZbranoI18n?.locale || undefined)}</td><td>${escHtml(kind)}</td><td>${formatBytes(file.size)}</td><td></td>`;
         rows.appendChild(row);
       }
       if (!folders.length && !files.length) rows.innerHTML = `<tr class="shared-files-empty"><td colspan="6">This folder is empty. Upload files or create a folder here.</td></tr>`;

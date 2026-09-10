@@ -13,11 +13,11 @@ MANIFEST = json.loads((ROOT / "jarvis/release_manifest.json").read_text(encoding
 
 class MemoryEditorSpacingReleaseTests(unittest.TestCase):
     def test_release_is_aligned(self):
-        self.assertIn('version: "0.13.210"', CONFIG)
-        self.assertIn('version="0.13.210"', MAIN)
-        self.assertIn("HUD 0.13.210", INDEX)
-        self.assertEqual(MANIFEST["version"], "0.13.210")
-        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.209")
+        self.assertIn('version: "0.13.211"', CONFIG)
+        self.assertIn('version="0.13.211"', MAIN)
+        self.assertIn("HUD 0.13.211", INDEX)
+        self.assertEqual(MANIFEST["version"], "0.13.211")
+        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.210")
 
     def test_content_editor_starts_directly_below_its_label(self):
         self.assertIn("grid-template-rows:auto minmax(0,1fr)", MEMORY_CSS)

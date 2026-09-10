@@ -35,7 +35,7 @@
   <header>
     <div class="brand-line">
       <h1>ZBRANO</h1>
-      <div class="status hud-version-label">Workshop Intelligence Interface · HUD 0.13.210</div>
+      <div class="status hud-version-label">Workshop Intelligence Interface · HUD 0.13.211</div>
     </div>
     <div class="runtime-status-stack">
       <label class="interface-language-picker" title="Interface language">
@@ -206,7 +206,19 @@
     </div>
   </section>
 
-  <section id="files-panel" class="panel hidden"><div id="shared-breadcrumbs" class="shared-breadcrumbs" aria-label="Current folder"><button type="button" data-shared-folder="">Shared Files</button></div><div class="toolbar shared-files-toolbar"><button id="shared-new-folder" type="button">+ New folder</button><button id="shared-upload-here" type="button">Upload files</button><input id="shared-folder-upload" type="file" multiple hidden><select id="shared-move-target" aria-label="Move selected files"><option value="">Move selected to…</option></select><button id="shared-move" type="button">Move</button><select id="shared-sort"><option value="date">Sort by date</option><option value="name">Sort by name</option></select><select id="shared-order"><option value="desc">Descending</option><option value="asc">Ascending</option></select><button id="shared-refresh" type="button">Refresh</button><button id="shared-use" type="button">Attach selected to chat</button><button id="shared-delete" type="button">Delete selected</button></div><div id="shared-summary" class="summary muted">Shared files are available to every chat.</div><div class="table-wrap"><table class="shared-files-table"><thead><tr><th>Select</th><th>Name</th><th>Date</th><th>Type</th><th>Size</th><th>Actions</th></tr></thead><tbody id="shared-file-rows"></tbody></table></div></section>
+  <section id="files-panel" class="panel shared-files-panel hidden">
+    <header class="shared-files-header">
+      <div><span class="shared-files-eyebrow">PRIVATE LIBRARY</span><h2>Your file library</h2><p>Keep useful documents organized and ready for any conversation.</p></div>
+      <div class="shared-files-primary-actions"><button id="shared-new-folder" type="button"><span aria-hidden="true">＋</span> New folder</button><button id="shared-upload-here" class="shared-upload-primary" type="button"><span aria-hidden="true">↑</span> Upload files</button><input id="shared-folder-upload" type="file" multiple hidden></div>
+    </header>
+    <div id="shared-breadcrumbs" class="shared-breadcrumbs" aria-label="Current folder"><button type="button" data-shared-folder="">Shared Files</button></div>
+    <div class="shared-files-commandbar">
+      <div class="shared-files-selection-tools"><select id="shared-move-target" aria-label="Move selected files"><option value="">Move selected to…</option></select><button id="shared-move" type="button">Move</button><button id="shared-use" type="button">Attach to chat</button><button id="shared-delete" class="shared-delete-action" type="button">Delete</button></div>
+      <div class="shared-files-view-tools"><select id="shared-sort" aria-label="Sort files"><option value="date">Newest first</option><option value="name">Name</option></select><select id="shared-order" aria-label="Sort direction"><option value="desc">Descending</option><option value="asc">Ascending</option></select><button id="shared-refresh" class="shared-icon-action" type="button" title="Refresh" aria-label="Refresh">↻</button></div>
+    </div>
+    <div id="shared-summary" class="shared-files-summary">Shared files are available to every chat.</div>
+    <div class="table-wrap shared-files-table-wrap"><table class="shared-files-table"><thead><tr><th class="shared-select-column"><span class="sr-only">Select</span></th><th>Name</th><th>Date added</th><th>Type</th><th>Size</th><th class="shared-actions-column"><span class="sr-only">Actions</span></th></tr></thead><tbody id="shared-file-rows"></tbody></table></div>
+  </section>
 
 <section id="entities-panel" class="panel hidden">
     <div class="entity-view-tabs" role="tablist" aria-label="Entity views">

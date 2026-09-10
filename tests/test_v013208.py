@@ -17,11 +17,11 @@ MANIFEST = json.loads((ROOT / "jarvis/release_manifest.json").read_text(encoding
 
 class FormattedMemoryNotesReleaseTests(unittest.TestCase):
     def test_release_is_aligned(self):
-        self.assertIn('version: "0.13.210"', CONFIG)
-        self.assertIn('version="0.13.210"', MAIN)
-        self.assertIn("HUD 0.13.210", INDEX)
-        self.assertEqual(MANIFEST["version"], "0.13.210")
-        self.assertEqual(MANIFEST["history_backfill"][-3]["version"], "0.13.207")
+        self.assertIn('version: "0.13.211"', CONFIG)
+        self.assertIn('version="0.13.211"', MAIN)
+        self.assertIn("HUD 0.13.211", INDEX)
+        self.assertEqual(MANIFEST["version"], "0.13.211")
+        self.assertEqual(MANIFEST["history_backfill"][-4]["version"], "0.13.207")
 
     def test_existing_notes_include_an_updated_timestamp(self):
         original_root = knowledge_memory.KNOWLEDGE_ROOT

@@ -17,8 +17,8 @@ class TextboxFocusReleaseTests(unittest.TestCase):
         self.assertNotIn('field.value = ""', CORE)
 
     def test_release_is_aligned(self):
-        self.assertEqual(MANIFEST["version"], "0.13.210")
-        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.209")
+        self.assertEqual(MANIFEST["version"], "0.13.211")
+        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.210")
 
 
 if __name__ == "__main__":

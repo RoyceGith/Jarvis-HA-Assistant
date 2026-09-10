@@ -426,4 +426,13 @@ window.ZbranoI18n?.register({
   "Folder": ["Φάκελος", "Cartella", "Dossier"],
   "This folder is empty. Upload files or create a folder here.": ["Αυτός ο φάκελος είναι κενός. Μεταφορτώστε αρχεία ή δημιουργήστε έναν φάκελο εδώ.", "Questa cartella è vuota. Carica file o crea una cartella qui.", "Ce dossier est vide. Importez des fichiers ou créez un dossier ici."],
   "Name this folder": ["Ονομάστε αυτόν τον φάκελο", "Assegna un nome alla cartella", "Nommez ce dossier"]
+  ,"PRIVATE LIBRARY": ["ΙΔΙΩΤΙΚΗ ΒΙΒΛΙΟΘΗΚΗ", "LIBRERIA PRIVATA", "BIBLIOTHÈQUE PRIVÉE"]
+  ,"Your file library": ["Η βιβλιοθήκη αρχείων σας", "La tua libreria di file", "Votre bibliothèque de fichiers"]
+  ,"Keep useful documents organized and ready for any conversation.": ["Διατηρήστε χρήσιμα έγγραφα οργανωμένα και έτοιμα για κάθε συνομιλία.", "Mantieni i documenti utili organizzati e pronti per ogni conversazione.", "Gardez vos documents utiles organisés et prêts pour chaque conversation."]
+  ,"New folder": ["Νέος φάκελος", "Nuova cartella", "Nouveau dossier"]
+  ,"Attach to chat": ["Επισύναψη στη συνομιλία", "Allega alla chat", "Joindre à la discussion"]
+  ,"Delete": ["Διαγραφή", "Elimina", "Supprimer"]
+  ,"Newest first": ["Νεότερα πρώτα", "Più recenti prima", "Plus récents d’abord"]
+  ,"Name": ["Όνομα", "Nome", "Nom"]
+  ,"Date added": ["Ημερομηνία προσθήκης", "Data di aggiunta", "Date d’ajout"]
 });

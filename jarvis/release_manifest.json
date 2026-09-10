@@ -1,9 +1,9 @@
 {
-  "version": "0.13.210",
+  "version": "0.13.211",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/ZBRANO_Core main",
-  "summary": "Add safe folder organization, navigation, uploads, and file moving to Shared Files.",
+  "summary": "Polish Shared Files into a refined, modern private-library workspace.",
   "history_backfill": [
     {
       "version": "0.13.0",
@@ -844,21 +844,24 @@
       {
         "version": "0.13.209",
         "summary": "Compacted the My Memory landing page and moved saved spaces into the upper portion of the view."
+      },
+      {
+        "version": "0.13.210",
+        "summary": "Added safe folder organization, navigation, uploads, and file moving to Shared Files."
       }
   ],
   "release_entry": {
     "features": [
-      "Create folders and nested folders inside Shared Files.",
-      "Navigate the current folder with breadcrumbs.",
-      "Upload files directly into the open folder.",
-      "Move selected files between folders or back to the main Shared Files area."
+      "Use a refined private-library layout in Shared Files.",
+      "See primary upload and folder actions separated from selection tools.",
+      "Scan polished file and folder badges with concise metadata.",
+      "Use grouped controls that adapt cleanly to narrower screens."
     ],
     "fixes": [
-      "Reject unsafe folder paths and prevent non-empty folders from being deleted.",
-      "Keep existing unfiled Shared Files visible in the main area without migration."
+      "Improve Shared Files hierarchy, spacing, hover feedback, and visual consistency without changing stored files."
     ],
     "validation": [
-      "Nested folder lifecycle, folder uploads, moving, safe deletion, browser navigation, localization, and v0.13.210 release coverage"
+      "Shared Files structure, file metadata rendering, responsive styling, browser navigation, localization, and v0.13.211 release coverage"
     ]
   },
   "features": [

@@ -14,11 +14,11 @@ MANIFEST = json.loads((ROOT / "jarvis/release_manifest.json").read_text(encoding
 
 class MemoryCategoryNavigationReleaseTests(unittest.TestCase):
     def test_release_is_aligned(self):
-        self.assertIn('version: "0.13.210"', CONFIG)
-        self.assertIn('version="0.13.210"', MAIN)
-        self.assertIn("HUD 0.13.210", INDEX)
-        self.assertEqual(MANIFEST["version"], "0.13.210")
-        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.209")
+        self.assertIn('version: "0.13.211"', CONFIG)
+        self.assertIn('version="0.13.211"', MAIN)
+        self.assertIn("HUD 0.13.211", INDEX)
+        self.assertEqual(MANIFEST["version"], "0.13.211")
+        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.210")
 
     def test_entering_a_space_opens_its_first_note(self):
         self.assertIn("if (payload.notes?.length) await openNote(payload.notes[0]);", STUDIO)
