@@ -1,5 +1,12 @@
 # Change log
 
+## 0.13.205
+
+- Open the first note automatically when entering a memory space.
+- Keep a compact category switcher above the note workspace.
+- Navigate directly into single-space categories.
+- Expand the note editor into more of the available window.
+
 ## 0.13.204
 
 - Suggest a broad or more specific collection before saving reusable content.

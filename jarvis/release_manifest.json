@@ -1,9 +1,9 @@
 {
-  "version": "0.13.204",
+  "version": "0.13.205",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/ZBRANO_Core main",
-  "summary": "Suggest useful memory collections before saving and make My Memory a focused, editable, printable notes workspace.",
+  "summary": "Open memory notes immediately, keep category navigation visible, and give the note editor more usable space.",
   "history_backfill": [
     {
       "version": "0.13.0",
@@ -820,21 +820,24 @@
       {
         "version": "0.13.203",
         "summary": "Organized saved knowledge into descriptive topic collections with one safe append-or-create choice."
+      },
+      {
+        "version": "0.13.204",
+        "summary": "Suggested useful collections before saving and made My Memory a focused, editable, printable notes workspace."
       }
   ],
   "release_entry": {
     "features": [
-      "Suggest both a broad topic collection and a useful specific collection before the first save.",
-      "Open memory spaces as a spacious note-focused workspace with compact controls.",
-      "Edit and rename existing notes and categories directly in My Memory.",
-      "Print an individual memory note from its editor."
+      "Keep a compact category switcher visible while reading or editing a memory note.",
+      "Open a category directly when it contains one space and show its space choices when it contains several.",
+      "Automatically open the first note when entering a memory space."
     ],
     "fixes": [
-      "Hide the internal .md extension from note titles, lists, template cards, and search results.",
-      "Keep spaces assigned when their category is renamed."
+      "Use more of the available width and height for the note editor.",
+      "Avoid presenting an empty editor when a space already contains notes."
     ],
     "validation": [
-      "First-save collection suggestions, note and category rename APIs, focused editor, print view, browser smoke, and v0.13.204 release coverage"
+      "Automatic first-note selection, category navigation, responsive note workspace, browser smoke, and v0.13.205 release coverage"
     ]
   },
   "features": [

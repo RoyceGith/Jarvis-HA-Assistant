@@ -14,10 +14,10 @@ MANIFEST = json.loads((ROOT / "jarvis/release_manifest.json").read_text(encoding
 
 class ConversationCaptureReadinessTests(unittest.TestCase):
     def test_release_markers_are_aligned(self):
-        self.assertIn('version: "0.13.204"', CONFIG)
-        self.assertIn('version="0.13.204"', MAIN)
-        self.assertIn("HUD 0.13.204", INDEX)
-        self.assertEqual(MANIFEST["version"], "0.13.204")
+        self.assertIn('version: "0.13.205"', CONFIG)
+        self.assertIn('version="0.13.205"', MAIN)
+        self.assertIn("HUD 0.13.205", INDEX)
+        self.assertEqual(MANIFEST["version"], "0.13.205")
 
     def test_existing_microphone_is_live_and_resumed_before_reuse(self):
         fallback = INDEX[INDEX.index("async function startWakeFallback()") : INDEX.index("function recognitionLanguage()")]
