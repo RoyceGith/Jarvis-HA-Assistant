@@ -1,5 +1,10 @@
 # Change log
 
+## 0.13.206
+
+- Place note content directly beneath the Contents label.
+- Preserve the editor's full remaining height without nested stretching gaps.
+
 ## 0.13.205
 
 - Open the first note automatically when entering a memory space.

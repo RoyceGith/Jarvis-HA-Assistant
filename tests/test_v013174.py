@@ -16,11 +16,11 @@ MANIFEST = json.loads((ROOT / "jarvis/release_manifest.json").read_text(encoding
 
 class EntityPermissionGuideReleaseTests(unittest.TestCase):
     def test_release_is_aligned(self):
-        self.assertIn('version: "0.13.205"', CONFIG)
-        self.assertIn('version="0.13.205"', MAIN)
-        self.assertIn("HUD 0.13.205", HTML)
-        self.assertEqual(MANIFEST["version"], "0.13.205")
-        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.204")
+        self.assertIn('version: "0.13.206"', CONFIG)
+        self.assertIn('version="0.13.206"', MAIN)
+        self.assertIn("HUD 0.13.206", HTML)
+        self.assertEqual(MANIFEST["version"], "0.13.206")
+        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.205")
 
     def test_inventory_marks_existing_safe_control_domains(self):
         self.assertIn('"control_capable": domain in SAFE_CONTROL_DOMAINS', MAIN)

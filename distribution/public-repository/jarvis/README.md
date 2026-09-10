@@ -8,6 +8,9 @@ ZBRANO is a private Home Assistant intelligence assistant. It combines natural
 conversation, live home context, voice, useful memory, notifications, organization,
 and automation in one interface without granting itself access to every device.
 
+Version 0.13.206 removes the excessive gap between a note title and its content
+editor while preserving the expanded workspace.
+
 Version 0.13.205 opens the first note immediately, keeps other categories in a
 compact top switcher, and gives the note editor more usable room.
 
@@ -18,9 +21,6 @@ notes and categories, and provides clean note printing.
 Version 0.13.203 creates descriptive Memory Database collections such as **Soup
 Recipes**, offers one append-or-create choice when a related collection exists, and
 shows the exact destination after saving.
-
-Version 0.13.202 removes the final saved conversation cleanly and leaves exactly one
-fresh unsaved chat, without retaining a stale row or deleting the replacement later.
 
 Version 0.13.201 lets an explicit Memory Database save run without a second approval.
 Ordinary saves finish in one operation; genuinely large saves announce their bounded
