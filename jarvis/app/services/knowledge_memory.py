@@ -71,7 +71,7 @@ AUTO_MEMORY_AREAS = {
     "food": {
         "area": "Food & recipes", "space": "Food & Recipes", "category": "Food", "icon": "recipes",
         "purpose": "Food information automatically organized by ZBRANO.",
-        "keywords": ("recipe", "ingredient", "meal", "cook", "restaurant", "food", "grocery", "bake", "breakfast", "lunch", "dinner", "ricetta", "ingrediente", "cucinare", "recette", "repas", "cuisiner"),
+        "keywords": ("recipe", "ingredient", "meal", "cook", "restaurant", "food", "grocery", "bake", "breakfast", "lunch", "dinner", "soup", "stew", "pasta", "bread", "cake", "dessert", "salad", "ricetta", "ingrediente", "cucinare", "recette", "repas", "cuisiner"),
     },
     "hobbies": {
         "area": "Hobbies", "space": "Hobbies", "category": "Hobbies", "icon": "hobbies",
@@ -155,9 +155,22 @@ def _custom_categories() -> list[dict[str, str]]:
 
 def list_memory_categories() -> dict[str, Any]:
     _initialize()
-    categories = [dict(item, built_in=True) for item in DEFAULT_CATEGORIES]
+    custom = _custom_categories()
+    overrides = {
+        str(item.get("built_in_name") or "").casefold(): item
+        for item in custom
+        if item.get("built_in_name")
+    }
+    categories = []
+    for default in DEFAULT_CATEGORIES:
+        override = overrides.get(default["name"].casefold())
+        categories.append(dict(override or default, built_in=True, built_in_name=default["name"]))
     existing = {item["name"].casefold() for item in categories}
-    categories.extend(dict(item, built_in=False) for item in _custom_categories() if str(item.get("name", "")).casefold() not in existing)
+    categories.extend(
+        dict(item, built_in=False)
+        for item in custom
+        if not item.get("built_in_name") and str(item.get("name", "")).casefold() not in existing
+    )
     return {"categories": categories, "count": len(categories)}
 
 
@@ -175,6 +188,49 @@ def create_memory_category(name: str, icon: str, description: str) -> dict[str, 
     custom.append(item)
     _categories_path().write_text(json.dumps(custom, indent=2, ensure_ascii=False), encoding="utf-8")
     return {"created": True, "category": dict(item, built_in=False)}
+
+
+def update_memory_category(original_name: str, name: str, icon: str, description: str) -> dict[str, Any]:
+    """Edit a category label and keep all assigned memory spaces connected to it."""
+    _initialize()
+    original = _safe_component(original_name, "original category name")
+    clean_name = _safe_component(name, "category name")
+    categories = list_memory_categories()["categories"]
+    current = next((item for item in categories if item["name"].casefold() == original.casefold()), None)
+    if not current:
+        raise ValueError(f"Memory category not found: {original}")
+    if any(item["name"].casefold() == clean_name.casefold() and item is not current for item in categories):
+        raise ValueError(f"Memory category already exists: {clean_name}")
+    item = {
+        "name": clean_name,
+        "icon": _safe_component(icon or "custom", "category icon")[:30],
+        "description": str(description or "").strip()[:300],
+    }
+    custom = _custom_categories()
+    if current.get("built_in"):
+        built_in_name = str(current.get("built_in_name") or original)
+        item["built_in_name"] = built_in_name
+        custom = [entry for entry in custom if str(entry.get("built_in_name") or "").casefold() != built_in_name.casefold()]
+        custom.append(item)
+    else:
+        replaced = False
+        for index, entry in enumerate(custom):
+            if not entry.get("built_in_name") and str(entry.get("name") or "").casefold() == original.casefold():
+                custom[index] = item
+                replaced = True
+                break
+        if not replaced:
+            raise ValueError(f"Memory category not found: {original}")
+    _categories_path().write_text(json.dumps(custom, indent=2, ensure_ascii=False), encoding="utf-8")
+    for space in (KNOWLEDGE_ROOT / SPACES_FOLDER).iterdir():
+        if not space.is_dir():
+            continue
+        metadata = _space_metadata(space)
+        if str(metadata.get("category") or "").casefold() != original.casefold():
+            continue
+        metadata["category"] = clean_name
+        (space / ".space.json").write_text(json.dumps(metadata, indent=2, ensure_ascii=False), encoding="utf-8")
+    return {"saved": True, "original_name": original, "category": dict(item, built_in=bool(current.get("built_in")))}
 
 
 def _template_path(name: str) -> Path:
@@ -484,12 +540,21 @@ def remember_automatically(
     area_key, area = _automatic_memory_area(clean_content, preferred_area)
 
     spaces = list_memory_spaces()["spaces"]
-    matching = [item for item in spaces if str(item.get("category", "")).casefold() == str(area["category"]).casefold()]
+    configured_category = next(
+        (
+            str(item["name"])
+            for item in list_memory_categories()["categories"]
+            if str(item.get("built_in_name") or item.get("name") or "").casefold()
+            == str(area["category"]).casefold()
+        ),
+        str(area["category"]),
+    )
+    matching = [item for item in spaces if str(item.get("category", "")).casefold() == configured_category.casefold()]
     exact = next((item for item in spaces if str(item.get("name", "")).casefold() == str(area["space"]).casefold()), None)
     destination = exact or (matching[0] if len(matching) == 1 else None)
     created_space = False
     if destination is None:
-        created = create_memory_space(area["space"], area["purpose"], "blank", area["category"])
+        created = create_memory_space(area["space"], area["purpose"], "blank", configured_category)
         destination = created["space"]
         created_space = True
 
@@ -510,24 +575,19 @@ def remember_automatically(
     if organization == "auto" and narrower_note != automatic_note and narrower_path.is_file():
         note = narrower_note
         note_path = narrower_path
-    if (
-        organization == "auto"
-        and narrower_note != automatic_note
-        and note_path.is_file()
-        and not narrower_path.is_file()
-    ):
+    if organization == "auto" and narrower_note != automatic_note and not narrower_path.is_file():
         return {
             "saved": False,
             "choice_required": True,
             "question": (
-                f"{automatic_note.removesuffix('.md')} already exists. Add this there, "
+                f"Save this in {automatic_note.removesuffix('.md')}, "
                 f"or create {narrower_note.removesuffix('.md')}?"
             ),
             "space": space_name,
             "existing_note": automatic_note,
             "new_note": narrower_note,
             "choices": [
-                {"id": "append_existing", "label": f"Add to {automatic_note.removesuffix('.md')}", "destination_note": automatic_note},
+                {"id": "append_existing", "label": f"Use {automatic_note.removesuffix('.md')}", "destination_note": automatic_note},
                 {"id": "create_new", "label": f"Create {narrower_note.removesuffix('.md')}", "destination_note": narrower_note},
             ],
         }
@@ -624,6 +684,23 @@ def write_memory_note(space: str, note: str, content: str, mode: str) -> dict[st
     if not _space_path(space).is_dir():
         raise ValueError(f"Knowledge Memory space not found: {space}")
     return _write_path(path, content, mode)
+
+
+def update_memory_note(space: str, original_note: str, note: str, content: str) -> dict[str, Any]:
+    """Replace an existing note and optionally give it a new user-facing name."""
+    original_path = _space_note_path(space, original_note)
+    target_path = _space_note_path(space, note)
+    if not original_path.is_file():
+        raise ValueError(f"Knowledge Memory note not found: {space}/{original_note}")
+    if target_path != original_path and target_path.exists():
+        raise ValueError(f"Knowledge Memory note already exists: {target_path.name}")
+    result = _write_path(original_path, content, "replace")
+    if target_path != original_path:
+        target_path.parent.mkdir(parents=True, exist_ok=True)
+        original_path.replace(target_path)
+        result["relative_path"] = str(target_path.relative_to(KNOWLEDGE_ROOT)).replace("\\", "/")
+    result["note"] = str(target_path.relative_to(_space_path(space))).replace("\\", "/")
+    return result
 
 
 def delete_memory_note(space: str, note: str) -> dict[str, Any]:

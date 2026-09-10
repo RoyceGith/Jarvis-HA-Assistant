@@ -31,23 +31,30 @@ class OrganizedMemorySaveReleaseTests(unittest.TestCase):
         self.temporary.cleanup()
 
     def test_release_is_aligned(self):
-        self.assertIn('version: "0.13.203"', CONFIG)
-        self.assertIn('version="0.13.203"', MAIN)
-        self.assertIn("HUD 0.13.203", INDEX)
-        self.assertEqual(MANIFEST["version"], "0.13.203")
-        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.202")
+        self.assertIn('version: "0.13.204"', CONFIG)
+        self.assertIn('version="0.13.204"', MAIN)
+        self.assertIn("HUD 0.13.204", INDEX)
+        self.assertEqual(MANIFEST["version"], "0.13.204")
+        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.203")
 
     def test_soup_recipes_get_a_descriptive_topic_note(self):
-        saved = knowledge_memory.remember_automatically(
+        suggested = knowledge_memory.remember_automatically(
             "Two winter beef soup recipes with stock, carrots, and barley.",
             "Winter soups",
+        )
+        self.assertTrue(suggested["choice_required"])
+        saved = knowledge_memory.remember_automatically(
+            "Two winter beef soup recipes with stock, carrots, and barley.",
+            "Winter soups", organization="append_existing", destination_note="Soup Recipes.md",
         )
         self.assertTrue(saved["saved"])
         self.assertEqual(saved["note"], "Soup Recipes.md")
         self.assertEqual(saved["confirmation"], "Saved in Food & Recipes → Soup Recipes")
 
     def test_existing_collection_offers_append_or_narrower_collection(self):
-        knowledge_memory.remember_automatically("Chicken soup recipe with rice.")
+        knowledge_memory.remember_automatically(
+            "Chicken soup recipe with rice.", organization="append_existing", destination_note="Soup Recipes.md",
+        )
         pending = knowledge_memory.remember_automatically("Beef soup recipe with barley.")
         self.assertFalse(pending["saved"])
         self.assertTrue(pending["choice_required"])

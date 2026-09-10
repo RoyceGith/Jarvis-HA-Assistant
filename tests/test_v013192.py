@@ -17,12 +17,12 @@ MANIFEST = json.loads((ROOT / "jarvis/release_manifest.json").read_text(encoding
 
 class BringYourOwnAiReleaseTests(unittest.TestCase):
     def test_release_is_aligned(self):
-        self.assertIn('version: "0.13.203"', CONFIG)
-        self.assertIn('version="0.13.203"', MAIN)
-        self.assertIn("HUD 0.13.203", HTML)
-        self.assertEqual(MANIFEST["version"], "0.13.203")
-        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.202")
-        self.assertTrue(CHANGELOG.startswith("# Change log\n\n## 0.13.203"))
+        self.assertIn('version: "0.13.204"', CONFIG)
+        self.assertIn('version="0.13.204"', MAIN)
+        self.assertIn("HUD 0.13.204", HTML)
+        self.assertEqual(MANIFEST["version"], "0.13.204")
+        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.203")
+        self.assertTrue(CHANGELOG.startswith("# Change log\n\n## 0.13.204"))
 
     def test_home_assistant_configuration_protects_provider_keys(self):
         self.assertIn('chat_provider: "openai"', CONFIG)

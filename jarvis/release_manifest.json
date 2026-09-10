@@ -1,9 +1,9 @@
 {
-  "version": "0.13.203",
+  "version": "0.13.204",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/ZBRANO_Core main",
-  "summary": "Organize saved knowledge into descriptive topic collections with a single safe append-or-create choice when needed.",
+  "summary": "Suggest useful memory collections before saving and make My Memory a focused, editable, printable notes workspace.",
   "history_backfill": [
     {
       "version": "0.13.0",
@@ -816,19 +816,25 @@
       {
         "version": "0.13.202",
         "summary": "Deleted the final saved conversation cleanly and left exactly one fresh unsaved chat."
+      },
+      {
+        "version": "0.13.203",
+        "summary": "Organized saved knowledge into descriptive topic collections with one safe append-or-create choice."
       }
   ],
   "release_entry": {
     "features": [
-      "Create descriptive topic notes such as Soup Recipes instead of one generic Recipes note.",
-      "Offer a single append-or-create choice when an existing related collection makes both destinations reasonable."
+      "Suggest both a broad topic collection and a useful specific collection before the first save.",
+      "Open memory spaces as a spacious note-focused workspace with compact controls.",
+      "Edit and rename existing notes and categories directly in My Memory.",
+      "Print an individual memory note from its editor."
     ],
     "fixes": [
-      "Keep an organization choice inside the exact original save authorization without approving unrelated writes.",
-      "Return and display the precise Memory Database space and note after a completed save."
+      "Hide the internal .md extension from note titles, lists, template cards, and search results.",
+      "Keep spaces assigned when their category is renamed."
     ],
     "validation": [
-      "Topic-note classification, safe organization continuations, Memory Studio choices, API integration, and v0.13.203 release coverage"
+      "First-save collection suggestions, note and category rename APIs, focused editor, print view, browser smoke, and v0.13.204 release coverage"
     ]
   },
   "features": [

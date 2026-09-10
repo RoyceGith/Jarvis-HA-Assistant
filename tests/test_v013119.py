@@ -18,9 +18,9 @@ MANIFEST = json.loads((ROOT / "jarvis/release_manifest.json").read_text(encoding
 
 class ContactsReleaseTests(unittest.TestCase):
     def test_release_markers_are_aligned(self):
-        self.assertIn('version="0.13.203"', MAIN)
-        self.assertIn("HUD 0.13.203", HTML)
-        self.assertEqual(MANIFEST["version"], "0.13.203")
+        self.assertIn('version="0.13.204"', MAIN)
+        self.assertIn("HUD 0.13.204", HTML)
+        self.assertEqual(MANIFEST["version"], "0.13.204")
 
     def test_local_contacts_crud_import_and_backup_are_wired(self):
         for marker in ("def contacts_store", "def create_contact", "def update_contact", "def delete_contact", "def import_contacts"):

@@ -10,8 +10,8 @@ MANIFEST = json.loads((ROOT / "jarvis" / "release_manifest.json").read_text(enco
 
 class V013148ArmBrowserHistoryTests(unittest.TestCase):
     def test_release_is_aligned(self):
-        self.assertEqual(MANIFEST["version"], "0.13.203")
-        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.202")
+        self.assertEqual(MANIFEST["version"], "0.13.204")
+        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.203")
 
     def test_undo_uses_a_deliberately_committed_edit(self):
         self.assertIn('fill("28")', BROWSER)

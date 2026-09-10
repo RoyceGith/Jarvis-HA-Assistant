@@ -106,13 +106,13 @@ class ApplicationIntegrationTests(unittest.IsolatedAsyncioTestCase):
             response = await self.client.get("/api/health")
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json()["status"], "ok")
-        self.assertEqual(response.json()["version"], "0.13.203")
+        self.assertEqual(response.json()["version"], "0.13.204")
         self.assertEqual(response.json()["ha_read_entity_count"], 1)
         self.assertEqual(response.json()["ha_control_entity_count"], 1)
 
         frontend = await self.client.get("/")
         self.assertEqual(frontend.status_code, 200)
-        self.assertIn("HUD 0.13.203", frontend.text)
+        self.assertIn("HUD 0.13.204", frontend.text)
         self.assertEqual(
             frontend.headers.get("cache-control"),
             "no-store, no-cache, must-revalidate, max-age=0",
@@ -684,14 +684,23 @@ class ApplicationIntegrationTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(stored["content"].count("40 x 60 cm"), 1)
 
     async def test_recipe_memory_uses_topic_collection_and_one_organization_choice(self) -> None:
-        first = await self.client.post("/api/knowledge-memory/remember", json={
+        suggestion = await self.client.post("/api/knowledge-memory/remember", json={
             "content": "Beef and barley soup recipe with stock, carrots, and thyme.",
             "title": "Beef and barley soup",
         })
-        self.assertEqual(first.status_code, 200)
+        self.assertEqual(suggestion.status_code, 200)
+        self.assertTrue(suggestion.json()["choice_required"])
+        self.assertEqual(suggestion.json()["existing_note"], "Soup Recipes.md")
+        self.assertEqual(suggestion.json()["new_note"], "Beef Soup Recipes.md")
+
+        first = await self.client.post("/api/knowledge-memory/remember", json={
+            "content": "Beef and barley soup recipe with stock, carrots, and thyme.",
+            "title": "Beef and barley soup",
+            "organization": "append_existing",
+            "destination_note": "Soup Recipes.md",
+        })
         self.assertTrue(first.json()["saved"])
         self.assertEqual(first.json()["note"], "Soup Recipes.md")
-        self.assertIn("Soup Recipes", first.json()["confirmation"])
 
         second_content = "Beef vegetable soup recipe with potatoes and celery."
         choice = await self.client.post("/api/knowledge-memory/remember", json={
@@ -714,6 +723,27 @@ class ApplicationIntegrationTests(unittest.IsolatedAsyncioTestCase):
         self.assertTrue(organized.json()["saved"])
         self.assertEqual(organized.json()["note"], "Beef Soup Recipes.md")
         self.assertIn("Beef Soup Recipes", organized.json()["confirmation"])
+
+    async def test_memory_notes_and_categories_can_be_renamed(self) -> None:
+        created = await self.client.post("/api/knowledge-memory/spaces", json={
+            "name": "Kitchen", "purpose": "Kitchen references", "template": "blank", "category": "Food",
+        })
+        self.assertEqual(created.status_code, 200)
+        note = await self.client.put("/api/knowledge-memory/spaces/Kitchen/note", json={
+            "note": "Soups", "content": "Beef soup", "mode": "create",
+        })
+        self.assertEqual(note.status_code, 200)
+        renamed_note = await self.client.put("/api/knowledge-memory/spaces/Kitchen/note", json={
+            "original_note": "Soups.md", "note": "Winter soups", "content": "Beef and barley soup", "mode": "replace",
+        })
+        self.assertEqual(renamed_note.status_code, 200)
+        self.assertEqual(renamed_note.json()["note"], "Winter soups.md")
+        renamed_category = await self.client.put("/api/knowledge-memory/categories", json={
+            "original_name": "Food", "name": "Recipes", "icon": "recipes", "description": "My recipe library",
+        })
+        self.assertEqual(renamed_category.status_code, 200)
+        spaces = (await self.client.get("/api/knowledge-memory/spaces")).json()["spaces"]
+        self.assertEqual(next(item for item in spaces if item["name"] == "Kitchen")["category"], "Recipes")
 
     async def test_notification_settings_and_watch_round_trip(self) -> None:
         saved = await self.client.put(

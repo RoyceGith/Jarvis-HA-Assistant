@@ -270,6 +270,7 @@ from .schemas import (
     KnowledgeSpaceCreateRequest,
     KnowledgeRememberRequest,
     KnowledgeCategoryCreateRequest,
+    KnowledgeCategoryUpdateRequest,
     KnowledgeTemplateWriteRequest,
     KnowledgeNoteWriteRequest,
     TelegramInboundSettingsRequest,
@@ -565,6 +566,8 @@ from .services.knowledge_memory import (
     restore_knowledge_memory,
     save_memory_template,
     search_knowledge_memory,
+    update_memory_category,
+    update_memory_note,
     write_memory_note,
 )
 
@@ -758,7 +761,7 @@ ha_ws = HomeAssistantWebSocketClient(
 
 app = FastAPI(
     title="ZBRANO",
-    version="0.13.203",
+    version="0.13.204",
     docs_url="/api/docs",
     openapi_url="/api/openapi.json",
 )
@@ -1316,6 +1319,12 @@ the returned choices as a short numbered question. The user's selection continue
 same save authorization: call save_to_memory_database again with the original content,
 the selected organization, and its exact destination_note. After a successful save,
 always tell the user the returned space and descriptive note name.
+When your answer creates genuinely reusable material with a clear topic, such as a
+recipe, itinerary, care guide, or project plan, you may end with one discreet optional
+filing suggestion based on the user's prompt. Offer the broad and useful specific names,
+for example: "Save this in Soup Recipes or Beef Soup Recipes?" Do not suggest saving
+casual conversation, short factual answers, or every response, and never save until the
+user explicitly chooses to save it.
 Use create_memory_category when the user explicitly wants a new category. Use
 list_memory_templates before choosing a reusable layout, create_memory_template
 when the user asks for a new reusable layout, and create_memory_space for the
@@ -2983,7 +2992,7 @@ async def health() -> dict[str, Any]:
     configured_speech_provider = SPEECH_PROVIDER if SPEECH_PROVIDER in {"openai", "elevenlabs"} else "openai"
     return {
         "status": "ok",
-        "version": "0.13.203",
+        "version": "0.13.204",
         "home_assistant_configured": bool(SUPERVISOR_TOKEN),
         "workshop_memory_configured": True,
         "knowledge_memory_mode": "built_in",
@@ -4718,6 +4727,8 @@ async def read_knowledge_memory_note(space_name: str, note: str) -> dict[str, An
 @app.put("/api/knowledge-memory/spaces/{space_name}/note")
 async def save_knowledge_memory_note(space_name: str, request: KnowledgeNoteWriteRequest) -> dict[str, Any]:
     try:
+        if request.original_note:
+            return update_memory_note(space_name, request.original_note, request.note, request.content)
         return write_memory_note(space_name, request.note, request.content, request.mode)
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
@@ -4740,6 +4751,14 @@ async def read_knowledge_memory_categories() -> dict[str, Any]:
 async def create_knowledge_memory_category(request: KnowledgeCategoryCreateRequest) -> dict[str, Any]:
     try:
         return create_memory_category(request.name, request.icon, request.description)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+
+@app.put("/api/knowledge-memory/categories")
+async def save_knowledge_memory_category(request: KnowledgeCategoryUpdateRequest) -> dict[str, Any]:
+    try:
+        return update_memory_category(request.original_name, request.name, request.icon, request.description)
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
 

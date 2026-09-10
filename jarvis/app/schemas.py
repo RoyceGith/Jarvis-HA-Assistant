@@ -372,6 +372,9 @@ class KnowledgeCategoryCreateRequest(BaseModel):
     icon: str = Field(default="custom", min_length=1, max_length=30)
     description: str = Field(default="", max_length=300)
 
+class KnowledgeCategoryUpdateRequest(KnowledgeCategoryCreateRequest):
+    original_name: str = Field(min_length=1, max_length=100)
+
 class KnowledgeTemplateNoteRequest(BaseModel):
     name: str = Field(min_length=1, max_length=300)
     purpose: str = Field(default="", max_length=300)
@@ -387,6 +390,7 @@ class KnowledgeTemplateWriteRequest(BaseModel):
 
 class KnowledgeNoteWriteRequest(BaseModel):
     note: str = Field(min_length=1, max_length=300)
+    original_note: str = Field(default="", max_length=300)
     content: str = Field(default="", max_length=1000000)
     mode: str = Field(default="create", pattern="^(create|replace)$")
 
