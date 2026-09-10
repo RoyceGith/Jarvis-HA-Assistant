@@ -1,9 +1,9 @@
 {
-  "version": "0.13.207",
+  "version": "0.13.208",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/ZBRANO_Core main",
-  "summary": "Use the memory space name as a compact, undecorated print heading.",
+  "summary": "Display memory notes with chat-style Markdown formatting and visible last-updated dates.",
   "history_backfill": [
     {
       "version": "0.13.0",
@@ -832,18 +832,24 @@
       {
         "version": "0.13.206",
         "summary": "Removed the excessive gap between a memory note title and its content editor."
+      },
+      {
+        "version": "0.13.207",
+        "summary": "Used the memory space name as a compact, undecorated print heading."
       }
   ],
   "release_entry": {
     "features": [
-      "Use the containing memory space name as the print document heading.",
-      "Present the print heading at a compact document-friendly size."
+      "Read notes with the same safe Markdown headings, bold text, lists, links, and code formatting used in chat.",
+      "Switch explicitly between a clean reading view and the editable Markdown source.",
+      "Show each note's last-updated date in the note list and selected-note header.",
+      "Print formatted note content together with its note title and update date."
     ],
     "fixes": [
-      "Suppress the interface heading decoration so printouts no longer begin with a greater-than sign."
+      "Keep existing Markdown notes compatible while deriving dates from their stored modification time."
     ],
     "validation": [
-      "Print title content, print-only heading styling, browser smoke, and v0.13.207 release coverage"
+      "Markdown reading view, note timestamps, formatted print output, API integration, browser smoke, and v0.13.208 release coverage"
     ]
   },
   "features": [

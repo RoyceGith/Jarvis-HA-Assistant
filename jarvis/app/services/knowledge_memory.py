@@ -632,8 +632,18 @@ def list_memory_notes(space: str) -> dict[str, Any]:
     path = _space_path(space)
     if not path.is_dir():
         raise ValueError(f"Knowledge Memory space not found: {space}")
-    notes = [str(note.relative_to(path)).replace("\\", "/") for note in path.rglob("*.md") if note.is_file()]
-    return {"space": path.name, "notes": sorted(notes, key=str.casefold), "count": len(notes)}
+    note_paths = [note for note in path.rglob("*.md") if note.is_file()]
+    notes = sorted((str(note.relative_to(path)).replace("\\", "/") for note in note_paths), key=str.casefold)
+    timestamps = {
+        str(note.relative_to(path)).replace("\\", "/"): note.stat().st_mtime
+        for note in note_paths
+    }
+    return {
+        "space": path.name,
+        "notes": notes,
+        "note_details": [{"note": note, "updated_at": timestamps[note]} for note in notes],
+        "count": len(notes),
+    }
 
 
 def _space_note_path(space: str, note: str) -> Path:
@@ -655,7 +665,12 @@ def read_memory_note(space: str, note: str) -> dict[str, Any]:
     path = _space_note_path(space, note)
     if not path.is_file():
         raise ValueError(f"Knowledge Memory note not found: {space}/{note}")
-    return {"space": _safe_component(space, "space name"), "note": str(path.relative_to(_space_path(space))).replace("\\", "/"), "content": path.read_text(encoding="utf-8")}
+    return {
+        "space": _safe_component(space, "space name"),
+        "note": str(path.relative_to(_space_path(space))).replace("\\", "/"),
+        "content": path.read_text(encoding="utf-8"),
+        "updated_at": path.stat().st_mtime,
+    }
 
 
 def _write_path(path: Path, content: str, mode: str, create_folders: bool = True) -> dict[str, Any]:

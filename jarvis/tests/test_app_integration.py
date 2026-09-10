@@ -106,13 +106,13 @@ class ApplicationIntegrationTests(unittest.IsolatedAsyncioTestCase):
             response = await self.client.get("/api/health")
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json()["status"], "ok")
-        self.assertEqual(response.json()["version"], "0.13.207")
+        self.assertEqual(response.json()["version"], "0.13.208")
         self.assertEqual(response.json()["ha_read_entity_count"], 1)
         self.assertEqual(response.json()["ha_control_entity_count"], 1)
 
         frontend = await self.client.get("/")
         self.assertEqual(frontend.status_code, 200)
-        self.assertIn("HUD 0.13.207", frontend.text)
+        self.assertIn("HUD 0.13.208", frontend.text)
         self.assertEqual(
             frontend.headers.get("cache-control"),
             "no-store, no-cache, must-revalidate, max-age=0",
@@ -656,10 +656,13 @@ class ApplicationIntegrationTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(created.json()["space"]["category"], "Journeys")
         notes = await self.client.get("/api/knowledge-memory/spaces/Rome/notes")
         self.assertEqual(notes.json()["notes"], ["Itinerary.md"])
+        self.assertGreater(notes.json()["note_details"][0]["updated_at"], 0)
         saved = await self.client.put("/api/knowledge-memory/spaces/Rome/note", json={
             "note": "Itinerary.md", "content": "# Itinerary\nVisit the forum", "mode": "replace",
         })
         self.assertEqual(saved.status_code, 200)
+        opened = await self.client.get("/api/knowledge-memory/spaces/Rome/note", params={"note": "Itinerary.md"})
+        self.assertGreater(opened.json()["updated_at"], 0)
         search = await self.client.get("/api/knowledge-memory/search", params={"query": "forum"})
         self.assertEqual(search.json()["count"], 1)
         deleted = await self.client.delete("/api/knowledge-memory/spaces/Rome/note", params={"note": "Itinerary.md"})

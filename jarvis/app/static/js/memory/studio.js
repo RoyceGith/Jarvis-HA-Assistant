@@ -15,6 +15,8 @@
   const state = {loaded:false, spaces:[], categories:[], templates:[], category:"All", selectedSpace:"", selectedNote:"", createCategory:"", createTemplate:"blank", editingTemplate:"", editingCategory:""};
   const displayNote = (name) => String(name || "").replace(/\.md$/i, "");
   const displayMemoryPath = (path) => String(path || "").replace(/^Spaces\//, "").replace(/\.md$/i, "");
+  const formatNoteDate = (timestamp) => timestamp ? new Intl.DateTimeFormat(document.documentElement.lang || undefined, {dateStyle:"medium", timeStyle:"short"}).format(new Date(Number(timestamp) * 1000)) : "";
+  const renderMemoryMarkdown = (content) => typeof renderMarkdownText === "function" ? renderMarkdownText(content) : `<p>${esc(content).replace(/\n/g, "<br>")}</p>`;
 
   panel.innerHTML = `
     <div class="memory-studio">
@@ -183,7 +185,8 @@
       const category = categoryByName(categoryName);
       return `<button type="button" class="${space?.category === categoryName ? "active" : ""}" data-open-memory-category="${esc(categoryName)}">${esc(icon(category.icon))} ${esc(categoryName)}</button>`;
     }).join("");
-    details.innerHTML = `<nav class="memory-space-category-tabs" aria-label="Memory categories"><button type="button" data-close-space>All memory</button>${categoryTabs}</nav><div class="memory-heading memory-space-heading"><div><h2>${esc(name)}</h2><p>${esc(space?.purpose || "Your organized notes")}</p></div><div class="memory-heading-actions"><button type="button" data-new-note>+ New note</button><button type="button" data-delete-space class="memory-danger">Delete space</button><button type="button" data-close-space>Close</button></div></div><div class="memory-space-layout"><aside class="memory-note-list"><strong>Notes</strong><div id="memory-notes">${(payload.notes || []).map((note) => `<button type="button" data-memory-note="${esc(note)}">${esc(displayNote(note))}</button>`).join("") || `<span class="memory-muted">No notes yet.</span>`}</div></aside><form id="memory-note-form" class="memory-editor"><div class="memory-heading"><div><h2 id="memory-note-heading">Choose a note</h2><p>Read, edit, rename, or print this note.</p></div><button type="button" id="memory-print-note" class="memory-icon-button" title="Print note" aria-label="Print note" hidden>&#128424;</button></div><label>Note title<input id="memory-note-name" maxlength="180" placeholder="For example, Important contacts" disabled></label><label class="memory-note-content-label">Contents<textarea id="memory-note-content" maxlength="1000000" placeholder="Write what should be remembered" disabled></textarea></label><div class="memory-actions"><button id="memory-save-note" type="submit" class="memory-primary" disabled>Save changes</button><button id="memory-delete-note" type="button" class="memory-danger" hidden>Delete note</button><span id="memory-note-status" class="memory-status"></span></div></form></div>`;
+    const noteDates = new Map((payload.note_details || []).map((item) => [item.note, item.updated_at]));
+    details.innerHTML = `<nav class="memory-space-category-tabs" aria-label="Memory categories"><button type="button" data-close-space>All memory</button>${categoryTabs}</nav><div class="memory-heading memory-space-heading"><div><h2>${esc(name)}</h2><p>${esc(space?.purpose || "Your organized notes")}</p></div><div class="memory-heading-actions"><button type="button" data-new-note>+ New note</button><button type="button" data-delete-space class="memory-danger">Delete space</button><button type="button" data-close-space>Close</button></div></div><div class="memory-space-layout"><aside class="memory-note-list"><strong>Notes</strong><div id="memory-notes">${(payload.notes || []).map((note) => `<button type="button" data-memory-note="${esc(note)}"><span>${esc(displayNote(note))}</span><small>${esc(formatNoteDate(noteDates.get(note)))}</small></button>`).join("") || `<span class="memory-muted">No notes yet.</span>`}</div></aside><form id="memory-note-form" class="memory-editor"><div class="memory-heading"><div><h2 id="memory-note-heading">Choose a note</h2><p id="memory-note-date">Select a note to read it.</p></div><div class="memory-heading-actions"><button type="button" id="memory-edit-note" hidden>Edit</button><button type="button" id="memory-print-note" class="memory-icon-button" title="Print note" aria-label="Print note" hidden>&#128424;</button></div></div><section id="memory-note-reader" class="memory-note-reader" hidden><div id="memory-note-rendered" class="memory-note-rendered"></div></section><label class="memory-edit-field">Note title<input id="memory-note-name" maxlength="180" placeholder="For example, Important contacts" disabled></label><label class="memory-note-content-label memory-edit-field">Contents<textarea id="memory-note-content" maxlength="1000000" placeholder="Write what should be remembered" disabled></textarea></label><div class="memory-actions memory-edit-field"><button id="memory-save-note" type="submit" class="memory-primary" disabled>Save changes</button><button id="memory-delete-note" type="button" class="memory-danger" hidden>Delete note</button><span id="memory-note-status" class="memory-status"></span></div></form></div>`;
     details.scrollIntoView({behavior:"smooth", block:"start"});
     if (payload.notes?.length) await openNote(payload.notes[0]);
   }
@@ -193,17 +196,22 @@
     state.selectedNote = payload.note;
     panel.querySelectorAll("[data-memory-note]").forEach((button) => button.classList.toggle("active", button.dataset.memoryNote === payload.note));
     $("memory-note-heading").textContent = displayNote(payload.note);
+    $("memory-note-date").textContent = payload.updated_at ? `Last updated ${formatNoteDate(payload.updated_at)}` : "";
     $("memory-note-name").value = displayNote(payload.note); $("memory-note-name").disabled = false;
     $("memory-note-content").value = payload.content || ""; $("memory-note-content").disabled = false;
-    $("memory-save-note").disabled = false; $("memory-delete-note").hidden = false; $("memory-print-note").hidden = false; setStatus("memory-note-status", "");
+    $("memory-note-rendered").innerHTML = renderMemoryMarkdown(payload.content || "");
+    $("memory-note-reader").hidden = false; $("memory-note-form").classList.add("is-reading");
+    $("memory-edit-note").hidden = false; $("memory-save-note").disabled = false; $("memory-delete-note").hidden = false; $("memory-print-note").hidden = false; setStatus("memory-note-status", "");
   }
 
   function newNote() {
     state.selectedNote = "";
     panel.querySelectorAll("[data-memory-note]").forEach((button) => button.classList.remove("active"));
     $("memory-note-heading").textContent = "Create a note";
+    $("memory-note-date").textContent = "New note";
     $("memory-note-name").value = ""; $("memory-note-name").disabled = false;
     $("memory-note-content").value = ""; $("memory-note-content").disabled = false;
+    $("memory-note-reader").hidden = true; $("memory-note-form").classList.remove("is-reading"); $("memory-edit-note").hidden = true;
     $("memory-save-note").disabled = false; $("memory-delete-note").hidden = true; $("memory-print-note").hidden = true; $("memory-note-name").focus();
   }
 
@@ -213,9 +221,15 @@
     sheet.id = "memory-print-sheet";
     const title = document.createElement("h1");
     title.textContent = state.selectedSpace || "My Memory";
-    const content = document.createElement("pre");
-    content.textContent = $("memory-note-content").value;
-    sheet.append(title, content);
+    const noteTitle = document.createElement("h2");
+    noteTitle.textContent = $("memory-note-name").value.trim() || displayNote(state.selectedNote);
+    const date = document.createElement("p");
+    date.className = "memory-print-date";
+    date.textContent = $("memory-note-date").textContent;
+    const content = document.createElement("div");
+    content.className = "memory-note-rendered";
+    content.innerHTML = renderMemoryMarkdown($("memory-note-content").value);
+    sheet.append(title, noteTitle, date, content);
     document.body.appendChild(sheet);
     const cleanup = () => sheet.remove();
     window.addEventListener("afterprint", cleanup, {once:true});
@@ -285,6 +299,7 @@
       if (button.hasAttribute("data-remove-blueprint")) { button.closest(".memory-blueprint")?.remove(); return; }
       if (button.id === "memory-delete-template" && state.editingTemplate && confirm(`Delete the template “${state.editingTemplate}”?`)) { await api(`api/knowledge-memory/templates/${encodeURIComponent(state.editingTemplate)}`, {method:"DELETE"}); $("memory-template-composer").hidden = true; state.editingTemplate = ""; await loadAll(); return; }
       if (button.id === "memory-delete-note" && state.selectedNote && confirm(`Delete “${displayNote(state.selectedNote)}”?`)) { await api(`api/knowledge-memory/spaces/${encodeURIComponent(state.selectedSpace)}/note?note=${encodeURIComponent(state.selectedNote)}`, {method:"DELETE"}); await openSpace(state.selectedSpace); return; }
+      if (button.id === "memory-edit-note") { $("memory-note-form").classList.remove("is-reading"); $("memory-note-reader").hidden = true; button.hidden = true; $("memory-note-content").focus(); return; }
       if (button.id === "memory-print-note") { printCurrentNote(); return; }
       if (button.dataset.searchPath) {
         const match = button.dataset.searchPath.match(/^Spaces\/([^/]+)\/(.+)$/);

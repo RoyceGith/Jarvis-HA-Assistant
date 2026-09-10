@@ -1,5 +1,12 @@
 # Change log
 
+## 0.13.208
+
+- Render memory notes with the same safe Markdown formatting used by chat.
+- Add a clear Edit action while keeping reading mode clean.
+- Show the last-updated date on every note and in its printed document.
+- Print formatted headings, bold text, lists, links, and code.
+
 ## 0.13.207
 
 - Use the memory space name as the print heading.
