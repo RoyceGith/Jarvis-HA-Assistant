@@ -1,5 +1,13 @@
 # Change log
 
+## 0.13.212
+
+- Expand About from six to eight balanced capability areas.
+- Showcase organized Shared Files, Knowledge Memory, interface languages, personalization, and user-selected AI.
+- Add direct About shortcuts to Memory Database and Shared Files.
+- Refine feature cards with restrained depth, top accents, and responsive four-column presentation.
+- Translate all new About content across English, Greek, Italian, and French.
+
 ## 0.13.211
 
 - Present Shared Files as a refined private file library.
