@@ -8,6 +8,10 @@ ZBRANO is a private Home Assistant intelligence assistant. It combines natural
 conversation, live home context, voice, useful memory, notifications, organization,
 and automation in one interface without granting itself access to every device.
 
+Version 0.13.204 suggests useful broad and specific collections before saving.
+My Memory now centers a spacious editable note, hides `.md`, lets users rename
+notes and categories, and provides clean note printing.
+
 Version 0.13.203 creates descriptive Memory Database collections such as **Soup
 Recipes**, offers one append-or-create choice when a related collection exists, and
 shows the exact destination after saving.
@@ -96,11 +100,6 @@ and plain-language recovery guidance.
 - Report reproducible issues at
   [RoyceGith/ZBRANO_HA_Assistant](https://github.com/RoyceGith/ZBRANO_HA_Assistant/issues).
 
-Version 0.13.193 makes Knowledge Memory local and built in, with user-created spaces,
-searchable Markdown notes, write approvals, backup and restore, and one-time legacy
-import without an ongoing server, domain, or tunnel dependency.
-Version 0.13.192 adds direct OpenAI or user-owned OpenRouter chat provider selection,
-live model discovery, protected provider keys, and verified capability boundaries.
 Version 0.13.186 introduced the four-language foundation and localized Home
 Assistant configuration. Version 0.13.185 added `amd64` while preserving `aarch64`
 and the existing update path.

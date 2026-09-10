@@ -1,5 +1,12 @@
 # Change log
 
+## 0.13.204
+
+- Suggest a broad or more specific collection before saving reusable content.
+- Give My Memory a larger note-first editor with smaller controls.
+- Edit and rename notes and categories without exposing `.md` file extensions.
+- Print an individual note in a clean document layout.
+
 ## 0.13.203
 
 - File recipe knowledge into descriptive topic collections such as `Soup Recipes`.
