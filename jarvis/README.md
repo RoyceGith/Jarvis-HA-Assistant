@@ -8,6 +8,9 @@ ZBRANO is a private Home Assistant intelligence assistant. It combines natural
 conversation, live home context, voice, useful memory, notifications, organization,
 and automation in one interface without granting itself access to every device.
 
+Version 0.13.205 opens the first note immediately, keeps other categories in a
+compact top switcher, and gives the note editor more usable room.
+
 Version 0.13.204 suggests useful broad and specific collections before saving.
 My Memory now centers a spacious editable note, hides `.md`, lets users rename
 notes and categories, and provides clean note printing.
@@ -100,7 +103,4 @@ and plain-language recovery guidance.
 - Report reproducible issues at
   [RoyceGith/ZBRANO_HA_Assistant](https://github.com/RoyceGith/ZBRANO_HA_Assistant/issues).
 
-Version 0.13.186 introduced the four-language foundation and localized Home
-Assistant configuration. Version 0.13.185 added `amd64` while preserving `aarch64`
-and the existing update path.
 The in-app **About** tab provides a visual overview of ZBRANO's complete feature set.
