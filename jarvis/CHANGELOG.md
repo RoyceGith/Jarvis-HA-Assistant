@@ -1,5 +1,13 @@
 # Change log
 
+## 0.13.210
+
+- Create folders and nested folders directly in Shared Files.
+- Navigate folders with a clear breadcrumb path.
+- Upload files directly into the folder currently being viewed.
+- Move selected existing files to another folder or back to the main area.
+- Prevent deletion of folders that still contain files or child folders.
+
 ## 0.13.209
 
 - Bring saved memory spaces into the upper portion of the landing page.
