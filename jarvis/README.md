@@ -8,6 +8,9 @@ ZBRANO is a private Home Assistant intelligence assistant. It combines natural
 conversation, live home context, voice, useful memory, notifications, organization,
 and automation in one interface without granting itself access to every device.
 
+Version 0.13.202 removes the final saved conversation cleanly and leaves exactly one
+fresh unsaved chat, without retaining a stale row or deleting the replacement later.
+
 Version 0.13.201 lets an explicit Memory Database save run without a second approval.
 Ordinary saves finish in one operation; genuinely large saves announce their bounded
 phase count first. Other permanent edits still require review.
