@@ -1,5 +1,12 @@
 # Change log
 
+## 0.13.200
+
+- Preserve streamed Markdown formatting when Stop is pressed.
+- Append the stopped marker without rebuilding content from compact DOM text.
+- Save partial interrupted responses in chat history.
+- Cover headings, numbered lists, emphasis, and cancellation persistence.
+
 ## 0.13.199
 
 - Renamed the technical automatic-memory tool to `save_to_memory_database`.

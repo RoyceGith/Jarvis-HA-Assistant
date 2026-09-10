@@ -12,8 +12,8 @@ MANIFEST = json.loads((ROOT / "jarvis/release_manifest.json").read_text(encoding
 
 class PowerTriggerSelectionReleaseTests(unittest.TestCase):
     def test_release_is_aligned(self):
-        self.assertEqual(MANIFEST["version"], "0.13.199")
-        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.198")
+        self.assertEqual(MANIFEST["version"], "0.13.200")
+        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.199")
 
     def test_power_preset_depends_on_explicit_state_not_device_domain(self):
         self.assertIn('isPowerState=["changes_to","equals"].includes(operator)', WORKSPACE)

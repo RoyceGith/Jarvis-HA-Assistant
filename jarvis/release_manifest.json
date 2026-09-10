@@ -1,9 +1,9 @@
 {
-  "version": "0.13.199",
+  "version": "0.13.200",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/ZBRANO_Core main",
-  "summary": "Give automatic Knowledge Memory writes the clear Save to Memory Database name in chat and approvals.",
+  "summary": "Preserve formatted partial answers and chat history when users stop a streamed response.",
   "history_backfill": [
     {
       "version": "0.13.0",
@@ -800,19 +800,23 @@
       {
         "version": "0.13.198",
         "summary": "Kept optional remote MCP failures from breaking ordinary chat by loading connectors only when explicitly requested."
+      },
+      {
+        "version": "0.13.199",
+        "summary": "Gave automatic Knowledge Memory writes the clear Save to Memory Database name in chat and approvals."
       }
   ],
   "release_entry": {
     "features": [
-      "Rename the advertised automatic-memory tool to save_to_memory_database.",
-      "Render automatic Knowledge Memory writes as Save to Memory Database in approval prompts."
+      "Preserve the untouched streamed Markdown when a response is stopped.",
+      "Persist partial interrupted responses so reopening a chat retains what was received."
     ],
     "fixes": [
-      "Keep remember_automatically as an internal compatibility alias for already-pending calls.",
-      "Distinguish durable Memory Database writes from Fast Memory preferences."
+      "Stop rebuilding interrupted replies from compact browser textContent.",
+      "Append one discreet Response stopped marker without duplicating it."
     ],
     "validation": [
-      "Advertised tool naming, approval display labels, compatibility alias handling, and v0.13.199 release coverage"
+      "Markdown preservation, stop-marker idempotence, cancellation persistence, browser rendering, and v0.13.200 release coverage"
     ]
   },
   "features": [

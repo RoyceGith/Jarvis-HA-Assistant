@@ -753,7 +753,7 @@ ha_ws = HomeAssistantWebSocketClient(
 
 app = FastAPI(
     title="ZBRANO",
-    version="0.13.199",
+    version="0.13.200",
     docs_url="/api/docs",
     openapi_url="/api/openapi.json",
 )
@@ -2825,18 +2825,25 @@ async def run_jarvis_stream(message: str, session_id: str = "default", search_mo
     """Persist a completed streamed exchange while forwarding events unchanged."""
     reply_parts: list[str] = []
     completed = False
-    async for event_bytes in _run_jarvis_stream_events(message, session_id, search_mode):
-        try:
-            event = json.loads(event_bytes.decode("utf-8"))
-        except (UnicodeDecodeError, json.JSONDecodeError):
-            event = {}
-        if event.get("type") == "delta" and event.get("text"):
-            reply_parts.append(str(event["text"]))
-        elif event.get("type") == "sources":
-            reply_parts.append(web_sources_markdown(event.get("sources") or []))
-        elif event.get("type") == "done":
-            completed = True
-        yield event_bytes
+    try:
+        async for event_bytes in _run_jarvis_stream_events(message, session_id, search_mode):
+            try:
+                event = json.loads(event_bytes.decode("utf-8"))
+            except (UnicodeDecodeError, json.JSONDecodeError):
+                event = {}
+            if event.get("type") == "delta" and event.get("text"):
+                reply_parts.append(str(event["text"]))
+            elif event.get("type") == "sources":
+                reply_parts.append(web_sources_markdown(event.get("sources") or []))
+            elif event.get("type") == "done":
+                completed = True
+            yield event_bytes
+    except asyncio.CancelledError:
+        if reply_parts and not completed:
+            append_chat_message(session_id, "user", message)
+            partial_reply = "".join(reply_parts).rstrip()
+            append_chat_message(session_id, "assistant", partial_reply + "\n\n[Response stopped]")
+        raise
     if completed and reply_parts:
         append_chat_message(session_id, "user", message)
         append_chat_message(session_id, "assistant", "".join(reply_parts))
@@ -2922,7 +2929,7 @@ async def health() -> dict[str, Any]:
     configured_speech_provider = SPEECH_PROVIDER if SPEECH_PROVIDER in {"openai", "elevenlabs"} else "openai"
     return {
         "status": "ok",
-        "version": "0.13.199",
+        "version": "0.13.200",
         "home_assistant_configured": bool(SUPERVISOR_TOKEN),
         "workshop_memory_configured": True,
         "knowledge_memory_mode": "built_in",

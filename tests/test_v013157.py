@@ -12,8 +12,8 @@ MANIFEST = json.loads((ROOT / "jarvis/release_manifest.json").read_text(encoding
 
 class EntityPickerReadingReleaseTests(unittest.TestCase):
     def test_release_is_aligned(self):
-        self.assertEqual(MANIFEST["version"], "0.13.199")
-        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.198")
+        self.assertEqual(MANIFEST["version"], "0.13.200")
+        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.199")
 
     def test_picker_retains_reading_fields(self):
         for field in ("state", "unit", "current_temperature", "temperature_unit"):

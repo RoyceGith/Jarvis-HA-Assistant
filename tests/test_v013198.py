@@ -15,11 +15,11 @@ MANIFEST = json.loads((ROOT / "jarvis/release_manifest.json").read_text(encoding
 
 class ContextualMcpRoutingReleaseTests(unittest.TestCase):
     def test_release_is_aligned(self):
-        self.assertIn('version: "0.13.199"', CONFIG)
-        self.assertIn('version="0.13.199"', MAIN)
-        self.assertIn("HUD 0.13.199", INDEX)
-        self.assertEqual(MANIFEST["version"], "0.13.199")
-        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.198")
+        self.assertIn('version: "0.13.200"', CONFIG)
+        self.assertIn('version="0.13.200"', MAIN)
+        self.assertIn("HUD 0.13.200", INDEX)
+        self.assertEqual(MANIFEST["version"], "0.13.200")
+        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.199")
 
     def test_unrelated_remote_mcp_is_removed_from_ordinary_chat(self):
         tools = [

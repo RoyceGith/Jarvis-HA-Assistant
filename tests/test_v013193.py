@@ -26,10 +26,10 @@ class BuiltInKnowledgeMemoryReleaseTests(unittest.TestCase):
         self.temporary.cleanup()
 
     def test_release_is_aligned(self):
-        self.assertIn('version: "0.13.199"', CONFIG)
-        self.assertIn('version="0.13.199"', MAIN)
-        self.assertEqual(MANIFEST["version"], "0.13.199")
-        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.198")
+        self.assertIn('version: "0.13.200"', CONFIG)
+        self.assertIn('version="0.13.200"', MAIN)
+        self.assertEqual(MANIFEST["version"], "0.13.200")
+        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.199")
 
     def test_spaces_are_generic_local_and_searchable(self):
         created = knowledge_memory.create_memory_space("Household", "Shared home knowledge", "home")

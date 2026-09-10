@@ -581,7 +581,7 @@ function interruptActiveResponseForVoice(){
   if(request){
     request.stopped=true;const {socket,jarvisMessage}=request;
     if(socket.readyState===WebSocket.OPEN)socket.send(JSON.stringify({type:"stop"}));else socket.close();
-    const existing=jarvisMessage.textContent.trim();renderMessageContent(jarvisMessage,existing&&existing!=="Connectingâ€¦"?`${existing}\n\n[Interrupted for voice]`:"Interrupted for voice.");
+    finishInterruptedMessage(jarvisMessage,"[Interrupted for voice]","Interrupted for voice.");
     activeRequest=null;finishOpenToolActivities("failed");finishResponseActivity("Stopped");input.disabled=false;sendButton.disabled=false;stopButton.disabled=true;
   }
   stopAudioPlayback("VOICE INTERRUPTED");
@@ -1160,6 +1160,14 @@ function renderMessageContent(item, text) {
   } else {
     item.textContent = text;
   }
+}
+
+function finishInterruptedMessage(item, marker, emptyMessage) {
+  const rawText = String(item?.dataset?.rawText || "").trim();
+  const placeholder = rawText === "Connecting…" || rawText === "Thinking…";
+  renderMessageContent(item, rawText && !placeholder
+    ? `${rawText}\n\n${marker}`
+    : emptyMessage);
 }
 
 function setNeuronIntensity(intense) {
@@ -2267,10 +2275,7 @@ stopButton.addEventListener("click", () => {
   } else {
     socket.close();
   }
-  const existing = jarvisMessage.textContent.trim();
-  renderMessageContent(jarvisMessage, existing && existing !== "Connecting…"
-    ? `${existing}\n\n[Response stopped]`
-    : "Response stopped.");
+  finishInterruptedMessage(jarvisMessage, "[Response stopped]", "Response stopped.");
   stopAudioPlayback("STOPPED");
   stopButton.disabled = true;
   finishResponseActivity("Stopped");
@@ -2381,8 +2386,8 @@ form.addEventListener("submit", async (event) => {
       finishResponseActivity("Failed");
       renderMessageContent(jarvisMessage, `Request failed: ${eventData.message || "Unknown error"}`);
     } else if (eventData.type === "stopped") {
-      if (!jarvisMessage.textContent.includes("[Response stopped]")) {
-        renderMessageContent(jarvisMessage, `${jarvisMessage.dataset.rawText || jarvisMessage.textContent}\n\n[Response stopped]`);
+      if (!String(jarvisMessage.dataset.rawText || "").includes("[Response stopped]")) {
+        finishInterruptedMessage(jarvisMessage, "[Response stopped]", "Response stopped.");
       }
     }
   });

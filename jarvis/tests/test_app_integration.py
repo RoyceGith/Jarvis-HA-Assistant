@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import asyncio
 import json
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
@@ -105,16 +106,40 @@ class ApplicationIntegrationTests(unittest.IsolatedAsyncioTestCase):
             response = await self.client.get("/api/health")
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json()["status"], "ok")
-        self.assertEqual(response.json()["version"], "0.13.199")
+        self.assertEqual(response.json()["version"], "0.13.200")
         self.assertEqual(response.json()["ha_read_entity_count"], 1)
         self.assertEqual(response.json()["ha_control_entity_count"], 1)
 
         frontend = await self.client.get("/")
         self.assertEqual(frontend.status_code, 200)
-        self.assertIn("HUD 0.13.199", frontend.text)
+        self.assertIn("HUD 0.13.200", frontend.text)
         self.assertEqual(
             frontend.headers.get("cache-control"),
             "no-store, no-cache, must-revalidate, max-age=0",
+        )
+
+    async def test_stopped_stream_persists_partial_markdown(self) -> None:
+        async def partial_stream(*_args, **_kwargs):
+            yield main.stream_event("delta", text="### Beef soup\n\n1. Brown the beef.\n")
+            await asyncio.Future()
+
+        with (
+            patch.object(main, "_run_jarvis_stream_events", partial_stream),
+            patch.object(main, "append_chat_message") as append,
+        ):
+            stream = main.run_jarvis_stream("Give me a winter soup recipe", "stopped-chat")
+            await anext(stream)
+            pending = asyncio.create_task(anext(stream))
+            await asyncio.sleep(0)
+            pending.cancel()
+            with self.assertRaises(asyncio.CancelledError):
+                await pending
+
+        self.assertEqual(append.call_count, 2)
+        self.assertEqual(append.call_args_list[0].args, ("stopped-chat", "user", "Give me a winter soup recipe"))
+        self.assertEqual(
+            append.call_args_list[1].args,
+            ("stopped-chat", "assistant", "### Beef soup\n\n1. Brown the beef.\n\n[Response stopped]"),
         )
 
     async def test_settings_api_round_trip_uses_isolated_persistence(self) -> None:

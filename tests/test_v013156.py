@@ -11,8 +11,8 @@ MANIFEST = json.loads((ROOT / "jarvis/release_manifest.json").read_text(encoding
 
 class SimpleConditionValueReleaseTests(unittest.TestCase):
     def test_release_is_aligned(self):
-        self.assertEqual(MANIFEST["version"], "0.13.199")
-        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.198")
+        self.assertEqual(MANIFEST["version"], "0.13.200")
+        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.199")
 
     def test_ordinary_check_defaults_to_entity_state(self):
         self.assertIn("Device or sensor state", WORKSPACE)
