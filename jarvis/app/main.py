@@ -397,7 +397,9 @@ from .services.workshop_approvals import (
     PENDING_WORKSHOP_APPROVALS,
     WORKSHOP_TASK_APPROVAL_GRANTS,
     configure_workshop_approvals,
+    explicit_memory_save_authorized,
     grant_workshop_memory_task_approval,
+    memory_save_phase_notice,
     store_workshop_memory_approval,
     summarize_workshop_memory_arguments,
     workshop_memory_approval_decision,
@@ -753,7 +755,7 @@ ha_ws = HomeAssistantWebSocketClient(
 
 app = FastAPI(
     title="ZBRANO",
-    version="0.13.200",
+    version="0.13.201",
     docs_url="/api/docs",
     openapi_url="/api/openapi.json",
 )
@@ -1294,13 +1296,18 @@ decisions, requirements, status, or personal reference material. Never
 pretend to remember facts that were not returned by a tool.
 
 Knowledge Memory remains review-controlled and runs locally inside ZBRANO.
-You may create spaces and add or update notes when the user requests it. Every
-advertised tool not explicitly annotated read-only requires an approval prompt and must
-not execute until the user approves the exact tool and arguments. Never claim
+You may create spaces and add or update notes when the user requests it. An explicit
+request to save or remember information authorizes save_to_memory_database for that
+request, so execute it without asking the user to approve again. Other advertised tools
+not explicitly annotated read-only require an approval prompt and must not execute until
+the user approves the exact tool and arguments. Never claim
 a permanent write completed until its tool result confirms success. Do not use
 save_general_instruction as a substitute for a durable Knowledge Memory note.
 For an ordinary request such as "remember this", use save_to_memory_database so
 ZBRANO chooses the area and note without asking the user to design a structure.
+Use one save call for ordinary content. If the content is too large for the tool's
+40,000-character phase limit, split it at coherent boundaries into the fewest possible
+save calls; ZBRANO will tell the user the phase count before the first write begins.
 Use create_memory_category when the user explicitly wants a new category. Use
 list_memory_templates before choosing a reusable layout, create_memory_template
 when the user asks for a new reusable layout, and create_memory_space for the
@@ -2048,6 +2055,7 @@ async def run_jarvis(message: str, session_id: str = "default") -> dict[str, Any
     budget_reason = record_workshop_response_usage(workshop_budget, response)
 
     audit: list[dict[str, Any]] = []
+    direct_save_notice = ""
     max_tool_rounds = runtime_tool_round_limit(session_id, workshop_scope)
 
     for _round in range(max_tool_rounds + 1):
@@ -2073,6 +2081,8 @@ async def run_jarvis(message: str, session_id: str = "default") -> dict[str, Any
             text = response_text(response)
             if not text:
                 raise OpenAIError("The model returned no text or function call")
+            if direct_save_notice:
+                text = direct_save_notice + "\n\n" + text
             append_chat_message(session_id, "user", message)
             append_chat_message(session_id, "assistant", text)
             return {"reply": text, "tool_calls": audit}
@@ -2083,7 +2093,13 @@ async def run_jarvis(message: str, session_id: str = "default") -> dict[str, Any
             )
 
         write_calls = workshop_memory_write_calls(calls)
-        if write_calls and (gmail_direct_write_calls(calls) or not workshop_memory_task_approval_active(session_id)):
+        direct_save = explicit_memory_save_authorized(message, calls)
+        if direct_save and not direct_save_notice:
+            direct_save_notice = memory_save_phase_notice(calls)
+        if write_calls and (
+            gmail_direct_write_calls(calls)
+            or not (direct_save or workshop_memory_task_approval_active(session_id))
+        ):
             prompt = store_workshop_memory_approval(
                 session_id,
                 response["id"],
@@ -2320,7 +2336,11 @@ async def continue_workshop_memory_approval(
                 reply = "Knowledge Memory change completed." if approved else "Knowledge Memory change was denied."
             return {"reply": reply, "tool_calls": audit}
         write_calls = workshop_memory_write_calls(calls)
-        if write_calls and (gmail_direct_write_calls(calls) or not workshop_memory_task_approval_active(session_id)):
+        direct_save = explicit_memory_save_authorized(request_message, calls)
+        if write_calls and (
+            gmail_direct_write_calls(calls)
+            or not (direct_save or workshop_memory_task_approval_active(session_id))
+        ):
             prompt = store_workshop_memory_approval(
                 session_id,
                 response["id"],
@@ -2506,6 +2526,7 @@ async def _run_jarvis_stream_events(message: str, session_id: str = "default", s
     max_tool_rounds = runtime_tool_round_limit(session_id, workshop_scope)
     response: dict[str, Any] | None = None
     emitted_initial_text = False
+    memory_phase_notice_sent = False
     request_deadline = time.monotonic() + (300.0 if developer_mode_enabled() else 180.0)
 
     async def bounded_model_stream(payload: dict[str, Any]) -> AsyncIterator[dict[str, Any]]:
@@ -2673,7 +2694,17 @@ async def _run_jarvis_stream_events(message: str, session_id: str = "default", s
         )
         yield stream_event("activity", id=activity_id, state="started", **activity_meta)
 
-        if write_calls and (gmail_direct_write_calls(calls) or not workshop_memory_task_approval_active(session_id)):
+        direct_save = explicit_memory_save_authorized(message, calls)
+        if direct_save and not memory_phase_notice_sent:
+            phase_notice = memory_save_phase_notice(calls)
+            if phase_notice:
+                yield stream_event("status", message="Preparing a large Memory Database save…")
+                yield stream_event("delta", text=phase_notice + "\n\n")
+            memory_phase_notice_sent = True
+        if write_calls and (
+            gmail_direct_write_calls(calls)
+            or not (direct_save or workshop_memory_task_approval_active(session_id))
+        ):
             yield stream_event("activity", id=activity_id, state="waiting_approval", **activity_meta)
             prompt = store_workshop_memory_approval(
                 session_id,
@@ -2929,7 +2960,7 @@ async def health() -> dict[str, Any]:
     configured_speech_provider = SPEECH_PROVIDER if SPEECH_PROVIDER in {"openai", "elevenlabs"} else "openai"
     return {
         "status": "ok",
-        "version": "0.13.200",
+        "version": "0.13.201",
         "home_assistant_configured": bool(SUPERVISOR_TOKEN),
         "workshop_memory_configured": True,
         "knowledge_memory_mode": "built_in",

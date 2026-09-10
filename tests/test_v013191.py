@@ -17,12 +17,12 @@ MANIFEST = json.loads((ROOT / "jarvis/release_manifest.json").read_text(encoding
 
 class PortableWakeMethodReleaseTests(unittest.TestCase):
     def test_release_is_aligned(self):
-        self.assertIn('version: "0.13.200"', CONFIG)
-        self.assertIn('version="0.13.200"', MAIN)
-        self.assertIn("HUD 0.13.200", HTML)
-        self.assertEqual(MANIFEST["version"], "0.13.200")
-        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.199")
-        self.assertTrue(CHANGELOG.startswith("# Change log\n\n## 0.13.200"))
+        self.assertIn('version: "0.13.201"', CONFIG)
+        self.assertIn('version="0.13.201"', MAIN)
+        self.assertIn("HUD 0.13.201", HTML)
+        self.assertEqual(MANIFEST["version"], "0.13.201")
+        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.200")
+        self.assertTrue(CHANGELOG.startswith("# Change log\n\n## 0.13.201"))
 
     def test_browser_recognition_is_the_default_method(self):
         self.assertIn('id="wake-browser-activate" name="wake-detection-method" type="radio" checked', HTML)

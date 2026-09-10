@@ -17,10 +17,10 @@ MANIFEST = json.loads((ROOT / "jarvis/release_manifest.json").read_text(encoding
 
 class FocusedAutomationTaskReleaseTests(unittest.TestCase):
     def test_release_markers_are_aligned(self):
-        self.assertIn('version: "0.13.200"', CONFIG)
-        self.assertIn('version="0.13.200"', MAIN)
-        self.assertIn("HUD 0.13.200", HTML)
-        self.assertEqual(MANIFEST["version"], "0.13.200")
+        self.assertIn('version: "0.13.201"', CONFIG)
+        self.assertIn('version="0.13.201"', MAIN)
+        self.assertIn("HUD 0.13.201", HTML)
+        self.assertEqual(MANIFEST["version"], "0.13.201")
 
     def test_task_identity_is_bounded_and_persisted(self):
         self.assertIn("task_template: str = Field", SCHEMAS)
@@ -43,7 +43,7 @@ class FocusedAutomationTaskReleaseTests(unittest.TestCase):
         self.assertIn('Set to 23.5°', BROWSER)
 
     def test_release_history_includes_v013101(self):
-        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.199")
+        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.200")
 
 
 if __name__ == "__main__":

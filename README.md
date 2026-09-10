@@ -1,9 +1,13 @@
-## ZBRANO v0.13.200
+## ZBRANO v0.13.201
 
 ZBRANO combines Home Assistant chat, voice, entity control, memory, notifications,
 calendar and contact tools, plugins, and evidence-based automations. Automation Studio now uses
 a visual building-block toolbox, interactive node canvas, and contextual inspector;
 the established automation engine and stored definitions remain compatible.
+
+Version 0.13.201 treats an explicit request to save information in Memory Database
+as authorization for that exact save. Ordinary saves complete in one operation;
+large saves announce their bounded phase count before writing.
 
 Version 0.13.200 preserves the original Markdown formatting when a streamed answer
 is stopped and saves the partial response with a discreet stopped marker.

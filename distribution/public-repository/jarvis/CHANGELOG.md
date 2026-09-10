@@ -1,5 +1,12 @@
 # Change log
 
+## 0.13.201
+
+- Treat an explicit Memory Database save instruction as authorization for that save.
+- Complete ordinary saves without repeated approval prompts.
+- Split only genuinely large saves into bounded phases and announce the count first.
+- Keep approvals for other permanent edits and Gmail drafts unchanged.
+
 ## 0.13.200
 
 - Preserve streamed Markdown formatting when Stop is pressed.

@@ -279,9 +279,9 @@ def knowledge_memory_tool_catalog() -> dict[str, dict[str, Any]]:
         },
         "save_to_memory_database": {
             "name": "save_to_memory_database", "permission": "write",
-            "description": "Save and automatically organize an ordinary memory after approval. Prefer this one-step tool when the user says to remember information and has not requested a specific space or note.",
+            "description": "Save and automatically organize an ordinary memory when the user explicitly asks. Prefer this one-step tool when the user says to remember information and has not requested a specific space or note.",
             "parameters": {"type": "object", "properties": {
-                "content": {"type": "string"},
+                "content": {"type": "string", "maxLength": 40000},
                 "title": {"type": "string", "description": "An optional short label when the user supplied one."},
                 "preferred_area": {"type": "string", "enum": ["auto", "home", "people", "health", "work", "travel", "learning", "food", "hobbies", "general"]},
             }, "required": ["content", "title", "preferred_area"], "additionalProperties": False},

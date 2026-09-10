@@ -8,6 +8,10 @@ ZBRANO is a private Home Assistant intelligence assistant. It combines natural
 conversation, live home context, voice, useful memory, notifications, organization,
 and automation in one interface without granting itself access to every device.
 
+Version 0.13.201 lets an explicit Memory Database save run without a second approval.
+Ordinary saves finish in one operation; genuinely large saves announce their bounded
+phase count first. Other permanent edits still require review.
+
 The multilingual interface supports English, Greek, Italian, and French with
 automatic device-language detection or an explicit saved selection. Core and
 advanced workspaces, the About showcase, and displayed dates follow the selected
@@ -100,10 +104,3 @@ keeps the interrupted response available in chat history.
 
 Version 0.13.199 gives automatic Knowledge Memory writes the clear **Save to
 Memory Database** name, distinguishing them from Fast Memory preferences.
-
-Version 0.13.198 isolates optional remote MCP connectors from unrelated chat, so
-an unavailable connector cannot break recipes, device control, or local Memory.
-
-Version 0.13.197 makes Memory automatic for everyday users. Write one natural
-sentence and ZBRANO chooses where it belongs, creates any missing organization,
-avoids duplicates, and confirms the saved destination. Manual layouts are optional.

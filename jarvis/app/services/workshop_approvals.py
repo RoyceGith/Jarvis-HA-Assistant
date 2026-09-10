@@ -9,6 +9,8 @@ from typing import Any
 PENDING_WORKSHOP_APPROVALS: dict[str, dict[str, Any]] = {}
 WORKSHOP_TASK_APPROVAL_GRANTS: dict[str, float] = {}
 WORKSHOP_TASK_APPROVAL_SECONDS = 15 * 60
+DIRECT_MEMORY_SAVE_TOOLS = {"save_to_memory_database", "remember_automatically"}
+LARGE_MEMORY_PHASE_BYTES = 40_000
 
 _tool_permission: Callable[[str], str] = lambda name: "read_only"
 _gmail_write_calls: Callable[[list[dict[str, Any]]], list[dict[str, Any]]] = lambda calls: []
@@ -122,6 +124,69 @@ def workshop_memory_write_calls(calls: list[dict[str, Any]]) -> list[dict[str, A
         call for call in calls
         if _tool_permission(str(call.get("name") or "")) == "write"
     ]
+
+
+def is_explicit_memory_save_request(message: str) -> bool:
+    """Treat the user's save instruction as consent for that exact memory save."""
+    normalized = " ".join(str(message or "").casefold().split())
+    direct_phrases = (
+        "remember this", "remember that", "remember the following",
+        "save this to memory", "save that to memory", "save on memory",
+        "store this in memory", "keep this in memory", "add this to memory",
+        "memorizza", "salva in memoria", "ricorda questo", "ricorda che",
+        "sauvegarde en mémoire", "enregistre en mémoire", "mémorise", "retiens ceci",
+        "αποθήκευσε στη μνήμη", "αποθηκευσε στη μνημη", "θυμήσου αυτό",
+        "θυμησου αυτο", "κράτησε στη μνήμη", "κρατησε στη μνημη",
+    )
+    if any(phrase in normalized for phrase in direct_phrases):
+        return True
+    destinations = (
+        "memory database", "knowledge memory", "workshop memory",
+        "database di memoria", "archivio memoria", "base de mémoire",
+        "base mémoire", "βάση μνήμης", "βαση μνημης",
+    )
+    save_verbs = (
+        "save", "store", "keep", "add", "put", "write", "remember",
+        "salva", "memorizza", "ricorda", "conserva", "aggiungi",
+        "sauvegarde", "enregistre", "mémorise", "retiens", "ajoute",
+        "αποθήκευσε", "αποθηκευσε", "θυμήσου", "θυμησου", "κράτησε",
+        "κρατησε", "πρόσθεσε", "προσθεσε",
+    )
+    return any(destination in normalized for destination in destinations) and any(
+        verb in normalized for verb in save_verbs
+    )
+
+
+def explicit_memory_save_authorized(message: str, calls: list[dict[str, Any]]) -> bool:
+    """Authorize only plain Memory Database saves explicitly requested now."""
+    writes = workshop_memory_write_calls(calls)
+    return bool(writes) and is_explicit_memory_save_request(message) and all(
+        str(call.get("name") or "") in DIRECT_MEMORY_SAVE_TOOLS
+        for call in writes
+    )
+
+
+def memory_save_phase_notice(calls: list[dict[str, Any]]) -> str:
+    """Describe genuinely large explicit saves before their first write starts."""
+    phases = 0
+    total_bytes = 0
+    for call in calls:
+        if str(call.get("name") or "") not in DIRECT_MEMORY_SAVE_TOOLS:
+            continue
+        try:
+            arguments = json.loads(str(call.get("arguments") or "{}"))
+        except json.JSONDecodeError:
+            arguments = {}
+        content_bytes = len(str(arguments.get("content") or "").encode("utf-8"))
+        total_bytes += content_bytes
+        phases += 1
+    if phases <= 1 or total_bytes <= LARGE_MEMORY_PHASE_BYTES:
+        return ""
+    return (
+        f"This is a large Memory Database save. I will handle it in {phases} "
+        f"bounded phase{'s' if phases != 1 else ''} and complete them without asking "
+        "for approval again."
+    )
 
 
 def workshop_tool_display_name(name: str) -> str:
