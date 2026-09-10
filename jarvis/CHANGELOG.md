@@ -1,5 +1,13 @@
 # Change log
 
+## 0.13.211
+
+- Present Shared Files as a refined private file library.
+- Separate primary upload and folder actions from quieter selection controls.
+- Add polished folder and file badges with concise type and size metadata.
+- Improve visual depth, spacing, hover feedback, and responsive control grouping.
+- Preserve all folder, upload, move, attach, and safe-delete behavior.
+
 ## 0.13.210
 
 - Create folders and nested folders directly in Shared Files.
