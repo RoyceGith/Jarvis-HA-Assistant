@@ -1,5 +1,10 @@
 # Change log
 
+## 0.13.207
+
+- Use the memory space name as the print heading.
+- Reduce the print heading size and remove its decorative greater-than sign.
+
 ## 0.13.206
 
 - Place note content directly beneath the Contents label.

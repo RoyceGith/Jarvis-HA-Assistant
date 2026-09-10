@@ -8,6 +8,9 @@ ZBRANO is a private Home Assistant intelligence assistant. It combines natural
 conversation, live home context, voice, useful memory, notifications, organization,
 and automation in one interface without granting itself access to every device.
 
+Version 0.13.207 prints the memory space name as a smaller clean heading without
+the interface's decorative greater-than sign.
+
 Version 0.13.206 removes the excessive gap between a note title and its content
 editor while preserving the expanded workspace.
 
@@ -17,10 +20,6 @@ compact top switcher, and gives the note editor more usable room.
 Version 0.13.204 suggests useful broad and specific collections before saving.
 My Memory now centers a spacious editable note, hides `.md`, lets users rename
 notes and categories, and provides clean note printing.
-
-Version 0.13.203 creates descriptive Memory Database collections such as **Soup
-Recipes**, offers one append-or-create choice when a related collection exists, and
-shows the exact destination after saving.
 
 Version 0.13.201 lets an explicit Memory Database save run without a second approval.
 Ordinary saves finish in one operation; genuinely large saves announce their bounded
