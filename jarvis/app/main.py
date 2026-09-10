@@ -396,10 +396,13 @@ from .services.plugin_discovery import (
 from .services.workshop_approvals import (
     PENDING_WORKSHOP_APPROVALS,
     WORKSHOP_TASK_APPROVAL_GRANTS,
+    clear_memory_organization_choice,
     configure_workshop_approvals,
     explicit_memory_save_authorized,
     grant_workshop_memory_task_approval,
+    memory_organization_choice_authorized,
     memory_save_phase_notice,
+    remember_memory_organization_choice,
     store_workshop_memory_approval,
     summarize_workshop_memory_arguments,
     workshop_memory_approval_decision,
@@ -755,7 +758,7 @@ ha_ws = HomeAssistantWebSocketClient(
 
 app = FastAPI(
     title="ZBRANO",
-    version="0.13.202",
+    version="0.13.203",
     docs_url="/api/docs",
     openapi_url="/api/openapi.json",
 )
@@ -1308,6 +1311,11 @@ ZBRANO chooses the area and note without asking the user to design a structure.
 Use one save call for ordinary content. If the content is too large for the tool's
 40,000-character phase limit, split it at coherent boundaries into the fewest possible
 save calls; ZBRANO will tell the user the phase count before the first write begins.
+If save_to_memory_database returns choice_required, do not claim it was saved. Show
+the returned choices as a short numbered question. The user's selection continues the
+same save authorization: call save_to_memory_database again with the original content,
+the selected organization, and its exact destination_note. After a successful save,
+always tell the user the returned space and descriptive note name.
 Use create_memory_category when the user explicitly wants a new category. Use
 list_memory_templates before choosing a reusable layout, create_memory_template
 when the user asks for a new reusable layout, and create_memory_space for the
@@ -1790,6 +1798,12 @@ async def execute_tool_calls(
             except (asyncio.TimeoutError, MCPError, httpx.HTTPError, RuntimeError, PermissionError, ValueError, HTTPException) as exc:
                 result = {"error": str(exc)}
 
+        if name in {"save_to_memory_database", "remember_automatically"} and isinstance(result, dict):
+            if result.get("choice_required"):
+                remember_memory_organization_choice(session_id, call, result)
+            elif result.get("saved"):
+                clear_memory_organization_choice(session_id)
+
         if (
             not budget_rejection
             and
@@ -2093,7 +2107,10 @@ async def run_jarvis(message: str, session_id: str = "default") -> dict[str, Any
             )
 
         write_calls = workshop_memory_write_calls(calls)
-        direct_save = explicit_memory_save_authorized(message, calls)
+        direct_save = (
+            explicit_memory_save_authorized(message, calls)
+            or memory_organization_choice_authorized(session_id, calls)
+        )
         if direct_save and not direct_save_notice:
             direct_save_notice = memory_save_phase_notice(calls)
         if write_calls and (
@@ -2336,7 +2353,10 @@ async def continue_workshop_memory_approval(
                 reply = "Knowledge Memory change completed." if approved else "Knowledge Memory change was denied."
             return {"reply": reply, "tool_calls": audit}
         write_calls = workshop_memory_write_calls(calls)
-        direct_save = explicit_memory_save_authorized(request_message, calls)
+        direct_save = (
+            explicit_memory_save_authorized(request_message, calls)
+            or memory_organization_choice_authorized(session_id, calls)
+        )
         if write_calls and (
             gmail_direct_write_calls(calls)
             or not (direct_save or workshop_memory_task_approval_active(session_id))
@@ -2694,7 +2714,10 @@ async def _run_jarvis_stream_events(message: str, session_id: str = "default", s
         )
         yield stream_event("activity", id=activity_id, state="started", **activity_meta)
 
-        direct_save = explicit_memory_save_authorized(message, calls)
+        direct_save = (
+            explicit_memory_save_authorized(message, calls)
+            or memory_organization_choice_authorized(session_id, calls)
+        )
         if direct_save and not memory_phase_notice_sent:
             phase_notice = memory_save_phase_notice(calls)
             if phase_notice:
@@ -2960,7 +2983,7 @@ async def health() -> dict[str, Any]:
     configured_speech_provider = SPEECH_PROVIDER if SPEECH_PROVIDER in {"openai", "elevenlabs"} else "openai"
     return {
         "status": "ok",
-        "version": "0.13.202",
+        "version": "0.13.203",
         "home_assistant_configured": bool(SUPERVISOR_TOKEN),
         "workshop_memory_configured": True,
         "knowledge_memory_mode": "built_in",
@@ -4657,7 +4680,13 @@ async def create_knowledge_memory_space(request: KnowledgeSpaceCreateRequest) ->
 @app.post("/api/knowledge-memory/remember")
 async def remember_in_knowledge_memory(request: KnowledgeRememberRequest) -> dict[str, Any]:
     try:
-        return remember_automatically(request.content, request.title, request.preferred_area)
+        return remember_automatically(
+            request.content,
+            request.title,
+            request.preferred_area,
+            request.organization,
+            request.destination_note,
+        )
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
 

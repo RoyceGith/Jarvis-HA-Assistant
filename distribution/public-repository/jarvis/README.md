@@ -8,6 +8,10 @@ ZBRANO is a private Home Assistant intelligence assistant. It combines natural
 conversation, live home context, voice, useful memory, notifications, organization,
 and automation in one interface without granting itself access to every device.
 
+Version 0.13.203 creates descriptive Memory Database collections such as **Soup
+Recipes**, offers one append-or-create choice when a related collection exists, and
+shows the exact destination after saving.
+
 Version 0.13.202 removes the final saved conversation cleanly and leaves exactly one
 fresh unsaved chat, without retaining a stale row or deleting the replacement later.
 
@@ -101,9 +105,3 @@ Version 0.13.186 introduced the four-language foundation and localized Home
 Assistant configuration. Version 0.13.185 added `amd64` while preserving `aarch64`
 and the existing update path.
 The in-app **About** tab provides a visual overview of ZBRANO's complete feature set.
-
-Version 0.13.200 preserves formatted partial answers when Stop is pressed and
-keeps the interrupted response available in chat history.
-
-Version 0.13.199 gives automatic Knowledge Memory writes the clear **Save to
-Memory Database** name, distinguishing them from Fast Memory preferences.

@@ -279,12 +279,14 @@ def knowledge_memory_tool_catalog() -> dict[str, dict[str, Any]]:
         },
         "save_to_memory_database": {
             "name": "save_to_memory_database", "permission": "write",
-            "description": "Save and automatically organize an ordinary memory when the user explicitly asks. Prefer this one-step tool when the user says to remember information and has not requested a specific space or note.",
+            "description": "Save and automatically organize an ordinary memory when the user explicitly asks. Prefer this one-step tool when the user says to remember information and has not requested a specific space or note. Start with organization=auto and destination_note empty. If the result requests an organization choice, ask once, then repeat this tool with the unchanged content and the selected organization and destination_note.",
             "parameters": {"type": "object", "properties": {
                 "content": {"type": "string", "maxLength": 40000},
                 "title": {"type": "string", "description": "An optional short label when the user supplied one."},
                 "preferred_area": {"type": "string", "enum": ["auto", "home", "people", "health", "work", "travel", "learning", "food", "hobbies", "general"]},
-            }, "required": ["content", "title", "preferred_area"], "additionalProperties": False},
+                "organization": {"type": "string", "enum": ["auto", "append_existing", "create_new"]},
+                "destination_note": {"type": "string", "description": "Empty for automatic filing; otherwise the exact note offered by the choice result."},
+            }, "required": ["content", "title", "preferred_area", "organization", "destination_note"], "additionalProperties": False},
         },
         "create_memory_category": {
             "name": "create_memory_category", "permission": "write",
@@ -425,6 +427,13 @@ def _automatic_memory_note(area_key: str, content: str) -> str:
             (("pack", "packing"), "Packing.md"),
         ),
         "food": (
+            (("soup", "broth", "bisque", "chowder"), "Soup Recipes.md"),
+            (("stew",), "Stew Recipes.md"),
+            (("pasta", "spaghetti", "lasagna"), "Pasta Recipes.md"),
+            (("bread", "loaf", "focaccia"), "Bread Recipes.md"),
+            (("cake", "cupcake"), "Cake Recipes.md"),
+            (("dessert", "pudding", "pie", "tart"), "Dessert Recipes.md"),
+            (("salad",), "Salad Recipes.md"),
             (("recipe", "ingredient", "cook", "bake"), "Recipes.md"),
             (("restaurant", "favorite", "prefers"), "Favorites.md"),
         ),
@@ -440,7 +449,28 @@ def _automatic_memory_note(area_key: str, content: str) -> str:
     }[area_key]
 
 
-def remember_automatically(content: str, title: str = "", preferred_area: str = "") -> dict[str, Any]:
+def _narrower_memory_note(note: str, content: str) -> str:
+    """Offer a useful sub-collection only when the content supplies a clear qualifier."""
+    normalized = " ".join(str(content or "").casefold().split())
+    qualifiers = (
+        ("beef", "Beef"), ("chicken", "Chicken"), ("pork", "Pork"),
+        ("lamb", "Lamb"), ("seafood", "Seafood"), ("fish", "Fish"),
+        ("vegetarian", "Vegetarian"), ("vegan", "Vegan"),
+    )
+    qualifier = next((label for keyword, label in qualifiers if keyword in normalized), "")
+    if not qualifier or not note.endswith(" Recipes.md"):
+        return note
+    topic = note.removesuffix(" Recipes.md")
+    return f"{qualifier} {topic} Recipes.md"
+
+
+def remember_automatically(
+    content: str,
+    title: str = "",
+    preferred_area: str = "",
+    organization: str = "auto",
+    destination_note: str = "",
+) -> dict[str, Any]:
     """File an explicitly submitted memory without making the user design its storage."""
     clean_content = str(content or "").strip()
     if not clean_content:
@@ -448,6 +478,9 @@ def remember_automatically(content: str, title: str = "", preferred_area: str = 
     if len(clean_content.encode("utf-8")) > 50_000:
         raise ValueError("This memory is too large to save at once")
     clean_title = " ".join(str(title or "").strip().split())[:160]
+    organization = str(organization or "auto").strip().casefold()
+    if organization not in {"auto", "append_existing", "create_new"}:
+        raise ValueError("Unknown memory organization choice")
     area_key, area = _automatic_memory_area(clean_content, preferred_area)
 
     spaces = list_memory_spaces()["spaces"]
@@ -461,8 +494,43 @@ def remember_automatically(content: str, title: str = "", preferred_area: str = 
         created_space = True
 
     space_name = str(destination["name"])
-    note = _automatic_memory_note(area_key, clean_content)
+    automatic_note = _automatic_memory_note(area_key, f"{clean_title}\n{clean_content}")
+    narrower_note = _narrower_memory_note(automatic_note, f"{clean_title}\n{clean_content}")
+    note = str(destination_note or "").strip() if organization != "auto" else automatic_note
+    if note and not note.lower().endswith(".md"):
+        note += ".md"
+    if organization != "auto" and note not in {automatic_note, narrower_note}:
+        raise ValueError("The selected destination note does not match the offered organization choices")
+    if organization == "append_existing" and note != automatic_note:
+        raise ValueError("Choose the existing note when appending")
+    if organization == "create_new" and note != narrower_note:
+        raise ValueError("Choose the proposed new note when creating a collection")
     note_path = _space_note_path(space_name, note)
+    narrower_path = _space_note_path(space_name, narrower_note)
+    if organization == "auto" and narrower_note != automatic_note and narrower_path.is_file():
+        note = narrower_note
+        note_path = narrower_path
+    if (
+        organization == "auto"
+        and narrower_note != automatic_note
+        and note_path.is_file()
+        and not narrower_path.is_file()
+    ):
+        return {
+            "saved": False,
+            "choice_required": True,
+            "question": (
+                f"{automatic_note.removesuffix('.md')} already exists. Add this there, "
+                f"or create {narrower_note.removesuffix('.md')}?"
+            ),
+            "space": space_name,
+            "existing_note": automatic_note,
+            "new_note": narrower_note,
+            "choices": [
+                {"id": "append_existing", "label": f"Add to {automatic_note.removesuffix('.md')}", "destination_note": automatic_note},
+                {"id": "create_new", "label": f"Create {narrower_note.removesuffix('.md')}", "destination_note": narrower_note},
+            ],
+        }
     previous = note_path.read_text(encoding="utf-8") if note_path.is_file() else ""
     comparable = " ".join(clean_content.casefold().split())
     duplicate = bool(comparable and comparable in " ".join(previous.casefold().split()))
@@ -478,6 +546,7 @@ def remember_automatically(content: str, title: str = "", preferred_area: str = 
 
     return {
         "saved": True,
+        "choice_required": False,
         "duplicate": duplicate,
         "created_space": created_space,
         "area": area["area"],
@@ -486,6 +555,7 @@ def remember_automatically(content: str, title: str = "", preferred_area: str = 
         "space": space_name,
         "note": note,
         "relative_path": f"{SPACES_FOLDER}/{space_name}/{note}",
+        "confirmation": f"Saved in {space_name} → {note.removesuffix('.md')}",
     }
 
 
@@ -676,7 +746,13 @@ def call_local_knowledge_tool(tool_name: str, arguments: dict[str, Any]) -> dict
     if tool_name == "list_memory_templates":
         return list_memory_templates()
     if tool_name in {"save_to_memory_database", "remember_automatically"}:
-        return remember_automatically(arguments["content"], arguments.get("title", ""), arguments.get("preferred_area", "auto"))
+        return remember_automatically(
+            arguments["content"],
+            arguments.get("title", ""),
+            arguments.get("preferred_area", "auto"),
+            arguments.get("organization", "auto"),
+            arguments.get("destination_note", ""),
+        )
     if tool_name == "create_memory_category":
         return create_memory_category(arguments["name"], arguments.get("icon", "custom"), arguments.get("description", ""))
     if tool_name == "create_memory_template":

@@ -1,9 +1,9 @@
 {
-  "version": "0.13.202",
+  "version": "0.13.203",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/ZBRANO_Core main",
-  "summary": "Delete the final saved conversation cleanly and leave exactly one fresh unsaved chat.",
+  "summary": "Organize saved knowledge into descriptive topic collections with a single safe append-or-create choice when needed.",
   "history_backfill": [
     {
       "version": "0.13.0",
@@ -812,19 +812,23 @@
       {
         "version": "0.13.201",
         "summary": "Completed explicitly requested Memory Database saves without redundant approvals and announced bounded phases for large saves."
+      },
+      {
+        "version": "0.13.202",
+        "summary": "Deleted the final saved conversation cleanly and left exactly one fresh unsaved chat."
       }
   ],
   "release_entry": {
     "features": [
-      "Remove the final saved conversation before showing its replacement draft.",
-      "Leave exactly one fresh unsaved chat after deleting the last conversation."
+      "Create descriptive topic notes such as Soup Recipes instead of one generic Recipes note.",
+      "Offer a single append-or-create choice when an existing related collection makes both destinations reasonable."
     ],
     "fixes": [
-      "Prevent the deleted conversation row from remaining visible beside the new chat.",
-      "Prevent a second delete on stale UI state from clearing both visible rows."
+      "Keep an organization choice inside the exact original save authorization without approving unrelated writes.",
+      "Return and display the precise Memory Database space and note after a completed save."
     ],
     "validation": [
-      "Single-conversation deletion lifecycle, replacement-draft rendering, browser smoke, and v0.13.202 release coverage"
+      "Topic-note classification, safe organization continuations, Memory Studio choices, API integration, and v0.13.203 release coverage"
     ]
   },
   "features": [

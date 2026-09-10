@@ -364,6 +364,8 @@ class KnowledgeRememberRequest(BaseModel):
     content: str = Field(min_length=1, max_length=50000)
     title: str = Field(default="", max_length=160)
     preferred_area: str = Field(default="auto", max_length=100)
+    organization: str = Field(default="auto", pattern="^(auto|append_existing|create_new)$")
+    destination_note: str = Field(default="", max_length=180)
 
 class KnowledgeCategoryCreateRequest(BaseModel):
     name: str = Field(min_length=1, max_length=100)

@@ -20,12 +20,12 @@ MANIFEST = json.loads((ROOT / "jarvis/release_manifest.json").read_text(encoding
 
 class MultilingualFoundationReleaseTests(unittest.TestCase):
     def test_release_is_aligned(self):
-        self.assertIn('version: "0.13.202"', CONFIG)
-        self.assertIn('version="0.13.202"', MAIN)
-        self.assertIn("HUD 0.13.202", HTML)
-        self.assertEqual(MANIFEST["version"], "0.13.202")
-        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.201")
-        self.assertTrue(CHANGELOG.startswith("# Change log\n\n## 0.13.202"))
+        self.assertIn('version: "0.13.203"', CONFIG)
+        self.assertIn('version="0.13.203"', MAIN)
+        self.assertIn("HUD 0.13.203", HTML)
+        self.assertEqual(MANIFEST["version"], "0.13.203")
+        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.202")
+        self.assertTrue(CHANGELOG.startswith("# Change log\n\n## 0.13.203"))
 
     def test_language_selector_has_supported_choices(self):
         select = re.search(r'<select id="preferred-language"[^>]*>(.*?)</select>', HTML, re.DOTALL)

@@ -1,5 +1,12 @@
 # Change log
 
+## 0.13.203
+
+- File recipe knowledge into descriptive topic collections such as `Soup Recipes`.
+- Offer one choice between appending to a related collection and creating a narrower one.
+- Keep that organization choice inside the original save authorization.
+- Show the exact Memory Database space and note after every completed save.
+
 ## 0.13.202
 
 - Remove the final saved conversation row before rendering its replacement draft.

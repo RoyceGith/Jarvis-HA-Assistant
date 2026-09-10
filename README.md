@@ -1,9 +1,13 @@
-## ZBRANO v0.13.202
+## ZBRANO v0.13.203
 
 ZBRANO combines Home Assistant chat, voice, entity control, memory, notifications,
 calendar and contact tools, plugins, and evidence-based automations. Automation Studio now uses
 a visual building-block toolbox, interactive node canvas, and contextual inspector;
 the established automation engine and stored definitions remain compatible.
+
+Version 0.13.203 gives automatically saved knowledge descriptive topic collections.
+Soup content goes to `Soup Recipes`, related existing collections offer one clear
+append-or-create choice, and every completed save reports its exact destination.
 
 Version 0.13.202 correctly removes the final saved conversation before showing a
 fresh unsaved chat, preventing a stale deleted row and the apparent double deletion.

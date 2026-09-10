@@ -106,13 +106,13 @@ class ApplicationIntegrationTests(unittest.IsolatedAsyncioTestCase):
             response = await self.client.get("/api/health")
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json()["status"], "ok")
-        self.assertEqual(response.json()["version"], "0.13.202")
+        self.assertEqual(response.json()["version"], "0.13.203")
         self.assertEqual(response.json()["ha_read_entity_count"], 1)
         self.assertEqual(response.json()["ha_control_entity_count"], 1)
 
         frontend = await self.client.get("/")
         self.assertEqual(frontend.status_code, 200)
-        self.assertIn("HUD 0.13.202", frontend.text)
+        self.assertIn("HUD 0.13.203", frontend.text)
         self.assertEqual(
             frontend.headers.get("cache-control"),
             "no-store, no-cache, must-revalidate, max-age=0",
@@ -682,6 +682,38 @@ class ApplicationIntegrationTests(unittest.IsolatedAsyncioTestCase):
         self.assertTrue(duplicate.json()["duplicate"])
         stored = knowledge_memory.read_memory_note(first.json()["space"], first.json()["note"])
         self.assertEqual(stored["content"].count("40 x 60 cm"), 1)
+
+    async def test_recipe_memory_uses_topic_collection_and_one_organization_choice(self) -> None:
+        first = await self.client.post("/api/knowledge-memory/remember", json={
+            "content": "Beef and barley soup recipe with stock, carrots, and thyme.",
+            "title": "Beef and barley soup",
+        })
+        self.assertEqual(first.status_code, 200)
+        self.assertTrue(first.json()["saved"])
+        self.assertEqual(first.json()["note"], "Soup Recipes.md")
+        self.assertIn("Soup Recipes", first.json()["confirmation"])
+
+        second_content = "Beef vegetable soup recipe with potatoes and celery."
+        choice = await self.client.post("/api/knowledge-memory/remember", json={
+            "content": second_content,
+            "title": "Beef vegetable soup",
+        })
+        self.assertEqual(choice.status_code, 200)
+        self.assertFalse(choice.json()["saved"])
+        self.assertTrue(choice.json()["choice_required"])
+        self.assertEqual(choice.json()["existing_note"], "Soup Recipes.md")
+        self.assertEqual(choice.json()["new_note"], "Beef Soup Recipes.md")
+
+        organized = await self.client.post("/api/knowledge-memory/remember", json={
+            "content": second_content,
+            "title": "Beef vegetable soup",
+            "organization": "create_new",
+            "destination_note": "Beef Soup Recipes.md",
+        })
+        self.assertEqual(organized.status_code, 200)
+        self.assertTrue(organized.json()["saved"])
+        self.assertEqual(organized.json()["note"], "Beef Soup Recipes.md")
+        self.assertIn("Beef Soup Recipes", organized.json()["confirmation"])
 
     async def test_notification_settings_and_watch_round_trip(self) -> None:
         saved = await self.client.put(

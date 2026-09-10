@@ -7,6 +7,7 @@ from typing import Any
 
 
 PENDING_WORKSHOP_APPROVALS: dict[str, dict[str, Any]] = {}
+PENDING_MEMORY_ORGANIZATION: dict[str, dict[str, Any]] = {}
 WORKSHOP_TASK_APPROVAL_GRANTS: dict[str, float] = {}
 WORKSHOP_TASK_APPROVAL_SECONDS = 15 * 60
 DIRECT_MEMORY_SAVE_TOOLS = {"save_to_memory_database", "remember_automatically"}
@@ -164,6 +165,66 @@ def explicit_memory_save_authorized(message: str, calls: list[dict[str, Any]]) -
         str(call.get("name") or "") in DIRECT_MEMORY_SAVE_TOOLS
         for call in writes
     )
+
+
+def remember_memory_organization_choice(
+    session_id: str,
+    call: dict[str, Any],
+    result: dict[str, Any],
+) -> None:
+    """Keep only the exact follow-up destinations offered for an unfinished save."""
+    if str(call.get("name") or "") not in DIRECT_MEMORY_SAVE_TOOLS:
+        return
+    try:
+        arguments = json.loads(str(call.get("arguments") or "{}"))
+    except json.JSONDecodeError:
+        return
+    choices = {
+        (str(choice.get("id") or ""), str(choice.get("destination_note") or ""))
+        for choice in result.get("choices") or []
+        if isinstance(choice, dict)
+    }
+    if not choices:
+        return
+    PENDING_MEMORY_ORGANIZATION[session_id] = {
+        "content": str(arguments.get("content") or ""),
+        "title": str(arguments.get("title") or ""),
+        "preferred_area": str(arguments.get("preferred_area") or "auto"),
+        "choices": choices,
+        "expires_at": time.monotonic() + WORKSHOP_TASK_APPROVAL_SECONDS,
+    }
+
+
+def memory_organization_choice_authorized(
+    session_id: str,
+    calls: list[dict[str, Any]],
+) -> bool:
+    pending = PENDING_MEMORY_ORGANIZATION.get(session_id)
+    if not pending:
+        return False
+    if float(pending.get("expires_at") or 0) <= time.monotonic():
+        PENDING_MEMORY_ORGANIZATION.pop(session_id, None)
+        return False
+    writes = workshop_memory_write_calls(calls)
+    if len(writes) != 1 or str(writes[0].get("name") or "") not in DIRECT_MEMORY_SAVE_TOOLS:
+        return False
+    try:
+        arguments = json.loads(str(writes[0].get("arguments") or "{}"))
+    except json.JSONDecodeError:
+        return False
+    return (
+        str(arguments.get("content") or "") == pending["content"]
+        and str(arguments.get("title") or "") == pending["title"]
+        and str(arguments.get("preferred_area") or "auto") == pending["preferred_area"]
+        and (
+            str(arguments.get("organization") or ""),
+            str(arguments.get("destination_note") or ""),
+        ) in pending["choices"]
+    )
+
+
+def clear_memory_organization_choice(session_id: str) -> None:
+    PENDING_MEMORY_ORGANIZATION.pop(session_id, None)
 
 
 def memory_save_phase_notice(calls: list[dict[str, Any]]) -> str:

@@ -239,24 +239,28 @@
     } catch (error) { setStatus("memory-space-form-status", error.message || String(error)); setStatus("memory-template-status", error.message || String(error)); }
   });
 
-  $("memory-quick-form").addEventListener("submit", async (event) => {
-    event.preventDefault();
-    const content = $("memory-quick-content").value.trim();
-    if (!content) return;
+  const saveQuickMemory = async (content, organization = "auto", destinationNote = "") => {
     const button = $("memory-quick-save");
     button.disabled = true;
     setStatus("memory-quick-status", "Organizing…");
-    $("memory-quick-result").hidden = true;
     try {
       const payload = await api("api/knowledge-memory/remember", {
         method:"POST",
         headers:{"Content-Type":"application/json"},
-        body:JSON.stringify({content, preferred_area:$("memory-quick-area").value}),
+        body:JSON.stringify({content, preferred_area:$("memory-quick-area").value, organization, destination_note:destinationNote}),
       });
-      $("memory-quick-content").value = "";
       setStatus("memory-quick-status", "");
-      await loadAll();
       const result = $("memory-quick-result");
+      if (payload.choice_required) {
+        result.innerHTML = `<div><strong>Choose how to organize this memory</strong><small>${esc(payload.question)}</small></div><div class="memory-quick-actions">${(payload.choices || []).map(choice => `<button type="button" class="memory-primary" data-memory-organization="${esc(choice.id)}" data-memory-destination-note="${esc(choice.destination_note)}">${esc(choice.label)}</button>`).join("")}</div>`;
+        for (const choice of result.querySelectorAll("[data-memory-organization]")) {
+          choice.addEventListener("click", () => saveQuickMemory(content, choice.dataset.memoryOrganization, choice.dataset.memoryDestinationNote));
+        }
+        result.hidden = false;
+        return;
+      }
+      $("memory-quick-content").value = "";
+      await loadAll();
       result.innerHTML = `<span class="memory-quick-result-icon">${esc(icon(payload.icon))}</span><div><strong>${payload.duplicate ? "Already remembered" : "Saved and organized"}</strong><small>${esc(payload.space)} &rarr; ${esc(String(payload.note || "").replace(/\.md$/i, ""))}</small></div><button type="button" data-memory-space="${esc(payload.space)}">Open</button>`;
       result.hidden = false;
     } catch (error) {
@@ -264,6 +268,14 @@
     } finally {
       button.disabled = false;
     }
+  };
+
+  $("memory-quick-form").addEventListener("submit", async (event) => {
+    event.preventDefault();
+    const content = $("memory-quick-content").value.trim();
+    if (!content) return;
+    $("memory-quick-result").hidden = true;
+    await saveQuickMemory(content);
   });
 
   $("memory-space-form").addEventListener("submit", async (event) => {
