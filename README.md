@@ -4,7 +4,7 @@
 
 **A private, permission-aware assistant for conversation, home intelligence, and visual automation.**
 
-Current release: **0.13.200**
+Current release: **0.13.201**
 Platforms: **Home Assistant · aarch64 · amd64**
 Languages: **English · Ελληνικά · Italiano · Français**
 
