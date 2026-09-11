@@ -53,7 +53,7 @@ checks each required connection and explains anything that still needs attention
 
 1. In Home Assistant, open **Settings → Apps → App store**.
 2. Open the repository menu and add:
-   `https://github.com/RoyceGith/ZBRANO_HA_Assistant`
+   `https://github.com/ZBRANO-HOME/ZBRANO_HA_Assistant`
 3. Select **ZBRANO**, install it, and add your OpenAI or OpenRouter API key.
 4. Open **Settings → Apps → ZBRANO → Configuration**.
 5. Choose **Chat AI provider** (`chat_provider`), enter your own matching API key, save, and restart ZBRANO.
@@ -107,7 +107,7 @@ the [app changelog](jarvis/CHANGELOG.md).
   copied or downloaded without credentials or personal entity values.
 - Check the Home Assistant app log when ZBRANO cannot start or connect.
 - Report reproducible product problems through
-  [GitHub Issues](https://github.com/RoyceGith/ZBRANO_HA_Assistant/issues).
+  [GitHub Issues](https://github.com/ZBRANO-HOME/ZBRANO_HA_Assistant/issues).
 
 When reporting a problem, include the ZBRANO version, Home Assistant version,
 architecture, the relevant log section, and the sanitized Installation Report.

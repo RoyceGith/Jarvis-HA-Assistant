@@ -25,7 +25,7 @@ continues from its migrated `/data` record without exposing the extension to oth
 
 The private canonical source repository is
 `https://github.com/RoyceGith/ZBRANO_Core`. The public distribution repository is
-`https://github.com/RoyceGith/ZBRANO_HA_Assistant`; its current tree contains only
+`https://github.com/ZBRANO-HOME/ZBRANO_HA_Assistant`; its current tree contains only
 Home Assistant installation metadata and documentation. It retains the last
 previously public source commit and the initial thin-distribution head as merge
 ancestry so Supervisor clones cached on either side of the transition can
@@ -36,7 +36,7 @@ path.
 
 ## Public Home Assistant distribution
 
-`RoyceGith/ZBRANO_HA_Assistant` is a thin public update repository. Its current tree
+`ZBRANO-HOME/ZBRANO_HA_Assistant` is a thin public update repository. Its current tree
 contains Home Assistant repository metadata, add-on configuration, installation
 documentation, non-secret presentation assets, and the small open companion
 integration that registers ZBRANO as an optional Assist conversation agent. It points Supervisor at the

@@ -3,10 +3,10 @@
   "name": "ZBRANO",
   "codeowners": ["@RoyceGith"],
   "config_flow": true,
-  "documentation": "https://github.com/RoyceGith/ZBRANO_HA_Assistant",
+  "documentation": "https://github.com/ZBRANO-HOME/ZBRANO_HA_Assistant",
   "integration_type": "service",
   "iot_class": "local_push",
-  "issue_tracker": "https://github.com/RoyceGith/ZBRANO_HA_Assistant/issues",
+  "issue_tracker": "https://github.com/ZBRANO-HOME/ZBRANO_HA_Assistant/issues",
   "requirements": [],
   "version": "0.1.1"
 }

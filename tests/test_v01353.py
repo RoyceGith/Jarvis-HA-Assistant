@@ -22,7 +22,7 @@ class RepositoryRenameReleaseTests(unittest.TestCase):
 
     def test_source_and_distribution_repositories_are_separate(self):
         canonical = "RoyceGith/ZBRANO_Core"
-        distribution = "RoyceGith/ZBRANO_HA_Assistant"
+        distribution = "ZBRANO-HOME/ZBRANO_HA_Assistant"
         self.assertIn(canonical, MANIFEST["source"])
         self.assertIn(canonical, DOCKERFILE)
         self.assertIn(canonical, DEVELOPER)

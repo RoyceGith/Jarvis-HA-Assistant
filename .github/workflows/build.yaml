@@ -104,7 +104,7 @@ jobs:
             io.hass.name=${{ needs.prepare.outputs.name }}
             io.hass.description=${{ needs.prepare.outputs.description }}
             io.hass.url=${{ needs.prepare.outputs.url }}
-          push: ${{ github.event_name != 'pull_request' }}
+          push: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
           version: ${{ needs.prepare.outputs.version }}
 
   manifest:
@@ -112,7 +112,7 @@ jobs:
     needs:
       - prepare
       - build
-    if: github.event_name != 'pull_request'
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     permissions:
       id-token: write

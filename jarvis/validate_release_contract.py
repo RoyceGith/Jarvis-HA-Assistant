@@ -130,8 +130,8 @@ def main() -> None:
         'version: ${{ needs.prepare.outputs.version }}',
         "home-assistant/builder/actions/build-image@2026.06.0",
         "home-assistant/builder/actions/publish-multi-arch-manifest@2026.06.0",
-        "push: ${{ github.event_name != 'pull_request' }}",
-        "if: github.event_name != 'pull_request'",
+        "push: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}",
+        "if: github.event_name == 'push' && github.ref == 'refs/heads/main'",
     ):
         if marker not in workflow:
             raise RuntimeError(f"GitHub release workflow is missing: {marker}")

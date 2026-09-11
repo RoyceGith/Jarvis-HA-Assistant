@@ -115,7 +115,7 @@ def validate(paths: list[str] | None = None, *, root: Path = ROOT) -> list[str]:
     repository = (root / "repository.yaml").read_text(encoding="utf-8")
     if "name: ZBRANO" not in repository:
         errors.append("repository.yaml must use the ZBRANO product name")
-    if "https://github.com/RoyceGith/ZBRANO_HA_Assistant" not in repository:
+    if "https://github.com/ZBRANO-HOME/ZBRANO_HA_Assistant" not in repository:
         errors.append("repository.yaml must point to the canonical public repository")
 
     for relative, expected_size in PUBLIC_PRESENTATION_ASSETS.items():

@@ -101,6 +101,6 @@ and plain-language recovery guidance.
 - Review the Home Assistant app log for startup or connection errors.
 - See the [full changelog](CHANGELOG.md) for release details.
 - Report reproducible issues at
-  [RoyceGith/ZBRANO_HA_Assistant](https://github.com/RoyceGith/ZBRANO_HA_Assistant/issues).
+  [ZBRANO-HOME/ZBRANO_HA_Assistant](https://github.com/ZBRANO-HOME/ZBRANO_HA_Assistant/issues).
 
 The in-app **About** tab provides a visual overview of ZBRANO's complete feature set.

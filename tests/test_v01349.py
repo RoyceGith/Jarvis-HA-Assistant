@@ -29,7 +29,7 @@ class ReleaseContractReleaseTests(unittest.TestCase):
             "ARG BUILD_VERSION",
             "ingress_port",
             "publish-multi-arch-manifest@2026.06.0",
-            "github.event_name != 'pull_request'",
+            "github.event_name == 'push' && github.ref == 'refs/heads/main'",
         ):
             self.assertIn(marker, VALIDATOR)
 

@@ -26,7 +26,7 @@ class RepositorySplitReleaseTests(unittest.TestCase):
     def test_private_core_and_public_distribution_are_distinct(self):
         self.assertIn("RoyceGith/ZBRANO_Core", MANIFEST["source"])
         self.assertIn("github.com/RoyceGith/ZBRANO_Core", DOCKERFILE)
-        self.assertIn("github.com/RoyceGith/ZBRANO_HA_Assistant", REPOSITORY)
+        self.assertIn("github.com/ZBRANO-HOME/ZBRANO_HA_Assistant", REPOSITORY)
         self.assertIn("thin public update repository", BOUNDARY)
 
     def test_home_assistant_compatibility_image_is_unchanged(self):
