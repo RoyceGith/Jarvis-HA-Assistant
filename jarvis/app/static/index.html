@@ -412,7 +412,7 @@
         </div>
       </div>
       <div class="settings-actions"><button id="test-voice" type="button">Test Voice</button><button id="reset-voice-settings" type="button">Reset Voice Defaults</button></div>
-      <section class="assist-bridge-card" aria-labelledby="assist-bridge-title">
+      <section class="assist-bridge-card">
         <div class="assist-bridge-heading">
           <div><h3 id="assist-bridge-title">ASSIST SATELLITES</h3></div>
           <span id="assist-bridge-state" data-state="off">NOT PAIRED</span>
@@ -420,7 +420,7 @@
         <ol class="assist-bridge-steps">
           <li>Install through HACS.</li>
           <li>Generate a key and add the integration.</li>
-          <li>Choose ZBRANO in a pipeline and assign your satellites.</li>
+          <li>Choose a fallback HA assistant, then use ZBRANO in the pipeline.</li>
         </ol>
         <div class="assist-bridge-address setting-field"><label for="assist-bridge-url">Local address</label><input id="assist-bridge-url" type="text" readonly></div>
         <div id="assist-bridge-secret" class="assist-bridge-secret" hidden><label for="assist-bridge-token">Pairing key</label><div><input id="assist-bridge-token" type="text" readonly><button id="assist-bridge-copy" type="button">Copy key</button></div></div>

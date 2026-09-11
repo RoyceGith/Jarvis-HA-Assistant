@@ -26,7 +26,7 @@ does not operate a managed AI subscription.
 
 | Capability | What it means in everyday use |
 | --- | --- |
-| **Conversation and voice** | Your choice of direct OpenAI or user-owned OpenRouter, separate saved conversations, file attachments, optional web sources with OpenAI, speech replies, voice-independent browser wake recognition, follow-up listening, and an optional local Assist satellite bridge. |
+| **Conversation and voice** | Your choice of direct OpenAI or user-owned OpenRouter, separate saved conversations, files, optional web sources, speech replies, browser wake recognition, and a local Assist satellite bridge with automatic HA fallback. |
 | **Home awareness** | Live sensor readings, device states, rooms, labels, history, and event timelines from explicitly permitted Home Assistant entities. |
 | **Visual automations** | Automation Studio uses understandable WHEN, IF, ELSE IF, message, and action paths with safe testing before saving. |
 | **Memory and organization** | Private Fast Memory, a visual Memory Database, customizable categories and reusable note templates, shared files, contacts, birthdays, appointments, and reminders. |

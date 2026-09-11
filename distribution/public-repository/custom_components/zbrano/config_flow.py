@@ -3,12 +3,18 @@ from __future__ import annotations
 import voluptuous as vol
 
 from homeassistant import config_entries
+from homeassistant.components.conversation import HOME_ASSISTANT_AGENT
 from homeassistant.const import CONF_ACCESS_TOKEN
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
-from homeassistant.helpers.selector import TextSelector, TextSelectorConfig, TextSelectorType
+from homeassistant.helpers.selector import (
+    ConversationAgentSelector,
+    TextSelector,
+    TextSelectorConfig,
+    TextSelectorType,
+)
 
 from .api import ZbranoApi, ZbranoApiError
-from .const import CONF_TOKEN, CONF_URL, DEFAULT_URL, DOMAIN
+from .const import CONF_FALLBACK_AGENT, CONF_TOKEN, CONF_URL, DEFAULT_URL, DOMAIN
 
 
 class ZbranoConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
@@ -21,14 +27,23 @@ class ZbranoConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 vol.Required(CONF_TOKEN, default=(user_input or {}).get(CONF_TOKEN, "")): TextSelector(
                     TextSelectorConfig(type=TextSelectorType.PASSWORD)
                 ),
+                vol.Required(
+                    CONF_FALLBACK_AGENT,
+                    default=(user_input or {}).get(CONF_FALLBACK_AGENT, HOME_ASSISTANT_AGENT),
+                ): ConversationAgentSelector(),
             }
         )
 
-    async def _validate(self, user_input):
+    async def _validate(self, user_input, existing_token=""):
         url = str(user_input[CONF_URL]).strip().rstrip("/")
-        token = str(user_input[CONF_TOKEN]).strip()
+        token = str(user_input[CONF_TOKEN]).strip() or str(existing_token).strip()
+        fallback_agent = str(user_input[CONF_FALLBACK_AGENT]).strip()
         await ZbranoApi(async_get_clientsession(self.hass), url, token).health()
-        return {CONF_URL: url, CONF_ACCESS_TOKEN: token}
+        return {
+            CONF_URL: url,
+            CONF_ACCESS_TOKEN: token,
+            CONF_FALLBACK_AGENT: fallback_agent,
+        }
 
     async def async_step_user(self, user_input=None):
         errors = {}
@@ -49,10 +64,14 @@ class ZbranoConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         defaults = {
             CONF_URL: entry.data.get(CONF_URL, DEFAULT_URL),
             CONF_TOKEN: "",
+            CONF_FALLBACK_AGENT: entry.data.get(CONF_FALLBACK_AGENT, HOME_ASSISTANT_AGENT),
         }
         if user_input is not None:
             try:
-                data = await self._validate(user_input)
+                data = await self._validate(
+                    user_input,
+                    entry.data.get(CONF_ACCESS_TOKEN, ""),
+                )
             except ZbranoApiError:
                 errors["base"] = "cannot_connect"
             else:

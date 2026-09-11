@@ -1,1 +1,30 @@
-{"config":{"step":{"user":{"title":"Connetti ZBRANO","description":"Genera una chiave satellite in ZBRANO da Impostazioni > Voce, poi inserisci l'indirizzo locale e la chiave.","data":{"url":"Indirizzo ZBRANO locale","token":"Chiave di associazione satellite"}}},"error":{"cannot_connect":"Impossibile connettersi in modo sicuro all'app ZBRANO locale."},"abort":{"already_configured":"ZBRANO è già configurato."}}}
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Connetti ZBRANO",
+        "description": "Genera una chiave satellite in ZBRANO da Impostazioni > Voce, poi inserisci l'indirizzo locale e la chiave.",
+        "data": {
+          "url": "Indirizzo ZBRANO locale",
+          "token": "Chiave di associazione satellite",
+          "fallback_agent": "Assistente Home Assistant da usare quando ZBRANO è offline"
+        }
+      },
+      "reconfigure": {
+        "title": "Riconnetti ZBRANO",
+        "description": "Inserisci l'indirizzo locale e una nuova chiave di associazione.",
+        "data": {
+          "url": "Indirizzo ZBRANO locale",
+          "token": "Nuova chiave di associazione satellite",
+          "fallback_agent": "Assistente Home Assistant da usare quando ZBRANO è offline"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Impossibile connettersi in modo sicuro all'app ZBRANO locale."
+    },
+    "abort": {
+      "already_configured": "ZBRANO è già configurato."
+    }
+  }
+}

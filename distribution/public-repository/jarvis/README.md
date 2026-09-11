@@ -19,6 +19,9 @@ ZBRANO integration with the local address shown beside the key. Finally, create
 or edit an Assist pipeline, choose ZBRANO as its conversation agent, and assign
 that pipeline only to the desired Voice, ESPHome, Wyoming, or VoIP satellites.
 Existing pipelines are not modified, and requests stay on the local network.
+Choose an existing Home Assistant conversation agent during integration setup as
+the automatic fallback whenever ZBRANO is confirmed offline. A request is never
+sent to both agents.
 
 The multilingual interface supports English, Greek, Italian, and French with
 automatic device-language detection or an explicit saved selection. Core and

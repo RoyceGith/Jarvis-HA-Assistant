@@ -7,6 +7,8 @@
 - Preserve existing pipelines and let users opt in only the desired satellites.
 - Carry satellite room, device, language, and multi-turn context into ZBRANO.
 - Prevent repeated satellite deliveries from executing the same request twice.
+- Fall back to a selected Home Assistant conversation agent when ZBRANO is confirmed offline.
+- Never forward uncertain post-send failures, preventing duplicate device actions.
 
 ## 0.13.213
 
