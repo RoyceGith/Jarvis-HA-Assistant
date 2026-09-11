@@ -37,8 +37,9 @@ path.
 ## Public Home Assistant distribution
 
 `RoyceGith/ZBRANO_HA_Assistant` is a thin public update repository. Its current tree
-contains only Home Assistant repository metadata, add-on configuration, installation
-documentation, and non-secret presentation assets. It points Supervisor at the
+contains Home Assistant repository metadata, add-on configuration, installation
+documentation, non-secret presentation assets, and the small open companion
+integration that registers ZBRANO as an optional Assist conversation agent. It points Supervisor at the
 published GHCR image and contains no current application source or build workflow.
 Source commits made after the split exist only in `ZBRANO_Core`; historical source
 that was already public remains reachable and cannot be retroactively revoked.
@@ -49,6 +50,10 @@ configuration without exposing application source.
 The allowlisted `jarvis/icon.png` and `jarvis/logo.png` are public presentation
 assets. Their PNG format, dimensions, transparency, and bounded size are validated
 before publication.
+The allowlisted `custom_components/zbrano` bridge contains no assistant runtime,
+provider key, device permission, personal configuration, or memory data. It sends
+one paired local Assist request to the installed add-on and never invokes Home
+Assistant's default conversation agent in parallel.
 The v0.13.58 release preserves that bridge and aligns the container-only release
 fixtures with the published runtime version.
 

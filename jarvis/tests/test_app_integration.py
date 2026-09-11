@@ -12,7 +12,7 @@ import httpx
 
 from app import main
 from app.domains import automations, calendar, contacts, conversations, fast_memory, files, notifications, settings
-from app.services import entity_policy, knowledge_memory
+from app.services import assist_bridge, entity_policy, knowledge_memory
 
 
 class FakeHomeAssistant:
@@ -39,6 +39,7 @@ class ApplicationIntegrationTests(unittest.IsolatedAsyncioTestCase):
         self.original_notification_path = notifications.NOTIFICATION_STORAGE_PATH
         self.original_fast_memory_path = fast_memory.FAST_MEMORY_PATH
         self.original_knowledge_memory_root = knowledge_memory.KNOWLEDGE_ROOT
+        self.original_assist_bridge_path = assist_bridge.ASSIST_BRIDGE_PATH
         self.original_shared_file_root = files.SHARED_FILE_ROOT
         self.original_main_shared_file_root = main.SHARED_FILE_ROOT
         self.original_main_chat_path = main.CHAT_STORAGE_PATH
@@ -57,6 +58,7 @@ class ApplicationIntegrationTests(unittest.IsolatedAsyncioTestCase):
         notifications.NOTIFICATION_STORAGE_PATH = temporary_root / "notification_center.json"
         fast_memory.FAST_MEMORY_PATH = temporary_root / "zbrano_fast_memory.sqlite3"
         knowledge_memory.configure_knowledge_memory(root=temporary_root / "knowledge-memory")
+        assist_bridge.configure_assist_bridge(path=temporary_root / "assist_bridge.json")
         files.SHARED_FILE_ROOT = temporary_root / "shared-files"
         main.SHARED_FILE_ROOT = files.SHARED_FILE_ROOT
         main.CHAT_STORAGE_PATH = conversations.CHAT_STORAGE_PATH
@@ -86,6 +88,7 @@ class ApplicationIntegrationTests(unittest.IsolatedAsyncioTestCase):
         notifications.NOTIFICATION_STORAGE_PATH = self.original_notification_path
         fast_memory.FAST_MEMORY_PATH = self.original_fast_memory_path
         knowledge_memory.configure_knowledge_memory(root=self.original_knowledge_memory_root)
+        assist_bridge.configure_assist_bridge(path=self.original_assist_bridge_path)
         files.SHARED_FILE_ROOT = self.original_shared_file_root
         main.SHARED_FILE_ROOT = self.original_main_shared_file_root
         main.CHAT_STORAGE_PATH = self.original_main_chat_path
@@ -112,17 +115,49 @@ class ApplicationIntegrationTests(unittest.IsolatedAsyncioTestCase):
             response = await self.client.get("/api/health")
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json()["status"], "ok")
-        self.assertEqual(response.json()["version"], "0.13.213")
+        self.assertEqual(response.json()["version"], "0.13.214")
         self.assertEqual(response.json()["ha_read_entity_count"], 1)
         self.assertEqual(response.json()["ha_control_entity_count"], 1)
 
         frontend = await self.client.get("/")
         self.assertEqual(frontend.status_code, 200)
-        self.assertIn("HUD 0.13.213", frontend.text)
+        self.assertIn("HUD 0.13.214", frontend.text)
         self.assertEqual(
             frontend.headers.get("cache-control"),
             "no-store, no-cache, must-revalidate, max-age=0",
         )
+
+    async def test_assist_bridge_pairs_authenticates_and_deduplicates_requests(self) -> None:
+        unpaired = await self.client.get("/api/assist/health")
+        self.assertEqual(unpaired.status_code, 401)
+        denied_pairing = await self.client.post("/api/assist/bridge/pair")
+        self.assertEqual(denied_pairing.status_code, 403)
+        pairing = (await self.client.post(
+            "/api/assist/bridge/pair",
+            headers={"X-Remote-User-Id": "owner"},
+        )).json()
+        headers = {"Authorization": f"Bearer {pairing['pairing_token']}"}
+        health = await self.client.get("/api/assist/health", headers=headers)
+        self.assertEqual(health.status_code, 200)
+        self.assertEqual(health.json()["agent"], "ZBRANO")
+        request = {
+            "request_id": "satellite-request-1",
+            "text": "Turn on the kitchen light",
+            "conversation_id": "ha-conversation-1",
+            "language": "en",
+            "device_id": "device-1",
+            "satellite_name": "Kitchen Voice",
+            "area_name": "Kitchen",
+        }
+        result = {"reply": "The kitchen light is now on.", "tool_calls": [{"success": True}]}
+        with patch.object(main, "run_jarvis", AsyncMock(return_value=result)) as run:
+            first = await self.client.post("/api/assist/conversation", headers=headers, json=request)
+            duplicate = await self.client.post("/api/assist/conversation", headers=headers, json=request)
+        self.assertEqual(first.status_code, 200)
+        self.assertFalse(first.json()["duplicate"])
+        self.assertTrue(duplicate.json()["duplicate"])
+        self.assertEqual(run.await_count, 1)
+        self.assertIn("Kitchen Voice", run.await_args.args[2])
 
     async def test_stopped_stream_persists_partial_markdown(self) -> None:
         async def partial_stream(*_args, **_kwargs):

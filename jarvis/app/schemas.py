@@ -16,6 +16,17 @@ class ChatRequest(BaseModel):
     attachment_ids: list[str] = Field(default_factory=list, max_length=20)
     search_mode: str = Field(default="auto", pattern="^(auto|search|off)$")
 
+
+class AssistConversationRequest(BaseModel):
+    request_id: str = Field(min_length=8, max_length=128)
+    text: str = Field(min_length=1, max_length=4000)
+    conversation_id: str = Field(default="", max_length=160)
+    language: str = Field(default="", max_length=40)
+    device_id: str = Field(default="", max_length=160)
+    satellite_name: str = Field(default="", max_length=160)
+    area_name: str = Field(default="", max_length=160)
+    extra_system_prompt: str = Field(default="", max_length=2000)
+
 class ChatSessionCreate(BaseModel):
     session_id: str = Field(min_length=1, max_length=128)
 

@@ -58,6 +58,18 @@ PUBLIC_DISTRIBUTION_FILES = {
     "jarvis/translations/fr.yaml",
     "jarvis/icon.png",
     "jarvis/logo.png",
+    "hacs.json",
+    "custom_components/zbrano/__init__.py",
+    "custom_components/zbrano/api.py",
+    "custom_components/zbrano/config_flow.py",
+    "custom_components/zbrano/const.py",
+    "custom_components/zbrano/conversation.py",
+    "custom_components/zbrano/manifest.json",
+    "custom_components/zbrano/strings.json",
+    "custom_components/zbrano/translations/en.json",
+    "custom_components/zbrano/translations/el.json",
+    "custom_components/zbrano/translations/it.json",
+    "custom_components/zbrano/translations/fr.json",
 }
 PUBLIC_PRESENTATION_ASSETS = {
     "jarvis/icon.png": (128, 128),

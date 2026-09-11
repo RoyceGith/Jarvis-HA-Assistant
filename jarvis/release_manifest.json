@@ -1,9 +1,9 @@
 {
-  "version": "0.13.213",
+  "version": "0.13.214",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/ZBRANO_Core main",
-  "summary": "Preserve clean, consistent document structure in automatically organized memory notes.",
+  "summary": "Connect Home Assistant Assist microphone satellites through an opt-in native ZBRANO conversation agent.",
   "history_backfill": [
     {
       "version": "0.13.0",
@@ -856,20 +856,26 @@
       {
         "version": "0.13.212",
         "summary": "Updated About into a polished eight-part showcase of ZBRANO's current capabilities."
+      },
+      {
+        "version": "0.13.213",
+        "summary": "Preserved clean Markdown structure and upgraded older list-wrapped automatic memory entries."
       }
   ],
   "release_entry": {
     "features": [
-      "Save each automatically organized memory item as a clear Markdown section instead of a nested list.",
-      "Preserve recipe titles, section labels, bullet lists, and numbered instructions consistently in My Memory."
+      "Use ZBRANO as an optional native conversation agent in Home Assistant Assist pipelines.",
+      "Connect Voice, ESPHome, Wyoming, VoIP, and other Assist-compatible microphone satellites through one local bridge.",
+      "Generate and copy a private satellite pairing key from Voice settings."
     ],
     "fixes": [
-      "Upgrade previously list-wrapped automatic memory entries when their note is opened or extended.",
-      "Keep fully bold numbered instructions in their ordered list instead of displaying them as headings.",
-      "Remove repeated content titles when the title line only adds useful details such as serving size."
+      "Preserve every existing Assist pipeline and require users to opt individual satellites into ZBRANO.",
+      "Prevent duplicate execution when Home Assistant retries the same satellite request.",
+      "Keep satellite sessions out of the ordinary chat list while preserving multi-turn context.",
+      "Pass satellite device, room, language, and automation context to ZBRANO without invoking the default HA agent in parallel."
     ],
     "validation": [
-      "Automatic-note formatting, legacy entry migration, Markdown numbered-step rendering, and v0.13.213 release coverage"
+      "Authenticated Assist API, request deduplication, native conversation entity, public boundary, interface setup, localization, integration tests, and v0.13.214 release coverage"
     ]
   },
   "features": [

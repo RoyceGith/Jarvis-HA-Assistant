@@ -15,12 +15,12 @@ MANIFEST = json.loads((ROOT / "jarvis/release_manifest.json").read_text(encoding
 
 class PublicProductGuideReleaseTests(unittest.TestCase):
     def test_release_is_aligned(self):
-        self.assertIn('version: "0.13.213"', CONFIG)
-        self.assertIn('version="0.13.213"', MAIN)
-        self.assertIn("HUD 0.13.213", HTML)
-        self.assertEqual(MANIFEST["version"], "0.13.213")
-        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.212")
-        self.assertTrue(CHANGELOG.startswith("# Change log\n\n## 0.13.213"))
+        self.assertIn('version: "0.13.214"', CONFIG)
+        self.assertIn('version="0.13.214"', MAIN)
+        self.assertIn("HUD 0.13.214", HTML)
+        self.assertEqual(MANIFEST["version"], "0.13.214")
+        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.213")
+        self.assertTrue(CHANGELOG.startswith("# Change log\n\n## 0.13.214"))
 
     def test_public_landing_page_is_a_concise_product_guide(self):
         self.assertLess(len(PUBLIC.splitlines()), 130)

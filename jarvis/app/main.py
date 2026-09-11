@@ -245,6 +245,7 @@ from .domains.developer_state import (
 )
 
 from .schemas import (
+    AssistConversationRequest,
     ChatRequest,
     ChatSessionCreate,
     ChatRenameRequest,
@@ -319,6 +320,17 @@ from .services.entity_policy import (
     should_auto_approve_entity,
 )
 from .services.ha_client import HomeAssistantWebSocketClient
+from .services.assist_bridge import (
+    assist_context,
+    assist_session_id,
+    cached_response as cached_assist_response,
+    create_pairing_token as create_assist_pairing_token,
+    pairing_status as assist_pairing_status,
+    remember_response as remember_assist_response,
+    should_continue_conversation,
+    speech_reply as assist_speech_reply,
+    valid_pairing_token,
+)
 from .services.ha_control import (
     _ha_power_state_matches,
     configure_ha_control_service,
@@ -584,7 +596,7 @@ from .services.knowledge_memory import (
 import httpx
 import websockets
 from websockets.exceptions import ConnectionClosed
-from fastapi import FastAPI, File, Form, HTTPException, Request, UploadFile, WebSocket, WebSocketDisconnect
+from fastapi import FastAPI, File, Form, Header, HTTPException, Request, UploadFile, WebSocket, WebSocketDisconnect
 from fastapi.responses import FileResponse, Response, StreamingResponse
 
 APP_DIR = Path(__file__).resolve().parent
@@ -771,7 +783,7 @@ ha_ws = HomeAssistantWebSocketClient(
 
 app = FastAPI(
     title="ZBRANO",
-    version="0.13.213",
+    version="0.13.214",
     docs_url="/api/docs",
     openapi_url="/api/openapi.json",
 )
@@ -2025,7 +2037,11 @@ def agent_search_mode(search_mode: str) -> str:
     """Built-in provider web search remains OpenAI-only until verified elsewhere."""
     return search_mode if CHAT_PROVIDER == "openai" else "off"
 
-async def run_jarvis(message: str, session_id: str = "default") -> dict[str, Any]:
+async def run_jarvis(
+    message: str,
+    session_id: str = "default",
+    assistant_context: str = "",
+) -> dict[str, Any]:
     pending_workshop = PENDING_WORKSHOP_APPROVALS.get(session_id)
     workshop_decision = workshop_memory_approval_decision(message)
     if pending_workshop and workshop_decision is not None:
@@ -2076,6 +2092,11 @@ async def run_jarvis(message: str, session_id: str = "default") -> dict[str, Any
                         ),
                     }]
                     if get_session_entity(session_id)
+                    else []
+                )
+                + (
+                    [{"role": "developer", "content": assistant_context}]
+                    if assistant_context
                     else []
                 )
                 + [{"role": "user", "content": message}]
@@ -3002,7 +3023,7 @@ async def health() -> dict[str, Any]:
     configured_speech_provider = SPEECH_PROVIDER if SPEECH_PROVIDER in {"openai", "elevenlabs"} else "openai"
     return {
         "status": "ok",
-        "version": "0.13.213",
+        "version": "0.13.214",
         "home_assistant_configured": bool(SUPERVISOR_TOKEN),
         "workshop_memory_configured": True,
         "knowledge_memory_mode": "built_in",
@@ -4173,6 +4194,73 @@ async def read_notification_activity() -> dict[str, Any]:
         "latest_at": float(newest.get("created_at") or 0.0),
         "count": len(deliveries),
     }
+
+
+def require_assist_pairing(authorization: str) -> None:
+    if not valid_pairing_token(authorization):
+        raise HTTPException(status_code=401, detail="Invalid ZBRANO Assist pairing key")
+
+
+@app.get("/api/assist/bridge")
+async def assist_bridge_status() -> dict[str, Any]:
+    return {
+        **assist_pairing_status(),
+        "conversation_agent": "ZBRANO",
+        "local_only": True,
+    }
+
+
+@app.post("/api/assist/bridge/pair")
+async def pair_assist_bridge(request: Request) -> dict[str, Any]:
+    if not request.headers.get("X-Remote-User-Id"):
+        raise HTTPException(
+            status_code=403,
+            detail="Open ZBRANO through Home Assistant to generate a satellite pairing key",
+        )
+    return create_assist_pairing_token()
+
+
+@app.get("/api/assist/health")
+async def assist_health(authorization: str = Header(default="")) -> dict[str, Any]:
+    require_assist_pairing(authorization)
+    return {"ready": True, "version": app.version, "agent": "ZBRANO"}
+
+
+@app.post("/api/assist/conversation")
+async def assist_conversation(
+    request: AssistConversationRequest,
+    authorization: str = Header(default=""),
+) -> dict[str, Any]:
+    require_assist_pairing(authorization)
+    cached = cached_assist_response(request.request_id, request.text)
+    if cached is not None:
+        return {**cached, "duplicate": True}
+    conversation_id = request.conversation_id or f"zbrano-{request.request_id}"
+    try:
+        result = await run_jarvis(
+            request.text,
+            assist_session_id(conversation_id),
+            assist_context(
+                request.language,
+                request.device_id,
+                request.satellite_name,
+                request.area_name,
+                request.extra_system_prompt,
+            ),
+        )
+    except (OpenAIError, MCPError, httpx.HTTPError) as exc:
+        raise HTTPException(status_code=502, detail=str(exc)) from exc
+    payload = {
+        "reply": assist_speech_reply(str(result.get("reply") or "")),
+        "conversation_id": conversation_id,
+        "continue_conversation": should_continue_conversation(
+            str(result.get("reply") or ""),
+            list(result.get("tool_calls") or []),
+        ),
+        "duplicate": False,
+    }
+    remember_assist_response(request.request_id, request.text, payload)
+    return payload
 
 
 @app.get("/api/notifications/inbox")

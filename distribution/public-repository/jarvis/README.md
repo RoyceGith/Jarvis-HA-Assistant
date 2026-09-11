@@ -8,26 +8,17 @@ ZBRANO is a private Home Assistant intelligence assistant. It combines natural
 conversation, live home context, voice, useful memory, notifications, organization,
 and automation in one interface without granting itself access to every device.
 
-Version 0.13.213 preserves automatic memory-note structure, upgrades older
-list-wrapped entries, and keeps bold numbered instructions in ordered lists.
+Version 0.13.214 adds an opt-in native conversation agent for Assist-compatible
+microphone satellites with local pairing and duplicate-request protection.
 
-Version 0.13.212 updates About into a polished multilingual showcase of ZBRANO's
-complete feature set, with direct shortcuts into Memory and Shared Files.
+### Optional Assist satellite connection
 
-Version 0.13.211 refreshes Shared Files with a refined private-library layout,
-clear action hierarchy, polished file rows, and responsive controls.
-
-Version 0.13.210 organizes Shared Files into navigable folders, supports uploads
-to the open folder, and moves existing files safely between folders.
-
-Version 0.13.209 gives the My Memory front page a compact top section and brings
-saved spaces upward with smaller, clearer labels and cards.
-
-Version 0.13.208 renders memory notes with chat-style headings, bold text, and
-lists, adds visible last-updated dates, and prints the same formatted content.
-
-Version 0.13.207 prints the memory space name as a smaller clean heading without
-the interface's decorative greater-than sign.
+Install this repository through HACS as a custom **Integration**, restart Home
+Assistant, and generate a private key in **ZBRANO > Settings > Voice**. Add the
+ZBRANO integration with the local address shown beside the key. Finally, create
+or edit an Assist pipeline, choose ZBRANO as its conversation agent, and assign
+that pipeline only to the desired Voice, ESPHome, Wyoming, or VoIP satellites.
+Existing pipelines are not modified, and requests stay on the local network.
 
 The multilingual interface supports English, Greek, Italian, and French with
 automatic device-language detection or an explicit saved selection. Core and

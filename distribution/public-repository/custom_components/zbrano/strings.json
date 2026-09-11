@@ -1,0 +1,28 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Connect ZBRANO",
+        "description": "Generate a satellite pairing key in ZBRANO under Settings > Voice, then enter the local app address and key.",
+        "data": {
+          "url": "Local ZBRANO address",
+          "token": "Satellite pairing key"
+        }
+      },
+      "reconfigure": {
+        "title": "Reconnect ZBRANO",
+        "description": "Enter the local address and a newly generated pairing key.",
+        "data": {
+          "url": "Local ZBRANO address",
+          "token": "New satellite pairing key"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Could not securely connect to the local ZBRANO app. Check the address and pairing key."
+    },
+    "abort": {
+      "already_configured": "ZBRANO is already configured."
+    }
+  }
+}
