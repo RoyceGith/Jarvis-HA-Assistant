@@ -11,6 +11,8 @@ ROOT = Path(__file__).resolve().parents[1]
 APP = ROOT / "zbrano/app"
 MAIN = (APP / "main.py").read_text(encoding="utf-8")
 SERVICE = (APP / "services/github_device_oauth.py").read_text(encoding="utf-8")
+CATALOG_SERVICE = (APP / "services/plugin_catalog.py").read_text(encoding="utf-8")
+PLUGIN_RUNTIME = (APP / "static/js/plugins/runtime.js").read_text(encoding="utf-8")
 CONFIG = (ROOT / "zbrano/config.yaml").read_text(encoding="utf-8")
 HTML = (APP / "static/index.html").read_text(encoding="utf-8")
 MANIFEST = json.loads((ROOT / "zbrano/release_manifest.json").read_text(encoding="utf-8"))
@@ -36,10 +38,10 @@ class GitHubDeviceFlowBoundaryTests(unittest.TestCase):
         )
 
     def test_release_markers_are_aligned(self):
-        self.assertIn('version: "0.13.217"', CONFIG)
-        self.assertIn('version="0.13.217"', MAIN)
-        self.assertIn("HUD 0.13.217", HTML)
-        self.assertEqual(MANIFEST["version"], "0.13.217")
+        self.assertIn('version: "0.13.218"', CONFIG)
+        self.assertIn('version="0.13.218"', MAIN)
+        self.assertIn("HUD 0.13.218", HTML)
+        self.assertEqual(MANIFEST["version"], "0.13.218")
 
     def test_device_flow_implementation_is_outside_main(self):
         self.assertNotIn("GITHUB_DEVICE_FLOWS = {}", MAIN)
@@ -50,6 +52,18 @@ class GitHubDeviceFlowBoundaryTests(unittest.TestCase):
         self.assertIn("async def start_github_device_flow(", SERVICE)
         self.assertIn("async def complete_github_device_flow(", SERVICE)
         self.assertIn("configure_github_device_oauth(", MAIN)
+
+    def test_catalog_exposes_and_runs_github_account_connection(self):
+        self.assertIn('item["auth_mode"] = "github-oauth"', CATALOG_SERVICE)
+        self.assertIn('"Connect with GitHub"', CATALOG_SERVICE)
+        self.assertIn('item["installable"] = bool(item["oauth_available"])', CATALOG_SERVICE)
+        self.assertIn('data-github-connect=', PLUGIN_RUNTIME)
+        self.assertIn('/github-device/start', PLUGIN_RUNTIME)
+        self.assertIn('/github-device/${encodeURIComponent(started.flow_id)}/complete', PLUGIN_RUNTIME)
+        self.assertLess(
+            PLUGIN_RUNTIME.index('item.auth_mode==="github-oauth"'),
+            PLUGIN_RUNTIME.index('item.auth_mode==="oauth"'),
+        )
 
     def test_catalog_identity_and_missing_configuration_errors(self):
         with self.assertRaises(github_device_oauth.GitHubDeviceFlowError) as missing:

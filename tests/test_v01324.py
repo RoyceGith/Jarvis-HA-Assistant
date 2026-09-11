@@ -17,10 +17,10 @@ MANIFEST = json.loads((ROOT / "zbrano/release_manifest.json").read_text(encoding
 
 class SettingsDomainBoundaryTests(unittest.TestCase):
     def test_release_markers_are_aligned(self):
-        self.assertIn('version: "0.13.217"', CONFIG)
-        self.assertIn('version="0.13.217"', MAIN)
-        self.assertIn("HUD 0.13.217", HTML)
-        self.assertEqual(MANIFEST["version"], "0.13.217")
+        self.assertIn('version: "0.13.218"', CONFIG)
+        self.assertIn('version="0.13.218"', MAIN)
+        self.assertIn("HUD 0.13.218", HTML)
+        self.assertEqual(MANIFEST["version"], "0.13.218")
 
     def test_settings_store_is_outside_composition_root(self):
         self.assertNotIn("def load_settings_payload(", MAIN)

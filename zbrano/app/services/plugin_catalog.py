@@ -313,6 +313,14 @@ async def plugin_catalog_payload(q: str = "", category: str = "", refresh: bool 
         if item.get("id") == "github-official":
             item["auth_mode"] = "github-oauth"
             item["oauth_available"] = bool(_github_oauth_client_id())
+            item["setup_label"] = (
+                "Connect with GitHub"
+                if item["oauth_available"]
+                else "GitHub sign-in setup required"
+            )
+            # Manual PAT installation remains available through the explicit
+            # custom-plugin form. The official card uses account authorization.
+            item["installable"] = bool(item["oauth_available"])
         elif item.get("id") in {"gmail-official", "google-calendar-official"}:
             google_ready = bool(os.getenv("GOOGLE_OAUTH_CLIENT_ID", "").strip() and os.getenv("GOOGLE_OAUTH_CLIENT_SECRET", "").strip())
             item["oauth_available"] = google_ready

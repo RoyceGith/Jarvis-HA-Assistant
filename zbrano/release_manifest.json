@@ -1,9 +1,9 @@
 {
-  "version": "0.13.217",
+  "version": "0.13.218",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/ZBRANO_Core main",
-  "summary": "Use the Light interface theme by default for new ZBRANO installations.",
+  "summary": "Restore one-click GitHub account connection in the Plugins catalog.",
   "history_backfill": [
     {
       "version": "0.13.0",
@@ -872,18 +872,23 @@
       {
         "version": "0.13.216",
         "summary": "Completed the ZBRANO identity migration and removed Playwright from the customer runtime."
+      },
+      {
+        "version": "0.13.217",
+        "summary": "Made Light the default interface theme for fresh installations while preserving saved theme choices."
       }
   ],
   "release_entry": {
     "features": [
-      "Open ZBRANO in the Light interface theme on a fresh installation or browser with no saved theme choice."
+      "Show Connect with GitHub on the official GitHub catalog card when a Device Flow client ID is configured.",
+      "Open GitHub's device authorization page, display and copy the user code, and finish connection automatically."
     ],
     "fixes": [
-      "Keep existing users' explicitly saved Light, Dark, or Gray theme preference unchanged.",
-      "Align the server, first-paint script, interface preference loader, and settings-save fallback on the new Light default."
+      "Stop the official GitHub card from falling through to the generic bearer-token or PAT installer.",
+      "Show a clear sign-in setup state when no GitHub OAuth client ID is configured."
     ],
     "validation": [
-      "Fresh-install theme defaults, saved-theme preservation, source validators, browser smoke, integration coverage, and v0.13.217 release alignment"
+      "GitHub catalog rendering and Device Flow wiring, source validators, browser smoke, integration coverage, and v0.13.218 release alignment"
     ]
   },
   "features": [

@@ -1,5 +1,11 @@
 # Change log
 
+## 0.13.218
+
+- Show Connect with GitHub when a Device Flow client ID is configured.
+- Open GitHub authorization, display and copy its device code, and finish connection automatically.
+- Prevent the official GitHub card from falling through to manual bearer-token installation.
+
 ## 0.13.217
 
 - Use Light as the interface theme for fresh ZBRANO installations and browsers with no saved preference.
@@ -7,6 +13,11 @@
 - Align the server, first-paint page script, and settings fallbacks on the Light default.
 
 ## 0.13.216
+
+- Complete the ZBRANO identity migration across source, add-on, container, and runtime identifiers.
+- Remove Playwright from the customer runtime while retaining disposable build-time browser validation.
+
+## 0.13.215
 
 - Remove Developer Mode and its investigation workspace from the customer interface.
 - Remove all external Developer API routes and permanently ignore any older saved Developer Mode state.

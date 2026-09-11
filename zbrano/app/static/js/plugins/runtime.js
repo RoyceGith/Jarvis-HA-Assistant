@@ -118,6 +118,10 @@ function catalogCard(item){
   let actions="";
   if(item.installed){
     actions=`<button type="button" disabled>${item.installed_enabled?"Installed · enabled":"Installed · disabled"}</button>`;
+  }else if(item.auth_mode==="github-oauth"&&item.oauth_available){
+    actions=`<button type="button" data-github-connect="${catalogEsc(item.id)}">${catalogEsc(item.setup_label||"Connect with GitHub")}</button>`;
+  }else if(item.auth_mode==="github-oauth"){
+    actions=`<button type="button" disabled>${catalogEsc(item.setup_label||"GitHub sign-in setup required")}</button>`;
   }else if(item.auth_mode==="oauth"&&item.oauth_available){
     actions=`<button type="button" data-oauth-connect="${catalogEsc(item.id)}">${catalogEsc(item.setup_label||"Connect")}</button>`;
   }else if(item.id==="gmail-official"&&item.oauth_available===false){
@@ -177,6 +181,47 @@ catalogSearch?.addEventListener("input",()=>{
 catalogCategory?.addEventListener("change",()=>loadCatalog(false));
 catalogRefresh?.addEventListener("click",()=>loadCatalog(true));
 catalogResults?.addEventListener("click",async event=>{
+  const githubButton=event.target.closest("button[data-github-connect]");
+  if(githubButton){
+    githubButton.disabled=true;
+    let githubWindow=null;
+    try{
+      githubWindow=window.open("about:blank","zbrano-github-device","popup,width=720,height=760");
+      if(!githubWindow)throw new Error("Allow pop-ups for ZBRANO, then select Connect with GitHub again");
+      catalogStatus.textContent="Preparing secure GitHub sign-in…";
+      const started=await pApi(`api/plugin-catalog/${encodeURIComponent(githubButton.dataset.githubConnect)}/github-device/start`,{method:"POST"});
+      const code=String(started.user_code||"");
+      if(!started.flow_id||!code)throw new Error("GitHub did not return an authorization code");
+      try{await navigator.clipboard.writeText(code)}catch(_error){/* The visible code remains copyable. */}
+      catalogStatus.replaceChildren();
+      const message=document.createElement("span");
+      message.textContent="GitHub authorization code: ";
+      const codeNode=document.createElement("code");
+      codeNode.textContent=code;
+      const guidance=document.createElement("span");
+      guidance.textContent=". It has been copied when browser permission allowed. Enter it in the GitHub window.";
+      catalogStatus.append(message,codeNode,guidance);
+      githubWindow.location.replace(started.verification_uri||"https://github.com/login/device");
+      const expiresAt=Date.now()+Math.max(60,Number(started.expires_in)||900)*1000;
+      let interval=Math.max(1,Number(started.interval)||5);
+      while(Date.now()<expiresAt){
+        await new Promise(resolve=>window.setTimeout(resolve,interval*1000));
+        const completed=await pApi(`api/plugin-catalog/github-device/${encodeURIComponent(started.flow_id)}/complete`,{method:"POST"});
+        if(completed.pending){interval=Math.max(1,Number(completed.interval)||interval);continue}
+        catalogStatus.textContent="GitHub account connected. Review the discovered tools, then enable the plugin.";
+        try{githubWindow.close()}catch(_error){}
+        await Promise.all([loadPlugins(),loadCatalog(false)]);
+        return;
+      }
+      throw new Error("GitHub authorization expired. Select Connect with GitHub to try again");
+    }catch(error){
+      try{githubWindow?.close()}catch(_error){}
+      catalogStatus.textContent=`GitHub sign-in failed: ${error.message||error}`;
+    }finally{
+      githubButton.disabled=false;
+    }
+    return;
+  }
   const button=event.target.closest("button[data-catalog-install]");
   if(!button)return;
   const token=window.prompt("Bearer token or GitHub PAT, when required. Leave blank if not needed.")??"";
