@@ -1,1 +1,30 @@
-{"config":{"step":{"user":{"title":"Connecter ZBRANO","description":"Générez une clé satellite dans ZBRANO sous Paramètres > Voix, puis saisissez l'adresse locale et la clé.","data":{"url":"Adresse ZBRANO locale","token":"Clé d'association du satellite"}}},"error":{"cannot_connect":"Impossible de se connecter de manière sécurisée à l'application ZBRANO locale."},"abort":{"already_configured":"ZBRANO est déjà configuré."}}}
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Connecter ZBRANO",
+        "description": "Générez une clé satellite dans ZBRANO sous Paramètres > Voix, puis saisissez l'adresse locale et la clé.",
+        "data": {
+          "url": "Adresse ZBRANO locale",
+          "token": "Clé d'association du satellite",
+          "fallback_agent": "Assistant Home Assistant à utiliser lorsque ZBRANO est hors ligne"
+        }
+      },
+      "reconfigure": {
+        "title": "Reconnecter ZBRANO",
+        "description": "Saisissez l'adresse locale et une nouvelle clé d'association.",
+        "data": {
+          "url": "Adresse ZBRANO locale",
+          "token": "Nouvelle clé d'association du satellite",
+          "fallback_agent": "Assistant Home Assistant à utiliser lorsque ZBRANO est hors ligne"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Impossible de se connecter de manière sécurisée à l'application ZBRANO locale."
+    },
+    "abort": {
+      "already_configured": "ZBRANO est déjà configuré."
+    }
+  }
+}

@@ -6,7 +6,8 @@
         "description": "Generate a satellite pairing key in ZBRANO under Settings > Voice, then enter the local app address and key.",
         "data": {
           "url": "Local ZBRANO address",
-          "token": "Satellite pairing key"
+          "token": "Satellite pairing key",
+          "fallback_agent": "Use this Home Assistant agent when ZBRANO is offline"
         }
       },
       "reconfigure": {
@@ -14,7 +15,8 @@
         "description": "Enter the local address and a newly generated pairing key.",
         "data": {
           "url": "Local ZBRANO address",
-          "token": "New satellite pairing key"
+          "token": "New satellite pairing key",
+          "fallback_agent": "Use this Home Assistant agent when ZBRANO is offline"
         }
       }
     },
