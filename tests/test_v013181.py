@@ -19,11 +19,11 @@ MANIFEST = json.loads((ROOT / "jarvis/release_manifest.json").read_text(encoding
 
 class FriendlyHomeAssistantConfigurationReleaseTests(unittest.TestCase):
     def test_release_is_aligned(self):
-        self.assertIn('version: "0.13.212"', CONFIG)
-        self.assertIn('version="0.13.212"', MAIN)
-        self.assertIn("HUD 0.13.212", HTML)
-        self.assertEqual(MANIFEST["version"], "0.13.212")
-        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.211")
+        self.assertIn('version: "0.13.213"', CONFIG)
+        self.assertIn('version="0.13.213"', MAIN)
+        self.assertIn("HUD 0.13.213", HTML)
+        self.assertEqual(MANIFEST["version"], "0.13.213")
+        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.212")
 
     def test_every_home_assistant_option_has_friendly_copy(self):
         option_keys = yaml_section_keys(CONFIG, "schema")

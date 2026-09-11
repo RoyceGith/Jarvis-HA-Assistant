@@ -520,6 +520,69 @@ def _narrower_memory_note(note: str, content: str) -> str:
     return f"{qualifier} {topic} Recipes.md"
 
 
+_AUTOMATIC_ENTRY_RE = re.compile(r"^- \*\*(.+?):\*\*(?: (.*))?$")
+
+
+def _expanded_automatic_title(title: str, candidate: str) -> str:
+    """Use a repeated title line when it only adds useful parenthesized detail."""
+    clean_title = str(title or "").strip()
+    clean_candidate = re.sub(r"^#{1,6}\s+", "", str(candidate or "").strip()).strip("*_ ")
+    folded_title = clean_title.casefold()
+    folded_candidate = clean_candidate.casefold()
+    if folded_candidate == folded_title or (
+        folded_candidate.startswith(f"{folded_title} (") and clean_candidate.endswith(")")
+    ):
+        return clean_candidate
+    return ""
+
+
+def _normalize_automatic_memory_document(content: str) -> str:
+    """Upgrade the former list-wrapped automatic entries to normal note sections."""
+    lines = str(content or "").replace("\r\n", "\n").replace("\r", "\n").split("\n")
+    normalized: list[str] = []
+    inside_legacy_entry = False
+    changed = False
+    for line in lines:
+        entry = _AUTOMATIC_ENTRY_RE.match(line)
+        if entry:
+            if normalized and normalized[-1].strip():
+                normalized.append("")
+            expanded_title = _expanded_automatic_title(entry.group(1), entry.group(2) or "")
+            normalized.append(f"## {expanded_title or entry.group(1).strip()}")
+            if entry.group(2) and not expanded_title:
+                normalized.extend(("", entry.group(2).rstrip()))
+            inside_legacy_entry = True
+            changed = True
+            continue
+        if inside_legacy_entry and line.startswith("  "):
+            normalized.append(line[2:])
+        else:
+            inside_legacy_entry = False
+            normalized.append(line)
+    if not changed:
+        return str(content or "")
+    return "\n".join(normalized).strip() + "\n"
+
+
+def _automatic_memory_entry(title: str, content: str) -> str:
+    """Keep submitted Markdown intact and give each saved item a real section heading."""
+    body = str(content or "").replace("\r\n", "\n").replace("\r", "\n").strip()
+    clean_title = str(title or "").strip()
+    if not clean_title:
+        return f"{body}\n"
+
+    heading = clean_title
+    lines = body.split("\n")
+    if lines:
+        first = re.sub(r"^#{1,6}\s+", "", lines[0].strip())
+        first = first.strip("*_ ").removesuffix(":").strip()
+        expanded_title = _expanded_automatic_title(clean_title, first)
+        if expanded_title:
+            heading = expanded_title
+            body = "\n".join(lines[1:]).strip()
+    return f"## {heading}\n\n{body}\n" if body else f"## {heading}\n"
+
+
 def remember_automatically(
     content: str,
     title: str = "",
@@ -592,17 +655,19 @@ def remember_automatically(
             ],
         }
     previous = note_path.read_text(encoding="utf-8") if note_path.is_file() else ""
+    normalized_previous = _normalize_automatic_memory_document(previous)
     comparable = " ".join(clean_content.casefold().split())
     duplicate = bool(comparable and comparable in " ".join(previous.casefold().split()))
     if not duplicate:
-        body = clean_content.replace("\r\n", "\n").replace("\r", "\n").replace("\n", "\n  ")
-        entry = f"- **{clean_title}:** {body}\n" if clean_title else f"- {body}\n"
+        entry = _automatic_memory_entry(clean_title, clean_content)
         if note_path.is_file():
-            separator = "" if previous.endswith("\n") else "\n"
-            write_memory_note(space_name, note, f"{separator}{entry}", "append")
+            separator = "\n\n" if normalized_previous.rstrip() else ""
+            write_memory_note(space_name, note, f"{normalized_previous.rstrip()}{separator}{entry}", "replace")
         else:
             heading = note.removesuffix(".md")
             write_memory_note(space_name, note, f"# {heading}\n\n{entry}", "create")
+    elif normalized_previous != previous:
+        write_memory_note(space_name, note, normalized_previous, "replace")
 
     return {
         "saved": True,
@@ -665,10 +730,14 @@ def read_memory_note(space: str, note: str) -> dict[str, Any]:
     path = _space_note_path(space, note)
     if not path.is_file():
         raise ValueError(f"Knowledge Memory note not found: {space}/{note}")
+    content = path.read_text(encoding="utf-8")
+    normalized = _normalize_automatic_memory_document(content)
+    if normalized != content:
+        path.write_text(normalized, encoding="utf-8")
     return {
         "space": _safe_component(space, "space name"),
         "note": str(path.relative_to(_space_path(space))).replace("\\", "/"),
-        "content": path.read_text(encoding="utf-8"),
+        "content": normalized,
         "updated_at": path.stat().st_mtime,
     }
 

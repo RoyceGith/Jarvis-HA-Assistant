@@ -1109,6 +1109,13 @@ function renderMarkdownText(text) {
       continue;
     }
 
+    const standaloneBoldNumbered = trimmed.match(/^\*\*(\d+)[.)]\s+([^*]+)\*\*$/);
+    if (standaloneBoldNumbered) {
+      openList("ol");
+      html.push(`<li value="${Number(standaloneBoldNumbered[1])}"><strong>${renderInlineMarkdown(standaloneBoldNumbered[2])}</strong></li>`);
+      continue;
+    }
+
     const standaloneBold = trimmed.match(/^\*\*([^*]+)\*\*$/);
     if (standaloneBold) {
       closeParagraph();

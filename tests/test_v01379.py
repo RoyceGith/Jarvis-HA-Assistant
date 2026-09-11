@@ -15,10 +15,10 @@ MANIFEST = json.loads((ROOT / "jarvis/release_manifest.json").read_text(encoding
 
 class ModernWorkspaceReleaseTests(unittest.TestCase):
     def test_release_markers_are_aligned(self):
-        self.assertIn('version: "0.13.212"', CONFIG)
-        self.assertIn('version="0.13.212"', MAIN)
-        self.assertIn("HUD 0.13.212", HTML)
-        self.assertEqual(MANIFEST["version"], "0.13.212")
+        self.assertIn('version: "0.13.213"', CONFIG)
+        self.assertIn('version="0.13.213"', MAIN)
+        self.assertIn("HUD 0.13.213", HTML)
+        self.assertEqual(MANIFEST["version"], "0.13.213")
 
     def test_automation_studio_precedes_chat_creation(self):
         studio = HTML.index('class="autonomy-card automation-studio-preview"')
@@ -43,7 +43,7 @@ class ModernWorkspaceReleaseTests(unittest.TestCase):
         self.assertIn("primary-labeled-tab", HTML)
 
     def test_release_history_includes_v01378(self):
-        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.211")
+        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.212")
 
 
 if __name__ == "__main__":
