@@ -1,5 +1,13 @@
 # Change log
 
+## 0.13.214
+
+- Add an optional native ZBRANO conversation agent for Home Assistant Assist pipelines.
+- Pair the public companion integration securely with the local ZBRANO app.
+- Preserve existing pipelines and let users opt in only the desired satellites.
+- Carry satellite room, device, language, and multi-turn context into ZBRANO.
+- Prevent repeated satellite deliveries from executing the same request twice.
+
 ## 0.13.213
 
 - Save automatically organized memory items as clean document sections instead of nested list entries.
