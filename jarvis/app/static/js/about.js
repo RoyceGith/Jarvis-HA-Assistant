@@ -1,9 +1,9 @@
 "use strict";
 
 (() => {
-  const developerTab = document.getElementById("developer-tab");
-  const developerPanel = document.getElementById("developer-panel");
-  if (!developerTab || !developerPanel) return;
+  const settingsTab = document.getElementById("settings-tab");
+  const settingsPanel = document.getElementById("settings-panel");
+  if (!settingsTab || !settingsPanel) return;
 
   const tab = document.createElement("button");
   tab.id = "about-tab";
@@ -12,7 +12,7 @@
   tab.setAttribute("aria-label", "About ZBRANO");
   tab.title = "About ZBRANO";
   tab.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 10v7M12 7h.01"/></svg><span>About</span>';
-  developerTab.before(tab);
+  settingsTab.after(tab);
 
   const panel = document.createElement("section");
   panel.id = "about-panel";
@@ -42,7 +42,7 @@
           <article class="about-feature"><span class="about-feature-icon" aria-hidden="true">FLOW</span><h4>Visual automations</h4><p>Build understandable WHEN, IF, ELSE IF, message, and action paths without losing the full flow diagram.</p><ul><li>Natural-language drafts and templates</li><li>Branch-specific decisions and messages</li><li>Ask-first or automatic actions</li><li>Safe tests, activity, outcomes, and recovery</li></ul></article>
           <article class="about-feature"><span class="about-feature-icon" aria-hidden="true">MEM</span><h4>Memory and knowledge</h4><p>Keep useful preferences and knowledge close to the assistant while staying in control of what is remembered.</p><ul><li>Automatic Knowledge Memory organization</li><li>Custom spaces and reusable layouts</li><li>Formatted, editable, and printable notes</li><li>Private conversational Fast Memory</li></ul></article>
           <article class="about-feature"><span class="about-feature-icon" aria-hidden="true">FILE</span><h4>Files and everyday organization</h4><p>Keep the documents and details you use every day organized, searchable, and ready for conversation.</p><ul><li>Shared Files folders and subfolders</li><li>Upload, move, and attach documents</li><li>Local contacts and birthdays</li><li>Calendar, reminders, and notifications</li></ul></article>
-          <article class="about-feature"><span class="about-feature-icon" aria-hidden="true">LINK</span><h4>Connected services</h4><p>Add optional services deliberately through plugins and integrations, without making them a requirement for the core assistant.</p><ul><li>Plugin catalog with explicit permissions</li><li>Google Calendar, Contacts, and Gmail</li><li>GitHub connection and developer tools</li><li>Home Assistant and Telegram notifications</li></ul></article>
+          <article class="about-feature"><span class="about-feature-icon" aria-hidden="true">LINK</span><h4>Connected services</h4><p>Add optional services deliberately through plugins and integrations, without making them a requirement for the core assistant.</p><ul><li>Plugin catalog with explicit permissions</li><li>Google Calendar, Contacts, and Gmail</li><li>Home Assistant and Telegram notifications</li><li>Independent services chosen by the owner</li></ul></article>
           <article class="about-feature"><span class="about-feature-icon" aria-hidden="true">YOU</span><h4>Language and personalization</h4><p>Shape the interface and assistant around how you prefer to read, speak, and work.</p><ul><li>English, Greek, Italian, and French</li><li>Automatic or manual interface language</li><li>Theme, density, and text-size controls</li><li>Your preferred compatible AI provider</li></ul></article>
           <article class="about-feature"><span class="about-feature-icon" aria-hidden="true">SAFE</span><h4>Safety and ownership</h4><p>Keep sensitive actions bounded with explicit device access, per-automation authority, visible activity, and recoverable data.</p><ul><li>Approval where it matters</li><li>Quiet hours and presence checks</li><li>Backups, installation reports, and audit trails</li><li>Diagnostics and guarded failure recovery</li></ul></article>
         </div>
@@ -63,5 +63,5 @@
         <div class="about-actions"><button id="about-open-memory" type="button">Open memory</button><button id="about-open-files" type="button">Browse files</button><button id="about-open-devices" type="button">Choose device access</button><button id="about-open-automations" type="button">Explore automations</button></div>
       </section>
     </div>`;
-  developerPanel.before(panel);
+  settingsPanel.before(panel);
 })();

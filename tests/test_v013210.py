@@ -19,11 +19,11 @@ MANIFEST = json.loads((ROOT / "jarvis/release_manifest.json").read_text(encoding
 
 class SharedFileFoldersReleaseTests(unittest.TestCase):
     def test_release_is_aligned(self):
-        self.assertIn('version: "0.13.214"', CONFIG)
-        self.assertIn('version="0.13.214"', MAIN)
-        self.assertIn("HUD 0.13.214", INDEX)
-        self.assertEqual(MANIFEST["version"], "0.13.214")
-        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.213")
+        self.assertIn('version: "0.13.215"', CONFIG)
+        self.assertIn('version="0.13.215"', MAIN)
+        self.assertIn("HUD 0.13.215", INDEX)
+        self.assertEqual(MANIFEST["version"], "0.13.215")
+        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.214")
 
     def test_folder_service_creates_lists_moves_and_safely_deletes(self):
         original = files.SHARED_FILE_ROOT

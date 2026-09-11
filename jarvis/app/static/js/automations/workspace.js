@@ -89,8 +89,8 @@
   }
 
   function activate(){
-    for(const id of ["chat-panel","entities-panel","settings-panel","plugins-panel","files-panel","contacts-panel","calendar-panel","about-panel","developer-panel","automations-panel"]){document.getElementById(id)?.classList.toggle("hidden",id!=="automations-panel")}
-    for(const id of ["chat-tab","entities-tab","settings-tab","plugins-tab","files-tab","calendar-tab","about-tab","developer-tab","automations-tab"]){document.getElementById(id)?.classList.toggle("active",id==="automations-tab")}
+    for(const id of ["chat-panel","entities-panel","settings-panel","plugins-panel","files-panel","contacts-panel","calendar-panel","about-panel","automations-panel"]){document.getElementById(id)?.classList.toggle("hidden",id!=="automations-panel")}
+    for(const id of ["chat-tab","entities-tab","settings-tab","plugins-tab","files-tab","calendar-tab","about-tab","automations-tab"]){document.getElementById(id)?.classList.toggle("active",id==="automations-tab")}
   }
 
   function showView(name){
@@ -1078,7 +1078,7 @@
   });
   $("autonomy-refresh-context").addEventListener("click",loadEntityContext);
 
-  document.addEventListener("click",event=>{const other=event.target.closest?.("#chat-tab,#entities-tab,#settings-tab,#plugins-tab,#files-tab,#contacts-tab,#calendar-tab,#about-tab,#developer-tab");if(other){panel.classList.add("hidden");tab.classList.remove("active")}},true);
+  document.addEventListener("click",event=>{const other=event.target.closest?.("#chat-tab,#entities-tab,#settings-tab,#plugins-tab,#files-tab,#contacts-tab,#calendar-tab,#about-tab");if(other){panel.classList.add("hidden");tab.classList.remove("active")}},true);
   tab.addEventListener("click",event=>{event.preventDefault();event.stopImmediatePropagation();activate();loadWorkspace().catch(error=>{$("autonomy-context").innerHTML=`<div class="autonomy-empty">Automation workspace unavailable: ${esc(error.message||error)}</div>`})},true);
   const libraryPrefs=readLibraryPrefs();$("automation-library-filter").value=libraryPrefs.filter;$("automation-library-sort").value=libraryPrefs.sort;const localDraftRecovery=readLocalEditorDraft();clearEditor();if(localDraftRecovery)recoverLocalEditorDraft(localDraftRecovery);
   window.zbranoAutomationWorkspace={ready:true,load:loadWorkspace,showView};

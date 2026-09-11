@@ -1528,7 +1528,6 @@ function showPanel(panel) {
   document.getElementById("calendar-panel")?.classList.toggle("hidden", !showCalendar);
   document.getElementById("contacts-panel")?.classList.toggle("hidden", !showContacts);
   aboutPanel.classList.toggle("hidden", !showAbout);
-  document.getElementById("developer-panel")?.classList.add("hidden");
   chatTab.classList.toggle("active", showChat);
   entitiesTab.classList.toggle("active", showEntities);
   settingsTab.classList.toggle("active", showSettings);

@@ -1,7 +1,6 @@
 import ast
 from pathlib import Path
 import json
-import tempfile
 import unittest
 from typing import Any
 
@@ -31,10 +30,10 @@ def load_openai_functions(*names: str) -> dict[str, Any]:
 
 class OpenAIAndDeveloperStateBoundaryTests(unittest.TestCase):
     def test_release_markers_are_aligned(self):
-        self.assertIn('version: "0.13.214"', CONFIG)
-        self.assertIn('version="0.13.214"', MAIN)
-        self.assertIn("HUD 0.13.214", HTML)
-        self.assertEqual(MANIFEST["version"], "0.13.214")
+        self.assertIn('version: "0.13.215"', CONFIG)
+        self.assertIn('version="0.13.215"', MAIN)
+        self.assertIn("HUD 0.13.215", HTML)
+        self.assertEqual(MANIFEST["version"], "0.13.215")
 
     def test_both_modules_are_outside_composition_root(self):
         self.assertNotIn("async def create_openai_response(", MAIN)
@@ -42,7 +41,7 @@ class OpenAIAndDeveloperStateBoundaryTests(unittest.TestCase):
         self.assertIn("async def create_openai_response(", OPENAI)
         self.assertIn("def developer_mode_enabled(", DEVELOPER)
         self.assertIn("configure_openai_responses(", MAIN)
-        self.assertIn("DEVELOPER_STATE_PATH", MAIN)
+        self.assertNotIn("DEVELOPER_STATE_PATH", MAIN)
 
     def test_openai_text_function_call_and_error_contracts(self):
         functions = load_openai_functions("response_text", "function_calls", "openai_error_message")
@@ -71,22 +70,13 @@ class OpenAIAndDeveloperStateBoundaryTests(unittest.TestCase):
             "OpenAI HTTP 502: upstream unavailable",
         )
 
-    def test_developer_mode_round_trip_preserves_payload_and_safety_instructions(self):
-        original_path = developer_state.DEVELOPER_STATE_PATH
-        with tempfile.TemporaryDirectory() as directory:
-            developer_state.DEVELOPER_STATE_PATH = Path(directory) / "zbrano_developer_mode.json"
-            try:
-                developer_state.set_developer_mode(True)
-                payload = json.loads(developer_state.DEVELOPER_STATE_PATH.read_text(encoding="utf-8"))
-                self.assertTrue(payload["enabled"])
-                self.assertGreater(payload["updated_at"], 0)
-                self.assertTrue(developer_state.developer_mode_enabled())
-                instructions = developer_state.developer_system_instructions("base")
-                self.assertIn("RoyceGith/ZBRANO_Core", instructions)
-                self.assertIn("approval-gated", instructions)
-                self.assertIn("investigate_zbrano_feature exactly once", instructions)
-            finally:
-                developer_state.DEVELOPER_STATE_PATH = original_path
+    def test_developer_mode_is_permanently_disabled_in_customer_builds(self):
+        self.assertFalse(developer_state.developer_mode_enabled())
+        self.assertEqual(developer_state.developer_system_instructions("base"), "base")
+        self.assertNotIn("def set_developer_mode", DEVELOPER)
+        self.assertNotIn('@app.get("/api/developer/', MAIN)
+        self.assertNotIn('@app.post("/api/developer/', MAIN)
+        self.assertNotIn('@app.put("/api/developer/', MAIN)
 
 
 if __name__ == "__main__":

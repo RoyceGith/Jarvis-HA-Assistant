@@ -20,7 +20,6 @@
 </script>
   <link rel="stylesheet" href="css/base.css">
 
-<link id="zbrano-v01224-diagnostic-fix-style" rel="stylesheet" href="css/diagnostics.css">
 <link id="zbrano-v01255-entity-columns-style" rel="stylesheet" href="css/entity-columns.css">
 
 <link id="zbrano-v01312-interface-refresh-style" rel="stylesheet" href="css/interface-refresh.css">
@@ -35,7 +34,7 @@
   <header>
     <div class="brand-line">
       <h1>ZBRANO</h1>
-      <div class="status hud-version-label">Workshop Intelligence Interface · HUD 0.13.214</div>
+      <div class="status hud-version-label">Workshop Intelligence Interface · HUD 0.13.215</div>
     </div>
     <div class="runtime-status-stack">
       <label class="interface-language-picker" title="Interface language">
@@ -63,7 +62,6 @@
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 2v3M17 2v3M3.5 9h17M5.5 4h13a2 2 0 0 1 2 2v13a2 2 0 0 1-2 2h-13a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2Z"/><path d="M8 13h3v3H8z"/></svg>
         <span id="calendar-quick-count" aria-label="No upcoming appointments">0</span>
       </button>
-      <div id="developer-mode-indicator" class="developer-mode-indicator" role="status" hidden>Developer Mode Active</div>
       <div id="grinder-connection-indicator" class="grinder-connection-indicator is-checking" role="status" aria-live="polite" title="Checking grinder diagnostic connection" hidden>
         <span class="grinder-connection-dot" aria-hidden="true"></span>
         <span class="grinder-connection-label">Grinder Checking</span>
@@ -82,7 +80,6 @@
     <button id="calendar-tab" class="primary-icon-tab primary-labeled-tab" aria-label="Calendar" title="Calendar"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 2v3M17 2v3M3.5 9h17M5.5 4h13a2 2 0 0 1 2 2v13a2 2 0 0 1-2 2h-13a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2Z"/><path d="M8 13h3v3H8z"/></svg><span>Calendar</span></button>
     <button id="contacts-tab" class="primary-icon-tab primary-labeled-tab" aria-label="Contacts" title="Contacts"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4.5 21a7.5 7.5 0 0 1 15 0"/></svg><span>Contacts</span></button>
     <button id="settings-tab" class="primary-icon-tab primary-labeled-tab" aria-label="Settings" title="Settings"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 15.4a3.4 3.4 0 1 0 0-6.8 3.4 3.4 0 0 0 0 6.8Z"/><path d="m19.4 15 .1.1 1.4 2.4-2.4 2.4-2.4-1.4-.1-.1a8.4 8.4 0 0 1-2 .8V22H9.6v-2.8a8.4 8.4 0 0 1-2-.8l-.1.1-2.4 1.4-2.4-2.4 1.4-2.4.1-.1a8.4 8.4 0 0 1-.8-2H.6V9.6h2.8a8.4 8.4 0 0 1 .8-2l-.1-.1-1.4-2.4 2.4-2.4 2.4 1.4.1.1a8.4 8.4 0 0 1 2-.8V.6H13v2.8a8.4 8.4 0 0 1 2 .8l.1-.1 2.4-1.4 2.4 2.4-1.4 2.4-.1.1a8.4 8.4 0 0 1 .8 2H22V13h-2.8a8.4 8.4 0 0 1-.8 2Z"/></svg><span>Settings</span></button>
-    <button id="developer-tab">Developer</button>
   </nav>
 
   <section id="chat-panel" class="panel">
@@ -169,39 +166,6 @@
           </span>
         </div>
       </div>
-      </div>
-    </div>
-  </section>
-
-<section id="developer-panel" class="panel hidden">
-    <div class="developer-shell">
-      <div class="developer-header">
-        <div>
-          <h2>DEVELOPER MODE</h2>
-          <p class="muted">Inspect ZBRANO, run self-diagnostics, and allow approved GitHub maintenance of its own repository.</p>
-        </div>
-        <button id="developer-toggle" type="button" aria-pressed="false">Enable Developer Mode</button>
-      </div>
-      <div class="developer-warning">Developer Mode never bypasses GitHub approval. Repository changes can be prepared here; Home Assistant deployment remains explicit.</div>
-      <div class="developer-investigator">
-        <h3>Targeted investigation</h3>
-        <p class="muted">Describe a broken feature even when general diagnostics are green. ZBRANO will trace targeted layers and preserve approval boundaries.</p>
-        <div class="developer-investigation-form">
-          <label><span>Feature</span><select id="developer-feature"><option value="auto">Detect automatically</option></select></label>
-          <label class="developer-symptom"><span>Observed problem</span><textarea id="developer-symptom" rows="3" placeholder="Example: I select files in Shared Files and press Delete selected, but nothing happens."></textarea></label>
-          <button id="developer-investigate" type="button">Investigate feature</button>
-        </div>
-        <p id="developer-investigation-summary" class="muted">No targeted investigation run yet.</p>
-        <div id="developer-investigation-results" class="developer-investigation-results"></div>
-      </div>
-      <div class="developer-actions">
-        <button id="developer-run-diagnostics" type="button">Run diagnostics</button>
-        <span id="developer-summary" class="muted">Diagnostics not run yet.</span>
-      </div>
-      <div id="developer-checks" class="developer-checks"></div>
-      <div class="developer-console">
-        <h3>Interface monitor</h3>
-        <p id="developer-interface-status" class="muted">No client-side errors captured.</p>
       </div>
     </div>
   </section>
@@ -1062,13 +1026,9 @@
 <script id="zbrano-v01130-plugin-form" src="js/plugins/form.js"></script>
 <script id="zbrano-v01130-shared-files-recovery" src="js/files/shared-files-recovery.js"></script>
 <script id="zbrano-v01131-plugin-compact" src="js/plugins/compact.js"></script>
-<script id="zbrano-v0120-developer-mode" src="js/developer/mode.js"></script>
-
-<script id="zbrano-v01224-diagnostic-fix" src="js/developer/diagnostics.js"></script>
 <script id="zbrano-v0121-attach-recovery" src="js/files/attachment-recovery.js"></script>
 <script id="zbrano-v0122-attachment-controller" src="js/files/attachments.js"></script>
 <script id="zbrano-v0123-shared-files-controller" src="js/files/shared-files.js"></script>
-<script id="zbrano-v0124-investigation-engine" src="js/developer/investigation.js"></script>
 <script id="zbrano-v0128-plugin-workspace" src="js/plugins/workspace.js"></script>
 <script id="zbrano-v0129-plugin-oauth" src="js/plugins/oauth.js"></script>
 <script id="zbrano-v01363-automation-flow" src="js/automations/flow.js"></script>

@@ -39,7 +39,6 @@ class CanonicalSourceTests(unittest.TestCase):
             '@app.get("/api/calendar")',
             '@app.get("/api/ha/history")',
             '@app.post("/api/voice/transcribe")',
-            '@app.get("/api/developer/diagnostics")',
         ):
             self.assertIn(marker, MAIN)
         for marker in (
@@ -50,9 +49,13 @@ class CanonicalSourceTests(unittest.TestCase):
             'id="plugins-panel"',
             'id="calendar-panel"',
             'id="settings-panel"',
-            'id="developer-panel"',
         ):
             self.assertIn(marker, INDEX)
+        self.assertNotIn('@app.get("/api/developer/', MAIN)
+        self.assertNotIn('@app.post("/api/developer/', MAIN)
+        self.assertNotIn('@app.put("/api/developer/', MAIN)
+        self.assertNotIn('id="developer-panel"', INDEX)
+        self.assertNotIn('id="developer-tab"', INDEX)
 
     def test_baseline_is_documented(self):
         self.assertIn("`435ef91`", BASELINE)

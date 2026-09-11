@@ -238,10 +238,8 @@ from .domains.telegram_inbound import (
     telegram_public_status,
 )
 from .domains.developer_state import (
-    DEVELOPER_STATE_PATH,
     developer_mode_enabled,
     developer_system_instructions,
-    set_developer_mode,
 )
 
 from .schemas import (
@@ -294,8 +292,6 @@ from .schemas import (
     SharedFolderCreateRequest,
     SharedFolderDeleteRequest,
     SharedFilesMoveRequest,
-    DeveloperModeRequest,
-    DeveloperInvestigationRequest,
 )
 
 from .services.entity_policy import (
@@ -783,7 +779,7 @@ ha_ws = HomeAssistantWebSocketClient(
 
 app = FastAPI(
     title="ZBRANO",
-    version="0.13.214",
+    version="0.13.215",
     docs_url="/api/docs",
     openapi_url="/api/openapi.json",
 )
@@ -3023,7 +3019,7 @@ async def health() -> dict[str, Any]:
     configured_speech_provider = SPEECH_PROVIDER if SPEECH_PROVIDER in {"openai", "elevenlabs"} else "openai"
     return {
         "status": "ok",
-        "version": "0.13.214",
+        "version": "0.13.215",
         "home_assistant_configured": bool(SUPERVISOR_TOKEN),
         "workshop_memory_configured": True,
         "knowledge_memory_mode": "built_in",
@@ -5822,51 +5818,6 @@ async def investigate_zbrano_feature(
     }
 
 
-@app.get("/api/developer/features")
-async def developer_features():
-    return {
-        "features": [
-            {"id": key, "title": spec["title"], "layers": list(spec["layers"])}
-            for key, spec in DEVELOPER_FEATURE_SPECS.items()
-        ]
-    }
-
-
-@app.post("/api/developer/investigate")
-async def developer_investigate(request: DeveloperInvestigationRequest):
-    if not developer_mode_enabled():
-        raise HTTPException(status_code=403, detail="Enable Developer Mode before running an investigation")
-    return await investigate_zbrano_feature(
-        request.feature,
-        request.symptom,
-        request.browser_evidence,
-    )
-
-
-@app.get("/api/developer/status")
-async def developer_status():
-    return {
-        "enabled": developer_mode_enabled(),
-        "repository": DEVELOPER_REPOSITORY,
-        "deployment": "manual",
-    }
-
-
-@app.put("/api/developer/mode")
-async def update_developer_mode(request: DeveloperModeRequest):
-    set_developer_mode(request.enabled)
-    return {
-        "enabled": developer_mode_enabled(),
-        "repository": DEVELOPER_REPOSITORY,
-        "deployment": "manual",
-    }
-
-
-@app.get("/api/developer/diagnostics")
-async def get_developer_diagnostics():
-    return await developer_diagnostics()
-
-
 @app.get("/api/ha/websocket-status")
 async def ha_websocket_status() -> dict[str, Any]:
     status = ha_ws.status()
@@ -6676,7 +6627,6 @@ configure_tab_activity_service(
         "birthdays": BIRTHDAY_STORAGE_PATH,
         "contacts": CONTACTS_STORAGE_PATH,
         "settings": SETTINGS_STORAGE_PATH,
-        "developer": DEVELOPER_STATE_PATH,
     },
 )
 configure_conversations_domain(

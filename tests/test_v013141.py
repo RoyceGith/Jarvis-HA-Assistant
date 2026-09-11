@@ -12,8 +12,8 @@ MANIFEST = json.loads((ROOT / "jarvis" / "release_manifest.json").read_text(enco
 
 class V013141AutomationStudioGuideTests(unittest.TestCase):
     def test_release_is_aligned(self):
-        self.assertEqual(MANIFEST["version"], "0.13.214")
-        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.213")
+        self.assertEqual(MANIFEST["version"], "0.13.215")
+        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.214")
 
     def test_numbered_steps_have_live_completion_states(self):
         for kind in ("details", "trigger", "context", "action", "decision"):

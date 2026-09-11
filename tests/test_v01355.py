@@ -15,10 +15,10 @@ MANIFEST = json.loads((ROOT / "jarvis/release_manifest.json").read_text(encoding
 
 class DistributionFolderCompatibilityReleaseTests(unittest.TestCase):
     def test_release_markers_are_aligned(self):
-        self.assertIn('version: "0.13.214"', CONFIG)
-        self.assertIn('version="0.13.214"', MAIN)
-        self.assertIn("HUD 0.13.214", HTML)
-        self.assertEqual(MANIFEST["version"], "0.13.214")
+        self.assertIn('version: "0.13.215"', CONFIG)
+        self.assertIn('version="0.13.215"', MAIN)
+        self.assertIn("HUD 0.13.215", HTML)
+        self.assertEqual(MANIFEST["version"], "0.13.215")
 
     def test_public_export_restores_original_jarvis_folder(self):
         with tempfile.TemporaryDirectory() as temporary:
@@ -36,7 +36,7 @@ class DistributionFolderCompatibilityReleaseTests(unittest.TestCase):
         self.assertIn('image: "ghcr.io/roycegith/jarvis-ha-assistant"', exported_config)
 
     def test_release_history_includes_v01354(self):
-        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.213")
+        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.214")
 
 
 if __name__ == "__main__":

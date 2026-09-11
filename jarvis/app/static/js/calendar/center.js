@@ -579,7 +579,7 @@
   $("calendar-reminder-editor-close").addEventListener("click", closeReminderEditor);
 
   document.addEventListener("click", event => {
-    const other = event.target.closest?.("#chat-tab,#files-tab,#plugins-tab,#entities-tab,#automations-tab,#settings-tab,#about-tab,#developer-tab");
+    const other = event.target.closest?.("#chat-tab,#files-tab,#plugins-tab,#entities-tab,#automations-tab,#settings-tab,#about-tab");
     if (other) { panel.classList.add("hidden"); tab.classList.remove("active"); }
   }, true);
   loadCalendar().catch(() => {});

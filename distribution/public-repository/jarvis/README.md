@@ -8,6 +8,9 @@ ZBRANO is a private Home Assistant intelligence assistant. It combines natural
 conversation, live home context, voice, useful memory, notifications, organization,
 and automation in one interface without granting itself access to every device.
 
+Version 0.13.215 removes Developer Mode and its external routes from customer
+builds while retaining the safe Installation Report for support.
+
 Version 0.13.214 adds an opt-in native conversation agent for Assist-compatible
 microphone satellites with local pairing and duplicate-request protection.
 

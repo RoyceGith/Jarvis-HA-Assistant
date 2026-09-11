@@ -18,10 +18,10 @@ MANIFEST = json.loads((ROOT / "jarvis/release_manifest.json").read_text(encoding
 
 class AgentRuntimeAndTabActivityBoundaryTests(unittest.TestCase):
     def test_release_markers_are_aligned(self):
-        self.assertIn('version: "0.13.214"', CONFIG)
-        self.assertIn('version="0.13.214"', MAIN)
-        self.assertIn("HUD 0.13.214", HTML)
-        self.assertEqual(MANIFEST["version"], "0.13.214")
+        self.assertIn('version: "0.13.215"', CONFIG)
+        self.assertIn('version="0.13.215"', MAIN)
+        self.assertIn("HUD 0.13.215", HTML)
+        self.assertEqual(MANIFEST["version"], "0.13.215")
 
     def test_both_services_are_outside_composition_root_and_configured(self):
         self.assertNotIn("def effective_system_instructions(", MAIN)
@@ -59,7 +59,7 @@ class AgentRuntimeAndTabActivityBoundaryTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
             paths = {name: root / name for name in (
-                "chat", "plugins", "oauth", "notifications", "calendar", "settings", "developer"
+                "chat", "plugins", "oauth", "notifications", "calendar", "settings"
             )}
             state = {"automations": [{"id": "one", "status": "armed", "trigger_count": 1}]}
             tab_activity.configure_tab_activity_service(

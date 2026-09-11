@@ -32,11 +32,11 @@ def load_readiness(access, blocked_entities=None):
 
 class AutomationPermissionAuditReleaseTests(unittest.TestCase):
     def test_release_is_aligned(self):
-        self.assertIn('version: "0.13.214"', CONFIG)
-        self.assertIn('version="0.13.214"', MAIN)
-        self.assertIn("HUD 0.13.214", HTML)
-        self.assertEqual(MANIFEST["version"], "0.13.214")
-        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.213")
+        self.assertIn('version: "0.13.215"', CONFIG)
+        self.assertIn('version="0.13.215"', MAIN)
+        self.assertIn("HUD 0.13.215", HTML)
+        self.assertEqual(MANIFEST["version"], "0.13.215")
+        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.214")
 
     def test_runtime_readiness_reports_reads_and_controls(self):
         readiness = load_readiness({

@@ -74,5 +74,4 @@ def tab_activity_revisions() -> dict[str, str]:
             _tab_activity_revision(_revision_paths.get("birthdays", _revision_paths["calendar"])),
         )),
         "settings": _tab_activity_revision(_revision_paths["settings"]),
-        "developer": _tab_activity_revision(_revision_paths["developer"]),
     }

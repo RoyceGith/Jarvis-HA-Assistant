@@ -1,9 +1,9 @@
 {
-  "version": "0.13.214",
+  "version": "0.13.215",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/ZBRANO_Core main",
-  "summary": "Connect Home Assistant Assist microphone satellites through an opt-in native ZBRANO conversation agent.",
+  "summary": "Remove Developer Mode from customer builds while retaining safe installation reporting.",
   "history_backfill": [
     {
       "version": "0.13.0",
@@ -860,22 +860,23 @@
       {
         "version": "0.13.213",
         "summary": "Preserved clean Markdown structure and upgraded older list-wrapped automatic memory entries."
+      },
+      {
+        "version": "0.13.214",
+        "summary": "Connected Home Assistant Assist microphone satellites through an opt-in native ZBRANO conversation agent."
       }
   ],
   "release_entry": {
     "features": [
-      "Use ZBRANO as an optional native conversation agent in Home Assistant Assist pipelines.",
-      "Connect Voice, ESPHome, Wyoming, VoIP, and other Assist-compatible microphone satellites through one local bridge.",
-      "Generate and copy a private satellite pairing key from Voice settings."
+      "Keep the safe Installation Report available for ordinary setup and support."
     ],
     "fixes": [
-      "Preserve every existing Assist pipeline and require users to opt individual satellites into ZBRANO.",
-      "Prevent duplicate execution when Home Assistant retries the same satellite request.",
-      "Keep satellite sessions out of the ordinary chat list while preserving multi-turn context.",
-      "Pass satellite device, room, language, and automation context to ZBRANO without invoking the default HA agent in parallel."
+      "Remove the Developer tab, workspace, frontend controllers, and customer-facing diagnostic investigation controls.",
+      "Remove all external Developer API routes and make previously saved Developer Mode state permanently inactive.",
+      "Keep About available by anchoring it independently of the removed Developer navigation."
     ],
     "validation": [
-      "Authenticated Assist API, request deduplication, native conversation entity, public boundary, interface setup, localization, integration tests, and v0.13.214 release coverage"
+      "Developer surface absence, permanently disabled state, About navigation, source validators, browser smoke, integration coverage, and v0.13.215 release alignment"
     ]
   },
   "features": [

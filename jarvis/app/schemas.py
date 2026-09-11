@@ -466,11 +466,3 @@ class SharedFolderDeleteRequest(BaseModel):
 class SharedFilesMoveRequest(BaseModel):
     file_ids: list[str] = Field(min_length=1, max_length=100)
     folder: str = Field(default="", max_length=720)
-
-class DeveloperModeRequest(BaseModel):
-    enabled: bool
-
-class DeveloperInvestigationRequest(BaseModel):
-    feature: str = Field(default="auto", max_length=80)
-    symptom: str = Field(min_length=3, max_length=2000)
-    browser_evidence: dict[str, Any] = Field(default_factory=dict)

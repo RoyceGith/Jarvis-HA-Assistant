@@ -14,10 +14,10 @@ MANIFEST = json.loads((ROOT / "jarvis/release_manifest.json").read_text(encoding
 
 class InterfaceRefreshTests(unittest.TestCase):
     def test_release_markers_are_aligned(self):
-        self.assertIn('version: "0.13.214"', CONFIG)
-        self.assertIn('version="0.13.214"', MAIN)
-        self.assertIn("HUD 0.13.214", INDEX)
-        self.assertEqual(MANIFEST["version"], "0.13.214")
+        self.assertIn('version: "0.13.215"', CONFIG)
+        self.assertIn('version="0.13.215"', MAIN)
+        self.assertIn("HUD 0.13.215", INDEX)
+        self.assertEqual(MANIFEST["version"], "0.13.215")
 
     def test_refresh_is_a_final_scoped_style_layer(self):
         marker = '<style id="zbrano-v01312-interface-refresh-style">'
@@ -39,7 +39,6 @@ class InterfaceRefreshTests(unittest.TestCase):
             "plugins-tab",
             "calendar-tab",
             "settings-tab",
-            "developer-tab",
             "chat-form",
             "message",
             "mic-button",
