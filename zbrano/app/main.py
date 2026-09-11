@@ -302,6 +302,7 @@ from .services.entity_policy import (
     V063_ENTITY_POLICY_PATH,
     V063_MIGRATION_MARKER,
     _search_tokens,
+    apply_discovered_control_defaults,
     classify_entity_risk,
     configure_entity_policy_service,
     effective_entity_access,
@@ -771,7 +772,7 @@ ha_ws = HomeAssistantWebSocketClient(
 
 app = FastAPI(
     title="ZBRANO",
-    version="0.13.218",
+    version="0.13.219",
     docs_url="/api/docs",
     openapi_url="/api/openapi.json",
 )
@@ -2999,7 +3000,7 @@ async def health() -> dict[str, Any]:
     configured_speech_provider = SPEECH_PROVIDER if SPEECH_PROVIDER in {"openai", "elevenlabs"} else "openai"
     return {
         "status": "ok",
-        "version": "0.13.218",
+        "version": "0.13.219",
         "home_assistant_configured": bool(SUPERVISOR_TOKEN),
         "workshop_memory_configured": True,
         "knowledge_memory_mode": "built_in",
@@ -3160,7 +3161,7 @@ async def start_ha_websocket() -> None:
         # App remains available; the client reconnects lazily and REST is a fallback.
         pass
 
-    # Prime the installation inventory without changing any entity permission.
+    # Prime inventory and apply defaults for newly discovered ordinary controls.
     with contextlib.suppress(HTTPException, OSError, RuntimeError):
         await list_ha_entities()
     if NOTIFICATION_WATCH_TASK is None or NOTIFICATION_WATCH_TASK.done():
@@ -5949,6 +5950,8 @@ async def list_ha_entities(refresh: bool = False) -> dict[str, Any]:
             detail += ": " + " | ".join(errors)
         raise HTTPException(status_code=502, detail=detail)
 
+    apply_discovered_control_defaults(raw_states)
+
     try:
         area_context = await _automation_refresh_area_context(force=bool(refresh))
     except (RuntimeError, OSError, asyncio.TimeoutError):
@@ -5958,6 +5961,7 @@ async def list_ha_entities(refresh: bool = False) -> dict[str, Any]:
         for item in area_context.get("entities", []) if isinstance(item, dict)
     }
 
+    policy = load_entity_policy()
     entities: list[dict[str, Any]] = []
     for item in raw_states:
         entity_id = item.get("entity_id", "")
@@ -5992,7 +5996,7 @@ async def list_ha_entities(refresh: bool = False) -> dict[str, Any]:
             "icon": attributes.get("icon"),
             "risk": risk,
             "control_capable": domain in SAFE_CONTROL_DOMAINS,
-            "auto_approved": False,
+            "auto_approved": (policy.get(entity_id) or {}).get("source") == "default_control",
             "last_changed": item.get("last_changed"),
             "last_updated": item.get("last_updated"),
             "area_id": area.get("area_id") or "",

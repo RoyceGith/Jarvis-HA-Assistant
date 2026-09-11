@@ -17,12 +17,12 @@ MANIFEST = json.loads((ROOT / "zbrano/release_manifest.json").read_text(encoding
 
 class BringYourOwnAiReleaseTests(unittest.TestCase):
     def test_release_is_aligned(self):
-        self.assertIn('version: "0.13.218"', CONFIG)
-        self.assertIn('version="0.13.218"', MAIN)
-        self.assertIn("HUD 0.13.218", HTML)
-        self.assertEqual(MANIFEST["version"], "0.13.218")
-        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.217")
-        self.assertTrue(CHANGELOG.startswith("# Change log\n\n## 0.13.218"))
+        self.assertIn('version: "0.13.219"', CONFIG)
+        self.assertIn('version="0.13.219"', MAIN)
+        self.assertIn("HUD 0.13.219", HTML)
+        self.assertEqual(MANIFEST["version"], "0.13.219")
+        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.218")
+        self.assertTrue(CHANGELOG.startswith("# Change log\n\n## 0.13.219"))
 
     def test_home_assistant_configuration_protects_provider_keys(self):
         self.assertIn('chat_provider: "openai"', CONFIG)

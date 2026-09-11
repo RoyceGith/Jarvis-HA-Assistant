@@ -14,28 +14,26 @@ MANIFEST = json.loads((ROOT / "zbrano/release_manifest.json").read_text(encoding
 
 class ExplicitEntityPermissionReleaseTests(unittest.TestCase):
     def test_release_is_aligned(self):
-        self.assertIn('version: "0.13.218"', CONFIG)
-        self.assertIn('version="0.13.218"', MAIN)
-        self.assertIn("HUD 0.13.218", HTML)
-        self.assertEqual(MANIFEST["version"], "0.13.218")
-        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.217")
+        self.assertIn('version: "0.13.219"', CONFIG)
+        self.assertIn('version="0.13.219"', MAIN)
+        self.assertIn("HUD 0.13.219", HTML)
+        self.assertEqual(MANIFEST["version"], "0.13.219")
+        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.218")
 
-    def test_inventory_never_writes_automatic_permission(self):
-        inventory_tail = MAIN[MAIN.index('"auto_approved": False'):MAIN.index('entities.sort(key=lambda entity:')]
-        self.assertNotIn("save_entity_policy", inventory_tail)
-        self.assertNotIn('"enabled": True', inventory_tail)
-        self.assertIn("Prime the installation inventory without changing any entity permission", MAIN)
+    def test_inventory_applies_only_missing_ordinary_control_defaults(self):
+        self.assertIn("apply_discovered_control_defaults(raw_states)", MAIN)
+        self.assertIn('(policy.get(entity_id) or {}).get("source") == "default_control"', MAIN)
 
-    def test_new_entities_are_unselected_while_saved_policy_is_preserved(self):
+    def test_saved_policy_is_loaded_before_rendering(self):
         self.assertIn("selected: false", CORE)
         self.assertIn('checkbox.title = "Allow ZBRANO to use this entity with the selected access"', CORE)
         self.assertNotIn("checkbox.disabled = Boolean(entity.auto_approved)", CORE)
         self.assertIn("selected: Boolean(existing && existing.enabled)", CORE)
         self.assertIn("access: (existing && existing.access) || entity.risk", CORE)
 
-    def test_browser_confirms_control_is_unchecked_and_editable(self):
+    def test_browser_confirms_default_control_is_checked_and_editable(self):
         self.assertIn("explicitControlRow", BROWSER)
-        self.assertIn("isChecked(), false", BROWSER)
+        self.assertIn("isChecked(), true", BROWSER)
         self.assertIn("isEnabled(), true", BROWSER)
 
 

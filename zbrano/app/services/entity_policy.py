@@ -12,6 +12,7 @@ from typing import Any
 HA_READ_ENTITIES_RAW = os.getenv("HA_READ_ENTITIES", "")
 HA_CONTROL_ENTITIES_RAW = os.getenv("HA_CONTROL_ENTITIES", "")
 SAFE_CONTROL_DOMAINS = {"light", "switch", "fan", "input_boolean", "climate"}
+DEFAULT_CONTROL_DOMAINS = {"light", "switch", "climate"}
 
 
 def parse_entity_list(raw: str) -> set[str]:
@@ -105,6 +106,53 @@ def entity_domain(entity_id: str) -> str:
 def normalize_entity_policy_enabled(enabled: bool, access: str) -> bool:
     """A blocked access choice can never remain enabled."""
     return bool(enabled and access != "restricted")
+
+
+def is_default_control_entity(
+    entity_id: str,
+    friendly_name: str,
+    domain: str,
+) -> bool:
+    """Default ordinary controls on without treating status sensors as devices."""
+    if domain in DEFAULT_CONTROL_DOMAINS:
+        return True
+    searchable = f"{entity_id} {friendly_name}".lower().replace("_", " ")
+    is_air_conditioner = any(
+        phrase in searchable
+        for phrase in ("air conditioner", "air conditioning", "aircondition", "hvac")
+    )
+    return bool(is_air_conditioner and domain in {"fan", "input_boolean"})
+
+
+def apply_discovered_control_defaults(
+    states: list[dict[str, Any]],
+) -> set[str]:
+    """Allow newly discovered ordinary controls while preserving every saved choice."""
+    policy = load_entity_policy()
+    added: set[str] = set()
+    for item in states:
+        entity_id = str(item.get("entity_id") or "")
+        if "." not in entity_id or entity_id in policy:
+            continue
+        domain = entity_id.split(".", 1)[0]
+        attributes = item.get("attributes") if isinstance(item.get("attributes"), dict) else {}
+        friendly_name = str(attributes.get("friendly_name") or entity_id)
+        if not is_default_control_entity(entity_id, friendly_name, domain):
+            continue
+        policy[entity_id] = {
+            "enabled": True,
+            "friendly_name": friendly_name,
+            "domain": domain,
+            "device_class": attributes.get("device_class"),
+            "unit": attributes.get("unit_of_measurement"),
+            "access": "low_risk_control_proposed",
+            "aliases": [],
+            "source": "default_control",
+        }
+        added.add(entity_id)
+    if added:
+        save_entity_policy(policy)
+    return added
 
 
 def entity_permission_setup_detail(read_count: int, control_count: int) -> str:

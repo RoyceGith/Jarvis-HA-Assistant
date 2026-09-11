@@ -1,5 +1,11 @@
 # Change log
 
+## 0.13.219
+
+- Allow previously unconfigured light, switch, and climate entities as Control devices by default.
+- Include clearly named air-conditioner fan controls while keeping status and temperature sensors read-only.
+- Preserve every explicit saved permission, including Do not allow.
+
 ## 0.13.218
 
 - Show Connect with GitHub when a Device Flow client ID is configured.

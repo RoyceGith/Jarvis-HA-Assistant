@@ -1,9 +1,13 @@
-# ZBRANO v0.13.218
+# ZBRANO v0.13.219
 
 Automation Studio provides a graphical, step-by-step workflow for Home Assistant
 automations. Use Setup &amp; safety, When, Only if, Then, and optional Outcomes beside the
 interactive flow canvas. Natural-language creation, templates, drag-and-drop,
 saved automation compatibility, and the full Advanced editor remain available.
+
+Version 0.13.219 allows previously unconfigured lights, switches, climate controls,
+and clearly identified air-conditioner controls by default while preserving every
+explicit user choice.
 
 Version 0.13.218 restores one-click GitHub account connection in Plugins and
 prevents the official GitHub card from requesting a manual PAT.

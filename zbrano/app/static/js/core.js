@@ -1012,13 +1012,13 @@ entityPermissionGuide.className = "entity-permission-guide";
 entityPermissionGuide.innerHTML = `
   <summary>Choose what ZBRANO can use</summary>
   <div class="entity-permission-guide-copy">
-    <p>Start with sensors ZBRANO may read. Add control devices one at a time only when you want ZBRANO to operate them. Nothing is approved by opening or filtering this guide.</p>
+    <p>Lights, switches, and climate controls are allowed as Control devices by default. Review or disable any of them here; other devices remain unavailable until you allow them.</p>
     <div class="entity-permission-categories" role="group" aria-label="Entity permission categories">
       <button type="button" data-entity-permission-filter="sensor" aria-pressed="false"><span aria-hidden="true">S</span><strong>Sensor devices</strong><small><b data-entity-permission-count="sensor">0</b> available · read information only</small></button>
       <button type="button" data-entity-permission-filter="control" aria-pressed="false"><span aria-hidden="true">C</span><strong>Control devices</strong><small><b data-entity-permission-count="control">0</b> available · can perform actions</small></button>
       <button type="button" data-entity-permission-filter="all" aria-pressed="true"><span aria-hidden="true">ALL</span><strong>All entities</strong><small><b data-entity-permission-count="all">0</b> available · advanced review</small></button>
     </div>
-    <p class="entity-permission-safety"><strong>A checkbox grants access.</strong> Filtering only changes what you see. Control remains limited to supported device types and the access selected on that row.</p>
+    <p class="entity-permission-safety"><strong>You remain in control.</strong> A checkbox changes access; filtering only changes what you see. Control remains limited to supported device types and the access selected on that row.</p>
   </div>`;
 entityInventoryPanel?.insertBefore(entityPermissionGuide, entityInventoryPanel.querySelector(".toolbar"));
 

@@ -5,6 +5,8 @@ import tempfile
 import unittest
 from typing import Any
 
+from zbrano.app.services import entity_policy
+
 
 ROOT = Path(__file__).resolve().parents[1]
 MAIN_PATH = ROOT / "zbrano/app/services/entity_policy.py"
@@ -34,6 +36,56 @@ def load_policy_functions(data_dir: Path, v063_path: Path):
 
 
 class EntityPolicyPersistenceTests(unittest.TestCase):
+    def test_discovered_ordinary_controls_default_on_without_overriding_choices(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            originals = (
+                entity_policy.DATA_DIR,
+                entity_policy.ENTITY_POLICY_PATH,
+                entity_policy.V063_ENTITY_POLICY_PATH,
+                entity_policy.V063_MIGRATION_MARKER,
+            )
+            entity_policy.DATA_DIR = root
+            entity_policy.ENTITY_POLICY_PATH = root / "entity_policy.json"
+            entity_policy.V063_ENTITY_POLICY_PATH = root / "missing-legacy.json"
+            entity_policy.V063_MIGRATION_MARKER = root / ".legacy-migrated"
+            try:
+                entity_policy.save_entity_policy({
+                    "light.keep_blocked": {
+                        "enabled": False,
+                        "access": "restricted",
+                        "friendly_name": "Keep blocked",
+                    }
+                })
+                added = entity_policy.apply_discovered_control_defaults([
+                    {"entity_id": "light.kitchen", "attributes": {"friendly_name": "Kitchen light"}},
+                    {"entity_id": "switch.coffee", "attributes": {"friendly_name": "Coffee switch"}},
+                    {"entity_id": "climate.living_room", "attributes": {"friendly_name": "Living room AC"}},
+                    {"entity_id": "fan.bedroom_ac", "attributes": {"friendly_name": "Bedroom air conditioner"}},
+                    {"entity_id": "fan.ceiling", "attributes": {"friendly_name": "Ceiling fan"}},
+                    {"entity_id": "binary_sensor.ac_status", "attributes": {"friendly_name": "AC status"}},
+                    {"entity_id": "light.keep_blocked", "attributes": {"friendly_name": "Keep blocked"}},
+                ])
+                self.assertEqual(added, {
+                    "light.kitchen", "switch.coffee", "climate.living_room", "fan.bedroom_ac",
+                })
+                saved = entity_policy.load_entity_policy()
+                for entity_id in added:
+                    self.assertTrue(saved[entity_id]["enabled"])
+                    self.assertEqual(saved[entity_id]["access"], "low_risk_control_proposed")
+                    self.assertEqual(saved[entity_id]["source"], "default_control")
+                self.assertNotIn("fan.ceiling", saved)
+                self.assertNotIn("binary_sensor.ac_status", saved)
+                self.assertFalse(saved["light.keep_blocked"]["enabled"])
+                self.assertEqual(saved["light.keep_blocked"]["access"], "restricted")
+            finally:
+                (
+                    entity_policy.DATA_DIR,
+                    entity_policy.ENTITY_POLICY_PATH,
+                    entity_policy.V063_ENTITY_POLICY_PATH,
+                    entity_policy.V063_MIGRATION_MARKER,
+                ) = originals
+
     def test_disabled_entity_alias_round_trip_uses_data_directory(self):
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)

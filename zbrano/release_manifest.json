@@ -1,9 +1,9 @@
 {
-  "version": "0.13.218",
+  "version": "0.13.219",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/ZBRANO_Core main",
-  "summary": "Restore one-click GitHub account connection in the Plugins catalog.",
+  "summary": "Allow ordinary Home Assistant controls by default while preserving explicit entity choices.",
   "history_backfill": [
     {
       "version": "0.13.0",
@@ -876,19 +876,23 @@
       {
         "version": "0.13.217",
         "summary": "Made Light the default interface theme for fresh installations while preserving saved theme choices."
+      },
+      {
+        "version": "0.13.218",
+        "summary": "Restored one-click GitHub account connection in the Plugins catalog."
       }
   ],
   "release_entry": {
     "features": [
-      "Show Connect with GitHub on the official GitHub catalog card when a Device Flow client ID is configured.",
-      "Open GitHub's device authorization page, display and copy the user code, and finish connection automatically."
+      "Automatically allow previously unconfigured light, switch, and climate entities as Control devices on fresh and existing installations.",
+      "Include clearly identified air-conditioner fan and helper controls without treating temperature or status sensors as controllable devices."
     ],
     "fixes": [
-      "Stop the official GitHub card from falling through to the generic bearer-token or PAT installer.",
-      "Show a clear sign-in setup state when no GitHub OAuth client ID is configured."
+      "Preserve every explicit saved entity choice, including disabled and Do not allow records.",
+      "Persist newly discovered defaults once so device access remains stable across restarts and backups."
     ],
     "validation": [
-      "GitHub catalog rendering and Device Flow wiring, source validators, browser smoke, integration coverage, and v0.13.218 release alignment"
+      "Default-control classification, explicit override preservation, sensor isolation, browser smoke, integration coverage, and v0.13.219 release alignment"
     ]
   },
   "features": [

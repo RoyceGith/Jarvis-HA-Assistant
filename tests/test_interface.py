@@ -26,8 +26,8 @@ class InterfaceTests(unittest.TestCase):
     def test_hud_graph_and_versions(self):
         self.assertIn('id="brain-network"', INDEX)
         self.assertIn("prefers-reduced-motion: reduce", INDEX)
-        self.assertIn('version: "0.13.218"', CONFIG)
-        self.assertIn('version="0.13.218"', MAIN)
+        self.assertIn('version: "0.13.219"', CONFIG)
+        self.assertIn('version="0.13.219"', MAIN)
 
     def test_public_defaults_and_saved_app_options(self):
         self.assertNotIn("192.168.178.49", CONFIG)
@@ -132,12 +132,13 @@ class InterfaceTests(unittest.TestCase):
         self.assertIn('policySaveRevisions.set(entity.entity_id, revision);', INDEX)
         self.assertIn('policySaveChains.set(entity.entity_id, currentSave);', INDEX)
 
-    def test_socket_and_hvac_are_recommended_without_automatic_approval(self):
+    def test_ordinary_controls_are_defaulted_without_misclassifying_sensors(self):
         self.assertIn("def should_auto_approve_entity", MAIN)
         self.assertIn('domain == "climate"', MAIN)
         self.assertIn('{"socket", "outlet", "plug"}', MAIN)
-        self.assertIn('"auto_approved": False', MAIN)
-        self.assertNotIn('"auto_approved": True', MAIN)
+        self.assertIn("def apply_discovered_control_defaults", MAIN)
+        self.assertIn('DEFAULT_CONTROL_DOMAINS = {"light", "switch", "climate"}', MAIN)
+        self.assertIn('"source": "default_control"', MAIN)
         self.assertIn("await list_ha_entities()", MAIN)
         self.assertIn('SAFE_CONTROL_DOMAINS = {"light", "switch", "fan", "input_boolean", "climate"}', MAIN)
 

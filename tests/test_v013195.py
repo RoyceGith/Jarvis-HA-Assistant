@@ -15,11 +15,11 @@ MANIFEST = json.loads((ROOT / "zbrano/release_manifest.json").read_text(encoding
 
 class MemoryLayoutClarityReleaseTests(unittest.TestCase):
     def test_release_is_aligned(self):
-        self.assertIn('version: "0.13.218"', CONFIG)
-        self.assertIn('version="0.13.218"', MAIN)
-        self.assertIn("HUD 0.13.218", INDEX)
-        self.assertEqual(MANIFEST["version"], "0.13.218")
-        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.217")
+        self.assertIn('version: "0.13.219"', CONFIG)
+        self.assertIn('version="0.13.219"', MAIN)
+        self.assertIn("HUD 0.13.219", INDEX)
+        self.assertEqual(MANIFEST["version"], "0.13.219")
+        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.218")
 
     def test_categories_and_layouts_have_distinct_jobs(self):
         self.assertIn("HOW SHOULD IT BE ORGANIZED?", STUDIO)

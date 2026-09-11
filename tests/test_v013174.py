@@ -16,20 +16,20 @@ MANIFEST = json.loads((ROOT / "zbrano/release_manifest.json").read_text(encoding
 
 class EntityPermissionGuideReleaseTests(unittest.TestCase):
     def test_release_is_aligned(self):
-        self.assertIn('version: "0.13.218"', CONFIG)
-        self.assertIn('version="0.13.218"', MAIN)
-        self.assertIn("HUD 0.13.218", HTML)
-        self.assertEqual(MANIFEST["version"], "0.13.218")
-        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.217")
+        self.assertIn('version: "0.13.219"', CONFIG)
+        self.assertIn('version="0.13.219"', MAIN)
+        self.assertIn("HUD 0.13.219", HTML)
+        self.assertEqual(MANIFEST["version"], "0.13.219")
+        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.218")
 
     def test_inventory_marks_existing_safe_control_domains(self):
         self.assertIn('"control_capable": domain in SAFE_CONTROL_DOMAINS', MAIN)
         self.assertIn('if (entity.control_capable) return "control"', CORE)
         self.assertIn('const sensorEntityDomains = new Set(["sensor", "binary_sensor", "person", "device_tracker", "weather", "sun"])', CORE)
 
-    def test_guide_filters_and_explains_without_bulk_approval(self):
+    def test_guide_filters_and_explains_default_control_access(self):
         guide = CORE[CORE.index('entityPermissionGuide.innerHTML'):CORE.index('entityInventoryPanel?.insertBefore')]
-        for marker in ("Sensor devices", "Control devices", "All entities", "Nothing is approved", "A checkbox grants access"):
+        for marker in ("Sensor devices", "Control devices", "All entities", "allowed as Control devices by default", "You remain in control"):
             self.assertIn(marker, guide)
         self.assertNotIn("fetch(", guide)
         self.assertIn('entityPermissionFilter === "all"', CORE)
@@ -39,7 +39,7 @@ class EntityPermissionGuideReleaseTests(unittest.TestCase):
         self.assertIn("window.zbranoOpenEntityPermissionGuide?.()", ONBOARDING)
         self.assertIn(".entity-permission-categories", CSS)
         self.assertIn('[data-entity-permission-filter="control"]', BROWSER)
-        self.assertIn("Nothing is approved by opening or filtering", BROWSER)
+        self.assertIn("allowed as Control devices by default", BROWSER)
 
 
 if __name__ == "__main__":
