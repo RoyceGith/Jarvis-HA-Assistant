@@ -1,5 +1,13 @@
 # Change log
 
+## 0.13.213
+
+- Save automatically organized memory items as clean document sections instead of nested list entries.
+- Preserve Markdown headings, ingredients, bullets, and numbered instructions consistently.
+- Upgrade earlier list-wrapped automatic entries when a note is opened or extended.
+- Keep fully bold numbered steps inside their ordered list rather than styling them as headings.
+- Remove duplicated content titles while retaining useful details such as serving size.
+
 ## 0.13.212
 
 - Expand About from six to eight balanced capability areas.
