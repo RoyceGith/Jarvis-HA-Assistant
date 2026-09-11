@@ -2,8 +2,8 @@ from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[1]
-PATCH = (ROOT / "jarvis/apply_proactive_voice_and_wake_word_v01294.py").read_text(encoding="utf-8")
-DOCKER = (ROOT / "jarvis/Dockerfile").read_text(encoding="utf-8")
+PATCH = (ROOT / "zbrano/apply_proactive_voice_and_wake_word_v01294.py").read_text(encoding="utf-8")
+DOCKER = (ROOT / "zbrano/Dockerfile").read_text(encoding="utf-8")
 
 
 def test_proactive_suggestions_are_polled_without_ai_requests() -> None:

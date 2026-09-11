@@ -6,15 +6,15 @@ import unittest
 
 
 ROOT = Path(__file__).resolve().parents[1]
-CONFIG = (ROOT / "jarvis/config.yaml").read_text(encoding="utf-8")
-MAIN = (ROOT / "jarvis/app/main.py").read_text(encoding="utf-8")
-HTML = (ROOT / "jarvis/app/static/index.html").read_text(encoding="utf-8")
-SCHEMAS = (ROOT / "jarvis/app/schemas.py").read_text(encoding="utf-8")
-AUTOMATIONS = (ROOT / "jarvis/app/domains/automations.py").read_text(encoding="utf-8")
-WORKSPACE = (ROOT / "jarvis/app/static/js/automations/workspace.js").read_text(encoding="utf-8")
-STUDIO_CSS = (ROOT / "jarvis/app/static/css/automation-studio.css").read_text(encoding="utf-8")
-VOICE = (ROOT / "jarvis/app/static/js/voice/proactive.js").read_text(encoding="utf-8")
-MANIFEST = json.loads((ROOT / "jarvis/release_manifest.json").read_text(encoding="utf-8"))
+CONFIG = (ROOT / "zbrano/config.yaml").read_text(encoding="utf-8")
+MAIN = (ROOT / "zbrano/app/main.py").read_text(encoding="utf-8")
+HTML = (ROOT / "zbrano/app/static/index.html").read_text(encoding="utf-8")
+SCHEMAS = (ROOT / "zbrano/app/schemas.py").read_text(encoding="utf-8")
+AUTOMATIONS = (ROOT / "zbrano/app/domains/automations.py").read_text(encoding="utf-8")
+WORKSPACE = (ROOT / "zbrano/app/static/js/automations/workspace.js").read_text(encoding="utf-8")
+STUDIO_CSS = (ROOT / "zbrano/app/static/css/automation-studio.css").read_text(encoding="utf-8")
+VOICE = (ROOT / "zbrano/app/static/js/voice/proactive.js").read_text(encoding="utf-8")
+MANIFEST = json.loads((ROOT / "zbrano/release_manifest.json").read_text(encoding="utf-8"))
 
 
 def load_policy_function():
@@ -30,10 +30,10 @@ def load_policy_function():
 
 class PerAutomationOperatingModeReleaseTests(unittest.TestCase):
     def test_release_markers_are_aligned(self):
-        self.assertIn('version: "0.13.215"', CONFIG)
-        self.assertIn('version="0.13.215"', MAIN)
-        self.assertIn("HUD 0.13.215", HTML)
-        self.assertEqual(MANIFEST["version"], "0.13.215")
+        self.assertIn('version: "0.13.216"', CONFIG)
+        self.assertIn('version="0.13.216"', MAIN)
+        self.assertIn("HUD 0.13.216", HTML)
+        self.assertEqual(MANIFEST["version"], "0.13.216")
 
     def test_explicit_path_authority_replaces_the_legacy_global_ceiling(self):
         effective = load_policy_function()
@@ -60,7 +60,7 @@ class PerAutomationOperatingModeReleaseTests(unittest.TestCase):
         self.assertIn("#automations-panel.studio-active", STUDIO_CSS)
 
     def test_release_history_includes_v01368(self):
-        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.214")
+        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.215")
 
 
 if __name__ == "__main__":

@@ -6,13 +6,13 @@ from typing import Any
 
 
 ROOT = Path(__file__).resolve().parents[1]
-AUTOMATIONS = (ROOT / "jarvis/app/domains/automations.py").read_text(encoding="utf-8")
-SCHEMAS = (ROOT / "jarvis/app/schemas.py").read_text(encoding="utf-8")
-HTML = (ROOT / "jarvis/app/static/index.html").read_text(encoding="utf-8")
-WORKSPACE = (ROOT / "jarvis/app/static/js/automations/workspace.js").read_text(encoding="utf-8")
-FLOW = (ROOT / "jarvis/app/static/js/automations/flow.js").read_text(encoding="utf-8")
-BROWSER = (ROOT / "jarvis/tests/browser_smoke.cjs").read_text(encoding="utf-8")
-MANIFEST = json.loads((ROOT / "jarvis/release_manifest.json").read_text(encoding="utf-8"))
+AUTOMATIONS = (ROOT / "zbrano/app/domains/automations.py").read_text(encoding="utf-8")
+SCHEMAS = (ROOT / "zbrano/app/schemas.py").read_text(encoding="utf-8")
+HTML = (ROOT / "zbrano/app/static/index.html").read_text(encoding="utf-8")
+WORKSPACE = (ROOT / "zbrano/app/static/js/automations/workspace.js").read_text(encoding="utf-8")
+FLOW = (ROOT / "zbrano/app/static/js/automations/flow.js").read_text(encoding="utf-8")
+BROWSER = (ROOT / "zbrano/tests/browser_smoke.cjs").read_text(encoding="utf-8")
+MANIFEST = json.loads((ROOT / "zbrano/release_manifest.json").read_text(encoding="utf-8"))
 
 
 def load_policy_helpers():
@@ -32,8 +32,8 @@ def load_policy_helpers():
 
 class BranchAuthorityReleaseTests(unittest.TestCase):
     def test_release_is_aligned(self):
-        self.assertEqual(MANIFEST["version"], "0.13.215")
-        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.214")
+        self.assertEqual(MANIFEST["version"], "0.13.216")
+        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.215")
 
     def test_every_branch_can_choose_its_own_authority(self):
         helpers = load_policy_helpers()

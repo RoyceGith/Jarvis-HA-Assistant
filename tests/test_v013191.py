@@ -4,25 +4,25 @@ import unittest
 
 
 ROOT = Path(__file__).resolve().parents[1]
-CONFIG = (ROOT / "jarvis/config.yaml").read_text(encoding="utf-8")
-MAIN = (ROOT / "jarvis/app/main.py").read_text(encoding="utf-8")
-HTML = (ROOT / "jarvis/app/static/index.html").read_text(encoding="utf-8")
-VOICE = (ROOT / "jarvis/app/static/js/voice/proactive.js").read_text(encoding="utf-8")
-CSS = (ROOT / "jarvis/app/static/css/entity-columns.css").read_text(encoding="utf-8")
-I18N = (ROOT / "jarvis/app/static/js/i18n.js").read_text(encoding="utf-8")
-WAKE_README = (ROOT / "jarvis/models/wakeword/README.md").read_text(encoding="utf-8")
-CHANGELOG = (ROOT / "distribution/public-repository/jarvis/CHANGELOG.md").read_text(encoding="utf-8")
-MANIFEST = json.loads((ROOT / "jarvis/release_manifest.json").read_text(encoding="utf-8"))
+CONFIG = (ROOT / "zbrano/config.yaml").read_text(encoding="utf-8")
+MAIN = (ROOT / "zbrano/app/main.py").read_text(encoding="utf-8")
+HTML = (ROOT / "zbrano/app/static/index.html").read_text(encoding="utf-8")
+VOICE = (ROOT / "zbrano/app/static/js/voice/proactive.js").read_text(encoding="utf-8")
+CSS = (ROOT / "zbrano/app/static/css/entity-columns.css").read_text(encoding="utf-8")
+I18N = (ROOT / "zbrano/app/static/js/i18n.js").read_text(encoding="utf-8")
+WAKE_README = (ROOT / "zbrano/models/wakeword/README.md").read_text(encoding="utf-8")
+CHANGELOG = (ROOT / "distribution/public-repository/zbrano/CHANGELOG.md").read_text(encoding="utf-8")
+MANIFEST = json.loads((ROOT / "zbrano/release_manifest.json").read_text(encoding="utf-8"))
 
 
 class PortableWakeMethodReleaseTests(unittest.TestCase):
     def test_release_is_aligned(self):
-        self.assertIn('version: "0.13.215"', CONFIG)
-        self.assertIn('version="0.13.215"', MAIN)
-        self.assertIn("HUD 0.13.215", HTML)
-        self.assertEqual(MANIFEST["version"], "0.13.215")
-        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.214")
-        self.assertTrue(CHANGELOG.startswith("# Change log\n\n## 0.13.215"))
+        self.assertIn('version: "0.13.216"', CONFIG)
+        self.assertIn('version="0.13.216"', MAIN)
+        self.assertIn("HUD 0.13.216", HTML)
+        self.assertEqual(MANIFEST["version"], "0.13.216")
+        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.215")
+        self.assertTrue(CHANGELOG.startswith("# Change log\n\n## 0.13.216"))
 
     def test_browser_recognition_is_the_default_method(self):
         self.assertIn('id="wake-browser-activate" name="wake-detection-method" type="radio" checked', HTML)

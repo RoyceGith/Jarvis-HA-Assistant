@@ -4,7 +4,7 @@ import unittest
 
 
 ROOT = Path(__file__).resolve().parents[1]
-APP = ROOT / "jarvis/app"
+APP = ROOT / "zbrano/app"
 MAIN = (APP / "main.py").read_text(encoding="utf-8")
 CONTACTS = (APP / "domains/contacts.py").read_text(encoding="utf-8")
 GOOGLE = (APP / "domains/google_contacts.py").read_text(encoding="utf-8")
@@ -13,14 +13,14 @@ INTENTS = (APP / "services/calendar_intents.py").read_text(encoding="utf-8")
 HTML = (APP / "static/index.html").read_text(encoding="utf-8")
 SCRIPT = (APP / "static/js/contacts.js").read_text(encoding="utf-8")
 STYLES = (APP / "static/css/contacts.css").read_text(encoding="utf-8")
-MANIFEST = json.loads((ROOT / "jarvis/release_manifest.json").read_text(encoding="utf-8"))
+MANIFEST = json.loads((ROOT / "zbrano/release_manifest.json").read_text(encoding="utf-8"))
 
 
 class ContactsReleaseTests(unittest.TestCase):
     def test_release_markers_are_aligned(self):
-        self.assertIn('version="0.13.215"', MAIN)
-        self.assertIn("HUD 0.13.215", HTML)
-        self.assertEqual(MANIFEST["version"], "0.13.215")
+        self.assertIn('version="0.13.216"', MAIN)
+        self.assertIn("HUD 0.13.216", HTML)
+        self.assertEqual(MANIFEST["version"], "0.13.216")
 
     def test_local_contacts_crud_import_and_backup_are_wired(self):
         for marker in ("def contacts_store", "def create_contact", "def update_contact", "def delete_contact", "def import_contacts"):

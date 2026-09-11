@@ -8,7 +8,7 @@ from typing import AsyncIterator
 
 
 ROOT = Path(__file__).resolve().parents[1]
-MAIN_PATH = ROOT / "jarvis/app/main.py"
+MAIN_PATH = ROOT / "zbrano/app/main.py"
 
 
 class FakeResponse:
@@ -96,7 +96,7 @@ def load_generate_speech():
         "SPEECH_FALLBACK_TO_OPENAI": True,
         "ELEVENLABS_API_KEY": "secret-test-key",
         "ELEVENLABS_VOICE_ID": "voice-test-id",
-        "ELEVENLABS_VOICE_NAME": "Workshop Jarvis",
+        "ELEVENLABS_VOICE_NAME": "Workshop ZBRANO",
         "ELEVENLABS_MODEL_ID": "eleven_flash_v2_5",
         "ELEVENLABS_SPEECH_URL": "https://api.elevenlabs.io/v1/text-to-speech",
         "OPENAI_API_KEY": "openai-test-key",

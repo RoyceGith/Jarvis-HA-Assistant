@@ -4,8 +4,8 @@ import unittest
 
 
 ROOT = Path(__file__).resolve().parents[1]
-CORE = (ROOT / "jarvis/app/static/js/core.js").read_text(encoding="utf-8")
-MANIFEST = json.loads((ROOT / "jarvis/release_manifest.json").read_text(encoding="utf-8"))
+CORE = (ROOT / "zbrano/app/static/js/core.js").read_text(encoding="utf-8")
+MANIFEST = json.loads((ROOT / "zbrano/release_manifest.json").read_text(encoding="utf-8"))
 
 
 class TextboxFocusReleaseTests(unittest.TestCase):
@@ -17,8 +17,8 @@ class TextboxFocusReleaseTests(unittest.TestCase):
         self.assertNotIn('field.value = ""', CORE)
 
     def test_release_is_aligned(self):
-        self.assertEqual(MANIFEST["version"], "0.13.215")
-        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.214")
+        self.assertEqual(MANIFEST["version"], "0.13.216")
+        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.215")
 
 
 if __name__ == "__main__":

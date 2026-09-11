@@ -6,12 +6,12 @@ from tests.backend_source import load_backend_source
 
 
 ROOT = Path(__file__).resolve().parents[1]
-APP = ROOT / "jarvis" / "app"
+APP = ROOT / "zbrano" / "app"
 MAIN = load_backend_source()
 INDEX = load_frontend_source()
-CONFIG = (ROOT / "jarvis" / "config.yaml").read_text(encoding="utf-8")
-DOCKER = (ROOT / "jarvis" / "Dockerfile").read_text(encoding="utf-8")
-MANIFEST = json.loads((ROOT / "jarvis" / "release_manifest.json").read_text(encoding="utf-8"))
+CONFIG = (ROOT / "zbrano" / "config.yaml").read_text(encoding="utf-8")
+DOCKER = (ROOT / "zbrano" / "Dockerfile").read_text(encoding="utf-8")
+MANIFEST = json.loads((ROOT / "zbrano" / "release_manifest.json").read_text(encoding="utf-8"))
 BASELINE = (ROOT / "docs" / "CANONICAL_BASELINE.md").read_text(encoding="utf-8")
 
 

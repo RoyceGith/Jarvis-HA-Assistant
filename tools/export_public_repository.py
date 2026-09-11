@@ -15,9 +15,9 @@ PUBLIC_TRANSITION_HEAD = "ab43e37032bf59318005dadf5c33f18ef1c59aaf"
 ALLOWED_FILES = {
     "README.md",
     "repository.yaml",
-    "jarvis/CHANGELOG.md",
-    "jarvis/README.md",
-    "jarvis/config.yaml",
+    "zbrano/CHANGELOG.md",
+    "zbrano/README.md",
+    "zbrano/config.yaml",
 }
 
 
@@ -25,11 +25,11 @@ def export(destination: Path) -> set[str]:
     destination.mkdir(parents=True, exist_ok=True)
     shutil.copy2(ROOT / "repository.yaml", destination / "repository.yaml")
     shutil.copy2(TEMPLATE / "README.md", destination / "README.md")
-    app = destination / "jarvis"
+    app = destination / "zbrano"
     app.mkdir(exist_ok=True)
-    shutil.copy2(ROOT / "jarvis" / "config.yaml", app / "config.yaml")
-    shutil.copy2(TEMPLATE / "jarvis" / "README.md", app / "README.md")
-    shutil.copy2(TEMPLATE / "jarvis" / "CHANGELOG.md", app / "CHANGELOG.md")
+    shutil.copy2(ROOT / "zbrano" / "config.yaml", app / "config.yaml")
+    shutil.copy2(TEMPLATE / "zbrano" / "README.md", app / "README.md")
+    shutil.copy2(TEMPLATE / "zbrano" / "CHANGELOG.md", app / "CHANGELOG.md")
     exported = {
         path.relative_to(destination).as_posix()
         for path in destination.rglob("*")

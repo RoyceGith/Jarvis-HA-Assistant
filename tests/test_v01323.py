@@ -4,20 +4,20 @@ import unittest
 
 
 ROOT = Path(__file__).resolve().parents[1]
-APP = ROOT / "jarvis/app"
+APP = ROOT / "zbrano/app"
 MAIN = (APP / "main.py").read_text(encoding="utf-8")
 RELEASE_SYNC = (APP / "domains/release_sync.py").read_text(encoding="utf-8")
-CONFIG = (ROOT / "jarvis/config.yaml").read_text(encoding="utf-8")
+CONFIG = (ROOT / "zbrano/config.yaml").read_text(encoding="utf-8")
 HTML = (APP / "static/index.html").read_text(encoding="utf-8")
-MANIFEST = json.loads((ROOT / "jarvis/release_manifest.json").read_text(encoding="utf-8"))
+MANIFEST = json.loads((ROOT / "zbrano/release_manifest.json").read_text(encoding="utf-8"))
 
 
 class ReleaseSyncDomainBoundaryTests(unittest.TestCase):
     def test_release_markers_are_aligned(self):
-        self.assertIn('version: "0.13.215"', CONFIG)
-        self.assertIn('version="0.13.215"', MAIN)
-        self.assertIn("HUD 0.13.215", HTML)
-        self.assertEqual(MANIFEST["version"], "0.13.215")
+        self.assertIn('version: "0.13.216"', CONFIG)
+        self.assertIn('version="0.13.216"', MAIN)
+        self.assertIn("HUD 0.13.216", HTML)
+        self.assertEqual(MANIFEST["version"], "0.13.216")
 
     def test_release_worker_is_outside_composition_root(self):
         self.assertNotIn("async def synchronize_release_to_workshop_memory_once(", MAIN)

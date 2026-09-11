@@ -4,27 +4,27 @@ import unittest
 
 
 ROOT = Path(__file__).resolve().parents[1]
-MAIN = (ROOT / "jarvis/app/main.py").read_text(encoding="utf-8")
-CALENDAR = (ROOT / "jarvis/app/domains/calendar.py").read_text(encoding="utf-8")
-INTENTS = (ROOT / "jarvis/app/services/calendar_intents.py").read_text(encoding="utf-8")
-SCHEMAS = (ROOT / "jarvis/app/schemas.py").read_text(encoding="utf-8")
-HTML = (ROOT / "jarvis/app/static/index.html").read_text(encoding="utf-8")
-SCRIPT = (ROOT / "jarvis/app/static/js/calendar/center.js").read_text(encoding="utf-8")
-STYLES = (ROOT / "jarvis/app/static/css/entity-columns.css").read_text(encoding="utf-8")
-NOTIFICATIONS = (ROOT / "jarvis/app/domains/notifications.py").read_text(encoding="utf-8")
-INBOX = (ROOT / "jarvis/app/static/js/notifications/inbox.js").read_text(encoding="utf-8")
-BROWSER = (ROOT / "jarvis/tests/browser_smoke.cjs").read_text(encoding="utf-8")
-CONFIG = (ROOT / "jarvis/config.yaml").read_text(encoding="utf-8")
-MANIFEST = json.loads((ROOT / "jarvis/release_manifest.json").read_text(encoding="utf-8"))
+MAIN = (ROOT / "zbrano/app/main.py").read_text(encoding="utf-8")
+CALENDAR = (ROOT / "zbrano/app/domains/calendar.py").read_text(encoding="utf-8")
+INTENTS = (ROOT / "zbrano/app/services/calendar_intents.py").read_text(encoding="utf-8")
+SCHEMAS = (ROOT / "zbrano/app/schemas.py").read_text(encoding="utf-8")
+HTML = (ROOT / "zbrano/app/static/index.html").read_text(encoding="utf-8")
+SCRIPT = (ROOT / "zbrano/app/static/js/calendar/center.js").read_text(encoding="utf-8")
+STYLES = (ROOT / "zbrano/app/static/css/entity-columns.css").read_text(encoding="utf-8")
+NOTIFICATIONS = (ROOT / "zbrano/app/domains/notifications.py").read_text(encoding="utf-8")
+INBOX = (ROOT / "zbrano/app/static/js/notifications/inbox.js").read_text(encoding="utf-8")
+BROWSER = (ROOT / "zbrano/tests/browser_smoke.cjs").read_text(encoding="utf-8")
+CONFIG = (ROOT / "zbrano/config.yaml").read_text(encoding="utf-8")
+MANIFEST = json.loads((ROOT / "zbrano/release_manifest.json").read_text(encoding="utf-8"))
 
 
 class BirthdayCalendarReleaseTests(unittest.TestCase):
     def test_release_markers_are_aligned(self):
-        self.assertIn('version: "0.13.215"', CONFIG)
-        self.assertIn('version="0.13.215"', MAIN)
-        self.assertIn("HUD 0.13.215", HTML)
-        self.assertEqual(MANIFEST["version"], "0.13.215")
-        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.214")
+        self.assertIn('version: "0.13.216"', CONFIG)
+        self.assertIn('version="0.13.216"', MAIN)
+        self.assertIn("HUD 0.13.216", HTML)
+        self.assertEqual(MANIFEST["version"], "0.13.216")
+        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.215")
 
     def test_birthdays_are_a_separate_persistent_calendar_domain(self):
         self.assertIn('BIRTHDAY_STORAGE_PATH = Path("/data/zbrano_birthdays.json")', CALENDAR)

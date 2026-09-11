@@ -4,18 +4,18 @@ from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[1]
-SCHEMAS = (ROOT / "jarvis/app/schemas.py").read_text(encoding="utf-8")
-AUTOMATIONS = (ROOT / "jarvis/app/domains/automations.py").read_text(encoding="utf-8")
-WORKSPACE = (ROOT / "jarvis/app/static/js/automations/workspace.js").read_text(encoding="utf-8")
-FLOW = (ROOT / "jarvis/app/static/js/automations/flow.js").read_text(encoding="utf-8")
-BROWSER = (ROOT / "jarvis/tests/browser_smoke.cjs").read_text(encoding="utf-8")
-MANIFEST = json.loads((ROOT / "jarvis/release_manifest.json").read_text(encoding="utf-8"))
+SCHEMAS = (ROOT / "zbrano/app/schemas.py").read_text(encoding="utf-8")
+AUTOMATIONS = (ROOT / "zbrano/app/domains/automations.py").read_text(encoding="utf-8")
+WORKSPACE = (ROOT / "zbrano/app/static/js/automations/workspace.js").read_text(encoding="utf-8")
+FLOW = (ROOT / "zbrano/app/static/js/automations/flow.js").read_text(encoding="utf-8")
+BROWSER = (ROOT / "zbrano/tests/browser_smoke.cjs").read_text(encoding="utf-8")
+MANIFEST = json.loads((ROOT / "zbrano/release_manifest.json").read_text(encoding="utf-8"))
 
 
 class OptionalBranchMessageTaskReleaseTests(unittest.TestCase):
     def test_release_is_aligned(self):
-        self.assertEqual(MANIFEST["version"], "0.13.215")
-        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.214")
+        self.assertEqual(MANIFEST["version"], "0.13.216")
+        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.215")
 
     def test_message_presence_is_persisted_and_legacy_messages_remain_enabled(self):
         self.assertIn("message_enabled: bool | None = None", SCHEMAS)

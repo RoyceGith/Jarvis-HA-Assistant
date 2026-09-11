@@ -8,7 +8,7 @@ on:
       - ".github/workflows/build.yaml"
       - ".gitignore"
       - "docs/REPOSITORY_BOUNDARIES.md"
-      - "jarvis/**"
+      - "zbrano/**"
       - "repository.yaml"
       - "validate_public_repo.py"
   push:
@@ -18,7 +18,7 @@ on:
       - ".github/workflows/build.yaml"
       - ".gitignore"
       - "docs/REPOSITORY_BOUNDARIES.md"
-      - "jarvis/**"
+      - "zbrano/**"
       - "repository.yaml"
       - "validate_public_repo.py"
   workflow_dispatch:
@@ -45,12 +45,12 @@ jobs:
       - name: Validate public repository boundary
         run: python3 validate_public_repo.py
       - name: Validate release contract
-        run: python3 jarvis/validate_release_contract.py
+        run: python3 zbrano/validate_release_contract.py
       - name: Read app metadata
         id: info
         uses: home-assistant/actions/helpers/info@master
         with:
-          path: ./jarvis
+          path: ./zbrano
       - name: Normalize image metadata
         id: normalize
         run: |
@@ -94,7 +94,7 @@ jobs:
         with:
           arch: ${{ matrix.arch }}
           container-registry-password: ${{ secrets.GITHUB_TOKEN }}
-          context: ./jarvis
+          context: ./zbrano
           image: ${{ matrix.image }}
           image-tags: |
             ${{ needs.prepare.outputs.version }}

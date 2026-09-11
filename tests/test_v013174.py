@@ -4,23 +4,23 @@ import unittest
 
 
 ROOT = Path(__file__).resolve().parents[1]
-CONFIG = (ROOT / "jarvis/config.yaml").read_text(encoding="utf-8")
-MAIN = (ROOT / "jarvis/app/main.py").read_text(encoding="utf-8")
-HTML = (ROOT / "jarvis/app/static/index.html").read_text(encoding="utf-8")
-CORE = (ROOT / "jarvis/app/static/js/core.js").read_text(encoding="utf-8")
-ONBOARDING = (ROOT / "jarvis/app/static/js/onboarding.js").read_text(encoding="utf-8")
-CSS = (ROOT / "jarvis/app/static/css/entity-columns.css").read_text(encoding="utf-8")
-BROWSER = (ROOT / "jarvis/tests/browser_smoke.cjs").read_text(encoding="utf-8")
-MANIFEST = json.loads((ROOT / "jarvis/release_manifest.json").read_text(encoding="utf-8"))
+CONFIG = (ROOT / "zbrano/config.yaml").read_text(encoding="utf-8")
+MAIN = (ROOT / "zbrano/app/main.py").read_text(encoding="utf-8")
+HTML = (ROOT / "zbrano/app/static/index.html").read_text(encoding="utf-8")
+CORE = (ROOT / "zbrano/app/static/js/core.js").read_text(encoding="utf-8")
+ONBOARDING = (ROOT / "zbrano/app/static/js/onboarding.js").read_text(encoding="utf-8")
+CSS = (ROOT / "zbrano/app/static/css/entity-columns.css").read_text(encoding="utf-8")
+BROWSER = (ROOT / "zbrano/tests/browser_smoke.cjs").read_text(encoding="utf-8")
+MANIFEST = json.loads((ROOT / "zbrano/release_manifest.json").read_text(encoding="utf-8"))
 
 
 class EntityPermissionGuideReleaseTests(unittest.TestCase):
     def test_release_is_aligned(self):
-        self.assertIn('version: "0.13.215"', CONFIG)
-        self.assertIn('version="0.13.215"', MAIN)
-        self.assertIn("HUD 0.13.215", HTML)
-        self.assertEqual(MANIFEST["version"], "0.13.215")
-        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.214")
+        self.assertIn('version: "0.13.216"', CONFIG)
+        self.assertIn('version="0.13.216"', MAIN)
+        self.assertIn("HUD 0.13.216", HTML)
+        self.assertEqual(MANIFEST["version"], "0.13.216")
+        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.215")
 
     def test_inventory_marks_existing_safe_control_domains(self):
         self.assertIn('"control_capable": domain in SAFE_CONTROL_DOMAINS', MAIN)

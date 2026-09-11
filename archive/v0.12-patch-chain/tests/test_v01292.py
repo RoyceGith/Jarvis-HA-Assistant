@@ -2,8 +2,8 @@ from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[1]
-PATCH = (ROOT / "jarvis/apply_history_recent_entity_refresh_v01292.py").read_text(encoding="utf-8")
-DOCKER = (ROOT / "jarvis/Dockerfile").read_text(encoding="utf-8")
+PATCH = (ROOT / "zbrano/apply_history_recent_entity_refresh_v01292.py").read_text(encoding="utf-8")
+DOCKER = (ROOT / "zbrano/Dockerfile").read_text(encoding="utf-8")
 
 
 def test_history_prioritizes_recent_live_entities() -> None:

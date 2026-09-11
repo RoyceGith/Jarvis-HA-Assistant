@@ -1,9 +1,9 @@
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-PATCH26 = (ROOT / "jarvis/apply_plugin_runtime_dom_fix_v01126.py").read_text(encoding="utf-8")
-DOCKER = (ROOT / "jarvis/Dockerfile").read_text(encoding="utf-8")
-CONFIG = (ROOT / "jarvis/config.yaml").read_text(encoding="utf-8")
+PATCH26 = (ROOT / "zbrano/apply_plugin_runtime_dom_fix_v01126.py").read_text(encoding="utf-8")
+DOCKER = (ROOT / "zbrano/Dockerfile").read_text(encoding="utf-8")
+CONFIG = (ROOT / "zbrano/config.yaml").read_text(encoding="utf-8")
 
 
 def test_v01126_moves_plugin_runtime_out_of_head():

@@ -2,9 +2,9 @@ from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[1]
-PATCH = (ROOT / "jarvis/apply_zbrano_identity_v01214.py").read_text(encoding="utf-8")
-DOCKER = (ROOT / "jarvis/Dockerfile").read_text(encoding="utf-8")
-CONFIG = (ROOT / "jarvis/config.yaml").read_text(encoding="utf-8")
+PATCH = (ROOT / "zbrano/apply_zbrano_identity_v01214.py").read_text(encoding="utf-8")
+DOCKER = (ROOT / "zbrano/Dockerfile").read_text(encoding="utf-8")
+CONFIG = (ROOT / "zbrano/config.yaml").read_text(encoding="utf-8")
 README = (ROOT / "README.md").read_text(encoding="utf-8")
 
 
@@ -24,9 +24,9 @@ def test_v01214_updates_addon_identity_and_version():
 
 
 def test_v01214_preserves_upgrade_compatibility_identifiers():
-    assert 'slug: "jarvis_workshop_assistant"' in CONFIG
-    assert 'ROOT = Path("/opt/jarvis")' in PATCH
-    assert "run_jarvis" not in PATCH
+    assert 'slug: "zbrano"' in CONFIG
+    assert 'ROOT = Path("/opt/zbrano")' in PATCH
+    assert "run_zbrano" not in PATCH
     assert "existing GitHub repository name remain unchanged" in README
 
 

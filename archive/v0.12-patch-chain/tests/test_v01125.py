@@ -1,10 +1,10 @@
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-PATCH24 = (ROOT / "jarvis/apply_remove_legacy_new_chat_interceptor_v01124.py").read_text(encoding="utf-8")
-PATCH25 = (ROOT / "jarvis/apply_build_recovery_v01125.py").read_text(encoding="utf-8")
-DOCKER = (ROOT / "jarvis/Dockerfile").read_text(encoding="utf-8")
-CONFIG = (ROOT / "jarvis/config.yaml").read_text(encoding="utf-8")
+PATCH24 = (ROOT / "zbrano/apply_remove_legacy_new_chat_interceptor_v01124.py").read_text(encoding="utf-8")
+PATCH25 = (ROOT / "zbrano/apply_build_recovery_v01125.py").read_text(encoding="utf-8")
+DOCKER = (ROOT / "zbrano/Dockerfile").read_text(encoding="utf-8")
+CONFIG = (ROOT / "zbrano/config.yaml").read_text(encoding="utf-8")
 
 
 def test_v01125_recovers_build_when_legacy_interceptor_is_already_absent():

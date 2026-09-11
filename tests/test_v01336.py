@@ -2,18 +2,18 @@ import json
 from pathlib import Path
 import unittest
 
-from jarvis.app.services import automation_intents, calendar_intents, home_assistant_intents
+from zbrano.app.services import automation_intents, calendar_intents, home_assistant_intents
 
 
 ROOT = Path(__file__).resolve().parents[1]
-APP = ROOT / "jarvis/app"
+APP = ROOT / "zbrano/app"
 MAIN = (APP / "main.py").read_text(encoding="utf-8")
 AUTOMATION = (APP / "services/automation_intents.py").read_text(encoding="utf-8")
 HOME_ASSISTANT = (APP / "services/home_assistant_intents.py").read_text(encoding="utf-8")
 CALENDAR = (APP / "services/calendar_intents.py").read_text(encoding="utf-8")
-CONFIG = (ROOT / "jarvis/config.yaml").read_text(encoding="utf-8")
+CONFIG = (ROOT / "zbrano/config.yaml").read_text(encoding="utf-8")
 HTML = (APP / "static/index.html").read_text(encoding="utf-8")
-MANIFEST = json.loads((ROOT / "jarvis/release_manifest.json").read_text(encoding="utf-8"))
+MANIFEST = json.loads((ROOT / "zbrano/release_manifest.json").read_text(encoding="utf-8"))
 
 
 TOOLS = [
@@ -42,10 +42,10 @@ class IntentRoutingBoundaryTests(unittest.TestCase):
         calendar_intents.configure_calendar_intents(workshop_tools=TOOLS)
 
     def test_release_markers_are_aligned(self):
-        self.assertIn('version: "0.13.215"', CONFIG)
-        self.assertIn('version="0.13.215"', MAIN)
-        self.assertIn("HUD 0.13.215", HTML)
-        self.assertEqual(MANIFEST["version"], "0.13.215")
+        self.assertIn('version: "0.13.216"', CONFIG)
+        self.assertIn('version="0.13.216"', MAIN)
+        self.assertIn("HUD 0.13.216", HTML)
+        self.assertEqual(MANIFEST["version"], "0.13.216")
 
     def test_three_services_are_outside_composition_root_and_configured(self):
         self.assertNotIn("def is_automation_intent(", MAIN)

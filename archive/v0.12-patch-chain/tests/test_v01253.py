@@ -3,11 +3,11 @@ from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[1]
-PATCH = (ROOT / "jarvis/apply_voice_latency_and_activity_revisions_v01253.py").read_text(encoding="utf-8")
-DOCKER = (ROOT / "jarvis/Dockerfile").read_text(encoding="utf-8")
-CONFIG = (ROOT / "jarvis/config.yaml").read_text(encoding="utf-8")
+PATCH = (ROOT / "zbrano/apply_voice_latency_and_activity_revisions_v01253.py").read_text(encoding="utf-8")
+DOCKER = (ROOT / "zbrano/Dockerfile").read_text(encoding="utf-8")
+CONFIG = (ROOT / "zbrano/config.yaml").read_text(encoding="utf-8")
 README = (ROOT / "README.md").read_text(encoding="utf-8")
-MANIFEST = json.loads((ROOT / "jarvis/release_manifest.json").read_text(encoding="utf-8"))
+MANIFEST = json.loads((ROOT / "zbrano/release_manifest.json").read_text(encoding="utf-8"))
 
 
 def test_v01253_starts_first_speech_phrase_earlier_without_dropping_words():
@@ -50,12 +50,12 @@ def test_v01253_new_chat_clears_tool_and_completion_activity():
 
 def test_v01253_speak_replies_is_stored_per_chat_with_settings_as_new_chat_default():
     assert 'const CHAT_AUTO_SPEAK_KEY = "zbrano_chat_auto_speak_v1"' in PATCH
-    assert "chatAutoSpeakPreferences[sessionId] = jarvisPreferences.auto_speak !== false" in PATCH
+    assert "chatAutoSpeakPreferences[sessionId] = zbranoPreferences.auto_speak !== false" in PATCH
     assert "await applyChatAutoSpeakPreference(sessionId, data.auto_speak);" in PATCH
-    assert "setChatAutoSpeakPreference(jarvisChatSessionId, autoSpeak.checked)" in PATCH
+    assert "setChatAutoSpeakPreference(zbranoChatSessionId, autoSpeak.checked)" in PATCH
     assert "deleteChatAutoSpeakPreference(sessionId);" in PATCH
     assert "autoSpeak: settingsAutoSpeak.checked" in PATCH
-    assert "loadSettings().finally(() => openChat(jarvisChatSessionId))" in PATCH
+    assert "loadSettings().finally(() => openChat(zbranoChatSessionId))" in PATCH
     assert '@app.put("/api/chat/{session_id}/voice")' in PATCH
     assert '"auto_speak": CHAT_SESSION_META.get(session_id, {}).get("auto_speak")' in PATCH
     assert "persistChatAutoSpeakPreference(sessionId, enabled)" in PATCH

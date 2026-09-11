@@ -2,26 +2,26 @@ from pathlib import Path
 import json
 import unittest
 
-from jarvis.app.services import web_search
+from zbrano.app.services import web_search
 
 
 ROOT = Path(__file__).resolve().parents[1]
-APP = ROOT / "jarvis/app"
+APP = ROOT / "zbrano/app"
 MAIN = (APP / "main.py").read_text(encoding="utf-8")
 WEB_SEARCH = (APP / "services/web_search.py").read_text(encoding="utf-8")
-DOCKERFILE = (ROOT / "jarvis/Dockerfile").read_text(encoding="utf-8")
-RUN_SCRIPT = (ROOT / "jarvis/run.sh").read_text(encoding="utf-8")
-CONFIG = (ROOT / "jarvis/config.yaml").read_text(encoding="utf-8")
+DOCKERFILE = (ROOT / "zbrano/Dockerfile").read_text(encoding="utf-8")
+RUN_SCRIPT = (ROOT / "zbrano/run.sh").read_text(encoding="utf-8")
+CONFIG = (ROOT / "zbrano/config.yaml").read_text(encoding="utf-8")
 HTML = (APP / "static/index.html").read_text(encoding="utf-8")
-MANIFEST = json.loads((ROOT / "jarvis/release_manifest.json").read_text(encoding="utf-8"))
+MANIFEST = json.loads((ROOT / "zbrano/release_manifest.json").read_text(encoding="utf-8"))
 
 
 class BrowserTestAndWebSearchBoundaryTests(unittest.TestCase):
     def test_release_markers_are_aligned(self):
-        self.assertIn('version: "0.13.215"', CONFIG)
-        self.assertIn('version="0.13.215"', MAIN)
-        self.assertIn("HUD 0.13.215", HTML)
-        self.assertEqual(MANIFEST["version"], "0.13.215")
+        self.assertIn('version: "0.13.216"', CONFIG)
+        self.assertIn('version="0.13.216"', MAIN)
+        self.assertIn("HUD 0.13.216", HTML)
+        self.assertEqual(MANIFEST["version"], "0.13.216")
 
     def test_web_search_service_is_outside_composition_root(self):
         self.assertNotIn("def canonical_web_source_url(", MAIN)

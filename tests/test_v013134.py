@@ -4,15 +4,15 @@ from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[1]
-CORE = (ROOT / "jarvis" / "app" / "static" / "js" / "core.js").read_text(encoding="utf-8")
-BASE = (ROOT / "jarvis" / "app" / "static" / "css" / "base.css").read_text(encoding="utf-8")
-MANIFEST = json.loads((ROOT / "jarvis" / "release_manifest.json").read_text(encoding="utf-8"))
+CORE = (ROOT / "zbrano" / "app" / "static" / "js" / "core.js").read_text(encoding="utf-8")
+BASE = (ROOT / "zbrano" / "app" / "static" / "css" / "base.css").read_text(encoding="utf-8")
+MANIFEST = json.loads((ROOT / "zbrano" / "release_manifest.json").read_text(encoding="utf-8"))
 
 
 class V013134VisibleNeuralSignalTests(unittest.TestCase):
     def test_release_is_aligned(self):
-        self.assertEqual(MANIFEST["version"], "0.13.215")
-        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.214")
+        self.assertEqual(MANIFEST["version"], "0.13.216")
+        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.215")
 
     def test_signals_render_over_nodes_with_visible_bounded_energy(self):
         node_render = CORE.index("for (const [pointIndex, point] of depthSorted.entries())")

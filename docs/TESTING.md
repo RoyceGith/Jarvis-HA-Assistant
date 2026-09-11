@@ -17,7 +17,7 @@ python -m unittest discover -s tests
 
 ## Application integration tests
 
-`jarvis/tests/` imports the real FastAPI application and sends requests through its
+`zbrano/tests/` imports the real FastAPI application and sends requests through its
 ASGI boundary. These tests use temporary persistence paths and do not contact Home
 Assistant, Workshop Memory, OpenAI, or other external services.
 
@@ -43,15 +43,15 @@ deterministic API responses while the browser verifies:
 Playwright, Node.js, and Chromium are removed after this gate. They are not included
 as a ZBRANO runtime service, built-in plugin, user setting, or customer dependency.
 
-The real-ASGI gate also restores a minimal legacy `jarvis-backup-v1` created before
+The real-ASGI gate also restores a minimal legacy `zbrano-backup-v1` created before
 Automation Brain, Notification Center, Calendar, and Fast Memory backup sections
 existed. It verifies Settings, Chat, and entity-policy preservation, and confirms a
 malformed optional section is rejected before any persistent file is overwritten.
 
-Inside an environment with `jarvis/requirements.txt` installed, run:
+Inside an environment with `zbrano/requirements.txt` installed, run:
 
 ```text
-cd jarvis
+cd zbrano
 python -m unittest discover -s tests -p "test_*.py"
 ```
 
@@ -68,5 +68,5 @@ context, version/latest tags, pull-request push protection, and manifest wiring.
 Run it from the repository root:
 
 ```text
-python jarvis/validate_release_contract.py
+python zbrano/validate_release_contract.py
 ```

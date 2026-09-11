@@ -1,10 +1,10 @@
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-PATCH = (ROOT / "jarvis/apply_catalog_and_plugin_compact_v01131.py").read_text(encoding="utf-8")
-BUILD_FIX_29 = (ROOT / "jarvis/apply_github_tool_approval_build_fix_v01129.py").read_text(encoding="utf-8")
-DOCKER = (ROOT / "jarvis/Dockerfile").read_text(encoding="utf-8")
-CONFIG = (ROOT / "jarvis/config.yaml").read_text(encoding="utf-8")
+PATCH = (ROOT / "zbrano/apply_catalog_and_plugin_compact_v01131.py").read_text(encoding="utf-8")
+BUILD_FIX_29 = (ROOT / "zbrano/apply_github_tool_approval_build_fix_v01129.py").read_text(encoding="utf-8")
+DOCKER = (ROOT / "zbrano/Dockerfile").read_text(encoding="utf-8")
+CONFIG = (ROOT / "zbrano/config.yaml").read_text(encoding="utf-8")
 
 
 def test_v01129_policy_preserves_catalog_backend_for_later_releases():

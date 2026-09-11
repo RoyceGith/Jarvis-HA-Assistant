@@ -3,10 +3,10 @@ from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[1]
-PATCH = (ROOT / "jarvis/apply_real_automation_engine_v01290.py").read_text(encoding="utf-8")
-DOCKER = (ROOT / "jarvis/Dockerfile").read_text(encoding="utf-8")
-CONFIG = (ROOT / "jarvis/config.yaml").read_text(encoding="utf-8")
-MANIFEST = json.loads((ROOT / "jarvis/release_manifest.json").read_text(encoding="utf-8"))
+PATCH = (ROOT / "zbrano/apply_real_automation_engine_v01290.py").read_text(encoding="utf-8")
+DOCKER = (ROOT / "zbrano/Dockerfile").read_text(encoding="utf-8")
+CONFIG = (ROOT / "zbrano/config.yaml").read_text(encoding="utf-8")
+MANIFEST = json.loads((ROOT / "zbrano/release_manifest.json").read_text(encoding="utf-8"))
 
 
 def test_history_uses_live_events_and_entity_identity() -> None:
@@ -26,7 +26,7 @@ def test_real_engine_is_event_driven_without_model_polling() -> None:
     assert "async def _automation_commit_match" in PATCH
     assert 'AUTOMATION_PENDING_TASKS' in PATCH
     evaluator = PATCH.split("async def _automation_evaluate_state_change", 1)[1].split('@app.post("/api/automations/suggestions', 1)[0]
-    assert "run_jarvis(" not in evaluator
+    assert "run_zbrano(" not in evaluator
     assert "create_openai_response(" not in evaluator
 
 

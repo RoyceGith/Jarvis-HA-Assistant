@@ -4,21 +4,21 @@ import unittest
 
 
 ROOT = Path(__file__).resolve().parents[1]
-CONFIG = (ROOT / "jarvis/config.yaml").read_text(encoding="utf-8")
-MAIN = (ROOT / "jarvis/app/main.py").read_text(encoding="utf-8")
-INDEX = (ROOT / "jarvis/app/static/index.html").read_text(encoding="utf-8")
-STUDIO = (ROOT / "jarvis/app/static/js/memory/studio.js").read_text(encoding="utf-8")
-MEMORY_CSS = (ROOT / "jarvis/app/static/css/memory-studio.css").read_text(encoding="utf-8")
-MANIFEST = json.loads((ROOT / "jarvis/release_manifest.json").read_text(encoding="utf-8"))
+CONFIG = (ROOT / "zbrano/config.yaml").read_text(encoding="utf-8")
+MAIN = (ROOT / "zbrano/app/main.py").read_text(encoding="utf-8")
+INDEX = (ROOT / "zbrano/app/static/index.html").read_text(encoding="utf-8")
+STUDIO = (ROOT / "zbrano/app/static/js/memory/studio.js").read_text(encoding="utf-8")
+MEMORY_CSS = (ROOT / "zbrano/app/static/css/memory-studio.css").read_text(encoding="utf-8")
+MANIFEST = json.loads((ROOT / "zbrano/release_manifest.json").read_text(encoding="utf-8"))
 
 
 class CompactMemoryLandingReleaseTests(unittest.TestCase):
     def test_release_is_aligned(self):
-        self.assertIn('version: "0.13.215"', CONFIG)
-        self.assertIn('version="0.13.215"', MAIN)
-        self.assertIn("HUD 0.13.215", INDEX)
-        self.assertEqual(MANIFEST["version"], "0.13.215")
-        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.214")
+        self.assertIn('version: "0.13.216"', CONFIG)
+        self.assertIn('version="0.13.216"', MAIN)
+        self.assertIn("HUD 0.13.216", INDEX)
+        self.assertEqual(MANIFEST["version"], "0.13.216")
+        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.215")
 
     def test_landing_page_uses_compact_overview(self):
         self.assertIn('class="memory-overview-bar"', STUDIO)

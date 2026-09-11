@@ -5,10 +5,10 @@ from typing import Any
 
 
 ROOT = Path(__file__).resolve().parents[1]
-PATCH = (ROOT / "jarvis/apply_release_truth_reconciliation_v01267.py").read_text(encoding="utf-8")
-DOCKER = (ROOT / "jarvis/Dockerfile").read_text(encoding="utf-8")
-CONFIG = (ROOT / "jarvis/config.yaml").read_text(encoding="utf-8")
-MANIFEST = json.loads((ROOT / "jarvis/release_manifest.json").read_text(encoding="utf-8"))
+PATCH = (ROOT / "zbrano/apply_release_truth_reconciliation_v01267.py").read_text(encoding="utf-8")
+DOCKER = (ROOT / "zbrano/Dockerfile").read_text(encoding="utf-8")
+CONFIG = (ROOT / "zbrano/config.yaml").read_text(encoding="utf-8")
+MANIFEST = json.loads((ROOT / "zbrano/release_manifest.json").read_text(encoding="utf-8"))
 README = (ROOT / "README.md").read_text(encoding="utf-8")
 HELPER_START = PATCH.index("    helpers = r'''\n") + len("    helpers = r'''\n")
 HELPER_END = PATCH.index("\n'''\n    sync_start", HELPER_START)
@@ -47,7 +47,7 @@ def test_current_truth_behavior_preserves_historical_versions():
     manifest = {
         "version": "0.12.67",
         "summary": "Current release reconciliation",
-        "source": "RoyceGith/Jarvis-HA-Assistant main",
+        "source": "RoyceGith/ZBRANO_Testing main",
     }
     source = """# ZBRANO\n\n## Current Source Truth\n\n- **Version:** v0.12.18\n- **Source and runtime version:** 0.12.35\n\n## Historical Checkpoints\n\n- v0.12.18 was a historical release.\n"""
     reconciled = HELPERS["reconcile_explicit_current_versions"](source, "0.12.67")

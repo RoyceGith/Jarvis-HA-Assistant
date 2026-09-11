@@ -7,21 +7,21 @@ import unittest
 
 
 ROOT = Path(__file__).resolve().parents[1]
-APP = ROOT / "jarvis/app"
+APP = ROOT / "zbrano/app"
 MAIN = (APP / "main.py").read_text(encoding="utf-8")
 RELEASE_NOTES_PATH = APP / "services/release_notes.py"
 RELEASE_NOTES = RELEASE_NOTES_PATH.read_text(encoding="utf-8")
-CONFIG = (ROOT / "jarvis/config.yaml").read_text(encoding="utf-8")
+CONFIG = (ROOT / "zbrano/config.yaml").read_text(encoding="utf-8")
 HTML = (APP / "static/index.html").read_text(encoding="utf-8")
-MANIFEST = json.loads((ROOT / "jarvis/release_manifest.json").read_text(encoding="utf-8"))
+MANIFEST = json.loads((ROOT / "zbrano/release_manifest.json").read_text(encoding="utf-8"))
 
 
 class ReleaseNotesModuleBoundaryTests(unittest.TestCase):
     def test_release_markers_are_aligned(self):
-        self.assertIn('version: "0.13.215"', CONFIG)
-        self.assertIn('version="0.13.215"', MAIN)
-        self.assertIn("HUD 0.13.215", HTML)
-        self.assertEqual(MANIFEST["version"], "0.13.215")
+        self.assertIn('version: "0.13.216"', CONFIG)
+        self.assertIn('version="0.13.216"', MAIN)
+        self.assertIn("HUD 0.13.216", HTML)
+        self.assertEqual(MANIFEST["version"], "0.13.216")
 
     def test_release_note_constants_live_with_their_consumers(self):
         for name in ("CURRENT_VERSION_LABELS", "CURRENT_RELEASE_BLOCK_START", "CURRENT_RELEASE_BLOCK_END"):
@@ -32,12 +32,12 @@ class ReleaseNotesModuleBoundaryTests(unittest.TestCase):
         functions = runpy.run_path(str(RELEASE_NOTES_PATH))
         reconciled = functions["reconcile_explicit_current_versions"](
             "# Project\n\n- **Current version:** 0.13.18\n",
-            "0.13.215",
+            "0.13.216",
         )
-        self.assertIn("**Current version:** 0.13.215", reconciled)
+        self.assertIn("**Current version:** 0.13.216", reconciled)
         block = functions["render_current_release_truth"](MANIFEST, release_log=False)
         self.assertIn("<!-- zbrano-current-release:start -->", block)
-        self.assertIn("Source and runtime version:** 0.13.215", block)
+        self.assertIn("Source and runtime version:** 0.13.216", block)
 
     def test_all_extracted_backend_modules_declare_their_globals(self):
         builtin_names = set(dir(builtins))

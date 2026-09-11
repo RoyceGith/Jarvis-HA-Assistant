@@ -5,13 +5,13 @@ import unittest
 
 
 ROOT = Path(__file__).resolve().parents[1]
-CONFIG = (ROOT / "jarvis/config.yaml").read_text(encoding="utf-8")
-MAIN = (ROOT / "jarvis/app/main.py").read_text(encoding="utf-8")
-HTML = (ROOT / "jarvis/app/static/index.html").read_text(encoding="utf-8")
+CONFIG = (ROOT / "zbrano/config.yaml").read_text(encoding="utf-8")
+MAIN = (ROOT / "zbrano/app/main.py").read_text(encoding="utf-8")
+HTML = (ROOT / "zbrano/app/static/index.html").read_text(encoding="utf-8")
 PUBLIC = (ROOT / "distribution/public-repository/README.md").read_text(encoding="utf-8")
-APP_GUIDE = (ROOT / "distribution/public-repository/jarvis/README.md").read_text(encoding="utf-8")
+APP_GUIDE = (ROOT / "distribution/public-repository/zbrano/README.md").read_text(encoding="utf-8")
 BOUNDARY = (ROOT / "validate_public_repo.py").read_text(encoding="utf-8")
-MANIFEST = json.loads((ROOT / "jarvis/release_manifest.json").read_text(encoding="utf-8"))
+MANIFEST = json.loads((ROOT / "zbrano/release_manifest.json").read_text(encoding="utf-8"))
 
 
 def png_metadata(path: Path) -> tuple[int, int, int]:
@@ -24,30 +24,30 @@ def png_metadata(path: Path) -> tuple[int, int, int]:
 
 class PublicPresentationAssetsReleaseTests(unittest.TestCase):
     def test_release_is_aligned(self):
-        self.assertIn('version: "0.13.215"', CONFIG)
-        self.assertIn('version="0.13.215"', MAIN)
-        self.assertIn("HUD 0.13.215", HTML)
-        self.assertEqual(MANIFEST["version"], "0.13.215")
-        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.214")
+        self.assertIn('version: "0.13.216"', CONFIG)
+        self.assertIn('version="0.13.216"', MAIN)
+        self.assertIn("HUD 0.13.216", HTML)
+        self.assertEqual(MANIFEST["version"], "0.13.216")
+        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.215")
 
     def test_home_assistant_icon_is_bounded_transparent_png(self):
-        path = ROOT / "jarvis/icon.png"
+        path = ROOT / "zbrano/icon.png"
         self.assertEqual(png_metadata(path), (128, 128, 6))
         self.assertLess(path.stat().st_size, 100_000)
 
     def test_horizontal_logo_is_bounded_transparent_png(self):
-        path = ROOT / "jarvis/logo.png"
+        path = ROOT / "zbrano/logo.png"
         self.assertEqual(png_metadata(path), (511, 120, 6))
         self.assertLess(path.stat().st_size, 100_000)
 
     def test_public_guides_display_the_logo(self):
-        self.assertIn("![ZBRANO](jarvis/logo.png)", PUBLIC)
+        self.assertIn("![ZBRANO](zbrano/logo.png)", PUBLIC)
         self.assertIn("![ZBRANO](logo.png)", APP_GUIDE)
 
     def test_public_boundary_requires_only_the_two_presentation_assets(self):
         for marker in (
-            '"jarvis/icon.png": (128, 128)',
-            '"jarvis/logo.png": (511, 120)',
+            '"zbrano/icon.png": (128, 128)',
+            '"zbrano/logo.png": (511, 120)',
             "public presentation asset must preserve transparency",
             "public presentation asset is too large",
         ):

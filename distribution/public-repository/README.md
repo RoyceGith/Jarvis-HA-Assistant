@@ -1,10 +1,10 @@
 # ZBRANO for Home Assistant
 
-![ZBRANO](jarvis/logo.png)
+![ZBRANO](zbrano/logo.png)
 
 **A private, permission-aware assistant for conversation, home intelligence, and visual automation.**
 
-Current release: **0.13.215**
+Current release: **0.13.216**
 Platforms: **Home Assistant · aarch64 · amd64**
 Languages: **English · Ελληνικά · Italiano · Français**
 
@@ -84,7 +84,7 @@ External providers are contacted only for capabilities you configure and use.
 
 The public repository is intentionally a thin installer and update channel. The
 application is delivered as the prebuilt
-`ghcr.io/roycegith/jarvis-ha-assistant` image; this tree contains only Home Assistant
+`ghcr.io/roycegith/zbrano-core` image; this tree contains only Home Assistant
 metadata, configuration presentation, and documentation.
 
 ## Updates and existing installations
@@ -98,7 +98,7 @@ file size, and repository boundaries.
 
 Version 0.13.183 replaces the former release-diary landing page with this concise
 product and installation guide. The complete release history remains available in
-the [app changelog](jarvis/CHANGELOG.md).
+the [app changelog](zbrano/CHANGELOG.md).
 
 ## Support and troubleshooting
 

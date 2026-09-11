@@ -2,9 +2,9 @@ from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[1]
-PATCH = (ROOT / "jarvis/apply_developer_indicator_and_policy_v0126.py").read_text(encoding="utf-8")
-DOCKER = (ROOT / "jarvis/Dockerfile").read_text(encoding="utf-8")
-CONFIG = (ROOT / "jarvis/config.yaml").read_text(encoding="utf-8")
+PATCH = (ROOT / "zbrano/apply_developer_indicator_and_policy_v0126.py").read_text(encoding="utf-8")
+DOCKER = (ROOT / "zbrano/Dockerfile").read_text(encoding="utf-8")
+CONFIG = (ROOT / "zbrano/config.yaml").read_text(encoding="utf-8")
 
 
 def test_v0126_routes_check_and_audit_requests_to_targeted_tool():
@@ -44,11 +44,11 @@ def test_v0126_adds_live_developer_mode_header_indicator():
 
 def test_v0126_softens_chat_markdown_emphasis():
     for marker in (
-        ".message.jarvis h2 { font-weight: 650; }",
-        ".message.jarvis h3 { font-weight: 600; }",
-        ".message.jarvis h4 { font-weight: 600; }",
-        ".message.jarvis strong { font-weight: 600; }",
-        ".message.jarvis h2 strong",
+        ".message.zbrano h2 { font-weight: 650; }",
+        ".message.zbrano h3 { font-weight: 600; }",
+        ".message.zbrano h4 { font-weight: 600; }",
+        ".message.zbrano strong { font-weight: 600; }",
+        ".message.zbrano h2 strong",
     ):
         assert marker in PATCH
 

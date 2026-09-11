@@ -7,10 +7,10 @@ from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[1]
-AUTOMATIONS = ROOT / "jarvis" / "app" / "domains" / "automations.py"
-SCHEMAS = (ROOT / "jarvis" / "app" / "schemas.py").read_text(encoding="utf-8")
-WORKSPACE = (ROOT / "jarvis" / "app" / "static" / "js" / "automations" / "workspace.js").read_text(encoding="utf-8")
-MANIFEST = json.loads((ROOT / "jarvis" / "release_manifest.json").read_text(encoding="utf-8"))
+AUTOMATIONS = ROOT / "zbrano" / "app" / "domains" / "automations.py"
+SCHEMAS = (ROOT / "zbrano" / "app" / "schemas.py").read_text(encoding="utf-8")
+WORKSPACE = (ROOT / "zbrano" / "app" / "static" / "js" / "automations" / "workspace.js").read_text(encoding="utf-8")
+MANIFEST = json.loads((ROOT / "zbrano" / "release_manifest.json").read_text(encoding="utf-8"))
 
 
 def load_sleep_hours_helper():
@@ -23,7 +23,7 @@ def load_sleep_hours_helper():
 
 class Release013162Tests(unittest.TestCase):
     def test_release_markers_and_sleep_controls(self):
-        self.assertEqual(MANIFEST["version"], "0.13.215")
+        self.assertEqual(MANIFEST["version"], "0.13.216")
         self.assertIn("sleep_hours_enabled", SCHEMAS)
         self.assertIn('"automation-sleep-hours-enabled"', WORKSPACE)
         self.assertIn('"automation-run-during-sleep-hours"', WORKSPACE)

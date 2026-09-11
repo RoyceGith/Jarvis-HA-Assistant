@@ -3,9 +3,9 @@ from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[1]
-PATCH = (ROOT / "jarvis/apply_wake_shadow_resources_v012102.py").read_text(encoding="utf-8")
-DOCKER = (ROOT / "jarvis/Dockerfile").read_text(encoding="utf-8")
-MODEL_ROOT = ROOT / "jarvis/models/wakeword"
+PATCH = (ROOT / "zbrano/apply_wake_shadow_resources_v012102.py").read_text(encoding="utf-8")
+DOCKER = (ROOT / "zbrano/Dockerfile").read_text(encoding="utf-8")
+MODEL_ROOT = ROOT / "zbrano/models/wakeword"
 
 
 def test_feature_models_are_exact_official_assets() -> None:

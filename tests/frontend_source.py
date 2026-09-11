@@ -3,7 +3,7 @@ import re
 
 
 ROOT = Path(__file__).resolve().parents[1]
-STATIC = ROOT / "jarvis/app/static"
+STATIC = ROOT / "zbrano/app/static"
 
 
 def load_frontend_source() -> str:

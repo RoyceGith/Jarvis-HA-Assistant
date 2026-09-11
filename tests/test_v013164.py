@@ -3,28 +3,28 @@ from pathlib import Path
 from tempfile import TemporaryDirectory
 import unittest
 
-from jarvis.app.services.owner_extensions import (
+from zbrano.app.services.owner_extensions import (
     grinder_extension_config,
     migrate_legacy_grinder_environment,
 )
 
 
 ROOT = Path(__file__).resolve().parents[1]
-DOMAIN = (ROOT / "jarvis/app/domains/grinder.py").read_text(encoding="utf-8")
-OWNER_EXTENSIONS = (ROOT / "jarvis/app/services/owner_extensions.py").read_text(encoding="utf-8")
-CONFIG = (ROOT / "jarvis/config.yaml").read_text(encoding="utf-8")
-MAIN = (ROOT / "jarvis/app/main.py").read_text(encoding="utf-8")
-HTML = (ROOT / "jarvis/app/static/index.html").read_text(encoding="utf-8")
-MANIFEST = json.loads((ROOT / "jarvis/release_manifest.json").read_text(encoding="utf-8"))
+DOMAIN = (ROOT / "zbrano/app/domains/grinder.py").read_text(encoding="utf-8")
+OWNER_EXTENSIONS = (ROOT / "zbrano/app/services/owner_extensions.py").read_text(encoding="utf-8")
+CONFIG = (ROOT / "zbrano/config.yaml").read_text(encoding="utf-8")
+MAIN = (ROOT / "zbrano/app/main.py").read_text(encoding="utf-8")
+HTML = (ROOT / "zbrano/app/static/index.html").read_text(encoding="utf-8")
+MANIFEST = json.loads((ROOT / "zbrano/release_manifest.json").read_text(encoding="utf-8"))
 
 
 class OwnerExtensionMigrationReleaseTests(unittest.TestCase):
     def test_release_is_aligned(self):
-        self.assertIn('version: "0.13.215"', CONFIG)
-        self.assertIn('version="0.13.215"', MAIN)
-        self.assertIn("HUD 0.13.215", HTML)
-        self.assertEqual(MANIFEST["version"], "0.13.215")
-        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.214")
+        self.assertIn('version: "0.13.216"', CONFIG)
+        self.assertIn('version="0.13.216"', MAIN)
+        self.assertIn("HUD 0.13.216", HTML)
+        self.assertEqual(MANIFEST["version"], "0.13.216")
+        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.215")
 
     def test_default_installation_does_not_create_private_extension_file(self):
         with TemporaryDirectory() as directory:

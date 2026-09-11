@@ -4,17 +4,17 @@ import json
 import unittest
 from typing import Any
 
-from jarvis.app.domains import developer_state
+from zbrano.app.domains import developer_state
 
 
 ROOT = Path(__file__).resolve().parents[1]
-APP = ROOT / "jarvis/app"
+APP = ROOT / "zbrano/app"
 MAIN = (APP / "main.py").read_text(encoding="utf-8")
 OPENAI = (APP / "services/openai_responses.py").read_text(encoding="utf-8")
 DEVELOPER = (APP / "domains/developer_state.py").read_text(encoding="utf-8")
-CONFIG = (ROOT / "jarvis/config.yaml").read_text(encoding="utf-8")
+CONFIG = (ROOT / "zbrano/config.yaml").read_text(encoding="utf-8")
 HTML = (APP / "static/index.html").read_text(encoding="utf-8")
-MANIFEST = json.loads((ROOT / "jarvis/release_manifest.json").read_text(encoding="utf-8"))
+MANIFEST = json.loads((ROOT / "zbrano/release_manifest.json").read_text(encoding="utf-8"))
 
 
 def load_openai_functions(*names: str) -> dict[str, Any]:
@@ -30,10 +30,10 @@ def load_openai_functions(*names: str) -> dict[str, Any]:
 
 class OpenAIAndDeveloperStateBoundaryTests(unittest.TestCase):
     def test_release_markers_are_aligned(self):
-        self.assertIn('version: "0.13.215"', CONFIG)
-        self.assertIn('version="0.13.215"', MAIN)
-        self.assertIn("HUD 0.13.215", HTML)
-        self.assertEqual(MANIFEST["version"], "0.13.215")
+        self.assertIn('version: "0.13.216"', CONFIG)
+        self.assertIn('version="0.13.216"', MAIN)
+        self.assertIn("HUD 0.13.216", HTML)
+        self.assertEqual(MANIFEST["version"], "0.13.216")
 
     def test_both_modules_are_outside_composition_root(self):
         self.assertNotIn("async def create_openai_response(", MAIN)

@@ -2,9 +2,9 @@ from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[1]
-PATCH = (ROOT / "jarvis/apply_modern_controls_and_neural_settings_v01219.py").read_text(encoding="utf-8")
-DOCKER = (ROOT / "jarvis/Dockerfile").read_text(encoding="utf-8")
-CONFIG = (ROOT / "jarvis/config.yaml").read_text(encoding="utf-8")
+PATCH = (ROOT / "zbrano/apply_modern_controls_and_neural_settings_v01219.py").read_text(encoding="utf-8")
+DOCKER = (ROOT / "zbrano/Dockerfile").read_text(encoding="utf-8")
+CONFIG = (ROOT / "zbrano/config.yaml").read_text(encoding="utf-8")
 README = (ROOT / "README.md").read_text(encoding="utf-8")
 
 
@@ -15,7 +15,7 @@ def test_v01219_replaces_green_buttons_without_recoloring_chat_messages():
     assert ".danger-action, #stop-button" in PATCH
     assert "Chat message colors intentionally remain unchanged" in PATCH
     assert ".message {" not in PATCH
-    assert ".message.jarvis" not in PATCH
+    assert ".message.zbrano" not in PATCH
 
 
 def test_v01219_adds_persistent_neural_personalization():

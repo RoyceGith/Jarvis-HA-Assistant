@@ -4,20 +4,20 @@ import unittest
 
 
 ROOT = Path(__file__).resolve().parents[1]
-MAIN = (ROOT / "jarvis/app/main.py").read_text(encoding="utf-8")
-RELEASE_SYNC = (ROOT / "jarvis/app/domains/release_sync.py").read_text(encoding="utf-8")
-CORE = (ROOT / "jarvis/app/static/js/core.js").read_text(encoding="utf-8")
-HTML = (ROOT / "jarvis/app/static/index.html").read_text(encoding="utf-8")
-CONFIG = (ROOT / "jarvis/config.yaml").read_text(encoding="utf-8")
-MANIFEST = json.loads((ROOT / "jarvis/release_manifest.json").read_text(encoding="utf-8"))
+MAIN = (ROOT / "zbrano/app/main.py").read_text(encoding="utf-8")
+RELEASE_SYNC = (ROOT / "zbrano/app/domains/release_sync.py").read_text(encoding="utf-8")
+CORE = (ROOT / "zbrano/app/static/js/core.js").read_text(encoding="utf-8")
+HTML = (ROOT / "zbrano/app/static/index.html").read_text(encoding="utf-8")
+CONFIG = (ROOT / "zbrano/config.yaml").read_text(encoding="utf-8")
+MANIFEST = json.loads((ROOT / "zbrano/release_manifest.json").read_text(encoding="utf-8"))
 
 
 class ReleaseSyncTerminalStateTests(unittest.TestCase):
     def test_release_markers_are_aligned(self):
-        self.assertIn('version: "0.13.215"', CONFIG)
-        self.assertIn('version="0.13.215"', MAIN)
-        self.assertIn("HUD 0.13.215", HTML)
-        self.assertEqual(MANIFEST["version"], "0.13.215")
+        self.assertIn('version: "0.13.216"', CONFIG)
+        self.assertIn('version="0.13.216"', MAIN)
+        self.assertIn("HUD 0.13.216", HTML)
+        self.assertEqual(MANIFEST["version"], "0.13.216")
 
     def test_worker_has_bounded_total_runtime_and_unexpected_exception_recovery(self):
         self.assertIn("RELEASE_SYNC_WORKER_TIMEOUT_SECONDS = 300", RELEASE_SYNC)

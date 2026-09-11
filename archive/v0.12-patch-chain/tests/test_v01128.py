@@ -1,13 +1,13 @@
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-PATCH = (ROOT / "jarvis/apply_plugin_manager_recovery_v01128.py").read_text(encoding="utf-8")
-DOCKER = (ROOT / "jarvis/Dockerfile").read_text(encoding="utf-8")
-CONFIG = (ROOT / "jarvis/config.yaml").read_text(encoding="utf-8")
+PATCH = (ROOT / "zbrano/apply_plugin_manager_recovery_v01128.py").read_text(encoding="utf-8")
+DOCKER = (ROOT / "zbrano/Dockerfile").read_text(encoding="utf-8")
+CONFIG = (ROOT / "zbrano/config.yaml").read_text(encoding="utf-8")
 
 
 def test_v01128_removes_obsolete_plugins_recovery_router():
-    assert 'jarvis-v0102-tab-recovery' in PATCH
+    assert 'zbrano-v0102-tab-recovery' in PATCH
     assert 'legacy capture-phase tab recovery still present' in PATCH
     assert 'pluginsTab.addEventListener("click",async()=>{showPanel("plugins");await Promise.all([loadPlugins(),loadCatalog(false)])});' in PATCH
 

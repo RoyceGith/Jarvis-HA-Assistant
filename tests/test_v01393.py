@@ -2,16 +2,16 @@ import json
 from pathlib import Path
 import unittest
 
-from jarvis.app.services import grinder_intents
+from zbrano.app.services import grinder_intents
 
 
 ROOT = Path(__file__).resolve().parents[1]
-MAIN = (ROOT / "jarvis/app/main.py").read_text(encoding="utf-8")
-CONFIG = (ROOT / "jarvis/config.yaml").read_text(encoding="utf-8")
-HTML = (ROOT / "jarvis/app/static/index.html").read_text(encoding="utf-8")
-DOMAIN = (ROOT / "jarvis/app/domains/grinder.py").read_text(encoding="utf-8")
-HUD = (ROOT / "jarvis/app/static/js/grinder/hud.js").read_text(encoding="utf-8")
-MANIFEST = json.loads((ROOT / "jarvis/release_manifest.json").read_text(encoding="utf-8"))
+MAIN = (ROOT / "zbrano/app/main.py").read_text(encoding="utf-8")
+CONFIG = (ROOT / "zbrano/config.yaml").read_text(encoding="utf-8")
+HTML = (ROOT / "zbrano/app/static/index.html").read_text(encoding="utf-8")
+DOMAIN = (ROOT / "zbrano/app/domains/grinder.py").read_text(encoding="utf-8")
+HUD = (ROOT / "zbrano/app/static/js/grinder/hud.js").read_text(encoding="utf-8")
+MANIFEST = json.loads((ROOT / "zbrano/release_manifest.json").read_text(encoding="utf-8"))
 
 
 class OwnerExtensionIsolationReleaseTests(unittest.TestCase):
@@ -19,10 +19,10 @@ class OwnerExtensionIsolationReleaseTests(unittest.TestCase):
         grinder_intents.configure_grinder_intents(grinder_monitor_tools=[])
 
     def test_release_markers_are_aligned(self):
-        self.assertIn('version: "0.13.215"', CONFIG)
-        self.assertIn('version="0.13.215"', MAIN)
-        self.assertIn("HUD 0.13.215", HTML)
-        self.assertEqual(MANIFEST["version"], "0.13.215")
+        self.assertIn('version: "0.13.216"', CONFIG)
+        self.assertIn('version="0.13.216"', MAIN)
+        self.assertIn("HUD 0.13.216", HTML)
+        self.assertEqual(MANIFEST["version"], "0.13.216")
 
     def test_disabled_extension_has_no_chat_intent_or_tools(self):
         grinder_intents.configure_grinder_intents(grinder_monitor_tools=[])
@@ -49,7 +49,7 @@ class OwnerExtensionIsolationReleaseTests(unittest.TestCase):
         self.assertIn("monitorAvailable !== false", HUD)
 
     def test_release_history_includes_v01392(self):
-        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.214")
+        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.215")
 
 
 if __name__ == "__main__":

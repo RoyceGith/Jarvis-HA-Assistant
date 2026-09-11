@@ -1,10 +1,10 @@
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-PATCH = (ROOT / "jarvis/apply_remove_legacy_new_chat_interceptor_v01124.py").read_text(encoding="utf-8")
-VALIDATOR = (ROOT / "jarvis/validate_new_chat_wiring.py").read_text(encoding="utf-8")
-DOCKER = (ROOT / "jarvis/Dockerfile").read_text(encoding="utf-8")
-CONFIG = (ROOT / "jarvis/config.yaml").read_text(encoding="utf-8")
+PATCH = (ROOT / "zbrano/apply_remove_legacy_new_chat_interceptor_v01124.py").read_text(encoding="utf-8")
+VALIDATOR = (ROOT / "zbrano/validate_new_chat_wiring.py").read_text(encoding="utf-8")
+DOCKER = (ROOT / "zbrano/Dockerfile").read_text(encoding="utf-8")
+CONFIG = (ROOT / "zbrano/config.yaml").read_text(encoding="utf-8")
 
 
 def test_v01124_removes_capture_interceptor_and_validates_final_html():

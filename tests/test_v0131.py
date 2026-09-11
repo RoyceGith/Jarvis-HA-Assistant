@@ -8,8 +8,8 @@ from tests.backend_source import load_backend_source
 ROOT = Path(__file__).resolve().parents[1]
 INDEX = load_frontend_source()
 MAIN = load_backend_source()
-CONFIG = (ROOT / "jarvis/config.yaml").read_text(encoding="utf-8")
-MANIFEST = json.loads((ROOT / "jarvis/release_manifest.json").read_text(encoding="utf-8"))
+CONFIG = (ROOT / "zbrano/config.yaml").read_text(encoding="utf-8")
+MANIFEST = json.loads((ROOT / "zbrano/release_manifest.json").read_text(encoding="utf-8"))
 
 
 class VoiceConversationRegressionTests(unittest.TestCase):

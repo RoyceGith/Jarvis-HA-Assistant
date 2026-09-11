@@ -3,16 +3,16 @@ from pathlib import Path
 import tempfile
 import unittest
 
-from jarvis.app.domains import workshop_memory
-from jarvis.app.services import knowledge_memory
+from zbrano.app.domains import workshop_memory
+from zbrano.app.services import knowledge_memory
 
 
 ROOT = Path(__file__).resolve().parents[1]
-CONFIG = (ROOT / "jarvis/config.yaml").read_text(encoding="utf-8")
-RUN = (ROOT / "jarvis/run.sh").read_text(encoding="utf-8")
-MAIN = (ROOT / "jarvis/app/main.py").read_text(encoding="utf-8")
-MEMORY_UI = (ROOT / "jarvis/app/static/js/memory/studio.js").read_text(encoding="utf-8")
-MANIFEST = json.loads((ROOT / "jarvis/release_manifest.json").read_text(encoding="utf-8"))
+CONFIG = (ROOT / "zbrano/config.yaml").read_text(encoding="utf-8")
+RUN = (ROOT / "zbrano/run.sh").read_text(encoding="utf-8")
+MAIN = (ROOT / "zbrano/app/main.py").read_text(encoding="utf-8")
+MEMORY_UI = (ROOT / "zbrano/app/static/js/memory/studio.js").read_text(encoding="utf-8")
+MANIFEST = json.loads((ROOT / "zbrano/release_manifest.json").read_text(encoding="utf-8"))
 
 
 class BuiltInKnowledgeMemoryReleaseTests(unittest.TestCase):
@@ -26,10 +26,10 @@ class BuiltInKnowledgeMemoryReleaseTests(unittest.TestCase):
         self.temporary.cleanup()
 
     def test_release_is_aligned(self):
-        self.assertIn('version: "0.13.215"', CONFIG)
-        self.assertIn('version="0.13.215"', MAIN)
-        self.assertEqual(MANIFEST["version"], "0.13.215")
-        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.214")
+        self.assertIn('version: "0.13.216"', CONFIG)
+        self.assertIn('version="0.13.216"', MAIN)
+        self.assertEqual(MANIFEST["version"], "0.13.216")
+        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.215")
 
     def test_spaces_are_generic_local_and_searchable(self):
         created = knowledge_memory.create_memory_space("Household", "Shared home knowledge", "home")

@@ -1,10 +1,10 @@
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-PATCH = (ROOT / "jarvis/apply_developer_mode_self_diagnostics_v0120.py").read_text(encoding="utf-8")
-BUILD_FIX = (ROOT / "jarvis/apply_github_tool_approval_build_fix_v01129.py").read_text(encoding="utf-8")
-DOCKER = (ROOT / "jarvis/Dockerfile").read_text(encoding="utf-8")
-CONFIG = (ROOT / "jarvis/config.yaml").read_text(encoding="utf-8")
+PATCH = (ROOT / "zbrano/apply_developer_mode_self_diagnostics_v0120.py").read_text(encoding="utf-8")
+BUILD_FIX = (ROOT / "zbrano/apply_github_tool_approval_build_fix_v01129.py").read_text(encoding="utf-8")
+DOCKER = (ROOT / "zbrano/Dockerfile").read_text(encoding="utf-8")
+CONFIG = (ROOT / "zbrano/config.yaml").read_text(encoding="utf-8")
 
 
 def test_v0120_preserves_catalog_and_github_helpers():

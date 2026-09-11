@@ -2,9 +2,9 @@ from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[1]
-OAUTH_PATCH = (ROOT / "jarvis/apply_gmail_oauth_least_privilege_v01256.py").read_text(encoding="utf-8")
-RELEASE_PATCH = (ROOT / "jarvis/apply_oauth_details_compact_v01262.py").read_text(encoding="utf-8")
-DOCKER = (ROOT / "jarvis/Dockerfile").read_text(encoding="utf-8")
+OAUTH_PATCH = (ROOT / "zbrano/apply_gmail_oauth_least_privilege_v01256.py").read_text(encoding="utf-8")
+RELEASE_PATCH = (ROOT / "zbrano/apply_oauth_details_compact_v01262.py").read_text(encoding="utf-8")
+DOCKER = (ROOT / "zbrano/Dockerfile").read_text(encoding="utf-8")
 
 
 def test_v01262_places_oauth_details_behind_settings():

@@ -3,25 +3,25 @@ import json
 from pathlib import Path
 import unittest
 
-from jarvis.app.services import google_oauth, plugin_oauth
+from zbrano.app.services import google_oauth, plugin_oauth
 
 
 ROOT = Path(__file__).resolve().parents[1]
-APP = ROOT / "jarvis/app"
+APP = ROOT / "zbrano/app"
 MAIN = (APP / "main.py").read_text(encoding="utf-8")
 PROTOCOL = (APP / "services/plugin_oauth.py").read_text(encoding="utf-8")
 GOOGLE = (APP / "services/google_oauth.py").read_text(encoding="utf-8")
-CONFIG = (ROOT / "jarvis/config.yaml").read_text(encoding="utf-8")
+CONFIG = (ROOT / "zbrano/config.yaml").read_text(encoding="utf-8")
 HTML = (APP / "static/index.html").read_text(encoding="utf-8")
-MANIFEST = json.loads((ROOT / "jarvis/release_manifest.json").read_text(encoding="utf-8"))
+MANIFEST = json.loads((ROOT / "zbrano/release_manifest.json").read_text(encoding="utf-8"))
 
 
 class PluginOAuthBoundaryTests(unittest.TestCase):
     def test_release_markers_are_aligned(self):
-        self.assertIn('version: "0.13.215"', CONFIG)
-        self.assertIn('version="0.13.215"', MAIN)
-        self.assertIn("HUD 0.13.215", HTML)
-        self.assertEqual(MANIFEST["version"], "0.13.215")
+        self.assertIn('version: "0.13.216"', CONFIG)
+        self.assertIn('version="0.13.216"', MAIN)
+        self.assertIn("HUD 0.13.216", HTML)
+        self.assertEqual(MANIFEST["version"], "0.13.216")
 
     def test_protocol_and_google_policy_are_outside_main(self):
         for marker in (
@@ -43,7 +43,7 @@ class PluginOAuthBoundaryTests(unittest.TestCase):
             plugin_load_fn=lambda path: {"connected": {"scope": "read write"}},
             validate_plugin_url_fn=lambda url: url if url.startswith("https://") else (_ for _ in ()).throw(ValueError("HTTPS required")),
             timeout=15,
-            runtime_version="0.13.215",
+            runtime_version="0.13.216",
         )
         self.assertEqual(
             plugin_oauth.oauth_validate_redirect_uri("https://example.com/api/plugin-oauth/callback"),

@@ -4,24 +4,24 @@ import unittest
 
 
 ROOT = Path(__file__).resolve().parents[1]
-CONFIG = (ROOT / "jarvis/config.yaml").read_text(encoding="utf-8")
-MAIN = (ROOT / "jarvis/app/main.py").read_text(encoding="utf-8")
-SCHEMAS = (ROOT / "jarvis/app/schemas.py").read_text(encoding="utf-8")
-AGENT = (ROOT / "jarvis/app/services/agent_runtime.py").read_text(encoding="utf-8")
-HTML = (ROOT / "jarvis/app/static/index.html").read_text(encoding="utf-8")
-CSS = (ROOT / "jarvis/app/static/css/interface-refresh.css").read_text(encoding="utf-8")
-CORE = (ROOT / "jarvis/app/static/js/core.js").read_text(encoding="utf-8")
-VOICE = (ROOT / "jarvis/app/static/js/voice/proactive.js").read_text(encoding="utf-8")
-MANIFEST = json.loads((ROOT / "jarvis/release_manifest.json").read_text(encoding="utf-8"))
+CONFIG = (ROOT / "zbrano/config.yaml").read_text(encoding="utf-8")
+MAIN = (ROOT / "zbrano/app/main.py").read_text(encoding="utf-8")
+SCHEMAS = (ROOT / "zbrano/app/schemas.py").read_text(encoding="utf-8")
+AGENT = (ROOT / "zbrano/app/services/agent_runtime.py").read_text(encoding="utf-8")
+HTML = (ROOT / "zbrano/app/static/index.html").read_text(encoding="utf-8")
+CSS = (ROOT / "zbrano/app/static/css/interface-refresh.css").read_text(encoding="utf-8")
+CORE = (ROOT / "zbrano/app/static/js/core.js").read_text(encoding="utf-8")
+VOICE = (ROOT / "zbrano/app/static/js/voice/proactive.js").read_text(encoding="utf-8")
+MANIFEST = json.loads((ROOT / "zbrano/release_manifest.json").read_text(encoding="utf-8"))
 
 
 class InterfaceLanguagePickerReleaseTests(unittest.TestCase):
     def test_release_is_aligned(self):
-        self.assertIn('version: "0.13.215"', CONFIG)
-        self.assertIn('version="0.13.215"', MAIN)
-        self.assertIn("HUD 0.13.215", HTML)
-        self.assertEqual(MANIFEST["version"], "0.13.215")
-        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.214")
+        self.assertIn('version: "0.13.216"', CONFIG)
+        self.assertIn('version="0.13.216"', MAIN)
+        self.assertIn("HUD 0.13.216", HTML)
+        self.assertEqual(MANIFEST["version"], "0.13.216")
+        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.215")
 
     def test_flag_selector_is_in_the_top_right_runtime_header(self):
         runtime = HTML[HTML.index('<div class="runtime-status-stack">'):HTML.index("</header>")]
@@ -45,7 +45,7 @@ class InterfaceLanguagePickerReleaseTests(unittest.TestCase):
         self.assertNotIn('preferences["preferred_language"]', AGENT)
         self.assertIn("Reply in the language used by the user", AGENT)
         self.assertIn('return navigator.language||navigator.languages?.[0]||"en-US"', VOICE)
-        self.assertNotIn("jarvisPreferences?.preferred_language", VOICE)
+        self.assertNotIn("zbranoPreferences?.preferred_language", VOICE)
 
 
 if __name__ == "__main__":

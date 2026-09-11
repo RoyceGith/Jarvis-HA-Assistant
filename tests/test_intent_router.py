@@ -1,6 +1,6 @@
 import unittest
 
-from jarvis.app.intent_router import parse_local_ha_intent
+from zbrano.app.intent_router import parse_local_ha_intent
 
 
 class IntentRouterTests(unittest.TestCase):

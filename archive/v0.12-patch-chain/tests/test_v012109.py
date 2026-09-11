@@ -4,12 +4,12 @@ from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[1]
-MODEL = ROOT / "jarvis/models/wakeword/hey_zbrano.onnx"
-MODEL_README = (ROOT / "jarvis/models/wakeword/README.md").read_text(encoding="utf-8")
-PATCH = (ROOT / "jarvis/apply_real_room_wake_model_v012109.py").read_text(encoding="utf-8")
-DOCKER = (ROOT / "jarvis/Dockerfile").read_text(encoding="utf-8")
-CONFIG = (ROOT / "jarvis/config.yaml").read_text(encoding="utf-8")
-MANIFEST = json.loads((ROOT / "jarvis/release_manifest.json").read_text(encoding="utf-8"))
+MODEL = ROOT / "zbrano/models/wakeword/hey_zbrano.onnx"
+MODEL_README = (ROOT / "zbrano/models/wakeword/README.md").read_text(encoding="utf-8")
+PATCH = (ROOT / "zbrano/apply_real_room_wake_model_v012109.py").read_text(encoding="utf-8")
+DOCKER = (ROOT / "zbrano/Dockerfile").read_text(encoding="utf-8")
+CONFIG = (ROOT / "zbrano/config.yaml").read_text(encoding="utf-8")
+MANIFEST = json.loads((ROOT / "zbrano/release_manifest.json").read_text(encoding="utf-8"))
 
 
 def test_real_room_model_is_exact_release_artifact() -> None:

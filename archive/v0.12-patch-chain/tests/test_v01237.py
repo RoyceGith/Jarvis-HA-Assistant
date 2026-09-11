@@ -3,11 +3,11 @@ from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[1]
-PATCH = (ROOT / "jarvis/apply_playwright_chat_isolation_v01237.py").read_text(encoding="utf-8")
-DOCKER = (ROOT / "jarvis/Dockerfile").read_text(encoding="utf-8")
-CONFIG = (ROOT / "jarvis/config.yaml").read_text(encoding="utf-8")
+PATCH = (ROOT / "zbrano/apply_playwright_chat_isolation_v01237.py").read_text(encoding="utf-8")
+DOCKER = (ROOT / "zbrano/Dockerfile").read_text(encoding="utf-8")
+CONFIG = (ROOT / "zbrano/config.yaml").read_text(encoding="utf-8")
 README = (ROOT / "README.md").read_text(encoding="utf-8")
-MANIFEST = json.loads((ROOT / "jarvis/release_manifest.json").read_text(encoding="utf-8"))
+MANIFEST = json.loads((ROOT / "zbrano/release_manifest.json").read_text(encoding="utf-8"))
 
 
 def test_v01237_marks_playwright_navigation_as_internal():
@@ -26,7 +26,7 @@ def test_v01237_excludes_inspection_sessions_from_chat_storage_and_catalog():
 
 def test_v01237_preserves_normal_browser_chat_identity():
     assert "if (!zbranoInspectionSession)" in PATCH
-    assert 'localStorage.getItem("jarvis_chat_session_id")' in PATCH
+    assert 'localStorage.getItem("zbrano_chat_session_id")' in PATCH
     assert "crypto.randomUUID" in PATCH
 
 

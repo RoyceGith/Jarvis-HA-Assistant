@@ -1,6 +1,6 @@
 import unittest
 
-from jarvis.app.services.workshop_cost_guard import (
+from zbrano.app.services.workshop_cost_guard import (
     MAX_SINGLE_TOOL_OUTPUT_CHARS,
     bound_workshop_result,
     is_workshop_memory_intent,

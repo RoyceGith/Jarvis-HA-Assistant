@@ -7,8 +7,8 @@ from tests.backend_source import load_backend_source
 ROOT = Path(__file__).resolve().parents[1]
 INDEX = load_frontend_source()
 MAIN = load_backend_source()
-CONFIG = (ROOT / "jarvis/config.yaml").read_text(encoding="utf-8")
-RUN_SCRIPT = (ROOT / "jarvis/run.sh").read_text(encoding="utf-8")
+CONFIG = (ROOT / "zbrano/config.yaml").read_text(encoding="utf-8")
+RUN_SCRIPT = (ROOT / "zbrano/run.sh").read_text(encoding="utf-8")
 
 
 class InterfaceTests(unittest.TestCase):
@@ -26,8 +26,8 @@ class InterfaceTests(unittest.TestCase):
     def test_hud_graph_and_versions(self):
         self.assertIn('id="brain-network"', INDEX)
         self.assertIn("prefers-reduced-motion: reduce", INDEX)
-        self.assertIn('version: "0.13.215"', CONFIG)
-        self.assertIn('version="0.13.215"', MAIN)
+        self.assertIn('version: "0.13.216"', CONFIG)
+        self.assertIn('version="0.13.216"', MAIN)
 
     def test_public_defaults_and_saved_app_options(self):
         self.assertNotIn("192.168.178.49", CONFIG)
@@ -38,13 +38,13 @@ class InterfaceTests(unittest.TestCase):
         self.assertIn("bashio::config 'elevenlabs_api_key'", RUN_SCRIPT)
         self.assertIn('ELEVENLABS_MODEL_ID\n        if ELEVENLABS_MODEL_ID in', MAIN)
         self.assertIn('CHAT_STORAGE_PATH = Path("/data/chat_sessions.json")', MAIN)
-        self.assertIn('SETTINGS_STORAGE_PATH = Path("/data/jarvis_settings.json")', MAIN)
+        self.assertIn('SETTINGS_STORAGE_PATH = Path("/data/zbrano_settings.json")', MAIN)
 
     def test_light_dark_themes_and_obsidian_collective(self):
         self.assertIn('name="theme" value="dark"', INDEX)
         self.assertIn('name="theme" value="light"', INDEX)
         self.assertIn('name="theme" value="gray"', INDEX)
-        self.assertIn('const THEME_KEY = "jarvis_theme_v1";', INDEX)
+        self.assertIn('const THEME_KEY = "zbrano_theme_v1";', INDEX)
         self.assertIn('document.documentElement.dataset.theme = nextTheme;', INDEX)
         self.assertIn('class="theme-swatch dark"', INDEX)
         self.assertIn('class="theme-swatch light"', INDEX)
@@ -100,7 +100,7 @@ class InterfaceTests(unittest.TestCase):
         self.assertIn("load_elevenlabs_voice_settings()", MAIN)
         self.assertIn('"similarity_boost": voice_settings["similarity"]', MAIN)
         self.assertIn('@app.put("/api/settings")', MAIN)
-        self.assertIn('SETTINGS_STORAGE_PATH = Path("/data/jarvis_settings.json")', MAIN)
+        self.assertIn('SETTINGS_STORAGE_PATH = Path("/data/zbrano_settings.json")', MAIN)
         self.assertIn('"name": "save_general_instruction"', MAIN)
         self.assertIn('effective_system_instructions()', MAIN)
 
@@ -112,9 +112,9 @@ class InterfaceTests(unittest.TestCase):
         self.assertNotIn('if (review.selected) queuePolicySave(entity, review, 600);', INDEX)
 
     def test_entity_aliases_use_addon_storage_and_restore_for_disabled_entities(self):
-        entity_policy = (ROOT / "jarvis/app/services/entity_policy.py").read_text(encoding="utf-8")
+        entity_policy = (ROOT / "zbrano/app/services/entity_policy.py").read_text(encoding="utf-8")
         self.assertIn('ENTITY_POLICY_PATH = DATA_DIR / "entity_policy.json"', entity_policy)
-        self.assertIn('V063_ENTITY_POLICY_PATH = Path("/share/jarvis/entity_policy.json")', entity_policy)
+        self.assertIn('V063_ENTITY_POLICY_PATH = Path("/share/zbrano/entity_policy.json")', entity_policy)
         self.assertIn('V063_MIGRATION_MARKER = DATA_DIR / ".entity_policy_v063_migrated"', entity_policy)
         self.assertIn('"policy": policy,', MAIN)
         self.assertNotIn('"policy": enabled,', MAIN)
@@ -122,7 +122,7 @@ class InterfaceTests(unittest.TestCase):
     def test_fullscreen_layout_and_interrupted_alias_recovery(self):
         self.assertIn('html, body { width: 100%; height: 100%; overflow: hidden; }', INDEX)
         self.assertIn('height: 100dvh;', INDEX)
-        self.assertIn('const ENTITY_ALIAS_BACKUP_KEY = "jarvis_entity_aliases_v1";', INDEX)
+        self.assertIn('const ENTITY_ALIAS_BACKUP_KEY = "zbrano_entity_aliases_v1";', INDEX)
         self.assertIn('backupEntityAliases(entity.entity_id, review.aliases);', INDEX)
         self.assertIn('entityReview.clear();', INDEX)
         self.assertIn('interruptedSaves.push(entity);', INDEX)
@@ -148,7 +148,7 @@ class InterfaceTests(unittest.TestCase):
         self.assertIn('id="chat-list"', INDEX)
         self.assertIn('id="new-chat-button"', INDEX)
         self.assertIn('fetch("api/chats")', INDEX)
-        self.assertIn('openChat(jarvisChatSessionId)', INDEX)
+        self.assertIn('openChat(zbranoChatSessionId)', INDEX)
         self.assertIn('CHAT_STORAGE_PATH = Path("/data/chat_sessions.json")', MAIN)
         self.assertIn('CHAT_HISTORY_MAX_MESSAGES = 200', MAIN)
         self.assertIn('CHAT_CONTEXT_MAX_MESSAGES = 20', MAIN)

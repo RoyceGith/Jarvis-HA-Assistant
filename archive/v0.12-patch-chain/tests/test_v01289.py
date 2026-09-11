@@ -3,10 +3,10 @@ from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[1]
-PATCH = (ROOT / "jarvis/apply_two_way_telegram_v01289.py").read_text(encoding="utf-8")
-DOCKER = (ROOT / "jarvis/Dockerfile").read_text(encoding="utf-8")
-CONFIG = (ROOT / "jarvis/config.yaml").read_text(encoding="utf-8")
-MANIFEST = json.loads((ROOT / "jarvis/release_manifest.json").read_text(encoding="utf-8"))
+PATCH = (ROOT / "zbrano/apply_two_way_telegram_v01289.py").read_text(encoding="utf-8")
+DOCKER = (ROOT / "zbrano/Dockerfile").read_text(encoding="utf-8")
+CONFIG = (ROOT / "zbrano/config.yaml").read_text(encoding="utf-8")
+MANIFEST = json.loads((ROOT / "zbrano/release_manifest.json").read_text(encoding="utf-8"))
 
 
 def test_two_way_telegram_uses_home_assistant_event_stream() -> None:
@@ -29,11 +29,11 @@ def test_pairing_and_allowlist_are_required() -> None:
 
 
 def test_inbound_processing_is_bounded_and_not_polling_the_model() -> None:
-    assert 'await asyncio.wait_for(run_jarvis(text, session_id), timeout=120.0)' in PATCH
+    assert 'await asyncio.wait_for(run_zbrano(text, session_id), timeout=120.0)' in PATCH
     assert 'if lock.locked()' in PATCH
     assert '_telegram_event_duplicate' in PATCH
     worker = PATCH.split('async def telegram_inbound_worker()', 1)[1].split('@app.get("/api/telegram-inbound")', 1)[0]
-    assert 'run_jarvis(' not in worker
+    assert 'run_zbrano(' not in worker
     assert 'await asyncio.sleep(backoff)' in worker
     assert 'backoff = min(backoff * 2.0, 30.0)' in worker
 

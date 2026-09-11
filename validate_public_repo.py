@@ -38,26 +38,26 @@ PERSONAL_DEFAULTS = (
     "factory workshop",
 )
 PRODUCT_DEFAULT_FILES = (
-    "jarvis/config.yaml",
-    "jarvis/translations/en.yaml",
-    "jarvis/translations/el.yaml",
-    "jarvis/translations/it.yaml",
-    "jarvis/translations/fr.yaml",
-    "jarvis/app/static/index.html",
-    "jarvis/app/static/js/automations/workspace.js",
+    "zbrano/config.yaml",
+    "zbrano/translations/en.yaml",
+    "zbrano/translations/el.yaml",
+    "zbrano/translations/it.yaml",
+    "zbrano/translations/fr.yaml",
+    "zbrano/app/static/index.html",
+    "zbrano/app/static/js/automations/workspace.js",
 )
 PUBLIC_DISTRIBUTION_FILES = {
     "README.md",
     "repository.yaml",
-    "jarvis/README.md",
-    "jarvis/CHANGELOG.md",
-    "jarvis/config.yaml",
-    "jarvis/translations/en.yaml",
-    "jarvis/translations/el.yaml",
-    "jarvis/translations/it.yaml",
-    "jarvis/translations/fr.yaml",
-    "jarvis/icon.png",
-    "jarvis/logo.png",
+    "zbrano/README.md",
+    "zbrano/CHANGELOG.md",
+    "zbrano/config.yaml",
+    "zbrano/translations/en.yaml",
+    "zbrano/translations/el.yaml",
+    "zbrano/translations/it.yaml",
+    "zbrano/translations/fr.yaml",
+    "zbrano/icon.png",
+    "zbrano/logo.png",
     "hacs.json",
     "custom_components/zbrano/__init__.py",
     "custom_components/zbrano/api.py",
@@ -72,8 +72,8 @@ PUBLIC_DISTRIBUTION_FILES = {
     "custom_components/zbrano/translations/fr.json",
 }
 PUBLIC_PRESENTATION_ASSETS = {
-    "jarvis/icon.png": (128, 128),
-    "jarvis/logo.png": (511, 120),
+    "zbrano/icon.png": (128, 128),
+    "zbrano/logo.png": (511, 120),
 }
 
 
@@ -100,7 +100,7 @@ def validate(paths: list[str] | None = None, *, root: Path = ROOT) -> list[str]:
         if name in FORBIDDEN_NAMES or name.endswith(FORBIDDEN_SUFFIXES):
             errors.append(f"secret-bearing filename is tracked: {normalized}")
 
-    thin_distribution = "jarvis/config.yaml" in normalized_paths and ".github/workflows/build.yaml" not in normalized_paths
+    thin_distribution = "zbrano/config.yaml" in normalized_paths and ".github/workflows/build.yaml" not in normalized_paths
     if thin_distribution:
         for path in sorted(PUBLIC_DISTRIBUTION_FILES - normalized_paths):
             errors.append(f"required public distribution file is missing: {path}")

@@ -4,14 +4,14 @@ from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[1]
-CORE = (ROOT / "jarvis" / "app" / "static" / "js" / "core.js").read_text(encoding="utf-8")
-MANIFEST = json.loads((ROOT / "jarvis" / "release_manifest.json").read_text(encoding="utf-8"))
+CORE = (ROOT / "zbrano" / "app" / "static" / "js" / "core.js").read_text(encoding="utf-8")
+MANIFEST = json.loads((ROOT / "zbrano" / "release_manifest.json").read_text(encoding="utf-8"))
 
 
 class V013137NonCircularNeuralFlashTests(unittest.TestCase):
     def test_release_is_aligned(self):
-        self.assertEqual(MANIFEST["version"], "0.13.215")
-        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.214")
+        self.assertEqual(MANIFEST["version"], "0.13.216")
+        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.215")
 
     def test_arrival_uses_crossed_spark_lines_without_a_ring(self):
         arrival = CORE[CORE.index("if (progress > .68)"):CORE.index("context.shadowBlur = 0", CORE.index("if (progress > .68)"))]

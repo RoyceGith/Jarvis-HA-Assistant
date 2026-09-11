@@ -7,8 +7,8 @@ from typing import Any
 from unittest.mock import AsyncMock
 
 
-MAIN_PATH = Path(__file__).resolve().parents[1] / "jarvis/app/main.py"
-SETTINGS_PATH = Path(__file__).resolve().parents[1] / "jarvis/app/domains/settings.py"
+MAIN_PATH = Path(__file__).resolve().parents[1] / "zbrano/app/main.py"
+SETTINGS_PATH = Path(__file__).resolve().parents[1] / "zbrano/app/domains/settings.py"
 
 
 def load_preference_functions():

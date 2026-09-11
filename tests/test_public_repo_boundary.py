@@ -32,7 +32,7 @@ class PublicRepositoryBoundaryTests(unittest.TestCase):
     def test_thin_distribution_allowlist_includes_friendly_configuration(self):
         paths = sorted(BOUNDARY.PUBLIC_DISTRIBUTION_FILES)
         self.assertEqual(BOUNDARY.validate(paths, root=ROOT), [])
-        errors = BOUNDARY.validate(paths + ["jarvis/app/main.py"], root=ROOT)
+        errors = BOUNDARY.validate(paths + ["zbrano/app/main.py"], root=ROOT)
         self.assertTrue(any("unexpected file" in item for item in errors))
 
 

@@ -4,19 +4,19 @@ from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[1]
-BASE_CSS = (ROOT / "jarvis" / "app" / "static" / "css" / "base.css").read_text(encoding="utf-8")
-AUTOMATION_CSS = (ROOT / "jarvis" / "app" / "static" / "css" / "automation-studio.css").read_text(encoding="utf-8")
-ENTITY_CSS = (ROOT / "jarvis" / "app" / "static" / "css" / "entity-columns.css").read_text(encoding="utf-8")
-WORKSPACE_CSS = (ROOT / "jarvis" / "app" / "static" / "css" / "workspace-modern.css").read_text(encoding="utf-8")
-MANIFEST = json.loads((ROOT / "jarvis" / "release_manifest.json").read_text(encoding="utf-8"))
+BASE_CSS = (ROOT / "zbrano" / "app" / "static" / "css" / "base.css").read_text(encoding="utf-8")
+AUTOMATION_CSS = (ROOT / "zbrano" / "app" / "static" / "css" / "automation-studio.css").read_text(encoding="utf-8")
+ENTITY_CSS = (ROOT / "zbrano" / "app" / "static" / "css" / "entity-columns.css").read_text(encoding="utf-8")
+WORKSPACE_CSS = (ROOT / "zbrano" / "app" / "static" / "css" / "workspace-modern.css").read_text(encoding="utf-8")
+MANIFEST = json.loads((ROOT / "zbrano" / "release_manifest.json").read_text(encoding="utf-8"))
 
 
 class V013131PaletteTests(unittest.TestCase):
     def test_release_is_aligned(self):
-        self.assertEqual(MANIFEST["version"], "0.13.215")
-        self.assertIn('version: "0.13.215"', (ROOT / "jarvis" / "config.yaml").read_text(encoding="utf-8"))
-        self.assertIn('version="0.13.215"', (ROOT / "jarvis" / "app" / "main.py").read_text(encoding="utf-8"))
-        self.assertIn("HUD 0.13.215", (ROOT / "jarvis" / "app" / "static" / "index.html").read_text(encoding="utf-8"))
+        self.assertEqual(MANIFEST["version"], "0.13.216")
+        self.assertIn('version: "0.13.216"', (ROOT / "zbrano" / "config.yaml").read_text(encoding="utf-8"))
+        self.assertIn('version="0.13.216"', (ROOT / "zbrano" / "app" / "main.py").read_text(encoding="utf-8"))
+        self.assertIn("HUD 0.13.216", (ROOT / "zbrano" / "app" / "static" / "index.html").read_text(encoding="utf-8"))
 
     def test_legacy_green_theme_tokens_match_talk_blue(self):
         self.assertEqual(BASE_CSS.count("--phosphor: #5cecff;"), 1)

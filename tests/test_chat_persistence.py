@@ -11,8 +11,8 @@ import shutil
 
 
 ROOT = Path(__file__).resolve().parents[1]
-MAIN_PATH = ROOT / "jarvis/app/main.py"
-CONVERSATIONS_PATH = ROOT / "jarvis/app/domains/conversations.py"
+MAIN_PATH = ROOT / "zbrano/app/main.py"
+CONVERSATIONS_PATH = ROOT / "zbrano/app/domains/conversations.py"
 
 
 def load_chat_functions(storage_path: Path):

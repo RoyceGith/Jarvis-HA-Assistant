@@ -6,17 +6,17 @@ import unittest
 from typing import Any
 from unittest.mock import AsyncMock
 
-from jarvis.app.services import entity_policy, ha_control
+from zbrano.app.services import entity_policy, ha_control
 
 
 ROOT = Path(__file__).resolve().parents[1]
-APP = ROOT / "jarvis/app"
+APP = ROOT / "zbrano/app"
 MAIN = (APP / "main.py").read_text(encoding="utf-8")
 ENTITY_POLICY = (APP / "services/entity_policy.py").read_text(encoding="utf-8")
 HA_CONTROL = (APP / "services/ha_control.py").read_text(encoding="utf-8")
-CONFIG = (ROOT / "jarvis/config.yaml").read_text(encoding="utf-8")
+CONFIG = (ROOT / "zbrano/config.yaml").read_text(encoding="utf-8")
 HTML = (APP / "static/index.html").read_text(encoding="utf-8")
-MANIFEST = json.loads((ROOT / "jarvis/release_manifest.json").read_text(encoding="utf-8"))
+MANIFEST = json.loads((ROOT / "zbrano/release_manifest.json").read_text(encoding="utf-8"))
 
 
 def load_ha_control_helpers():
@@ -33,10 +33,10 @@ def load_ha_control_helpers():
 
 class HomeAssistantServiceBoundaryTests(unittest.TestCase):
     def test_release_markers_are_aligned(self):
-        self.assertIn('version: "0.13.215"', CONFIG)
-        self.assertIn('version="0.13.215"', MAIN)
-        self.assertIn("HUD 0.13.215", HTML)
-        self.assertEqual(MANIFEST["version"], "0.13.215")
+        self.assertIn('version: "0.13.216"', CONFIG)
+        self.assertIn('version="0.13.216"', MAIN)
+        self.assertIn("HUD 0.13.216", HTML)
+        self.assertEqual(MANIFEST["version"], "0.13.216")
 
     def test_both_services_are_outside_composition_root_and_configured(self):
         self.assertNotIn("def load_entity_policy(", MAIN)

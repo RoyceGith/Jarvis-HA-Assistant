@@ -8,23 +8,23 @@ from tests.frontend_source import load_frontend_source
 
 
 ROOT = Path(__file__).resolve().parents[1]
-APP = ROOT / "jarvis/app"
+APP = ROOT / "zbrano/app"
 STATIC = APP / "static"
 MAIN_RAW = (APP / "main.py").read_text(encoding="utf-8")
 BACKEND = load_backend_source()
 HTML = (STATIC / "index.html").read_text(encoding="utf-8")
 FRONTEND = load_frontend_source()
-CONFIG = (ROOT / "jarvis/config.yaml").read_text(encoding="utf-8")
-DOCKER = (ROOT / "jarvis/Dockerfile").read_text(encoding="utf-8")
-MANIFEST = json.loads((ROOT / "jarvis/release_manifest.json").read_text(encoding="utf-8"))
+CONFIG = (ROOT / "zbrano/config.yaml").read_text(encoding="utf-8")
+DOCKER = (ROOT / "zbrano/Dockerfile").read_text(encoding="utf-8")
+MANIFEST = json.loads((ROOT / "zbrano/release_manifest.json").read_text(encoding="utf-8"))
 
 
 class CanonicalModuleArchitectureTests(unittest.TestCase):
     def test_release_markers_are_aligned(self):
-        self.assertIn('version: "0.13.215"', CONFIG)
-        self.assertIn('version="0.13.215"', MAIN_RAW)
-        self.assertIn("HUD 0.13.215", HTML)
-        self.assertEqual(MANIFEST["version"], "0.13.215")
+        self.assertIn('version: "0.13.216"', CONFIG)
+        self.assertIn('version="0.13.216"', MAIN_RAW)
+        self.assertIn("HUD 0.13.216", HTML)
+        self.assertEqual(MANIFEST["version"], "0.13.216")
 
     def test_frontend_is_directly_split_with_stable_order(self):
         stylesheet_paths = re.findall(r'<link[^>]+href="([^"]+\.css)"', HTML)
@@ -78,8 +78,8 @@ class CanonicalModuleArchitectureTests(unittest.TestCase):
         self.assertIn('if path and candidate.is_file():', MAIN_RAW)
         asset_branch = MAIN_RAW[MAIN_RAW.index('if path and candidate.is_file():') : MAIN_RAW.index('return FileResponse(\n        STATIC_DIR / "index.html"')]
         self.assertIn('"Cache-Control": "no-store, no-cache, must-revalidate, max-age=0"', asset_branch)
-        self.assertIn("JavaScript source", (ROOT / "jarvis/validate_inline_js.py").read_text(encoding="utf-8"))
-        self.assertIn("source_path.read_text", (ROOT / "jarvis/validate_new_chat_wiring.py").read_text(encoding="utf-8"))
+        self.assertIn("JavaScript source", (ROOT / "zbrano/validate_inline_js.py").read_text(encoding="utf-8"))
+        self.assertIn("source_path.read_text", (ROOT / "zbrano/validate_new_chat_wiring.py").read_text(encoding="utf-8"))
 
     def test_architecture_contract_is_documented(self):
         architecture = (ROOT / "docs/MODULE_ARCHITECTURE.md").read_text(encoding="utf-8")

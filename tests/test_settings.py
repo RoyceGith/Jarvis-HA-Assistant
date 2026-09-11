@@ -8,8 +8,8 @@ from typing import Any
 
 
 ROOT = Path(__file__).resolve().parents[1]
-MAIN_PATH = ROOT / "jarvis/app/main.py"
-SETTINGS_PATH = ROOT / "jarvis/app/domains/settings.py"
+MAIN_PATH = ROOT / "zbrano/app/main.py"
+SETTINGS_PATH = ROOT / "zbrano/app/domains/settings.py"
 
 
 def load_settings_functions(storage_path: Path):
@@ -44,7 +44,7 @@ def load_settings_functions(storage_path: Path):
             "style": 0.15,
             "speed": 0.96,
         },
-        "JARVIS_PREFERENCE_DEFAULTS": {
+        "ZBRANO_PREFERENCE_DEFAULTS": {
             "elevenlabs_model": "eleven_flash_v2_5",
             "elevenlabs_speaker_boost": False,
             "auto_speak": True,
@@ -72,7 +72,7 @@ def load_settings_functions(storage_path: Path):
 class SettingsTests(unittest.TestCase):
     def test_round_trip_append_and_deduplicate(self):
         with tempfile.TemporaryDirectory() as temporary:
-            storage = Path(temporary) / "jarvis_settings.json"
+            storage = Path(temporary) / "zbrano_settings.json"
             functions = load_settings_functions(storage)
             functions["save_general_instructions"]("- Keep answers concise.")
             result = functions["append_general_instruction"](
@@ -89,14 +89,14 @@ class SettingsTests(unittest.TestCase):
 
     def test_character_limit(self):
         with tempfile.TemporaryDirectory() as temporary:
-            storage = Path(temporary) / "jarvis_settings.json"
+            storage = Path(temporary) / "zbrano_settings.json"
             functions = load_settings_functions(storage)
             with self.assertRaises(ValueError):
                 functions["save_general_instructions"]("x" * 12001)
 
     def test_voice_settings_round_trip_preserves_instructions(self):
         with tempfile.TemporaryDirectory() as temporary:
-            storage = Path(temporary) / "jarvis_settings.json"
+            storage = Path(temporary) / "zbrano_settings.json"
             functions = load_settings_functions(storage)
             functions["save_general_instructions"]("- Keep answers concise.")
             expected = {
@@ -113,7 +113,7 @@ class SettingsTests(unittest.TestCase):
 
     def test_invalid_stored_voice_values_fall_back_to_defaults(self):
         with tempfile.TemporaryDirectory() as temporary:
-            storage = Path(temporary) / "jarvis_settings.json"
+            storage = Path(temporary) / "zbrano_settings.json"
             storage.write_text(
                 json.dumps(
                     {
@@ -135,9 +135,9 @@ class SettingsTests(unittest.TestCase):
 
     def test_preferences_and_pronunciation_round_trip(self):
         with tempfile.TemporaryDirectory() as temporary:
-            storage = Path(temporary) / "jarvis_settings.json"
+            storage = Path(temporary) / "zbrano_settings.json"
             functions = load_settings_functions(storage)
-            preferences = dict(functions["JARVIS_PREFERENCE_DEFAULTS"])
+            preferences = dict(functions["ZBRANO_PREFERENCE_DEFAULTS"])
             preferences.update({"theme": "gray", "pronunciation_dictionary": "HA = H A"})
             functions["save_preferences"](preferences)
             self.assertEqual(functions["load_preferences"]()["theme"], "gray")

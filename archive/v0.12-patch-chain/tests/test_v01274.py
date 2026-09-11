@@ -11,11 +11,11 @@ from typing import Any
 
 
 ROOT = Path(__file__).resolve().parents[1]
-PATCH_PATH = ROOT / "jarvis" / "apply_fast_memory_v01274.py"
+PATCH_PATH = ROOT / "zbrano" / "apply_fast_memory_v01274.py"
 PATCH = PATCH_PATH.read_text(encoding="utf-8")
-DOCKER = (ROOT / "jarvis" / "Dockerfile").read_text(encoding="utf-8")
-CONFIG = (ROOT / "jarvis" / "config.yaml").read_text(encoding="utf-8")
-MANIFEST = json.loads((ROOT / "jarvis" / "release_manifest.json").read_text(encoding="utf-8"))
+DOCKER = (ROOT / "zbrano" / "Dockerfile").read_text(encoding="utf-8")
+CONFIG = (ROOT / "zbrano" / "config.yaml").read_text(encoding="utf-8")
+MANIFEST = json.loads((ROOT / "zbrano" / "release_manifest.json").read_text(encoding="utf-8"))
 
 
 def _memory_namespace(tmp_path: Path) -> dict[str, Any]:

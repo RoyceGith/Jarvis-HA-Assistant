@@ -10,24 +10,24 @@ from tests.backend_source import load_backend_source
 ROOT = Path(__file__).resolve().parents[1]
 INDEX = load_frontend_source()
 MAIN = load_backend_source()
-CONFIG = (ROOT / "jarvis/config.yaml").read_text(encoding="utf-8")
-MANIFEST = json.loads((ROOT / "jarvis/release_manifest.json").read_text(encoding="utf-8"))
+CONFIG = (ROOT / "zbrano/config.yaml").read_text(encoding="utf-8")
+MANIFEST = json.loads((ROOT / "zbrano/release_manifest.json").read_text(encoding="utf-8"))
 
 
 def load_functions(*names):
     tree = ast.parse(MAIN)
     selected = [node for node in tree.body if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)) and node.name in names]
     namespace = {"Any": object, "re": re}
-    exec(compile(ast.Module(body=selected, type_ignores=[]), "jarvis/app/main.py", "exec"), namespace)
+    exec(compile(ast.Module(body=selected, type_ignores=[]), "zbrano/app/main.py", "exec"), namespace)
     return namespace
 
 
 class SiteAwareAutomationBrainTests(unittest.TestCase):
     def test_release_markers_are_aligned(self):
-        self.assertIn('version: "0.13.215"', CONFIG)
-        self.assertIn('version="0.13.215"', MAIN)
-        self.assertIn("HUD 0.13.215", INDEX)
-        self.assertEqual(MANIFEST["version"], "0.13.215")
+        self.assertIn('version: "0.13.216"', CONFIG)
+        self.assertIn('version="0.13.216"', MAIN)
+        self.assertIn("HUD 0.13.216", INDEX)
+        self.assertEqual(MANIFEST["version"], "0.13.216")
 
     def test_labels_and_zones_are_imported_without_coordinates(self):
         self.assertIn('"type": "config/label_registry/list"', MAIN)

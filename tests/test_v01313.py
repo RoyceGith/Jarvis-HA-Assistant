@@ -10,8 +10,8 @@ from tests.backend_source import load_backend_source
 ROOT = Path(__file__).resolve().parents[1]
 MAIN = load_backend_source()
 INDEX = load_frontend_source()
-CONFIG = (ROOT / "jarvis/config.yaml").read_text(encoding="utf-8")
-MANIFEST = json.loads((ROOT / "jarvis/release_manifest.json").read_text(encoding="utf-8"))
+CONFIG = (ROOT / "zbrano/config.yaml").read_text(encoding="utf-8")
+MANIFEST = json.loads((ROOT / "zbrano/release_manifest.json").read_text(encoding="utf-8"))
 
 
 def load_functions(*names):
@@ -26,16 +26,16 @@ def load_functions(*names):
         "httpx": type("Httpx", (), {"HTTPError": RuntimeError}),
         "re": __import__("re"),
     }
-    exec(compile(ast.Module(body=selected, type_ignores=[]), "jarvis/app/main.py", "exec"), namespace)
+    exec(compile(ast.Module(body=selected, type_ignores=[]), "zbrano/app/main.py", "exec"), namespace)
     return namespace
 
 
 class ReleaseMemoryWriteVerificationTests(unittest.TestCase):
     def test_release_markers_are_aligned(self):
-        self.assertIn('version: "0.13.215"', CONFIG)
-        self.assertIn('version="0.13.215"', MAIN)
-        self.assertIn("HUD 0.13.215", INDEX)
-        self.assertEqual(MANIFEST["version"], "0.13.215")
+        self.assertIn('version: "0.13.216"', CONFIG)
+        self.assertIn('version="0.13.216"', MAIN)
+        self.assertIn("HUD 0.13.216", INDEX)
+        self.assertEqual(MANIFEST["version"], "0.13.216")
 
     def test_plain_and_structured_statuses_are_recognized(self):
         status = load_functions("release_sync_write_status")["release_sync_write_status"]
@@ -78,13 +78,13 @@ class ReleaseMemoryWriteVerificationTests(unittest.TestCase):
 
     def test_prior_canonical_release_descriptions_are_backfilled_in_order(self):
         records = MANIFEST["history_backfill"]
-        self.assertEqual([item["version"] for item in records], [f"0.13.{index}" for index in range(215)])
+        self.assertEqual([item["version"] for item in records], [f"0.13.{index}" for index in range(216)])
         self.assertTrue(all(item["summary"] for item in records))
         functions = load_functions("release_marker", "render_release_history_backfill")
         entries = functions["render_release_history_backfill"](MANIFEST)
-        self.assertEqual(len(entries), 215)
+        self.assertEqual(len(entries), 216)
         self.assertIn("zbrano-release:0.13.0", entries[0])
-        self.assertIn("zbrano-release:0.13.214", entries[-1])
+        self.assertIn("zbrano-release:0.13.215", entries[-1])
         self.assertIn("reconcile_release_history_backfill(updated, manifest)", MAIN)
 
 

@@ -2,17 +2,17 @@ from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[1]
-PATCH = (ROOT / "jarvis/apply_release_bump_v01260.py").read_text(encoding="utf-8")
-DOCKER = (ROOT / "jarvis/Dockerfile").read_text(encoding="utf-8")
-CONFIG = (ROOT / "jarvis/config.yaml").read_text(encoding="utf-8")
+PATCH = (ROOT / "zbrano/apply_release_bump_v01260.py").read_text(encoding="utf-8")
+DOCKER = (ROOT / "zbrano/Dockerfile").read_text(encoding="utf-8")
+CONFIG = (ROOT / "zbrano/config.yaml").read_text(encoding="utf-8")
 WORKFLOW = (ROOT / ".github/workflows/build.yaml").read_text(encoding="utf-8")
 
 
 def test_v01260_uses_prebuilt_home_assistant_image():
-    assert 'image: "ghcr.io/roycegith/jarvis-ha-assistant"' in CONFIG
+    assert 'image: "ghcr.io/roycegith/zbrano-core"' in CONFIG
     assert "home-assistant/builder/actions/build-image@2026.06.0" in WORKFLOW
     assert "home-assistant/builder/actions/publish-multi-arch-manifest@2026.06.0" in WORKFLOW
-    assert "context: ./jarvis" in WORKFLOW
+    assert "context: ./zbrano" in WORKFLOW
     assert "packages: write" in WORKFLOW
     assert "version=${{ steps.info.outputs.version }}" in WORKFLOW
     assert "version: ${{ steps.normalize.outputs.version }}" in WORKFLOW

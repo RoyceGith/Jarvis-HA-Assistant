@@ -6,11 +6,11 @@ from typing import Any
 
 
 ROOT = Path(__file__).resolve().parents[1]
-PATCH_PATH = ROOT / "jarvis/apply_ha_history_timeline_v01276.py"
+PATCH_PATH = ROOT / "zbrano/apply_ha_history_timeline_v01276.py"
 PATCH = PATCH_PATH.read_text(encoding="utf-8")
-DOCKER = (ROOT / "jarvis/Dockerfile").read_text(encoding="utf-8")
-CONFIG = (ROOT / "jarvis/config.yaml").read_text(encoding="utf-8")
-MANIFEST = json.loads((ROOT / "jarvis/release_manifest.json").read_text(encoding="utf-8"))
+DOCKER = (ROOT / "zbrano/Dockerfile").read_text(encoding="utf-8")
+CONFIG = (ROOT / "zbrano/config.yaml").read_text(encoding="utf-8")
+MANIFEST = json.loads((ROOT / "zbrano/release_manifest.json").read_text(encoding="utf-8"))
 
 
 def _history_namespace() -> dict[str, Any]:

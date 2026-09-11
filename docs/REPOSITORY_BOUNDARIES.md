@@ -30,7 +30,7 @@ Home Assistant installation metadata and documentation. It retains the last
 previously public source commit and the initial thin-distribution head as merge
 ancestry so Supervisor clones cached on either side of the transition can
 fast-forward across the split. The published container
-retains the compatibility image path `ghcr.io/roycegith/jarvis-ha-assistant`; moving
+retains the compatibility image path `ghcr.io/roycegith/zbrano-core`; moving
 source code must not strand installed Home Assistant apps on a different package
 path.
 
@@ -47,7 +47,7 @@ The v0.13.57 bridge commit joins both public transition histories while retainin
 only explicitly allowlisted distribution files in its current tree. Home Assistant
 configuration translations are presentation metadata and may ship beside the app
 configuration without exposing application source.
-The allowlisted `jarvis/icon.png` and `jarvis/logo.png` are public presentation
+The allowlisted `zbrano/icon.png` and `zbrano/logo.png` are public presentation
 assets. Their PNG format, dimensions, transparency, and bounded size are validated
 before publication.
 The allowlisted `custom_components/zbrano` bridge contains no assistant runtime,

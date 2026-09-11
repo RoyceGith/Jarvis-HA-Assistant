@@ -2,9 +2,9 @@ from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[1]
-COMPACT_PATCH = (ROOT / "jarvis/apply_catalog_and_plugin_compact_v01131.py").read_text(encoding="utf-8")
-RELEASE_PATCH = (ROOT / "jarvis/apply_plugin_compact_repair_v01261.py").read_text(encoding="utf-8")
-DOCKER = (ROOT / "jarvis/Dockerfile").read_text(encoding="utf-8")
+COMPACT_PATCH = (ROOT / "zbrano/apply_catalog_and_plugin_compact_v01131.py").read_text(encoding="utf-8")
+RELEASE_PATCH = (ROOT / "zbrano/apply_plugin_compact_repair_v01261.py").read_text(encoding="utf-8")
+DOCKER = (ROOT / "zbrano/Dockerfile").read_text(encoding="utf-8")
 
 
 def test_v01261_repairs_every_installed_plugin_row():

@@ -4,12 +4,12 @@
 
 Home Assistant continues to start `uvicorn app.main:app`. The FastAPI application,
 route URLs, persistent `/data` paths, request schema fields, and stored payload formats
-remain unchanged. `jarvis/app/main.py` is the composition root for stateful runtime
+remain unchanged. `zbrano/app/main.py` is the composition root for stateful runtime
 services and API routes.
 
 ## Backend modules
 
-Pure, low-coupling behavior is extracted under `jarvis/app/services/`:
+Pure, low-coupling behavior is extracted under `zbrano/app/services/`:
 
 - `mcp_protocol.py` decodes JSON, SSE, structured MCP tool results, and MCP errors.
 - `release_notes.py` renders, compacts, and reconciles canonical release records.
@@ -72,10 +72,10 @@ Pure, low-coupling behavior is extracted under `jarvis/app/services/`:
 - `owner_extensions.py` owns the protected private-extension configuration file and
   the one-way compatibility migration from legacy owner-specific add-on options.
 
-The API boundary models live in `jarvis/app/schemas.py`, keeping validation contracts
+The API boundary models live in `zbrano/app/schemas.py`, keeping validation contracts
 separate from route orchestration without changing their names or fields.
 
-Stateful engines live under `jarvis/app/domains/`:
+Stateful engines live under `zbrano/app/domains/`:
 
 - `automations.py` owns Automation Brain persistence, Home Assistant area context,
   learning, deterministic matching, decisions, suggestions, and safe execution.
@@ -93,7 +93,7 @@ Stateful engines live under `jarvis/app/domains/`:
   bounded pre-failure buffers, incident persistence, diagnostic tools, and task lifecycle.
 - `release_sync.py` owns Release Memory manifest validation, 11-note reconciliation,
   exact write verification, persisted progress, bounded retries, and worker lifecycle.
-- `settings.py` owns `/data/jarvis_settings.json`, general instructions, preference
+- `settings.py` owns `/data/zbrano_settings.json`, general instructions, preference
   defaults, ElevenLabs voice settings, and pronunciation-dictionary transformation.
 - `conversations.py` owns `/data/chat_sessions.json`, bounded session state, titles,
   retention, internal diagnostic cleanup, attachment views, and per-session entity context.
@@ -126,7 +126,7 @@ browser tests rather than file-size reduction alone.
 
 ## Frontend modules
 
-`jarvis/app/static/index.html` owns semantic markup and ordered asset declarations.
+`zbrano/app/static/index.html` owns semantic markup and ordered asset declarations.
 The initial theme bootstrap remains inline to prevent a theme flash. All other
 frontend source is direct, checked-in code:
 

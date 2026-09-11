@@ -2,9 +2,9 @@ from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[1]
-PATCH = (ROOT / "jarvis/apply_local_wake_shadow_v012101.py").read_text(encoding="utf-8")
-DOCKER = (ROOT / "jarvis/Dockerfile").read_text(encoding="utf-8")
-MODEL = ROOT / "jarvis/models/wakeword/hey_zbrano.onnx"
+PATCH = (ROOT / "zbrano/apply_local_wake_shadow_v012101.py").read_text(encoding="utf-8")
+DOCKER = (ROOT / "zbrano/Dockerfile").read_text(encoding="utf-8")
+MODEL = ROOT / "zbrano/models/wakeword/hey_zbrano.onnx"
 
 
 def test_shadow_mode_is_silent_local_and_observable() -> None:

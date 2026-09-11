@@ -2,26 +2,26 @@ import json
 from pathlib import Path
 import unittest
 
-from jarvis.app.services import mcp_approvals, tool_progress, workshop_approvals
+from zbrano.app.services import mcp_approvals, tool_progress, workshop_approvals
 
 
 ROOT = Path(__file__).resolve().parents[1]
-APP = ROOT / "jarvis/app"
+APP = ROOT / "zbrano/app"
 MAIN = (APP / "main.py").read_text(encoding="utf-8")
 WORKSHOP = (APP / "services/workshop_approvals.py").read_text(encoding="utf-8")
 MCP = (APP / "services/mcp_approvals.py").read_text(encoding="utf-8")
 PROGRESS = (APP / "services/tool_progress.py").read_text(encoding="utf-8")
-CONFIG = (ROOT / "jarvis/config.yaml").read_text(encoding="utf-8")
+CONFIG = (ROOT / "zbrano/config.yaml").read_text(encoding="utf-8")
 HTML = (APP / "static/index.html").read_text(encoding="utf-8")
-MANIFEST = json.loads((ROOT / "jarvis/release_manifest.json").read_text(encoding="utf-8"))
+MANIFEST = json.loads((ROOT / "zbrano/release_manifest.json").read_text(encoding="utf-8"))
 
 
 class ApprovalAndToolProgressBoundaryTests(unittest.TestCase):
     def test_release_markers_are_aligned(self):
-        self.assertIn('version: "0.13.215"', CONFIG)
-        self.assertIn('version="0.13.215"', MAIN)
-        self.assertIn("HUD 0.13.215", HTML)
-        self.assertEqual(MANIFEST["version"], "0.13.215")
+        self.assertIn('version: "0.13.216"', CONFIG)
+        self.assertIn('version="0.13.216"', MAIN)
+        self.assertIn("HUD 0.13.216", HTML)
+        self.assertEqual(MANIFEST["version"], "0.13.216")
 
     def test_three_services_are_outside_composition_root_and_configured(self):
         self.assertNotIn("def workshop_memory_approval_decision(", MAIN)

@@ -7,7 +7,7 @@ from typing import Any
 
 
 ROOT = Path(__file__).resolve().parents[1]
-MAIN_PATH = ROOT / "jarvis/app/services/entity_policy.py"
+MAIN_PATH = ROOT / "zbrano/app/services/entity_policy.py"
 
 
 def load_policy_functions(data_dir: Path, v063_path: Path):
@@ -39,7 +39,7 @@ class EntityPolicyPersistenceTests(unittest.TestCase):
             root = Path(temporary)
             data_dir = root / "data"
             load_policy, save_policy = load_policy_functions(
-                data_dir, root / "share/jarvis/entity_policy.json"
+                data_dir, root / "share/zbrano/entity_policy.json"
             )
             expected = {
                 "sensor.workshop_temperature": {
@@ -57,7 +57,7 @@ class EntityPolicyPersistenceTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
             data_dir = root / "data"
-            v063_path = root / "share/jarvis/entity_policy.json"
+            v063_path = root / "share/zbrano/entity_policy.json"
             v063_path.parent.mkdir(parents=True)
             v063_path.write_text(
                 json.dumps({
@@ -95,7 +95,7 @@ class EntityPolicyPersistenceTests(unittest.TestCase):
                 }),
                 encoding="utf-8",
             )
-            v063_path = root / "share/jarvis/entity_policy.json"
+            v063_path = root / "share/zbrano/entity_policy.json"
             v063_path.parent.mkdir(parents=True)
             v063_path.write_text(
                 json.dumps({

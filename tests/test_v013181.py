@@ -3,27 +3,27 @@ from pathlib import Path
 import re
 import unittest
 
-from jarvis.validate_release_contract import yaml_section_keys
+from zbrano.validate_release_contract import yaml_section_keys
 
 
 ROOT = Path(__file__).resolve().parents[1]
-CONFIG = (ROOT / "jarvis/config.yaml").read_text(encoding="utf-8")
-MAIN = (ROOT / "jarvis/app/main.py").read_text(encoding="utf-8")
-HTML = (ROOT / "jarvis/app/static/index.html").read_text(encoding="utf-8")
-TRANSLATIONS = (ROOT / "jarvis/translations/en.yaml").read_text(encoding="utf-8")
-CONTRACT = (ROOT / "jarvis/validate_release_contract.py").read_text(encoding="utf-8")
+CONFIG = (ROOT / "zbrano/config.yaml").read_text(encoding="utf-8")
+MAIN = (ROOT / "zbrano/app/main.py").read_text(encoding="utf-8")
+HTML = (ROOT / "zbrano/app/static/index.html").read_text(encoding="utf-8")
+TRANSLATIONS = (ROOT / "zbrano/translations/en.yaml").read_text(encoding="utf-8")
+CONTRACT = (ROOT / "zbrano/validate_release_contract.py").read_text(encoding="utf-8")
 BOUNDARY = (ROOT / "validate_public_repo.py").read_text(encoding="utf-8")
 PUBLIC_README = (ROOT / "distribution/public-repository/README.md").read_text(encoding="utf-8")
-MANIFEST = json.loads((ROOT / "jarvis/release_manifest.json").read_text(encoding="utf-8"))
+MANIFEST = json.loads((ROOT / "zbrano/release_manifest.json").read_text(encoding="utf-8"))
 
 
 class FriendlyHomeAssistantConfigurationReleaseTests(unittest.TestCase):
     def test_release_is_aligned(self):
-        self.assertIn('version: "0.13.215"', CONFIG)
-        self.assertIn('version="0.13.215"', MAIN)
-        self.assertIn("HUD 0.13.215", HTML)
-        self.assertEqual(MANIFEST["version"], "0.13.215")
-        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.214")
+        self.assertIn('version: "0.13.216"', CONFIG)
+        self.assertIn('version="0.13.216"', MAIN)
+        self.assertIn("HUD 0.13.216", HTML)
+        self.assertEqual(MANIFEST["version"], "0.13.216")
+        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.215")
 
     def test_every_home_assistant_option_has_friendly_copy(self):
         option_keys = yaml_section_keys(CONFIG, "schema")
@@ -50,7 +50,7 @@ class FriendlyHomeAssistantConfigurationReleaseTests(unittest.TestCase):
     def test_release_checks_protect_the_shipped_translation_file(self):
         self.assertIn('ENGLISH_TRANSLATIONS = APP_ROOT / "translations" / "en.yaml"', CONTRACT)
         self.assertIn('translation_keys != schema_keys', CONTRACT)
-        self.assertIn('"jarvis/translations/en.yaml"', BOUNDARY)
+        self.assertIn('"zbrano/translations/en.yaml"', BOUNDARY)
         self.assertIn("Path(sys.argv[1]).resolve()", BOUNDARY)
         self.assertIn("unexpected file in thin public distribution", BOUNDARY)
 

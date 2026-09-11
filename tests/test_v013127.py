@@ -7,12 +7,12 @@ import unittest
 
 
 ROOT = Path(__file__).resolve().parents[1]
-MAIN = (ROOT / "jarvis/app/main.py").read_text(encoding="utf-8")
-CONTACTS = (ROOT / "jarvis/app/domains/contacts.py").read_text(encoding="utf-8")
-CALENDAR_JS = (ROOT / "jarvis/app/static/js/calendar/center.js").read_text(encoding="utf-8")
-HTML = (ROOT / "jarvis/app/static/index.html").read_text(encoding="utf-8")
-CSS = (ROOT / "jarvis/app/static/css/entity-columns.css").read_text(encoding="utf-8")
-MANIFEST = json.loads((ROOT / "jarvis/release_manifest.json").read_text(encoding="utf-8"))
+MAIN = (ROOT / "zbrano/app/main.py").read_text(encoding="utf-8")
+CONTACTS = (ROOT / "zbrano/app/domains/contacts.py").read_text(encoding="utf-8")
+CALENDAR_JS = (ROOT / "zbrano/app/static/js/calendar/center.js").read_text(encoding="utf-8")
+HTML = (ROOT / "zbrano/app/static/index.html").read_text(encoding="utf-8")
+CSS = (ROOT / "zbrano/app/static/css/entity-columns.css").read_text(encoding="utf-8")
+MANIFEST = json.loads((ROOT / "zbrano/release_manifest.json").read_text(encoding="utf-8"))
 
 
 def load_function(source, name, namespace):
@@ -38,7 +38,7 @@ class BirthdayDirectoryReleaseTests(unittest.TestCase):
 
     def test_direct_chat_birthday_has_a_defensive_default(self):
         self.assertIn('birthday_arguments["reminder_days_before"] = [7, 1]', MAIN)
-        self.assertIn('the default reminder schedule [7, 1]', (ROOT / "jarvis/app/services/calendar_intents.py").read_text(encoding="utf-8"))
+        self.assertIn('the default reminder schedule [7, 1]', (ROOT / "zbrano/app/services/calendar_intents.py").read_text(encoding="utf-8"))
 
     def test_people_view_contains_upcoming_and_month_sections(self):
         self.assertNotIn('data-birthday-view="upcoming"', HTML)
@@ -49,8 +49,8 @@ class BirthdayDirectoryReleaseTests(unittest.TestCase):
         self.assertIn('.birthday-month-section', CSS)
 
     def test_release_is_aligned(self):
-        self.assertEqual(MANIFEST["version"], "0.13.215")
-        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.214")
+        self.assertEqual(MANIFEST["version"], "0.13.216")
+        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.215")
 
 
 if __name__ == "__main__":

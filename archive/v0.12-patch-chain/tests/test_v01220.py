@@ -2,9 +2,9 @@ from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[1]
-PATCH = (ROOT / "jarvis/apply_navigation_settings_and_chat_wrap_v01220.py").read_text(encoding="utf-8")
-DOCKER = (ROOT / "jarvis/Dockerfile").read_text(encoding="utf-8")
-CONFIG = (ROOT / "jarvis/config.yaml").read_text(encoding="utf-8")
+PATCH = (ROOT / "zbrano/apply_navigation_settings_and_chat_wrap_v01220.py").read_text(encoding="utf-8")
+DOCKER = (ROOT / "zbrano/Dockerfile").read_text(encoding="utf-8")
+CONFIG = (ROOT / "zbrano/config.yaml").read_text(encoding="utf-8")
 README = (ROOT / "README.md").read_text(encoding="utf-8")
 
 
@@ -36,16 +36,16 @@ def test_v01220_adds_accessible_settings_categories():
 def test_v01220_keeps_empty_chat_neuron_full_then_uses_saved_opacity():
     assert ".core-stage.neuron-intense #brain-network { opacity: 1 !important; }" in PATCH
     assert "setNeuronIntensity(false);" in PATCH
-    assert 'document.body.classList.remove("jarvis-input-active");' in PATCH
+    assert 'document.body.classList.remove("zbrano-input-active");' in PATCH
     assert "--neural-opacity" not in PATCH.split(".core-stage.neuron-intense #brain-network", 1)[1].split("}", 1)[0]
 
 
 def test_v01220_wraps_assistant_responses_without_recoloring_them():
-    assert ".message.jarvis pre" in PATCH
+    assert ".message.zbrano pre" in PATCH
     assert "overflow-wrap: anywhere" in PATCH
     assert "word-break: break-word" in PATCH
     assert "white-space: break-spaces" in PATCH
-    assert "color:" not in PATCH.split(".message.jarvis,", 1)[1].split(".core-stage.neuron-intense", 1)[0]
+    assert "color:" not in PATCH.split(".message.zbrano,", 1)[1].split(".core-stage.neuron-intense", 1)[0]
 
 
 def test_v01220_versions_and_build_order():

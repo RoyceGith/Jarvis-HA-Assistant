@@ -7,20 +7,20 @@ import unittest
 
 
 ROOT = Path(__file__).resolve().parents[1]
-MAIN = (ROOT / "jarvis/app/main.py").read_text(encoding="utf-8")
-CONFIG = (ROOT / "jarvis/config.yaml").read_text(encoding="utf-8")
-HTML = (ROOT / "jarvis/app/static/index.html").read_text(encoding="utf-8")
-MANIFEST = json.loads((ROOT / "jarvis/release_manifest.json").read_text(encoding="utf-8"))
+MAIN = (ROOT / "zbrano/app/main.py").read_text(encoding="utf-8")
+CONFIG = (ROOT / "zbrano/config.yaml").read_text(encoding="utf-8")
+HTML = (ROOT / "zbrano/app/static/index.html").read_text(encoding="utf-8")
+MANIFEST = json.loads((ROOT / "zbrano/release_manifest.json").read_text(encoding="utf-8"))
 
 
 class DistributionFolderCompatibilityReleaseTests(unittest.TestCase):
     def test_release_markers_are_aligned(self):
-        self.assertIn('version: "0.13.215"', CONFIG)
-        self.assertIn('version="0.13.215"', MAIN)
-        self.assertIn("HUD 0.13.215", HTML)
-        self.assertEqual(MANIFEST["version"], "0.13.215")
+        self.assertIn('version: "0.13.216"', CONFIG)
+        self.assertIn('version="0.13.216"', MAIN)
+        self.assertIn("HUD 0.13.216", HTML)
+        self.assertEqual(MANIFEST["version"], "0.13.216")
 
-    def test_public_export_restores_original_jarvis_folder(self):
+    def test_public_export_uses_only_the_zbrano_folder(self):
         with tempfile.TemporaryDirectory() as temporary:
             subprocess.run(
                 [sys.executable, str(ROOT / "tools/export_public_repository.py"), temporary],
@@ -29,14 +29,17 @@ class DistributionFolderCompatibilityReleaseTests(unittest.TestCase):
                 text=True,
             )
             destination = Path(temporary)
-            self.assertTrue((destination / "jarvis/config.yaml").is_file())
-            self.assertFalse((destination / "zbrano").exists())
-            exported_config = (destination / "jarvis/config.yaml").read_text(encoding="utf-8")
-        self.assertIn('slug: "jarvis_workshop_assistant"', exported_config)
-        self.assertIn('image: "ghcr.io/roycegith/jarvis-ha-assistant"', exported_config)
+            self.assertTrue((destination / "zbrano/config.yaml").is_file())
+            self.assertEqual(
+                sorted(path.name for path in destination.iterdir() if path.is_dir()),
+                ["zbrano"],
+            )
+            exported_config = (destination / "zbrano/config.yaml").read_text(encoding="utf-8")
+        self.assertIn('slug: "zbrano"', exported_config)
+        self.assertIn('image: "ghcr.io/roycegith/zbrano-core"', exported_config)
 
     def test_release_history_includes_v01354(self):
-        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.214")
+        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.215")
 
 
 if __name__ == "__main__":

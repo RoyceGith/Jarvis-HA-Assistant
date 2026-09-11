@@ -7,10 +7,10 @@ import unittest
 
 
 ROOT = Path(__file__).resolve().parents[1]
-MAIN = (ROOT / "jarvis/app/main.py").read_text(encoding="utf-8")
-CALENDAR = (ROOT / "jarvis/app/domains/calendar.py").read_text(encoding="utf-8")
-CONTACTS = (ROOT / "jarvis/app/domains/contacts.py").read_text(encoding="utf-8")
-MANIFEST = json.loads((ROOT / "jarvis/release_manifest.json").read_text(encoding="utf-8"))
+MAIN = (ROOT / "zbrano/app/main.py").read_text(encoding="utf-8")
+CALENDAR = (ROOT / "zbrano/app/domains/calendar.py").read_text(encoding="utf-8")
+CONTACTS = (ROOT / "zbrano/app/domains/contacts.py").read_text(encoding="utf-8")
+MANIFEST = json.loads((ROOT / "zbrano/release_manifest.json").read_text(encoding="utf-8"))
 
 
 def load_function(source, name, namespace):
@@ -54,8 +54,8 @@ class BirthdayPersistenceReleaseTests(unittest.TestCase):
         self.assertIn("reconcile_birthday_contacts()", route)
 
     def test_release_is_aligned(self):
-        self.assertEqual(MANIFEST["version"], "0.13.215")
-        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.214")
+        self.assertEqual(MANIFEST["version"], "0.13.216")
+        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.215")
 
 
 if __name__ == "__main__":

@@ -3,36 +3,36 @@ import json
 import tempfile
 import unittest
 
-from jarvis.app.domains import settings
+from zbrano.app.domains import settings
 
 
 ROOT = Path(__file__).resolve().parents[1]
-APP = ROOT / "jarvis/app"
+APP = ROOT / "zbrano/app"
 MAIN = (APP / "main.py").read_text(encoding="utf-8")
 SETTINGS = (APP / "domains/settings.py").read_text(encoding="utf-8")
-CONFIG = (ROOT / "jarvis/config.yaml").read_text(encoding="utf-8")
+CONFIG = (ROOT / "zbrano/config.yaml").read_text(encoding="utf-8")
 HTML = (APP / "static/index.html").read_text(encoding="utf-8")
-MANIFEST = json.loads((ROOT / "jarvis/release_manifest.json").read_text(encoding="utf-8"))
+MANIFEST = json.loads((ROOT / "zbrano/release_manifest.json").read_text(encoding="utf-8"))
 
 
 class SettingsDomainBoundaryTests(unittest.TestCase):
     def test_release_markers_are_aligned(self):
-        self.assertIn('version: "0.13.215"', CONFIG)
-        self.assertIn('version="0.13.215"', MAIN)
-        self.assertIn("HUD 0.13.215", HTML)
-        self.assertEqual(MANIFEST["version"], "0.13.215")
+        self.assertIn('version: "0.13.216"', CONFIG)
+        self.assertIn('version="0.13.216"', MAIN)
+        self.assertIn("HUD 0.13.216", HTML)
+        self.assertEqual(MANIFEST["version"], "0.13.216")
 
     def test_settings_store_is_outside_composition_root(self):
         self.assertNotIn("def load_settings_payload(", MAIN)
         self.assertNotIn("def load_preferences(", MAIN)
         self.assertIn("def load_settings_payload(", SETTINGS)
         self.assertIn("def load_preferences(", SETTINGS)
-        self.assertIn('SETTINGS_STORAGE_PATH = Path("/data/jarvis_settings.json")', SETTINGS)
+        self.assertIn('SETTINGS_STORAGE_PATH = Path("/data/zbrano_settings.json")', SETTINGS)
 
     def test_settings_json_round_trip_preserves_payload(self):
         original_path = settings.SETTINGS_STORAGE_PATH
         with tempfile.TemporaryDirectory() as directory:
-            settings.SETTINGS_STORAGE_PATH = Path(directory) / "jarvis_settings.json"
+            settings.SETTINGS_STORAGE_PATH = Path(directory) / "zbrano_settings.json"
             try:
                 payload = {"version": 3, "general_instructions": "Keep behavior stable", "preferences": {"theme": "dark"}}
                 settings.save_settings_payload(payload)

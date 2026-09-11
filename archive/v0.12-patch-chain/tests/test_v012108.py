@@ -3,11 +3,11 @@ from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[1]
-FIXED_PATCH = (ROOT / "jarvis/apply_validated_wake_samples_v012107.py").read_text(encoding="utf-8")
-RELEASE_PATCH = (ROOT / "jarvis/apply_wake_calibration_build_fix_v012108.py").read_text(encoding="utf-8")
-DOCKER = (ROOT / "jarvis/Dockerfile").read_text(encoding="utf-8")
-CONFIG = (ROOT / "jarvis/config.yaml").read_text(encoding="utf-8")
-MANIFEST = json.loads((ROOT / "jarvis/release_manifest.json").read_text(encoding="utf-8"))
+FIXED_PATCH = (ROOT / "zbrano/apply_validated_wake_samples_v012107.py").read_text(encoding="utf-8")
+RELEASE_PATCH = (ROOT / "zbrano/apply_wake_calibration_build_fix_v012108.py").read_text(encoding="utf-8")
+DOCKER = (ROOT / "zbrano/Dockerfile").read_text(encoding="utf-8")
+CONFIG = (ROOT / "zbrano/config.yaml").read_text(encoding="utf-8")
+MANIFEST = json.loads((ROOT / "zbrano/release_manifest.json").read_text(encoding="utf-8"))
 
 
 def test_legacy_calibration_patch_uses_encoding_independent_boundary() -> None:
