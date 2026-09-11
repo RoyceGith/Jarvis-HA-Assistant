@@ -28,13 +28,14 @@
 <link id="zbrano-v01379-workspace-modern-style" rel="stylesheet" href="css/workspace-modern.css">
 <link id="zbrano-v013119-contacts-style" rel="stylesheet" href="css/contacts.css">
 <link id="zbrano-v013194-memory-studio-style" rel="stylesheet" href="css/memory-studio.css">
+<link id="zbrano-v013220-notification-center-style" rel="stylesheet" href="css/notification-center.css">
 </head>
 <body>
 <main>
   <header>
     <div class="brand-line">
       <h1>ZBRANO</h1>
-      <div class="status hud-version-label">Workshop Intelligence Interface · HUD 0.13.219</div>
+      <div class="status hud-version-label">Workshop Intelligence Interface · HUD 0.13.220</div>
     </div>
     <div class="runtime-status-stack">
       <label class="interface-language-picker" title="Interface language">
@@ -933,20 +934,30 @@
       </section>
 
       <section class="autonomy-view hidden" data-auto-panel="notifications">
+        <header class="notification-workspace-head">
+          <div>
+            <span class="notification-workspace-kicker">Delivery workspace</span>
+            <h2>Notifications</h2>
+            <p>Choose where ZBRANO reaches you, when alerts may arrive, and review what was delivered.</p>
+          </div>
+          <button id="notification-refresh" class="notification-refresh-button" type="button" aria-label="Refresh notification channels">
+            <span aria-hidden="true">&#8635;</span> Refresh
+          </button>
+        </header>
         <div class="notification-subtabs" role="tablist" aria-label="Notification workspace">
           <button type="button" class="active" data-notification-view="center" role="tab" aria-selected="true">Notification Center</button>
           <button type="button" data-notification-view="watchlist" role="tab" aria-selected="false">Watchlist</button>
           <button type="button" data-notification-view="logs" role="tab" aria-selected="false">Delivery Logs</button>
         </div>
-        <div data-notification-panel="center">
+        <div class="notification-workspace-panel" data-notification-panel="center">
         <div class="notification-center-grid">
           <article class="autonomy-card notification-channel-card">
-            <div class="autonomy-card-head"><div><h3>Notification Channels</h3><p>ZBRANO discovers Home Assistant notify entities. Telegram credentials remain inside Home Assistant.</p></div><button id="notification-refresh" type="button">Refresh</button></div>
+            <div class="autonomy-card-head"><div><span class="notification-card-kicker">Available destinations</span><h3>Notification Channels</h3><p>ZBRANO discovers Home Assistant notify entities. Telegram credentials remain inside Home Assistant.</p></div></div>
             <div id="notification-channels" class="notification-channel-list"><div class="autonomy-empty">Open Notifications to discover channels.</div></div>
             <p id="notification-credential-boundary" class="muted"></p>
           </article>
-          <article class="autonomy-card">
-            <h3>Delivery Policy</h3><p>Saved notification rules inherit these defaults. An approved rule may deliver without asking again.</p>
+          <article class="autonomy-card notification-policy-card">
+            <div class="autonomy-card-head"><div><span class="notification-card-kicker">Everyday defaults</span><h3>Delivery Policy</h3><p>Saved notification rules inherit these defaults. An approved rule may deliver without asking again.</p></div></div>
             <form id="notification-settings-form">
               <div class="notification-form-grid">
                 <label class="wide">Default channel<select id="notification-default-channel"><option value="">Choose a Home Assistant notify entity</option></select></label>
@@ -961,25 +972,8 @@
               <div class="autonomy-form-actions"><button type="submit">Save notification policy</button><span id="notification-settings-status" role="status"></span></div>
             </form>
           </article>
-        </div>
-        <article class="autonomy-card telegram-inbox-card">
-          <div class="autonomy-card-head"><div><h3>Telegram Inbox</h3><p>Talk with ZBRANO remotely through explicitly paired Telegram chats. Home Assistant keeps the bot token.</p></div><span id="telegram-inbound-state" class="notification-platform">Disabled</span></div>
-          <form id="telegram-inbound-form">
-            <div class="notification-form-grid">
-              <label class="check wide"><input id="telegram-inbound-enabled" type="checkbox"> Enable incoming Telegram messages</label>
-              <label class="wide">Reply channel<select id="telegram-inbound-channel"><option value="">Use Notification Center default</option></select></label>
-              <label class="check wide"><input id="telegram-remote-approvals" type="checkbox"> Allow paired Telegram chats to approve already-proposed actions</label>
-            </div>
-            <div class="autonomy-form-actions"><button type="submit">Save Telegram Inbox</button><button id="telegram-generate-code" type="button">Generate pairing code</button><span id="telegram-inbound-status" role="status"></span></div>
-          </form>
-          <div id="telegram-pairing-command" class="telegram-pairing-command" hidden></div>
-          <div id="telegram-linked-chats" class="notification-channel-list"><div class="autonomy-empty">No Telegram chats paired.</div></div>
-          <p id="telegram-credential-boundary" class="muted"></p>
-        </article>
-
-        <div class="notification-center-grid notification-center-lower">
-          <article class="autonomy-card">
-            <h3>Test Delivery</h3><p>This sends one real notification through the selected Home Assistant channel.</p>
+          <article class="autonomy-card notification-test-card">
+            <div class="autonomy-card-head"><div><span class="notification-card-kicker">Connection check</span><h3>Test Delivery</h3><p>Send one real notification through the selected Home Assistant channel.</p></div></div>
             <form id="notification-test-form">
               <div class="notification-form-grid">
                 <label>Target<select id="notification-test-target" required><option value="">Choose channel</option></select></label>
@@ -989,6 +983,20 @@
               </div>
               <div class="autonomy-form-actions"><button type="submit">Send test notification</button><span id="notification-test-status" role="status"></span></div>
             </form>
+          </article>
+          <article class="autonomy-card telegram-inbox-card">
+            <div class="autonomy-card-head"><div><span class="notification-card-kicker">Remote conversation</span><h3>Telegram Inbox</h3><p>Talk with ZBRANO remotely through explicitly paired Telegram chats. Home Assistant keeps the bot token.</p></div><span id="telegram-inbound-state" class="notification-platform">Disabled</span></div>
+            <form id="telegram-inbound-form">
+              <div class="notification-form-grid">
+                <label class="check wide"><input id="telegram-inbound-enabled" type="checkbox"> <span>Enable incoming Telegram messages</span></label>
+                <label class="wide">Reply channel<select id="telegram-inbound-channel"><option value="">Use Notification Center default</option></select></label>
+                <label class="check wide"><input id="telegram-remote-approvals" type="checkbox"> <span>Allow paired Telegram chats to approve already-proposed actions</span></label>
+              </div>
+              <div class="autonomy-form-actions"><button type="submit">Save Telegram Inbox</button><button id="telegram-generate-code" type="button">Generate pairing code</button><span id="telegram-inbound-status" role="status"></span></div>
+            </form>
+            <div id="telegram-pairing-command" class="telegram-pairing-command" hidden></div>
+            <div id="telegram-linked-chats" class="notification-channel-list"><div class="autonomy-empty">No Telegram chats paired.</div></div>
+            <p id="telegram-credential-boundary" class="muted"></p>
           </article>
         </div>
         </div>

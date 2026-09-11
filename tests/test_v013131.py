@@ -13,10 +13,10 @@ MANIFEST = json.loads((ROOT / "zbrano" / "release_manifest.json").read_text(enco
 
 class V013131PaletteTests(unittest.TestCase):
     def test_release_is_aligned(self):
-        self.assertEqual(MANIFEST["version"], "0.13.219")
-        self.assertIn('version: "0.13.219"', (ROOT / "zbrano" / "config.yaml").read_text(encoding="utf-8"))
-        self.assertIn('version="0.13.219"', (ROOT / "zbrano" / "app" / "main.py").read_text(encoding="utf-8"))
-        self.assertIn("HUD 0.13.219", (ROOT / "zbrano" / "app" / "static" / "index.html").read_text(encoding="utf-8"))
+        self.assertEqual(MANIFEST["version"], "0.13.220")
+        self.assertIn('version: "0.13.220"', (ROOT / "zbrano" / "config.yaml").read_text(encoding="utf-8"))
+        self.assertIn('version="0.13.220"', (ROOT / "zbrano" / "app" / "main.py").read_text(encoding="utf-8"))
+        self.assertIn("HUD 0.13.220", (ROOT / "zbrano" / "app" / "static" / "index.html").read_text(encoding="utf-8"))
 
     def test_legacy_green_theme_tokens_match_talk_blue(self):
         self.assertEqual(BASE_CSS.count("--phosphor: #5cecff;"), 1)

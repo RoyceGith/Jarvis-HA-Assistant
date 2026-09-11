@@ -1,9 +1,9 @@
 {
-  "version": "0.13.219",
+  "version": "0.13.220",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/ZBRANO_Core main",
-  "summary": "Allow ordinary Home Assistant controls by default while preserving explicit entity choices.",
+  "summary": "Reorganize Notifications into a contained, responsive delivery workspace.",
   "history_backfill": [
     {
       "version": "0.13.0",
@@ -880,19 +880,23 @@
       {
         "version": "0.13.218",
         "summary": "Restored one-click GitHub account connection in the Plugins catalog."
+      },
+      {
+        "version": "0.13.219",
+        "summary": "Allowed ordinary Home Assistant controls by default while preserving explicit entity choices."
       }
   ],
   "release_entry": {
     "features": [
-      "Automatically allow previously unconfigured light, switch, and climate entities as Control devices on fresh and existing installations.",
-      "Include clearly identified air-conditioner fan and helper controls without treating temperature or status sensors as controllable devices."
+      "Present notification destinations, delivery defaults, test delivery, and Telegram Inbox in a clear two-tier workspace.",
+      "Adapt every notification form, card, list, and toolbar cleanly from wide desktop layouts to narrow mobile screens."
     ],
     "fixes": [
-      "Preserve every explicit saved entity choice, including disabled and Do not allow records.",
-      "Persist newly discovered defaults once so device access remains stable across restarts and backups."
+      "Contain notification controls and dynamic content so long channel names, statuses, and actions cannot overflow their cards.",
+      "Keep Notification Center, Watchlist, and Delivery Logs as focused views with a consistent navigation and refresh header."
     ],
     "validation": [
-      "Default-control classification, explicit override preservation, sensor isolation, browser smoke, integration coverage, and v0.13.219 release alignment"
+      "Desktop and mobile notification layout, horizontal-overflow containment, browser smoke, integration coverage, and v0.13.220 release alignment"
     ]
   },
   "features": [

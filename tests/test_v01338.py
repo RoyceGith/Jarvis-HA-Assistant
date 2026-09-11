@@ -17,10 +17,10 @@ MANIFEST = json.loads((ROOT / "zbrano/release_manifest.json").read_text(encoding
 
 class HomeAssistantHistoryBoundaryTests(unittest.TestCase):
     def test_release_markers_are_aligned(self):
-        self.assertIn('version: "0.13.219"', CONFIG)
-        self.assertIn('version="0.13.219"', MAIN)
-        self.assertIn("HUD 0.13.219", HTML)
-        self.assertEqual(MANIFEST["version"], "0.13.219")
+        self.assertIn('version: "0.13.220"', CONFIG)
+        self.assertIn('version="0.13.220"', MAIN)
+        self.assertIn("HUD 0.13.220", HTML)
+        self.assertEqual(MANIFEST["version"], "0.13.220")
 
     def test_effective_history_implementation_is_outside_main(self):
         self.assertNotIn("def _ha_history_entities(", MAIN)

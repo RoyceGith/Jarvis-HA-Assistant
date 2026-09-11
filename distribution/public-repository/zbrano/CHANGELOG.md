@@ -1,5 +1,11 @@
 # Change log
 
+## 0.13.220
+
+- Reorganize Notifications into a clear delivery workspace with distinct destinations, policy, testing, and Telegram sections.
+- Keep Notification Center, Watchlist, and Delivery Logs focused and consistently navigable.
+- Contain every card, form, list, action, and status across desktop and mobile layouts.
+
 ## 0.13.219
 
 - Allow previously unconfigured light, switch, and climate entities as Control devices by default.

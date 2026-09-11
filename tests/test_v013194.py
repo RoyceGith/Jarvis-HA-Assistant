@@ -26,11 +26,11 @@ class MemoryStudioReleaseTests(unittest.TestCase):
         self.temporary.cleanup()
 
     def test_release_is_aligned(self):
-        self.assertIn('version: "0.13.219"', CONFIG)
-        self.assertIn('version="0.13.219"', MAIN)
-        self.assertIn("HUD 0.13.219", INDEX)
-        self.assertEqual(MANIFEST["version"], "0.13.219")
-        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.218")
+        self.assertIn('version: "0.13.220"', CONFIG)
+        self.assertIn('version="0.13.220"', MAIN)
+        self.assertIn("HUD 0.13.220", INDEX)
+        self.assertEqual(MANIFEST["version"], "0.13.220")
+        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.219")
 
     def test_custom_category_template_and_space_round_trip(self):
         category = knowledge_memory.create_memory_category("Wellness", "health", "Appointments and records")

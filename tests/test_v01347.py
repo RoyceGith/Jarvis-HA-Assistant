@@ -13,10 +13,10 @@ MANIFEST = json.loads((ROOT / "zbrano/release_manifest.json").read_text(encoding
 
 class WorkshopCostSafetyReleaseTests(unittest.TestCase):
     def test_release_markers_are_aligned(self):
-        self.assertIn('version: "0.13.219"', CONFIG)
-        self.assertIn('version="0.13.219"', MAIN)
-        self.assertIn("HUD 0.13.219", HTML)
-        self.assertEqual(MANIFEST["version"], "0.13.219")
+        self.assertIn('version: "0.13.220"', CONFIG)
+        self.assertIn('version="0.13.220"', MAIN)
+        self.assertIn("HUD 0.13.220", HTML)
+        self.assertEqual(MANIFEST["version"], "0.13.220")
 
     def test_runtime_enforces_workshop_cost_controls(self):
         for marker in (
@@ -35,7 +35,7 @@ class WorkshopCostSafetyReleaseTests(unittest.TestCase):
         self.assertIn("cost_budget=workshop_budget", MAIN)
 
     def test_release_history_includes_previous_release(self):
-        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.218")
+        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.219")
 
 
 if __name__ == "__main__":
