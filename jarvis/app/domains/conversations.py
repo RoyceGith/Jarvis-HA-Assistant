@@ -83,7 +83,7 @@ def chat_title(messages: deque[dict[str, Any]]) -> str:
             return title[:48] + ("…" if len(title) > 48 else "")
     return "New chat"
 
-INTERNAL_CHAT_SESSION_PREFIXES = ("zbrano-diagnostic-", "zbrano-playwright-", "assist-")
+INTERNAL_CHAT_SESSION_PREFIXES = ("zbrano-diagnostic-", "assist-")
 
 def is_internal_chat_session(session_id: str) -> bool:
     normalized = str(session_id or "").strip().lower()

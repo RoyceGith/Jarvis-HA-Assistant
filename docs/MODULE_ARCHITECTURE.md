@@ -21,8 +21,6 @@ Pure, low-coupling behavior is extracted under `jarvis/app/services/`:
   including WebSocket-first verification and the existing REST resilience fallback.
 - `ha_history.py` owns approved Recorder history, Logbook search, correlation
   analysis, the bounded live-event journal, and Automation Brain event dispatch.
-- `playwright_bridge.py` owns the local-only Playwright MCP session, browser evidence,
-  output bounds, credential redaction, preflight diagnostics, and built-in plugin status.
 - `web_search.py` owns hosted-search configuration, search guidance, progress,
   canonical source URLs, citation priority, and bounded source rendering.
 - `openai_responses.py` owns non-streaming Responses API requests, HTTP error
@@ -63,8 +61,8 @@ Pure, low-coupling behavior is extracted under `jarvis/app/services/`:
   monitor tools, and supplies the established evidence-first diagnostic guidance.
 - `fast_memory_intents.py` detects personal Fast Memory requests and selects only
   the bounded remember, search, and forget tools.
-- `developer_tools.py` owns the mode-gated targeted diagnostics and local Playwright
-  tool schemas exposed during Developer Mode.
+- `developer_tools.py` owns the dormant, mode-gated targeted diagnostic schema retained
+  for maintainer compatibility; no developer browser tool is shipped to users.
 - `runtime_routing.py` owns system-instruction priority and exact runtime tool
   selection across Developer, Grinder, memory, automation, calendar, and HA intents.
 - `developer_support.py` owns Developer feature metadata and alias resolution plus

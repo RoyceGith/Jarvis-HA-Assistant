@@ -32,13 +32,16 @@ before publishing an image. Initial coverage verifies:
 - Calendar appointment creation, listing, cancellation, and persisted round trips;
 - Notification settings and watch lifecycle round trips with isolated Home Assistant fakes.
 
-The same image-build gate then launches the image's pinned Playwright library against
+The same image-build gate then launches a pinned, build-only Playwright library against
 its native Chromium package. A local fixture serves the real frontend source and
 deterministic API responses while the browser verifies:
 
 - primary navigation and New Chat reset behavior;
 - Entity Inventory rendering plus horizontal and vertical scrolling;
 - Automation workspace navigation plus Create New and Library switching.
+
+Playwright, Node.js, and Chromium are removed after this gate. They are not included
+as a ZBRANO runtime service, built-in plugin, user setting, or customer dependency.
 
 The real-ASGI gate also restores a minimal legacy `jarvis-backup-v1` created before
 Automation Brain, Notification Center, Calendar, and Fast Memory backup sections

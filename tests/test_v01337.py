@@ -76,10 +76,7 @@ class RemainingIntentBoundaryTests(unittest.TestCase):
         self.assertEqual(developer_tools.developer_runtime_tools(), [])
         developer_tools.configure_developer_tools(developer_mode_enabled_fn=lambda: True)
         tools = developer_tools.developer_runtime_tools()
-        self.assertEqual(
-            [tool["name"] for tool in tools],
-            ["investigate_zbrano_feature", "inspect_zbrano_ui_with_playwright"],
-        )
+        self.assertEqual([tool["name"] for tool in tools], ["investigate_zbrano_feature"])
         self.assertTrue(all(tool["strict"] for tool in tools))
 
 

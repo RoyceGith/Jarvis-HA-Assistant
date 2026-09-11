@@ -39,7 +39,7 @@ def load_chat_functions(storage_path: Path):
         "deque": deque,
         "CHAT_HISTORY_MAX_MESSAGES": 200,
         "CHAT_SESSIONS_MAX": 100,
-        "INTERNAL_CHAT_SESSION_PREFIXES": ("zbrano-diagnostic-", "zbrano-playwright-"),
+        "INTERNAL_CHAT_SESSION_PREFIXES": ("zbrano-diagnostic-",),
         "CHAT_SESSIONS": {},
         "CHAT_SESSION_ORDER": deque(maxlen=100),
         "CHAT_SESSION_META": {},

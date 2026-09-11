@@ -13,8 +13,8 @@ LABEL \
 
 RUN apk add --no-cache python3 py3-pip py3-numpy py3-scipy py3-scikit-learn py3-tqdm py3-onnxruntime nodejs npm chromium nss freetype harfbuzz ca-certificates font-noto
 
-# Playwright MCP runs locally beside Chromium. Pin the package so Raspberry Pi
-# rebuilds cannot silently acquire an incompatible browser protocol release.
+# Playwright is a build-only browser smoke dependency. It is removed before the
+# Home Assistant runtime image is finalized and is never exposed as a plugin.
 ENV PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1
 RUN npm install --global @playwright/mcp@0.0.78
 
@@ -51,7 +51,10 @@ RUN if [ "$BUILD_ARCH" = "aarch64" ]; then \
     else \
         node ./tests/browser_smoke.cjs; \
     fi
-RUN rm -r ./tests \
+RUN npm uninstall --global @playwright/mcp \
+    && apk del nodejs npm chromium nss freetype harfbuzz \
+    && rm -r /root/.npm \
+    && rm -r ./tests \
     && rm ./validate_release_manifest.py ./validate_i18n_catalog.py ./validate_inline_js.py ./validate_new_chat_wiring.py ./config.yaml
 
 COPY run.sh /run.sh

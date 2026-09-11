@@ -75,8 +75,6 @@ def local_tool_activity(tool_names: list[str], *, writing: bool = False) -> dict
             "label": "Creating Gmail draft" if writing else "Reading Gmail",
             "provider": "plugin", "plugin_id": _gmail_plugin_id(),
         }
-    if "inspect_zbrano_ui_with_playwright" in tool_names:
-        return {"label": "Inspecting ZBRANO interface", "provider": "developer", "plugin_id": "builtin-playwright"}
     if "investigate_zbrano_feature" in tool_names:
         return {"label": "Investigating ZBRANO", "provider": "developer", "plugin_id": ""}
     workshop_terms = ("project", "note", "memory", "handoff", "template", "reorganization", "progress")
@@ -109,12 +107,6 @@ def _tool_progress_phases(tool_names: list[str]) -> list[str]:
             "Checking the affected runtime layers...",
             "Reviewing targeted diagnostic evidence...",
             "Locating the likely fault boundary...",
-        ]
-    if "inspect_zbrano_ui_with_playwright" in tool_names:
-        return [
-            "Opening the local interface...",
-            "Inspecting browser and network evidence...",
-            "Reviewing the interface result...",
         ]
     return [
         "Waiting for the tool result...",

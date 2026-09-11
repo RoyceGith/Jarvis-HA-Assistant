@@ -39,36 +39,4 @@ def developer_runtime_tools() -> list[dict[str, Any]]:
             "additionalProperties": False,
         },
         "strict": True,
-    }, {
-        "type": "function",
-        "name": "inspect_zbrano_ui_with_playwright",
-        "description": (
-            "Use only when the user reports a visible ZBRANO browser symptom involving DOM layout, "
-            "rendering, browser console errors, or browser network requests. Never call this tool for "
-            "backend APIs, MCP approval payloads, versions, repository source, or non-visual tool execution. "
-            "It inspects only ZBRANO's local UI and returns bounded browser evidence."
-        ),
-        "parameters": {
-            "type": "object",
-            "properties": {
-                "path": {
-                    "type": "string",
-                    "description": "A query-free ZBRANO-local path beginning with /, normally /.",
-                },
-                "surface": {
-                    "type": "string",
-                    "enum": ["chat", "shared_files", "plugins", "automations", "entities", "settings", "developer"],
-                    "description": "ZBRANO navigation surface to inspect after loading the local UI.",
-                },
-                "wait_ms": {
-                    "type": "integer",
-                    "minimum": 0,
-                    "maximum": 5000,
-                    "description": "Time to wait after navigation before collecting evidence.",
-                },
-            },
-            "required": ["path", "surface", "wait_ms"],
-            "additionalProperties": False,
-        },
-        "strict": True,
     }]

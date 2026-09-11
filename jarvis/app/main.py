@@ -348,14 +348,6 @@ from .services.release_notes import (
     render_release_history_backfill,
     upsert_marked_release_history_entry,
 )
-from .services.playwright_bridge import (
-    PLAYWRIGHT_REQUIRED_TOOLS,
-    configure_playwright_bridge,
-    inspect_zbrano_ui_with_playwright,
-    playwright_builtin_plugin,
-    playwright_mcp_inventory,
-    playwright_preflight_summary,
-)
 from .services.web_search import (
     canonical_web_source_url,
     configure_web_search_service,
@@ -1788,12 +1780,6 @@ async def execute_tool_calls(
                         ),
                         timeout=30.0,
                     )
-                elif name == "inspect_zbrano_ui_with_playwright":
-                    result = await inspect_zbrano_ui_with_playwright(
-                        arguments["path"],
-                        arguments["surface"],
-                        arguments["wait_ms"],
-                    )
                 elif name == "remember_fast_memory":
                     arguments["confidence"] = 1.0
                     arguments["pinned"] = bool(arguments.get("importance", 3) >= 5)
@@ -2736,8 +2722,6 @@ async def _run_jarvis_stream_events(message: str, session_id: str = "default", s
             status_message = f"Using Home Assistant: {tool_names}…"
         elif "investigate_zbrano_feature" in tool_names_list:
             status_message = "Investigating the reported feature..."
-        elif "inspect_zbrano_ui_with_playwright" in tool_names_list:
-            status_message = "Inspecting the ZBRANO interface..."
         else:
             status_message = f"Working with: {tool_names}…"
         yield stream_event("status", message=status_message)
@@ -2791,11 +2775,7 @@ async def _run_jarvis_stream_events(message: str, session_id: str = "default", s
         progress_started = time.monotonic()
         progress_phases = _tool_progress_phases(tool_names_list)
         progress_index = 0
-        hard_timeout = (
-            40.0 if "investigate_zbrano_feature" in tool_names_list
-            else 35.0 if "inspect_zbrano_ui_with_playwright" in tool_names_list
-            else 90.0
-        )
+        hard_timeout = 40.0 if "investigate_zbrano_feature" in tool_names_list else 90.0
         while not tool_task.done():
             elapsed = time.monotonic() - progress_started
             remaining = hard_timeout - elapsed
@@ -3658,7 +3638,7 @@ async def list_plugins():
     if _apply_github_tool_policy(registry):
         _plugin_save(PLUGIN_REGISTRY_PATH, registry)
     installed = [plugin_public(pid, plugin) for pid, plugin in registry.items()]
-    return {"plugins": [await playwright_builtin_plugin(), *installed]}
+    return {"plugins": installed}
 
 
 @app.post("/api/plugins")
@@ -5587,19 +5567,6 @@ async def developer_diagnostics() -> dict[str, object]:
     else:
         add("GitHub MCP readiness", "degraded", "GitHub plugin not installed", "developer", "Install and connect the official GitHub MCP plugin.")
 
-    try:
-        playwright_tools = await asyncio.wait_for(playwright_mcp_inventory(), timeout=8.0)
-        playwright_missing = sorted(PLAYWRIGHT_REQUIRED_TOOLS - playwright_tools)
-        add(
-            "Playwright MCP readiness",
-            "operational" if not playwright_missing else "failed",
-            (f"{len(playwright_tools)} browser tools discovered; {playwright_preflight_summary()}" if not playwright_missing else f"missing: {', '.join(playwright_missing)}; {playwright_preflight_summary(include_log=True)}"),
-            "developer",
-            "Inspect the local Playwright MCP startup log and Chromium installation.",
-        )
-    except Exception as exc:
-        add("Playwright MCP readiness", "failed", str(exc)[:500], "developer", "Inspect the local Playwright MCP startup log and Chromium installation.")
-
     counts = {
         status: sum(1 for check in checks if check.get("status") == status)
         for status in ("present", "wired", "operational", "degraded", "failed")
@@ -5706,17 +5673,6 @@ async def _targeted_developer_diagnostics(feature_key: str) -> dict[str, Any]:
         await probe("Developer API operational", developer_status, lambda p: (p.get("repository") == DEVELOPER_REPOSITORY, f"repository={p.get('repository')}; deployment={p.get('deployment')}"), "developer")
         github_tools = developer_mcp_tools()
         add("Developer GitHub tools", "operational" if github_tools else "degraded", f"{len(github_tools)} GitHub MCP server(s) exposed; Knowledge Memory tools excluded", "developer")
-        try:
-            playwright_tools = await asyncio.wait_for(playwright_mcp_inventory(), timeout=5.0)
-            playwright_missing = sorted(PLAYWRIGHT_REQUIRED_TOOLS - playwright_tools)
-            add(
-                "Developer Playwright tools",
-                "operational" if not playwright_missing else "failed",
-                (f"{len(playwright_tools)} local browser tools discovered; {playwright_preflight_summary()}" if not playwright_missing else f"missing: {', '.join(playwright_missing)}; {playwright_preflight_summary(include_log=True)}"),
-                "developer",
-            )
-        except Exception as exc:
-            add("Developer Playwright tools", "failed", str(exc)[:500], "developer")
     elif feature_key == "workshop_memory":
         add("Knowledge Memory", "operational", "built into ZBRANO with no external server or domain", "integrations")
     elif feature_key == "voice":
@@ -6634,11 +6590,6 @@ configure_conversations_domain(
     chat_context_limit_fn=chat_context_limit,
     schedule_fast_memory_extraction_fn=schedule_fast_memory_extraction,
     clear_chat_files_fn=clear_chat_files,
-)
-configure_playwright_bridge(
-    developer_mode_enabled_fn=developer_mode_enabled,
-    mcp_response_json_fn=_mcp_response_json,
-    runtime_version=app.version,
 )
 configure_web_search_service(
     developer_mode_enabled_fn=developer_mode_enabled,

@@ -1,12 +1,6 @@
-const zbranoInspectionSession =
-  new URLSearchParams(window.location.search).get("zbrano_inspection") === "1";
-let jarvisChatSessionId = zbranoInspectionSession
-  ? "zbrano-playwright-inspection"
-  : localStorage.getItem("jarvis_chat_session_id") ||
-    (crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}-${Math.random()}`);
-if (!zbranoInspectionSession) {
-  localStorage.setItem("jarvis_chat_session_id", jarvisChatSessionId);
-}
+let jarvisChatSessionId = localStorage.getItem("jarvis_chat_session_id") ||
+  (crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}-${Math.random()}`);
+localStorage.setItem("jarvis_chat_session_id", jarvisChatSessionId);
 
 document.addEventListener("focus", event => {
   const field = event.target;

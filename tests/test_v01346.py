@@ -45,6 +45,8 @@ class BrowserSmokeFoundationTests(unittest.TestCase):
         self.assertIn('@playwright", "mcp", "node_modules"', BROWSER)
         self.assertIn('"/usr/bin/chromium"', BROWSER)
         self.assertNotIn("npm install", BROWSER)
+        self.assertIn("npm uninstall --global @playwright/mcp", DOCKERFILE)
+        self.assertIn("apk del nodejs npm chromium", DOCKERFILE)
 
 
 if __name__ == "__main__":
