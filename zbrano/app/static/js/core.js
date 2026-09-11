@@ -881,7 +881,7 @@ resetVoiceSettings.addEventListener("click", () => {
 });
 
 function applyTheme(theme, persist = true) {
-  const nextTheme = ["dark", "light", "gray"].includes(theme) ? theme : "dark";
+  const nextTheme = ["dark", "light", "gray"].includes(theme) ? theme : "light";
   document.documentElement.dataset.theme = nextTheme;
   for (const option of themeInputs) option.checked = option.value === nextTheme;
   if (persist) localStorage.setItem(THEME_KEY, nextTheme);
@@ -889,7 +889,7 @@ function applyTheme(theme, persist = true) {
 }
 
 function applyInterfacePreferences(preferences = {}) {
-  const theme = preferences.theme || document.documentElement.dataset.theme || "dark";
+  const theme = preferences.theme || document.documentElement.dataset.theme || "light";
   applyTheme(theme);
   document.documentElement.dataset.textSize = preferences.text_size || "medium";
   document.documentElement.dataset.density = preferences.interface_density || "comfortable";
@@ -1688,7 +1688,7 @@ saveSettings.addEventListener("click", async () => {
         fast_memory_context_items: Number(fastMemoryContextItems.value),
         preferred_language: preferredLanguage.value.trim() || "auto",
         pronunciation_dictionary: pronunciationDictionary.value,
-        theme: document.querySelector('input[name="theme"]:checked')?.value || "dark",
+        theme: document.querySelector('input[name="theme"]:checked')?.value || "light",
         neural_style: neuralStyle.value,
         neural_scale: Number(neuralScale.value),
         neural_node_size: Number(neuralNodeSize.value),

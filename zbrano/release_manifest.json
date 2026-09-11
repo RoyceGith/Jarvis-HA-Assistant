@@ -1,9 +1,9 @@
 {
-  "version": "0.13.216",
+  "version": "0.13.217",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/ZBRANO_Core main",
-  "summary": "Complete the ZBRANO identity migration and remove Playwright from the customer runtime.",
+  "summary": "Use the Light interface theme by default for new ZBRANO installations.",
   "history_backfill": [
     {
       "version": "0.13.0",
@@ -868,19 +868,22 @@
       {
         "version": "0.13.215",
         "summary": "Removed Developer Mode from customer builds while retaining safe installation reporting."
+      },
+      {
+        "version": "0.13.216",
+        "summary": "Completed the ZBRANO identity migration and removed Playwright from the customer runtime."
       }
   ],
   "release_entry": {
     "features": [
-      "Use ZBRANO-only source, add-on, container, runtime, and testing-channel identities."
+      "Open ZBRANO in the Light interface theme on a fresh installation or browser with no saved theme choice."
     ],
     "fixes": [
-      "Remove Playwright from the built-in plugin list, assistant tools, diagnostics, startup services, and final runtime image.",
-      "Retain Playwright only as a disposable build-time browser validation dependency.",
-      "Rename the canonical application directory, package identifiers, add-on slug, image path, and internal ZBRANO symbols."
+      "Keep existing users' explicitly saved Light, Dark, or Gray theme preference unchanged.",
+      "Align the server, first-paint script, interface preference loader, and settings-save fallback on the new Light default."
     ],
     "validation": [
-      "ZBRANO identity audit, Playwright runtime absence, source validators, browser smoke, integration coverage, and v0.13.216 release alignment"
+      "Fresh-install theme defaults, saved-theme preservation, source validators, browser smoke, integration coverage, and v0.13.217 release alignment"
     ]
   },
   "features": [

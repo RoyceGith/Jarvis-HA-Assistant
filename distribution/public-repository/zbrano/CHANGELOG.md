@@ -1,5 +1,11 @@
 # Change log
 
+## 0.13.217
+
+- Use Light as the interface theme for fresh ZBRANO installations and browsers with no saved preference.
+- Preserve an existing user's explicitly saved Light, Dark, or Gray theme.
+- Align the server, first-paint page script, and settings fallbacks on the Light default.
+
 ## 0.13.216
 
 - Remove Developer Mode and its investigation workspace from the customer interface.

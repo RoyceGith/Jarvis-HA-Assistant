@@ -15,10 +15,10 @@ MANIFEST = json.loads((ROOT / "zbrano/release_manifest.json").read_text(encoding
 
 class AutomationStudioEditHistoryReleaseTests(unittest.TestCase):
     def test_release_markers_are_aligned(self):
-        self.assertIn('version: "0.13.216"', CONFIG)
-        self.assertIn('version="0.13.216"', MAIN)
-        self.assertIn("HUD 0.13.216", HTML)
-        self.assertEqual(MANIFEST["version"], "0.13.216")
+        self.assertIn('version: "0.13.217"', CONFIG)
+        self.assertIn('version="0.13.217"', MAIN)
+        self.assertIn("HUD 0.13.217", HTML)
+        self.assertEqual(MANIFEST["version"], "0.13.217")
 
     def test_visible_history_controls_are_accessible(self):
         self.assertIn('id="automation-studio-undo"', HTML)
@@ -39,7 +39,7 @@ class AutomationStudioEditHistoryReleaseTests(unittest.TestCase):
         self.assertIn('page.locator("#automation-studio-redo").click()', BROWSER)
 
     def test_release_history_includes_v01380(self):
-        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.215")
+        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.216")
 
 
 if __name__ == "__main__":

@@ -54,7 +54,7 @@ def load_settings_functions(storage_path: Path):
             "retention_days": 90,
             "preferred_language": "auto",
             "pronunciation_dictionary": "",
-            "theme": "dark",
+            "theme": "light",
             "reduced_motion": False,
             "text_size": "medium",
             "interface_density": "comfortable",

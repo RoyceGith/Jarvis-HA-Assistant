@@ -1,11 +1,17 @@
-# ZBRANO v0.13.216
+# ZBRANO v0.13.217
 
 Automation Studio provides a graphical, step-by-step workflow for Home Assistant
 automations. Use Setup &amp; safety, When, Only if, Then, and optional Outcomes beside the
 interactive flow canvas. Natural-language creation, templates, drag-and-drop,
 saved automation compatibility, and the full Advanced editor remain available.
 
-Version 0.13.216 removes Developer Mode from customer builds, disables its saved
+Version 0.13.217 opens fresh installations in the Light interface theme while
+preserving any Light, Dark, or Gray choice already saved by an existing user.
+
+Version 0.13.216 completes the ZBRANO identity migration and removes Playwright
+from the customer runtime and built-in tools.
+
+Version 0.13.215 removes Developer Mode from customer builds, disables its saved
 state and external API routes, and keeps the safe Installation Report available
 for support.
 

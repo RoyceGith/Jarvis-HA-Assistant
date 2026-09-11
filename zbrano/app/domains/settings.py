@@ -44,7 +44,7 @@ ZBRANO_PREFERENCE_DEFAULTS: dict[str, Any] = {
     "retention_days": 90,
     "preferred_language": "auto",
     "pronunciation_dictionary": "",
-    "theme": "dark",
+    "theme": "light",
     "neural_style": "constellation",
     "neural_scale": 1.0,
     "neural_node_size": 1.0,

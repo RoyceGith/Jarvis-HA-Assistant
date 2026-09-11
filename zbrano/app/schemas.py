@@ -54,7 +54,7 @@ class ZBRANOSettingsUpdate(BaseModel):
     retention_days: int = Field(default=90, ge=0, le=365)
     preferred_language: str = Field(default="auto", min_length=2, max_length=40)
     pronunciation_dictionary: str = Field(default="", max_length=8000)
-    theme: str = Field(default="dark", pattern="^(dark|light|gray)$")
+    theme: str = Field(default="light", pattern="^(dark|light|gray)$")
     neural_style: str = Field(default="constellation", pattern="^(constellation|mesh|orbital|minimal)$")
     neural_scale: float = Field(default=1.0, ge=0.7, le=1.4)
     neural_node_size: float = Field(default=1.0, ge=0.6, le=1.6)

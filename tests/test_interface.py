@@ -26,8 +26,8 @@ class InterfaceTests(unittest.TestCase):
     def test_hud_graph_and_versions(self):
         self.assertIn('id="brain-network"', INDEX)
         self.assertIn("prefers-reduced-motion: reduce", INDEX)
-        self.assertIn('version: "0.13.216"', CONFIG)
-        self.assertIn('version="0.13.216"', MAIN)
+        self.assertIn('version: "0.13.217"', CONFIG)
+        self.assertIn('version="0.13.217"', MAIN)
 
     def test_public_defaults_and_saved_app_options(self):
         self.assertNotIn("192.168.178.49", CONFIG)
@@ -45,6 +45,9 @@ class InterfaceTests(unittest.TestCase):
         self.assertIn('name="theme" value="light"', INDEX)
         self.assertIn('name="theme" value="gray"', INDEX)
         self.assertIn('const THEME_KEY = "zbrano_theme_v1";', INDEX)
+        self.assertIn('includes(theme) ? theme : "light"', INDEX)
+        self.assertIn('document.documentElement.dataset.theme = "light";', INDEX)
+        self.assertIn('preferences.theme || document.documentElement.dataset.theme || "light"', INDEX)
         self.assertIn('document.documentElement.dataset.theme = nextTheme;', INDEX)
         self.assertIn('class="theme-swatch dark"', INDEX)
         self.assertIn('class="theme-swatch light"', INDEX)

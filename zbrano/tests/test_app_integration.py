@@ -115,13 +115,13 @@ class ApplicationIntegrationTests(unittest.IsolatedAsyncioTestCase):
             response = await self.client.get("/api/health")
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json()["status"], "ok")
-        self.assertEqual(response.json()["version"], "0.13.216")
+        self.assertEqual(response.json()["version"], "0.13.217")
         self.assertEqual(response.json()["ha_read_entity_count"], 1)
         self.assertEqual(response.json()["ha_control_entity_count"], 1)
 
         frontend = await self.client.get("/")
         self.assertEqual(frontend.status_code, 200)
-        self.assertIn("HUD 0.13.216", frontend.text)
+        self.assertIn("HUD 0.13.217", frontend.text)
         self.assertEqual(
             frontend.headers.get("cache-control"),
             "no-store, no-cache, must-revalidate, max-age=0",
@@ -186,7 +186,7 @@ class ApplicationIntegrationTests(unittest.IsolatedAsyncioTestCase):
     async def test_settings_api_round_trip_uses_isolated_persistence(self) -> None:
         initial = await self.client.get("/api/settings")
         self.assertEqual(initial.status_code, 200)
-        self.assertEqual(initial.json()["preferences"]["theme"], "dark")
+        self.assertEqual(initial.json()["preferences"]["theme"], "light")
 
         with patch.object(main, "cancel_release_sync"):
             saved = await self.client.put(

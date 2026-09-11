@@ -14,10 +14,10 @@ MANIFEST = json.loads((ROOT / "zbrano/release_manifest.json").read_text(encoding
 
 class VoiceBargeInTests(unittest.TestCase):
     def test_release_markers_are_aligned(self):
-        self.assertIn('version: "0.13.216"', CONFIG)
-        self.assertIn('version="0.13.216"', MAIN)
-        self.assertIn("HUD 0.13.216", INDEX)
-        self.assertEqual(MANIFEST["version"], "0.13.216")
+        self.assertIn('version: "0.13.217"', CONFIG)
+        self.assertIn('version="0.13.217"', MAIN)
+        self.assertIn("HUD 0.13.217", INDEX)
+        self.assertEqual(MANIFEST["version"], "0.13.217")
 
     def test_talk_remains_enabled_while_response_streams(self):
         submit = INDEX[INDEX.index('form.addEventListener("submit"') : INDEX.index("const zbranoMessage")]

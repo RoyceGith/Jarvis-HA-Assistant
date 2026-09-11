@@ -21,10 +21,10 @@ MANIFEST = json.loads((ROOT / "zbrano/release_manifest.json").read_text(encoding
 
 class CanonicalModuleArchitectureTests(unittest.TestCase):
     def test_release_markers_are_aligned(self):
-        self.assertIn('version: "0.13.216"', CONFIG)
-        self.assertIn('version="0.13.216"', MAIN_RAW)
-        self.assertIn("HUD 0.13.216", HTML)
-        self.assertEqual(MANIFEST["version"], "0.13.216")
+        self.assertIn('version: "0.13.217"', CONFIG)
+        self.assertIn('version="0.13.217"', MAIN_RAW)
+        self.assertIn("HUD 0.13.217", HTML)
+        self.assertEqual(MANIFEST["version"], "0.13.217")
 
     def test_frontend_is_directly_split_with_stable_order(self):
         stylesheet_paths = re.findall(r'<link[^>]+href="([^"]+\.css)"', HTML)

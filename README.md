@@ -1,11 +1,17 @@
-## ZBRANO v0.13.216
+## ZBRANO v0.13.217
 
 ZBRANO combines Home Assistant chat, voice, entity control, memory, notifications,
 calendar and contact tools, plugins, and evidence-based automations. Automation Studio now uses
 a visual building-block toolbox, interactive node canvas, and contextual inspector;
 the established automation engine and stored definitions remain compatible.
 
-Version 0.13.216 removes Developer Mode from customer builds, disables its saved
+Version 0.13.217 opens fresh installations in the Light interface theme while
+preserving any Light, Dark, or Gray choice already saved by an existing user.
+
+Version 0.13.216 completes the ZBRANO identity migration and removes Playwright
+from the customer runtime and built-in tools.
+
+Version 0.13.215 removes Developer Mode from customer builds, disables its saved
 state and external API routes, and keeps the safe Installation Report available
 for support.
 
