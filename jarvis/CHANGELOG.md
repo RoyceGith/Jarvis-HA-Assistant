@@ -1,5 +1,12 @@
 # Change log
 
+## 0.13.215
+
+- Remove Developer Mode and its investigation workspace from the customer interface.
+- Remove all external Developer API routes and permanently ignore any older saved Developer Mode state.
+- Keep the sanitized Installation Report available for ordinary setup and support.
+- Keep About independent from the removed Developer navigation.
+
 ## 0.13.214
 
 - Add an optional native ZBRANO conversation agent for Home Assistant Assist pipelines.
