@@ -25,10 +25,10 @@ def load_recorder():
 
 class AutomationDecisionJournalReleaseTests(unittest.TestCase):
     def test_release_markers_are_aligned(self):
-        self.assertIn('version: "0.13.233"', CONFIG)
-        self.assertIn('version="0.13.233"', MAIN)
-        self.assertIn("HUD 0.13.233", HTML)
-        self.assertEqual(MANIFEST["version"], "0.13.233")
+        self.assertIn('version: "0.13.234"', CONFIG)
+        self.assertIn('version="0.13.234"', MAIN)
+        self.assertIn("HUD 0.13.234", HTML)
+        self.assertEqual(MANIFEST["version"], "0.13.234")
 
     def test_decision_journal_is_bounded_and_keeps_latest(self):
         record = load_recorder()
@@ -58,7 +58,7 @@ class AutomationDecisionJournalReleaseTests(unittest.TestCase):
         self.assertIn(".slice(0,5)", WORKSPACE)
 
     def test_release_history_includes_v01377(self):
-        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.232")
+        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.233")
 
 
 if __name__ == "__main__":

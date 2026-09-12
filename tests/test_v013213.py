@@ -25,11 +25,11 @@ class StructuredAutomaticMemoryReleaseTests(unittest.TestCase):
         self.temporary.cleanup()
 
     def test_release_is_aligned(self):
-        self.assertIn('version: "0.13.233"', CONFIG)
-        self.assertIn('version="0.13.233"', MAIN)
-        self.assertIn("HUD 0.13.233", INDEX)
-        self.assertEqual(MANIFEST["version"], "0.13.233")
-        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.232")
+        self.assertIn('version: "0.13.234"', CONFIG)
+        self.assertIn('version="0.13.234"', MAIN)
+        self.assertIn("HUD 0.13.234", INDEX)
+        self.assertEqual(MANIFEST["version"], "0.13.234")
+        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.233")
 
     def test_new_automatic_entry_uses_sections_and_deduplicates_its_title(self):
         entry = knowledge_memory._automatic_memory_entry(

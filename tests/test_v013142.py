@@ -12,8 +12,8 @@ MANIFEST = json.loads((ROOT / "zbrano" / "release_manifest.json").read_text(enco
 
 class V013142AutomationStudioNavigationTests(unittest.TestCase):
     def test_release_is_aligned(self):
-        self.assertEqual(MANIFEST["version"], "0.13.233")
-        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.232")
+        self.assertEqual(MANIFEST["version"], "0.13.234")
+        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.233")
 
     def test_five_steps_have_guided_navigation(self):
         for element_id in (

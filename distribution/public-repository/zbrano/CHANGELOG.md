@@ -1,5 +1,10 @@
 # Change log
 
+## 0.13.234
+
+- Modernize saved conversation rows with rounded selection styling and consistent rename/delete icons.
+- Rename the Entities navigation tab to Devices, including existing translations.
+
 ## 0.13.233
 
 - Align entity states to the right side of each device card.

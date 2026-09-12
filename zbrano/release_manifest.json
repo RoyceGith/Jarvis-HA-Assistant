@@ -1,9 +1,9 @@
 {
-  "version": "0.13.233",
+  "version": "0.13.234",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/ZBRANO_Core main",
-  "summary": "Align entity card states to the right for clearer separation from device labels.",
+  "summary": "Modernize saved conversation controls and rename the Entities navigation tab to Devices.",
   "history_backfill": [
     {
       "version": "0.13.0",
@@ -936,17 +936,22 @@
     {
       "version": "0.13.232",
       "summary": "Recognize joined and spaced room and air-conditioner names consistently when controlling devices."
+    },
+    {
+      "version": "0.13.233",
+      "summary": "Align entity card states to the right for clearer separation from device labels."
     }
   ],
   "release_entry": {
     "features": [
-      "Right-aligned entity states with stronger text weight on device cards."
+      "Modern conversation rows with coordinated SVG action icons and clear keyboard focus.",
+      "Devices navigation label with existing localized translations."
     ],
     "fixes": [
-      "Separate the current state visually from left-aligned device labels."
+      "Remove separate raised button surfaces within conversation rows."
     ],
     "validation": [
-      "Browser smoke and desktop/mobile screenshot review; regression and integration suites; release and frontend validation."
+      "Browser smoke and conversation screenshot review; regression and integration suites; release and frontend validation."
     ]
   },
   "features": [

@@ -1258,7 +1258,7 @@ async function refreshChatList() {
       const renameButton = document.createElement("button");
       renameButton.type = "button";
       renameButton.className = "chat-rename";
-      renameButton.textContent = "✎";
+      renameButton.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m15 5 4 4M4 20l4-1L20 7a2.8 2.8 0 0 0-4-4L4 15z"/></svg>';
       renameButton.title = "Rename chat";
       renameButton.setAttribute("aria-label", `Rename ${chat.title || "chat"}`);
       renameButton.addEventListener("click", event => {
@@ -1269,7 +1269,7 @@ async function refreshChatList() {
       const deleteButton = document.createElement("button");
       deleteButton.type = "button";
       deleteButton.className = "chat-delete";
-      deleteButton.textContent = "×";
+      deleteButton.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13M10 11v5m4-5v5"/></svg>';
       deleteButton.title = "Delete chat";
       deleteButton.setAttribute("aria-label", `Delete ${chat.title || "chat"}`);
       deleteButton.addEventListener("click", async event => {
