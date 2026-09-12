@@ -165,6 +165,8 @@
     close.setAttribute("aria-label", t("Close device details")); close.addEventListener("click", closeDetails);
     header.append(title, close); root.append(header);
     root.append(node("p", "device-detail-help", t("Permissions apply to each entity separately.")));
+    const accessBadge = node('span', 'device-access', t(groupAccess(group))); accessBadge.dataset.deviceAccess = group.key;
+    root.append(accessBadge, node('p','device-detail-help', `${group.entities.length} ${t(group.entities.length === 1 ? 'entity' : 'entities')}`));
     for (const entity of group.entities) {
       const review = ensureReview(entity);
       const section = node("details", "device-entity"); section.dataset.deviceEntity = entity.entity_id;
@@ -232,6 +234,9 @@
       open.append(icon(group.primary), name);
       open.append(userText("small", "device-room", group.primary.area_name || t("Unassigned")));
       open.append(userText("span", "device-state", group.primary.available ? entityStateLabel(group.primary) + (group.primary.unit && group.primary.domain !== "climate" ? ` ${group.primary.unit}` : "") : t("Unavailable")));
+      const stateBadge = open.querySelector('.device-state');
+      const rawState = String(group.primary.state || '').toLowerCase();
+      stateBadge.dataset.stateTone = !group.primary.available || ['unknown','unavailable'].includes(rawState) ? 'unavailable' : ['on','heat','cool','auto','heat_cool','dry','fan_only'].includes(rawState) ? 'on' : 'off';
       const badge = node("span", "device-access", t(groupAccess(group))); badge.dataset.deviceAccess = group.key;
       const footer = node("span", "device-card-footer"); footer.append(badge, node("small", "", `${group.entities.length} ${t(group.entities.length === 1 ? "entity" : "entities")}`)); open.append(footer);
       open.addEventListener("click", () => {

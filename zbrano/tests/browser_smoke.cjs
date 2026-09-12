@@ -167,7 +167,7 @@ const onboardingFixture = {
     {id:"notifications",title:"Notifications and autonomy",description:"Choose notification delivery",ready:false,required:false,target:"notifications",last_check:null,skipped:false},
   ],
   installation_report: {
-    generated_at: 1788300000, version: "0.13.234", ready: true, attention_count: 0, ready_count: 5,
+    generated_at: 1788300000, version: "0.13.235", ready: true, attention_count: 0, ready_count: 5,
     checks: [
       {id:"home_assistant",title:"Home Assistant",state:"ready",required:true,detail:"Connected to Home Assistant",target:"home_assistant"},
       {id:"model",title:"AI model",state:"ready",required:true,detail:"gpt-5-mini is configured",target:"model"},
@@ -175,7 +175,7 @@ const onboardingFixture = {
       {id:"backup",title:"Backup and restore",state:"ready",required:false,detail:"A portable ZBRANO backup can be exported from Settings",target:"memory"},
       {id:"automation_health",title:"Automation safety",state:"ready",required:false,detail:"2 saved; 0 need permission; 0 paused after failures",target:"automations"},
     ],
-    support_summary: "ZBRANO installation report · v0.13.234\nOverall: Ready\nHome Assistant: Connected\nAI model: Configured\nDevice access: 3 sensor devices / 1 control devices\nPersistent storage: Ready\nAutomations: 2 saved / 0 permission issues / 0 failure pauses",
+    support_summary: "ZBRANO installation report · v0.13.235\nOverall: Ready\nHome Assistant: Connected\nAI model: Configured\nDevice access: 3 sensor devices / 1 control devices\nPersistent storage: Ready\nAutomations: 2 saved / 0 permission issues / 0 failure pauses",
   },
 };
 
@@ -209,7 +209,7 @@ function apiFixture(url, method = "GET") {
   if (pathname === "/api/health") {
     return {
       status: "ok",
-      version: "0.13.234",
+      version: "0.13.235",
       speech_provider: "openai",
       speech_providers: {openai: {configured: true}, elevenlabs: {configured: false}},
     };
@@ -321,7 +321,7 @@ function apiFixture(url, method = "GET") {
     return {files:[],folders:[{name:"Documents",path:"Documents",file_count:1}],current_folder:""};
   }
   if (pathname === "/api/release-memory-sync") {
-    return {enabled: false, state: "disabled", version: "0.13.234", task_active: false};
+    return {enabled: false, state: "disabled", version: "0.13.235", task_active: false};
   }
   if (pathname === "/api/tab-activity") return {revisions: {}};
   if (pathname === "/api/grinder-monitor/status") return {enabled: false, connected: false};
@@ -503,6 +503,15 @@ async function main() {
     await page.locator("#chat-tab").click();
     await page.locator("#chat-panel:not(.hidden)").waitFor();
 
+    const actionCard = await page.evaluate(() => {
+      const item = document.createElement('div'); item.className = 'message zbrano'; renderMessageContent(item, 'Living room is now off.');
+      renderDeviceActionResult(item, {route:'local',success:true,tool:'turn_off_home_assistant_entity',friendly_name:'Living room <AC>',verified_state:'off'});
+      const card = {text:item.textContent, raw:item.dataset.rawText, styled:item.classList.contains('device-action-result'), injected:!!item.querySelector('ac')};
+      const failed = document.createElement('div'); renderDeviceActionResult(failed, {route:'local',success:false,tool:'turn_off_home_assistant_entity',verified_state:'off'});
+      return {...card, failedStyled:failed.classList.contains('device-action-result')};
+    });
+    assert.equal(actionCard.styled, true); assert.equal(actionCard.injected, false); assert.equal(actionCard.failedStyled, false);
+    assert.equal(actionCard.raw, 'Living room is now off.'); assert.match(actionCard.text, /Living room <AC>Off/);
     const stoppedMarkdown = await page.evaluate(() => {
       const item = document.createElement("div");
       item.className = "message zbrano";
@@ -618,7 +627,7 @@ async function main() {
     assert.equal(await page.locator("#device-details").isHidden(), true, "Card controls do not open details");
     await page.locator('[data-device-open="device:fixture-ac"]').click();
     assert.equal(await page.locator("#device-details .device-entity").count(), 2);
-    assert.match(await page.locator("#device-grid").innerText(), /Mixed access/);
+    assert.match(await page.locator("#device-details").innerText(), /Mixed access/);
     for(const theme of ["dark", "light"]) {
       await page.evaluate(theme => document.documentElement.dataset.theme=theme, theme);
       assert.ok(await page.locator("#device-details").isVisible());
@@ -674,6 +683,15 @@ async function main() {
     assert.equal(await page.locator("#device-grid .device-card").count(), 0);
     await page.locator("#device-clear-filters").click();
     await page.setViewportSize({width:390,height:720});
+    await page.locator('[data-mobile-tab="chat-tab"]').click();
+    assert.equal(await page.locator('#chat-panel').isVisible(), true);
+    await page.locator('#mobile-navigation > button').last().click();
+    await page.locator('#mobile-more [data-mobile-tab="settings-tab"]').click();
+    assert.equal(await page.locator('#settings-panel').isVisible(), true);
+    assert.equal(await page.locator('#mobile-more').isVisible(), false);
+    await page.locator('[data-mobile-tab="entities-tab"]').click();
+    assert.equal(await page.locator('#entities-panel').isVisible(), true);
+
     await page.locator("#entity-search").fill("Living Room AC");
     if(process.env.ZBRANO_DEVICE_SCREENSHOT){
       await page.screenshot({animations:"disabled",path:process.env.ZBRANO_DEVICE_SCREENSHOT.replace('.png','-mobile.png')});

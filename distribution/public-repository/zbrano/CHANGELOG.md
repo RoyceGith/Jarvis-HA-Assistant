@@ -1,5 +1,12 @@
 # Change log
 
+## 0.13.235
+
+- Add mobile Chat, Devices, Automations and More navigation.
+- Show clear device state badges and move access summaries and entity counts into details.
+- Display verified local device actions as compact chat result cards.
+- Align control corners and keyboard focus across panels.
+
 ## 0.13.234
 
 - Modernize saved conversation rows with rounded selection styling and consistent rename/delete icons.

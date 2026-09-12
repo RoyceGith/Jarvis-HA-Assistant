@@ -1,9 +1,9 @@
 {
-  "version": "0.13.234",
+  "version": "0.13.235",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/ZBRANO_Core main",
-  "summary": "Modernize saved conversation controls and rename the Entities navigation tab to Devices.",
+  "summary": "Add mobile bottom navigation, clearer device states, simpler cards and verified chat action confirmations.",
   "history_backfill": [
     {
       "version": "0.13.0",
@@ -940,18 +940,24 @@
     {
       "version": "0.13.233",
       "summary": "Align entity card states to the right for clearer separation from device labels."
+    },
+    {
+      "version": "0.13.234",
+      "summary": "Modernize saved conversation controls and rename the Entities navigation tab to Devices."
     }
   ],
   "release_entry": {
     "features": [
-      "Modern conversation rows with coordinated SVG action icons and clear keyboard focus.",
-      "Devices navigation label with existing localized translations."
+      "Mobile bottom navigation with a modal More menu and synchronized active tabs.",
+      "Device state badges, simplified cards and verified local action confirmation cards.",
+      "Consistent panel control corners and keyboard focus."
     ],
     "fixes": [
-      "Remove separate raised button surfaces within conversation rows."
+      "Keep mobile navigation inside the viewport and reserve space below content.",
+      "Render action cards only from successful verified local control results."
     ],
     "validation": [
-      "Browser smoke and conversation screenshot review; regression and integration suites; release and frontend validation."
+      "Mobile navigation and menu routing, device controls, action-card verification and safe text rendering; browser screenshots; regression and integration suites; release validators."
     ]
   },
   "features": [

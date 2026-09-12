@@ -1166,6 +1166,13 @@ function renderMessageContent(item, text) {
   }
 }
 
+function renderDeviceActionResult(item, call) {
+  if (call?.route !== "local" || call.success !== true || !["turn_on_home_assistant_entity", "turn_off_home_assistant_entity"].includes(call.tool) || !call.verified_state) return;
+  const name = document.createElement("strong"); name.textContent = call.friendly_name || call.arguments?.entity_id || ""; name.dataset.i18nIgnore = "";
+  const state = document.createElement("span"); state.className = "action-state"; state.textContent = window.ZbranoI18n?.t(call.verified_state === "on" ? "On" : call.verified_state === "off" ? "Off" : String(call.verified_state)) || String(call.verified_state);
+  item.replaceChildren(name, state); item.classList.add("device-action-result");
+}
+
 function finishInterruptedMessage(item, marker, emptyMessage) {
   const rawText = String(item?.dataset?.rawText || "").trim();
   const placeholder = rawText === "Connecting…" || rawText === "Thinking…";
@@ -2390,6 +2397,9 @@ form.addEventListener("submit", async (event) => {
       const speech = extractSpeakableChunks(speechBuffer,false,fastSpeechStart);
       speechBuffer = speech.remaining;
       speech.chunks.forEach(chunk => queueSpeech(chunk));
+    } else if (eventData.type === "done") {
+      const calls = eventData.tool_calls || [];
+      if (calls.length === 1) renderDeviceActionResult(zbranoMessage, calls[0]);
     } else if (eventData.type === "sources") {
       const sources = Array.isArray(eventData.sources) ? eventData.sources : [];
       const unique = sources.filter((source, index, items) => source?.url && items.findIndex(item => item?.url === source.url) === index).slice(0, 8);
