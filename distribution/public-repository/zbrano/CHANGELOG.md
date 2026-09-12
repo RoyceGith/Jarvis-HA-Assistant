@@ -1,5 +1,12 @@
 # Change log
 
+## 0.13.242
+
+- Navigate visible conversation titles with arrows, Home and End.
+- Announce the active conversation and label the rename editor.
+- Restore focus after keyboard rename/cancel and copy actions.
+- Refresh rename/delete labels after changing a conversation title.
+
 ## 0.13.241
 
 - Separate user messages and assistant replies with subtle rounded surfaces.

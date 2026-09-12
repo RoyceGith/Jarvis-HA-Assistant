@@ -28,10 +28,10 @@ def load_functions(*names):
 
 class ReleaseMemoryProtocolAndCompactionTests(unittest.TestCase):
     def test_release_markers_are_aligned(self):
-        self.assertIn('version: "0.13.241"', CONFIG)
-        self.assertIn('version="0.13.241"', MAIN)
-        self.assertIn("HUD 0.13.241", INDEX)
-        self.assertEqual(MANIFEST["version"], "0.13.241")
+        self.assertIn('version: "0.13.242"', CONFIG)
+        self.assertIn('version="0.13.242"', MAIN)
+        self.assertIn("HUD 0.13.242", INDEX)
+        self.assertEqual(MANIFEST["version"], "0.13.242")
 
     def test_decoder_prefers_structured_content(self):
         decode = load_functions("decode_workshop_tool_result")["decode_workshop_tool_result"]

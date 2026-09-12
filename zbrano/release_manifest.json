@@ -1,9 +1,9 @@
 {
-  "version": "0.13.241",
+  "version": "0.13.242",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/ZBRANO_Core main",
-  "summary": "Improve chat readability with distinct message surfaces, bounded line widths and compact author labels.",
+  "summary": "Improve keyboard navigation, active-chat announcements and focus recovery in conversation controls.",
   "history_backfill": [
     {
       "version": "0.13.0",
@@ -968,18 +968,22 @@
     {
       "version": "0.13.240",
       "summary": "Copy chat messages with original formatting and clear clipboard success or failure feedback."
+    },
+    {
+      "version": "0.13.241",
+      "summary": "Improve chat readability with distinct message surfaces, bounded line widths and compact author labels."
     }
   ],
   "release_entry": {
     "features": [
-      "Distinct user and assistant message surfaces with comfortable line widths.",
-      "Author labels above message text, mobile spacing and compact density support."
+      "Keyboard navigation through visible conversation titles and current-chat announcements."
     ],
     "fixes": [
-      "Preserve line breaks in user messages and keep device result styling distinct."
+      "Label the rename editor, refresh action labels, and restore focus after keyboard rename/cancel.",
+      "Recover Copy button focus after clipboard completion."
     ],
     "validation": [
-      "Desktop/phone light/dark screenshot review; browser smoke, regression/integration suites and release validators."
+      "Browser rename/save/cancel focus, updated labels, keyboard navigation and search filtering; regression/integration suites and release validators."
     ]
   },
   "features": [

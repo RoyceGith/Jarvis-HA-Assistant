@@ -167,7 +167,7 @@ const onboardingFixture = {
     {id:"notifications",title:"Notifications and autonomy",description:"Choose notification delivery",ready:false,required:false,target:"notifications",last_check:null,skipped:false},
   ],
   installation_report: {
-    generated_at: 1788300000, version: "0.13.241", ready: true, attention_count: 0, ready_count: 5,
+    generated_at: 1788300000, version: "0.13.242", ready: true, attention_count: 0, ready_count: 5,
     checks: [
       {id:"home_assistant",title:"Home Assistant",state:"ready",required:true,detail:"Connected to Home Assistant",target:"home_assistant"},
       {id:"model",title:"AI model",state:"ready",required:true,detail:"gpt-5-mini is configured",target:"model"},
@@ -175,7 +175,7 @@ const onboardingFixture = {
       {id:"backup",title:"Backup and restore",state:"ready",required:false,detail:"A portable ZBRANO backup can be exported from Settings",target:"memory"},
       {id:"automation_health",title:"Automation safety",state:"ready",required:false,detail:"2 saved; 0 need permission; 0 paused after failures",target:"automations"},
     ],
-    support_summary: "ZBRANO installation report · v0.13.241\nOverall: Ready\nHome Assistant: Connected\nAI model: Configured\nDevice access: 3 sensor devices / 1 control devices\nPersistent storage: Ready\nAutomations: 2 saved / 0 permission issues / 0 failure pauses",
+    support_summary: "ZBRANO installation report · v0.13.242\nOverall: Ready\nHome Assistant: Connected\nAI model: Configured\nDevice access: 3 sensor devices / 1 control devices\nPersistent storage: Ready\nAutomations: 2 saved / 0 permission issues / 0 failure pauses",
   },
 };
 
@@ -209,7 +209,7 @@ function apiFixture(url, method = "GET") {
   if (pathname === "/api/health") {
     return {
       status: "ok",
-      version: "0.13.241",
+      version: "0.13.242",
       speech_provider: "openai",
       speech_providers: {openai: {configured: true}, elevenlabs: {configured: false}},
     };
@@ -321,7 +321,7 @@ function apiFixture(url, method = "GET") {
     return {files:[],folders:[{name:"Documents",path:"Documents",file_count:1}],current_folder:""};
   }
   if (pathname === "/api/release-memory-sync") {
-    return {enabled: false, state: "disabled", version: "0.13.241", task_active: false};
+    return {enabled: false, state: "disabled", version: "0.13.242", task_active: false};
   }
   if (pathname === "/api/tab-activity") return {revisions: {}};
   if (pathname === "/api/grinder-monitor/status") return {enabled: false, connected: false};
@@ -593,6 +593,39 @@ async function main() {
       ],
     }];
     await page.evaluate(() => openChat("only-saved-chat"));
+    assert.equal(await page.locator('#chat-list .active .chat-open').getAttribute('aria-current'), 'page');
+    await page.route('**/api/chats/only-saved-chat/title', async route=>{
+      browserChatFixture[0].title=route.request().postDataJSON().title;
+      await route.fulfill({json:{title:browserChatFixture[0].title}});
+    });
+    await page.locator('#chat-list .active .chat-rename').click();
+    assert.equal(await page.locator('.chat-title-editor').getAttribute('aria-label'), 'Conversation title');
+    await page.locator('.chat-title-editor').fill('Renamed conversation');
+    await page.locator('.chat-title-editor').press('Enter');
+    await page.waitForFunction(()=>document.activeElement?.classList.contains('chat-open'));
+    assert.equal(await page.locator('#chat-list .active .chat-delete').getAttribute('aria-label'),'Delete Renamed conversation');
+    await page.locator('#chat-list .active .chat-rename').click();
+    await page.locator('.chat-title-editor').fill('Discard this title');
+    await page.locator('.chat-title-editor').press('Escape');
+    assert.equal(await page.locator('#chat-list .active .chat-open').innerText(),'Renamed conversation');
+    assert.equal(await page.evaluate(()=>document.activeElement?.classList.contains('chat-open')),true);
+    await page.unroute('**/api/chats/only-saved-chat/title');
+    browserChatFixture[0].title='Only saved conversation';
+    browserChatFixture.push({...browserChatFixture[0],session_id:'keyboard-peer',title:'Keyboard peer'});
+    await page.evaluate(()=>refreshChatList());
+    await page.locator('#chat-list .chat-open').first().focus();
+    await page.keyboard.press('End');
+    assert.equal(await page.evaluate(()=>document.activeElement?.textContent),'Keyboard peer');
+    await page.keyboard.press('ArrowUp');
+    assert.equal(await page.evaluate(()=>document.activeElement?.textContent),'Only saved conversation');
+    await page.locator('#chat-search').fill('Only saved');
+    await page.locator('#chat-list .chat-open').first().focus();
+    await page.keyboard.press('ArrowDown');
+    assert.equal(await page.evaluate(()=>document.activeElement?.textContent),'Only saved conversation');
+    browserChatFixture.pop();
+    await page.locator('#chat-search').fill('');
+    await page.evaluate(()=>refreshChatList());
+
     await page.locator('#chat-search').fill('ONLY SAVED');
     assert.equal(await page.locator('#chat-list .chat-list-item:visible').count(), 1);
     await page.locator('#chat-search').fill('no matching title');

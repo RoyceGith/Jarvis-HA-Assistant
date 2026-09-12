@@ -18,11 +18,11 @@ MANIFEST = json.loads((ROOT / "zbrano/release_manifest.json").read_text(encoding
 
 class NativeAssistSatelliteReleaseTests(unittest.TestCase):
     def test_release_is_aligned(self):
-        self.assertIn('version: "0.13.241"', CONFIG)
-        self.assertIn('version="0.13.241"', MAIN)
-        self.assertIn("HUD 0.13.241", INDEX)
-        self.assertEqual(MANIFEST["version"], "0.13.241")
-        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.240")
+        self.assertIn('version: "0.13.242"', CONFIG)
+        self.assertIn('version="0.13.242"', MAIN)
+        self.assertIn("HUD 0.13.242", INDEX)
+        self.assertEqual(MANIFEST["version"], "0.13.242")
+        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.241")
 
     def test_pairing_token_is_hashed_and_authenticated(self):
         original = assist_bridge.ASSIST_BRIDGE_PATH

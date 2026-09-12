@@ -1,6 +1,7 @@
 "use strict";
 
 window.ZbranoI18n?.register({
+  "Conversation title": ["Τίτλος συνομιλίας", "Titolo della conversazione", "Titre de la conversation"],
   "Copy message": ["Αντιγραφή μηνύματος", "Copia messaggio", "Copier le message"],
   "Copied": ["Αντιγράφηκε", "Copiato", "Copié"],
   "Copy failed. Select the text to copy it.": ["Η αντιγραφή απέτυχε. Επιλέξτε το κείμενο για αντιγραφή.", "Copia non riuscita. Seleziona il testo per copiarlo.", "Échec de la copie. Sélectionnez le texte pour le copier."],

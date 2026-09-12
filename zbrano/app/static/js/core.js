@@ -1224,7 +1224,7 @@ function addMessageActions(item) {
   const label=document.createElement('span');label.textContent=window.ZbranoI18n?.t('Copy message')||'Copy message';copy.append(label);
   const status=document.createElement('span');status.className='message-copy-status';status.setAttribute('role','status');
   copy.addEventListener('click',async()=>{
-    const text=String(item.dataset.rawText||'');copy.disabled=true;status.textContent='';
+    const text=String(item.dataset.rawText||'');const restoreCopyFocus=document.activeElement===copy;copy.disabled=true;status.textContent='';
     try {
       if(navigator.clipboard?.writeText) await navigator.clipboard.writeText(text);
       else {
@@ -1234,7 +1234,7 @@ function addMessageActions(item) {
       }
       status.textContent=window.ZbranoI18n?.t('Copied')||'Copied';
     } catch { status.textContent=window.ZbranoI18n?.t('Copy failed. Select the text to copy it.')||'Copy failed. Select the text to copy it.'; }
-    finally {copy.disabled=false;}
+    finally {copy.disabled=false;if(restoreCopyFocus&&document.activeElement===document.body&&copy.isConnected)copy.focus({preventScroll:true});}
   });
   actions.append(copy,status);item.append(actions);
 }
@@ -1289,6 +1289,14 @@ function filterConversations() {
   }
   document.getElementById("chat-search-empty").hidden = !query || !rows.length || visible > 0;
 }
+chatList.addEventListener('keydown', event => {
+  if (!event.target.classList.contains('chat-open') || !['ArrowUp','ArrowDown','Home','End'].includes(event.key)) return;
+  const titles=[...chatList.querySelectorAll('.chat-list-item:not([hidden]) .chat-open')];
+  if(!titles.length)return;
+  const index=titles.indexOf(event.target);
+  const next=event.key==='Home'?0:event.key==='End'?titles.length-1:(index+(event.key==='ArrowDown'?1:-1)+titles.length)%titles.length;
+  event.preventDefault();titles[next].focus();
+});
 chatSearch.addEventListener("input", filterConversations);
 chatSearch.addEventListener("keydown", event => {
   if (event.key === "Escape" && chatSearch.value) { event.preventDefault(); chatSearch.value = ""; filterConversations(); }
@@ -1321,6 +1329,7 @@ async function refreshChatList() {
       openButton.className = "chat-open";
       openButton.textContent = chat.title || "New chat";
       openButton.title = chat.title || "New chat";
+      if (chat.session_id === zbranoChatSessionId) openButton.setAttribute("aria-current", "page");
       openButton.addEventListener("click", () => openChat(chat.session_id));
 
       const renameButton = document.createElement("button");
@@ -1377,6 +1386,7 @@ function beginChatRename(row, openButton, chat, renameButton, deleteButton) {
   const previousTitle = chat.title || "New chat";
   const editor = document.createElement("input");
   editor.className = "chat-title-editor";
+  editor.setAttribute("aria-label", window.ZbranoI18n?.t("Conversation title") || "Conversation title");
   editor.type = "text";
   editor.maxLength = 100;
   editor.value = previousTitle;
@@ -1395,7 +1405,7 @@ function beginChatRename(row, openButton, chat, renameButton, deleteButton) {
   editor.select();
   let finished = false;
 
-  const finish = async save => {
+  const finish = async (save, restoreFocus = false) => {
     if (finished) return;
     finished = true;
     const requestedTitle = editor.value.trim();
@@ -1403,6 +1413,7 @@ function beginChatRename(row, openButton, chat, renameButton, deleteButton) {
       openButton.textContent = previousTitle;
       openButton.title = previousTitle;
       editor.replaceWith(openButton);
+      if (restoreFocus) { filterConversations(); (row.hidden ? chatSearch : openButton).focus(); }
       return;
     }
     try {
@@ -1410,7 +1421,10 @@ function beginChatRename(row, openButton, chat, renameButton, deleteButton) {
       chat.title = savedTitle;
       openButton.textContent = savedTitle;
       openButton.title = savedTitle;
+      renameButton.setAttribute('aria-label', `Rename ${savedTitle}`);
+      deleteButton.setAttribute('aria-label', `Delete ${savedTitle}`);
       editor.replaceWith(openButton);
+      if (restoreFocus && (document.activeElement === editor || document.activeElement === document.body)) { filterConversations(); (row.hidden ? chatSearch : openButton).focus(); }
     } catch (error) {
       finished = false;
       editor.setCustomValidity(error.message || "Rename failed");
@@ -1422,10 +1436,10 @@ function beginChatRename(row, openButton, chat, renameButton, deleteButton) {
   editor.addEventListener("keydown", event => {
     if (event.key === "Enter") {
       event.preventDefault();
-      finish(true);
+      finish(true, true);
     } else if (event.key === "Escape") {
       event.preventDefault();
-      finish(false);
+      finish(false, true);
     }
   });
   editor.addEventListener("blur", () => finish(true));
@@ -1462,6 +1476,7 @@ function renderDraftChatRow() {
   if (existing) existing.remove();
   for (const row of chatList.querySelectorAll('.chat-list-item.active')) {
     row.classList.remove('active');
+    row.querySelector('.chat-open')?.removeAttribute('aria-current');
   }
   const row = document.createElement('div');
   row.className = 'chat-list-item active';

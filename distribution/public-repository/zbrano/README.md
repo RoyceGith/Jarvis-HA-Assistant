@@ -8,7 +8,7 @@ ZBRANO is a private Home Assistant intelligence assistant. It combines natural
 conversation, live home context, voice, useful memory, notifications, organization,
 and automation in one interface without granting itself access to every device.
 
-Version 0.13.241 improves chat readability with distinct message surfaces and comfortable line widths.
+Version 0.13.242 improves conversation keyboard navigation and focus recovery.
 Version 0.13.221 fixes stateless channel readiness and adds guided Telegram bot setup.
 Version 0.13.220 gives Notifications a clear, contained, responsive delivery workspace.
 Version 0.13.219 allows unconfigured lights, switches, and climate controls by default.

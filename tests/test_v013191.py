@@ -17,12 +17,12 @@ MANIFEST = json.loads((ROOT / "zbrano/release_manifest.json").read_text(encoding
 
 class PortableWakeMethodReleaseTests(unittest.TestCase):
     def test_release_is_aligned(self):
-        self.assertIn('version: "0.13.241"', CONFIG)
-        self.assertIn('version="0.13.241"', MAIN)
-        self.assertIn("HUD 0.13.241", HTML)
-        self.assertEqual(MANIFEST["version"], "0.13.241")
-        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.240")
-        self.assertTrue(CHANGELOG.startswith("# Change log\n\n## 0.13.241"))
+        self.assertIn('version: "0.13.242"', CONFIG)
+        self.assertIn('version="0.13.242"', MAIN)
+        self.assertIn("HUD 0.13.242", HTML)
+        self.assertEqual(MANIFEST["version"], "0.13.242")
+        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.241")
+        self.assertTrue(CHANGELOG.startswith("# Change log\n\n## 0.13.242"))
 
     def test_browser_recognition_is_the_default_method(self):
         self.assertIn('id="wake-browser-activate" name="wake-detection-method" type="radio" checked', HTML)

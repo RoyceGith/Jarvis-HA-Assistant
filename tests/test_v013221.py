@@ -17,10 +17,10 @@ MANIFEST = json.loads((ROOT / "zbrano" / "release_manifest.json").read_text(enco
 
 class NotificationReadinessAndTelegramSetupTests(unittest.TestCase):
     def test_release_markers_are_aligned(self):
-        self.assertIn('version: "0.13.241"', CONFIG)
-        self.assertIn('version="0.13.241"', MAIN)
-        self.assertIn("HUD 0.13.241", INDEX)
-        self.assertEqual(MANIFEST["version"], "0.13.241")
+        self.assertIn('version: "0.13.242"', CONFIG)
+        self.assertIn('version="0.13.242"', MAIN)
+        self.assertIn("HUD 0.13.242", INDEX)
+        self.assertEqual(MANIFEST["version"], "0.13.242")
 
     def test_unknown_notify_state_is_not_treated_as_unavailable(self):
         self.assertIn('explicitly_unavailable = str(state or "").strip().lower() == "unavailable"', NOTIFICATIONS)
