@@ -12,8 +12,8 @@ MANIFEST = json.loads((ROOT / "zbrano/release_manifest.json").read_text(encoding
 
 class SimpleDeviceCategoryReleaseTests(unittest.TestCase):
     def test_release_is_aligned(self):
-        self.assertEqual(MANIFEST["version"], "0.13.226")
-        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.225")
+        self.assertEqual(MANIFEST["version"], "0.13.227")
+        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.226")
 
     def test_only_two_plain_device_types_are_offered(self):
         self.assertIn('<option value="informational" selected>Sensor device</option>', HTML)

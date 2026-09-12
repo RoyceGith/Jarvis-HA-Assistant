@@ -14,10 +14,10 @@ MANIFEST = json.loads((ROOT / "zbrano/release_manifest.json").read_text(encoding
 
 class InterfaceRefreshTests(unittest.TestCase):
     def test_release_markers_are_aligned(self):
-        self.assertIn('version: "0.13.226"', CONFIG)
-        self.assertIn('version="0.13.226"', MAIN)
-        self.assertIn("HUD 0.13.226", INDEX)
-        self.assertEqual(MANIFEST["version"], "0.13.226")
+        self.assertIn('version: "0.13.227"', CONFIG)
+        self.assertIn('version="0.13.227"', MAIN)
+        self.assertIn("HUD 0.13.227", INDEX)
+        self.assertEqual(MANIFEST["version"], "0.13.227")
 
     def test_refresh_is_a_final_scoped_style_layer(self):
         marker = '<style id="zbrano-v01312-interface-refresh-style">'

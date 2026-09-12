@@ -1,9 +1,12 @@
-# ZBRANO v0.13.226
+# ZBRANO v0.13.227
 
 Automation Studio provides a graphical, step-by-step workflow for Home Assistant
 automations. Use Setup &amp; safety, When, Only if, Then, and optional Outcomes beside the
 interactive flow canvas. Natural-language creation, templates, drag-and-drop,
 saved automation compatibility, and the full Advanced editor remain available.
+
+Version 0.13.227 embeds the GitHub mark directly in the composer so it cannot become
+an empty box behind Home Assistant ingress or during cached asset loading.
 
 Version 0.13.226 reliably loads the real GitHub plugin icon beneath chat, falls back
 cleanly if an asset fails, and preserves icon contrast across interface themes.

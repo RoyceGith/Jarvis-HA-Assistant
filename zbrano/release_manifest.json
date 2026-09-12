@@ -1,9 +1,9 @@
 {
-  "version": "0.13.226",
+  "version": "0.13.227",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/ZBRANO_Core main",
-  "summary": "Reliably render installed plugin icons beneath chat with correct theme contrast.",
+  "summary": "Render the GitHub composer mark inline without a runtime asset dependency.",
   "history_backfill": [
     {
       "version": "0.13.0",
@@ -908,18 +908,21 @@
       {
         "version": "0.13.225",
         "summary": "Kept every installed plugin visible beneath the chat prompt."
+      },
+      {
+        "version": "0.13.226",
+        "summary": "Hardened plugin icon loading, fallbacks, and theme contrast beneath chat."
       }
   ],
   "release_entry": {
     "features": [
-      "Load the bundled GitHub plugin mark reliably beneath the chat prompt and keep it legible in every theme."
+      "Render the GitHub plugin mark as inline SVG beneath the chat prompt with theme-aware color."
     ],
     "fixes": [
-      "Attach image load and failure handlers before requesting an icon so failed assets always reveal their fallback.",
-      "Use theme-aware contrast for GitHub's dark monochrome logo."
+      "Remove the GitHub mark's runtime URL dependency so Home Assistant ingress and browser caches cannot leave an empty icon box."
     ],
     "validation": [
-      "Real GitHub SVG loading, fallback ordering, theme styling, browser smoke, regression coverage, and v0.13.226 release alignment"
+      "Inline GitHub SVG rendering, theme styling, browser smoke, regression coverage, and v0.13.227 release alignment"
     ]
   },
   "features": [

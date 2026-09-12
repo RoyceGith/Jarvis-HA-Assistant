@@ -1,5 +1,10 @@
 # Change log
 
+## 0.13.227
+
+- Render the GitHub composer icon as an inline, theme-colored SVG.
+- Remove the GitHub icon's runtime path and loading dependency under Home Assistant ingress.
+
 ## 0.13.226
 
 - Load composer plugin icons only after their fallback handlers are attached.
