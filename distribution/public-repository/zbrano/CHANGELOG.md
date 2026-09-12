@@ -1,5 +1,10 @@
 # Change log
 
+## 0.13.243
+
+- Remove card backgrounds, rounded frames and borders from chat messages.
+- Keep readable spacing, author labels, message copying and keyboard improvements.
+
 ## 0.13.242
 
 - Navigate visible conversation titles with arrows, Home and End.

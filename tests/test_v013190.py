@@ -13,12 +13,12 @@ MANIFEST = json.loads((ROOT / "zbrano/release_manifest.json").read_text(encoding
 
 class ActionableEntityMatchingReleaseTests(unittest.TestCase):
     def test_release_is_aligned(self):
-        self.assertIn('version: "0.13.242"', CONFIG)
-        self.assertIn('version="0.13.242"', MAIN)
-        self.assertIn("HUD 0.13.242", HTML)
-        self.assertEqual(MANIFEST["version"], "0.13.242")
-        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.241")
-        self.assertTrue(CHANGELOG.startswith("# Change log\n\n## 0.13.242"))
+        self.assertIn('version: "0.13.243"', CONFIG)
+        self.assertIn('version="0.13.243"', MAIN)
+        self.assertIn("HUD 0.13.243", HTML)
+        self.assertEqual(MANIFEST["version"], "0.13.243")
+        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.242")
+        self.assertTrue(CHANGELOG.startswith("# Change log\n\n## 0.13.243"))
 
     def test_direct_power_matching_uses_safe_domains_and_semantic_priority(self):
         route = MAIN[MAIN.index("async def try_local_ha_route("):MAIN.index("async def run_zbrano(")]

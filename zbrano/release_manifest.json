@@ -1,9 +1,9 @@
 {
-  "version": "0.13.242",
+  "version": "0.13.243",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/ZBRANO_Core main",
-  "summary": "Improve keyboard navigation, active-chat announcements and focus recovery in conversation controls.",
+  "summary": "Remove chat message card backgrounds and borders while preserving readable spacing and message actions.",
   "history_backfill": [
     {
       "version": "0.13.0",
@@ -972,18 +972,21 @@
     {
       "version": "0.13.241",
       "summary": "Improve chat readability with distinct message surfaces, bounded line widths and compact author labels."
+    },
+    {
+      "version": "0.13.242",
+      "summary": "Improve keyboard navigation, active-chat announcements and focus recovery in conversation controls."
     }
   ],
   "release_entry": {
     "features": [
-      "Keyboard navigation through visible conversation titles and current-chat announcements."
+      "Open chat layout with readable spacing and existing message actions."
     ],
     "fixes": [
-      "Label the rename editor, refresh action labels, and restore focus after keyboard rename/cancel.",
-      "Recover Copy button focus after clipboard completion."
+      "Remove unwanted card surfaces and frames from user, assistant and device action messages."
     ],
     "validation": [
-      "Browser rename/save/cancel focus, updated labels, keyboard navigation and search filtering; regression/integration suites and release validators."
+      "Desktop/phone screenshot review, browser smoke, regression/integration suites and release validators."
     ]
   },
   "features": [

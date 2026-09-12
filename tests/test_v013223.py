@@ -23,9 +23,9 @@ class SingleMemorySaveApprovalTests(unittest.TestCase):
         workshop_approvals.PENDING_MEMORY_ORGANIZATION.clear()
 
     def test_release_alignment(self):
-        self.assertIn('version: "0.13.242"', CONFIG)
-        self.assertIn('version="0.13.242"', MAIN)
-        self.assertIn("HUD 0.13.242", INDEX)
+        self.assertIn('version: "0.13.243"', CONFIG)
+        self.assertIn('version="0.13.243"', MAIN)
+        self.assertIn("HUD 0.13.243", INDEX)
 
     def test_save_as_is_explicit_and_choice_call_is_canonicalized(self):
         self.assertTrue(workshop_approvals.is_explicit_memory_save_request(

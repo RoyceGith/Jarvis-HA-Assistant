@@ -1,6 +1,6 @@
 name: "ZBRANO"
 description: "Private AI conversation, home intelligence, and visual automation with explicit device permissions"
-version: "0.13.242"
+version: "0.13.243"
 slug: "zbrano"
 image: "ghcr.io/roycegith/zbrano-core"
 init: false

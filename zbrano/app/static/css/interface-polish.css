@@ -74,14 +74,14 @@
 .clipboard-fallback { position:fixed; top:0; left:-9999px; }
 @media(max-width:700px) { #messages .message-copy { min-height:44px; } }
 
-/* Readable conversation surfaces, with author labels above the text. */
-#messages .message { box-sizing:border-box; width:fit-content; max-width:min(100%,76ch); padding:.8rem 1rem; margin:.65rem 0; border:1px solid color-mix(in srgb,var(--line) 65%,transparent); border-radius:13px; line-height:1.65; overflow-wrap:anywhere; text-shadow:none; }
+/* Open conversation layout, with author labels above the text. */
+#messages .message { box-sizing:border-box; width:fit-content; max-width:min(100%,76ch); padding:.8rem 1rem; margin:.65rem 0; border:0; border-radius:0; line-height:1.65; overflow-wrap:anywhere; text-shadow:none; }
 #messages .message::before { position:static; display:block; margin:0 0 .45rem; font-size:.62rem; font-weight:650; line-height:1.2; letter-spacing:.08em; }
-#messages .message.zbrano { margin-right:auto; background:color-mix(in srgb,var(--surface-strong) 86%,transparent); }
-#messages .message.user { margin-left:auto; max-width:min(90%,68ch); color:var(--text); white-space:pre-wrap; background:color-mix(in srgb,var(--cyan) 10%,var(--surface-strong)); border-color:color-mix(in srgb,var(--cyan) 23%,var(--line)); }
+#messages .message.zbrano { margin-right:auto; background:transparent; }
+#messages .message.user { margin-left:auto; max-width:min(90%,68ch); color:var(--text); white-space:pre-wrap; background:transparent; }
 #messages .message-actions { white-space:normal; }
-#messages .message.device-action-result { border-color:color-mix(in srgb,var(--cyan) 40%,var(--line)); background:color-mix(in srgb,var(--cyan) 8%,var(--surface-strong)); }
+#messages .message.device-action-result { border:0; background:transparent; }
 #messages .message :is(p,ul,ol) { max-width:70ch; }
 #messages .message pre { max-width:100%; box-sizing:border-box; }
 :root[data-density="compact"] #messages .message { padding:.6rem .8rem; margin:.45rem 0; line-height:1.5; }
-@media(max-width:700px) { #messages .message { padding:.65rem .75rem; border-radius:11px; } #messages .message.user { max-width:94%; } }
+@media(max-width:700px) { #messages .message { padding:.65rem .75rem; } #messages .message.user { max-width:94%; } }
