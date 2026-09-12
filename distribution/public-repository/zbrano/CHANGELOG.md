@@ -1,5 +1,11 @@
 # Change log
 
+## 0.13.222
+
+- Move Notifications from Automations into Settings.
+- Show Notification Center, Watchlist, and Delivery Logs as direct sidebar subcategories.
+- Replace embedded section tab bars with consistent side navigation in Entities, Plugins, and Calendar, including Birthday subcategories.
+
 ## 0.13.221
 
 - Show stateless Home Assistant notification endpoints as Ready with status not reported instead of falsely Unavailable.

@@ -1,7 +1,7 @@
 (() => {
-  const tab = document.querySelector('[data-auto-view="notifications"]');
+  const tabs = [...document.querySelectorAll('[data-notification-view]')];
   const $ = id => document.getElementById(id);
-  if (!tab || !$('telegram-inbound-form')) return;
+  if (!tabs.length || !$('telegram-inbound-form')) return;
   let state = {settings:{}, linked_chats:[], listener:{}};
   const setupGuide = $('telegram-setup-guide');
   if (setupGuide) setupGuide.innerHTML = `
@@ -89,7 +89,7 @@
     catch (error) { $('telegram-inbound-status').textContent = `Unlink failed: ${error.message || error}`; button.disabled = false; }
   });
 
-  tab.addEventListener('click', load);
+  for (const tab of tabs) tab.addEventListener('click', load);
   document.getElementById('notification-refresh')?.addEventListener('click', load);
   window.zbranoTelegramInbox = {load};
 })();

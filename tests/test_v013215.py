@@ -15,10 +15,10 @@ MANIFEST = json.loads((ROOT / "zbrano" / "release_manifest.json").read_text(enco
 
 class CustomerDeveloperRemovalTests(unittest.TestCase):
     def test_release_markers_are_aligned(self):
-        self.assertIn('version: "0.13.221"', CONFIG)
-        self.assertIn('version="0.13.221"', MAIN)
-        self.assertIn("HUD 0.13.221", INDEX)
-        self.assertEqual(MANIFEST["version"], "0.13.221")
+        self.assertIn('version: "0.13.222"', CONFIG)
+        self.assertIn('version="0.13.222"', MAIN)
+        self.assertIn("HUD 0.13.222", INDEX)
+        self.assertEqual(MANIFEST["version"], "0.13.222")
 
     def test_developer_interface_and_routes_are_not_exposed(self):
         for marker in (

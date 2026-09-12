@@ -178,9 +178,8 @@
   markAll.addEventListener("click", () => markRead([], true).catch(() => {}));
   openCenter.addEventListener("click", () => {
     closePopover();
-    document.getElementById("automations-tab")?.click();
+    document.getElementById("settings-tab")?.click();
     requestAnimationFrame(() => {
-      document.querySelector('[data-auto-view="notifications"]')?.click();
       document.querySelector('[data-notification-view="logs"]')?.click();
     });
   });

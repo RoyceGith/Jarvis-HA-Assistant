@@ -162,7 +162,7 @@ const onboardingFixture = {
     {id:"notifications",title:"Notifications and autonomy",description:"Choose notification delivery",ready:false,required:false,target:"notifications",last_check:null,skipped:false},
   ],
   installation_report: {
-    generated_at: 1788300000, version: "0.13.221", ready: true, attention_count: 0, ready_count: 5,
+    generated_at: 1788300000, version: "0.13.222", ready: true, attention_count: 0, ready_count: 5,
     checks: [
       {id:"home_assistant",title:"Home Assistant",state:"ready",required:true,detail:"Connected to Home Assistant",target:"home_assistant"},
       {id:"model",title:"AI model",state:"ready",required:true,detail:"gpt-5-mini is configured",target:"model"},
@@ -170,7 +170,7 @@ const onboardingFixture = {
       {id:"backup",title:"Backup and restore",state:"ready",required:false,detail:"A portable ZBRANO backup can be exported from Settings",target:"memory"},
       {id:"automation_health",title:"Automation safety",state:"ready",required:false,detail:"2 saved; 0 need permission; 0 paused after failures",target:"automations"},
     ],
-    support_summary: "ZBRANO installation report · v0.13.221\nOverall: Ready\nHome Assistant: Connected\nAI model: Configured\nDevice access: 3 sensor devices / 1 control devices\nPersistent storage: Ready\nAutomations: 2 saved / 0 permission issues / 0 failure pauses",
+    support_summary: "ZBRANO installation report · v0.13.222\nOverall: Ready\nHome Assistant: Connected\nAI model: Configured\nDevice access: 3 sensor devices / 1 control devices\nPersistent storage: Ready\nAutomations: 2 saved / 0 permission issues / 0 failure pauses",
   },
 };
 
@@ -200,7 +200,7 @@ function apiFixture(url, method = "GET") {
   if (pathname === "/api/health") {
     return {
       status: "ok",
-      version: "0.13.221",
+      version: "0.13.222",
       speech_provider: "openai",
       speech_providers: {openai: {configured: true}, elevenlabs: {configured: false}},
     };
@@ -312,7 +312,7 @@ function apiFixture(url, method = "GET") {
     return {files:[],folders:[{name:"Documents",path:"Documents",file_count:1}],current_folder:""};
   }
   if (pathname === "/api/release-memory-sync") {
-    return {enabled: false, state: "disabled", version: "0.13.221", task_active: false};
+    return {enabled: false, state: "disabled", version: "0.13.222", task_active: false};
   }
   if (pathname === "/api/tab-activity") return {revisions: {}};
   if (pathname === "/api/grinder-monitor/status") return {enabled: false, connected: false};
@@ -1118,7 +1118,8 @@ async function main() {
     assert.match(await page.locator("#notification-inbox-list").innerText(), /No notifications yet/i);
     assert.equal(await page.locator("#notification-inbox-popover").isVisible(), true);
     await page.locator("#notification-inbox-open-center").click();
-    await page.locator('[data-auto-panel="notifications"]:not(.hidden)').waitFor();
+    await page.locator('#settings-panel:not(.hidden) [data-notification-workspace]').waitFor();
+    assert.equal(await page.locator('#automations-panel [data-notification-workspace]').count(), 0);
     await page.locator('[data-notification-view="center"]').click();
     await page.locator('.notification-channel[data-availability="ready"]').waitFor();
     assert.match(await page.locator('.notification-channel[data-availability="ready"]').innerText(), /Ready · status not reported/);
@@ -1128,7 +1129,7 @@ async function main() {
     assert.equal(await page.locator('#telegram-setup-guide a[href="https://t.me/BotFather"]').count(), 1);
     assert.equal(await page.locator('#telegram-setup-guide a[href*="domain=telegram_bot"]').count(), 1);
     await page.setViewportSize({width:1440,height:900});
-    const notificationDesktopLayout = await page.locator('[data-auto-panel="notifications"]').evaluate(element => {
+    const notificationDesktopLayout = await page.locator('[data-notification-workspace]').evaluate(element => {
       const cards = [...element.querySelectorAll('.notification-center-grid > .autonomy-card')];
       const channels = element.querySelector('.notification-channel-card').getBoundingClientRect();
       const policy = element.querySelector('.notification-policy-card').getBoundingClientRect();
@@ -1144,7 +1145,7 @@ async function main() {
     assert.equal(notificationDesktopLayout.contained, true);
     assert.equal(notificationDesktopLayout.noHorizontalOverflow, true);
     await page.setViewportSize({width:700,height:720});
-    const notificationMobileLayout = await page.locator('[data-auto-panel="notifications"]').evaluate(element => ({
+    const notificationMobileLayout = await page.locator('[data-notification-workspace]').evaluate(element => ({
       compactHeader: getComputedStyle(element.querySelector('.notification-workspace-head')).display === 'grid',
       noHorizontalOverflow: element.scrollWidth <= element.clientWidth + 1,
     }));

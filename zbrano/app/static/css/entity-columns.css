@@ -115,9 +115,6 @@
     #calendar-reminder-form label span { color:var(--text-muted); font-size:.68rem; }
     #calendar-reminder-remove-all { border-color:rgba(239,118,95,.42); color:#ef765f; }
 
-    .birthday-toolbar { display:flex; gap:.35rem; margin-bottom:.7rem; }
-    .birthday-toolbar button { border-color:transparent; background:transparent; }
-    .birthday-toolbar button:hover,.birthday-toolbar button.active { border-color:var(--cyan); color:var(--cyan); }
     [data-birthday-panel].hidden { display:none; }
     #birthday-form { display:grid; gap:.62rem; max-width:54rem; margin-top:.75rem; }
     #birthday-form > label { display:grid; gap:.28rem; }

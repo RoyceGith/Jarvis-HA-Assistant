@@ -105,8 +105,8 @@
     }
     if (target === "plugins") return document.getElementById("plugins-tab")?.click();
     if (target === "notifications") {
-      document.getElementById("automations-tab")?.click();
-      window.setTimeout(() => document.querySelector('[data-auto-view="notifications"]')?.click(), 0);
+      document.getElementById("settings-tab")?.click();
+      window.setTimeout(() => document.querySelector('[data-notification-view="center"]')?.click(), 0);
       return;
     }
     if (target === "model") {

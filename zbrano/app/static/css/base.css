@@ -551,8 +551,6 @@
     .message-attachment small { color: var(--text-muted); font-size: .68rem; }
 
     .plugin-workspace{display:grid;gap:.8rem;min-height:0}
-    .plugin-subtabs{display:flex;gap:.4rem;border-bottom:1px solid var(--line);padding-bottom:.55rem}
-    .plugin-subtabs button.active{border-color:var(--cyan);color:var(--cyan);box-shadow:0 0 12px rgba(92,236,255,.1)}
     .plugin-subview{min-height:0}.plugin-subview.hidden{display:none}
     .plugin-identity,.catalog-title{display:flex;align-items:center;gap:.65rem;min-width:0}
     .plugin-icon-wrap{width:2.25rem;height:2.25rem;display:grid;place-items:center;flex:0 0 auto;border:1px solid var(--line);border-radius:8px;background:rgba(255,255,255,.92);overflow:hidden}

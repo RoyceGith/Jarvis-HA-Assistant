@@ -13,20 +13,20 @@ MANIFEST = json.loads((ROOT / "zbrano" / "release_manifest.json").read_text(enco
 
 class NotificationWorkspaceLayoutTests(unittest.TestCase):
     def test_release_markers_are_aligned(self):
-        self.assertIn('version: "0.13.221"', CONFIG)
-        self.assertIn('version="0.13.221"', MAIN)
-        self.assertIn("HUD 0.13.221", INDEX)
-        self.assertEqual(MANIFEST["version"], "0.13.221")
+        self.assertIn('version: "0.13.222"', CONFIG)
+        self.assertIn('version="0.13.222"', MAIN)
+        self.assertIn("HUD 0.13.222", INDEX)
+        self.assertEqual(MANIFEST["version"], "0.13.222")
 
     def test_notifications_have_a_dedicated_scoped_workspace(self):
         self.assertIn('href="css/notification-center.css"', INDEX)
         self.assertIn('class="notification-workspace-head"', INDEX)
         self.assertIn('class="notification-workspace-panel" data-notification-panel="center"', INDEX)
-        self.assertIn('[data-auto-panel="notifications"]', STYLE)
+        self.assertIn('[data-notification-workspace]', STYLE)
         self.assertIn("grid-template-columns: repeat(12, minmax(0, 1fr))", STYLE)
 
     def test_forms_actions_and_dynamic_lists_are_contained(self):
-        self.assertIn('#automations-panel [data-auto-panel="notifications"] .notification-form-grid', STYLE)
+        self.assertIn('#settings-panel [data-notification-workspace] .notification-form-grid', STYLE)
         self.assertIn('.notification-form-grid > .check', STYLE)
         self.assertIn('.notification-log-toolbar', STYLE)
         self.assertIn('@media (max-width: 700px)', STYLE)

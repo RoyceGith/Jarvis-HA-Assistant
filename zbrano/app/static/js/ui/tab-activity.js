@@ -81,8 +81,8 @@
         if (path.includes("/api/calendar")) markIfUnseen(document.getElementById("calendar-tab"));
         if (path.includes("/api/contacts")) markIfUnseen(document.getElementById("contacts-tab"));
         if (path.includes("/api/notifications")) {
-          markIfUnseen(document.getElementById("automations-tab"));
-          markIfUnseen(document.querySelector('[data-auto-view="notifications"]'));
+          markIfUnseen(document.getElementById("settings-tab"));
+          markIfUnseen(document.querySelector('[data-notification-view="center"]'));
           if (path.endsWith("/test")) markIfUnseen(document.querySelector('[data-notification-view="logs"]'));
         }
       }
@@ -102,7 +102,7 @@
     files: ["#files-tab"],
     plugins: ["#plugins-tab"],
     automations: ["#automations-tab", '[data-auto-view="studio"]'],
-    notifications: ["#automations-tab", '[data-auto-view="notifications"]', '[data-notification-view="logs"]'],
+    notifications: ["#settings-tab", '[data-notification-view="center"]', '[data-notification-view="logs"]'],
     calendar: ["#calendar-tab"],
     contacts: ["#contacts-tab"],
     settings: ["#settings-tab"],

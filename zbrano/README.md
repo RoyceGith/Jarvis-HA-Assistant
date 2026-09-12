@@ -1,9 +1,12 @@
-# ZBRANO v0.13.221
+# ZBRANO v0.13.222
 
 Automation Studio provides a graphical, step-by-step workflow for Home Assistant
 automations. Use Setup &amp; safety, When, Only if, Then, and optional Outcomes beside the
 interactive flow canvas. Natural-language creation, templates, drag-and-drop,
 saved automation compatibility, and the full Advanced editor remain available.
+
+Version 0.13.222 moves Notifications into Settings, exposes its views directly in
+the Settings sidebar, and gives Entities, Plugins, and Calendar consistent section navigation.
 
 Version 0.13.221 correctly recognizes stateless notification endpoints and adds
 a guided, private Telegram BotFather-to-Home-Assistant setup inside Notifications.

@@ -182,6 +182,10 @@ body > main > nav .primary-labeled-tab svg { width: 1rem; height: 1rem; }
   box-shadow: none;
   color: inherit;
 }
+#settings-panel .settings-category-tab.settings-nav-sub {
+  padding-left: 1rem;
+  font-size: .78rem;
+}
 .settings-category-tab .settings-nav-icon {
   display: inline-grid;
   width: 1.15rem;
@@ -220,6 +224,58 @@ body > main > nav .primary-labeled-tab svg { width: 1rem; height: 1rem; }
 #settings-panel .settings-card[data-settings-category="search"] { --settings-accent: #42b8eb; }
 #settings-panel .settings-card[data-settings-category="memory"] { --settings-accent: #e29063; }
 #settings-panel .settings-card[data-settings-category="updates"] { --settings-accent: var(--cyan); }
+#settings-panel .settings-card[data-settings-category="notifications"] { --settings-accent: #3f9cff; }
+#settings-panel .notification-settings-host { overflow: visible; }
+
+/* Keep section choices in the workspace navigation, not in a second tab bar. */
+#entities-panel,
+.nested-workspace-shell {
+  display: grid;
+  grid-template-columns: minmax(190px, 225px) minmax(0, 1fr);
+  align-items: stretch;
+  gap: 0;
+}
+#entities-panel { height: 100%; min-height: 0; padding: 0; overflow: hidden; grid-template-rows: minmax(0, 1fr); }
+.workspace-side-navigation {
+  position: sticky;
+  top: 0;
+  grid-column: 1;
+  grid-row: 1 / span 20;
+  display: flex;
+  min-height: min(620px, calc(100dvh - 170px));
+  align-self: stretch;
+  flex-direction: column;
+  gap: .12rem;
+  margin: 0;
+  padding: .85rem;
+  overflow-x: hidden;
+  overflow-y: auto;
+  border: 0;
+  border-right: 1px solid var(--line);
+  border-radius: 0;
+  background: color-mix(in srgb, var(--surface-strong) 64%, transparent);
+  box-shadow: none;
+}
+.workspace-side-navigation button {
+  width: 100%;
+  min-height: 2.2rem;
+  padding: .48rem .62rem;
+  border: 0;
+  border-left: 3px solid transparent;
+  border-radius: 7px;
+  background: transparent;
+  box-shadow: none;
+  color: var(--text-muted);
+  text-align: left;
+}
+.workspace-side-navigation button:hover:not(:disabled) { background: color-mix(in srgb, var(--surface) 82%, transparent); }
+.workspace-side-navigation button.active { border-left-color: var(--cyan); background: color-mix(in srgb, var(--cyan) 10%, var(--surface)); color: var(--text); }
+.workspace-side-navigation .workspace-nav-sub { min-height: 1.9rem; padding-left: 1.15rem; font-size: .74rem; }
+#entities-panel > [data-entity-view-panel],
+.plugin-workspace > .plugin-subview,
+.calendar-shell > :not(.calendar-subtabs) { grid-column: 2; margin: .9rem; min-width: 0; }
+#entities-panel > [data-entity-view-panel] { grid-row: 1; min-height: 0; }
+.calendar-shell > .calendar-heading { margin-bottom: 0; }
 #settings-panel .assist-bridge-card{margin-top:1rem;padding:1rem;border:1px solid color-mix(in srgb,var(--cyan) 26%,var(--line));border-radius:16px;background:linear-gradient(145deg,color-mix(in srgb,var(--cyan) 6%,var(--surface)),var(--surface))}.assist-bridge-heading{display:flex;align-items:flex-start;justify-content:space-between;gap:1rem}.assist-bridge-heading h3{margin:0 0 .3rem;font-size:.84rem;letter-spacing:.09em}.assist-bridge-heading p{margin:0!important}.assist-bridge-heading>span{flex:0 0 auto;padding:.3rem .55rem;border:1px solid var(--line);border-radius:999px;color:var(--text-muted);font-size:.68rem;font-weight:750;letter-spacing:.08em}.assist-bridge-heading>span[data-state="ready"]{border-color:color-mix(in srgb,var(--cyan) 55%,var(--line));color:var(--cyan);background:color-mix(in srgb,var(--cyan) 9%,transparent)}.assist-bridge-steps{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.45rem 1.5rem;margin:.9rem 0;padding-left:1.3rem;color:var(--text-muted);font-size:.84rem;line-height:1.45}.assist-bridge-address{margin:.7rem 0}.assist-bridge-secret{margin:.7rem 0}.assist-bridge-secret>label{display:block;margin-bottom:.35rem}.assist-bridge-secret>div{display:flex;gap:.45rem}.assist-bridge-secret input{flex:1;min-width:0}.assist-bridge-secret small,.assist-bridge-safety{display:block;margin-top:.35rem;color:var(--text-muted);line-height:1.45}
 @media(max-width:700px){.assist-bridge-heading{display:grid}.assist-bridge-steps{grid-template-columns:1fr}.assist-bridge-secret>div{align-items:stretch;flex-direction:column}}
 #settings-panel .settings-card h2 { color: var(--settings-accent); }
@@ -458,6 +514,34 @@ body > main > nav .primary-labeled-tab svg { width: 1rem; height: 1rem; }
   #settings-panel .settings-category-tab.active { border-bottom-color: var(--cyan); }
   #settings-panel .settings-stack > .settings-card,
   #settings-panel .settings-stack > .settings-actions { margin: .7rem; }
+  #entities-panel,
+  .nested-workspace-shell { display: block; height: auto; overflow: visible; }
+  .workspace-side-navigation {
+    position: static;
+    display: flex;
+    min-height: 0;
+    align-self: auto;
+    flex-direction: row;
+    gap: .25rem;
+    padding: .5rem .6rem;
+    overflow-x: auto;
+    overflow-y: hidden;
+    border-right: 0;
+    border-bottom: 1px solid var(--line);
+    white-space: nowrap;
+  }
+  .workspace-side-navigation button,
+  .workspace-side-navigation .workspace-nav-sub {
+    width: auto;
+    min-width: max-content;
+    padding: .45rem .65rem;
+    border-left: 0;
+    border-bottom: 2px solid transparent;
+  }
+  .workspace-side-navigation button.active { border-bottom-color: var(--cyan); }
+  #entities-panel > [data-entity-view-panel],
+  .plugin-workspace > .plugin-subview,
+  .calendar-shell > :not(.calendar-subtabs) { margin: .7rem; }
 }
 
 @media (prefers-reduced-motion: reduce) {

@@ -35,7 +35,7 @@
   <header>
     <div class="brand-line">
       <h1>ZBRANO</h1>
-      <div class="status hud-version-label">Workshop Intelligence Interface · HUD 0.13.221</div>
+      <div class="status hud-version-label">Workshop Intelligence Interface · HUD 0.13.222</div>
     </div>
     <div class="runtime-status-stack">
       <label class="interface-language-picker" title="Interface language">
@@ -186,7 +186,7 @@
   </section>
 
 <section id="entities-panel" class="panel hidden">
-    <div class="entity-view-tabs" role="tablist" aria-label="Entity views">
+    <div class="entity-view-tabs workspace-side-navigation" role="tablist" aria-label="Entity views">
       <button type="button" class="active" data-entity-view="inventory" role="tab" aria-selected="true">Entity Inventory</button>
       <button type="button" data-entity-view="history" role="tab" aria-selected="false">History &amp; Event Timeline</button>
     </div>
@@ -263,6 +263,12 @@
         <summary>Connections &amp; data</summary>
         <button type="button" class="settings-category-tab" role="tab" aria-selected="false" data-settings-target="search"><span class="settings-nav-icon" aria-hidden="true">⌕</span><span>Search</span></button>
         <button type="button" class="settings-category-tab" role="tab" aria-selected="false" data-settings-target="memory"><span class="settings-nav-icon" aria-hidden="true">⬡</span><span>Memory</span></button>
+      </details>
+      <details class="settings-nav-group" open>
+        <summary>Notifications</summary>
+        <button type="button" class="settings-category-tab settings-nav-sub" role="tab" aria-selected="false" data-settings-target="notifications" data-notification-view="center"><span class="settings-nav-icon" aria-hidden="true">├</span><span>Notification Center</span></button>
+        <button type="button" class="settings-category-tab settings-nav-sub" role="tab" aria-selected="false" data-settings-target="notifications" data-notification-view="watchlist"><span class="settings-nav-icon" aria-hidden="true">├</span><span>Watchlist</span></button>
+        <button type="button" class="settings-category-tab settings-nav-sub" role="tab" aria-selected="false" data-settings-target="notifications" data-notification-view="logs"><span class="settings-nav-icon" aria-hidden="true">└</span><span>Delivery Logs</span></button>
       </details>
       <details class="settings-nav-group" open>
         <summary>System</summary>
@@ -509,6 +515,7 @@
       <div class="release-sync-status" id="release-memory-sync-status" role="status" aria-live="polite">Checking synchronization status…</div>
       <div class="settings-actions"><button id="release-memory-sync-retry" type="button">Sync Current Release Now</button></div>
     </div>
+    <div id="notification-settings-host" class="settings-card notification-settings-host" data-settings-category="notifications" hidden></div>
     <div class="settings-actions">
       <button id="save-settings" type="button">Save All Settings</button>
       <span id="settings-save-state" role="status" aria-live="polite"></span>
@@ -517,8 +524,8 @@
   </section>
 
 <section id="plugins-panel" class="panel hidden">
-    <div class="plugin-workspace">
-      <div class="plugin-subtabs" role="tablist" aria-label="Plugin views">
+    <div class="plugin-workspace nested-workspace-shell">
+      <div class="plugin-subtabs workspace-side-navigation" role="tablist" aria-label="Plugin views">
         <button id="plugins-installed-tab" class="active" type="button" role="tab" aria-selected="true" aria-controls="plugins-installed-view">Installed Plugins</button>
         <button id="plugins-browse-tab" type="button" role="tab" aria-selected="false" aria-controls="plugins-browse-view">Browse Plugins</button>
       </div>
@@ -587,15 +594,17 @@
   </section>
 
   <section id="calendar-panel" class="panel hidden">
-    <div class="calendar-shell">
+    <div class="calendar-shell nested-workspace-shell">
       <div class="calendar-heading">
         <div><h2>CALENDAR</h2><p>Appointments and Telegram-capable reminders managed by ZBRANO.</p></div>
         <button id="calendar-refresh" type="button">Refresh</button>
       </div>
-      <div class="calendar-subtabs" role="tablist" aria-label="Calendar views">
+      <div class="calendar-subtabs workspace-side-navigation" role="tablist" aria-label="Calendar views">
         <button class="active" type="button" data-calendar-view="month" role="tab" aria-selected="true">Month</button>
         <button type="button" data-calendar-view="upcoming" role="tab" aria-selected="false">Upcoming</button>
         <button type="button" data-calendar-view="birthdays" role="tab" aria-selected="false">Birthdays</button>
+        <button class="workspace-nav-sub active" type="button" data-birthday-view="people" role="tab" aria-selected="true">├ People</button>
+        <button class="workspace-nav-sub" type="button" data-birthday-view="add" role="tab" aria-selected="false">└ Add Birthday</button>
         <button type="button" data-calendar-view="reminders" role="tab" aria-selected="false">Reminders</button>
         <button type="button" data-calendar-view="sync" role="tab" aria-selected="false">Google Sync</button>
       </div>
@@ -678,10 +687,6 @@
       </section>
 
       <section data-calendar-panel="birthdays" class="hidden">
-        <div class="birthday-toolbar" role="tablist" aria-label="Birthday views">
-          <button class="active" type="button" data-birthday-view="people" role="tab" aria-selected="true">People</button>
-          <button type="button" data-birthday-view="add" role="tab" aria-selected="false">Add Birthday</button>
-        </div>
         <section data-birthday-panel="people">
           <article class="calendar-card birthday-feature-card">
             <div class="calendar-card-head"><div><h3>Next birthdays</h3><p id="birthday-upcoming-summary">Loading birthdays…</p></div></div>
@@ -748,14 +753,13 @@
         <span class="autonomy-engine-badge">LIVE EVENT ENGINE</span>
       </div>
       <div class="autonomy-boundary"><strong>Automation Brain:</strong> ZBRANO learns locally from approved Home Assistant events and Areas, proposes evidence-backed low-risk help, and requires your permission before a discovered action. Existing manual drafts remain disabled until explicitly enabled.</div>
-      <div class="autonomy-tabs" role="tablist" aria-label="Automation views">
+    <div class="autonomy-tabs" role="tablist" aria-label="Automation views">
         <div class="automation-nav-title"><span class="automation-nav-icon" aria-hidden="true">⌁</span><div><strong>Automations</strong><small>Design and monitor</small></div></div>
         <button class="active" type="button" data-auto-view="overview" role="tab" aria-selected="true"><span class="automation-nav-icon" aria-hidden="true">◫</span><span>Overview</span></button>
         <button type="button" data-auto-view="studio" role="tab" aria-selected="false"><span class="automation-nav-icon" aria-hidden="true">◇</span><span>Automation Studio</span></button>
         <button class="automation-nav-sub" type="button" data-auto-view="library" role="tab" aria-selected="false"><span class="automation-nav-icon" aria-hidden="true">├</span><span>My Automations</span></button>
         <button class="automation-nav-sub" type="button" data-auto-view="memory" role="tab" aria-selected="false"><span class="automation-nav-icon" aria-hidden="true">└</span><span>Automation Memory</span></button>
         <button type="button" data-auto-view="safety" role="tab" aria-selected="false" hidden aria-hidden="true" tabindex="-1"><span class="automation-nav-icon" aria-hidden="true">◉</span><span>Safety &amp; Authority</span></button>
-        <button type="button" data-auto-view="notifications" role="tab" aria-selected="false"><span class="automation-nav-icon" aria-hidden="true">◌</span><span>Notifications</span></button>
         <button type="button" data-auto-view="permissions" role="tab" aria-selected="false"><span class="automation-nav-icon" aria-hidden="true">✓</span><span>Permissions</span></button>
         <button type="button" data-auto-view="activity" role="tab" aria-selected="false"><span class="automation-nav-icon" aria-hidden="true">≋</span><span>Activity</span></button>
       </div>
@@ -933,7 +937,7 @@
         </div>
       </section>
 
-      <section class="autonomy-view hidden" data-auto-panel="notifications">
+      <section class="autonomy-view hidden" data-auto-panel="notifications" data-notification-workspace>
         <header class="notification-workspace-head">
           <div>
             <span class="notification-workspace-kicker">Delivery workspace</span>
@@ -944,11 +948,6 @@
             <span aria-hidden="true">&#8635;</span> Refresh
           </button>
         </header>
-        <div class="notification-subtabs" role="tablist" aria-label="Notification workspace">
-          <button type="button" class="active" data-notification-view="center" role="tab" aria-selected="true">Notification Center</button>
-          <button type="button" data-notification-view="watchlist" role="tab" aria-selected="false">Watchlist</button>
-          <button type="button" data-notification-view="logs" role="tab" aria-selected="false">Delivery Logs</button>
-        </div>
         <div class="notification-workspace-panel" data-notification-panel="center">
         <div class="notification-center-grid">
           <article class="autonomy-card notification-channel-card">

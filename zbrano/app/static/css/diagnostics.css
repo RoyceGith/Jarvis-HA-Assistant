@@ -350,8 +350,6 @@
     }
     #automations-panel .autonomy-shell { min-height:max-content; padding-bottom:1rem; }
     #automations-panel .autonomy-view { min-width:0; }
-    .notification-subtabs { display:flex; gap:.4rem; flex-wrap:wrap; margin-bottom:.75rem; border-bottom:1px solid var(--line); padding-bottom:.55rem; }
-    .notification-subtabs button.active { border-color:var(--cyan); color:var(--cyan); }
     [data-notification-panel].hidden { display:none; }
     [data-notification-panel="watchlist"] .notification-watchlist-card { margin-top:0; }
     @media(max-width:700px) {

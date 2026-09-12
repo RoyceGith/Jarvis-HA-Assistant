@@ -322,10 +322,22 @@
       button.setAttribute("aria-selected", String(active));
     }
     for (const view of panel.querySelectorAll("[data-calendar-panel]")) view.classList.toggle("hidden", view.dataset.calendarPanel !== name);
+    if (name !== "birthdays") {
+      for (const button of panel.querySelectorAll("[data-birthday-view]")) {
+        button.classList.remove("active");
+        button.setAttribute("aria-selected", "false");
+      }
+    } else if (!panel.querySelector("[data-birthday-view].active")) {
+      const people = panel.querySelector('[data-birthday-view="people"]');
+      people?.classList.add("active");
+      people?.setAttribute("aria-selected", "true");
+      for (const view of panel.querySelectorAll("[data-birthday-panel]")) view.classList.toggle("hidden", view.dataset.birthdayPanel !== "people");
+    }
   }
 
   function showBirthdayView(name) {
     if (name === "upcoming") name = "people";
+    showView("birthdays");
     for (const button of panel.querySelectorAll("[data-birthday-view]")) {
       const active = button.dataset.birthdayView === name;
       button.classList.toggle("active", active);
@@ -448,10 +460,8 @@
   panel.querySelector(".calendar-subtabs").addEventListener("click", event => {
     const button = event.target.closest("[data-calendar-view]");
     if (button) showView(button.dataset.calendarView);
-  });
-  panel.querySelector(".birthday-toolbar").addEventListener("click", event => {
-    const button = event.target.closest("[data-birthday-view]");
-    if (button) showBirthdayView(button.dataset.birthdayView);
+    const birthdayButton = event.target.closest("[data-birthday-view]");
+    if (birthdayButton) showBirthdayView(birthdayButton.dataset.birthdayView);
   });
 
   $("calendar-month-previous").addEventListener("click", () => {

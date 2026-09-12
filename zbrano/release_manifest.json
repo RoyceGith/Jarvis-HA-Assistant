@@ -1,9 +1,9 @@
 {
-  "version": "0.13.221",
+  "version": "0.13.222",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/ZBRANO_Core main",
-  "summary": "Correct notification endpoint readiness and add guided Telegram bot setup.",
+  "summary": "Move Notifications into Settings and replace nested workspace tabs with clear side navigation.",
   "history_backfill": [
     {
       "version": "0.13.0",
@@ -888,19 +888,23 @@
       {
         "version": "0.13.220",
         "summary": "Reorganized Notifications into a contained, responsive delivery workspace."
+      },
+      {
+        "version": "0.13.221",
+        "summary": "Corrected notification endpoint readiness and added guided Telegram bot setup."
       }
   ],
   "release_entry": {
     "features": [
-      "Guide users from Telegram BotFather through Home Assistant Polling setup, chat allowlisting, and final ZBRANO pairing.",
-      "Provide official setup links and localized instructions without asking ZBRANO to receive or store the bot token."
+      "Place Notification Center, Watchlist, and Delivery Logs directly under Notifications in the Settings sidebar.",
+      "Use consistent left-side section navigation in Entities, Plugins, and Calendar, including nested Birthday choices."
     ],
     "fixes": [
-      "Treat an unknown Home Assistant notify entity state as status not reported instead of falsely marking its action endpoint unavailable.",
-      "Reserve Unavailable for notification endpoints that Home Assistant explicitly reports as unavailable."
+      "Route notification inbox and onboarding shortcuts to Settings instead of the Automation workspace.",
+      "Remove redundant in-page tab bars while preserving responsive mobile navigation and existing workspace behavior."
     ],
     "validation": [
-      "Unknown and unavailable endpoint classification, guided Telegram setup, multilingual copy, browser smoke, integration coverage, and v0.13.221 release alignment"
+      "Settings notification routing, hierarchical workspace navigation, responsive layout, browser smoke, integration coverage, and v0.13.222 release alignment"
     ]
   },
   "features": [

@@ -2731,10 +2731,13 @@ startBrainNetwork();
   const tabs = [...document.querySelectorAll(".settings-category-tab")];
   const cards = [...document.querySelectorAll(".settings-card[data-settings-category]")];
   if (!tabs.length || !cards.length) return;
-  const activate = target => {
+  const activate = (target, preferredTab=null) => {
     const selected = tabs.some(tab => tab.dataset.settingsTarget === target) ? target : "appearance";
+    const selectedTab = preferredTab?.dataset.settingsTarget === selected
+      ? preferredTab
+      : tabs.find(tab => tab.dataset.settingsTarget === selected);
     for (const tab of tabs) {
-      const active = tab.dataset.settingsTarget === selected;
+      const active = tab === selectedTab;
       if (active) tab.closest("details")?.setAttribute("open", "");
       tab.classList.toggle("active", active);
       tab.setAttribute("aria-selected", String(active));
@@ -2744,14 +2747,14 @@ startBrainNetwork();
     try { localStorage.setItem("zbrano_settings_category_v1", selected); } catch (_) {}
   };
   for (const tab of tabs) {
-    tab.addEventListener("click", () => activate(tab.dataset.settingsTarget));
+    tab.addEventListener("click", () => activate(tab.dataset.settingsTarget, tab));
     tab.addEventListener("keydown", event => {
       if (!['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Home', 'End'].includes(event.key)) return;
       event.preventDefault();
       const current = tabs.indexOf(tab);
       const next = event.key === 'Home' ? 0 : event.key === 'End' ? tabs.length - 1
         : (current + (['ArrowRight', 'ArrowDown'].includes(event.key) ? 1 : -1) + tabs.length) % tabs.length;
-      activate(tabs[next].dataset.settingsTarget);
+      activate(tabs[next].dataset.settingsTarget, tabs[next]);
       tabs[next].focus();
     });
   }

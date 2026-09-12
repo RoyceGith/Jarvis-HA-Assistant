@@ -1,7 +1,11 @@
 (() => {
-  const tab = document.querySelector('[data-auto-view="notifications"]');
-  const panel = document.querySelector('[data-auto-panel="notifications"]');
-  if (!tab || !panel) return;
+  const tabs = [...document.querySelectorAll('[data-notification-view]')];
+  const panel = document.querySelector('[data-notification-workspace]');
+  const host = document.getElementById('notification-settings-host');
+  if (!tabs.length || !panel || !host) return;
+  host.appendChild(panel);
+  panel.classList.remove('autonomy-view', 'hidden');
+  panel.removeAttribute('data-auto-panel');
   const $ = id => document.getElementById(id);
   let state = {settings:{}, channels:[], watches:[], deliveries:[]};
   const selectedDeliveries = new Set();
@@ -54,7 +58,7 @@
   }
 
   function showNotificationView(name) {
-    for (const button of panel.querySelectorAll("[data-notification-view]")) {
+    for (const button of tabs) {
       const active = button.dataset.notificationView === name;
       button.classList.toggle("active", active);
       button.setAttribute("aria-selected", String(active));
@@ -64,10 +68,7 @@
     }
   }
 
-  panel.querySelector(".notification-subtabs")?.addEventListener("click", event => {
-    const button = event.target.closest("[data-notification-view]");
-    if (button) showNotificationView(button.dataset.notificationView);
-  });
+  for (const button of tabs) button.addEventListener("click", () => showNotificationView(button.dataset.notificationView));
 
   function renderWatchlist() {
     const root = $("notification-watchlist"); root.replaceChildren();
@@ -197,7 +198,7 @@
     } finally { button.textContent = "Delete selected"; updateDeliverySelection(); }
   });
 
-  tab.addEventListener("click", load);
+  for (const tab of tabs) tab.addEventListener("click", load);
   $("notification-refresh").addEventListener("click", load);
   window.addEventListener("zbrano-notification-center-refresh", load);
   window.zbranoNotificationCenter = {load, showView:showNotificationView};
