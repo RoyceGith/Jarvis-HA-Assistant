@@ -1,5 +1,12 @@
 # Change log
 
+## 0.13.229
+
+- Remove the Plugins count button beneath chat while retaining installed icons.
+- Show saved or featured catalog entries immediately and refresh the registry in the background.
+- Avoid catalog DNS lookups blocking Installed and other requests; preserve full endpoint validation on installation.
+- Retain saved entries on registry errors and share one bounded refresh across requests.
+
 ## 0.13.228
 
 - Restore the missing plugin button layout so GitHub and other icons remain centered and unclipped.

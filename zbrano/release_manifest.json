@@ -1,9 +1,9 @@
 {
-  "version": "0.13.228",
+  "version": "0.13.229",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/ZBRANO_Core main",
-  "summary": "Restore complete composer plugin icon layout and access to every installed plugin.",
+  "summary": "Remove the composer plugin count button and keep installed plugins and catalog browsing responsive.",
   "history_backfill": [
     {
       "version": "0.13.0",
@@ -916,17 +916,23 @@
     {
       "version": "0.13.227",
       "summary": "Render the GitHub composer mark inline without a runtime asset dependency."
+    },
+    {
+      "version": "0.13.228",
+      "summary": "Restore complete composer plugin icon layout and access to every installed plugin."
     }
   ],
   "release_entry": {
     "features": [
-      "Scroll through every installed plugin beneath the prompt on desktop and phone."
+      "Installed plugin icons beneath chat without a redundant count button.",
+      "Immediate saved or featured catalog cards with background registry refresh."
     ],
     "fixes": [
-      "Restore plugin button layout in the active composer stylesheet, preventing inherited padding from clipping icons."
+      "Remove synchronous DNS resolution from catalog display; retain full endpoint checks on install.",
+      "Keep Installed independent of registry loading and retain stale catalog entries on refresh failures."
     ],
     "validation": [
-      "Browser regression reproduces icon overflow before the fix and checks centered containment in all themes and access to the final plugin at desktop and phone widths."
+      "Cold-cache, timeout, single-refresh, DNS isolation, shutdown and browser navigation/polling regressions."
     ]
   },
   "features": [

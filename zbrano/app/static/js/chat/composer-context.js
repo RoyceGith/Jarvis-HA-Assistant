@@ -1,8 +1,6 @@
 (() => {
   const root=document.getElementById("composer-plugin-icons");
   if(!root)return;
-  const count=document.getElementById("composer-plugin-count");
-  const open=document.getElementById("composer-plugins-open");
   const esc=value=>String(value??"").replace(/[&<>"']/g,char=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"})[char]);
 
   function stateLabel(plugin){
@@ -28,7 +26,6 @@
 
   window.renderComposerPluginIndicators=plugins=>{
     const installed=(plugins||[]).filter(Boolean);
-    if(count){count.textContent=String(installed.length);count.setAttribute("aria-label",`${installed.length} installed plugin${installed.length===1?"":"s"}`)}
     if(!installed.length){root.innerHTML='<span class="composer-plugin-empty">None installed</span>';return}
     root.innerHTML=installed.map(iconButton).join("");
     for(const image of root.querySelectorAll("img[data-plugin-icon-src]")){
@@ -51,7 +48,6 @@
     if(!event.target.closest("[data-composer-plugin]"))return;
     document.getElementById("plugins-tab")?.click();
   });
-  open?.addEventListener("click",()=>document.getElementById("plugins-tab")?.click());
   document.getElementById("chat-tab")?.addEventListener("click",refresh);
   refresh();
 })();

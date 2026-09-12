@@ -51,7 +51,7 @@ function activateIconFallbacks(root){
 
 async function loadPlugins(){
   const listNode=currentPluginList();
-  listNode.innerHTML='<div class="muted">Loading…</div>';
+  if(!listNode.children.length)listNode.innerHTML='<div class="muted">Loading…</div>';
   try{
     const ps=(await pApi("api/plugins")).plugins||[];
     if(typeof window.renderComposerPluginIndicators==="function")window.renderComposerPluginIndicators(ps);
@@ -79,7 +79,11 @@ async function loadPlugins(){
 installPlugin.addEventListener("click",async()=>{installPlugin.disabled=true;pluginState.textContent="Validating…";try{await pApi("api/plugins",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({name:pluginName.value.trim(),url:pluginUrl.value.trim(),bearer_token:pluginToken.value})});pluginName.value=pluginUrl.value=pluginToken.value="";pluginState.textContent="Installed disabled. Review tools, then enable.";await loadPlugins()}catch(e){pluginState.textContent=`Install failed: ${e.message||e}`}finally{installPlugin.disabled=false}});
 currentPluginList().addEventListener("click",async e=>{const b=e.target.closest("button[data-a]");if(!b)return;try{if(b.dataset.a==="remove"&&!confirm("Remove this plugin and stored secret?"))return;await pApi(`api/plugins/${encodeURIComponent(b.dataset.id)}${b.dataset.a==="toggle"?"/toggle":b.dataset.a==="refresh"?"/refresh":""}`,{method:b.dataset.a==="remove"?"DELETE":"POST"});await loadPlugins()}catch(x){pluginState.textContent=`Plugin action failed: ${x.message||x}`}});
 currentPluginList().addEventListener("change",async e=>{const c=e.target.closest("input[data-t]");if(!c)return;c.disabled=true;try{await pApi(`api/plugins/${encodeURIComponent(c.dataset.p)}/tools/${encodeURIComponent(c.dataset.t)}`,{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify({enabled:c.checked,permission:c.dataset.permission||"blocked"})})}catch(x){c.checked=!c.checked;pluginState.textContent=`Tool update failed: ${x.message||x}`}finally{c.disabled=false}});
-pluginsTab.addEventListener("click",async()=>{showPanel("plugins");await Promise.all([loadPlugins(),loadCatalog(false)])});
+pluginsTab.addEventListener("click",()=>{
+  showPanel("plugins");
+  if(document.getElementById("plugins-browse-tab")?.classList.contains("active"))loadCatalog(false);
+  else loadPlugins();
+});
 
 var catalogSearch=document.getElementById("catalog-search");
 var catalogCategory=document.getElementById("catalog-category");
@@ -99,6 +103,8 @@ var catalogResults=document.getElementById("catalog-results")||(() => {
   return node;
 })();
 let catalogTimer=null;
+let catalogRefreshTimer=null;
+let catalogRequest=0;
 
 function catalogEsc(value){
   return String(value??"")
@@ -143,6 +149,8 @@ function catalogCard(item){
 }
 
 async function loadCatalog(force=false){
+  const request=++catalogRequest;
+  clearTimeout(catalogRefreshTimer);
   ensurePluginDomReady();
   catalogSearch=document.getElementById("catalog-search");
   catalogCategory=document.getElementById("catalog-category");
@@ -158,6 +166,7 @@ async function loadCatalog(force=false){
     if(catalogCategory.value)params.set("category",catalogCategory.value);
     if(force)params.set("refresh","1");
     const data=await pApi(`api/plugin-catalog?${params.toString()}`);
+    if(request!==catalogRequest)return;
     const items=data.plugins||[];
     catalogResults.replaceChildren();
     if(!items.length){
@@ -165,12 +174,18 @@ async function loadCatalog(force=false){
     }else{
       for(const item of items)catalogResults.appendChild(catalogCard(item));
     }
+    if(data.refreshing){
+      catalogRefreshTimer=setTimeout(()=>{
+        if(!pluginsPanel.classList.contains("hidden") && !document.getElementById("plugins-browse-view")?.classList.contains("hidden"))loadCatalog(false);
+      },1000);
+    }
     const registryNote=data.registry_error?` · Registry warning: ${data.registry_error}`:"";
-    catalogStatus.textContent=`${items.length} compatible remote plugin${items.length===1?"":"s"}${data.cached?" · cached":""}${registryNote} · ${data.source||"Official MCP Registry"}.`;
+    catalogStatus.textContent=`${items.length} compatible remote plugin${items.length===1?"":"s"}${data.refreshing?" Updating...":data.cached?" · cached":""}${registryNote} · ${data.source||"Official MCP Registry"}.`;
   }catch(error){
+    if(request!==catalogRequest)return;
     catalogStatus.textContent=`Catalog unavailable: ${error.message||error}`;
   }finally{
-    catalogRefresh.disabled=false;
+    if(request===catalogRequest)catalogRefresh.disabled=false;
   }
 }
 

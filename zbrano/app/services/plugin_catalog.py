@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import asyncio
+import contextlib
 import hashlib
 import os
 import time
@@ -10,6 +12,10 @@ from typing import Any
 
 PLUGIN_CATALOG_CACHE_PATH = Path("/data/plugins/catalog-cache.json")
 PLUGIN_CATALOG_TTL = 3600
+PLUGIN_CATALOG_REFRESH_TIMEOUT = 12
+_catalog_refresh_task = None
+_catalog_retry_at = 0.0
+_catalog_error = None
 MCP_REGISTRY_API = "https://registry.modelcontextprotocol.io/v0.1/servers"
 
 FEATURED_REMOTE_PLUGINS = [
@@ -131,11 +137,11 @@ def configure_plugin_catalog_service(
     _github_oauth_client_id = github_oauth_client_id_fn
 
 
-def catalog_cache_read() -> list[dict[str, Any]] | None:
+def catalog_cache_read(*, allow_stale: bool = False) -> list[dict[str, Any]] | None:
     data = _plugin_load(PLUGIN_CATALOG_CACHE_PATH)
     if not data:
         return None
-    if time.time() - float(data.get("saved_at") or 0) > PLUGIN_CATALOG_TTL:
+    if not allow_stale and time.time() - float(data.get("saved_at") or 0) > PLUGIN_CATALOG_TTL:
         return None
     plugins = data.get("plugins")
     return plugins if isinstance(plugins, list) else None
@@ -221,13 +227,13 @@ def catalog_with_featured(items: Any) -> list[dict[str, Any]]:
         key = str(item.get("url") or item.get("id") or "")
         if key and key in seen:
             continue
-        merged.append(item)
+        merged.append(dict(item))
         if key:
             seen.add(key)
     return merged
 
 
-async def fetch_plugin_catalog(force: bool = False) -> tuple[list[dict[str, Any]], bool, str | None]:
+async def _refresh_plugin_catalog(force: bool = False) -> tuple[list[dict[str, Any]], bool, str | None]:
     import httpx
 
     if not force:
@@ -239,7 +245,7 @@ async def fetch_plugin_catalog(force: bool = False) -> tuple[list[dict[str, Any]
     try:
         cursor = None
         pages = 0
-        async with httpx.AsyncClient(timeout=httpx.Timeout(4.0, connect=2.0), follow_redirects=False) as client:
+        async with asyncio.timeout(PLUGIN_CATALOG_REFRESH_TIMEOUT), httpx.AsyncClient(timeout=httpx.Timeout(4.0, connect=2.0), follow_redirects=False) as client:
             while pages < 10:
                 params: dict[str, Any] = {"limit": 100}
                 if cursor:
@@ -259,12 +265,49 @@ async def fetch_plugin_catalog(force: bool = False) -> tuple[list[dict[str, Any]
                 if not cursor:
                     break
     except Exception as exc:
-        registry_error = str(exc)
-        cached = catalog_cache_read()
+        registry_error = str(exc) or "Registry refresh timed out"
+        cached = catalog_cache_read(allow_stale=True)
         if cached is not None:
             return catalog_with_featured(cached), True, registry_error
-    _plugin_save(PLUGIN_CATALOG_CACHE_PATH, {"saved_at": time.time(), "plugins": plugins})
+    if registry_error is None:
+        _plugin_save(PLUGIN_CATALOG_CACHE_PATH, {"saved_at": time.time(), "plugins": plugins})
     return plugins, False, registry_error
+
+
+async def _run_catalog_refresh():
+    global _catalog_error, _catalog_retry_at
+    try:
+        result = await _refresh_plugin_catalog(force=True)
+        _catalog_error = result[2]
+        return result
+    except Exception as exc:
+        _catalog_error = str(exc) or "Catalog refresh unavailable"
+        return catalog_with_featured(catalog_cache_read(allow_stale=True) or []), True, _catalog_error
+    finally:
+        _catalog_retry_at = time.monotonic() + 60
+
+
+def _start_catalog_refresh():
+    global _catalog_refresh_task
+    if _catalog_refresh_task is None or _catalog_refresh_task.done():
+        _catalog_refresh_task = asyncio.create_task(_run_catalog_refresh())
+    return _catalog_refresh_task
+
+
+async def stop_plugin_catalog_refresh():
+    global _catalog_refresh_task
+    if _catalog_refresh_task is not None:
+        _catalog_refresh_task.cancel()
+        with contextlib.suppress(asyncio.CancelledError):
+            await _catalog_refresh_task
+        _catalog_refresh_task = None
+
+
+async def fetch_plugin_catalog(force: bool = False) -> tuple[list[dict[str, Any]], bool, str | None]:
+    cached = catalog_cache_read(allow_stale=True)
+    if not force and cached is not None:
+        return catalog_with_featured(cached), True, _catalog_error
+    return await asyncio.shield(_start_catalog_refresh())
 
 
 def verify_catalog_result_contract(result: Any) -> tuple[list[dict[str, Any]], bool, str | None]:
@@ -286,7 +329,13 @@ async def catalog_entry(catalog_id: str) -> dict[str, Any] | None:
 
 
 async def plugin_catalog_payload(q: str = "", category: str = "", refresh: bool = False) -> dict[str, Any]:
-    plugins, cached, registry_error = verify_catalog_result_contract(await fetch_plugin_catalog(force=refresh))
+    snapshot = catalog_cache_read(allow_stale=True)
+    if refresh or (catalog_cache_read() is None and time.monotonic() >= _catalog_retry_at):
+        _start_catalog_refresh()
+    plugins = catalog_with_featured(snapshot or [])
+    cached = snapshot is not None
+    registry_error = _catalog_error
+    refreshing = _catalog_refresh_task is not None and not _catalog_refresh_task.done()
     query = q.strip().lower()
     result = []
     for plugin in plugins:
@@ -335,5 +384,6 @@ async def plugin_catalog_payload(q: str = "", category: str = "", refresh: bool 
         "plugins": result[:500],
         "cached": cached,
         "registry_error": registry_error,
+        "refreshing": refreshing,
         "source": "Official MCP Registry plus curated official remote connectors",
     }

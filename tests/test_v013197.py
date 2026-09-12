@@ -27,11 +27,11 @@ class AutomaticEverydayMemoryReleaseTests(unittest.TestCase):
         self.temporary.cleanup()
 
     def test_release_is_aligned(self):
-        self.assertIn('version: "0.13.228"', CONFIG)
-        self.assertIn('version="0.13.228"', MAIN)
-        self.assertIn("HUD 0.13.228", INDEX)
-        self.assertEqual(MANIFEST["version"], "0.13.228")
-        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.227")
+        self.assertIn('version: "0.13.229"', CONFIG)
+        self.assertIn('version="0.13.229"', MAIN)
+        self.assertIn("HUD 0.13.229", INDEX)
+        self.assertEqual(MANIFEST["version"], "0.13.229")
+        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.228")
 
     def test_ordinary_memory_is_filed_without_manual_setup(self):
         saved = knowledge_memory.remember_automatically(

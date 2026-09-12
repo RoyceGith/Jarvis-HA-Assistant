@@ -162,7 +162,7 @@ const onboardingFixture = {
     {id:"notifications",title:"Notifications and autonomy",description:"Choose notification delivery",ready:false,required:false,target:"notifications",last_check:null,skipped:false},
   ],
   installation_report: {
-    generated_at: 1788300000, version: "0.13.228", ready: true, attention_count: 0, ready_count: 5,
+    generated_at: 1788300000, version: "0.13.229", ready: true, attention_count: 0, ready_count: 5,
     checks: [
       {id:"home_assistant",title:"Home Assistant",state:"ready",required:true,detail:"Connected to Home Assistant",target:"home_assistant"},
       {id:"model",title:"AI model",state:"ready",required:true,detail:"gpt-5-mini is configured",target:"model"},
@@ -170,7 +170,7 @@ const onboardingFixture = {
       {id:"backup",title:"Backup and restore",state:"ready",required:false,detail:"A portable ZBRANO backup can be exported from Settings",target:"memory"},
       {id:"automation_health",title:"Automation safety",state:"ready",required:false,detail:"2 saved; 0 need permission; 0 paused after failures",target:"automations"},
     ],
-    support_summary: "ZBRANO installation report · v0.13.228\nOverall: Ready\nHome Assistant: Connected\nAI model: Configured\nDevice access: 3 sensor devices / 1 control devices\nPersistent storage: Ready\nAutomations: 2 saved / 0 permission issues / 0 failure pauses",
+    support_summary: "ZBRANO installation report · v0.13.229\nOverall: Ready\nHome Assistant: Connected\nAI model: Configured\nDevice access: 3 sensor devices / 1 control devices\nPersistent storage: Ready\nAutomations: 2 saved / 0 permission issues / 0 failure pauses",
   },
 };
 
@@ -204,7 +204,7 @@ function apiFixture(url, method = "GET") {
   if (pathname === "/api/health") {
     return {
       status: "ok",
-      version: "0.13.228",
+      version: "0.13.229",
       speech_provider: "openai",
       speech_providers: {openai: {configured: true}, elevenlabs: {configured: false}},
     };
@@ -316,7 +316,7 @@ function apiFixture(url, method = "GET") {
     return {files:[],folders:[{name:"Documents",path:"Documents",file_count:1}],current_folder:""};
   }
   if (pathname === "/api/release-memory-sync") {
-    return {enabled: false, state: "disabled", version: "0.13.228", task_active: false};
+    return {enabled: false, state: "disabled", version: "0.13.229", task_active: false};
   }
   if (pathname === "/api/tab-activity") return {revisions: {}};
   if (pathname === "/api/grinder-monitor/status") return {enabled: false, connected: false};
@@ -429,8 +429,10 @@ async function main() {
     await page.locator("#chat-tab").click();
     await page.locator("#chat-panel:not(.hidden)").waitFor();
 
-    await page.waitForFunction(() => document.getElementById("composer-plugin-count")?.textContent === "6");
-    assert.equal(await page.locator("#composer-plugin-count").innerText(), "6");
+    // Wait for the chat-tab refresh to finish before measuring icon geometry.
+    await page.waitForLoadState("networkidle");
+    await page.waitForFunction(() => document.querySelectorAll("#composer-plugin-icons .composer-plugin-button").length === 6);
+    assert.equal(await page.locator("#composer-plugins-open, #composer-plugin-count").count(), 0);
     assert.equal(await page.locator("#composer-plugin-icons .composer-plugin-button").count(), 6);
     await page.locator('[data-composer-plugin="plugin-1"] svg.composer-plugin-inline-icon').waitFor();
     const githubComposerIcon = await page.locator('[data-composer-plugin="plugin-1"] svg').evaluate(icon => icon.outerHTML);
@@ -468,6 +470,22 @@ async function main() {
     assert.match(await page.locator("#composer-preferences-summary").innerText(), /Marin/);
     await page.keyboard.press("Escape");
     assert.equal(await page.locator("#composer-preferences-popover").isHidden(), true);
+
+    let catalogRequests = 0;
+    await page.route("**/api/plugin-catalog?*", async route => {
+      catalogRequests++;
+      const plugins = [{id:"featured", title:"Featured fixture", url:"https://example.com/mcp"}];
+      if(catalogRequests>1)plugins.push({id:"updated", title:"Updated fixture", url:"https://example.org/mcp"});
+      await route.fulfill({status:200, contentType:"application/json", body:JSON.stringify({plugins, refreshing:catalogRequests===1})});
+    });
+    await page.locator("#plugins-tab").click();
+    await page.locator("#plugin-list .plugin-row").first().waitFor();
+    assert.equal(catalogRequests, 0, "Installed view does not start a registry fetch");
+    await page.locator("#plugins-browse-tab").click();
+    await page.getByRole("heading", {name:"Featured fixture", exact:true}).waitFor();
+    await page.getByRole("heading", {name:"Updated fixture", exact:true}).waitFor();
+    assert.ok(catalogRequests>=2, "Background catalog refresh updates the visible cards");
+    await page.unroute("**/api/plugin-catalog?*");
 
     await page.locator("#files-tab").click();
     await page.locator("#files-panel:not(.hidden)").waitFor();

@@ -1,9 +1,12 @@
-# ZBRANO v0.13.228
+# ZBRANO v0.13.229
 
 Automation Studio provides a graphical, step-by-step workflow for Home Assistant
 automations. Use Setup &amp; safety, When, Only if, Then, and optional Outcomes beside the
 interactive flow canvas. Natural-language creation, templates, drag-and-drop,
 saved automation compatibility, and the full Advanced editor remain available.
+
+Version 0.13.229 removes the composer plugin count button and shows catalog entries
+immediately while refreshing the registry in the background, without delaying Installed.
 
 Version 0.13.228 restores complete, centered plugin icons beneath chat and lets you
 scroll through every installed plugin on desktop and phone.

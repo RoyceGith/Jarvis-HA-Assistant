@@ -34,10 +34,10 @@ class PluginCatalogBoundaryTests(unittest.TestCase):
         )
 
     def test_release_markers_are_aligned(self):
-        self.assertIn('version: "0.13.228"', CONFIG)
-        self.assertIn('version="0.13.228"', MAIN)
-        self.assertIn("HUD 0.13.228", HTML)
-        self.assertEqual(MANIFEST["version"], "0.13.228")
+        self.assertIn('version: "0.13.229"', CONFIG)
+        self.assertIn('version="0.13.229"', MAIN)
+        self.assertIn("HUD 0.13.229", HTML)
+        self.assertEqual(MANIFEST["version"], "0.13.229")
 
     def test_catalog_implementation_is_outside_main(self):
         self.assertNotIn("FEATURED_REMOTE_PLUGINS = [", MAIN)
@@ -71,16 +71,10 @@ class PluginCatalogBoundaryTests(unittest.TestCase):
         ])
         self.assertEqual(sum(item["id"] == "github-official" for item in merged), 1)
 
-        original_fetch = plugin_catalog.fetch_plugin_catalog
-
-        async def fake_fetch(force=False):
-            return [dict(item) for item in plugin_catalog.FEATURED_REMOTE_PLUGINS], False, None
-
-        plugin_catalog.fetch_plugin_catalog = fake_fetch
-        try:
-            payload = asyncio.run(plugin_catalog.plugin_catalog_payload())
-        finally:
-            plugin_catalog.fetch_plugin_catalog = original_fetch
+        self.saved[str(plugin_catalog.PLUGIN_CATALOG_CACHE_PATH)] = {
+            "saved_at": __import__("time").time(), "plugins": [],
+        }
+        payload = asyncio.run(plugin_catalog.plugin_catalog_payload())
         gmail = next(item for item in payload["plugins"] if item["id"] == "gmail-official")
         github = next(item for item in payload["plugins"] if item["id"] == "github-official")
         self.assertTrue(gmail["installed"])

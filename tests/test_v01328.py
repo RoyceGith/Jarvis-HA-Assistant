@@ -18,10 +18,10 @@ MANIFEST = json.loads((ROOT / "zbrano/release_manifest.json").read_text(encoding
 
 class BrowserTestAndWebSearchBoundaryTests(unittest.TestCase):
     def test_release_markers_are_aligned(self):
-        self.assertIn('version: "0.13.228"', CONFIG)
-        self.assertIn('version="0.13.228"', MAIN)
-        self.assertIn("HUD 0.13.228", HTML)
-        self.assertEqual(MANIFEST["version"], "0.13.228")
+        self.assertIn('version: "0.13.229"', CONFIG)
+        self.assertIn('version="0.13.229"', MAIN)
+        self.assertIn("HUD 0.13.229", HTML)
+        self.assertEqual(MANIFEST["version"], "0.13.229")
 
     def test_web_search_service_is_outside_composition_root(self):
         self.assertNotIn("def canonical_web_source_url(", MAIN)

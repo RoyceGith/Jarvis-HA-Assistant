@@ -503,6 +503,7 @@ from .services.plugin_catalog import (
     configure_plugin_catalog_service,
     fetch_plugin_catalog as _fetch_plugin_catalog,
     plugin_catalog_payload,
+    stop_plugin_catalog_refresh,
     verify_catalog_result_contract as _verify_catalog_result_contract,
 )
 from .services.plugin_oauth import (
@@ -772,7 +773,7 @@ ha_ws = HomeAssistantWebSocketClient(
 
 app = FastAPI(
     title="ZBRANO",
-    version="0.13.228",
+    version="0.13.229",
     docs_url="/api/docs",
     openapi_url="/api/openapi.json",
 )
@@ -3000,7 +3001,7 @@ async def health() -> dict[str, Any]:
     configured_speech_provider = SPEECH_PROVIDER if SPEECH_PROVIDER in {"openai", "elevenlabs"} else "openai"
     return {
         "status": "ok",
-        "version": "0.13.228",
+        "version": "0.13.229",
         "home_assistant_configured": bool(SUPERVISOR_TOKEN),
         "workshop_memory_configured": True,
         "knowledge_memory_mode": "built_in",
@@ -3195,6 +3196,7 @@ async def stop_ha_websocket() -> None:
             await AUTOMATION_SCHEDULE_TASK
         AUTOMATION_SCHEDULE_TASK = None
     await stop_release_sync()
+    await stop_plugin_catalog_refresh()
     if PLUGIN_OAUTH_REFRESH_TASK is not None:
         PLUGIN_OAUTH_REFRESH_TASK.cancel()
         with contextlib.suppress(asyncio.CancelledError):
@@ -6529,7 +6531,7 @@ configure_plugin_discovery(
 configure_plugin_catalog_service(
     plugin_load_fn=_plugin_load,
     plugin_save_fn=_plugin_save,
-    validate_plugin_url_fn=validate_plugin_url,
+    validate_plugin_url_fn=lambda url: validate_plugin_url(url, resolve_dns=False),
     plugin_icon_url_fn=plugin_icon_url,
     plugin_registry_fn=plugin_registry,
     plugin_url_key_fn=_plugin_url_key,

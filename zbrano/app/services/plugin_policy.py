@@ -20,7 +20,7 @@ PLUGIN_ICON_RULES = (
 )
 
 
-def validate_plugin_url(raw: str) -> str:
+def validate_plugin_url(raw: str, *, resolve_dns: bool = True) -> str:
     url = raw.strip()
     parsed = urlparse(url)
     if parsed.scheme != "https" or not parsed.hostname or parsed.username or parsed.password:
@@ -28,8 +28,19 @@ def validate_plugin_url(raw: str) -> str:
     host = parsed.hostname.rstrip(".").lower()
     if host in {"localhost", "localhost.localdomain"} or host.endswith(".local"):
         raise ValueError("Local MCP endpoints are blocked")
+    port = parsed.port or 443
     try:
-        addresses = socket.getaddrinfo(host, parsed.port or 443, type=socket.SOCK_STREAM)
+        literal = ipaddress.ip_address(host)
+    except ValueError:
+        literal = None
+    if literal is not None and not literal.is_global:
+        raise ValueError("MCP endpoint uses a non-public address")
+    # Catalog display never connects to these endpoints. Installation and OAuth
+    # retain the default DNS check immediately before using an endpoint.
+    if not resolve_dns:
+        return url
+    try:
+        addresses = socket.getaddrinfo(host, port, type=socket.SOCK_STREAM)
     except socket.gaierror as exc:
         raise ValueError("MCP hostname could not be resolved") from exc
     if any(not ipaddress.ip_address(address[4][0]).is_global for address in addresses):
