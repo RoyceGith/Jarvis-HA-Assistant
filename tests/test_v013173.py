@@ -16,11 +16,11 @@ MANIFEST = json.loads((ROOT / "zbrano/release_manifest.json").read_text(encoding
 
 class InstallationConfigurationGuideReleaseTests(unittest.TestCase):
     def test_release_is_aligned(self):
-        self.assertIn('version: "0.13.227"', CONFIG)
-        self.assertIn('version="0.13.227"', MAIN)
-        self.assertIn("HUD 0.13.227", HTML)
-        self.assertEqual(MANIFEST["version"], "0.13.227")
-        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.226")
+        self.assertIn('version: "0.13.228"', CONFIG)
+        self.assertIn('version="0.13.228"', MAIN)
+        self.assertIn("HUD 0.13.228", HTML)
+        self.assertEqual(MANIFEST["version"], "0.13.228")
+        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.227")
 
     def test_model_help_is_an_explicit_restart_and_verify_sequence(self):
         guide = ONBOARDING[ONBOARDING.index('configurationHelp.innerHTML'):ONBOARDING.index('summary.after(configurationHelp)')]

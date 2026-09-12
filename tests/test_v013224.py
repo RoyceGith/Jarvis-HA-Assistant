@@ -15,10 +15,10 @@ MANIFEST = json.loads((ROOT / "zbrano/release_manifest.json").read_text(encoding
 
 class CompactComposerControlsReleaseTests(unittest.TestCase):
     def test_release_is_aligned(self):
-        self.assertIn('version: "0.13.227"', CONFIG)
-        self.assertIn('version="0.13.227"', MAIN)
-        self.assertIn("HUD 0.13.227", INDEX)
-        self.assertEqual(MANIFEST["version"], "0.13.227")
+        self.assertIn('version: "0.13.228"', CONFIG)
+        self.assertIn('version="0.13.228"', MAIN)
+        self.assertIn("HUD 0.13.228", INDEX)
+        self.assertEqual(MANIFEST["version"], "0.13.228")
 
     def test_ai_and_voice_controls_use_an_accessible_popover(self):
         self.assertIn('id="composer-preferences-toggle"', INDEX)
@@ -30,7 +30,7 @@ class CompactComposerControlsReleaseTests(unittest.TestCase):
 
     def test_plugin_context_is_compact_and_keeps_status_information(self):
         self.assertIn('id="composer-plugin-count"', INDEX)
-        self.assertIn("const visibleLimit=5", CONTEXT)
+        self.assertIn('installed.map(iconButton).join("")', CONTEXT)
         self.assertIn("stateLabel(plugin)", CONTEXT)
         self.assertIn("installed plugin", CONTEXT)
         self.assertIn(".composer-plugin-overflow", STYLE)

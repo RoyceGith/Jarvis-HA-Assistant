@@ -162,7 +162,7 @@ const onboardingFixture = {
     {id:"notifications",title:"Notifications and autonomy",description:"Choose notification delivery",ready:false,required:false,target:"notifications",last_check:null,skipped:false},
   ],
   installation_report: {
-    generated_at: 1788300000, version: "0.13.227", ready: true, attention_count: 0, ready_count: 5,
+    generated_at: 1788300000, version: "0.13.228", ready: true, attention_count: 0, ready_count: 5,
     checks: [
       {id:"home_assistant",title:"Home Assistant",state:"ready",required:true,detail:"Connected to Home Assistant",target:"home_assistant"},
       {id:"model",title:"AI model",state:"ready",required:true,detail:"gpt-5-mini is configured",target:"model"},
@@ -170,7 +170,7 @@ const onboardingFixture = {
       {id:"backup",title:"Backup and restore",state:"ready",required:false,detail:"A portable ZBRANO backup can be exported from Settings",target:"memory"},
       {id:"automation_health",title:"Automation safety",state:"ready",required:false,detail:"2 saved; 0 need permission; 0 paused after failures",target:"automations"},
     ],
-    support_summary: "ZBRANO installation report · v0.13.227\nOverall: Ready\nHome Assistant: Connected\nAI model: Configured\nDevice access: 3 sensor devices / 1 control devices\nPersistent storage: Ready\nAutomations: 2 saved / 0 permission issues / 0 failure pauses",
+    support_summary: "ZBRANO installation report · v0.13.228\nOverall: Ready\nHome Assistant: Connected\nAI model: Configured\nDevice access: 3 sensor devices / 1 control devices\nPersistent storage: Ready\nAutomations: 2 saved / 0 permission issues / 0 failure pauses",
   },
 };
 
@@ -204,7 +204,7 @@ function apiFixture(url, method = "GET") {
   if (pathname === "/api/health") {
     return {
       status: "ok",
-      version: "0.13.227",
+      version: "0.13.228",
       speech_provider: "openai",
       speech_providers: {openai: {configured: true}, elevenlabs: {configured: false}},
     };
@@ -316,7 +316,7 @@ function apiFixture(url, method = "GET") {
     return {files:[],folders:[{name:"Documents",path:"Documents",file_count:1}],current_folder:""};
   }
   if (pathname === "/api/release-memory-sync") {
-    return {enabled: false, state: "disabled", version: "0.13.227", task_active: false};
+    return {enabled: false, state: "disabled", version: "0.13.228", task_active: false};
   }
   if (pathname === "/api/tab-activity") return {revisions: {}};
   if (pathname === "/api/grinder-monitor/status") return {enabled: false, connected: false};
@@ -431,12 +431,35 @@ async function main() {
 
     await page.waitForFunction(() => document.getElementById("composer-plugin-count")?.textContent === "6");
     assert.equal(await page.locator("#composer-plugin-count").innerText(), "6");
-    assert.equal(await page.locator("#composer-plugin-icons .composer-plugin-button").count(), 5);
+    assert.equal(await page.locator("#composer-plugin-icons .composer-plugin-button").count(), 6);
     await page.locator('[data-composer-plugin="plugin-1"] svg.composer-plugin-inline-icon').waitFor();
     const githubComposerIcon = await page.locator('[data-composer-plugin="plugin-1"] svg').evaluate(icon => icon.outerHTML);
     assert.match(githubComposerIcon, /<path\b/, githubComposerIcon);
     assert.equal(await page.locator('[data-composer-plugin="plugin-2"]').getAttribute("class"), "composer-plugin-button disabled");
-    assert.equal(await page.locator("#composer-plugin-icons .composer-plugin-overflow").innerText(), "+1");
+    for (const width of [1100, 390]) {
+      await page.setViewportSize({width, height:720});
+      const last = page.locator('[data-composer-plugin="plugin-6"]');
+      await last.scrollIntoViewIfNeeded();
+      assert.ok(await last.isVisible());
+      const reachable = await last.evaluate(button => {
+        const b=button.getBoundingClientRect(), r=button.parentElement.getBoundingClientRect();
+        return b.left>=r.left-1 && b.right<=r.right+1;
+      });
+      assert.ok(reachable, `Last installed plugin is reachable at ${width}px`);
+    }
+    await page.setViewportSize({width:1100, height:720});
+    await page.locator('[data-composer-plugin="plugin-1"]').scrollIntoViewIfNeeded();
+    for (const theme of ["light", "dark", "gray"]) {
+      await page.evaluate(theme => document.documentElement.dataset.theme = theme, theme);
+      const geometry = await page.locator('[data-composer-plugin="plugin-1"]').evaluate(button => {
+        const icon = button.querySelector("svg");
+        const b = button.getBoundingClientRect(), i = icon.getBoundingClientRect();
+        return {padding: getComputedStyle(button).padding, centered: Math.abs((b.left+b.right-i.left-i.right)/2)<1 && Math.abs((b.top+b.bottom-i.top-i.bottom)/2)<1,
+          contained: i.left>=b.left && i.right<=b.right && i.top>=b.top && i.bottom<=b.bottom};
+      });
+      assert.ok(geometry.contained && geometry.centered, JSON.stringify({theme, geometry}));
+    }
+    await page.evaluate(() => document.documentElement.dataset.theme = "light");
     assert.equal(await page.locator("#composer-preferences-popover").isHidden(), true);
     await page.locator("#composer-preferences-toggle").click();
     assert.equal(await page.locator("#composer-preferences-popover").isVisible(), true);

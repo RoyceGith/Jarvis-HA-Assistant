@@ -1,5 +1,10 @@
 # Change log
 
+## 0.13.228
+
+- Restore the missing plugin button layout so GitHub and other icons remain centered and unclipped.
+- Make every installed plugin accessible in a scrollable row, including on phones.
+
 ## 0.13.227
 
 - Render the GitHub composer icon as an inline, theme-colored SVG.

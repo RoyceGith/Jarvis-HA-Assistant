@@ -1,9 +1,9 @@
 {
-  "version": "0.13.227",
+  "version": "0.13.228",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/ZBRANO_Core main",
-  "summary": "Render the GitHub composer mark inline without a runtime asset dependency.",
+  "summary": "Restore complete composer plugin icon layout and access to every installed plugin.",
   "history_backfill": [
     {
       "version": "0.13.0",
@@ -912,17 +912,21 @@
       {
         "version": "0.13.226",
         "summary": "Hardened plugin icon loading, fallbacks, and theme contrast beneath chat."
-      }
+      },
+    {
+      "version": "0.13.227",
+      "summary": "Render the GitHub composer mark inline without a runtime asset dependency."
+    }
   ],
   "release_entry": {
     "features": [
-      "Render the GitHub plugin mark as inline SVG beneath the chat prompt with theme-aware color."
+      "Scroll through every installed plugin beneath the prompt on desktop and phone."
     ],
     "fixes": [
-      "Remove the GitHub mark's runtime URL dependency so Home Assistant ingress and browser caches cannot leave an empty icon box."
+      "Restore plugin button layout in the active composer stylesheet, preventing inherited padding from clipping icons."
     ],
     "validation": [
-      "Inline GitHub SVG rendering, theme styling, browser smoke, regression coverage, and v0.13.227 release alignment"
+      "Browser regression reproduces icon overflow before the fix and checks centered containment in all themes and access to the final plugin at desktop and phone widths."
     ]
   },
   "features": [

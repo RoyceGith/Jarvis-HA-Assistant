@@ -4,7 +4,6 @@
   const count=document.getElementById("composer-plugin-count");
   const open=document.getElementById("composer-plugins-open");
   const esc=value=>String(value??"").replace(/[&<>"']/g,char=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"})[char]);
-  const visibleLimit=5;
 
   function stateLabel(plugin){
     if(!plugin.enabled)return "installed · disabled";
@@ -31,9 +30,7 @@
     const installed=(plugins||[]).filter(Boolean);
     if(count){count.textContent=String(installed.length);count.setAttribute("aria-label",`${installed.length} installed plugin${installed.length===1?"":"s"}`)}
     if(!installed.length){root.innerHTML='<span class="composer-plugin-empty">None installed</span>';return}
-    const visible=installed.slice(0,visibleLimit);
-    const overflow=installed.length-visible.length;
-    root.innerHTML=visible.map(iconButton).join("")+(overflow?`<span class="composer-plugin-overflow" title="${overflow} more installed plugin${overflow===1?"":"s"}">+${overflow}</span>`:"");
+    root.innerHTML=installed.map(iconButton).join("");
     for(const image of root.querySelectorAll("img[data-plugin-icon-src]")){
       image.addEventListener("error",()=>{image.hidden=true;if(image.nextElementSibling)image.nextElementSibling.hidden=false},{once:true});
       image.addEventListener("load",()=>image.classList.add("loaded"),{once:true});
