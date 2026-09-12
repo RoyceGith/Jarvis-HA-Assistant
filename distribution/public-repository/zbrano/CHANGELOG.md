@@ -1,5 +1,13 @@
 # Change log
 
+## 0.13.230
+
+- Browse devices by Home Assistant location and room, with Favorites and Unassigned views.
+- Group related entities using actual device registry identity and display mixed access clearly.
+- Open a device to manage individual permissions, aliases and history.
+- Keep the detailed table, column settings and exports available.
+- Add responsive layouts, bounded card rendering, and Greek, Italian and French translations.
+
 ## 0.13.229
 
 - Remove the Plugins count button beneath chat while retaining installed icons.

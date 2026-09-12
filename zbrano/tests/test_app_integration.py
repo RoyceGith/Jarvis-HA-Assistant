@@ -105,6 +105,34 @@ class ApplicationIntegrationTests(unittest.IsolatedAsyncioTestCase):
         conversations.LAST_ENTITY_BY_SESSION.clear()
         self.temporary.cleanup()
 
+    async def test_inventory_preserves_ha_device_identity_and_user_name(self) -> None:
+        states = {
+            "climate.living": {"entity_id": "climate.living", "state": "cool", "attributes": {"friendly_name": "Air conditioner"}},
+            "sensor.living_temperature": {"entity_id": "sensor.living_temperature", "state": "24", "attributes": {"friendly_name": "Temperature"}},
+            "sensor.standalone": {"entity_id": "sensor.standalone", "state": "10", "attributes": {"friendly_name": "Standalone"}},
+        }
+        registry = {
+            "config/area_registry/list": [{"area_id": "living", "name": "Living room"}],
+            "config/device_registry/list": [{"id": "ac-device", "name": "Manufacturer name", "name_by_user": "Living Room AC", "area_id": "living"}],
+            "config/entity_registry/list": [
+                {"entity_id": "climate.living", "device_id": "ac-device"},
+                {"entity_id": "sensor.living_temperature", "device_id": "ac-device"},
+            ],
+        }
+        async def command(message):
+            return {"result": registry.get(message["type"], [])}
+        fake = SimpleNamespace(connected=True, last_error=None, state_cache=states, connect=AsyncMock(), command=command)
+        with patch.object(main, "SUPERVISOR_TOKEN", "test-only"), patch.object(main, "ha_ws", fake), patch.object(automations, "ha_ws", fake):
+            response = await self.client.get("/api/ha/entities?refresh=1")
+        self.assertEqual(response.status_code, 200)
+        entities = {item["entity_id"]: item for item in response.json()["entities"]}
+        for entity_id in ["climate.living", "sensor.living_temperature"]:
+            self.assertEqual(entities[entity_id]["device_id"], "ac-device")
+            self.assertEqual(entities[entity_id]["device_name"], "Living Room AC")
+            self.assertEqual(entities[entity_id]["area_name"], "Living room")
+        self.assertEqual(entities["sensor.standalone"]["device_id"], "")
+        self.assertEqual(entities["sensor.standalone"]["device_name"], "")
+
     async def test_application_import_health_and_frontend_smoke(self) -> None:
         self.assertGreaterEqual(len(main.app.router.on_startup), 2)
         self.assertGreaterEqual(len(main.app.router.on_shutdown), 2)
@@ -116,13 +144,13 @@ class ApplicationIntegrationTests(unittest.IsolatedAsyncioTestCase):
             response = await self.client.get("/api/health")
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json()["status"], "ok")
-        self.assertEqual(response.json()["version"], "0.13.229")
+        self.assertEqual(response.json()["version"], "0.13.230")
         self.assertEqual(response.json()["ha_read_entity_count"], 1)
         self.assertEqual(response.json()["ha_control_entity_count"], 1)
 
         frontend = await self.client.get("/")
         self.assertEqual(frontend.status_code, 200)
-        self.assertIn("HUD 0.13.229", frontend.text)
+        self.assertIn("HUD 0.13.230", frontend.text)
         self.assertEqual(
             frontend.headers.get("cache-control"),
             "no-store, no-cache, must-revalidate, max-age=0",

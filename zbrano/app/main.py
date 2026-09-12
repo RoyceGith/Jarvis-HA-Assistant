@@ -773,7 +773,7 @@ ha_ws = HomeAssistantWebSocketClient(
 
 app = FastAPI(
     title="ZBRANO",
-    version="0.13.229",
+    version="0.13.230",
     docs_url="/api/docs",
     openapi_url="/api/openapi.json",
 )
@@ -3001,7 +3001,7 @@ async def health() -> dict[str, Any]:
     configured_speech_provider = SPEECH_PROVIDER if SPEECH_PROVIDER in {"openai", "elevenlabs"} else "openai"
     return {
         "status": "ok",
-        "version": "0.13.229",
+        "version": "0.13.230",
         "home_assistant_configured": bool(SUPERVISOR_TOKEN),
         "workshop_memory_configured": True,
         "knowledge_memory_mode": "built_in",
@@ -6004,6 +6004,8 @@ async def list_ha_entities(refresh: bool = False) -> dict[str, Any]:
             "area_id": area.get("area_id") or "",
             "area_name": area.get("area_name") or "",
             "area_source": area.get("area_source") or "unassigned",
+            "device_id": area.get("device_id") or "",
+            "device_name": area.get("device_name") or "",
             "zbrano_role": area.get("role") or _automation_entity_role(entity_id, attributes),
             "labels": area.get("labels") or [],
             "site_label": area.get("site_label") or "",

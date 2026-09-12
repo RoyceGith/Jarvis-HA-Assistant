@@ -491,5 +491,200 @@ window.ZbranoI18n?.register({
   "Refresh and detect bot": ["Ανανέωση και εντοπισμός bot", "Aggiorna e rileva il bot", "Actualiser et détecter le bot"],
   "Your token stays private.": ["Το token σας παραμένει ιδιωτικό.", "Il tuo token resta privato.", "Votre jeton reste privé."],
   "Enter it only in Home Assistant. ZBRANO never asks for it or stores it.": ["Καταχωρίστε το μόνο στο Home Assistant. Το ZBRANO δεν το ζητά ούτε το αποθηκεύει ποτέ.", "Inseriscilo solo in Home Assistant. ZBRANO non lo richiede e non lo memorizza mai.", "Saisissez-le uniquement dans Home Assistant. ZBRANO ne le demande et ne le stocke jamais."],
-  "Ready · status not reported": ["Έτοιμο · η κατάσταση δεν αναφέρεται", "Pronto · stato non segnalato", "Prêt · état non communiqué"]
+  "Ready · status not reported": ["Έτοιμο · η κατάσταση δεν αναφέρεται", "Pronto · stato non segnalato", "Prêt · état non communiqué"],
+  "Devices": [
+    "Συσκευές",
+    "Dispositivi",
+    "Appareils"
+  ],
+  "History": [
+    "Ιστορικό",
+    "Cronologia",
+    "Historique"
+  ],
+  "All devices": [
+    "Όλες οι συσκευές",
+    "Tutti i dispositivi",
+    "Tous les appareils"
+  ],
+  "Favorites": [
+    "Αγαπημένα",
+    "Preferiti",
+    "Favoris"
+  ],
+  "Unassigned": [
+    "Χωρίς χώρο",
+    "Non assegnati",
+    "Non attribués"
+  ],
+  "Rooms": [
+    "Δωμάτια",
+    "Stanze",
+    "Pièces"
+  ],
+  "Find a room, choose a device, manage its access.": [
+    "Βρείτε ένα δωμάτιο, επιλέξτε συσκευή και ρυθμίστε την πρόσβαση.",
+    "Trova una stanza, scegli un dispositivo e gestisci il suo accesso.",
+    "Trouvez une pièce, choisissez un appareil et gérez son accès."
+  ],
+  "Search devices": [
+    "Αναζήτηση συσκευών",
+    "Cerca dispositivi",
+    "Rechercher des appareils"
+  ],
+  "Search devices, rooms or other names": [
+    "Αναζήτηση συσκευών, δωματίων ή άλλων ονομάτων",
+    "Cerca dispositivi, stanze o altri nomi",
+    "Rechercher des appareils, pièces ou autres noms"
+  ],
+  "Device layout": [
+    "Διάταξη συσκευών",
+    "Disposizione dispositivi",
+    "Disposition des appareils"
+  ],
+  "Device cards": [
+    "Κάρτες συσκευών",
+    "Schede dispositivi",
+    "Fiches des appareils"
+  ],
+  "Detailed table": [
+    "Αναλυτικός πίνακας",
+    "Tabella dettagliata",
+    "Tableau détaillé"
+  ],
+  "More": [
+    "Περισσότερα",
+    "Altro",
+    "Plus"
+  ],
+  "Entity type": [
+    "Τύπος οντότητας",
+    "Tipo di entità",
+    "Type d’entité"
+  ],
+  "Device filters": [
+    "Φίλτρα συσκευών",
+    "Filtri dispositivi",
+    "Filtres des appareils"
+  ],
+  "Lights": [
+    "Φώτα",
+    "Luci",
+    "Éclairages"
+  ],
+  "Climate": [
+    "Κλιματισμός",
+    "Climatizzazione",
+    "Climatisation"
+  ],
+  "Switches": [
+    "Διακόπτες",
+    "Interruttori",
+    "Interrupteurs"
+  ],
+  "Sensors": [
+    "Αισθητήρες",
+    "Sensori",
+    "Capteurs"
+  ],
+  "Unavailable": [
+    "Μη διαθέσιμα",
+    "Non disponibili",
+    "Indisponibles"
+  ],
+  "Clear filters": [
+    "Καθαρισμός φίλτρων",
+    "Cancella filtri",
+    "Effacer les filtres"
+  ],
+  "Show more devices": [
+    "Περισσότερες συσκευές",
+    "Mostra altri dispositivi",
+    "Afficher plus d’appareils"
+  ],
+  "Mixed access": [
+    "Μικτή πρόσβαση",
+    "Accesso misto",
+    "Accès mixte"
+  ],
+  "Not allowed": [
+    "Δεν επιτρέπεται",
+    "Non consentito",
+    "Non autorisé"
+  ],
+  "Control": [
+    "Έλεγχος",
+    "Controllo",
+    "Contrôle"
+  ],
+  "Read only": [
+    "Μόνο ανάγνωση",
+    "Sola lettura",
+    "Lecture seule"
+  ],
+  "Permissions apply to each entity separately.": [
+    "Τα δικαιώματα ισχύουν ξεχωριστά για κάθε οντότητα.",
+    "Le autorizzazioni si applicano separatamente a ogni entità.",
+    "Les autorisations s’appliquent séparément à chaque entité."
+  ],
+  "Allow ZBRANO": [
+    "Να επιτρέπεται στο ZBRANO",
+    "Consenti a ZBRANO",
+    "Autoriser ZBRANO"
+  ],
+  "Other names": [
+    "Άλλα ονόματα",
+    "Altri nomi",
+    "Autres noms"
+  ],
+  "Other names, separated by commas": [
+    "Άλλα ονόματα, χωρισμένα με κόμματα",
+    "Altri nomi, separati da virgole",
+    "Autres noms, séparés par des virgules"
+  ],
+  "View history": [
+    "Προβολή ιστορικού",
+    "Visualizza cronologia",
+    "Voir l’historique"
+  ],
+  "Entity details": [
+    "Στοιχεία οντότητας",
+    "Dettagli entità",
+    "Détails de l’entité"
+  ],
+  "Close device details": [
+    "Κλείσιμο στοιχείων συσκευής",
+    "Chiudi dettagli dispositivo",
+    "Fermer les détails de l’appareil"
+  ],
+  "Favorite device": [
+    "Αγαπημένη συσκευή",
+    "Dispositivo preferito",
+    "Appareil favori"
+  ],
+  "No devices match. Try another room or clear the filters.": [
+    "Δεν βρέθηκαν συσκευές. Δοκιμάστε άλλο δωμάτιο ή καθαρίστε τα φίλτρα.",
+    "Nessun dispositivo corrispondente. Prova un’altra stanza o cancella i filtri.",
+    "Aucun appareil ne correspond. Essayez une autre pièce ou effacez les filtres."
+  ],
+  "device": [
+    "συσκευή",
+    "dispositivo",
+    "appareil"
+  ],
+  "devices": [
+    "συσκευές",
+    "dispositivi",
+    "appareils"
+  ],
+  "entity": [
+    "οντότητα",
+    "entità",
+    "entité"
+  ],
+  "entities": [
+    "οντότητες",
+    "entità",
+    "entités"
+  ]
 });

@@ -48,11 +48,15 @@ function entityFixture(index) {
 }
 
 const entities = [
-  ...Array.from({length: 48}, (_, index) => entityFixture(index + 1)),
+  ...Array.from({length: 78}, (_, index) => entityFixture(index + 1)),
   {entity_id:"climate.browser_thermostat",friendly_name:"Browser Thermostat",domain:"climate",state:"cool",target_temperature:25,current_temperature:26.2,temperature_unit:"°C",hvac_action:"cooling",available:true,risk:"low_risk_control_proposed",control_capable:true,auto_approved:false},
   {entity_id:"light.browser_light",friendly_name:"Browser Light",domain:"light",state:"off",available:true,risk:"low_risk_control_proposed",control_capable:true,auto_approved:false},
   {entity_id:"light.browser_fixture",friendly_name:"Browser Fixture Light",domain:"light",state:"off",available:true,risk:"low_risk_control_proposed",control_capable:true,auto_approved:false},
 ];
+// Real registry identity joins one thermostat and its temperature entity.
+for (const entity of [entities[0], entities.find(entity => entity.domain === "climate")]) {
+  Object.assign(entity, {device_id:"fixture-ac", device_name:"Living Room AC", area_id:"living-room", area_name:"Living room", site_name:"Home"});
+}
 const browserNow = Math.floor(Date.now() / 1000);
 const automationFixture = {
   settings: {
@@ -162,7 +166,7 @@ const onboardingFixture = {
     {id:"notifications",title:"Notifications and autonomy",description:"Choose notification delivery",ready:false,required:false,target:"notifications",last_check:null,skipped:false},
   ],
   installation_report: {
-    generated_at: 1788300000, version: "0.13.229", ready: true, attention_count: 0, ready_count: 5,
+    generated_at: 1788300000, version: "0.13.230", ready: true, attention_count: 0, ready_count: 5,
     checks: [
       {id:"home_assistant",title:"Home Assistant",state:"ready",required:true,detail:"Connected to Home Assistant",target:"home_assistant"},
       {id:"model",title:"AI model",state:"ready",required:true,detail:"gpt-5-mini is configured",target:"model"},
@@ -170,7 +174,7 @@ const onboardingFixture = {
       {id:"backup",title:"Backup and restore",state:"ready",required:false,detail:"A portable ZBRANO backup can be exported from Settings",target:"memory"},
       {id:"automation_health",title:"Automation safety",state:"ready",required:false,detail:"2 saved; 0 need permission; 0 paused after failures",target:"automations"},
     ],
-    support_summary: "ZBRANO installation report · v0.13.229\nOverall: Ready\nHome Assistant: Connected\nAI model: Configured\nDevice access: 3 sensor devices / 1 control devices\nPersistent storage: Ready\nAutomations: 2 saved / 0 permission issues / 0 failure pauses",
+    support_summary: "ZBRANO installation report · v0.13.230\nOverall: Ready\nHome Assistant: Connected\nAI model: Configured\nDevice access: 3 sensor devices / 1 control devices\nPersistent storage: Ready\nAutomations: 2 saved / 0 permission issues / 0 failure pauses",
   },
 };
 
@@ -204,7 +208,7 @@ function apiFixture(url, method = "GET") {
   if (pathname === "/api/health") {
     return {
       status: "ok",
-      version: "0.13.229",
+      version: "0.13.230",
       speech_provider: "openai",
       speech_providers: {openai: {configured: true}, elevenlabs: {configured: false}},
     };
@@ -316,7 +320,7 @@ function apiFixture(url, method = "GET") {
     return {files:[],folders:[{name:"Documents",path:"Documents",file_count:1}],current_folder:""};
   }
   if (pathname === "/api/release-memory-sync") {
-    return {enabled: false, state: "disabled", version: "0.13.229", task_active: false};
+    return {enabled: false, state: "disabled", version: "0.13.230", task_active: false};
   }
   if (pathname === "/api/tab-activity") return {revisions: {}};
   if (pathname === "/api/grinder-monitor/status") return {enabled: false, connected: false};
@@ -583,6 +587,58 @@ async function main() {
 
     await page.locator("#entities-tab").click();
     await page.locator("#entities-panel:not(.hidden)").waitFor();
+    await page.locator("#device-grid .device-card").first().waitFor();
+    assert.equal(await page.locator("#entity-layout").inputValue(), "cards");
+    assert.equal(await page.locator("#device-grid .device-card").count(), 60);
+    await page.locator("#device-show-more").click();
+    assert.equal(await page.locator("#device-grid .device-card").count(), entities.length-1);
+    assert.equal(await page.locator("#entities-panel .table-wrap").isHidden(), true);
+    assert.doesNotMatch(await page.locator("#device-grid").innerText(), /climate\.browser_thermostat/);
+    await page.locator("#device-room-nav").getByRole("button", {name:/^Living room/}).click();
+    assert.equal(await page.locator("#device-grid .device-card").count(), 1);
+    await page.locator('[data-device-open="device:fixture-ac"]').click();
+    assert.equal(await page.locator("#device-details .device-entity").count(), 2);
+    assert.match(await page.locator("#device-grid").innerText(), /Mixed access/);
+    for(const theme of ["dark", "light"]) {
+      await page.evaluate(theme => document.documentElement.dataset.theme=theme, theme);
+      assert.ok(await page.locator("#device-details").isVisible());
+      if(process.env.ZBRANO_DEVICE_SCREENSHOT)await page.screenshot({animations:"disabled", path:process.env.ZBRANO_DEVICE_SCREENSHOT.replace(".png", `-${theme}.png`)});
+    }
+    const relatedSensor = page.locator('[data-device-entity="sensor.browser_fixture_1"]');
+    await relatedSensor.locator("summary").first().click();
+    assert.equal(await relatedSensor.locator(".device-history").isEnabled(), false);
+    const sensorPermission = page.waitForRequest(request => request.method()==="PUT" && request.url().includes("entity-policy/sensor.browser_fixture_1"));
+    await relatedSensor.locator('input[type="checkbox"]').check();
+    assert.equal((await sensorPermission).postDataJSON().enabled, true);
+    assert.equal(await page.locator('[data-device-entity="climate.browser_thermostat"] input[type="checkbox"]').isChecked(), true);
+    const aliasSave = page.waitForRequest(request => request.method()==="PUT" && request.url().includes("entity-policy/sensor.browser_fixture_1") && request.postDataJSON().aliases?.includes("Room comfort"));
+    await relatedSensor.locator('input:not([type="checkbox"])').fill("Room comfort");
+    await relatedSensor.locator('input:not([type="checkbox"])').blur();
+    assert.deepEqual((await aliasSave).postDataJSON().aliases, ["Room comfort"]);
+    const historyRead = page.waitForRequest(request => request.url().includes("api/ha/timeline?"));
+    await relatedSensor.locator(".device-history").click();
+    assert.equal(new URL((await historyRead).url()).searchParams.get("entity_ids"), "sensor.browser_fixture_1");
+    await page.locator('[data-entity-view="inventory"]').click();
+    await page.getByRole("button", {name:"Close device details", exact:true}).click();
+    await page.locator(".device-favorite").click();
+    await page.locator('[data-device-location="favorites"]').click();
+    assert.equal(await page.locator("#device-grid .device-card").count(), 1);
+    assert.match(await page.evaluate(() => localStorage.getItem("zbrano_device_favorites_v1")), /fixture-ac/);
+    await page.locator("#device-clear-filters").click();
+    await page.locator("#entity-search").fill("Room comfort");
+    assert.equal(await page.locator("#device-grid .device-card").count(), 1);
+    await page.locator("#device-clear-filters").click();
+    await page.locator('[data-device-filter="unavailable"]').click();
+    assert.equal(await page.locator("#device-grid .device-card").count(), 0);
+    await page.locator("#device-clear-filters").click();
+    await page.setViewportSize({width:390,height:720});
+    await page.locator("#entity-search").fill("Living Room AC");
+    await page.locator('[data-device-open="device:fixture-ac"]').click();
+    assert.ok(await page.locator("#device-details").evaluate(element => {const r=element.getBoundingClientRect(); return r.left>=0 && r.right<=innerWidth && r.bottom<=innerHeight;}));
+    await page.keyboard.press("Escape");
+    await page.setViewportSize({width:1100,height:720});
+    await page.locator("#device-clear-filters").click();
+    await page.locator("#entity-layout").selectOption("table");
     await page.locator("#entity-rows tr").nth(47).waitFor();
     const entityHeaders = await page.locator('#entities-panel thead th').allTextContents();
     assert.deepEqual(entityHeaders.slice(0, 5), [

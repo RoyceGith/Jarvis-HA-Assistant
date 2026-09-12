@@ -259,6 +259,7 @@ async def _automation_refresh_area_context(force: bool = False) -> dict[str, Any
                 "area_name": area.get("name") or "",
                 "area_source": "entity" if direct_area else "device" if inherited_area else "unassigned",
                 "device_id": str(entry.get("device_id") or ""),
+                "device_name": str(device.get("name_by_user") or device.get("name") or ""),
                 "role": role,
                 "label_ids": combined_label_ids,
                 "labels": combined_labels,

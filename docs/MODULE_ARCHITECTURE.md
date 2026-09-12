@@ -132,6 +132,10 @@ frontend source is direct, checked-in code:
 
 - `css/` contains the base system and ordered compatibility layers.
 - `js/core.js` owns the original application controller.
+- `js/entities/devices.js` owns room navigation, device registry grouping, browser favorites,
+  bounded cards and per-entity details. It shares the established inventory and policy-save
+  state in core; the detailed table and column layout remain available. Device names and
+  IDs come from the existing Home Assistant area-context registry snapshot.
 - `js/chat/`, `voice/`, `entities/`, `automations/`, `notifications/`, `calendar/`,
   `memory/`, `files/`, `plugins/`, `integrations/`, `developer/`, `grinder/`, and
   `ui/` contain domain-specific controllers in their established execution order.

@@ -1,9 +1,9 @@
 {
-  "version": "0.13.229",
+  "version": "0.13.230",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/ZBRANO_Core main",
-  "summary": "Remove the composer plugin count button and keep installed plugins and catalog browsing responsive.",
+  "summary": "Organize entities by room and device with favorites and individual access details.",
   "history_backfill": [
     {
       "version": "0.13.0",
@@ -920,19 +920,24 @@
     {
       "version": "0.13.228",
       "summary": "Restore complete composer plugin icon layout and access to every installed plugin."
+    },
+    {
+      "version": "0.13.229",
+      "summary": "Remove the composer plugin count button and keep installed plugins and catalog browsing responsive."
     }
   ],
   "release_entry": {
     "features": [
-      "Installed plugin icons beneath chat without a redundant count button.",
-      "Immediate saved or featured catalog cards with background registry refresh."
+      "Room and location navigation, grouped device cards, browser favorites, quick filters and alias search.",
+      "Per-entity permission, alias and history controls in a device detail panel; optional detailed table."
     ],
     "fixes": [
-      "Remove synchronous DNS resolution from catalog display; retain full endpoint checks on install.",
-      "Keep Installed independent of registry loading and retain stale catalog entries on refresh failures."
+      "Group only by Home Assistant device identity and keep unassigned entities visible.",
+      "Render large inventories in bounded batches and adapt the details panel to phones."
     ],
     "validation": [
-      "Cold-cache, timeout, single-refresh, DNS isolation, shutdown and browser navigation/polling regressions."
+      "Browser coverage for grouping, mixed permissions, individual policy saves, aliases, favorites, room filters, history links, batching and phone layout.",
+      "Integration coverage for registry device identity, user-assigned names, inherited rooms and standalone entities."
     ]
   },
   "features": [

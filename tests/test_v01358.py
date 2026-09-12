@@ -14,19 +14,19 @@ MANIFEST = json.loads((ROOT / "zbrano/release_manifest.json").read_text(encoding
 
 class ContainerBuildFixtureReleaseTests(unittest.TestCase):
     def test_release_markers_are_aligned(self):
-        self.assertIn('version: "0.13.229"', CONFIG)
-        self.assertIn('version="0.13.229"', MAIN)
-        self.assertIn("HUD 0.13.229", HTML)
-        self.assertEqual(MANIFEST["version"], "0.13.229")
+        self.assertIn('version: "0.13.230"', CONFIG)
+        self.assertIn('version="0.13.230"', MAIN)
+        self.assertIn("HUD 0.13.230", HTML)
+        self.assertEqual(MANIFEST["version"], "0.13.230")
 
     def test_docker_only_fixtures_match_runtime(self):
         self.assertNotIn("0.13.56", ASGI_TEST)
         self.assertNotIn("0.13.56", BROWSER_TEST)
-        self.assertIn('"version"], "0.13.229"', ASGI_TEST)
-        self.assertIn('version: "0.13.229"', BROWSER_TEST)
+        self.assertIn('"version"], "0.13.230"', ASGI_TEST)
+        self.assertIn('version: "0.13.230"', BROWSER_TEST)
 
     def test_release_history_includes_v01357(self):
-        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.228")
+        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.229")
 
 
 if __name__ == "__main__":

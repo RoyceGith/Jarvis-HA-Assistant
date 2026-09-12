@@ -29,6 +29,7 @@
 <link id="zbrano-v013119-contacts-style" rel="stylesheet" href="css/contacts.css">
 <link id="zbrano-v013194-memory-studio-style" rel="stylesheet" href="css/memory-studio.css">
 <link id="zbrano-v013221-notification-center-style" rel="stylesheet" href="css/notification-center.css">
+<link rel="stylesheet" href="css/entity-devices.css">
 <link id="zbrano-v013224-composer-controls-style" rel="stylesheet" href="css/composer-controls.css">
 </head>
 <body>
@@ -36,7 +37,7 @@
   <header>
     <div class="brand-line">
       <h1>ZBRANO</h1>
-      <div class="status hud-version-label">Workshop Intelligence Interface · HUD 0.13.229</div>
+      <div class="status hud-version-label">Workshop Intelligence Interface · HUD 0.13.230</div>
     </div>
     <div class="runtime-status-stack">
       <label class="interface-language-picker" title="Interface language">
@@ -160,19 +161,35 @@
 
 <section id="entities-panel" class="panel hidden">
     <div class="entity-view-tabs workspace-side-navigation" role="tablist" aria-label="Entity views">
-      <button type="button" class="active" data-entity-view="inventory" role="tab" aria-selected="true">Entity Inventory</button>
-      <button type="button" data-entity-view="history" role="tab" aria-selected="false">History &amp; Event Timeline</button>
+      <button type="button" class="active" data-entity-view="inventory" role="tab" aria-selected="true">Devices</button>
+      <button type="button" data-entity-view="history" role="tab" aria-selected="false">History</button>
+      <div id="device-room-nav" aria-label="Rooms and devices"></div>
     </div>
     <div data-entity-view-panel="inventory">
-    <div class="toolbar">
-      <input id="entity-search" placeholder="Search entity ID or friendly name…">
-      <select id="domain-filter">
-        <option value="">All domains</option>
-      </select>
+    <div class="device-heading"><div><h2>Devices</h2><p>Find a room, choose a device, manage its access.</p></div><span id="device-result-count"></span></div>
+    <div class="toolbar device-toolbar">
+      <input id="entity-search" type="search" aria-label="Search devices" placeholder="Search devices, rooms or other names">
+      <select id="entity-layout" aria-label="Device layout"><option value="cards">Device cards</option><option value="table">Detailed table</option></select>
       <button id="refresh-entities">Refresh</button>
-      <button id="export-entities">Export JSON</button>
-      <button id="save-memory-draft" title="Download selected stable entity metadata for a later approved Knowledge Memory update">Prepare Entity Inventory Update</button>
-      <button id="show-approved">Show Approved</button>
+      <details id="entity-more"><summary>More</summary><div class="device-more-menu">
+        <select id="domain-filter" aria-label="Entity type"><option value="">All domains</option></select>
+        <button id="export-entities">Export JSON</button>
+        <button id="save-memory-draft" title="Download selected stable entity metadata for a later approved Knowledge Memory update">Prepare Entity Inventory Update</button>
+        <button id="show-approved">Show Approved</button>
+      </div></details>
+    </div>
+    <div id="device-quick-filters" class="device-quick-filters" aria-label="Device filters">
+      <button type="button" data-device-filter="" aria-pressed="true">All types</button>
+      <button type="button" data-device-filter="light" aria-pressed="false">Lights</button>
+      <button type="button" data-device-filter="climate" aria-pressed="false">Climate</button>
+      <button type="button" data-device-filter="switch" aria-pressed="false">Switches</button>
+      <button type="button" data-device-filter="sensors" aria-pressed="false">Sensors</button>
+      <button type="button" data-device-filter="unavailable" aria-pressed="false">Unavailable</button>
+      <button type="button" id="device-clear-filters">Clear filters</button>
+    </div>
+    <div id="device-browser" class="device-browser">
+      <div class="device-scroll"><div id="device-grid" class="device-grid"></div><button type="button" id="device-show-more" hidden>Show more devices</button></div>
+      <aside id="device-details" class="device-details" aria-labelledby="device-detail-title" hidden></aside>
     </div>
     <div id="entity-summary" class="summary muted">Load the inventory to begin.</div>
     <div class="table-wrap">
@@ -1029,6 +1046,7 @@
 <script id="zbrano-v01274-fast-memory" src="js/memory/fast-memory.js"></script>
 
 <script id="zbrano-v01276-ha-history" src="js/entities/history.js"></script>
+<script src="js/entities/devices.js"></script>
 
 <script id="zbrano-v01289-two-way-telegram" src="js/integrations/telegram.js"></script>
 <script id="zbrano-v01290-live-history" src="js/entities/live-history.js"></script>

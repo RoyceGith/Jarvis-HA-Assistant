@@ -32,8 +32,8 @@ def load_policy_helpers():
 
 class BranchAuthorityReleaseTests(unittest.TestCase):
     def test_release_is_aligned(self):
-        self.assertEqual(MANIFEST["version"], "0.13.229")
-        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.228")
+        self.assertEqual(MANIFEST["version"], "0.13.230")
+        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.229")
 
     def test_every_branch_can_choose_its_own_authority(self):
         helpers = load_policy_helpers()

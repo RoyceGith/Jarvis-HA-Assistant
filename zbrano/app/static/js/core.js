@@ -1750,6 +1750,8 @@ function entityMatches(entity) {
     !query ||
     entity.entity_id.toLowerCase().includes(query) ||
     entity.friendly_name.toLowerCase().includes(query) ||
+    String(entity.device_name || "").toLowerCase().includes(query) ||
+    String(ensureReview(entity).aliases || "").toLowerCase().includes(query) ||
     String(entity.device_class || "").toLowerCase().includes(query) ||
     String(entity.area_name || "").toLowerCase().includes(query) ||
     String(entity.site_name || "").toLowerCase().includes(query) ||
@@ -1757,7 +1759,7 @@ function entityMatches(entity) {
 
   const matchesDomain = !selectedDomain || entity.domain === selectedDomain;
   const matchesPermission = entityPermissionFilter === "all" || entityPermissionGroup(entity) === entityPermissionFilter;
-  return matchesSearch && matchesDomain && matchesPermission;
+  return matchesSearch && matchesDomain && matchesPermission && (window.zbranoDeviceBrowser?.matches(entity) ?? true);
 }
 
 const sensorEntityDomains = new Set(["sensor", "binary_sensor", "person", "device_tracker", "weather", "sun"]);
@@ -1952,6 +1954,10 @@ document.addEventListener("visibilitychange", () => {
 function renderEntities() {
   const filtered = entityInventory.filter(entityMatches);
   entityRows.replaceChildren();
+  if (window.zbranoDeviceBrowser?.render(filtered)) {
+    updateSelectionSummary(filtered.length);
+    return;
+  }
 
   for (const entity of filtered) {
     const review = ensureReview(entity);
@@ -2073,6 +2079,7 @@ function renderEntities() {
 }
 
 function updateSelectionSummary(filteredCount = null) {
+  window.zbranoDeviceBrowser?.refreshAccess();
   const selectedCount = [...entityReview.values()]
     .filter(item => item.selected && item.access !== "restricted").length;
   const shown = filteredCount ?? entityInventory.filter(entityMatches).length;
