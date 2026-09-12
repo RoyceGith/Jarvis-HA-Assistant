@@ -1,9 +1,9 @@
 {
-  "version": "0.13.224",
+  "version": "0.13.225",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/ZBRANO_Core main",
-  "summary": "Replace crowded chat composer settings with compact AI, voice, and plugin controls.",
+  "summary": "Keep every installed plugin visible beneath the chat prompt.",
   "history_backfill": [
     {
       "version": "0.13.0",
@@ -900,19 +900,22 @@
       {
         "version": "0.13.223",
         "summary": "Completed explicitly requested Memory Database saves without repeated approval prompts."
+      },
+      {
+        "version": "0.13.224",
+        "summary": "Replaced crowded chat composer settings with compact AI, voice, and plugin controls."
       }
   ],
   "release_entry": {
     "features": [
-      "Open model, thinking, speech provider, voice, and speak-replies controls from one compact AI and voice pop-up.",
-      "Show the enabled plugin count beside a bounded icon strip with an explicit overflow indicator."
+      "Show every installed plugin icon beneath the chat prompt, including connections that are currently disabled."
     ],
     "fixes": [
-      "Keep the composer controls usable on narrow screens without hiding plugin context or expanding the prompt area.",
-      "Preserve plugin health tooltips, active-tool feedback, saved AI and voice behavior, click-away closing, and Escape-key navigation."
+      "Represent disabled plugins with a muted state instead of removing them from the composer.",
+      "Keep plugin health, enabled-tool availability, overflow counts, tooltips, and navigation intact."
     ],
     "validation": [
-      "Composer pop-up interaction, plugin count and overflow rendering, responsive styling, browser smoke, regression coverage, and v0.13.224 release alignment"
+      "Installed and disabled plugin rendering, count and overflow behavior, browser smoke, regression coverage, and v0.13.225 release alignment"
     ]
   },
   "features": [

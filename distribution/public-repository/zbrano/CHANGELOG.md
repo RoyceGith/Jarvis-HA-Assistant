@@ -1,5 +1,10 @@
 # Change log
 
+## 0.13.225
+
+- Show every installed plugin icon beneath the chat prompt, even when its connection is disabled.
+- Distinguish disabled plugins with a muted icon and status dot while preserving their explanatory tooltip.
+
 ## 0.13.224
 
 - Move model, thinking, speech provider, voice, and speak-replies controls into a compact composer pop-up.

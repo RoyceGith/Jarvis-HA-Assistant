@@ -14,10 +14,10 @@ MANIFEST = json.loads((ROOT / "zbrano/release_manifest.json").read_text(encoding
 
 class IntegrationBuildRepairTests(unittest.TestCase):
     def test_release_markers_are_aligned(self):
-        self.assertIn('version: "0.13.224"', CONFIG)
-        self.assertIn('version="0.13.224"', MAIN)
-        self.assertIn("HUD 0.13.224", HTML)
-        self.assertEqual(MANIFEST["version"], "0.13.224")
+        self.assertIn('version: "0.13.225"', CONFIG)
+        self.assertIn('version="0.13.225"', MAIN)
+        self.assertIn("HUD 0.13.225", HTML)
+        self.assertEqual(MANIFEST["version"], "0.13.225")
 
     def test_synthetic_automation_entity_is_policy_isolated(self):
         self.assertIn(

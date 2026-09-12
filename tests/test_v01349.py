@@ -14,10 +14,10 @@ MANIFEST = json.loads((ROOT / "zbrano/release_manifest.json").read_text(encoding
 
 class ReleaseContractReleaseTests(unittest.TestCase):
     def test_release_markers_are_aligned(self):
-        self.assertIn('version: "0.13.224"', CONFIG)
-        self.assertIn('version="0.13.224"', MAIN)
-        self.assertIn("HUD 0.13.224", HTML)
-        self.assertEqual(MANIFEST["version"], "0.13.224")
+        self.assertIn('version: "0.13.225"', CONFIG)
+        self.assertIn('version="0.13.225"', MAIN)
+        self.assertIn("HUD 0.13.225", HTML)
+        self.assertEqual(MANIFEST["version"], "0.13.225")
 
     def test_release_contract_runs_before_build_metadata(self):
         command = "python3 zbrano/validate_release_contract.py"
@@ -34,7 +34,7 @@ class ReleaseContractReleaseTests(unittest.TestCase):
             self.assertIn(marker, VALIDATOR)
 
     def test_release_history_includes_previous_release(self):
-        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.223")
+        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.224")
 
 
 if __name__ == "__main__":

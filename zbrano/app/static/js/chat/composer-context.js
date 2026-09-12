@@ -7,6 +7,7 @@
   const visibleLimit=5;
 
   function stateLabel(plugin){
+    if(!plugin.enabled)return "installed · disabled";
     if(!plugin.healthy)return "unhealthy";
     if(plugin.available_to_chat)return `${plugin.enabled_tool_count||0} enabled tool${Number(plugin.enabled_tool_count||0)===1?"":"s"} · available to chat`;
     return plugin.builtin?"enabled · Developer Mode only":"enabled · no tools available to chat";
@@ -18,18 +19,18 @@
     const icon=plugin.icon_url
       ?`<img src="${esc(plugin.icon_url)}" alt="" loading="lazy" referrerpolicy="no-referrer"><span class="composer-plugin-fallback" hidden>${fallback}</span>`
       :`<span class="composer-plugin-fallback">${fallback}</span>`;
-    const status=!plugin.healthy?"unhealthy":plugin.available_to_chat?"available":"enabled";
+    const status=!plugin.enabled?"disabled":!plugin.healthy?"unhealthy":plugin.available_to_chat?"available":"enabled";
     const title=`${name} · ${stateLabel(plugin)}`;
     return `<button type="button" class="composer-plugin-button ${status}" data-composer-plugin="${esc(plugin.id||"")}" title="${esc(title)}" aria-label="${esc(title)}" role="listitem">${icon}<span class="composer-plugin-status" aria-hidden="true"></span></button>`;
   }
 
   window.renderComposerPluginIndicators=plugins=>{
-    const enabled=(plugins||[]).filter(plugin=>plugin&&plugin.enabled);
-    if(count){count.textContent=String(enabled.length);count.setAttribute("aria-label",`${enabled.length} enabled plugin${enabled.length===1?"":"s"}`)}
-    if(!enabled.length){root.innerHTML='<span class="composer-plugin-empty">None enabled</span>';return}
-    const visible=enabled.slice(0,visibleLimit);
-    const overflow=enabled.length-visible.length;
-    root.innerHTML=visible.map(iconButton).join("")+(overflow?`<span class="composer-plugin-overflow" title="${overflow} more enabled plugin${overflow===1?"":"s"}">+${overflow}</span>`:"");
+    const installed=(plugins||[]).filter(Boolean);
+    if(count){count.textContent=String(installed.length);count.setAttribute("aria-label",`${installed.length} installed plugin${installed.length===1?"":"s"}`)}
+    if(!installed.length){root.innerHTML='<span class="composer-plugin-empty">None installed</span>';return}
+    const visible=installed.slice(0,visibleLimit);
+    const overflow=installed.length-visible.length;
+    root.innerHTML=visible.map(iconButton).join("")+(overflow?`<span class="composer-plugin-overflow" title="${overflow} more installed plugin${overflow===1?"":"s"}">+${overflow}</span>`:"");
     for(const image of root.querySelectorAll("img"))image.addEventListener("error",()=>{image.hidden=true;if(image.nextElementSibling)image.nextElementSibling.hidden=false},{once:true});
   };
 
