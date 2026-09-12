@@ -13,11 +13,11 @@ MANIFEST = json.loads((ROOT / "zbrano/release_manifest.json").read_text(encoding
 
 class BirthdayBackupBuildFixTests(unittest.TestCase):
     def test_release_markers_are_aligned(self):
-        self.assertIn('version: "0.13.247"', CONFIG)
-        self.assertIn('version="0.13.247"', MAIN)
-        self.assertIn("HUD 0.13.247", HTML)
-        self.assertEqual(MANIFEST["version"], "0.13.247")
-        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.246")
+        self.assertIn('version: "0.13.248"', CONFIG)
+        self.assertIn('version="0.13.248"', MAIN)
+        self.assertIn("HUD 0.13.248", HTML)
+        self.assertEqual(MANIFEST["version"], "0.13.248")
+        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.247")
 
     def test_container_integration_contract_includes_birthdays(self):
         self.assertIn('"automations", "notifications", "calendar", "birthdays", "contacts", "fast_memory"', INTEGRATION)

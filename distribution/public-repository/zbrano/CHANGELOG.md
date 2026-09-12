@@ -1,5 +1,11 @@
 # Change log
 
+## 0.13.248
+
+- Restore original attachment, plugin and voice tool space.
+- Reduce only the desktop prompt row to 90% width and center it.
+- Preserve original phone width and control sizes.
+
 ## 0.13.247
 
 - Center a narrower prompt box beneath the conversation.

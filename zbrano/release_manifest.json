@@ -1,9 +1,9 @@
 {
-  "version": "0.13.247",
+  "version": "0.13.248",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/ZBRANO_Core main",
-  "summary": "Center a narrower prompt box beneath the conversation while preserving the existing control arrangement.",
+  "summary": "Restore original control space and modestly narrow only the desktop prompt row.",
   "history_backfill": [
     {
       "version": "0.13.0",
@@ -992,14 +992,18 @@
     {
       "version": "0.13.246",
       "summary": "Use right-aligned cyan user prompts and open assistant replies in a centered conversation."
+    },
+    {
+      "version": "0.13.247",
+      "summary": "Center a narrower prompt box beneath the conversation while preserving the existing control arrangement."
     }
   ],
   "release_entry": {
     "features": [
-      "Centered narrower prompt box with the existing control arrangement."
+      "Modest centered desktop prompt row with original control sizes."
     ],
     "fixes": [
-      "Align composer tools and attachment previews with the conversation column."
+      "Restore attachment and voice tool space and original phone width."
     ],
     "validation": [
       "Browser smoke, desktop and phone previews, regression and integration suites, and release validators."

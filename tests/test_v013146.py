@@ -11,8 +11,8 @@ MANIFEST = json.loads((ROOT / "zbrano" / "release_manifest.json").read_text(enco
 
 class V013146AutomationSaveFeedbackTests(unittest.TestCase):
     def test_release_is_aligned(self):
-        self.assertEqual(MANIFEST["version"], "0.13.247")
-        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.246")
+        self.assertEqual(MANIFEST["version"], "0.13.248")
+        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.247")
 
     def test_client_validation_matches_server_minimum_lengths(self):
         self.assertIn("name.length<2", WORKSPACE)
