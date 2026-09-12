@@ -1,5 +1,11 @@
 # Change log
 
+## 0.13.245
+
+- Center user and assistant messages in the same bounded reading column.
+- Keep messages together on wide screens and use available width on phones.
+- Preserve open chat styling and right-aligned message action icons.
+
 ## 0.13.244
 
 - Place icon-only Copy controls below each message on the right with hover labels.

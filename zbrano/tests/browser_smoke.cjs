@@ -167,7 +167,7 @@ const onboardingFixture = {
     {id:"notifications",title:"Notifications and autonomy",description:"Choose notification delivery",ready:false,required:false,target:"notifications",last_check:null,skipped:false},
   ],
   installation_report: {
-    generated_at: 1788300000, version: "0.13.244", ready: true, attention_count: 0, ready_count: 5,
+    generated_at: 1788300000, version: "0.13.245", ready: true, attention_count: 0, ready_count: 5,
     checks: [
       {id:"home_assistant",title:"Home Assistant",state:"ready",required:true,detail:"Connected to Home Assistant",target:"home_assistant"},
       {id:"model",title:"AI model",state:"ready",required:true,detail:"gpt-5-mini is configured",target:"model"},
@@ -175,7 +175,7 @@ const onboardingFixture = {
       {id:"backup",title:"Backup and restore",state:"ready",required:false,detail:"A portable ZBRANO backup can be exported from Settings",target:"memory"},
       {id:"automation_health",title:"Automation safety",state:"ready",required:false,detail:"2 saved; 0 need permission; 0 paused after failures",target:"automations"},
     ],
-    support_summary: "ZBRANO installation report · v0.13.244\nOverall: Ready\nHome Assistant: Connected\nAI model: Configured\nDevice access: 3 sensor devices / 1 control devices\nPersistent storage: Ready\nAutomations: 2 saved / 0 permission issues / 0 failure pauses",
+    support_summary: "ZBRANO installation report · v0.13.245\nOverall: Ready\nHome Assistant: Connected\nAI model: Configured\nDevice access: 3 sensor devices / 1 control devices\nPersistent storage: Ready\nAutomations: 2 saved / 0 permission issues / 0 failure pauses",
   },
 };
 
@@ -209,7 +209,7 @@ function apiFixture(url, method = "GET") {
   if (pathname === "/api/health") {
     return {
       status: "ok",
-      version: "0.13.244",
+      version: "0.13.245",
       speech_provider: "openai",
       speech_providers: {openai: {configured: true}, elevenlabs: {configured: false}},
     };
@@ -321,7 +321,7 @@ function apiFixture(url, method = "GET") {
     return {files:[],folders:[{name:"Documents",path:"Documents",file_count:1}],current_folder:""};
   }
   if (pathname === "/api/release-memory-sync") {
-    return {enabled: false, state: "disabled", version: "0.13.244", task_active: false};
+    return {enabled: false, state: "disabled", version: "0.13.245", task_active: false};
   }
   if (pathname === "/api/tab-activity") return {revisions: {}};
   if (pathname === "/api/grinder-monitor/status") return {enabled: false, connected: false};
@@ -558,7 +558,7 @@ async function main() {
         addMessage('Can you explain the difference between read-only access and device control?\nI want to keep my sensors read-only.', 'user').id='readability-user';
         addMessage('### Device permissions\n\nRead-only access lets ZBRANO report a device state. Control access allows approved actions, such as switching a light off.\n\n- Sensors stay read-only.\n- Choose access on each device card.\n- Open the details to review individual entities.', 'zbrano').id='readability-reply';
       });
-      for(const width of [1100,390])for(const theme of ['light','dark']) {
+      for(const width of [1920,1100,390])for(const theme of ['light','dark']) {
         await page.setViewportSize({width,height:900});
         await page.evaluate(value=>{document.documentElement.dataset.theme=value;messages.scrollTop=messages.scrollHeight;},theme);
         await page.locator('#messages').screenshot({animations:'disabled',path:process.env.ZBRANO_READABILITY_SCREENSHOT.replace('.png',`-${width}-${theme}.png`)});

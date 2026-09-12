@@ -24,10 +24,10 @@ def load_functions(names):
 
 class LearnedAutomationPreferenceReleaseTests(unittest.TestCase):
     def test_release_markers_are_aligned(self):
-        self.assertIn('version: "0.13.244"', CONFIG)
-        self.assertIn('version="0.13.244"', MAIN)
-        self.assertIn("HUD 0.13.244", HTML)
-        self.assertEqual(MANIFEST["version"], "0.13.244")
+        self.assertIn('version: "0.13.245"', CONFIG)
+        self.assertIn('version="0.13.245"', MAIN)
+        self.assertIn("HUD 0.13.245", HTML)
+        self.assertEqual(MANIFEST["version"], "0.13.245")
 
     def test_repeated_not_now_gradually_raises_suggestion_boundary(self):
         learned = load_functions({"_automation_learned_suppression"})["_automation_learned_suppression"]
@@ -67,7 +67,7 @@ class LearnedAutomationPreferenceReleaseTests(unittest.TestCase):
         self.assertNotIn('automation.pop("episode_history", None)', route)
 
     def test_release_history_includes_v01373(self):
-        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.243")
+        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.244")
 
 
 if __name__ == "__main__":

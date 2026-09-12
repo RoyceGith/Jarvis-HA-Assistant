@@ -1,9 +1,9 @@
 {
-  "version": "0.13.244",
+  "version": "0.13.245",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/ZBRANO_Core main",
-  "summary": "Use right-aligned message action icons and add a pencil shortcut to edit prompts in the composer.",
+  "summary": "Center user and assistant messages in one shared reading column on wide screens.",
   "history_backfill": [
     {
       "version": "0.13.0",
@@ -980,18 +980,21 @@
     {
       "version": "0.13.243",
       "summary": "Remove chat message card backgrounds and borders while preserving readable spacing and message actions."
+    },
+    {
+      "version": "0.13.244",
+      "summary": "Use right-aligned message action icons and add a pencil shortcut to edit prompts in the composer."
     }
   ],
   "release_entry": {
     "features": [
-      "Right-aligned icon-only message actions with hover and accessible labels.",
-      "User prompt pencil loads original text into the composer without sending."
+      "Shared centered reading column for user and assistant messages."
     ],
     "fixes": [
-      "Remove repeated Copy message text while retaining clipboard feedback and phone touch targets."
+      "Remove opposite-edge placement on wide windows while retaining phone and compact layouts."
     ],
     "validation": [
-      "Browser icon labels, prompt restoration, original-text preservation, clipboard checks, regression/integration suites and release validators."
+      "Wide-screen, desktop and phone screenshot review; browser smoke, regression/integration suites and release validators."
     ]
   },
   "features": [

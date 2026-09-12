@@ -20,12 +20,12 @@ MANIFEST = json.loads((ROOT / "zbrano/release_manifest.json").read_text(encoding
 
 class ExpandedInterfaceLocalizationReleaseTests(unittest.TestCase):
     def test_release_is_aligned(self):
-        self.assertIn('version: "0.13.244"', CONFIG)
-        self.assertIn('version="0.13.244"', MAIN)
-        self.assertIn("HUD 0.13.244", HTML)
-        self.assertEqual(MANIFEST["version"], "0.13.244")
-        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.243")
-        self.assertTrue(CHANGELOG.startswith("# Change log\n\n## 0.13.244"))
+        self.assertIn('version: "0.13.245"', CONFIG)
+        self.assertIn('version="0.13.245"', MAIN)
+        self.assertIn("HUD 0.13.245", HTML)
+        self.assertEqual(MANIFEST["version"], "0.13.245")
+        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.244")
+        self.assertTrue(CHANGELOG.startswith("# Change log\n\n## 0.13.245"))
 
     def test_advanced_catalog_is_large_complete_and_loaded_early(self):
         base = object_literal(I18N, r"const rows = (\{.*?^  \});", "base")

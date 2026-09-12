@@ -17,8 +17,8 @@ MANIFEST = json.loads((ROOT / "zbrano/release_manifest.json").read_text(encoding
 
 class ExplicitAutomationConditionReleaseTests(unittest.TestCase):
     def test_release_is_aligned(self):
-        self.assertEqual(MANIFEST["version"], "0.13.244")
-        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.243")
+        self.assertEqual(MANIFEST["version"], "0.13.245")
+        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.244")
 
     def test_condition_schema_and_runtime_support_source_attributes(self):
         self.assertIn('attribute: str = Field(default="", max_length=120', SCHEMAS)

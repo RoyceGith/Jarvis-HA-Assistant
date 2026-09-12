@@ -31,11 +31,11 @@ class OrganizedMemorySaveReleaseTests(unittest.TestCase):
         self.temporary.cleanup()
 
     def test_release_is_aligned(self):
-        self.assertIn('version: "0.13.244"', CONFIG)
-        self.assertIn('version="0.13.244"', MAIN)
-        self.assertIn("HUD 0.13.244", INDEX)
-        self.assertEqual(MANIFEST["version"], "0.13.244")
-        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.243")
+        self.assertIn('version: "0.13.245"', CONFIG)
+        self.assertIn('version="0.13.245"', MAIN)
+        self.assertIn("HUD 0.13.245", INDEX)
+        self.assertEqual(MANIFEST["version"], "0.13.245")
+        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.244")
 
     def test_soup_recipes_get_a_descriptive_topic_note(self):
         suggested = knowledge_memory.remember_automatically(
