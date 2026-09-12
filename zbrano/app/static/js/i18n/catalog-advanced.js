@@ -1,6 +1,9 @@
 "use strict";
 
 window.ZbranoI18n?.register({
+  "Copy message": ["Αντιγραφή μηνύματος", "Copia messaggio", "Copier le message"],
+  "Copied": ["Αντιγράφηκε", "Copiato", "Copié"],
+  "Copy failed. Select the text to copy it.": ["Η αντιγραφή απέτυχε. Επιλέξτε το κείμενο για αντιγραφή.", "Copia non riuscita. Seleziona il testo per copiarlo.", "Échec de la copie. Sélectionnez le texte pour le copier."],
   "Search settings": ["Αναζήτηση ρυθμίσεων", "Cerca impostazioni", "Rechercher des paramètres"],
   "No settings match your search.": ["Δεν βρέθηκαν ρυθμίσεις για την αναζήτησή σας.", "Nessuna impostazione corrisponde alla ricerca.", "Aucun paramètre ne correspond à votre recherche."],
   "Sort devices": ["Ταξινόμηση συσκευών", "Ordina dispositivi", "Trier les appareils"],

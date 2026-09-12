@@ -167,7 +167,7 @@ const onboardingFixture = {
     {id:"notifications",title:"Notifications and autonomy",description:"Choose notification delivery",ready:false,required:false,target:"notifications",last_check:null,skipped:false},
   ],
   installation_report: {
-    generated_at: 1788300000, version: "0.13.239", ready: true, attention_count: 0, ready_count: 5,
+    generated_at: 1788300000, version: "0.13.240", ready: true, attention_count: 0, ready_count: 5,
     checks: [
       {id:"home_assistant",title:"Home Assistant",state:"ready",required:true,detail:"Connected to Home Assistant",target:"home_assistant"},
       {id:"model",title:"AI model",state:"ready",required:true,detail:"gpt-5-mini is configured",target:"model"},
@@ -175,7 +175,7 @@ const onboardingFixture = {
       {id:"backup",title:"Backup and restore",state:"ready",required:false,detail:"A portable ZBRANO backup can be exported from Settings",target:"memory"},
       {id:"automation_health",title:"Automation safety",state:"ready",required:false,detail:"2 saved; 0 need permission; 0 paused after failures",target:"automations"},
     ],
-    support_summary: "ZBRANO installation report · v0.13.239\nOverall: Ready\nHome Assistant: Connected\nAI model: Configured\nDevice access: 3 sensor devices / 1 control devices\nPersistent storage: Ready\nAutomations: 2 saved / 0 permission issues / 0 failure pauses",
+    support_summary: "ZBRANO installation report · v0.13.240\nOverall: Ready\nHome Assistant: Connected\nAI model: Configured\nDevice access: 3 sensor devices / 1 control devices\nPersistent storage: Ready\nAutomations: 2 saved / 0 permission issues / 0 failure pauses",
   },
 };
 
@@ -209,7 +209,7 @@ function apiFixture(url, method = "GET") {
   if (pathname === "/api/health") {
     return {
       status: "ok",
-      version: "0.13.239",
+      version: "0.13.240",
       speech_provider: "openai",
       speech_providers: {openai: {configured: true}, elevenlabs: {configured: false}},
     };
@@ -321,7 +321,7 @@ function apiFixture(url, method = "GET") {
     return {files:[],folders:[{name:"Documents",path:"Documents",file_count:1}],current_folder:""};
   }
   if (pathname === "/api/release-memory-sync") {
-    return {enabled: false, state: "disabled", version: "0.13.239", task_active: false};
+    return {enabled: false, state: "disabled", version: "0.13.240", task_active: false};
   }
   if (pathname === "/api/tab-activity") return {revisions: {}};
   if (pathname === "/api/grinder-monitor/status") return {enabled: false, connected: false};
@@ -520,6 +520,31 @@ async function main() {
     });
     assert.equal(actionCard.styled, true); assert.equal(actionCard.injected, false); assert.equal(actionCard.failedStyled, false);
     assert.equal(actionCard.raw, 'Living room is now off.'); assert.match(actionCard.text, /Living room <AC>Off/);
+    await page.evaluate(() => {
+      window.savedClipboard = Object.getOwnPropertyDescriptor(navigator, 'clipboard');
+      Object.defineProperty(navigator,'clipboard',{configurable:true,value:{writeText:async text=>{window.copiedMessage=text;}}});
+      addMessage('**Keep formatting**\nSecond line', 'zbrano').id='copy-fixture';
+    });
+    await page.locator('#copy-fixture .message-copy').click();
+    assert.equal(await page.evaluate(()=>window.copiedMessage), '**Keep formatting**\nSecond line');
+    assert.equal(await page.locator('#copy-fixture .message-copy-status').innerText(), 'Copied');
+    if(process.env.ZBRANO_CHAT_SCREENSHOT)await page.locator('#copy-fixture').screenshot({animations:'disabled',path:process.env.ZBRANO_CHAT_SCREENSHOT.replace('.png','-message.png')});
+    await page.evaluate(()=>{navigator.clipboard.writeText=async()=>{throw new Error('Clipboard denied');};});
+    await page.locator('#copy-fixture .message-copy').click();
+    assert.match(await page.locator('#copy-fixture .message-copy-status').innerText(), /Copy failed/);
+    await page.evaluate(()=>{
+      Object.defineProperty(navigator,'clipboard',{configurable:true,value:undefined});
+      window.savedExecCommand=document.execCommand;
+      document.execCommand=command=>{window.fallbackCopy={command,text:document.activeElement.value};return true;};
+    });
+    await page.locator('#copy-fixture .message-copy').click();
+    assert.deepEqual(await page.evaluate(()=>window.fallbackCopy), {command:'copy',text:'**Keep formatting**\nSecond line'});
+    assert.equal(await page.locator('.clipboard-fallback').count(),0);
+    await page.evaluate(()=>{document.execCommand=window.savedExecCommand;});
+    await page.evaluate(()=>{
+      document.getElementById('copy-fixture').remove();
+      if(window.savedClipboard)Object.defineProperty(navigator,'clipboard',window.savedClipboard);else delete navigator.clipboard;
+    });
     const stoppedMarkdown = await page.evaluate(() => {
       const item = document.createElement("div");
       item.className = "message zbrano";

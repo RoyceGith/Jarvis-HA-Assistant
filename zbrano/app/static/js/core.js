@@ -1216,11 +1216,43 @@ function appendMessageAttachments(item, attachments = []) {
   item.appendChild(list);
 }
 
-function addMessage(text, role, attachments = []) {
+function addMessageActions(item) {
+  if (!String(item.dataset.rawText || '').trim() || item.querySelector('.message-actions')) return;
+  const actions=document.createElement('div'); actions.className='message-actions';
+  const copy=document.createElement('button');copy.type='button';copy.className='message-copy';
+  copy.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="8" y="8" width="12" height="13" rx="2"/><path d="M16 8V3H3v13h5"/></svg>';
+  const label=document.createElement('span');label.textContent=window.ZbranoI18n?.t('Copy message')||'Copy message';copy.append(label);
+  const status=document.createElement('span');status.className='message-copy-status';status.setAttribute('role','status');
+  copy.addEventListener('click',async()=>{
+    const text=String(item.dataset.rawText||'');copy.disabled=true;status.textContent='';
+    try {
+      if(navigator.clipboard?.writeText) await navigator.clipboard.writeText(text);
+      else {
+        const field=document.createElement('textarea');field.value=text;field.setAttribute('aria-label',window.ZbranoI18n?.t('Copy message')||'Copy message');field.className='clipboard-fallback';document.body.append(field);
+        try {field.select();if(!document.execCommand('copy'))throw new Error('Copy unavailable');}
+        finally {field.remove();copy.focus({preventScroll:true});}
+      }
+      status.textContent=window.ZbranoI18n?.t('Copied')||'Copied';
+    } catch { status.textContent=window.ZbranoI18n?.t('Copy failed. Select the text to copy it.')||'Copy failed. Select the text to copy it.'; }
+    finally {copy.disabled=false;}
+  });
+  actions.append(copy,status);item.append(actions);
+}
+
+let messageActionsLocale=window.ZbranoI18n?.locale;
+window.addEventListener('zbrano:language-applied',()=>{
+  if(messageActionsLocale===window.ZbranoI18n?.locale)return;
+  messageActionsLocale=window.ZbranoI18n?.locale;
+  for(const button of messages.querySelectorAll('.message-copy'))button.querySelector('span').textContent=window.ZbranoI18n?.t('Copy message')||'Copy message';
+  for(const status of messages.querySelectorAll('.message-copy-status'))status.textContent='';
+});
+
+function addMessage(text, role, attachments = [], showActions = true) {
   const item = document.createElement("div");
   item.className = `message ${role}`;
   renderMessageContent(item, text);
   appendMessageAttachments(item, attachments);
+  if (showActions) addMessageActions(item);
   messages.appendChild(item);
   messages.scrollTop = messages.scrollHeight;
   return item;
@@ -2358,7 +2390,7 @@ form.addEventListener("submit", async (event) => {
   stopButton.disabled = false;
 
   setNeuronIntensity(false);
-  const zbranoMessage = addMessage("Connecting…", "zbrano");
+  const zbranoMessage = addMessage("Connecting…", "zbrano", [], false);
   let answer = "";
   let speechBuffer = "";
   let statusText = "Connecting…";
@@ -2430,6 +2462,7 @@ form.addEventListener("submit", async (event) => {
     } else if (eventData.type === "done") {
       const calls = eventData.tool_calls || [];
       if (calls.length === 1) renderDeviceActionResult(zbranoMessage, calls[0]);
+      addMessageActions(zbranoMessage);
     } else if (eventData.type === "sources") {
       const sources = Array.isArray(eventData.sources) ? eventData.sources : [];
       const unique = sources.filter((source, index, items) => source?.url && items.findIndex(item => item?.url === source.url) === index).slice(0, 8);
@@ -2467,6 +2500,7 @@ form.addEventListener("submit", async (event) => {
         : `Request failed: WebSocket closed (${closeEvent.code}).`
       );
     }
+    addMessageActions(zbranoMessage);
     if(activeRequest!==requestState){if(requestState.stopped)refreshChatList();return}
     activeRequest = null;
     finishOpenToolActivities(requestState.stopped ? "failed" : "completed");

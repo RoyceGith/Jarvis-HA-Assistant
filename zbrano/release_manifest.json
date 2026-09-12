@@ -1,9 +1,9 @@
 {
-  "version": "0.13.239",
+  "version": "0.13.240",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/ZBRANO_Core main",
-  "summary": "Find settings by label and jump directly to their category and control.",
+  "summary": "Copy chat messages with original formatting and clear clipboard success or failure feedback.",
   "history_backfill": [
     {
       "version": "0.13.0",
@@ -960,18 +960,22 @@
     {
       "version": "0.13.238",
       "summary": "Sort device cards by name, room or availability, with optional favorites first and saved preferences."
+    },
+    {
+      "version": "0.13.239",
+      "summary": "Find settings by label and jump directly to their category and control."
     }
   ],
   "release_entry": {
     "features": [
-      "Local label and heading search across Settings categories.",
-      "Direct category navigation with control focus and temporary highlighting."
+      "Copy original message text from completed and saved chat messages.",
+      "Translated success/failure feedback and mobile touch targets."
     ],
     "fixes": [
-      "Keep input values out of the search index and preserve settings when navigating."
+      "Keep pending stream placeholders free of actions and preserve raw text for copy and speech."
     ],
     "validation": [
-      "Browser matching, keyboard selection, category navigation, value preservation and no-results checks; screenshots; regression/integration suites and release validators."
+      "Browser clipboard text fidelity and failure feedback; complete browser smoke, regression/integration suites and release validators."
     ]
   },
   "features": [

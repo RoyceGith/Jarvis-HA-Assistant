@@ -65,3 +65,11 @@
 .settings-find-result strong { font-size:.8rem; overflow-wrap:anywhere; }
 .settings-find-result small,#settings-find-empty { font-size:.72rem; color:var(--text-muted); }
 .settings-found { outline:2px solid var(--cyan); outline-offset:4px; border-radius:6px; }
+
+.message-actions { display:flex; align-items:center; gap:.55rem; flex-wrap:wrap; margin-top:.5rem; }
+#messages .message-copy { display:inline-flex; align-items:center; gap:.35rem; min-height:30px; padding:.25rem .4rem; border:0; border-radius:7px; background:transparent; box-shadow:none; color:var(--text-muted); font-size:.68rem; font-weight:500; }
+#messages .message-copy:hover { background:color-mix(in srgb,var(--cyan) 8%,transparent); color:var(--cyan); }
+.message-copy svg { width:.9rem; height:.9rem; fill:none; stroke:currentColor; stroke-width:1.7; stroke-linecap:round; stroke-linejoin:round; }
+.message-copy-status { color:var(--text-muted); font-size:.68rem; }
+.clipboard-fallback { position:fixed; top:0; left:-9999px; }
+@media(max-width:700px) { #messages .message-copy { min-height:44px; } }

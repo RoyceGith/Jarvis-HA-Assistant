@@ -18,10 +18,10 @@ MANIFEST = json.loads((ROOT / "zbrano/release_manifest.json").read_text(encoding
 
 class PluginOAuthBoundaryTests(unittest.TestCase):
     def test_release_markers_are_aligned(self):
-        self.assertIn('version: "0.13.239"', CONFIG)
-        self.assertIn('version="0.13.239"', MAIN)
-        self.assertIn("HUD 0.13.239", HTML)
-        self.assertEqual(MANIFEST["version"], "0.13.239")
+        self.assertIn('version: "0.13.240"', CONFIG)
+        self.assertIn('version="0.13.240"', MAIN)
+        self.assertIn("HUD 0.13.240", HTML)
+        self.assertEqual(MANIFEST["version"], "0.13.240")
 
     def test_protocol_and_google_policy_are_outside_main(self):
         for marker in (
@@ -43,7 +43,7 @@ class PluginOAuthBoundaryTests(unittest.TestCase):
             plugin_load_fn=lambda path: {"connected": {"scope": "read write"}},
             validate_plugin_url_fn=lambda url: url if url.startswith("https://") else (_ for _ in ()).throw(ValueError("HTTPS required")),
             timeout=15,
-            runtime_version="0.13.239",
+            runtime_version="0.13.240",
         )
         self.assertEqual(
             plugin_oauth.oauth_validate_redirect_uri("https://example.com/api/plugin-oauth/callback"),

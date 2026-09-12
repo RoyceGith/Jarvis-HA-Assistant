@@ -1,9 +1,12 @@
-## ZBRANO v0.13.239
+## ZBRANO v0.13.240
 
 ZBRANO combines Home Assistant chat, voice, entity control, memory, notifications,
 calendar and contact tools, plugins, and evidence-based automations. Automation Studio now uses
 a visual building-block toolbox, interactive node canvas, and contextual inspector;
 the established automation engine and stored definitions remain compatible.
+
+Version 0.13.240 adds compact Copy message actions to completed and saved chat
+messages, preserving the original text and showing clear clipboard feedback.
 
 Version 0.13.239 adds local Settings search with category context, keyboard
 navigation and a highlighted control when opening a result.

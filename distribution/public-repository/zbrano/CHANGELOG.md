@@ -1,5 +1,12 @@
 # Change log
 
+## 0.13.240
+
+- Add compact Copy message actions to completed replies and saved messages.
+- Copy original text and Markdown with success or failure feedback.
+- Support browsers without the Clipboard API and phone touch targets.
+- Translate message actions into Greek, Italian and French.
+
 ## 0.13.239
 
 - Search Settings labels and headings locally with category context.
