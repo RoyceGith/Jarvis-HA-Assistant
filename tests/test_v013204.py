@@ -26,11 +26,11 @@ class EditableMemoryWorkspaceReleaseTests(unittest.TestCase):
         self.temporary.cleanup()
 
     def test_release_is_aligned(self):
-        self.assertIn('version: "0.13.245"', CONFIG)
-        self.assertIn('version="0.13.245"', MAIN)
-        self.assertIn("HUD 0.13.245", INDEX)
-        self.assertEqual(MANIFEST["version"], "0.13.245")
-        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.244")
+        self.assertIn('version: "0.13.246"', CONFIG)
+        self.assertIn('version="0.13.246"', MAIN)
+        self.assertIn("HUD 0.13.246", INDEX)
+        self.assertEqual(MANIFEST["version"], "0.13.246")
+        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.245")
 
     def test_first_specific_recipe_save_offers_broad_and_specific_names(self):
         choice = knowledge_memory.remember_automatically("Beef soup recipe with barley and carrots.")

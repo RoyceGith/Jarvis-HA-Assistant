@@ -14,10 +14,10 @@ MANIFEST = json.loads((ROOT / "zbrano/release_manifest.json").read_text(encoding
 
 class InstalledComposerPluginIconsReleaseTests(unittest.TestCase):
     def test_release_is_aligned(self):
-        self.assertIn('version: "0.13.245"', CONFIG)
-        self.assertIn('version="0.13.245"', MAIN)
-        self.assertIn("HUD 0.13.245", INDEX)
-        self.assertEqual(MANIFEST["version"], "0.13.245")
+        self.assertIn('version: "0.13.246"', CONFIG)
+        self.assertIn('version="0.13.246"', MAIN)
+        self.assertIn("HUD 0.13.246", INDEX)
+        self.assertEqual(MANIFEST["version"], "0.13.246")
 
     def test_all_installed_plugins_remain_visible(self):
         self.assertIn("const installed=(plugins||[]).filter(Boolean)", CONTEXT)

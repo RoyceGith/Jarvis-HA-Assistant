@@ -15,10 +15,10 @@ MANIFEST = json.loads((ROOT / "zbrano/release_manifest.json").read_text(encoding
 
 class RepositoryBoundaryReleaseTests(unittest.TestCase):
     def test_release_markers_are_aligned(self):
-        self.assertIn('version: "0.13.245"', CONFIG)
-        self.assertIn('version="0.13.245"', MAIN)
-        self.assertIn("HUD 0.13.245", HTML)
-        self.assertEqual(MANIFEST["version"], "0.13.245")
+        self.assertIn('version: "0.13.246"', CONFIG)
+        self.assertIn('version="0.13.246"', MAIN)
+        self.assertIn("HUD 0.13.246", HTML)
+        self.assertEqual(MANIFEST["version"], "0.13.246")
 
     def test_public_and_private_responsibilities_are_explicit(self):
         self.assertIn("private canonical source and build repository", BOUNDARY)
@@ -32,7 +32,7 @@ class RepositoryBoundaryReleaseTests(unittest.TestCase):
         self.assertIn("PERSONAL_DEFAULTS", VALIDATOR)
 
     def test_release_history_includes_v01351(self):
-        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.244")
+        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.245")
 
 
 if __name__ == "__main__":

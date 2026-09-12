@@ -14,10 +14,10 @@ MANIFEST = json.loads((ROOT / "zbrano/release_manifest.json").read_text(encoding
 
 class ContextualAutomationInspectorReleaseTests(unittest.TestCase):
     def test_release_markers_are_aligned(self):
-        self.assertIn('version: "0.13.245"', CONFIG)
-        self.assertIn('version="0.13.245"', MAIN)
-        self.assertIn("HUD 0.13.245", HTML)
-        self.assertEqual(MANIFEST["version"], "0.13.245")
+        self.assertIn('version: "0.13.246"', CONFIG)
+        self.assertIn('version="0.13.246"', MAIN)
+        self.assertIn("HUD 0.13.246", HTML)
+        self.assertEqual(MANIFEST["version"], "0.13.246")
 
     def test_primary_trigger_fields_are_filtered_by_type_and_operator(self):
         self.assertIn("function inspectorFields(panelConfig)", WORKSPACE)
@@ -39,7 +39,7 @@ class ContextualAutomationInspectorReleaseTests(unittest.TestCase):
         self.assertIn('selectOption("any_change")', BROWSER)
 
     def test_release_history_includes_v013117(self):
-        self.assertEqual(MANIFEST["history_backfill"][-128]["version"], "0.13.117")
+        self.assertEqual(MANIFEST["history_backfill"][-129]["version"], "0.13.117")
 
 
 if __name__ == "__main__":

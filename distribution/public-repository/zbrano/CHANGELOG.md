@@ -1,5 +1,10 @@
 # Change log
 
+## 0.13.246
+
+- Match the reference with right-aligned cyan user prompts and open assistant replies.
+- Keep the centered reading column and message actions below the text.
+
 ## 0.13.245
 
 - Center user and assistant messages in the same bounded reading column.

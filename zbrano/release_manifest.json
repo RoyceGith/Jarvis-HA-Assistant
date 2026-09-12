@@ -1,9 +1,9 @@
 {
-  "version": "0.13.245",
+  "version": "0.13.246",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/ZBRANO_Core main",
-  "summary": "Center user and assistant messages in one shared reading column on wide screens.",
+  "summary": "Use right-aligned cyan user prompts and open assistant replies in a centered conversation.",
   "history_backfill": [
     {
       "version": "0.13.0",
@@ -984,17 +984,21 @@
     {
       "version": "0.13.244",
       "summary": "Use right-aligned message action icons and add a pencil shortcut to edit prompts in the composer."
+    },
+    {
+      "version": "0.13.245",
+      "summary": "Center user and assistant messages in one shared reading column on wide screens."
     }
   ],
   "release_entry": {
     "features": [
-      "Shared centered reading column for user and assistant messages."
+      "Right-aligned cyan user prompts with open assistant replies."
     ],
     "fixes": [
-      "Remove opposite-edge placement on wide windows while retaining phone and compact layouts."
+      "Keep action icons below the text and preserve a centered responsive conversation."
     ],
     "validation": [
-      "Wide-screen, desktop and phone screenshot review; browser smoke, regression/integration suites and release validators."
+      "Browser smoke, desktop and phone previews, regression and integration suites, and release validators."
     ]
   },
   "features": [

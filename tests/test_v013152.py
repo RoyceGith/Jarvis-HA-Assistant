@@ -12,8 +12,8 @@ MANIFEST = json.loads((ROOT / "zbrano/release_manifest.json").read_text(encoding
 
 class AdaptiveAutomationResponseReleaseTests(unittest.TestCase):
     def test_release_is_aligned(self):
-        self.assertEqual(MANIFEST["version"], "0.13.245")
-        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.244")
+        self.assertEqual(MANIFEST["version"], "0.13.246")
+        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.245")
 
     def test_response_wording_is_attached_to_executable_paths(self):
         self.assertNotIn("How should ZBRANO respond?", HTML)

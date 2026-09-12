@@ -5,6 +5,9 @@ automations. Use Setup &amp; safety, When, Only if, Then, and optional Outcomes 
 interactive flow canvas. Natural-language creation, templates, drag-and-drop,
 saved automation compatibility, and the full Advanced editor remain available.
 
+Version 0.13.246 uses right-aligned cyan user prompts and open assistant
+replies within a centered conversation column.
+
 Version 0.13.245 centers user and assistant messages in one shared reading
 column so the conversation stays together in a full-width window.
 

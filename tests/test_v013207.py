@@ -14,11 +14,11 @@ MANIFEST = json.loads((ROOT / "zbrano/release_manifest.json").read_text(encoding
 
 class MemoryPrintHeadingReleaseTests(unittest.TestCase):
     def test_release_is_aligned(self):
-        self.assertIn('version: "0.13.245"', CONFIG)
-        self.assertIn('version="0.13.245"', MAIN)
-        self.assertIn("HUD 0.13.245", INDEX)
-        self.assertEqual(MANIFEST["version"], "0.13.245")
-        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.244")
+        self.assertIn('version: "0.13.246"', CONFIG)
+        self.assertIn('version="0.13.246"', MAIN)
+        self.assertIn("HUD 0.13.246", INDEX)
+        self.assertEqual(MANIFEST["version"], "0.13.246")
+        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.245")
 
     def test_print_heading_uses_the_space_name(self):
         self.assertIn('title.textContent = state.selectedSpace || "My Memory";', STUDIO)

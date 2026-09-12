@@ -74,11 +74,13 @@
 .clipboard-fallback { position:fixed; top:0; left:-9999px; }
 @media(max-width:700px) { #messages :is(.message-copy,.message-edit) { min-height:44px; } }
 
-/* Open conversation layout, with author labels above the text. */
+/* Centered conversation with cyan user prompts and open replies. */
 #messages .message { box-sizing:border-box; width:min(100%,76ch); max-width:100%; padding:.8rem 1rem; margin:.65rem auto; border:0; border-radius:0; line-height:1.65; overflow-wrap:anywhere; text-shadow:none; }
-#messages .message::before { position:static; display:block; margin:0 0 .45rem; font-size:.62rem; font-weight:650; line-height:1.2; letter-spacing:.08em; }
+#messages .message::before { display:none; }
 #messages .message.zbrano { margin-right:auto; background:transparent; }
 #messages .message.user { margin-left:auto; color:var(--text); white-space:pre-wrap; background:transparent; }
+#messages .message-user-content { width:fit-content; max-width:85%; box-sizing:border-box; margin-left:auto; padding:0; color:var(--cyan); text-align:left; }
+#messages .message.user .message-attachments { margin-left:auto; width:fit-content; max-width:85%; }
 #messages .message-actions { white-space:normal; }
 #messages .message.device-action-result { border:0; background:transparent; }
 #messages .message :is(p,ul,ol) { max-width:70ch; }

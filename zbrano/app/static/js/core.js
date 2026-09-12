@@ -1162,7 +1162,10 @@ function renderMessageContent(item, text) {
   if (item.classList.contains("zbrano")) {
     item.innerHTML = renderMarkdownText(text);
   } else {
-    item.textContent = text;
+    const content = document.createElement("div");
+    content.className = "message-user-content";
+    content.textContent = text;
+    item.replaceChildren(content);
   }
 }
 
