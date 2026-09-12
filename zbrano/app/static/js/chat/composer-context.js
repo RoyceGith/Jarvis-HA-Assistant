@@ -1,8 +1,10 @@
 (() => {
   const root=document.getElementById("composer-plugin-icons");
   if(!root)return;
+  const count=document.getElementById("composer-plugin-count");
+  const open=document.getElementById("composer-plugins-open");
   const esc=value=>String(value??"").replace(/[&<>"']/g,char=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"})[char]);
-  const visibleLimit=7;
+  const visibleLimit=5;
 
   function stateLabel(plugin){
     if(!plugin.healthy)return "unhealthy";
@@ -23,6 +25,7 @@
 
   window.renderComposerPluginIndicators=plugins=>{
     const enabled=(plugins||[]).filter(plugin=>plugin&&plugin.enabled);
+    if(count){count.textContent=String(enabled.length);count.setAttribute("aria-label",`${enabled.length} enabled plugin${enabled.length===1?"":"s"}`)}
     if(!enabled.length){root.innerHTML='<span class="composer-plugin-empty">None enabled</span>';return}
     const visible=enabled.slice(0,visibleLimit);
     const overflow=enabled.length-visible.length;
@@ -43,6 +46,7 @@
     if(!event.target.closest("[data-composer-plugin]"))return;
     document.getElementById("plugins-tab")?.click();
   });
+  open?.addEventListener("click",()=>document.getElementById("plugins-tab")?.click());
   document.getElementById("chat-tab")?.addEventListener("click",refresh);
   refresh();
 })();

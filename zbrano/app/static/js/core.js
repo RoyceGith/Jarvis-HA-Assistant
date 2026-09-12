@@ -126,15 +126,18 @@ async function loadAgentControls(preferences = null) {
     const providerSummary = fullTools
       ? `${provider} chat · web and plugins available`
       : `${provider} chat · local device tools available; web and remote plugins require OpenAI`;
-    agentModel.parentElement.childNodes[0].nodeValue = `Agent Model · ${provider} `;
+    const composerModelLabel = agentModel.parentElement.querySelector("span");
+    if (composerModelLabel) composerModelLabel.textContent = `Chat model · ${provider}`;
     agentModel.parentElement.title = `${providerSummary}. Change the provider, API key, and default model in the Home Assistant ZBRANO app configuration, then restart ZBRANO.`;
     agentControlsLoaded = true;
+    window.dispatchEvent(new CustomEvent("zbrano-agent-controls-loaded"));
   } catch {
     const selectedModel = preferences?.agent_model || "gpt-5-mini";
     addAgentModelOption(selectedModel);
     agentModel.value = selectedModel;
     reasoningEffort.value = preferences?.reasoning_effort || "medium";
     agentModel.parentElement.title = "Chat provider unavailable";
+    window.dispatchEvent(new CustomEvent("zbrano-agent-controls-loaded"));
   }
 }
 

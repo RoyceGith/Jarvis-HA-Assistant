@@ -21,10 +21,10 @@ MANIFEST = json.loads((ROOT / "zbrano/release_manifest.json").read_text(encoding
 
 class CanonicalModuleArchitectureTests(unittest.TestCase):
     def test_release_markers_are_aligned(self):
-        self.assertIn('version: "0.13.223"', CONFIG)
-        self.assertIn('version="0.13.223"', MAIN_RAW)
-        self.assertIn("HUD 0.13.223", HTML)
-        self.assertEqual(MANIFEST["version"], "0.13.223")
+        self.assertIn('version: "0.13.224"', CONFIG)
+        self.assertIn('version="0.13.224"', MAIN_RAW)
+        self.assertIn("HUD 0.13.224", HTML)
+        self.assertEqual(MANIFEST["version"], "0.13.224")
 
     def test_frontend_is_directly_split_with_stable_order(self):
         stylesheet_paths = re.findall(r'<link[^>]+href="([^"]+\.css)"', HTML)
@@ -39,8 +39,9 @@ class CanonicalModuleArchitectureTests(unittest.TestCase):
             "css/contacts.css",
             "css/memory-studio.css",
             "css/notification-center.css",
+            "css/composer-controls.css",
         ])
-        self.assertEqual(len(script_paths), 33)
+        self.assertEqual(len(script_paths), 34)
         self.assertEqual(script_paths[:4], ["js/i18n.js", "js/i18n/catalog-advanced.js", "js/about.js", "js/core.js"])
         self.assertEqual(script_paths[-1], "js/onboarding.js")
         self.assertTrue(all((STATIC / path).is_file() for path in stylesheet_paths + script_paths))

@@ -1,5 +1,11 @@
 # Change log
 
+## 0.13.224
+
+- Move model, thinking, speech provider, voice, and speak-replies controls into a compact composer pop-up.
+- Show an enabled-plugin count with a bounded icon strip and clear overflow status below the prompt.
+- Preserve existing settings behavior, status tooltips, keyboard closing, and responsive layout.
+
 ## 0.13.223
 
 - Recognize “save as …” as an explicit Memory Database instruction.

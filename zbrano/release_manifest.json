@@ -1,9 +1,9 @@
 {
-  "version": "0.13.223",
+  "version": "0.13.224",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/ZBRANO_Core main",
-  "summary": "Complete explicitly requested Memory Database saves without repeated approval prompts.",
+  "summary": "Replace crowded chat composer settings with compact AI, voice, and plugin controls.",
   "history_backfill": [
     {
       "version": "0.13.0",
@@ -896,18 +896,23 @@
       {
         "version": "0.13.222",
         "summary": "Moved Notifications into Settings and replaced nested workspace tabs with clear side navigation."
+      },
+      {
+        "version": "0.13.223",
+        "summary": "Completed explicitly requested Memory Database saves without repeated approval prompts."
       }
   ],
   "release_entry": {
     "features": [
-      "Recognize plain save-as phrasing as an explicit instruction to file content in the Memory Database."
+      "Open model, thinking, speech provider, voice, and speak-replies controls from one compact AI and voice pop-up.",
+      "Show the enabled plugin count beside a bounded icon strip with an explicit overflow indicator."
     ],
     "fixes": [
-      "Carry one explicit save authorization through the follow-up note-organization choice.",
-      "Pin the final save to the original note content so a model restatement cannot trigger another approval request or silently alter the approved body."
+      "Keep the composer controls usable on narrow screens without hiding plugin context or expanding the prompt area.",
+      "Preserve plugin health tooltips, active-tool feedback, saved AI and voice behavior, click-away closing, and Escape-key navigation."
     ],
     "validation": [
-      "Explicit save-as authorization, organization-choice continuation, canonical note-body enforcement, browser smoke, integration coverage, and v0.13.223 release alignment"
+      "Composer pop-up interaction, plugin count and overflow rendering, responsive styling, browser smoke, regression coverage, and v0.13.224 release alignment"
     ]
   },
   "features": [

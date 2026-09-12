@@ -29,13 +29,14 @@
 <link id="zbrano-v013119-contacts-style" rel="stylesheet" href="css/contacts.css">
 <link id="zbrano-v013194-memory-studio-style" rel="stylesheet" href="css/memory-studio.css">
 <link id="zbrano-v013221-notification-center-style" rel="stylesheet" href="css/notification-center.css">
+<link id="zbrano-v013224-composer-controls-style" rel="stylesheet" href="css/composer-controls.css">
 </head>
 <body>
 <main>
   <header>
     <div class="brand-line">
       <h1>ZBRANO</h1>
-      <div class="status hud-version-label">Workshop Intelligence Interface · HUD 0.13.223</div>
+      <div class="status hud-version-label">Workshop Intelligence Interface · HUD 0.13.224</div>
     </div>
     <div class="runtime-status-stack">
       <label class="interface-language-picker" title="Interface language">
@@ -127,44 +128,16 @@
           <span id="voice-state" role="status" aria-live="polite" hidden>VOICE READY</span>
           <div class="composer-context-row" aria-label="Message tools">
             <label class="composer-web-control" for="web-search-mode"><span aria-hidden="true">◎</span><span>Web</span><select id="web-search-mode" title="Choose how this message may use the public web"><option value="auto">Auto</option><option value="search">On</option><option value="off">Off</option></select></label>
-            <div class="composer-plugin-context"><span class="composer-context-label">Plugins</span><div id="composer-plugin-icons" class="composer-plugin-icons" role="list" aria-label="Enabled plugins"><span class="composer-plugin-empty">Loading…</span></div></div>
+            <div class="composer-plugin-context"><button id="composer-plugins-open" class="composer-context-action" type="button" title="Open Plugins"><span>Plugins</span><span id="composer-plugin-count" class="composer-context-count" aria-label="0 enabled plugins">0</span></button><div id="composer-plugin-icons" class="composer-plugin-icons" role="list" aria-label="Enabled plugins"><span class="composer-plugin-empty">Loading…</span></div></div>
+            <button id="composer-preferences-toggle" class="composer-preferences-toggle" type="button" aria-expanded="false" aria-controls="composer-preferences-popover" title="Choose the chat model and voice"><span class="composer-sliders-icon" aria-hidden="true"><i></i><i></i><i></i></span><span>AI &amp; voice</span><small id="composer-preferences-summary">GPT-5.5 · Cedar</small></button>
           </div>
-          <span class="voice-settings">
-            <label><input id="auto-speak" type="checkbox" checked> Speak replies</label>
-            <label>Provider
-              <select id="speech-provider">
-                <option value="openai">OpenAI</option>
-                <option value="elevenlabs">ElevenLabs</option>
-              </select>
-            </label>
-            <label>Voice
-              <select id="voice-select">
-                <option value="cedar">Cedar</option>
-                <option value="marin">Marin</option>
-                <option value="onyx">Onyx</option>
-                <option value="coral">Coral</option>
-                <option value="nova">Nova</option>
-                <option value="sage">Sage</option>
-              </select>
-            </label>
-            <label>Agent Model
-              <select id="agent-model">
-                <option value="gpt-5.5">GPT-5.5</option>
-                <option value="gpt-5-mini">GPT-5 mini</option>
-              </select>
-            </label>
-            <label>Intelligence
-              <select id="reasoning-effort">
-                <option value="none">None</option>
-                <option value="minimal">Minimal</option>
-                <option value="low">Low</option>
-                <option value="medium">Medium</option>
-                <option value="high">High</option>
-                <option value="xhigh">Extra High</option>
-              </select>
-            </label>
-
-          </span>
+          <section id="composer-preferences-popover" class="composer-preferences-popover" role="dialog" aria-label="AI and voice controls" hidden><header><div><strong>AI &amp; voice</strong><small>Choose how ZBRANO thinks and speaks.</small></div><button id="composer-preferences-close" type="button" aria-label="Close AI and voice controls">×</button></header><div class="composer-preferences-toolbar">
+            <label class="composer-switch-row"><span><strong>Speak replies</strong><small>Read answers aloud</small></span><input id="auto-speak" type="checkbox" checked></label>
+            <label><span>Voice provider</span><select id="speech-provider"><option value="openai">OpenAI</option><option value="elevenlabs">ElevenLabs</option></select></label>
+            <label><span>Voice</span><select id="voice-select"><option value="cedar">Cedar</option><option value="marin">Marin</option><option value="onyx">Onyx</option><option value="coral">Coral</option><option value="nova">Nova</option><option value="sage">Sage</option></select></label>
+            <label><span>Chat model</span><select id="agent-model"><option value="gpt-5.5">GPT-5.5</option><option value="gpt-5-mini">GPT-5 mini</option></select></label>
+            <label><span>Thinking</span><select id="reasoning-effort"><option value="none">None</option><option value="minimal">Minimal</option><option value="low">Low</option><option value="medium">Medium</option><option value="high">High</option><option value="xhigh">Extra High</option></select></label>
+          </div></section>
         </div>
       </div>
       </div>
@@ -1042,6 +1015,7 @@
 <script id="zbrano-v01363-automation-flow" src="js/automations/flow.js"></script>
 <script id="zbrano-v01210-autonomous-automations" src="js/automations/workspace.js"></script>
 <script id="zbrano-v01228-composer-context" src="js/chat/composer-context.js"></script>
+<script id="zbrano-v013224-composer-preferences" src="js/chat/composer-preferences.js"></script>
 
 <script id="zbrano-v01243-notification-center" src="js/notifications/center.js"></script>
 <script id="zbrano-v013111-notification-inbox" src="js/notifications/inbox.js"></script>
