@@ -14,12 +14,12 @@ MANIFEST = json.loads((ROOT / "zbrano/release_manifest.json").read_text(encoding
 
 class FastHomeAssistantControlReleaseTests(unittest.TestCase):
     def test_release_is_aligned(self):
-        self.assertIn('version: "0.13.237"', CONFIG)
-        self.assertIn('version="0.13.237"', MAIN)
-        self.assertIn("HUD 0.13.237", HTML)
-        self.assertEqual(MANIFEST["version"], "0.13.237")
-        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.236")
-        self.assertTrue(CHANGELOG.startswith("# Change log\n\n## 0.13.237"))
+        self.assertIn('version: "0.13.238"', CONFIG)
+        self.assertIn('version="0.13.238"', MAIN)
+        self.assertIn("HUD 0.13.238", HTML)
+        self.assertEqual(MANIFEST["version"], "0.13.238")
+        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.237")
+        self.assertTrue(CHANGELOG.startswith("# Change log\n\n## 0.13.238"))
 
     def test_local_control_runs_before_workshop_tool_preparation(self):
         normal = MAIN[MAIN.index("async def run_zbrano("):MAIN.index("async def _run_zbrano_stream_events(")]

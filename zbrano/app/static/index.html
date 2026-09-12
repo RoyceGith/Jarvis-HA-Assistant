@@ -38,7 +38,7 @@
   <header>
     <div class="brand-line">
       <h1>ZBRANO</h1>
-      <div class="status hud-version-label">Workshop Intelligence Interface · HUD 0.13.237</div>
+      <div class="status hud-version-label">Workshop Intelligence Interface · HUD 0.13.238</div>
     </div>
     <div class="runtime-status-stack">
       <label class="interface-language-picker" title="Interface language">
@@ -174,8 +174,10 @@
     <div class="toolbar device-toolbar">
       <input id="entity-search" type="search" aria-label="Search devices" placeholder="Search devices, rooms or other names">
       <select id="entity-layout" aria-label="Device layout"><option value="cards">Device cards</option><option value="table">Detailed table</option></select>
+      <select id="device-sort" aria-label="Sort devices"><option value="name">Name A to Z</option><option value="name-desc">Name Z to A</option><option value="room">Sort by room</option><option value="unavailable">Unavailable first</option></select>
       <button id="refresh-entities">Refresh</button>
       <details id="entity-more"><summary>More</summary><div class="device-more-menu">
+        <label class="device-favorites-first"><input id="device-favorites-first" type="checkbox"> <span>Favorites first</span></label>
         <select id="domain-filter" aria-label="Entity type"><option value="">All domains</option></select>
         <button id="export-entities">Export JSON</button>
         <button id="save-memory-draft" title="Download selected stable entity metadata for a later approved Knowledge Memory update">Prepare Entity Inventory Update</button>

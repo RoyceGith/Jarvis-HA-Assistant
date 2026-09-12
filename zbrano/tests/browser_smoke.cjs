@@ -167,7 +167,7 @@ const onboardingFixture = {
     {id:"notifications",title:"Notifications and autonomy",description:"Choose notification delivery",ready:false,required:false,target:"notifications",last_check:null,skipped:false},
   ],
   installation_report: {
-    generated_at: 1788300000, version: "0.13.237", ready: true, attention_count: 0, ready_count: 5,
+    generated_at: 1788300000, version: "0.13.238", ready: true, attention_count: 0, ready_count: 5,
     checks: [
       {id:"home_assistant",title:"Home Assistant",state:"ready",required:true,detail:"Connected to Home Assistant",target:"home_assistant"},
       {id:"model",title:"AI model",state:"ready",required:true,detail:"gpt-5-mini is configured",target:"model"},
@@ -175,7 +175,7 @@ const onboardingFixture = {
       {id:"backup",title:"Backup and restore",state:"ready",required:false,detail:"A portable ZBRANO backup can be exported from Settings",target:"memory"},
       {id:"automation_health",title:"Automation safety",state:"ready",required:false,detail:"2 saved; 0 need permission; 0 paused after failures",target:"automations"},
     ],
-    support_summary: "ZBRANO installation report · v0.13.237\nOverall: Ready\nHome Assistant: Connected\nAI model: Configured\nDevice access: 3 sensor devices / 1 control devices\nPersistent storage: Ready\nAutomations: 2 saved / 0 permission issues / 0 failure pauses",
+    support_summary: "ZBRANO installation report · v0.13.238\nOverall: Ready\nHome Assistant: Connected\nAI model: Configured\nDevice access: 3 sensor devices / 1 control devices\nPersistent storage: Ready\nAutomations: 2 saved / 0 permission issues / 0 failure pauses",
   },
 };
 
@@ -209,7 +209,7 @@ function apiFixture(url, method = "GET") {
   if (pathname === "/api/health") {
     return {
       status: "ok",
-      version: "0.13.237",
+      version: "0.13.238",
       speech_provider: "openai",
       speech_providers: {openai: {configured: true}, elevenlabs: {configured: false}},
     };
@@ -321,7 +321,7 @@ function apiFixture(url, method = "GET") {
     return {files:[],folders:[{name:"Documents",path:"Documents",file_count:1}],current_folder:""};
   }
   if (pathname === "/api/release-memory-sync") {
-    return {enabled: false, state: "disabled", version: "0.13.237", task_active: false};
+    return {enabled: false, state: "disabled", version: "0.13.238", task_active: false};
   }
   if (pathname === "/api/tab-activity") return {revisions: {}};
   if (pathname === "/api/grinder-monitor/status") return {enabled: false, connected: false};
@@ -698,6 +698,22 @@ async function main() {
     assert.equal(await page.locator("#device-grid .device-card").count(), 1);
     assert.match(await page.evaluate(() => localStorage.getItem("zbrano_device_favorites_v1")), /fixture-ac/);
     await page.locator("#device-clear-filters").click();
+    await page.locator('#device-sort').selectOption('name-desc');
+    const descendingNames = await page.locator('#device-grid .device-name').allTextContents();
+    assert.ok(descendingNames[0].localeCompare(descendingNames.at(-1), 'en', {numeric:true}) > 0);
+    await page.locator('#device-sort').selectOption('room');
+    assert.equal(await page.locator('#device-grid .device-room').first().innerText(), 'Office');
+    await page.evaluate(() => { entityInventory.find(e=>e.entity_id==='sensor.browser_fixture_78').available=false; renderEntities(); });
+    await page.locator('#device-sort').selectOption('unavailable');
+    assert.equal(await page.locator('#device-grid [data-device-open]').first().getAttribute('data-device-open'), 'entity:sensor.browser_fixture_78');
+    await page.locator('#entity-more > summary').click();
+    await page.locator('#device-favorites-first').check();
+    assert.equal(await page.locator('#device-grid [data-device-open]').first().getAttribute('data-device-open'), 'device:fixture-ac');
+    assert.deepEqual(await page.evaluate(()=>JSON.parse(localStorage.getItem('zbrano_device_order_v1'))), {sort:'unavailable',favoritesFirst:true});
+    await page.locator('#device-favorites-first').uncheck();
+    await page.locator('#entity-more > summary').click();
+    await page.evaluate(() => { entityInventory.find(e=>e.entity_id==='sensor.browser_fixture_78').available=true; renderEntities(); });
+    await page.locator('#device-sort').selectOption('name');
     const longName = page.locator('[data-device-open="entity:sensor.browser_fixture_2"] .device-name');
     assert.equal(await longName.getAttribute("title"), entities[1].device_name);
     assert.ok(await longName.evaluate(name => name.getBoundingClientRect().height <= parseFloat(getComputedStyle(name).lineHeight)+1));

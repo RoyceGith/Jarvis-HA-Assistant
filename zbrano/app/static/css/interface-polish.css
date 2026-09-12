@@ -51,3 +51,8 @@
   #chat-search,#chat-latest { min-height:44px; }
   .chat-sidebar:not(.conversations-collapsed) { max-height:205px; }
 }
+
+.device-favorites-first { display:flex; align-items:center; gap:.4rem; padding:.4rem .2rem; color:var(--text); font-size:.75rem; }
+.device-favorites-first input { accent-color:var(--cyan); }
+#entities-panel[data-device-layout="table"] :is(#device-sort,.device-favorites-first) { display:none; }
+@media(max-width:700px) { #device-sort { flex:1 1 8rem; } #entity-more { margin-left:auto; } }

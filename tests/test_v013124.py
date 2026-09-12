@@ -12,8 +12,8 @@ MANIFEST = json.loads((ROOT / "zbrano/release_manifest.json").read_text(encoding
 
 class ClearAutomationFlowReleaseTests(unittest.TestCase):
     def test_release_is_aligned(self):
-        self.assertEqual(MANIFEST["version"], "0.13.237")
-        self.assertIn("HUD 0.13.237", HTML)
+        self.assertEqual(MANIFEST["version"], "0.13.238")
+        self.assertIn("HUD 0.13.238", HTML)
 
     def test_visible_context_block_is_condition(self):
         self.assertIn('data-studio-node="context"', HTML)
@@ -28,7 +28,7 @@ class ClearAutomationFlowReleaseTests(unittest.TestCase):
         self.assertIn('return name&&name!==id?name:id', WORKSPACE)
 
     def test_previous_release_is_in_history(self):
-        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.236")
+        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.237")
 
 
 if __name__ == "__main__":

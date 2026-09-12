@@ -14,10 +14,10 @@ MANIFEST = json.loads((ROOT / "zbrano/release_manifest.json").read_text(encoding
 
 class FollowupCaptureRegressionTests(unittest.TestCase):
     def test_release_markers_are_aligned(self):
-        self.assertIn('version: "0.13.237"', CONFIG)
-        self.assertIn('version="0.13.237"', MAIN)
-        self.assertIn("HUD 0.13.237", INDEX)
-        self.assertEqual(MANIFEST["version"], "0.13.237")
+        self.assertIn('version: "0.13.238"', CONFIG)
+        self.assertIn('version="0.13.238"', MAIN)
+        self.assertIn("HUD 0.13.238", INDEX)
+        self.assertEqual(MANIFEST["version"], "0.13.238")
 
     def test_command_window_records_before_speech_detection(self):
         window = INDEX[INDEX.index("function startFallbackCommandWindow()"):INDEX.index("function fallbackRateAllowed")]

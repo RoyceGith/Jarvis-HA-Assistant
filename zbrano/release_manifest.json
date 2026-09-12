@@ -1,9 +1,9 @@
 {
-  "version": "0.13.237",
+  "version": "0.13.238",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/ZBRANO_Core main",
-  "summary": "Search saved conversation titles and return to the latest messages with one click.",
+  "summary": "Sort device cards by name, room or availability, with optional favorites first and saved preferences.",
   "history_backfill": [
     {
       "version": "0.13.0",
@@ -952,18 +952,22 @@
     {
       "version": "0.13.236",
       "summary": "Add consistent mobile navigation icons, synchronized activity indicators and larger chat touch controls."
+    },
+    {
+      "version": "0.13.237",
+      "summary": "Search saved conversation titles and return to the latest messages with one click."
     }
   ],
   "release_entry": {
     "features": [
-      "Local case/accent-insensitive conversation-title search with no-matches feedback.",
-      "Latest messages shortcut when scrolled away from the newest replies."
+      "Natural ascending/descending name, room and unavailable-first device card sorting.",
+      "Optional favorites-first ordering with saved browser preferences."
     ],
     "fixes": [
-      "Preserve filtering across conversation refresh and reset search for a new chat."
+      "Keep unassigned rooms last in room order and hide card ordering controls in table view."
     ],
     "validation": [
-      "Browser search, refresh persistence, Escape clearing and latest-message navigation; translations; regression and integration suites; release validators."
+      "Browser name/room/availability/favorite ordering, persistence, device controls, responsive screenshots; regression/integration suites and release validators."
     ]
   },
   "features": [

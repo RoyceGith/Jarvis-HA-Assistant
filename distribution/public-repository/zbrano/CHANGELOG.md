@@ -1,5 +1,12 @@
 # Change log
 
+## 0.13.238
+
+- Sort device cards by name, room or unavailable status.
+- Offer Favorites first in More and remember sorting in this browser.
+- Use natural number ordering and place unassigned rooms last.
+- Translate sorting controls into Greek, Italian and French.
+
 ## 0.13.237
 
 - Search saved conversation titles locally, ignoring case and accents.

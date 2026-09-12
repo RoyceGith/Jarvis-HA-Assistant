@@ -13,8 +13,8 @@ MANIFEST = json.loads((ROOT / "zbrano/release_manifest.json").read_text(encoding
 
 class CompactAutomationStudioChromeReleaseTests(unittest.TestCase):
     def test_release_is_aligned(self):
-        self.assertEqual(MANIFEST["version"], "0.13.237")
-        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.236")
+        self.assertEqual(MANIFEST["version"], "0.13.238")
+        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.237")
 
     def test_setup_and_progress_are_outside_the_block_palette(self):
         guide = HTML.split('<div class="automation-studio-guide-strip"', 1)[1].split('</div>\n            <nav', 1)[0]

@@ -18,10 +18,10 @@ MANIFEST = json.loads((ROOT / "zbrano/release_manifest.json").read_text(encoding
 
 class ApprovalAndToolProgressBoundaryTests(unittest.TestCase):
     def test_release_markers_are_aligned(self):
-        self.assertIn('version: "0.13.237"', CONFIG)
-        self.assertIn('version="0.13.237"', MAIN)
-        self.assertIn("HUD 0.13.237", HTML)
-        self.assertEqual(MANIFEST["version"], "0.13.237")
+        self.assertIn('version: "0.13.238"', CONFIG)
+        self.assertIn('version="0.13.238"', MAIN)
+        self.assertIn("HUD 0.13.238", HTML)
+        self.assertEqual(MANIFEST["version"], "0.13.238")
 
     def test_three_services_are_outside_composition_root_and_configured(self):
         self.assertNotIn("def workshop_memory_approval_decision(", MAIN)

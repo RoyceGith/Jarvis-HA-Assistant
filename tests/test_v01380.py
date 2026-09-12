@@ -14,10 +14,10 @@ MANIFEST = json.loads((ROOT / "zbrano/release_manifest.json").read_text(encoding
 
 class CompactScrollableWorkspaceReleaseTests(unittest.TestCase):
     def test_release_markers_are_aligned(self):
-        self.assertIn('version: "0.13.237"', CONFIG)
-        self.assertIn('version="0.13.237"', MAIN)
-        self.assertIn("HUD 0.13.237", HTML)
-        self.assertEqual(MANIFEST["version"], "0.13.237")
+        self.assertIn('version: "0.13.238"', CONFIG)
+        self.assertIn('version="0.13.238"', MAIN)
+        self.assertIn("HUD 0.13.238", HTML)
+        self.assertEqual(MANIFEST["version"], "0.13.238")
 
     def test_settings_controls_are_compact(self):
         self.assertIn("repeat(2, minmax(220px, 380px))", STYLE)
@@ -37,7 +37,7 @@ class CompactScrollableWorkspaceReleaseTests(unittest.TestCase):
         self.assertIn('Voice settings panel must accept vertical scrolling', BROWSER)
 
     def test_release_history_includes_v01379(self):
-        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.236")
+        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.237")
 
 
 if __name__ == "__main__":

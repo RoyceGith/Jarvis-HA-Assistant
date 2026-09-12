@@ -11,6 +11,28 @@
   const favorites = new Set(Array.isArray(savedFavorites) ? savedFavorites.filter(item => typeof item === "string") : []);
   let location = "all", quick = "", selected = "", limit = 60, groups = new Map();
   let layout = readSaved("zbrano_entity_view_v1", "cards") === "table" ? "table" : "cards";
+  const savedOrder = readSaved('zbrano_device_order_v1', {});
+  let sortOrder = ['name','name-desc','room','unavailable'].includes(savedOrder?.sort) ? savedOrder.sort : 'name';
+  let favoritesFirst = savedOrder?.favoritesFirst === true;
+  function orderDevices(a, b, collator) {
+    if (favoritesFirst) {
+      const favoriteOrder = Number(favorites.has(b.key)) - Number(favorites.has(a.key));
+      if (favoriteOrder) return favoriteOrder;
+    }
+    if (sortOrder === 'room') {
+      const unassignedOrder = Number(!a.primary.area_name) - Number(!b.primary.area_name);
+      if (unassignedOrder) return unassignedOrder;
+      const roomOrder = collator.compare(a.primary.site_name || '', b.primary.site_name || '') || collator.compare(a.primary.area_name || t('Unassigned'), b.primary.area_name || t('Unassigned'));
+      if (roomOrder) return roomOrder;
+    }
+    if (sortOrder === 'unavailable') {
+      const unavailable = group => !group.primary.available || ['unknown','unavailable'].includes(String(group.primary.state).toLowerCase());
+      const stateOrder = Number(unavailable(b)) - Number(unavailable(a));
+      if (stateOrder) return stateOrder;
+    }
+    const nameOrder = collator.compare(a.name, b.name) || collator.compare(a.key, b.key);
+    return sortOrder === 'name-desc' ? -nameOrder : nameOrder;
+  }
   const node = (tag, className, text) => {
     const element = document.createElement(tag);
     if (className) element.className = className;
@@ -221,7 +243,8 @@
     const table = entityRows.closest(".table-wrap"); table.hidden = layout !== "table";
     $("device-browser").hidden = layout === "table";
     const visibleKeys = new Set(filtered.map(keyOf));
-    const visible = [...groups.values()].filter(group => visibleKeys.has(group.key)).sort((a, b) => a.name.localeCompare(b.name));
+    const collator = new Intl.Collator(window.ZbranoI18n?.locale || undefined, {numeric:true, sensitivity:"base"});
+    const visible = [...groups.values()].filter(group => visibleKeys.has(group.key)).sort((a, b) => orderDevices(a, b, collator));
     $("device-result-count").textContent = `${visible.length} ${t(visible.length === 1 ? "device" : "devices")} · ${filtered.length} ${t(filtered.length === 1 ? "entity" : "entities")}`;
     if (layout === "table") return false;
     grid.replaceChildren();
@@ -258,6 +281,15 @@
     else { selected = ""; $("device-details").hidden = true; $("device-browser").classList.remove("has-details"); }
     return true;
   }
+  $('device-sort').value = sortOrder;
+  $('device-favorites-first').checked = favoritesFirst;
+  function saveOrder() {
+    sortOrder = $('device-sort').value; favoritesFirst = $('device-favorites-first').checked; limit = 60;
+    try { localStorage.setItem('zbrano_device_order_v1', JSON.stringify({sort:sortOrder, favoritesFirst})); } catch {}
+    renderEntities();
+  }
+  $('device-sort').addEventListener('change', saveOrder);
+  $('device-favorites-first').addEventListener('change', saveOrder);
   $("entity-layout").value = layout;
   $("entity-layout").addEventListener("change", event => {
     layout = event.target.value; selected = "";

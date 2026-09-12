@@ -1,6 +1,12 @@
 "use strict";
 
 window.ZbranoI18n?.register({
+  "Sort devices": ["Ταξινόμηση συσκευών", "Ordina dispositivi", "Trier les appareils"],
+  "Name A to Z": ["Όνομα Α έως Ω", "Nome dalla A alla Z", "Nom de A à Z"],
+  "Name Z to A": ["Όνομα Ω έως Α", "Nome dalla Z alla A", "Nom de Z à A"],
+  "Sort by room": ["Ταξινόμηση ανά δωμάτιο", "Ordina per stanza", "Trier par pièce"],
+  "Unavailable first": ["Μη διαθέσιμες πρώτα", "Non disponibili prima", "Indisponibles en premier"],
+  "Favorites first": ["Αγαπημένα πρώτα", "Preferiti prima", "Favoris en premier"],
   "Search conversations": ["Αναζήτηση συνομιλιών", "Cerca conversazioni", "Rechercher des conversations"],
   "Search conversation titles": ["Αναζήτηση τίτλων συνομιλιών", "Cerca nei titoli delle conversazioni", "Rechercher dans les titres des conversations"],
   "No conversations match your search.": ["Δεν βρέθηκαν συνομιλίες για την αναζήτησή σας.", "Nessuna conversazione corrisponde alla ricerca.", "Aucune conversation ne correspond à votre recherche."],
