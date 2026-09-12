@@ -10,8 +10,8 @@ MANIFEST = json.loads((ROOT / "zbrano" / "release_manifest.json").read_text(enco
 
 class V013144ArmBrowserGateTests(unittest.TestCase):
     def test_release_is_aligned(self):
-        self.assertEqual(MANIFEST["version"], "0.13.222")
-        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.221")
+        self.assertEqual(MANIFEST["version"], "0.13.223")
+        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.222")
 
     def test_undo_waits_for_persisted_debounced_history(self):
         self.assertIn('localStorage.getItem("zbrano.automation-studio.unsaved.v1")', BROWSER)

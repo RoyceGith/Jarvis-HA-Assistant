@@ -14,11 +14,11 @@ MANIFEST = json.loads((ROOT / "zbrano/release_manifest.json").read_text(encoding
 
 class RefinedSharedFilesReleaseTests(unittest.TestCase):
     def test_release_is_aligned(self):
-        self.assertIn('version: "0.13.222"', CONFIG)
-        self.assertIn('version="0.13.222"', MAIN)
-        self.assertIn("HUD 0.13.222", INDEX)
-        self.assertEqual(MANIFEST["version"], "0.13.222")
-        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.221")
+        self.assertIn('version: "0.13.223"', CONFIG)
+        self.assertIn('version="0.13.223"', MAIN)
+        self.assertIn("HUD 0.13.223", INDEX)
+        self.assertEqual(MANIFEST["version"], "0.13.223")
+        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.222")
 
     def test_shared_files_has_refined_library_hierarchy(self):
         for marker in ('class="shared-files-header"', 'class="shared-files-commandbar"', 'class="shared-upload-primary"', 'class="table-wrap shared-files-table-wrap"'):

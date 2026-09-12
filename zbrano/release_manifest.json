@@ -1,9 +1,9 @@
 {
-  "version": "0.13.222",
+  "version": "0.13.223",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/ZBRANO_Core main",
-  "summary": "Move Notifications into Settings and replace nested workspace tabs with clear side navigation.",
+  "summary": "Complete explicitly requested Memory Database saves without repeated approval prompts.",
   "history_backfill": [
     {
       "version": "0.13.0",
@@ -892,19 +892,22 @@
       {
         "version": "0.13.221",
         "summary": "Corrected notification endpoint readiness and added guided Telegram bot setup."
+      },
+      {
+        "version": "0.13.222",
+        "summary": "Moved Notifications into Settings and replaced nested workspace tabs with clear side navigation."
       }
   ],
   "release_entry": {
     "features": [
-      "Place Notification Center, Watchlist, and Delivery Logs directly under Notifications in the Settings sidebar.",
-      "Use consistent left-side section navigation in Entities, Plugins, and Calendar, including nested Birthday choices."
+      "Recognize plain save-as phrasing as an explicit instruction to file content in the Memory Database."
     ],
     "fixes": [
-      "Route notification inbox and onboarding shortcuts to Settings instead of the Automation workspace.",
-      "Remove redundant in-page tab bars while preserving responsive mobile navigation and existing workspace behavior."
+      "Carry one explicit save authorization through the follow-up note-organization choice.",
+      "Pin the final save to the original note content so a model restatement cannot trigger another approval request or silently alter the approved body."
     ],
     "validation": [
-      "Settings notification routing, hierarchical workspace navigation, responsive layout, browser smoke, integration coverage, and v0.13.222 release alignment"
+      "Explicit save-as authorization, organization-choice continuation, canonical note-body enforcement, browser smoke, integration coverage, and v0.13.223 release alignment"
     ]
   },
   "features": [

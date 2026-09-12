@@ -134,6 +134,7 @@ def is_explicit_memory_save_request(message: str) -> bool:
         "remember this", "remember that", "remember the following",
         "save this to memory", "save that to memory", "save on memory",
         "store this in memory", "keep this in memory", "add this to memory",
+        "save as", "save it as", "store as", "store it as",
         "memorizza", "salva in memoria", "ricorda questo", "ricorda che",
         "sauvegarde en mémoire", "enregistre en mémoire", "mémorise", "retiens ceci",
         "αποθήκευσε στη μνήμη", "αποθηκευσε στη μνημη", "θυμήσου αυτό",
@@ -212,15 +213,21 @@ def memory_organization_choice_authorized(
         arguments = json.loads(str(writes[0].get("arguments") or "{}"))
     except json.JSONDecodeError:
         return False
-    return (
-        str(arguments.get("content") or "") == pending["content"]
-        and str(arguments.get("title") or "") == pending["title"]
-        and str(arguments.get("preferred_area") or "auto") == pending["preferred_area"]
-        and (
-            str(arguments.get("organization") or ""),
-            str(arguments.get("destination_note") or ""),
-        ) in pending["choices"]
+    selected = (
+        str(arguments.get("organization") or ""),
+        str(arguments.get("destination_note") or ""),
     )
+    if selected not in pending["choices"]:
+        return False
+    # Continue the already-authorized save with the exact body that produced
+    # these choices. A model restatement must not become a second write.
+    arguments.update({
+        "content": pending["content"],
+        "title": pending["title"],
+        "preferred_area": pending["preferred_area"],
+    })
+    writes[0]["arguments"] = json.dumps(arguments, ensure_ascii=False)
+    return True
 
 
 def clear_memory_organization_choice(session_id: str) -> None:

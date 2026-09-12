@@ -31,11 +31,11 @@ class OrganizedMemorySaveReleaseTests(unittest.TestCase):
         self.temporary.cleanup()
 
     def test_release_is_aligned(self):
-        self.assertIn('version: "0.13.222"', CONFIG)
-        self.assertIn('version="0.13.222"', MAIN)
-        self.assertIn("HUD 0.13.222", INDEX)
-        self.assertEqual(MANIFEST["version"], "0.13.222")
-        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.221")
+        self.assertIn('version: "0.13.223"', CONFIG)
+        self.assertIn('version="0.13.223"', MAIN)
+        self.assertIn("HUD 0.13.223", INDEX)
+        self.assertEqual(MANIFEST["version"], "0.13.223")
+        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.222")
 
     def test_soup_recipes_get_a_descriptive_topic_note(self):
         suggested = knowledge_memory.remember_automatically(
@@ -81,6 +81,38 @@ class OrganizedMemorySaveReleaseTests(unittest.TestCase):
         self.assertTrue(workshop_approvals.memory_organization_choice_authorized("chat", [selected_call]))
         selected_call["arguments"] = json.dumps({**selected, "destination_note": "Other note.md"})
         self.assertFalse(workshop_approvals.memory_organization_choice_authorized("chat", [selected_call]))
+
+    def test_destination_choice_reuses_the_original_authorized_note(self):
+        initial = {
+            "call_id": "initial", "name": "save_to_memory_database",
+            "arguments": json.dumps({
+                "content": "Original approved beef soup recipes.",
+                "title": "Soup recipes with beef", "preferred_area": "food",
+                "organization": "auto", "destination_note": "",
+            }),
+        }
+        workshop_approvals.remember_memory_organization_choice("chat", initial, {
+            "choice_required": True,
+            "choices": [{"id": "create_new", "destination_note": "Beef Soup Recipes.md"}],
+        })
+        continued = {
+            "call_id": "continued", "name": "save_to_memory_database",
+            "arguments": json.dumps({
+                "content": "Model-expanded content that was not separately approved.",
+                "title": "Changed title", "preferred_area": "auto",
+                "organization": "create_new", "destination_note": "Beef Soup Recipes.md",
+            }),
+        }
+        self.assertTrue(workshop_approvals.memory_organization_choice_authorized("chat", [continued]))
+        canonical = json.loads(continued["arguments"])
+        self.assertEqual(canonical["content"], "Original approved beef soup recipes.")
+        self.assertEqual(canonical["title"], "Soup recipes with beef")
+        self.assertEqual(canonical["preferred_area"], "food")
+
+    def test_save_as_is_an_explicit_memory_save_instruction(self):
+        self.assertTrue(workshop_approvals.is_explicit_memory_save_request(
+            "Save as Soup Recipes with Beef",
+        ))
 
     def test_memory_studio_renders_the_same_one_time_choice(self):
         self.assertIn("Choose how to organize this memory", STUDIO)

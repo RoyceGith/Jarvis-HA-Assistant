@@ -15,10 +15,10 @@ MANIFEST = json.loads((ROOT / "zbrano/release_manifest.json").read_text(encoding
 
 class DomainIntegrationExpansionTests(unittest.TestCase):
     def test_release_markers_are_aligned(self):
-        self.assertIn('version: "0.13.222"', CONFIG)
-        self.assertIn('version="0.13.222"', MAIN)
-        self.assertIn("HUD 0.13.222", HTML)
-        self.assertEqual(MANIFEST["version"], "0.13.222")
+        self.assertIn('version: "0.13.223"', CONFIG)
+        self.assertIn('version="0.13.223"', MAIN)
+        self.assertIn("HUD 0.13.223", HTML)
+        self.assertEqual(MANIFEST["version"], "0.13.223")
 
     def test_three_domain_lifecycles_use_real_asgi_routes(self):
         for marker in (

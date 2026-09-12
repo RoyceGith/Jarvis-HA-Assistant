@@ -1,5 +1,11 @@
 # Change log
 
+## 0.13.223
+
+- Recognize “save as …” as an explicit Memory Database instruction.
+- Carry that authorization through a destination choice without asking again.
+- Preserve the exact original note body and title across the continuation.
+
 ## 0.13.222
 
 - Move Notifications from Automations into Settings.
