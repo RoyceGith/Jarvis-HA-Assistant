@@ -20,10 +20,10 @@ MANIFEST = json.loads((ROOT / "zbrano/release_manifest.json").read_text(encoding
 
 class PluginStorageAndPolicyBoundaryTests(unittest.TestCase):
     def test_release_markers_are_aligned(self):
-        self.assertIn('version: "0.13.243"', CONFIG)
-        self.assertIn('version="0.13.243"', MAIN)
-        self.assertIn("HUD 0.13.243", HTML)
-        self.assertEqual(MANIFEST["version"], "0.13.243")
+        self.assertIn('version: "0.13.244"', CONFIG)
+        self.assertIn('version="0.13.244"', MAIN)
+        self.assertIn("HUD 0.13.244", HTML)
+        self.assertEqual(MANIFEST["version"], "0.13.244")
 
     def test_both_services_are_outside_composition_root(self):
         self.assertNotIn("def _plugin_load(", MAIN)

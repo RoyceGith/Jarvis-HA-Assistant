@@ -1,9 +1,9 @@
 {
-  "version": "0.13.243",
+  "version": "0.13.244",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/ZBRANO_Core main",
-  "summary": "Remove chat message card backgrounds and borders while preserving readable spacing and message actions.",
+  "summary": "Use right-aligned message action icons and add a pencil shortcut to edit prompts in the composer.",
   "history_backfill": [
     {
       "version": "0.13.0",
@@ -976,17 +976,22 @@
     {
       "version": "0.13.242",
       "summary": "Improve keyboard navigation, active-chat announcements and focus recovery in conversation controls."
+    },
+    {
+      "version": "0.13.243",
+      "summary": "Remove chat message card backgrounds and borders while preserving readable spacing and message actions."
     }
   ],
   "release_entry": {
     "features": [
-      "Open chat layout with readable spacing and existing message actions."
+      "Right-aligned icon-only message actions with hover and accessible labels.",
+      "User prompt pencil loads original text into the composer without sending."
     ],
     "fixes": [
-      "Remove unwanted card surfaces and frames from user, assistant and device action messages."
+      "Remove repeated Copy message text while retaining clipboard feedback and phone touch targets."
     ],
     "validation": [
-      "Desktop/phone screenshot review, browser smoke, regression/integration suites and release validators."
+      "Browser icon labels, prompt restoration, original-text preservation, clipboard checks, regression/integration suites and release validators."
     ]
   },
   "features": [

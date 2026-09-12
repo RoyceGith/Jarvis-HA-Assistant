@@ -1,5 +1,12 @@
 # Change log
 
+## 0.13.244
+
+- Place icon-only Copy controls below each message on the right with hover labels.
+- Add a pencil to user messages to load the prompt into the composer for editing.
+- Keep sending explicit and preserve the original chat history.
+- Translate action labels and keep accessible names and phone touch targets.
+
 ## 0.13.243
 
 - Remove card backgrounds, rounded frames and borders from chat messages.

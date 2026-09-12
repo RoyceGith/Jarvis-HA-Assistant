@@ -1,6 +1,8 @@
 "use strict";
 
 window.ZbranoI18n?.register({
+  "Edit prompt": ["Επεξεργασία προτροπής", "Modifica prompt", "Modifier le prompt"],
+  "Wait for the reply to finish before editing.": ["Περιμένετε να ολοκληρωθεί η απάντηση πριν από την επεξεργασία.", "Attendi la fine della risposta prima di modificare.", "Attendez la fin de la réponse avant de modifier."],
   "Conversation title": ["Τίτλος συνομιλίας", "Titolo della conversazione", "Titre de la conversation"],
   "Copy message": ["Αντιγραφή μηνύματος", "Copia messaggio", "Copier le message"],
   "Copied": ["Αντιγράφηκε", "Copiato", "Copié"],

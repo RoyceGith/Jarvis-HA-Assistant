@@ -24,11 +24,11 @@ class FriendlyMemoryToolNameReleaseTests(unittest.TestCase):
         self.temporary.cleanup()
 
     def test_release_is_aligned(self):
-        self.assertIn('version: "0.13.243"', CONFIG)
-        self.assertIn('version="0.13.243"', MAIN)
-        self.assertIn("HUD 0.13.243", INDEX)
-        self.assertEqual(MANIFEST["version"], "0.13.243")
-        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.242")
+        self.assertIn('version: "0.13.244"', CONFIG)
+        self.assertIn('version="0.13.244"', MAIN)
+        self.assertIn("HUD 0.13.244", INDEX)
+        self.assertEqual(MANIFEST["version"], "0.13.244")
+        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.243")
 
     def test_friendly_tool_name_is_advertised(self):
         catalog = knowledge_memory.knowledge_memory_tool_catalog()

@@ -14,10 +14,10 @@ MANIFEST = json.loads((ROOT / "zbrano/release_manifest.json").read_text(encoding
 
 class AutomationLibraryPreferencesReleaseTests(unittest.TestCase):
     def test_release_markers_are_aligned(self):
-        self.assertIn('version: "0.13.243"', CONFIG)
-        self.assertIn('version="0.13.243"', MAIN)
-        self.assertIn("HUD 0.13.243", HTML)
-        self.assertEqual(MANIFEST["version"], "0.13.243")
+        self.assertIn('version: "0.13.244"', CONFIG)
+        self.assertIn('version="0.13.244"', MAIN)
+        self.assertIn("HUD 0.13.244", HTML)
+        self.assertEqual(MANIFEST["version"], "0.13.244")
 
     def test_library_exposes_practical_sort_options(self):
         self.assertIn('id="automation-library-sort"', HTML)
@@ -48,7 +48,7 @@ class AutomationLibraryPreferencesReleaseTests(unittest.TestCase):
         self.assertIn('{filter: "all", sort: "active"}', BROWSER)
 
     def test_release_history_includes_v01385(self):
-        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.242")
+        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.243")
 
 
 if __name__ == "__main__":

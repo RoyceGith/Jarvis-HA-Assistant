@@ -1221,7 +1221,7 @@ function addMessageActions(item) {
   const actions=document.createElement('div'); actions.className='message-actions';
   const copy=document.createElement('button');copy.type='button';copy.className='message-copy';
   copy.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="8" y="8" width="12" height="13" rx="2"/><path d="M16 8V3H3v13h5"/></svg>';
-  const label=document.createElement('span');label.textContent=window.ZbranoI18n?.t('Copy message')||'Copy message';copy.append(label);
+  copy.dataset.actionLabel='Copy message';copy.title=window.ZbranoI18n?.t('Copy message')||'Copy message';copy.setAttribute('aria-label',copy.title);
   const status=document.createElement('span');status.className='message-copy-status';status.setAttribute('role','status');
   copy.addEventListener('click',async()=>{
     const text=String(item.dataset.rawText||'');const restoreCopyFocus=document.activeElement===copy;copy.disabled=true;status.textContent='';
@@ -1236,14 +1236,26 @@ function addMessageActions(item) {
     } catch { status.textContent=window.ZbranoI18n?.t('Copy failed. Select the text to copy it.')||'Copy failed. Select the text to copy it.'; }
     finally {copy.disabled=false;if(restoreCopyFocus&&document.activeElement===document.body&&copy.isConnected)copy.focus({preventScroll:true});}
   });
-  actions.append(copy,status);item.append(actions);
+  actions.append(status,copy);
+  if(item.classList.contains('user')) {
+    const edit=document.createElement('button');edit.type='button';edit.className='message-edit';edit.dataset.actionLabel='Edit prompt';
+    edit.title=window.ZbranoI18n?.t('Edit prompt')||'Edit prompt';edit.setAttribute('aria-label',edit.title);
+    edit.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m15 5 4 4M4 20l4-1L20 7a2.8 2.8 0 0 0-4-4L4 15z"/></svg>';
+    edit.addEventListener('click',()=>{
+      if(activeRequest||input.disabled){status.textContent=window.ZbranoI18n?.t('Wait for the reply to finish before editing.')||'Wait for the reply to finish before editing.';return;}
+      input.value=String(item.dataset.rawText||'');input.dispatchEvent(new Event('input',{bubbles:true}));
+      input.focus();input.setSelectionRange(input.value.length,input.value.length);input.scrollIntoView({block:'nearest'});status.textContent='';
+    });
+    actions.append(edit);
+  }
+  item.append(actions);
 }
 
 let messageActionsLocale=window.ZbranoI18n?.locale;
 window.addEventListener('zbrano:language-applied',()=>{
   if(messageActionsLocale===window.ZbranoI18n?.locale)return;
   messageActionsLocale=window.ZbranoI18n?.locale;
-  for(const button of messages.querySelectorAll('.message-copy'))button.querySelector('span').textContent=window.ZbranoI18n?.t('Copy message')||'Copy message';
+  for(const button of messages.querySelectorAll('[data-action-label]')){button.title=window.ZbranoI18n?.t(button.dataset.actionLabel)||button.dataset.actionLabel;button.setAttribute('aria-label',button.title);}
   for(const status of messages.querySelectorAll('.message-copy-status'))status.textContent='';
 });
 

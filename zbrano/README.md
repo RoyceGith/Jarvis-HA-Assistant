@@ -1,9 +1,12 @@
-# ZBRANO v0.13.243
+# ZBRANO v0.13.244
 
 Automation Studio provides a graphical, step-by-step workflow for Home Assistant
 automations. Use Setup &amp; safety, When, Only if, Then, and optional Outcomes beside the
 interactive flow canvas. Natural-language creation, templates, drag-and-drop,
 saved automation compatibility, and the full Advanced editor remain available.
+
+Version 0.13.244 places icon-only Copy controls below messages on the right,
+with hover labels and a pencil to load user prompts into the composer for editing.
 
 Version 0.13.243 restores an open chat layout without message cards, keeping
 readable spacing, author labels and Copy actions.
