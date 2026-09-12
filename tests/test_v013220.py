@@ -13,10 +13,10 @@ MANIFEST = json.loads((ROOT / "zbrano" / "release_manifest.json").read_text(enco
 
 class NotificationWorkspaceLayoutTests(unittest.TestCase):
     def test_release_markers_are_aligned(self):
-        self.assertIn('version: "0.13.236"', CONFIG)
-        self.assertIn('version="0.13.236"', MAIN)
-        self.assertIn("HUD 0.13.236", INDEX)
-        self.assertEqual(MANIFEST["version"], "0.13.236")
+        self.assertIn('version: "0.13.237"', CONFIG)
+        self.assertIn('version="0.13.237"', MAIN)
+        self.assertIn("HUD 0.13.237", INDEX)
+        self.assertEqual(MANIFEST["version"], "0.13.237")
 
     def test_notifications_have_a_dedicated_scoped_workspace(self):
         self.assertIn('href="css/notification-center.css"', INDEX)

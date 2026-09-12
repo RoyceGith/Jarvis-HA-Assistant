@@ -1,9 +1,9 @@
 {
-  "version": "0.13.236",
+  "version": "0.13.237",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/ZBRANO_Core main",
-  "summary": "Add consistent mobile navigation icons, synchronized activity indicators and larger chat touch controls.",
+  "summary": "Search saved conversation titles and return to the latest messages with one click.",
   "history_backfill": [
     {
       "version": "0.13.0",
@@ -948,18 +948,22 @@
     {
       "version": "0.13.235",
       "summary": "Add mobile bottom navigation, clearer device states, simpler cards and verified chat action confirmations."
+    },
+    {
+      "version": "0.13.236",
+      "summary": "Add consistent mobile navigation icons, synchronized activity indicators and larger chat touch controls."
     }
   ],
   "release_entry": {
     "features": [
-      "Consistent SVG icons in mobile navigation and More.",
-      "44px conversation controls on phones."
+      "Local case/accent-insensitive conversation-title search with no-matches feedback.",
+      "Latest messages shortcut when scrolled away from the newest replies."
     ],
     "fixes": [
-      "Propagate existing unseen activity and accessible labels into mobile navigation."
+      "Preserve filtering across conversation refresh and reset search for a new chat."
     ],
     "validation": [
-      "Mobile icon rendering, activity propagation and clearing, browser smoke and screenshots, regression and integration suites, release validators."
+      "Browser search, refresh persistence, Escape clearing and latest-message navigation; translations; regression and integration suites; release validators."
     ]
   },
   "features": [

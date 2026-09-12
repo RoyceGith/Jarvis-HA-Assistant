@@ -15,10 +15,10 @@ MANIFEST = json.loads((ROOT / "zbrano/release_manifest.json").read_text(encoding
 
 class DistributionFolderCompatibilityReleaseTests(unittest.TestCase):
     def test_release_markers_are_aligned(self):
-        self.assertIn('version: "0.13.236"', CONFIG)
-        self.assertIn('version="0.13.236"', MAIN)
-        self.assertIn("HUD 0.13.236", HTML)
-        self.assertEqual(MANIFEST["version"], "0.13.236")
+        self.assertIn('version: "0.13.237"', CONFIG)
+        self.assertIn('version="0.13.237"', MAIN)
+        self.assertIn("HUD 0.13.237", HTML)
+        self.assertEqual(MANIFEST["version"], "0.13.237")
 
     def test_public_export_uses_only_the_zbrano_folder(self):
         with tempfile.TemporaryDirectory() as temporary:
@@ -39,7 +39,7 @@ class DistributionFolderCompatibilityReleaseTests(unittest.TestCase):
         self.assertIn('image: "ghcr.io/roycegith/zbrano-core"', exported_config)
 
     def test_release_history_includes_v01354(self):
-        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.235")
+        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.236")
 
 
 if __name__ == "__main__":

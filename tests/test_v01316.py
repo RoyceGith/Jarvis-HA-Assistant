@@ -19,10 +19,10 @@ MANIFEST = json.loads((ROOT / "zbrano/release_manifest.json").read_text(encoding
 
 class StatefulDomainExtractionTests(unittest.TestCase):
     def test_release_markers_are_aligned(self):
-        self.assertIn('version: "0.13.236"', CONFIG)
-        self.assertIn('version="0.13.236"', MAIN)
-        self.assertIn("HUD 0.13.236", HTML)
-        self.assertEqual(MANIFEST["version"], "0.13.236")
+        self.assertIn('version: "0.13.237"', CONFIG)
+        self.assertIn('version="0.13.237"', MAIN)
+        self.assertIn("HUD 0.13.237", HTML)
+        self.assertEqual(MANIFEST["version"], "0.13.237")
         current_patch = int(MANIFEST["version"].rsplit(".", 1)[1])
         self.assertEqual(MANIFEST["history_backfill"][-1]["version"], f"0.13.{current_patch - 1}")
 

@@ -1,6 +1,10 @@
 "use strict";
 
 window.ZbranoI18n?.register({
+  "Search conversations": ["Αναζήτηση συνομιλιών", "Cerca conversazioni", "Rechercher des conversations"],
+  "Search conversation titles": ["Αναζήτηση τίτλων συνομιλιών", "Cerca nei titoli delle conversazioni", "Rechercher dans les titres des conversations"],
+  "No conversations match your search.": ["Δεν βρέθηκαν συνομιλίες για την αναζήτησή σας.", "Nessuna conversazione corrisponde alla ricerca.", "Aucune conversation ne correspond à votre recherche."],
+  "Latest messages": ["Τελευταία μηνύματα", "Ultimi messaggi", "Derniers messages"],
   "Above": ["Πάνω από", "Superiore a", "Supérieur à"],
   "Active": ["Ενεργό", "Attiva", "Active"],
   "Activity": ["Δραστηριότητα", "Attività", "Activité"],

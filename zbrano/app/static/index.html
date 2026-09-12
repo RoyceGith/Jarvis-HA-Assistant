@@ -38,7 +38,7 @@
   <header>
     <div class="brand-line">
       <h1>ZBRANO</h1>
-      <div class="status hud-version-label">Workshop Intelligence Interface · HUD 0.13.236</div>
+      <div class="status hud-version-label">Workshop Intelligence Interface · HUD 0.13.237</div>
     </div>
     <div class="runtime-status-stack">
       <label class="interface-language-picker" title="Interface language">
@@ -94,6 +94,8 @@
           <h2>CONVERSATIONS</h2>
           <button id="new-chat-button" type="button" aria-label="Start new chat">＋</button>
         </div>
+        <input id="chat-search" type="search" placeholder="Search conversations" aria-label="Search conversation titles" autocomplete="off">
+        <p id="chat-search-empty" role="status" hidden>No conversations match your search.</p>
         <div id="chat-list"><div class="chat-empty">Loading chats…</div></div>
       </aside>
       <div class="hud-layout">
@@ -102,6 +104,7 @@
         <div id="messages">
           <div class="message zbrano">ZBRANO intelligence core online.</div>
         </div>
+        <div class="chat-latest-anchor"><button id="chat-latest" type="button" hidden><span aria-hidden="true">&#8595;</span> <span>Latest messages</span></button></div>
         <div id="chat-attachments" class="attachment-strip"></div>
         <div class="attachment-controls"><button id="attach-file" type="button">📎 Attach</button><select id="attachment-scope" title="Choose where this upload is stored"><option value="chat">Attach to this chat</option><option value="shared">Add to Shared Files</option></select><input id="attachment-input" type="file" multiple hidden title="Choose files from this device"><span id="attachment-state" class="muted"></span></div>
         <div id="tool-timeline" class="tool-timeline" aria-label="Tool activity" aria-live="polite" hidden></div>

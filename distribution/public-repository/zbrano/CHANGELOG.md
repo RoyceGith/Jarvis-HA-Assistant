@@ -1,5 +1,12 @@
 # Change log
 
+## 0.13.237
+
+- Search saved conversation titles locally, ignoring case and accents.
+- Show a clear no-matches state and preserve search during list refreshes.
+- Jump to the latest messages when reading earlier replies.
+- Translate the new controls into Greek, Italian and French.
+
 ## 0.13.236
 
 - Add consistent icons to the mobile navigation bar and More menu.

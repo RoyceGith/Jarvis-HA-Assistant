@@ -167,7 +167,7 @@ const onboardingFixture = {
     {id:"notifications",title:"Notifications and autonomy",description:"Choose notification delivery",ready:false,required:false,target:"notifications",last_check:null,skipped:false},
   ],
   installation_report: {
-    generated_at: 1788300000, version: "0.13.236", ready: true, attention_count: 0, ready_count: 5,
+    generated_at: 1788300000, version: "0.13.237", ready: true, attention_count: 0, ready_count: 5,
     checks: [
       {id:"home_assistant",title:"Home Assistant",state:"ready",required:true,detail:"Connected to Home Assistant",target:"home_assistant"},
       {id:"model",title:"AI model",state:"ready",required:true,detail:"gpt-5-mini is configured",target:"model"},
@@ -175,7 +175,7 @@ const onboardingFixture = {
       {id:"backup",title:"Backup and restore",state:"ready",required:false,detail:"A portable ZBRANO backup can be exported from Settings",target:"memory"},
       {id:"automation_health",title:"Automation safety",state:"ready",required:false,detail:"2 saved; 0 need permission; 0 paused after failures",target:"automations"},
     ],
-    support_summary: "ZBRANO installation report · v0.13.236\nOverall: Ready\nHome Assistant: Connected\nAI model: Configured\nDevice access: 3 sensor devices / 1 control devices\nPersistent storage: Ready\nAutomations: 2 saved / 0 permission issues / 0 failure pauses",
+    support_summary: "ZBRANO installation report · v0.13.237\nOverall: Ready\nHome Assistant: Connected\nAI model: Configured\nDevice access: 3 sensor devices / 1 control devices\nPersistent storage: Ready\nAutomations: 2 saved / 0 permission issues / 0 failure pauses",
   },
 };
 
@@ -209,7 +209,7 @@ function apiFixture(url, method = "GET") {
   if (pathname === "/api/health") {
     return {
       status: "ok",
-      version: "0.13.236",
+      version: "0.13.237",
       speech_provider: "openai",
       speech_providers: {openai: {configured: true}, elevenlabs: {configured: false}},
     };
@@ -321,7 +321,7 @@ function apiFixture(url, method = "GET") {
     return {files:[],folders:[{name:"Documents",path:"Documents",file_count:1}],current_folder:""};
   }
   if (pathname === "/api/release-memory-sync") {
-    return {enabled: false, state: "disabled", version: "0.13.236", task_active: false};
+    return {enabled: false, state: "disabled", version: "0.13.237", task_active: false};
   }
   if (pathname === "/api/tab-activity") return {revisions: {}};
   if (pathname === "/api/grinder-monitor/status") return {enabled: false, connected: false};
@@ -553,6 +553,25 @@ async function main() {
       ],
     }];
     await page.evaluate(() => openChat("only-saved-chat"));
+    await page.locator('#chat-search').fill('ONLY SAVED');
+    assert.equal(await page.locator('#chat-list .chat-list-item:visible').count(), 1);
+    await page.locator('#chat-search').fill('no matching title');
+    assert.equal(await page.locator('#chat-search-empty').isVisible(), true);
+    assert.equal(await page.locator('#chat-list .chat-list-item:visible').count(), 0);
+    await page.evaluate(() => refreshChatList());
+    assert.equal(await page.locator('#chat-list .chat-list-item:visible').count(), 0);
+    await page.locator('#chat-search').press('Escape');
+    assert.equal(await page.locator('#chat-search').inputValue(), '');
+    assert.equal(await page.locator('#chat-list .chat-list-item:visible').count(), 1);
+    await page.evaluate(() => {
+      for(let i=0;i<40;i++)addMessage(`Earlier message ${i}`, 'zbrano');
+      messages.scrollTop=0;
+    });
+    await page.locator('#chat-latest').waitFor({state:'visible'});
+    await page.locator('#chat-latest').click();
+    assert.equal(await page.locator('#chat-latest').isVisible(), false);
+    assert.equal(await page.evaluate(() => isNearMessagesBottom()), true);
+
     if (process.env.ZBRANO_CHAT_SCREENSHOT) {
       for (const theme of ["light", "dark"]) {
         await page.evaluate(value => document.documentElement.dataset.theme = value, theme);

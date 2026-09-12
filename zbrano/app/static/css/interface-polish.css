@@ -40,3 +40,14 @@
   .chat-sidebar-header { gap:.35rem; margin-bottom:.3rem; }
   .chat-sidebar.conversations-collapsed { min-height:62px; max-height:62px; }
 }
+
+#chat-search { box-sizing:border-box; flex:0 0 auto; width:100%; min-width:0; min-height:36px; margin:0 0 .5rem; padding:.5rem .6rem; font-size:.75rem; }
+#chat-search-empty { margin:.2rem 0 .5rem; font-size:.75rem; line-height:1.5; color:var(--text-muted); }
+#chat-list [hidden],#chat-search-empty[hidden],#chat-latest[hidden] { display:none!important; }
+.chat-sidebar.conversations-collapsed :is(#chat-search,#chat-search-empty) { display:none; }
+.chat-latest-anchor { position:relative; flex:0 0 0; height:0; z-index:5; }
+#chat-latest { position:absolute; right:.75rem; bottom:.55rem; display:inline-flex; align-items:center; gap:.45rem; min-height:36px; padding:.4rem .7rem; border:1px solid var(--line); border-radius:999px; background:var(--surface-strong); color:var(--cyan); font-size:.75rem; box-shadow:0 4px 18px rgba(0,0,0,.15); }
+@media(max-width:700px) {
+  #chat-search,#chat-latest { min-height:44px; }
+  .chat-sidebar:not(.conversations-collapsed) { max-height:205px; }
+}

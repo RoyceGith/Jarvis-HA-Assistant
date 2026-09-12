@@ -14,11 +14,11 @@ MANIFEST = json.loads((ROOT / "zbrano/release_manifest.json").read_text(encoding
 
 class FinalConversationDeletionReleaseTests(unittest.TestCase):
     def test_release_is_aligned(self):
-        self.assertIn('version: "0.13.236"', CONFIG)
-        self.assertIn('version="0.13.236"', MAIN)
-        self.assertIn("HUD 0.13.236", INDEX)
-        self.assertEqual(MANIFEST["version"], "0.13.236")
-        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.235")
+        self.assertIn('version: "0.13.237"', CONFIG)
+        self.assertIn('version="0.13.237"', MAIN)
+        self.assertIn("HUD 0.13.237", INDEX)
+        self.assertEqual(MANIFEST["version"], "0.13.237")
+        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.236")
 
     def test_last_deleted_row_is_removed_before_draft_is_rendered(self):
         self.assertIn('if (!listResponse.ok) throw new Error', CORE)

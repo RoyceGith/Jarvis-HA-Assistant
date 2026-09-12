@@ -1244,6 +1244,35 @@ function updateSessionDisplay() {
   if (sessionFragment) sessionFragment.textContent = zbranoChatSessionId.slice(0, 8).toUpperCase();
 }
 
+const chatSearch = document.getElementById("chat-search");
+function filterConversations() {
+  const normalize = value => String(value || "").normalize("NFKD").replace(/[\u0300-\u036f]/g, "").toLocaleLowerCase().trim();
+  const query = normalize(chatSearch.value);
+  const rows = [...chatList.querySelectorAll(".chat-list-item")];
+  let visible = 0;
+  for (const row of rows) {
+    const title = row.querySelector(".chat-open")?.title || row.querySelector(".chat-open")?.textContent || row.querySelector(".chat-title-editor")?.value || "";
+    row.hidden = Boolean(query) && !normalize(title).includes(query);
+    if (!row.hidden) visible++;
+  }
+  document.getElementById("chat-search-empty").hidden = !query || !rows.length || visible > 0;
+}
+chatSearch.addEventListener("input", filterConversations);
+chatSearch.addEventListener("keydown", event => {
+  if (event.key === "Escape" && chatSearch.value) { event.preventDefault(); chatSearch.value = ""; filterConversations(); }
+});
+new MutationObserver(filterConversations).observe(chatList, {childList:true,subtree:true,characterData:true});
+const latestMessages = document.getElementById("chat-latest");
+let latestFrame = 0;
+function updateLatestMessages() {
+  if (latestFrame) return;
+  latestFrame = requestAnimationFrame(() => { latestFrame = 0; latestMessages.hidden = isNearMessagesBottom(); });
+}
+messages.addEventListener("scroll", updateLatestMessages, {passive:true});
+new MutationObserver(updateLatestMessages).observe(messages, {childList:true,subtree:true,characterData:true});
+new ResizeObserver(updateLatestMessages).observe(messages);
+latestMessages.addEventListener("click", () => { messages.scrollTop = messages.scrollHeight; latestMessages.hidden = true; messages.setAttribute("tabindex", "-1"); messages.focus({preventScroll:true}); });
+
 async function refreshChatList() {
   try {
     const response = await fetch("api/chats");
@@ -1396,6 +1425,7 @@ async function openChat(sessionId) {
 }
 
 function renderDraftChatRow() {
+  chatSearch.value = "";
   const existing = chatList.querySelector('.chat-list-item[data-draft="true"]');
   if (existing) existing.remove();
   for (const row of chatList.querySelectorAll('.chat-list-item.active')) {

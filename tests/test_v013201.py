@@ -41,11 +41,11 @@ class DirectMemorySaveReleaseTests(unittest.TestCase):
         )
 
     def test_release_is_aligned(self):
-        self.assertIn('version: "0.13.236"', CONFIG)
-        self.assertIn('version="0.13.236"', MAIN)
-        self.assertIn("HUD 0.13.236", INDEX)
-        self.assertEqual(MANIFEST["version"], "0.13.236")
-        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.235")
+        self.assertIn('version: "0.13.237"', CONFIG)
+        self.assertIn('version="0.13.237"', MAIN)
+        self.assertIn("HUD 0.13.237", INDEX)
+        self.assertEqual(MANIFEST["version"], "0.13.237")
+        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.236")
 
     def test_explicit_save_authorizes_only_automatic_memory_database_calls(self):
         saves = [call("save-1", "save_to_memory_database")]

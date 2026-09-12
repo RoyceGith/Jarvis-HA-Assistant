@@ -12,8 +12,8 @@ MANIFEST = json.loads((ROOT / "zbrano" / "release_manifest.json").read_text(enco
 
 class V013136NeutralNeuronCoreTests(unittest.TestCase):
     def test_release_is_aligned(self):
-        self.assertEqual(MANIFEST["version"], "0.13.236")
-        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.235")
+        self.assertEqual(MANIFEST["version"], "0.13.237")
+        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.236")
 
     def test_every_neuron_core_is_neutral_grayscale(self):
         cores = re.findall(r"--node-core:\s*(\d+),\s*(\d+),\s*(\d+);", BASE)
