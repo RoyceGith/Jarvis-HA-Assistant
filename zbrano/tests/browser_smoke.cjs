@@ -446,7 +446,15 @@ async function main() {
     for (const width of [1100, 390]) {
       await page.setViewportSize({width, height:720});
       const last = page.locator('[data-composer-plugin="plugin-6"]');
-      await last.scrollIntoViewIfNeeded();
+      // Background plugin refresh can replace a button during Playwright's
+      // stability wait. Re-resolve only that transient detachment; keep all
+      // visibility and reachability assertions below.
+      for (let attempt = 0; ; attempt++) {
+        try { await last.scrollIntoViewIfNeeded(); break; }
+        catch (error) {
+          if (attempt >= 2 || !String(error).includes("not attached to the DOM")) throw error;
+        }
+      }
       assert.ok(await last.isVisible());
       const reachable = await last.evaluate(button => {
         const b=button.getBoundingClientRect(), r=button.parentElement.getBoundingClientRect();
