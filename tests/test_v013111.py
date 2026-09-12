@@ -20,11 +20,11 @@ MANIFEST = json.loads((ROOT / "zbrano/release_manifest.json").read_text(encoding
 
 class BirthdayCalendarReleaseTests(unittest.TestCase):
     def test_release_markers_are_aligned(self):
-        self.assertIn('version: "0.13.225"', CONFIG)
-        self.assertIn('version="0.13.225"', MAIN)
-        self.assertIn("HUD 0.13.225", HTML)
-        self.assertEqual(MANIFEST["version"], "0.13.225")
-        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.224")
+        self.assertIn('version: "0.13.226"', CONFIG)
+        self.assertIn('version="0.13.226"', MAIN)
+        self.assertIn("HUD 0.13.226", HTML)
+        self.assertEqual(MANIFEST["version"], "0.13.226")
+        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.225")
 
     def test_birthdays_are_a_separate_persistent_calendar_domain(self):
         self.assertIn('BIRTHDAY_STORAGE_PATH = Path("/data/zbrano_birthdays.json")', CALENDAR)

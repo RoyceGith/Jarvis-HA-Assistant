@@ -12,18 +12,18 @@ STYLE = (ROOT / "zbrano/app/static/css/composer-controls.css").read_text(encodin
 MANIFEST = json.loads((ROOT / "zbrano/release_manifest.json").read_text(encoding="utf-8"))
 
 
-class InstalledComposerPluginIconsReleaseTests(unittest.TestCase):
+class ReliableComposerPluginIconReleaseTests(unittest.TestCase):
     def test_release_is_aligned(self):
         self.assertIn('version: "0.13.226"', CONFIG)
         self.assertIn('version="0.13.226"', MAIN)
         self.assertIn("HUD 0.13.226", INDEX)
         self.assertEqual(MANIFEST["version"], "0.13.226")
 
-    def test_all_installed_plugins_remain_visible(self):
-        self.assertIn("const installed=(plugins||[]).filter(Boolean)", CONTEXT)
-        self.assertNotIn("plugin&&plugin.enabled", CONTEXT)
-        self.assertIn('return "installed · disabled"', CONTEXT)
-        self.assertIn('.composer-plugin-button.disabled', STYLE)
+    def test_icon_handlers_precede_image_loading(self):
+        self.assertIn('data-plugin-icon-src=', CONTEXT)
+        self.assertIn('image.addEventListener("error"', CONTEXT)
+        self.assertIn('image.src=image.dataset.pluginIconSrc', CONTEXT)
+        self.assertIn('img[src$="github.svg"]', STYLE)
 
 
 if __name__ == "__main__":

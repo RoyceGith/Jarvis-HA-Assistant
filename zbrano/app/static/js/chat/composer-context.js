@@ -17,7 +17,7 @@
     const name=String(plugin.name||"Plugin");
     const fallback=esc(name.trim().charAt(0).toUpperCase()||"P");
     const icon=plugin.icon_url
-      ?`<img src="${esc(plugin.icon_url)}" alt="" loading="lazy" referrerpolicy="no-referrer"><span class="composer-plugin-fallback" hidden>${fallback}</span>`
+      ?`<img data-plugin-icon-src="${esc(plugin.icon_url)}" alt="" referrerpolicy="no-referrer"><span class="composer-plugin-fallback" hidden>${fallback}</span>`
       :`<span class="composer-plugin-fallback">${fallback}</span>`;
     const status=!plugin.enabled?"disabled":!plugin.healthy?"unhealthy":plugin.available_to_chat?"available":"enabled";
     const title=`${name} · ${stateLabel(plugin)}`;
@@ -31,7 +31,11 @@
     const visible=installed.slice(0,visibleLimit);
     const overflow=installed.length-visible.length;
     root.innerHTML=visible.map(iconButton).join("")+(overflow?`<span class="composer-plugin-overflow" title="${overflow} more installed plugin${overflow===1?"":"s"}">+${overflow}</span>`:"");
-    for(const image of root.querySelectorAll("img"))image.addEventListener("error",()=>{image.hidden=true;if(image.nextElementSibling)image.nextElementSibling.hidden=false},{once:true});
+    for(const image of root.querySelectorAll("img[data-plugin-icon-src]")){
+      image.addEventListener("error",()=>{image.hidden=true;if(image.nextElementSibling)image.nextElementSibling.hidden=false},{once:true});
+      image.addEventListener("load",()=>image.classList.add("loaded"),{once:true});
+      image.src=image.dataset.pluginIconSrc;
+    }
   };
 
   async function refresh(){

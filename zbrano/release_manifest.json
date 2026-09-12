@@ -1,9 +1,9 @@
 {
-  "version": "0.13.225",
+  "version": "0.13.226",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/ZBRANO_Core main",
-  "summary": "Keep every installed plugin visible beneath the chat prompt.",
+  "summary": "Reliably render installed plugin icons beneath chat with correct theme contrast.",
   "history_backfill": [
     {
       "version": "0.13.0",
@@ -904,18 +904,22 @@
       {
         "version": "0.13.224",
         "summary": "Replaced crowded chat composer settings with compact AI, voice, and plugin controls."
+      },
+      {
+        "version": "0.13.225",
+        "summary": "Kept every installed plugin visible beneath the chat prompt."
       }
   ],
   "release_entry": {
     "features": [
-      "Show every installed plugin icon beneath the chat prompt, including connections that are currently disabled."
+      "Load the bundled GitHub plugin mark reliably beneath the chat prompt and keep it legible in every theme."
     ],
     "fixes": [
-      "Represent disabled plugins with a muted state instead of removing them from the composer.",
-      "Keep plugin health, enabled-tool availability, overflow counts, tooltips, and navigation intact."
+      "Attach image load and failure handlers before requesting an icon so failed assets always reveal their fallback.",
+      "Use theme-aware contrast for GitHub's dark monochrome logo."
     ],
     "validation": [
-      "Installed and disabled plugin rendering, count and overflow behavior, browser smoke, regression coverage, and v0.13.225 release alignment"
+      "Real GitHub SVG loading, fallback ordering, theme styling, browser smoke, regression coverage, and v0.13.226 release alignment"
     ]
   },
   "features": [

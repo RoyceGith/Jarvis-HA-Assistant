@@ -10,6 +10,8 @@
 .composer-context-count { display:inline-grid; min-width:1.12rem; min-height:1.12rem; place-items:center; padding:0 .16rem; border-radius:999px; color:var(--cyan); background:color-mix(in srgb,var(--cyan) 11%,transparent); font-size:.62rem; }
 .voice-bar .composer-plugin-icons { max-width:11rem; overflow:hidden; }
 .voice-bar .composer-plugin-button,.voice-bar .composer-plugin-overflow { width:1.65rem; height:1.65rem; }
+.voice-bar .composer-plugin-button img { display:block; width:1.08rem; height:1.08rem; }
+:root:not([data-theme="light"]) .voice-bar .composer-plugin-button img[src$="github.svg"] { filter:invert(1); }
 .voice-bar .composer-plugin-overflow { width:auto; min-width:1.65rem; }
 .voice-bar .composer-plugin-button.disabled { opacity:.58; filter:saturate(.45); }
 .voice-bar .composer-plugin-button.disabled .composer-plugin-status { background:var(--text-muted); }

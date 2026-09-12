@@ -1,5 +1,11 @@
 # Change log
 
+## 0.13.226
+
+- Load composer plugin icons only after their fallback handlers are attached.
+- Keep the GitHub mark legible in Light, Dark, and Gray themes.
+- Verify the real bundled GitHub SVG loads successfully in the browser release gate.
+
 ## 0.13.225
 
 - Show every installed plugin icon beneath the chat prompt, even when its connection is disabled.

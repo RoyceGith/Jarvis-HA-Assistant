@@ -12,10 +12,10 @@ MANIFEST = json.loads((ROOT / "zbrano/release_manifest.json").read_text(encoding
 
 class WorkshopMemoryStartupWiringTests(unittest.TestCase):
     def test_release_markers_are_aligned(self):
-        self.assertIn('version: "0.13.225"', CONFIG)
-        self.assertIn('version="0.13.225"', MAIN)
-        self.assertIn("HUD 0.13.225", HTML)
-        self.assertEqual(MANIFEST["version"], "0.13.225")
+        self.assertIn('version: "0.13.226"', CONFIG)
+        self.assertIn('version="0.13.226"', MAIN)
+        self.assertIn("HUD 0.13.226", HTML)
+        self.assertEqual(MANIFEST["version"], "0.13.226")
 
     def test_startup_uses_built_in_knowledge_memory(self):
         import_block = MAIN.split("from .domains.workshop_memory import (", 1)[1].split(")", 1)[0]
