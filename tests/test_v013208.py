@@ -17,11 +17,11 @@ MANIFEST = json.loads((ROOT / "zbrano/release_manifest.json").read_text(encoding
 
 class FormattedMemoryNotesReleaseTests(unittest.TestCase):
     def test_release_is_aligned(self):
-        self.assertIn('version: "0.13.238"', CONFIG)
-        self.assertIn('version="0.13.238"', MAIN)
-        self.assertIn("HUD 0.13.238", INDEX)
-        self.assertEqual(MANIFEST["version"], "0.13.238")
-        self.assertEqual(MANIFEST["history_backfill"][-31]["version"], "0.13.207")
+        self.assertIn('version: "0.13.239"', CONFIG)
+        self.assertIn('version="0.13.239"', MAIN)
+        self.assertIn("HUD 0.13.239", INDEX)
+        self.assertEqual(MANIFEST["version"], "0.13.239")
+        self.assertEqual(MANIFEST["history_backfill"][-32]["version"], "0.13.207")
 
     def test_existing_notes_include_an_updated_timestamp(self):
         original_root = knowledge_memory.KNOWLEDGE_ROOT

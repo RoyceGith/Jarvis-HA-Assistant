@@ -10,8 +10,8 @@ MANIFEST = json.loads((ROOT / "zbrano" / "release_manifest.json").read_text(enco
 
 class V013135NeuralArrivalFlashTests(unittest.TestCase):
     def test_release_is_aligned(self):
-        self.assertEqual(MANIFEST["version"], "0.13.238")
-        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.237")
+        self.assertEqual(MANIFEST["version"], "0.13.239")
+        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.238")
 
     def test_arrival_has_a_distinct_non_circular_spark(self):
         self.assertIn("if (progress > .68)", CORE)

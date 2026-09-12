@@ -14,11 +14,11 @@ MANIFEST = json.loads((ROOT / "zbrano/release_manifest.json").read_text(encoding
 
 class HomeAssistantSetupRecoveryReleaseTests(unittest.TestCase):
     def test_release_is_aligned(self):
-        self.assertIn('version: "0.13.238"', CONFIG)
-        self.assertIn('version="0.13.238"', MAIN)
-        self.assertIn("HUD 0.13.238", HTML)
-        self.assertEqual(MANIFEST["version"], "0.13.238")
-        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.237")
+        self.assertIn('version: "0.13.239"', CONFIG)
+        self.assertIn('version="0.13.239"', MAIN)
+        self.assertIn("HUD 0.13.239", HTML)
+        self.assertEqual(MANIFEST["version"], "0.13.239")
+        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.238")
 
     def test_home_assistant_step_opens_its_own_help(self):
         self.assertIn('"target": "home_assistant"', MAIN)

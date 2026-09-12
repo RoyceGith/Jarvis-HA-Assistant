@@ -21,10 +21,10 @@ MANIFEST = json.loads((ROOT / "zbrano/release_manifest.json").read_text(encoding
 
 class CanonicalModuleArchitectureTests(unittest.TestCase):
     def test_release_markers_are_aligned(self):
-        self.assertIn('version: "0.13.238"', CONFIG)
-        self.assertIn('version="0.13.238"', MAIN_RAW)
-        self.assertIn("HUD 0.13.238", HTML)
-        self.assertEqual(MANIFEST["version"], "0.13.238")
+        self.assertIn('version: "0.13.239"', CONFIG)
+        self.assertIn('version="0.13.239"', MAIN_RAW)
+        self.assertIn("HUD 0.13.239", HTML)
+        self.assertEqual(MANIFEST["version"], "0.13.239")
 
     def test_frontend_is_directly_split_with_stable_order(self):
         stylesheet_paths = re.findall(r'<link[^>]+href="([^"]+\.css)"', HTML)
@@ -43,9 +43,9 @@ class CanonicalModuleArchitectureTests(unittest.TestCase):
             "css/composer-controls.css",
             "css/interface-polish.css",
         ])
-        self.assertEqual(len(script_paths), 36)
+        self.assertEqual(len(script_paths), 37)
         self.assertEqual(script_paths[:4], ["js/i18n.js", "js/i18n/catalog-advanced.js", "js/about.js", "js/core.js"])
-        self.assertEqual(script_paths[-1], "js/ui/mobile-navigation.js")
+        self.assertEqual(script_paths[-1], "js/ui/settings-search.js")
         self.assertTrue(all((STATIC / path).is_file() for path in stylesheet_paths + script_paths))
         # Card sorting and conversation search add semantic controls; behavior remains in modules.
         self.assertLess(len(HTML.encode("utf-8")), 107_000)

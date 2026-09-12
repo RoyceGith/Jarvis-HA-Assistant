@@ -38,7 +38,7 @@
   <header>
     <div class="brand-line">
       <h1>ZBRANO</h1>
-      <div class="status hud-version-label">Workshop Intelligence Interface · HUD 0.13.238</div>
+      <div class="status hud-version-label">Workshop Intelligence Interface · HUD 0.13.239</div>
     </div>
     <div class="runtime-status-stack">
       <label class="interface-language-picker" title="Interface language">
@@ -240,6 +240,7 @@
   <section id="memory-panel" class="panel hidden" aria-label="Memory Studio"></section>
 
 <section id="settings-panel" class="panel hidden">
+    <div class="settings-find"><input id="settings-find" type="search" aria-label="Search settings" placeholder="Search settings" aria-controls="settings-find-results" autocomplete="off"><div id="settings-find-results" hidden></div><p id="settings-find-empty" role="status" hidden>No settings match your search.</p></div>
     <div class="settings-stack">
     <div class="settings-category-tabs" role="tablist" aria-label="Settings categories">
       <div class="settings-nav-title"><span class="settings-nav-icon" aria-hidden="true">⚙</span><div><strong>Settings</strong><small>Configure ZBRANO</small></div></div>
@@ -1062,5 +1063,6 @@
 <script id="zbrano-v013214-assist-satellites" src="js/voice/satellite.js"></script>
 <script id="zbrano-v01359-onboarding" src="js/onboarding.js"></script>
 <script src="js/ui/mobile-navigation.js"></script>
+<script src="js/ui/settings-search.js"></script>
 </body>
 </html>

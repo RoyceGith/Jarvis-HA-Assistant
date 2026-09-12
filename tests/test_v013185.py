@@ -18,12 +18,12 @@ MANIFEST = json.loads((ROOT / "zbrano/release_manifest.json").read_text(encoding
 
 class MultiArchitectureReleaseTests(unittest.TestCase):
     def test_release_is_aligned(self):
-        self.assertIn('version: "0.13.238"', CONFIG)
-        self.assertIn('version="0.13.238"', MAIN)
-        self.assertIn("HUD 0.13.238", HTML)
-        self.assertEqual(MANIFEST["version"], "0.13.238")
-        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.237")
-        self.assertTrue(CHANGELOG.startswith("# Change log\n\n## 0.13.238"))
+        self.assertIn('version: "0.13.239"', CONFIG)
+        self.assertIn('version="0.13.239"', MAIN)
+        self.assertIn("HUD 0.13.239", HTML)
+        self.assertEqual(MANIFEST["version"], "0.13.239")
+        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.238")
+        self.assertTrue(CHANGELOG.startswith("# Change log\n\n## 0.13.239"))
 
     def test_metadata_supports_both_modern_home_assistant_architectures(self):
         arch_block = re.search(r"^arch:\s*\n((?:  - .+\n?)+)", CONFIG, re.MULTILINE)

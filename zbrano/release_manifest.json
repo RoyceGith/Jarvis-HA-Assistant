@@ -1,9 +1,9 @@
 {
-  "version": "0.13.238",
+  "version": "0.13.239",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/ZBRANO_Core main",
-  "summary": "Sort device cards by name, room or availability, with optional favorites first and saved preferences.",
+  "summary": "Find settings by label and jump directly to their category and control.",
   "history_backfill": [
     {
       "version": "0.13.0",
@@ -956,18 +956,22 @@
     {
       "version": "0.13.237",
       "summary": "Search saved conversation titles and return to the latest messages with one click."
+    },
+    {
+      "version": "0.13.238",
+      "summary": "Sort device cards by name, room or availability, with optional favorites first and saved preferences."
     }
   ],
   "release_entry": {
     "features": [
-      "Natural ascending/descending name, room and unavailable-first device card sorting.",
-      "Optional favorites-first ordering with saved browser preferences."
+      "Local label and heading search across Settings categories.",
+      "Direct category navigation with control focus and temporary highlighting."
     ],
     "fixes": [
-      "Keep unassigned rooms last in room order and hide card ordering controls in table view."
+      "Keep input values out of the search index and preserve settings when navigating."
     ],
     "validation": [
-      "Browser name/room/availability/favorite ordering, persistence, device controls, responsive screenshots; regression/integration suites and release validators."
+      "Browser matching, keyboard selection, category navigation, value preservation and no-results checks; screenshots; regression/integration suites and release validators."
     ]
   },
   "features": [

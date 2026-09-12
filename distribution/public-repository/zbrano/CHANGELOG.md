@@ -1,5 +1,11 @@
 # Change log
 
+## 0.13.239
+
+- Search Settings labels and headings locally with category context.
+- Open the matching category and highlight its control without changing its value.
+- Support keyboard navigation, Escape clearing and translated empty-state feedback.
+
 ## 0.13.238
 
 - Sort device cards by name, room or unavailable status.

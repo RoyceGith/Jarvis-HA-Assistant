@@ -1,6 +1,8 @@
 "use strict";
 
 window.ZbranoI18n?.register({
+  "Search settings": ["Αναζήτηση ρυθμίσεων", "Cerca impostazioni", "Rechercher des paramètres"],
+  "No settings match your search.": ["Δεν βρέθηκαν ρυθμίσεις για την αναζήτησή σας.", "Nessuna impostazione corrisponde alla ricerca.", "Aucun paramètre ne correspond à votre recherche."],
   "Sort devices": ["Ταξινόμηση συσκευών", "Ordina dispositivi", "Trier les appareils"],
   "Name A to Z": ["Όνομα Α έως Ω", "Nome dalla A alla Z", "Nom de A à Z"],
   "Name Z to A": ["Όνομα Ω έως Α", "Nome dalla Z alla A", "Nom de Z à A"],

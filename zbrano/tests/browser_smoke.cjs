@@ -167,7 +167,7 @@ const onboardingFixture = {
     {id:"notifications",title:"Notifications and autonomy",description:"Choose notification delivery",ready:false,required:false,target:"notifications",last_check:null,skipped:false},
   ],
   installation_report: {
-    generated_at: 1788300000, version: "0.13.238", ready: true, attention_count: 0, ready_count: 5,
+    generated_at: 1788300000, version: "0.13.239", ready: true, attention_count: 0, ready_count: 5,
     checks: [
       {id:"home_assistant",title:"Home Assistant",state:"ready",required:true,detail:"Connected to Home Assistant",target:"home_assistant"},
       {id:"model",title:"AI model",state:"ready",required:true,detail:"gpt-5-mini is configured",target:"model"},
@@ -175,7 +175,7 @@ const onboardingFixture = {
       {id:"backup",title:"Backup and restore",state:"ready",required:false,detail:"A portable ZBRANO backup can be exported from Settings",target:"memory"},
       {id:"automation_health",title:"Automation safety",state:"ready",required:false,detail:"2 saved; 0 need permission; 0 paused after failures",target:"automations"},
     ],
-    support_summary: "ZBRANO installation report · v0.13.238\nOverall: Ready\nHome Assistant: Connected\nAI model: Configured\nDevice access: 3 sensor devices / 1 control devices\nPersistent storage: Ready\nAutomations: 2 saved / 0 permission issues / 0 failure pauses",
+    support_summary: "ZBRANO installation report · v0.13.239\nOverall: Ready\nHome Assistant: Connected\nAI model: Configured\nDevice access: 3 sensor devices / 1 control devices\nPersistent storage: Ready\nAutomations: 2 saved / 0 permission issues / 0 failure pauses",
   },
 };
 
@@ -209,7 +209,7 @@ function apiFixture(url, method = "GET") {
   if (pathname === "/api/health") {
     return {
       status: "ok",
-      version: "0.13.238",
+      version: "0.13.239",
       speech_provider: "openai",
       speech_providers: {openai: {configured: true}, elevenlabs: {configured: false}},
     };
@@ -321,7 +321,7 @@ function apiFixture(url, method = "GET") {
     return {files:[],folders:[{name:"Documents",path:"Documents",file_count:1}],current_folder:""};
   }
   if (pathname === "/api/release-memory-sync") {
-    return {enabled: false, state: "disabled", version: "0.13.238", task_active: false};
+    return {enabled: false, state: "disabled", version: "0.13.239", task_active: false};
   }
   if (pathname === "/api/tab-activity") return {revisions: {}};
   if (pathname === "/api/grinder-monitor/status") return {enabled: false, connected: false};
@@ -1403,6 +1403,20 @@ async function main() {
 
     await page.locator("#settings-tab").click();
     await page.locator("#settings-panel:not(.hidden)").waitFor();
+    const textSizeBefore = await page.locator('#text-size').inputValue();
+    await page.locator('#settings-find').fill('TEXT SIZE');
+    assert.equal(await page.locator('#settings-find-results button').count(), 1);
+    assert.match(await page.locator('#settings-find-results').innerText(), /Appearance/);
+    if(process.env.ZBRANO_DEVICE_SCREENSHOT)await page.screenshot({animations:'disabled',path:process.env.ZBRANO_DEVICE_SCREENSHOT.replace('.png','-settings-search.png')});
+    await page.locator('#settings-find').press('ArrowDown');
+    await page.keyboard.press('Enter');
+    await page.waitForFunction(()=>document.activeElement?.id==='text-size');
+    assert.equal(await page.locator('[data-settings-category="appearance"]').isVisible(), true);
+    assert.equal(await page.locator('#text-size').inputValue(), textSizeBefore);
+    await page.locator('#settings-find').fill('no-setting-matches-this');
+    assert.equal(await page.locator('#settings-find-empty').isVisible(), true);
+    await page.locator('#settings-find').press('Escape');
+    assert.equal(await page.locator('#settings-find-empty').isVisible(), false);
     const settingsLayout = await page.locator("#settings-panel .settings-stack").evaluate(element => ({
       display: getComputedStyle(element).display,
       columns: getComputedStyle(element).gridTemplateColumns,

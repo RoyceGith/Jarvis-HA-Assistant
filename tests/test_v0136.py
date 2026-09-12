@@ -14,10 +14,10 @@ MANIFEST = json.loads((ROOT / "zbrano/release_manifest.json").read_text(encoding
 
 class ConversationCaptureHealthTests(unittest.TestCase):
     def test_release_markers_are_aligned(self):
-        self.assertIn('version: "0.13.238"', CONFIG)
-        self.assertIn('version="0.13.238"', MAIN)
-        self.assertIn("HUD 0.13.238", INDEX)
-        self.assertEqual(MANIFEST["version"], "0.13.238")
+        self.assertIn('version: "0.13.239"', CONFIG)
+        self.assertIn('version="0.13.239"', MAIN)
+        self.assertIn("HUD 0.13.239", INDEX)
+        self.assertEqual(MANIFEST["version"], "0.13.239")
 
     def test_cancelled_microphone_start_cannot_install_stale_stream(self):
         fallback = INDEX[INDEX.index("async function startWakeFallback()") : INDEX.index("function recognitionLanguage()")]

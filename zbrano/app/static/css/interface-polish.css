@@ -56,3 +56,12 @@
 .device-favorites-first input { accent-color:var(--cyan); }
 #entities-panel[data-device-layout="table"] :is(#device-sort,.device-favorites-first) { display:none; }
 @media(max-width:700px) { #device-sort { flex:1 1 8rem; } #entity-more { margin-left:auto; } }
+
+.settings-find { position:sticky; top:0; z-index:20; padding:.75rem; border-bottom:1px solid var(--line); background:var(--surface-strong); }
+#settings-find { box-sizing:border-box; width:min(100%,36rem); min-height:44px; padding:.55rem .7rem; font-size:.8rem; }
+#settings-find-results { display:grid; gap:.3rem; max-height:18rem; overflow:auto; padding:.5rem 0 0; }
+#settings-find-results[hidden],#settings-find-empty[hidden] { display:none!important; }
+#settings-panel .settings-find-result { display:flex; flex-direction:column; align-items:flex-start; gap:.2rem; min-height:44px; padding:.65rem .75rem; text-align:left; background:color-mix(in srgb,var(--cyan) 5%,var(--surface-strong)); box-shadow:none; }
+.settings-find-result strong { font-size:.8rem; overflow-wrap:anywhere; }
+.settings-find-result small,#settings-find-empty { font-size:.72rem; color:var(--text-muted); }
+.settings-found { outline:2px solid var(--cyan); outline-offset:4px; border-radius:6px; }
