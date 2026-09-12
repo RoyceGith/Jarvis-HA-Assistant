@@ -1,5 +1,11 @@
 # Change log
 
+## 0.13.236
+
+- Add consistent icons to the mobile navigation bar and More menu.
+- Synchronize existing new-activity indicators with mobile navigation.
+- Enlarge conversation controls to 44px touch targets on phones.
+
 ## 0.13.235
 
 - Add mobile Chat, Devices, Automations and More navigation.

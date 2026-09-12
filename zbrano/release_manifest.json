@@ -1,9 +1,9 @@
 {
-  "version": "0.13.235",
+  "version": "0.13.236",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/ZBRANO_Core main",
-  "summary": "Add mobile bottom navigation, clearer device states, simpler cards and verified chat action confirmations.",
+  "summary": "Add consistent mobile navigation icons, synchronized activity indicators and larger chat touch controls.",
   "history_backfill": [
     {
       "version": "0.13.0",
@@ -944,20 +944,22 @@
     {
       "version": "0.13.234",
       "summary": "Modernize saved conversation controls and rename the Entities navigation tab to Devices."
+    },
+    {
+      "version": "0.13.235",
+      "summary": "Add mobile bottom navigation, clearer device states, simpler cards and verified chat action confirmations."
     }
   ],
   "release_entry": {
     "features": [
-      "Mobile bottom navigation with a modal More menu and synchronized active tabs.",
-      "Device state badges, simplified cards and verified local action confirmation cards.",
-      "Consistent panel control corners and keyboard focus."
+      "Consistent SVG icons in mobile navigation and More.",
+      "44px conversation controls on phones."
     ],
     "fixes": [
-      "Keep mobile navigation inside the viewport and reserve space below content.",
-      "Render action cards only from successful verified local control results."
+      "Propagate existing unseen activity and accessible labels into mobile navigation."
     ],
     "validation": [
-      "Mobile navigation and menu routing, device controls, action-card verification and safe text rendering; browser screenshots; regression and integration suites; release validators."
+      "Mobile icon rendering, activity propagation and clearing, browser smoke and screenshots, regression and integration suites, release validators."
     ]
   },
   "features": [

@@ -14,10 +14,10 @@ MANIFEST = json.loads((ROOT / "zbrano/release_manifest.json").read_text(encoding
 
 class ReliableComposerPluginIconReleaseTests(unittest.TestCase):
     def test_release_is_aligned(self):
-        self.assertIn('version: "0.13.235"', CONFIG)
-        self.assertIn('version="0.13.235"', MAIN)
-        self.assertIn("HUD 0.13.235", INDEX)
-        self.assertEqual(MANIFEST["version"], "0.13.235")
+        self.assertIn('version: "0.13.236"', CONFIG)
+        self.assertIn('version="0.13.236"', MAIN)
+        self.assertIn("HUD 0.13.236", INDEX)
+        self.assertEqual(MANIFEST["version"], "0.13.236")
 
     def test_icon_handlers_precede_image_loading(self):
         self.assertIn('data-plugin-icon-src=', CONTEXT)

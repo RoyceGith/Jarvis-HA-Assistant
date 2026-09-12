@@ -15,12 +15,12 @@ MANIFEST = json.loads((ROOT / "zbrano/release_manifest.json").read_text(encoding
 
 class PublicProductGuideReleaseTests(unittest.TestCase):
     def test_release_is_aligned(self):
-        self.assertIn('version: "0.13.235"', CONFIG)
-        self.assertIn('version="0.13.235"', MAIN)
-        self.assertIn("HUD 0.13.235", HTML)
-        self.assertEqual(MANIFEST["version"], "0.13.235")
-        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.234")
-        self.assertTrue(CHANGELOG.startswith("# Change log\n\n## 0.13.235"))
+        self.assertIn('version: "0.13.236"', CONFIG)
+        self.assertIn('version="0.13.236"', MAIN)
+        self.assertIn("HUD 0.13.236", HTML)
+        self.assertEqual(MANIFEST["version"], "0.13.236")
+        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.235")
+        self.assertTrue(CHANGELOG.startswith("# Change log\n\n## 0.13.236"))
 
     def test_public_landing_page_is_a_concise_product_guide(self):
         self.assertLess(len(PUBLIC.splitlines()), 130)
