@@ -1,5 +1,11 @@
 # Change log
 
+## 0.13.232
+
+- Treat livingroom/living room and aircondition/air conditioner as equivalent names.
+- Require the requested room and device words to match before direct control.
+- Preserve clarification for genuine ambiguity and existing device permissions.
+
 ## 0.13.231
 
 - Add Allow checkboxes and sensor/control access dropdowns directly to device cards.

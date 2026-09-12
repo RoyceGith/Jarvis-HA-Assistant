@@ -1,9 +1,9 @@
 {
-  "version": "0.13.231",
+  "version": "0.13.232",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/ZBRANO_Core main",
-  "summary": "Manage Allow and sensor/control access directly on rectangular device cards.",
+  "summary": "Recognize joined and spaced room and air-conditioner names consistently when controlling devices.",
   "history_backfill": [
     {
       "version": "0.13.0",
@@ -928,20 +928,24 @@
     {
       "version": "0.13.230",
       "summary": "Organize entities by room and device with favorites and individual access details."
+    },
+    {
+      "version": "0.13.231",
+      "summary": "Manage Allow and sensor/control access directly on rectangular device cards."
     }
   ],
   "release_entry": {
+    "version": "0.13.232",
+    "summary": "Recognize joined and spaced room and air-conditioner names consistently when controlling devices.",
     "features": [
-      "Allow checkbox and capability-aware access dropdown on each device card.",
-      "Rectangular cards and single-line device names with full-name tooltips."
+      "Consistent normalization of joined, spaced, hyphenated and camel-case room/device names."
     ],
     "fixes": [
-      "Reflect partially enabled device groups and preserve read-only sensor access.",
-      "Keep enabled states unchanged when selecting a mode and preserve entity aliases.",
-      "Use one full-width card per row on phones."
+      "Prevent partial device-name matches in other rooms from being used for direct control.",
+      "Keep genuine ambiguity and read-only/disabled device permissions intact."
     ],
     "validation": [
-      "Browser checks for card policy writes, grouped enable/disable, mode changes, alias preservation, sensor-only options, name containment, rectangle dimensions and mobile interaction."
+      "Joined/spaced command routing, aliases, ambiguity and wrong-room regression tests; complete regression and integration suites; release and frontend validation."
     ]
   },
   "features": [

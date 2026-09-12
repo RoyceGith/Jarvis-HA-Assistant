@@ -15,11 +15,11 @@ MANIFEST = json.loads((ROOT / "zbrano/release_manifest.json").read_text(encoding
 
 class FocusedOnboardingReleaseTests(unittest.TestCase):
     def test_release_is_aligned(self):
-        self.assertIn('version: "0.13.231"', CONFIG)
-        self.assertIn('version="0.13.231"', MAIN)
-        self.assertIn("HUD 0.13.231", HTML)
-        self.assertEqual(MANIFEST["version"], "0.13.231")
-        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.230")
+        self.assertIn('version: "0.13.232"', CONFIG)
+        self.assertIn('version="0.13.232"', MAIN)
+        self.assertIn("HUD 0.13.232", HTML)
+        self.assertEqual(MANIFEST["version"], "0.13.232")
+        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.231")
 
     def test_setup_is_one_focused_step_with_a_compact_rail(self):
         self.assertIn('rail.className = "onboarding-step-rail"', ONBOARDING)

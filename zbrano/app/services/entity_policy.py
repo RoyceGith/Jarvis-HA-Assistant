@@ -183,6 +183,16 @@ def ensure_control_allowed(entity_id: str) -> str:
     return domain
 
 
+def normalize_entity_search(value: str) -> str:
+    """Normalize common joined/spaced device words without fuzzy room guessing."""
+    value = re.sub(r"(?<=[a-z])(?=[A-Z])", " ", value).casefold()
+    value = re.sub(r"[_\-]+", " ", value)
+    for room in ("living", "dining", "bed", "bath", "store", "utility"):
+        value = re.sub(rf"\b{room}\s*room\b", f"{room} room", value)
+    value = re.sub(r"\bair\s*(?:condition(?:er|ers|ing)?|con)\b", "air conditioner", value)
+    return " ".join(value.split())
+
+
 def _search_tokens(value: str) -> set[str]:
     stop_words = {
         "the", "a", "an", "in", "on", "at", "of", "to", "my",
@@ -196,7 +206,7 @@ def _search_tokens(value: str) -> set[str]:
 
 
 def find_approved_entities(query: str) -> dict[str, Any]:
-    normalized = " ".join(query.lower().split())
+    normalized = normalize_entity_search(query)
     query_tokens = _search_tokens(normalized)
     policy = load_entity_policy()
     matches: list[dict[str, Any]] = []
@@ -220,13 +230,14 @@ def find_approved_entities(query: str) -> dict[str, Any]:
         ]
         aliases = list(dict.fromkeys([*aliases, *remembered_aliases.get(entity_id, [])]))
         haystacks = [entity_id.replace("_", " "), friendly_name, *aliases]
-        normalized_haystacks = [" ".join(value.lower().split()) for value in haystacks]
+        normalized_haystacks = [normalize_entity_search(value) for value in haystacks]
 
         exact = normalized in normalized_haystacks
-        phrase_partial = any(normalized in value or value in normalized for value in normalized_haystacks)
+        phrase_partial = bool(normalized) and any(normalized in value for value in normalized_haystacks)
         candidate_tokens = set().union(*(_search_tokens(value) for value in normalized_haystacks))
         overlap = query_tokens & candidate_tokens
         token_score = len(overlap) / max(len(query_tokens), 1)
+        query_covered = exact or phrase_partial or bool(query_tokens and query_tokens <= candidate_tokens)
 
         if not (exact or phrase_partial or overlap):
             continue
@@ -243,6 +254,7 @@ def find_approved_entities(query: str) -> dict[str, Any]:
                 "match_quality": "exact" if exact else "partial" if phrase_partial else "word",
                 "matched_words": sorted(overlap),
                 "score": score,
+                "query_covered": query_covered,
             }
         )
 
@@ -252,7 +264,7 @@ def find_approved_entities(query: str) -> dict[str, Any]:
     if limited:
         top_score = limited[0]["score"]
         tied = [item for item in limited if item["score"] == top_score]
-        if len(tied) == 1:
+        if len(tied) == 1 and tied[0]["query_covered"]:
             recommended = tied[0]
 
     return {

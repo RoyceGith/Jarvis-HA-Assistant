@@ -14,10 +14,10 @@ MANIFEST = json.loads((ROOT / "zbrano/release_manifest.json").read_text(encoding
 
 class PublicHistoryContinuityReleaseTests(unittest.TestCase):
     def test_release_markers_are_aligned(self):
-        self.assertIn('version: "0.13.231"', CONFIG)
-        self.assertIn('version="0.13.231"', MAIN)
-        self.assertIn("HUD 0.13.231", HTML)
-        self.assertEqual(MANIFEST["version"], "0.13.231")
+        self.assertIn('version: "0.13.232"', CONFIG)
+        self.assertIn('version="0.13.232"', MAIN)
+        self.assertIn("HUD 0.13.232", HTML)
+        self.assertEqual(MANIFEST["version"], "0.13.232")
 
     def test_last_pre_split_public_commit_is_the_compatibility_base(self):
         self.assertIn('PUBLIC_HISTORY_BASE = "7036f4f0d89929b1db9f7ab5a64aabee2244908b"', EXPORTER)
@@ -28,7 +28,7 @@ class PublicHistoryContinuityReleaseTests(unittest.TestCase):
         self.assertIn("Source commits made after the split exist only in `ZBRANO_Core`", BOUNDARY)
 
     def test_release_history_includes_v01356(self):
-        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.230")
+        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.231")
 
 
 if __name__ == "__main__":
