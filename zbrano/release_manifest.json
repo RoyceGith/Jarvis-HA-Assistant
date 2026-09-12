@@ -1,9 +1,9 @@
 {
-  "version": "0.13.246",
+  "version": "0.13.247",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/ZBRANO_Core main",
-  "summary": "Use right-aligned cyan user prompts and open assistant replies in a centered conversation.",
+  "summary": "Center a narrower prompt box beneath the conversation while preserving the existing control arrangement.",
   "history_backfill": [
     {
       "version": "0.13.0",
@@ -988,14 +988,18 @@
     {
       "version": "0.13.245",
       "summary": "Center user and assistant messages in one shared reading column on wide screens."
+    },
+    {
+      "version": "0.13.246",
+      "summary": "Use right-aligned cyan user prompts and open assistant replies in a centered conversation."
     }
   ],
   "release_entry": {
     "features": [
-      "Right-aligned cyan user prompts with open assistant replies."
+      "Centered narrower prompt box with the existing control arrangement."
     ],
     "fixes": [
-      "Keep action icons below the text and preserve a centered responsive conversation."
+      "Align composer tools and attachment previews with the conversation column."
     ],
     "validation": [
       "Browser smoke, desktop and phone previews, regression and integration suites, and release validators."

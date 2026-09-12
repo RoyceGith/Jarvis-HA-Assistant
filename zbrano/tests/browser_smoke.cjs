@@ -167,7 +167,7 @@ const onboardingFixture = {
     {id:"notifications",title:"Notifications and autonomy",description:"Choose notification delivery",ready:false,required:false,target:"notifications",last_check:null,skipped:false},
   ],
   installation_report: {
-    generated_at: 1788300000, version: "0.13.246", ready: true, attention_count: 0, ready_count: 5,
+    generated_at: 1788300000, version: "0.13.247", ready: true, attention_count: 0, ready_count: 5,
     checks: [
       {id:"home_assistant",title:"Home Assistant",state:"ready",required:true,detail:"Connected to Home Assistant",target:"home_assistant"},
       {id:"model",title:"AI model",state:"ready",required:true,detail:"gpt-5-mini is configured",target:"model"},
@@ -175,7 +175,7 @@ const onboardingFixture = {
       {id:"backup",title:"Backup and restore",state:"ready",required:false,detail:"A portable ZBRANO backup can be exported from Settings",target:"memory"},
       {id:"automation_health",title:"Automation safety",state:"ready",required:false,detail:"2 saved; 0 need permission; 0 paused after failures",target:"automations"},
     ],
-    support_summary: "ZBRANO installation report · v0.13.246\nOverall: Ready\nHome Assistant: Connected\nAI model: Configured\nDevice access: 3 sensor devices / 1 control devices\nPersistent storage: Ready\nAutomations: 2 saved / 0 permission issues / 0 failure pauses",
+    support_summary: "ZBRANO installation report · v0.13.247\nOverall: Ready\nHome Assistant: Connected\nAI model: Configured\nDevice access: 3 sensor devices / 1 control devices\nPersistent storage: Ready\nAutomations: 2 saved / 0 permission issues / 0 failure pauses",
   },
 };
 
@@ -209,7 +209,7 @@ function apiFixture(url, method = "GET") {
   if (pathname === "/api/health") {
     return {
       status: "ok",
-      version: "0.13.246",
+      version: "0.13.247",
       speech_provider: "openai",
       speech_providers: {openai: {configured: true}, elevenlabs: {configured: false}},
     };
@@ -321,7 +321,7 @@ function apiFixture(url, method = "GET") {
     return {files:[],folders:[{name:"Documents",path:"Documents",file_count:1}],current_folder:""};
   }
   if (pathname === "/api/release-memory-sync") {
-    return {enabled: false, state: "disabled", version: "0.13.246", task_active: false};
+    return {enabled: false, state: "disabled", version: "0.13.247", task_active: false};
   }
   if (pathname === "/api/tab-activity") return {revisions: {}};
   if (pathname === "/api/grinder-monitor/status") return {enabled: false, connected: false};
@@ -561,7 +561,7 @@ async function main() {
       for(const width of [1920,1100,390])for(const theme of ['light','dark']) {
         await page.setViewportSize({width,height:900});
         await page.evaluate(value=>{document.documentElement.dataset.theme=value;messages.scrollTop=messages.scrollHeight;},theme);
-        await page.locator('#messages').screenshot({animations:'disabled',path:process.env.ZBRANO_READABILITY_SCREENSHOT.replace('.png',`-${width}-${theme}.png`)});
+        await page.locator('.core-stage').screenshot({animations:'disabled',path:process.env.ZBRANO_READABILITY_SCREENSHOT.replace('.png',`-${width}-${theme}.png`)});
       }
       await page.evaluate(theme=>{document.documentElement.dataset.theme=theme;document.getElementById('readability-user').remove();document.getElementById('readability-reply').remove();},previousTheme);
       await page.setViewportSize({width:1100,height:720});

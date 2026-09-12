@@ -5,6 +5,9 @@ automations. Use Setup &amp; safety, When, Only if, Then, and optional Outcomes 
 interactive flow canvas. Natural-language creation, templates, drag-and-drop,
 saved automation compatibility, and the full Advanced editor remain available.
 
+Version 0.13.247 centers a narrower prompt box beneath the chat while preserving
+the existing attachment, microphone, stop and send arrangement.
+
 Version 0.13.246 uses right-aligned cyan user prompts and open assistant
 replies within a centered conversation column.
 

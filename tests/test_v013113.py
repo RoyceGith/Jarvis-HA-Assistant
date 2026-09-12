@@ -19,11 +19,11 @@ MANIFEST = json.loads((ROOT / "zbrano/release_manifest.json").read_text(encoding
 
 class NotificationInboxDeleteReleaseTests(unittest.TestCase):
     def test_release_markers_are_aligned(self):
-        self.assertIn('version: "0.13.246"', CONFIG)
-        self.assertIn('version="0.13.246"', MAIN)
-        self.assertIn("HUD 0.13.246", HTML)
-        self.assertEqual(MANIFEST["version"], "0.13.246")
-        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.245")
+        self.assertIn('version: "0.13.247"', CONFIG)
+        self.assertIn('version="0.13.247"', MAIN)
+        self.assertIn("HUD 0.13.247", HTML)
+        self.assertEqual(MANIFEST["version"], "0.13.247")
+        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.246")
 
     def test_each_inbox_item_has_a_persistent_delete_control(self):
         self.assertIn('remove.className = "notification-inbox-delete"', INBOX)

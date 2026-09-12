@@ -13,10 +13,10 @@ MANIFEST = json.loads((ROOT / "zbrano/release_manifest.json").read_text(encoding
 
 class ActionableOnboardingReleaseTests(unittest.TestCase):
     def test_release_markers_are_aligned(self):
-        self.assertIn('version: "0.13.246"', CONFIG)
-        self.assertIn('version="0.13.246"', MAIN)
-        self.assertIn("HUD 0.13.246", HTML)
-        self.assertEqual(MANIFEST["version"], "0.13.246")
+        self.assertIn('version: "0.13.247"', CONFIG)
+        self.assertIn('version="0.13.247"', MAIN)
+        self.assertIn("HUD 0.13.247", HTML)
+        self.assertEqual(MANIFEST["version"], "0.13.247")
 
     def test_backend_check_route_has_a_closed_step_allowlist(self):
         section = MAIN[MAIN.index('@app.post("/api/onboarding/check/{step_id}")'):MAIN.index('@app.put("/api/settings")')]
@@ -37,7 +37,7 @@ class ActionableOnboardingReleaseTests(unittest.TestCase):
         self.assertNotIn("grinder", ONBOARDING_JS.lower())
 
     def test_release_history_includes_v01359(self):
-        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.245")
+        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.246")
 
 
 if __name__ == "__main__":

@@ -1,5 +1,11 @@
 # Change log
 
+## 0.13.247
+
+- Center a narrower prompt box beneath the conversation.
+- Preserve the existing attachment, Talk, Stop and Send arrangement.
+- Align message tools and attachment previews with the same column.
+
 ## 0.13.246
 
 - Match the reference with right-aligned cyan user prompts and open assistant replies.
