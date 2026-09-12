@@ -122,13 +122,25 @@ async def notification_channels() -> list[dict[str, Any]]:
         integration = registry_platforms.get(entity_id, "")
         identity = f"{integration} {entity_id} {friendly_name}".lower()
         platform = "telegram" if integration in {"telegram", "telegram_bot"} or "telegram" in identity else "home_assistant"
+        state = entity.get("state")
+        explicitly_unavailable = str(state or "").strip().lower() == "unavailable"
+        status_unreported = state in {None, "", "unknown"}
         channels.append({
             "entity_id": entity_id,
             "friendly_name": friendly_name,
             "platform": platform,
             "integration": integration or "unknown",
-            "available": bool(entity.get("available")),
-            "state": entity.get("state"),
+            # Notify entities are action endpoints, not ordinary state sensors.
+            # Home Assistant commonly reports their state as "unknown" even
+            # while notify.send_message is ready. Only an explicit
+            # "unavailable" state proves the endpoint cannot currently run.
+            "available": not explicitly_unavailable,
+            "availability_label": (
+                "Unavailable" if explicitly_unavailable
+                else "Ready · status not reported" if status_unreported
+                else "Ready"
+            ),
+            "state": state,
             "icon": entity.get("icon"),
         })
     channels.sort(key=lambda item: (item["platform"] != "telegram", item["friendly_name"].lower()))

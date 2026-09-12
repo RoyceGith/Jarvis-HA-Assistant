@@ -28,12 +28,14 @@
     testSelect.replaceChildren(new Option("Choose channel", ""));
     for (const channel of state.channels) {
       option(defaultSelect, channel); option(testSelect, channel);
-      const row = document.createElement("div"); row.className = "notification-channel";
+      const row = document.createElement("div"); row.className = "notification-channel"; row.dataset.availability = channel.available === false ? "unavailable" : "ready";
       const head = document.createElement("div"); head.className = "notification-channel-head";
       const name = document.createElement("strong"); name.textContent = channel.friendly_name;
       const platform = document.createElement("span"); platform.className = "notification-platform"; platform.textContent = channel.platform;
       const id = document.createElement("code"); id.textContent = channel.entity_id;
-      const availability = document.createElement("small"); availability.textContent = channel.available ? "Available" : `Unavailable · ${channel.state || "unknown"}`;
+      const availability = document.createElement("small");
+      availability.className = "notification-channel-availability";
+      availability.textContent = channel.availability_label || (channel.available === false ? "Unavailable" : "Ready");
       head.append(name, platform); row.append(head, id, availability); root.appendChild(row);
     }
     if (!state.channels.length) root.innerHTML = '<div class="autonomy-empty">No Home Assistant notify entities found. Finish the Telegram bot integration and add an allowed chat ID.</div>';

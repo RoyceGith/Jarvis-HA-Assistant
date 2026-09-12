@@ -1,9 +1,9 @@
 {
-  "version": "0.13.220",
+  "version": "0.13.221",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/ZBRANO_Core main",
-  "summary": "Reorganize Notifications into a contained, responsive delivery workspace.",
+  "summary": "Correct notification endpoint readiness and add guided Telegram bot setup.",
   "history_backfill": [
     {
       "version": "0.13.0",
@@ -884,19 +884,23 @@
       {
         "version": "0.13.219",
         "summary": "Allowed ordinary Home Assistant controls by default while preserving explicit entity choices."
+      },
+      {
+        "version": "0.13.220",
+        "summary": "Reorganized Notifications into a contained, responsive delivery workspace."
       }
   ],
   "release_entry": {
     "features": [
-      "Present notification destinations, delivery defaults, test delivery, and Telegram Inbox in a clear two-tier workspace.",
-      "Adapt every notification form, card, list, and toolbar cleanly from wide desktop layouts to narrow mobile screens."
+      "Guide users from Telegram BotFather through Home Assistant Polling setup, chat allowlisting, and final ZBRANO pairing.",
+      "Provide official setup links and localized instructions without asking ZBRANO to receive or store the bot token."
     ],
     "fixes": [
-      "Contain notification controls and dynamic content so long channel names, statuses, and actions cannot overflow their cards.",
-      "Keep Notification Center, Watchlist, and Delivery Logs as focused views with a consistent navigation and refresh header."
+      "Treat an unknown Home Assistant notify entity state as status not reported instead of falsely marking its action endpoint unavailable.",
+      "Reserve Unavailable for notification endpoints that Home Assistant explicitly reports as unavailable."
     ],
     "validation": [
-      "Desktop and mobile notification layout, horizontal-overflow containment, browser smoke, integration coverage, and v0.13.220 release alignment"
+      "Unknown and unavailable endpoint classification, guided Telegram setup, multilingual copy, browser smoke, integration coverage, and v0.13.221 release alignment"
     ]
   },
   "features": [

@@ -1,9 +1,12 @@
-## ZBRANO v0.13.220
+## ZBRANO v0.13.221
 
 ZBRANO combines Home Assistant chat, voice, entity control, memory, notifications,
 calendar and contact tools, plugins, and evidence-based automations. Automation Studio now uses
 a visual building-block toolbox, interactive node canvas, and contextual inspector;
 the established automation engine and stored definitions remain compatible.
+
+Version 0.13.221 correctly recognizes stateless notification endpoints and adds
+a guided, private Telegram BotFather-to-Home-Assistant setup inside Notifications.
 
 Version 0.13.220 reorganizes Notifications into a clear, contained delivery
 workspace with responsive cards, forms, Watchlist, and Delivery Logs.

@@ -1,5 +1,11 @@
 # Change log
 
+## 0.13.221
+
+- Show stateless Home Assistant notification endpoints as Ready with status not reported instead of falsely Unavailable.
+- Reserve Unavailable for endpoints explicitly reported unavailable by Home Assistant.
+- Add a multilingual Telegram setup guide using BotFather, Home Assistant Polling, allowed chat IDs, and ZBRANO pairing without storing the token.
+
 ## 0.13.220
 
 - Reorganize Notifications into a clear delivery workspace with distinct destinations, policy, testing, and Telegram sections.

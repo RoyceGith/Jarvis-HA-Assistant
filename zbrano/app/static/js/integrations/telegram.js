@@ -3,6 +3,16 @@
   const $ = id => document.getElementById(id);
   if (!tab || !$('telegram-inbound-form')) return;
   let state = {settings:{}, linked_chats:[], listener:{}};
+  const setupGuide = $('telegram-setup-guide');
+  if (setupGuide) setupGuide.innerHTML = `
+    <summary><span><strong>Set up a Telegram bot</strong><small>A guided four-step setup</small></span><span id="telegram-setup-status" class="telegram-setup-status">Checking setup</span></summary>
+    <div class="telegram-setup-steps">
+      <article><span class="telegram-step-number">1</span><div><h4>Create your bot</h4><p>Open Telegram’s official BotFather, send /newbot, choose its name, and securely copy the token it gives you.</p><a href="https://t.me/BotFather" target="_blank" rel="noopener noreferrer">Open BotFather</a></div></article>
+      <article><span class="telegram-step-number">2</span><div><h4>Connect it to Home Assistant</h4><p>Open the Telegram Bot integration, choose Polling, and paste the token there. Polling needs no public Home Assistant address.</p><a href="https://my.home-assistant.io/redirect/config_flow_start/?domain=telegram_bot" target="_blank" rel="noopener noreferrer">Add to Home Assistant</a></div></article>
+      <article><span class="telegram-step-number">3</span><div><h4>Allow your Telegram chat</h4><p>Get your ID from @id_bot. In Home Assistant, open the Telegram Bot integration menu and select Add allowed chat ID. Then message your new bot with /start.</p><a href="https://t.me/id_bot" target="_blank" rel="noopener noreferrer">Get my chat ID</a></div></article>
+      <article><span class="telegram-step-number">4</span><div><h4>Pair it with ZBRANO</h4><p>Return here and select Refresh. Choose the Telegram reply channel, save the Inbox, generate a pairing code, and send that command to your bot.</p><button type="button" data-telegram-refresh>Refresh and detect bot</button></div></article>
+    </div>
+    <p class="telegram-token-boundary"><strong>Your token stays private.</strong> Enter it only in Home Assistant. ZBRANO never asks for it or stores it.</p>`;
 
   async function api(path, options={}) {
     const response = await fetch(path, options);
@@ -16,12 +26,18 @@
     try {
       const [inbound, notifications] = await Promise.all([api('api/telegram-inbound'), api('api/notifications')]);
       state = inbound;
+      const telegramChannels = (notifications.channels || []).filter(item => item.platform === 'telegram');
+      const setupStatus = $('telegram-setup-status');
+      if (setupStatus) {
+        setupStatus.textContent = telegramChannels.length ? `${telegramChannels.length} channel${telegramChannels.length === 1 ? '' : 's'} detected` : 'Not connected';
+        setupStatus.dataset.status = telegramChannels.length ? 'ready' : 'attention';
+      }
       $('telegram-inbound-enabled').checked = Boolean(state.settings?.enabled);
       $('telegram-remote-approvals').checked = Boolean(state.settings?.remote_approvals_enabled);
       const channel = $('telegram-inbound-channel');
       channel.replaceChildren(new Option('Use Notification Center default', ''));
-      for (const item of notifications.channels || []) {
-        if (item.platform === 'telegram') channel.appendChild(new Option(`Telegram · ${item.friendly_name}`, item.entity_id));
+      for (const item of telegramChannels) {
+        channel.appendChild(new Option(`Telegram · ${item.friendly_name}`, item.entity_id));
       }
       channel.value = state.settings?.reply_channel || '';
       const badge = $('telegram-inbound-state');
@@ -57,6 +73,13 @@
       output.querySelector('code').textContent = result.command;
       status.textContent = 'Pairing code ready.';
     } catch (error) { status.textContent = `Pairing failed: ${error.message || error}`; }
+  });
+
+  setupGuide?.addEventListener('click', event => {
+    const refresh = event.target.closest('[data-telegram-refresh]');
+    if (!refresh) return;
+    refresh.disabled = true;
+    load().finally(() => { refresh.disabled = false; });
   });
 
   $('telegram-linked-chats').addEventListener('click', async event => {

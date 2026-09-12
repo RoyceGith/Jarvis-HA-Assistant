@@ -15,11 +15,11 @@ MANIFEST = json.loads((ROOT / "zbrano/release_manifest.json").read_text(encoding
 
 class OnboardingCompletionReleaseTests(unittest.TestCase):
     def test_release_is_aligned(self):
-        self.assertIn('version: "0.13.220"', CONFIG)
-        self.assertIn('version="0.13.220"', MAIN)
-        self.assertIn("HUD 0.13.220", HTML)
-        self.assertEqual(MANIFEST["version"], "0.13.220")
-        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.219")
+        self.assertIn('version: "0.13.221"', CONFIG)
+        self.assertIn('version="0.13.221"', MAIN)
+        self.assertIn("HUD 0.13.221", HTML)
+        self.assertEqual(MANIFEST["version"], "0.13.221")
+        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.220")
 
     def test_completed_setup_has_a_clear_handoff(self):
         self.assertIn("function renderCompletion(data, steps)", ONBOARDING)

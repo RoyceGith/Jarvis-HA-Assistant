@@ -5,6 +5,7 @@ import json
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 import tempfile
+from types import SimpleNamespace
 import unittest
 from unittest.mock import AsyncMock, patch
 
@@ -115,13 +116,13 @@ class ApplicationIntegrationTests(unittest.IsolatedAsyncioTestCase):
             response = await self.client.get("/api/health")
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json()["status"], "ok")
-        self.assertEqual(response.json()["version"], "0.13.220")
+        self.assertEqual(response.json()["version"], "0.13.221")
         self.assertEqual(response.json()["ha_read_entity_count"], 1)
         self.assertEqual(response.json()["ha_control_entity_count"], 1)
 
         frontend = await self.client.get("/")
         self.assertEqual(frontend.status_code, 200)
-        self.assertIn("HUD 0.13.220", frontend.text)
+        self.assertIn("HUD 0.13.221", frontend.text)
         self.assertEqual(
             frontend.headers.get("cache-control"),
             "no-store, no-cache, must-revalidate, max-age=0",
@@ -789,6 +790,45 @@ class ApplicationIntegrationTests(unittest.IsolatedAsyncioTestCase):
         spaces = (await self.client.get("/api/knowledge-memory/spaces")).json()["spaces"]
         self.assertEqual(next(item for item in spaces if item["name"] == "Kitchen")["category"], "Recipes")
 
+    async def test_notification_action_endpoint_unknown_state_is_ready(self) -> None:
+        inventory = {
+            "entities": [
+                {
+                    "entity_id": "notify.royce_s22_ultra",
+                    "friendly_name": "Royce S22 Home Assistant",
+                    "available": False,
+                    "state": "unknown",
+                    "icon": "mdi:cellphone",
+                },
+                {
+                    "entity_id": "notify.old_phone",
+                    "friendly_name": "Old phone",
+                    "available": False,
+                    "state": "unavailable",
+                    "icon": "mdi:cellphone-off",
+                },
+            ]
+        }
+        registry = {
+            "result": [
+                {"entity_id": "notify.royce_s22_ultra", "platform": "mobile_app"},
+                {"entity_id": "notify.old_phone", "platform": "mobile_app"},
+            ]
+        }
+        fake_ha = SimpleNamespace(command=AsyncMock(return_value=registry))
+        with (
+            patch.object(notifications, "list_ha_entities", AsyncMock(return_value=inventory)),
+            patch.object(notifications, "ha_ws", fake_ha),
+        ):
+            channels = await notifications.notification_channels()
+
+        current = next(item for item in channels if item["entity_id"] == "notify.royce_s22_ultra")
+        stale = next(item for item in channels if item["entity_id"] == "notify.old_phone")
+        self.assertTrue(current["available"])
+        self.assertEqual(current["availability_label"], "Ready · status not reported")
+        self.assertFalse(stale["available"])
+        self.assertEqual(stale["availability_label"], "Unavailable")
+
     async def test_notification_settings_and_watch_round_trip(self) -> None:
         saved = await self.client.put(
             "/api/notifications/settings",
@@ -838,6 +878,26 @@ class ApplicationIntegrationTests(unittest.IsolatedAsyncioTestCase):
         deleted = await self.client.delete(f"/api/notifications/watches/{watch_id}")
         self.assertEqual(deleted.status_code, 200)
         self.assertEqual(notifications.notification_watches(), [])
+
+    async def test_notification_endpoint_unknown_state_is_not_a_false_failure(self) -> None:
+        inventory = {"entities": [
+            {"entity_id": "notify.phone", "friendly_name": "Phone", "state": "unknown", "available": False, "icon": None},
+            {"entity_id": "notify.offline_phone", "friendly_name": "Offline phone", "state": "unavailable", "available": False, "icon": None},
+        ]}
+        registry = {"result": [
+            {"entity_id": "notify.phone", "platform": "mobile_app"},
+            {"entity_id": "notify.offline_phone", "platform": "mobile_app"},
+        ]}
+        with (
+            patch.object(notifications, "list_ha_entities", AsyncMock(return_value=inventory)),
+            patch.object(notifications, "ha_ws", SimpleNamespace(command=AsyncMock(return_value=registry))),
+        ):
+            channels = await notifications.notification_channels()
+        by_id = {item["entity_id"]: item for item in channels}
+        self.assertTrue(by_id["notify.phone"]["available"])
+        self.assertEqual(by_id["notify.phone"]["availability_label"], "Ready · status not reported")
+        self.assertFalse(by_id["notify.offline_phone"]["available"])
+        self.assertEqual(by_id["notify.offline_phone"]["availability_label"], "Unavailable")
 
     async def test_shared_files_support_nested_folders_upload_move_and_safe_delete(self) -> None:
         created = await self.client.post("/api/files/shared/folders", json={"parent":"","name":"Documents"})
