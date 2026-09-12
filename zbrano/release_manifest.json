@@ -1,9 +1,9 @@
 {
-  "version": "0.13.240",
+  "version": "0.13.241",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/ZBRANO_Core main",
-  "summary": "Copy chat messages with original formatting and clear clipboard success or failure feedback.",
+  "summary": "Improve chat readability with distinct message surfaces, bounded line widths and compact author labels.",
   "history_backfill": [
     {
       "version": "0.13.0",
@@ -964,18 +964,22 @@
     {
       "version": "0.13.239",
       "summary": "Find settings by label and jump directly to their category and control."
+    },
+    {
+      "version": "0.13.240",
+      "summary": "Copy chat messages with original formatting and clear clipboard success or failure feedback."
     }
   ],
   "release_entry": {
     "features": [
-      "Copy original message text from completed and saved chat messages.",
-      "Translated success/failure feedback and mobile touch targets."
+      "Distinct user and assistant message surfaces with comfortable line widths.",
+      "Author labels above message text, mobile spacing and compact density support."
     ],
     "fixes": [
-      "Keep pending stream placeholders free of actions and preserve raw text for copy and speech."
+      "Preserve line breaks in user messages and keep device result styling distinct."
     ],
     "validation": [
-      "Browser clipboard text fidelity and failure feedback; complete browser smoke, regression/integration suites and release validators."
+      "Desktop/phone light/dark screenshot review; browser smoke, regression/integration suites and release validators."
     ]
   },
   "features": [

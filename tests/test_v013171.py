@@ -26,11 +26,11 @@ def load_evaluation():
 
 class AutomationEvaluationReleaseTests(unittest.TestCase):
     def test_release_is_aligned(self):
-        self.assertIn('version: "0.13.240"', CONFIG)
-        self.assertIn('version="0.13.240"', MAIN)
-        self.assertIn("HUD 0.13.240", HTML)
-        self.assertEqual(MANIFEST["version"], "0.13.240")
-        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.239")
+        self.assertIn('version: "0.13.241"', CONFIG)
+        self.assertIn('version="0.13.241"', MAIN)
+        self.assertIn("HUD 0.13.241", HTML)
+        self.assertEqual(MANIFEST["version"], "0.13.241")
+        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.240")
 
     def test_evaluation_states_have_explicit_evidence_boundaries(self):
         evaluate = load_evaluation()

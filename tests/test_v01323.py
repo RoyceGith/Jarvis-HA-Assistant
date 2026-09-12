@@ -14,10 +14,10 @@ MANIFEST = json.loads((ROOT / "zbrano/release_manifest.json").read_text(encoding
 
 class ReleaseSyncDomainBoundaryTests(unittest.TestCase):
     def test_release_markers_are_aligned(self):
-        self.assertIn('version: "0.13.240"', CONFIG)
-        self.assertIn('version="0.13.240"', MAIN)
-        self.assertIn("HUD 0.13.240", HTML)
-        self.assertEqual(MANIFEST["version"], "0.13.240")
+        self.assertIn('version: "0.13.241"', CONFIG)
+        self.assertIn('version="0.13.241"', MAIN)
+        self.assertIn("HUD 0.13.241", HTML)
+        self.assertEqual(MANIFEST["version"], "0.13.241")
 
     def test_release_worker_is_outside_composition_root(self):
         self.assertNotIn("async def synchronize_release_to_workshop_memory_once(", MAIN)

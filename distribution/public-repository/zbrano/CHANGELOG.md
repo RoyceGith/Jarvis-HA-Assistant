@@ -1,5 +1,11 @@
 # Change log
 
+## 0.13.241
+
+- Separate user messages and assistant replies with subtle rounded surfaces.
+- Move author labels above the text and bound long reading lines.
+- Preserve user line breaks and adapt spacing for phone and compact density.
+
 ## 0.13.240
 
 - Add compact Copy message actions to completed replies and saved messages.
