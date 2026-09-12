@@ -13,11 +13,11 @@ MANIFEST = json.loads((ROOT / "zbrano/release_manifest.json").read_text(encoding
 
 class MemoryEditorSpacingReleaseTests(unittest.TestCase):
     def test_release_is_aligned(self):
-        self.assertIn('version: "0.13.230"', CONFIG)
-        self.assertIn('version="0.13.230"', MAIN)
-        self.assertIn("HUD 0.13.230", INDEX)
-        self.assertEqual(MANIFEST["version"], "0.13.230")
-        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.229")
+        self.assertIn('version: "0.13.231"', CONFIG)
+        self.assertIn('version="0.13.231"', MAIN)
+        self.assertIn("HUD 0.13.231", INDEX)
+        self.assertEqual(MANIFEST["version"], "0.13.231")
+        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.230")
 
     def test_content_editor_starts_directly_below_its_label(self):
         self.assertIn("grid-template-rows:auto minmax(0,1fr)", MEMORY_CSS)

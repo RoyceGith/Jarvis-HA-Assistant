@@ -14,10 +14,10 @@ MANIFEST = json.loads((ROOT / "zbrano/release_manifest.json").read_text(encoding
 
 class EntitiesScrollingTests(unittest.TestCase):
     def test_release_markers_are_aligned(self):
-        self.assertIn('version: "0.13.230"', CONFIG)
-        self.assertIn('version="0.13.230"', MAIN)
-        self.assertIn("HUD 0.13.230", INDEX)
-        self.assertEqual(MANIFEST["version"], "0.13.230")
+        self.assertIn('version: "0.13.231"', CONFIG)
+        self.assertIn('version="0.13.231"', MAIN)
+        self.assertIn("HUD 0.13.231", INDEX)
+        self.assertEqual(MANIFEST["version"], "0.13.231")
 
     def test_entity_views_are_independent_siblings(self):
         inventory_start = INDEX.index('<div data-entity-view-panel="inventory">')

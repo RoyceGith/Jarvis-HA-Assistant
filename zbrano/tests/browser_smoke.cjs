@@ -57,6 +57,7 @@ const entities = [
 for (const entity of [entities[0], entities.find(entity => entity.domain === "climate")]) {
   Object.assign(entity, {device_id:"fixture-ac", device_name:"Living Room AC", area_id:"living-room", area_name:"Living room", site_name:"Home"});
 }
+entities[1].device_name = "A very long device name for the upstairs bedroom temperature and comfort sensor";
 const browserNow = Math.floor(Date.now() / 1000);
 const automationFixture = {
   settings: {
@@ -166,7 +167,7 @@ const onboardingFixture = {
     {id:"notifications",title:"Notifications and autonomy",description:"Choose notification delivery",ready:false,required:false,target:"notifications",last_check:null,skipped:false},
   ],
   installation_report: {
-    generated_at: 1788300000, version: "0.13.230", ready: true, attention_count: 0, ready_count: 5,
+    generated_at: 1788300000, version: "0.13.231", ready: true, attention_count: 0, ready_count: 5,
     checks: [
       {id:"home_assistant",title:"Home Assistant",state:"ready",required:true,detail:"Connected to Home Assistant",target:"home_assistant"},
       {id:"model",title:"AI model",state:"ready",required:true,detail:"gpt-5-mini is configured",target:"model"},
@@ -174,7 +175,7 @@ const onboardingFixture = {
       {id:"backup",title:"Backup and restore",state:"ready",required:false,detail:"A portable ZBRANO backup can be exported from Settings",target:"memory"},
       {id:"automation_health",title:"Automation safety",state:"ready",required:false,detail:"2 saved; 0 need permission; 0 paused after failures",target:"automations"},
     ],
-    support_summary: "ZBRANO installation report · v0.13.230\nOverall: Ready\nHome Assistant: Connected\nAI model: Configured\nDevice access: 3 sensor devices / 1 control devices\nPersistent storage: Ready\nAutomations: 2 saved / 0 permission issues / 0 failure pauses",
+    support_summary: "ZBRANO installation report · v0.13.231\nOverall: Ready\nHome Assistant: Connected\nAI model: Configured\nDevice access: 3 sensor devices / 1 control devices\nPersistent storage: Ready\nAutomations: 2 saved / 0 permission issues / 0 failure pauses",
   },
 };
 
@@ -208,7 +209,7 @@ function apiFixture(url, method = "GET") {
   if (pathname === "/api/health") {
     return {
       status: "ok",
-      version: "0.13.230",
+      version: "0.13.231",
       speech_provider: "openai",
       speech_providers: {openai: {configured: true}, elevenlabs: {configured: false}},
     };
@@ -320,7 +321,7 @@ function apiFixture(url, method = "GET") {
     return {files:[],folders:[{name:"Documents",path:"Documents",file_count:1}],current_folder:""};
   }
   if (pathname === "/api/release-memory-sync") {
-    return {enabled: false, state: "disabled", version: "0.13.230", task_active: false};
+    return {enabled: false, state: "disabled", version: "0.13.231", task_active: false};
   }
   if (pathname === "/api/tab-activity") return {revisions: {}};
   if (pathname === "/api/grinder-monitor/status") return {enabled: false, connected: false};
@@ -596,6 +597,18 @@ async function main() {
     assert.doesNotMatch(await page.locator("#device-grid").innerText(), /climate\.browser_thermostat/);
     await page.locator("#device-room-nav").getByRole("button", {name:/^Living room/}).click();
     assert.equal(await page.locator("#device-grid .device-card").count(), 1);
+    const cardAllow = page.locator('[data-device-allow="device:fixture-ac"]');
+    const cardMode = page.locator('[data-device-mode="device:fixture-ac"]');
+    assert.equal(await cardAllow.evaluate(input => input.indeterminate), true);
+    assert.equal(await cardMode.inputValue(), "control");
+    const cardRead = page.waitForRequest(request => request.method()==="PUT" && request.url().includes("entity-policy/climate.browser_thermostat") && request.postDataJSON().access==="state_only");
+    await cardMode.selectOption("read");
+    assert.equal((await cardRead).postDataJSON().enabled, true);
+    assert.equal(await cardAllow.evaluate(input => input.indeterminate), true);
+    const cardControl = page.waitForRequest(request => request.method()==="PUT" && request.url().includes("entity-policy/climate.browser_thermostat") && request.postDataJSON().access==="low_risk_control_proposed");
+    await cardMode.selectOption("control");
+    await cardControl;
+    assert.equal(await page.locator("#device-details").isHidden(), true, "Card controls do not open details");
     await page.locator('[data-device-open="device:fixture-ac"]').click();
     assert.equal(await page.locator("#device-details .device-entity").count(), 2);
     assert.match(await page.locator("#device-grid").innerText(), /Mixed access/);
@@ -620,11 +633,33 @@ async function main() {
     assert.equal(new URL((await historyRead).url()).searchParams.get("entity_ids"), "sensor.browser_fixture_1");
     await page.locator('[data-entity-view="inventory"]').click();
     await page.getByRole("button", {name:"Close device details", exact:true}).click();
+    const disableDevice = page.waitForRequest(request => request.method()==="PUT" && request.url().includes("entity-policy/climate.browser_thermostat") && request.postDataJSON().enabled===false);
+    const disableSensor = page.waitForRequest(request => request.method()==="PUT" && request.url().includes("entity-policy/sensor.browser_fixture_1") && request.postDataJSON().enabled===false);
+    await cardAllow.uncheck();
+    await Promise.all([disableDevice,disableSensor]);
+    const disabledMode = page.waitForRequest(request => request.method()==="PUT" && request.url().includes("entity-policy/climate.browser_thermostat") && request.postDataJSON().access==="state_only");
+    await cardMode.selectOption("read");
+    assert.equal((await disabledMode).postDataJSON().enabled, false, "Changing mode does not enable a blocked device");
+    const enableDevice = page.waitForRequest(request => request.method()==="PUT" && request.url().includes("entity-policy/climate.browser_thermostat") && request.postDataJSON().enabled===true);
+    const enableSensor = page.waitForRequest(request => request.method()==="PUT" && request.url().includes("entity-policy/sensor.browser_fixture_1") && request.postDataJSON().enabled===true);
+    await cardAllow.check();
+    assert.equal((await enableDevice).postDataJSON().access, "state_only");
+    const sensorEnabledPayload = (await enableSensor).postDataJSON();
+    assert.equal(sensorEnabledPayload.access, "read_only");
+    assert.deepEqual(sensorEnabledPayload.aliases, ["Room comfort"]);
+    const restoreControl = page.waitForRequest(request => request.method()==="PUT" && request.url().includes("entity-policy/climate.browser_thermostat") && request.postDataJSON().access==="low_risk_control_proposed");
+    await cardMode.selectOption("control");
+    await restoreControl;
     await page.locator(".device-favorite").click();
     await page.locator('[data-device-location="favorites"]').click();
     assert.equal(await page.locator("#device-grid .device-card").count(), 1);
     assert.match(await page.evaluate(() => localStorage.getItem("zbrano_device_favorites_v1")), /fixture-ac/);
     await page.locator("#device-clear-filters").click();
+    const longName = page.locator('[data-device-open="entity:sensor.browser_fixture_2"] .device-name');
+    assert.equal(await longName.getAttribute("title"), entities[1].device_name);
+    assert.ok(await longName.evaluate(name => name.getBoundingClientRect().height <= parseFloat(getComputedStyle(name).lineHeight)+1));
+    assert.ok(await longName.locator("xpath=ancestor::article").evaluate(card => card.getBoundingClientRect().width > card.getBoundingClientRect().height*1.5));
+    assert.equal(await page.locator('[data-device-mode="entity:sensor.browser_fixture_2"] option[value="control"]').count(), 0);
     await page.locator("#entity-search").fill("Room comfort");
     assert.equal(await page.locator("#device-grid .device-card").count(), 1);
     await page.locator("#device-clear-filters").click();
@@ -633,6 +668,9 @@ async function main() {
     await page.locator("#device-clear-filters").click();
     await page.setViewportSize({width:390,height:720});
     await page.locator("#entity-search").fill("Living Room AC");
+    if(process.env.ZBRANO_DEVICE_SCREENSHOT){
+      await page.screenshot({animations:"disabled",path:process.env.ZBRANO_DEVICE_SCREENSHOT.replace('.png','-mobile.png')});
+    }
     await page.locator('[data-device-open="device:fixture-ac"]').click();
     assert.ok(await page.locator("#device-details").evaluate(element => {const r=element.getBoundingClientRect(); return r.left>=0 && r.right<=innerWidth && r.bottom<=innerHeight;}));
     await page.keyboard.press("Escape");

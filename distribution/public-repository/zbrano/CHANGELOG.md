@@ -1,5 +1,12 @@
 # Change log
 
+## 0.13.231
+
+- Add Allow checkboxes and sensor/control access dropdowns directly to device cards.
+- Show partially enabled groups clearly and keep sensor entities read-only.
+- Preserve enabled states when changing access mode and retain aliases.
+- Use wider rectangular cards, one-line names with full-name tooltips, and full-width phone cards.
+
 ## 0.13.230
 
 - Browse devices by Home Assistant location and room, with Favorites and Unassigned views.

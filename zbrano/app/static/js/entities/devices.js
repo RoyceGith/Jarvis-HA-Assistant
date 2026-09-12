@@ -39,6 +39,49 @@
     const values = new Set(group.entities.map(access));
     return values.size === 1 ? [...values][0] : "Mixed access";
   }
+  function cardMode(group) {
+    const modes = new Set(group.entities.filter(entity => entity.control_capable).map(entity => {
+      const value = ensureReview(entity).access;
+      return value === "low_risk_control_proposed" ? "control" : ["state_only", "read_only", "restricted"].includes(value) ? "read" : "mixed";
+    }));
+    return modes.size > 1 ? "mixed" : [...modes][0] || "read";
+  }
+  function cardControls(group) {
+    const controls = node("div", "device-card-controls");
+    controls.title = t("Applies to this device's entities. Sensors remain read only.");
+    const allow = node("input"); allow.type = "checkbox"; allow.dataset.deviceAllow = group.key;
+    const label = node("label", "device-card-allow"); label.append(allow, node("span", "", t("Allow")));
+    const select = node("select"); select.dataset.deviceMode = group.key;
+    select.setAttribute("aria-label", t("Device access"));
+    for (const [value, text] of [["mixed", "Mixed access"], ["read", "Sensor · read only"], ...(group.entities.some(entity => entity.control_capable) ? [["control", "Control device"]] : [])]) {
+      const option = node("option", "", t(text)); option.value = value; option.disabled = value === "mixed"; select.append(option);
+    }
+    const save = () => {
+      updateSelectionSummary();
+      if (selected === group.key) details(group);
+    };
+    allow.addEventListener("change", () => {
+      for (const entity of group.entities) {
+        const review = ensureReview(entity);
+        const changed = review.selected !== allow.checked || (allow.checked && review.access === "restricted");
+        review.selected = allow.checked;
+        if (review.selected && review.access === "restricted") review.access = defaultAllowedEntityAccess(entity);
+        if (changed) queuePolicySave(entity, review);
+      }
+      save();
+    });
+    select.addEventListener("change", () => {
+      if (!["read", "control"].includes(select.value)) return;
+      for (const entity of group.entities) {
+        const review = ensureReview(entity);
+        const value = select.value === "control" && entity.control_capable ? "low_risk_control_proposed" : defaultAllowedEntityAccess(entity);
+        if (review.access !== value) { review.access = value; queuePolicySave(entity, review); }
+      }
+      save();
+    });
+    controls.append(label, select);
+    return controls;
+  }
   function rebuildGroups() {
     groups = new Map();
     for (const entity of entityInventory) {
@@ -91,6 +134,17 @@
     for (const badge of panel.querySelectorAll("[data-device-access]")) {
       const group = groups.get(badge.dataset.deviceAccess);
       if (group) badge.textContent = t(groupAccess(group));
+    }
+    for (const input of grid.querySelectorAll("[data-device-allow]")) {
+      const group = groups.get(input.dataset.deviceAllow);
+      if (!group) continue;
+      const allowed = group.entities.filter(entity => access(entity) !== "Not allowed").length;
+      input.checked = allowed === group.entities.length;
+      input.indeterminate = allowed > 0 && allowed < group.entities.length;
+    }
+    for (const select of grid.querySelectorAll("[data-device-mode]")) {
+      const group = groups.get(select.dataset.deviceMode);
+      if (group) { select.value = cardMode(group); select.options[0].hidden = select.value !== "mixed"; }
     }
   }
   function closeDetails() {
@@ -174,7 +228,8 @@
       const card = node("article", "device-card");
       const open = node("button", "device-card-open"); open.type = "button";
       open.dataset.deviceOpen = group.key; open.setAttribute("aria-controls", "device-details"); open.setAttribute("aria-expanded", String(selected === group.key));
-      open.append(icon(group.primary), userText("strong", "device-name", group.name));
+      const name = userText("strong", "device-name", group.name); name.title = group.name;
+      open.append(icon(group.primary), name);
       open.append(userText("small", "device-room", group.primary.area_name || t("Unassigned")));
       open.append(userText("span", "device-state", group.primary.available ? entityStateLabel(group.primary) + (group.primary.unit && group.primary.domain !== "climate" ? ` ${group.primary.unit}` : "") : t("Unavailable")));
       const badge = node("span", "device-access", t(groupAccess(group))); badge.dataset.deviceAccess = group.key;
@@ -191,7 +246,7 @@
         try { localStorage.setItem("zbrano_device_favorites_v1", JSON.stringify([...favorites])); } catch {}
         renderEntities();
       });
-      card.append(open, star); grid.append(card);
+      card.append(open, star, cardControls(group)); grid.append(card);
     }
     $("device-show-more").hidden = visible.length <= limit;
     if (selected && visibleKeys.has(selected) && groups.has(selected)) details(groups.get(selected));

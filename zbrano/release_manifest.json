@@ -1,9 +1,9 @@
 {
-  "version": "0.13.230",
+  "version": "0.13.231",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/ZBRANO_Core main",
-  "summary": "Organize entities by room and device with favorites and individual access details.",
+  "summary": "Manage Allow and sensor/control access directly on rectangular device cards.",
   "history_backfill": [
     {
       "version": "0.13.0",
@@ -924,20 +924,24 @@
     {
       "version": "0.13.229",
       "summary": "Remove the composer plugin count button and keep installed plugins and catalog browsing responsive."
+    },
+    {
+      "version": "0.13.230",
+      "summary": "Organize entities by room and device with favorites and individual access details."
     }
   ],
   "release_entry": {
     "features": [
-      "Room and location navigation, grouped device cards, browser favorites, quick filters and alias search.",
-      "Per-entity permission, alias and history controls in a device detail panel; optional detailed table."
+      "Allow checkbox and capability-aware access dropdown on each device card.",
+      "Rectangular cards and single-line device names with full-name tooltips."
     ],
     "fixes": [
-      "Group only by Home Assistant device identity and keep unassigned entities visible.",
-      "Render large inventories in bounded batches and adapt the details panel to phones."
+      "Reflect partially enabled device groups and preserve read-only sensor access.",
+      "Keep enabled states unchanged when selecting a mode and preserve entity aliases.",
+      "Use one full-width card per row on phones."
     ],
     "validation": [
-      "Browser coverage for grouping, mixed permissions, individual policy saves, aliases, favorites, room filters, history links, batching and phone layout.",
-      "Integration coverage for registry device identity, user-assigned names, inherited rooms and standalone entities."
+      "Browser checks for card policy writes, grouped enable/disable, mode changes, alias preservation, sensor-only options, name containment, rectangle dimensions and mobile interaction."
     ]
   },
   "features": [

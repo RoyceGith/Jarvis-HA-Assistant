@@ -686,5 +686,20 @@ window.ZbranoI18n?.register({
     "οντότητες",
     "entità",
     "entités"
+  ],
+  "Allow": [
+    "Να επιτρέπεται",
+    "Consenti",
+    "Autoriser"
+  ],
+  "Sensor · read only": [
+    "Αισθητήρας · μόνο ανάγνωση",
+    "Sensore · sola lettura",
+    "Capteur · lecture seule"
+  ],
+  "Applies to this device's entities. Sensors remain read only.": [
+    "Ισχύει για τις οντότητες αυτής της συσκευής. Οι αισθητήρες παραμένουν μόνο για ανάγνωση.",
+    "Si applica alle entità di questo dispositivo. I sensori restano in sola lettura.",
+    "S’applique aux entités de cet appareil. Les capteurs restent en lecture seule."
   ]
 });
