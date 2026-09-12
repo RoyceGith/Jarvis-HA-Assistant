@@ -193,6 +193,10 @@ const knowledgeTemplatesFixture = {templates:[
 ], count:4};
 
 let browserChatFixture = [];
+const composerPluginFixture = Array.from({length: 6}, (_, index) => ({
+  id: `plugin-${index + 1}`, name: `Plugin ${index + 1}`, enabled: index !== 1, healthy: true,
+  available_to_chat: true, enabled_tool_count: index + 1, icon_url: index === 0 ? "plugin-icons/github.svg" : "",
+}));
 
 function apiFixture(url, method = "GET") {
   const parsedUrl = new URL(url);
@@ -305,7 +309,7 @@ function apiFixture(url, method = "GET") {
   }))],count:41};
   if (pathname === "/api/contacts/google/status") return {connected:false,account:""};
   if (pathname === "/api/calendar/google/status") return {connected: false, enabled: false, pending_local_changes: 0};
-  if (pathname === "/api/plugins") return {plugins: []};
+  if (pathname === "/api/plugins") return {plugins: composerPluginFixture};
   if (pathname === "/api/files/shared/folders") return {folders: [{name:"Documents",path:"Documents"}]};
   if (pathname === "/api/files/shared") {
     if (parsedUrl.searchParams.get("folder") === "Documents") return {files:[{file_id:"abcdefabcdefabcdefabcdef",name:"Manual.pdf",created_at:1788300000,mime_type:"application/pdf",size:2048,folder:"Documents"}],folders:[],current_folder:"Documents"};
@@ -425,11 +429,7 @@ async function main() {
     await page.locator("#chat-tab").click();
     await page.locator("#chat-panel:not(.hidden)").waitFor();
 
-    await page.waitForFunction(() => document.getElementById("composer-plugin-icons")?.textContent.includes("None installed"));
-    await page.evaluate(() => window.renderComposerPluginIndicators(Array.from({length: 6}, (_, index) => ({
-      id: `plugin-${index + 1}`, name: `Plugin ${index + 1}`, enabled: index !== 1, healthy: true,
-      available_to_chat: true, enabled_tool_count: index + 1, icon_url: index === 0 ? "plugin-icons/github.svg" : "",
-    }))));
+    await page.waitForFunction(() => document.getElementById("composer-plugin-count")?.textContent === "6");
     assert.equal(await page.locator("#composer-plugin-count").innerText(), "6");
     assert.equal(await page.locator("#composer-plugin-icons .composer-plugin-button").count(), 5);
     await page.locator('[data-composer-plugin="plugin-1"] svg.composer-plugin-inline-icon').waitFor();
