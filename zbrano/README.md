@@ -1,9 +1,12 @@
-# ZBRANO v0.13.232
+# ZBRANO v0.13.233
 
 Automation Studio provides a graphical, step-by-step workflow for Home Assistant
 automations. Use Setup &amp; safety, When, Only if, Then, and optional Outcomes beside the
 interactive flow canvas. Natural-language creation, templates, drag-and-drop,
 saved automation compatibility, and the full Advanced editor remain available.
+
+Version 0.13.233 moves entity states to the right of device cards and gives them
+a stronger weight for easier scanning.
 
 Version 0.13.232 matches livingroom and living room consistently, including aircondition
 and air conditioner. Direct control requires the requested room and device to match.

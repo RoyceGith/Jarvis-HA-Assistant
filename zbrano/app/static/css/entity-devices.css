@@ -32,7 +32,7 @@
 .device-symbol svg { width:1.15rem; height:1.15rem; fill:none; stroke:currentColor; stroke-width:1.6; stroke-linecap:round; stroke-linejoin:round; }
 .device-name { min-width:0; padding-right:1rem; font-size:.78rem; line-height:1.35; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; font-weight:650; }
 .device-room { font-size:.64rem; color:var(--text-muted); overflow-wrap:anywhere; }
-.device-state { grid-column:1 / -1; margin:.15rem 0; font-size:.8rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.device-state { grid-column:1 / -1; margin:.15rem 0; text-align:right; font-size:.8rem; font-weight:650; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
 .device-card-footer { grid-column:1 / -1; display:flex; justify-content:space-between; align-items:center; gap:.4rem; font-size:.62rem; color:var(--text-muted); }
 .device-access { padding:.2rem .4rem; border-radius:6px; background:color-mix(in srgb,var(--cyan) 7%,transparent); color:var(--text-muted); font-size:.62rem; }
 #entities-panel .device-favorite { position:absolute; right:.35rem; top:.4rem; min-height:0; width:1.55rem; height:1.55rem; padding:0; border:0; background:transparent; box-shadow:none; color:var(--text-muted); font-size:1rem; }

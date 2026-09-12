@@ -1,5 +1,10 @@
 # Change log
 
+## 0.13.233
+
+- Align entity states to the right side of each device card.
+- Use stronger state text weight to distinguish it from supporting labels.
+
 ## 0.13.232
 
 - Treat livingroom/living room and aircondition/air conditioner as equivalent names.

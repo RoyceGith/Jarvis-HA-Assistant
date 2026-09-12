@@ -14,10 +14,10 @@ MANIFEST = json.loads((ROOT / "zbrano/release_manifest.json").read_text(encoding
 
 class AutomationUpgradeCompatibilityReleaseTests(unittest.TestCase):
     def test_release_markers_are_aligned(self):
-        self.assertIn('version: "0.13.232"', CONFIG)
-        self.assertIn('version="0.13.232"', MAIN)
-        self.assertIn("HUD 0.13.232", HTML)
-        self.assertEqual(MANIFEST["version"], "0.13.232")
+        self.assertIn('version: "0.13.233"', CONFIG)
+        self.assertIn('version="0.13.233"', MAIN)
+        self.assertIn("HUD 0.13.233", HTML)
+        self.assertEqual(MANIFEST["version"], "0.13.233")
 
     def test_image_build_gates_pre_studio_automation_upgrade(self):
         self.assertIn('python3 -m unittest discover -s ./tests -p "test_*.py"', DOCKERFILE)
@@ -35,7 +35,7 @@ class AutomationUpgradeCompatibilityReleaseTests(unittest.TestCase):
             self.assertIn(marker, INTEGRATION)
 
     def test_release_history_includes_v01390(self):
-        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.231")
+        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.232")
 
 
 if __name__ == "__main__":

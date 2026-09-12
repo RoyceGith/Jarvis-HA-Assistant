@@ -21,10 +21,10 @@ READMES = [
 
 class VisualAutomationBuilderReleaseTests(unittest.TestCase):
     def test_release_markers_are_aligned(self):
-        self.assertIn('version: "0.13.232"', CONFIG)
-        self.assertIn('version="0.13.232"', MAIN)
-        self.assertIn("HUD 0.13.232", HTML)
-        self.assertEqual(MANIFEST["version"], "0.13.232")
+        self.assertIn('version: "0.13.233"', CONFIG)
+        self.assertIn('version="0.13.233"', MAIN)
+        self.assertIn("HUD 0.13.233", HTML)
+        self.assertEqual(MANIFEST["version"], "0.13.233")
 
     def test_three_panel_builder_is_present(self):
         for marker in ("automation-studio-toolbox", "automation-studio-canvas", "automation-studio-inspector"):
@@ -49,11 +49,11 @@ class VisualAutomationBuilderReleaseTests(unittest.TestCase):
 
     def test_all_product_readmes_are_current(self):
         for readme in READMES:
-            self.assertIn("0.13.232", readme)
+            self.assertIn("0.13.233", readme)
             self.assertIn("Automation Studio", readme)
 
     def test_release_history_includes_v01363(self):
-        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.231")
+        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.232")
 
 
 if __name__ == "__main__":

@@ -1,9 +1,12 @@
-## ZBRANO v0.13.232
+## ZBRANO v0.13.233
 
 ZBRANO combines Home Assistant chat, voice, entity control, memory, notifications,
 calendar and contact tools, plugins, and evidence-based automations. Automation Studio now uses
 a visual building-block toolbox, interactive node canvas, and contextual inspector;
 the established automation engine and stored definitions remain compatible.
+
+Version 0.13.233 moves entity states to the right of device cards and gives them
+a stronger weight for easier scanning.
 
 Version 0.13.232 matches livingroom and living room consistently, including aircondition
 and air conditioner. Direct control requires the requested room and device to match.

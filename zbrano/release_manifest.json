@@ -1,9 +1,9 @@
 {
-  "version": "0.13.232",
+  "version": "0.13.233",
   "project": "ZBRANO Workshop Assistant",
   "note": "Release and Change Log.md",
   "source": "RoyceGith/ZBRANO_Core main",
-  "summary": "Recognize joined and spaced room and air-conditioner names consistently when controlling devices.",
+  "summary": "Align entity card states to the right for clearer separation from device labels.",
   "history_backfill": [
     {
       "version": "0.13.0",
@@ -932,20 +932,21 @@
     {
       "version": "0.13.231",
       "summary": "Manage Allow and sensor/control access directly on rectangular device cards."
+    },
+    {
+      "version": "0.13.232",
+      "summary": "Recognize joined and spaced room and air-conditioner names consistently when controlling devices."
     }
   ],
   "release_entry": {
-    "version": "0.13.232",
-    "summary": "Recognize joined and spaced room and air-conditioner names consistently when controlling devices.",
     "features": [
-      "Consistent normalization of joined, spaced, hyphenated and camel-case room/device names."
+      "Right-aligned entity states with stronger text weight on device cards."
     ],
     "fixes": [
-      "Prevent partial device-name matches in other rooms from being used for direct control.",
-      "Keep genuine ambiguity and read-only/disabled device permissions intact."
+      "Separate the current state visually from left-aligned device labels."
     ],
     "validation": [
-      "Joined/spaced command routing, aliases, ambiguity and wrong-room regression tests; complete regression and integration suites; release and frontend validation."
+      "Browser smoke and desktop/mobile screenshot review; regression and integration suites; release and frontend validation."
     ]
   },
   "features": [

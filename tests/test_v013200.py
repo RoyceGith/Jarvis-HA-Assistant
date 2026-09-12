@@ -15,11 +15,11 @@ MANIFEST = json.loads((ROOT / "zbrano/release_manifest.json").read_text(encoding
 
 class StoppedResponsePreservationReleaseTests(unittest.TestCase):
     def test_release_is_aligned(self):
-        self.assertIn('version: "0.13.232"', CONFIG)
-        self.assertIn('version="0.13.232"', MAIN)
-        self.assertIn("HUD 0.13.232", INDEX)
-        self.assertEqual(MANIFEST["version"], "0.13.232")
-        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.231")
+        self.assertIn('version: "0.13.233"', CONFIG)
+        self.assertIn('version="0.13.233"', MAIN)
+        self.assertIn("HUD 0.13.233", INDEX)
+        self.assertEqual(MANIFEST["version"], "0.13.233")
+        self.assertEqual(MANIFEST["history_backfill"][-1]["version"], "0.13.232")
 
     def test_stop_uses_raw_markdown_instead_of_compact_dom_text(self):
         self.assertIn("function finishInterruptedMessage", CORE)
